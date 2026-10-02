@@ -1,0 +1,34 @@
+# Private source data and local experiment outputs stay on this computer.
+data/**
+!data/README.md
+outputs/
+reports/
+
+# Local environments, caches and build artifacts.
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+.cache/
+node_modules/
+build/
+dist/
+*.log
+
+# Credentials and machine-specific files.
+.env
+.env.*
+!.env.example
+.gitconfig
+*.pem
+*.key
+*.p12
+*.pfx
+Thumbs.db
+.DS_Store
