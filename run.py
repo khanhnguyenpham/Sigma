@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import csv
 import json
 import re
 import sys
@@ -21,6 +22,7 @@ from src.validation_cache import import_validation
 from src.count_models import COUNT_SPECS, count_rolling
 from src.reporting import eda, generate_synthetic
 from src.calendar_models import calendar_validation
+from src.transactions import EVENT_COLUMNS, prepare_transactions
 
 STAGES = ["audit", "eda", "baseline", "validation", "test", "forecast", "inventory"]
 
@@ -199,14 +201,19 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                     modified = copy.deepcopy(cfg)
                     for params in modified["inventory"]["partners"].values(): params["safety_days"] *= multiplier
                     scenarios.append((modified, {**base, "name": f"sensitivity_safety_{multiplier}"}))
-                for index, (modified, scenario) in enumerate(scenarios):
-                    ledger, rec, issue = run_policy(matrix, forecast_table, modified, scenario, progress)
-                    mode = "w" if index == 0 else "a"
-                    ledger.to_csv(folder / "inventory_ledger.csv.tmp", mode=mode, header=index == 0, index=False)
-                    rec.to_csv(folder / "inventory_recommendations.csv.tmp", mode=mode, header=index == 0, index=False)
-                    policy_summaries.append(simulation_metrics(ledger, alerts).iloc[:1])
-                    issues.append(issue)
-                for name in ["inventory_ledger", "inventory_recommendations"]:
+                transactions = prepare_transactions(sales, cfg)
+                with (folder / 'inventory_events.csv.tmp').open('w', encoding='utf-8', newline='') as stream:
+                    event_writer = csv.DictWriter(stream, fieldnames=EVENT_COLUMNS)
+                    event_writer.writeheader()
+                    for index, (modified, scenario) in enumerate(scenarios):
+                        ledger, rec, issue = run_policy(matrix, forecast_table, modified, scenario, progress,
+                                                       transactions=transactions, event_writer=event_writer)
+                        mode = "w" if index == 0 else "a"
+                        ledger.to_csv(folder / "inventory_ledger.csv.tmp", mode=mode, header=index == 0, index=False)
+                        rec.to_csv(folder / "inventory_recommendations.csv.tmp", mode=mode, header=index == 0, index=False)
+                        policy_summaries.append(simulation_metrics(ledger, alerts).iloc[:1])
+                        issues.append(issue)
+                for name in ["inventory_ledger", "inventory_recommendations", 'inventory_events']:
                     (folder / f"{name}.csv.tmp").replace(folder / f"{name}.csv")
                 write_csv(folder / "alerts.csv", alerts)
                 write_json(folder / 'alert_opportunity_diagnostic.json', alert_opportunity_summary(alerts))
@@ -217,8 +224,10 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                 write_csv(folder / "simulation_metrics.csv", pd.concat(policy_summaries + [replay_summary], ignore_index=True))
                 write_json(folder / "scenario_configs.json", [{"scenario": scenario, "inventory": modified["inventory"]} for modified, scenario in scenarios])
                 write_json(folder / "ledger_method.json", {
-                    "granularity": "item-day", "receipt_timing": "beginning of UTC day", "order_decision": "end of UTC day",
-                    "transaction_equivalence": "Without intra-day receipts or substitution, item-day min(sum sales, stock) equals sequential transaction fulfillment; historical sales unchanged.",
+                    "granularity": "chronological receipt/sale events plus item-day balances", "receipt_timing": "beginning of UTC day", "order_decision": "end of UTC day",
+                    "sale_order": "order_datetime UTC, then order_id; receipt events precede same-time sales",
+                    "stress_apportionment": "Exact largest remainders per item-day; chronological ties; historical quantity unchanged",
+                    "private_event_output": "inventory_events.csv contains order_id and stays local; dashboard does not export it",
                     "partial_receipt": "unreceived portion is canceled at actual receipt; no invented backorder",
                     "delayed_receipt": "delay revealed when promised ETA becomes overdue",
                     "real_inventory_data": False,
