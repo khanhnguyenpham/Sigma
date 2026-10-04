@@ -17,6 +17,7 @@ from src.evaluation import acceptance, metric_table, select_models
 from src.inventory import initialize_partners, item_matrix, replay_alerts, run_policy, simulation_metrics
 from src.models import baseline_backtest, forecast_at, lgbm_rolling, sarima_validation, selected_backtest, robust_validation
 from src.reporting import eda, generate_synthetic
+from src.calendar_models import calendar_validation
 
 STAGES = ["audit", "eda", "baseline", "validation", "test", "forecast", "inventory"]
 
@@ -118,6 +119,12 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                     write_csv(folder / "tuning_log.csv", pd.concat([robust_logs, tuned_logs], ignore_index=True))
                     validation = pd.concat([validation, robust, tuned], ignore_index=True)
                     metrics = metric_table(validation[validation.split.eq("validation")])
+                    if cfg["tuning"].get("calendar_enabled"):
+                        calendar, calendar_logs = calendar_validation(daily, top, cfg, progress)
+                        write_csv(folder / "calendar_validation_predictions.csv", calendar)
+                        write_csv(folder / "calendar_log.csv", calendar_logs)
+                        validation = pd.concat([validation, calendar], ignore_index=True)
+                        metrics = metric_table(validation[validation.split.eq("validation")])
                     write_json(folder / "tuning_protocol.json", cfg["tuning"])
                 decision["reason"] = "Baseline demonstration; advanced search not executed" if baseline_only else ("Validation threshold triggered bounded 4-config search" if trigger else "All top routes meet validation threshold after SARIMA")
                 write_json(folder / "lightgbm_decision.json", decision)

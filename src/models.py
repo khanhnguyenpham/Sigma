@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from src.common import BASELINES, ROUTE
+from src.calendar_models import fit_calendar, predict_calendar
 
 
 def sarima_specs():
@@ -110,6 +111,10 @@ def rolling_route(series, keys, model, start, end, cfg, fallback_model=None):
                 raise StopIteration
             if model in BASELINES:
                 pred = baseline(history, model, cfg["horizon"])
+            elif model.startswith("calendar_"):
+                if index % cfg["refit_days"] == 0 or state is None:
+                    state = fit_calendar(series.loc[:origin], model)
+                pred = predict_calendar(state, pd.date_range(origin + pd.Timedelta(days=1), periods=cfg["horizon"]))
             elif model.startswith("robust_"):
                 if index % cfg["refit_days"] == 0 or state is None:
                     state = series.loc[:origin].copy()
@@ -261,6 +266,9 @@ def forecast_at(daily, selected, top, origin, cfg, progress=lambda message: None
         effective = row.model
         if row.model in BASELINES:
             pred = baseline(values, row.model, cfg["horizon"])
+        elif row.model.startswith("calendar_"):
+            state = fit_calendar(series_map[keys].loc[:origin], row.model)
+            pred = predict_calendar(state, pd.date_range(origin + pd.Timedelta(days=1), periods=cfg["horizon"]))
         elif row.model.startswith("robust_"):
             pred = robust_forecast(series_map[keys].loc[:origin], row.model,
                                    pd.date_range(origin + pd.Timedelta(days=1), periods=cfg["horizon"]))
