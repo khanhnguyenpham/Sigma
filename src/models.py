@@ -10,6 +10,8 @@ import pandas as pd
 
 from src.common import BASELINES, ROUTE
 from src.calendar_models import fit_calendar, predict_calendar
+from src.seasonal_models import distribution_forecast, SEASONAL_SPECS
+from src.context_models import CONTEXT_SPECS, context_rolling, fit_context, prepare_context, context_features
 
 
 def sarima_specs():
@@ -77,6 +79,19 @@ def robust_validation(daily, top, cfg):
     return pd.concat(frames, ignore_index=True), pd.concat(logs, ignore_index=True)
 
 
+def distribution_validation(daily, top, cfg):
+    series_map = series_by_route(daily)
+    frames, logs = [], []
+    for keys in map(tuple, top[ROUTE].to_numpy()):
+        for model in SEASONAL_SPECS:
+            frame, log = rolling_route(series_map[keys], keys, model,
+                cfg['validation_start'], cfg['validation_end'], cfg)
+            frame['split'] = np.where(frame.target_date.le(pd.Timestamp(cfg['validation_end'])),
+                                      'validation', 'outside_validation')
+            frames.append(frame); logs.append(log)
+    return pd.concat(frames, ignore_index=True), pd.concat(logs, ignore_index=True)
+
+
 def fit_sarima(history, model, cfg, start_params=None):
     from statsmodels.tsa.statespace.sarimax import SARIMAX
     order, seasonal = sarima_specs()[model]
@@ -111,6 +126,9 @@ def rolling_route(series, keys, model, start, end, cfg, fallback_model=None):
                 raise StopIteration
             if model in BASELINES:
                 pred = baseline(history, model, cfg["horizon"])
+            elif model in SEASONAL_SPECS:
+                pred = distribution_forecast(series.loc[:origin], model,
+                    pd.date_range(origin + pd.Timedelta(days=1), periods=cfg["horizon"]))
             elif model.startswith("calendar_"):
                 if index % cfg["refit_days"] == 0 or state is None:
                     state = fit_calendar(series.loc[:origin], model)
@@ -233,7 +251,7 @@ def selected_backtest(daily, selected, top, cfg, progress=lambda message: None):
     series_map = series_by_route(daily)
     for row in selected.itertuples(index=False):
         keys = (row.destination_country, row.carrier)
-        if row.model.startswith("lgbm_"):
+        if row.model.startswith(("lgbm_", "context_")):
             continue
         progress(f"Test locked model {row.model}")
         frame, log = rolling_route(series_map[keys], keys, row.model, cfg["test_start"], cfg["test_end"], cfg, row.fallback_model)
@@ -249,6 +267,13 @@ def selected_backtest(daily, selected, top, cfg, progress=lambda message: None):
         frame["requested_model"] = frame.model
         frame["model"] = "selected"
         frames.append(frame); logs.append(log)
+    ids = sorted(set(selected.loc[selected.model.str.startswith('context_'), 'model']))
+    if ids:
+        frame, log = context_rolling(daily, top, cfg, ids, 'test', progress)
+        frame = frame.merge(selected[ROUTE + ['model']], on=ROUTE + ['model'], how='inner', validate='many_to_one')
+        frame['requested_model'] = frame.model
+        frame['model'] = 'selected'
+        frames.append(frame); logs.append(log)
     return pd.concat(frames, ignore_index=True), pd.concat(logs, ignore_index=True)
 
 
@@ -259,6 +284,8 @@ def forecast_at(daily, selected, top, origin, cfg, progress=lambda message: None
     series_map = series_by_route(daily)
     top_series = {keys: series_map[keys] for keys in sorted(map(tuple, top[ROUTE].to_numpy()))}
     fitted_lgbm = {}
+    fitted_context = {}
+    contexts = None
     rows = []
     for row in selected.itertuples(index=False):
         keys = (row.destination_country, row.carrier)
@@ -266,6 +293,9 @@ def forecast_at(daily, selected, top, origin, cfg, progress=lambda message: None
         effective = row.model
         if row.model in BASELINES:
             pred = baseline(values, row.model, cfg["horizon"])
+        elif row.model in SEASONAL_SPECS:
+            pred = distribution_forecast(series_map[keys].loc[:origin], row.model,
+                pd.date_range(origin + pd.Timedelta(days=1), periods=cfg["horizon"]))
         elif row.model.startswith("calendar_"):
             state = fit_calendar(series_map[keys].loc[:origin], row.model)
             pred = predict_calendar(state, pd.date_range(origin + pd.Timedelta(days=1), periods=cfg["horizon"]))
@@ -281,6 +311,17 @@ def forecast_at(daily, selected, top, origin, cfg, progress=lambda message: None
             except (ValueError, RuntimeError, np.linalg.LinAlgError):
                 pred = baseline(values, row.fallback_model, cfg["horizon"])
                 effective = row.fallback_model
+        elif row.model.startswith('context_'):
+            if contexts is None:
+                contexts = prepare_context(daily, list(top_series), origin)
+            if row.model not in fitted_context:
+                specs = {name:(window,loss) for name,window,loss in CONTEXT_SPECS}
+                window,loss = specs[row.model]
+                fitted_context[row.model] = fit_context(daily, list(top_series), origin, window, loss, cfg)
+            context = contexts[keys]
+            x = pd.concat([context_features(context,[len(context['values'])-1],h)
+                           for h in range(1,cfg['horizon']+1)],ignore_index=True)
+            pred = fitted_context[row.model].predict(x)
         else:
             if row.model not in fitted_lgbm:
                 progress(f"Forecast {origin.date()}: fit {row.model}")

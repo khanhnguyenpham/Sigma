@@ -14,8 +14,10 @@ import pandas as pd
 from src.common import ROOT, ROUTE, DataQualityError, code_hash, new_manifest, read_config, seal_manifest, sha256, write_csv, write_json
 from src.data import audit_orders, daily_sales, observed_anomalies, route_top
 from src.evaluation import acceptance, metric_table, select_models
-from src.inventory import initialize_partners, item_matrix, replay_alerts, run_policy, simulation_metrics
-from src.models import baseline_backtest, forecast_at, lgbm_rolling, sarima_validation, selected_backtest, robust_validation
+from src.inventory import initialize_partners, item_matrix, replay_alerts, run_policy, simulation_metrics, alert_opportunity_summary
+from src.models import baseline_backtest, forecast_at, lgbm_rolling, sarima_validation, selected_backtest, robust_validation, distribution_validation
+from src.context_models import context_validation
+from src.validation_cache import import_validation
 from src.reporting import eda, generate_synthetic
 from src.calendar_models import calendar_validation
 
@@ -30,7 +32,7 @@ def read_predictions(path):
     return pd.read_csv(path, parse_dates=["as_of_date", "target_date", "forecast_date"])
 
 
-def execute(config="config.json", stage="all", run_id=None, demo=False, baseline_only=False, resume=False):
+def execute(config="config.json", stage="all", run_id=None, demo=False, baseline_only=False, resume=False, validation_cache_run=None):
     cfg = read_config(config)
     run_id = run_id or ("demo_" if demo else "sigma_") + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%f")
     if not re.fullmatch(r"[A-Za-z0-9_-]+", run_id):
@@ -39,6 +41,10 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
     if not root.is_relative_to(ROOT):
         raise ValueError("Output root must stay within the project")
     folder = root / run_id
+    if validation_cache_run and (demo or baseline_only):
+        raise ValueError('Historical validation import is only for a full private run')
+    if validation_cache_run and not re.fullmatch(r'[A-Za-z0-9_-]+',validation_cache_run):
+        raise ValueError('Invalid historical validation run id')
     if (folder / "manifest.json").exists() and not resume:
         raise ValueError("Run exists; use a new id or explicitly --resume")
     folder.mkdir(parents=True, exist_ok=True)
@@ -92,7 +98,7 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                 frames = [baseline_predictions]
                 failed = set()
                 decision = {"condition": "Any train top10 above 20% validation h1-7 after SARIMA", "triggered": False}
-                if not baseline_only:
+                if not baseline_only and not validation_cache_run:
                     sarima, sarima_logs = sarima_validation(daily, top, cfg, progress)
                     write_csv(folder / "sarima_validation_predictions.csv", sarima)
                     write_csv(folder / "sarima_log.csv", sarima_logs)
@@ -101,9 +107,13 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                     frames.append(sarima)
                 validation = pd.concat(frames, ignore_index=True)
                 metrics = metric_table(validation[validation.split.eq("validation")])
+                if validation_cache_run:
+                    metrics, failed, evidence = import_validation(root / validation_cache_run,
+                        folder, cfg, manifest['source_sha256'], daily, top)
+                    manifest['validation_import'] = evidence
                 provisional = select_models(metrics, top, cfg, failed)
                 trigger = provisional.loc[provisional.is_top10, "validation_target_met"].eq(False).any()
-                if trigger and not baseline_only:
+                if trigger and not baseline_only and not validation_cache_run:
                     ids = [f"lgbm_{leaves}_{minimum}" for leaves in [15, 31] for minimum in [20, 50]]
                     lgbm, logs = lgbm_rolling(daily, top, cfg, ids, "validation", progress)
                     write_csv(folder / "lightgbm_validation_predictions.csv", lgbm)
@@ -111,7 +121,7 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                     validation = pd.concat([validation, lgbm], ignore_index=True)
                     metrics = metric_table(validation[validation.split.eq("validation")])
                     decision["triggered"] = True
-                if cfg.get("tuning", {}).get("enabled") and not baseline_only:
+                if cfg.get("tuning", {}).get("enabled") and not baseline_only and not validation_cache_run:
                     robust, robust_logs = robust_validation(daily, top, cfg)
                     ids = [f"lgbm_mape_{leaves}_{minimum}" for leaves in [15, 31] for minimum in [20, 50]]
                     tuned, tuned_logs = lgbm_rolling(daily, top, cfg, ids, "validation", progress)
@@ -126,6 +136,17 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                         validation = pd.concat([validation, calendar], ignore_index=True)
                         metrics = metric_table(validation[validation.split.eq("validation")])
                     write_json(folder / "tuning_protocol.json", cfg["tuning"])
+                if cfg.get('tuning',{}).get('context_enabled') and not baseline_only:
+                    context, context_logs = context_validation(daily, top, cfg, progress)
+                    write_csv(folder / 'context_validation_predictions.csv', context)
+                    write_csv(folder / 'context_log.csv', context_logs)
+                    metrics = pd.concat([metrics, metric_table(context.loc[context.split.eq('validation')])], ignore_index=True)
+                if cfg.get('tuning',{}).get('distribution_enabled') and not baseline_only:
+                    distribution, distribution_logs = distribution_validation(daily, top, cfg)
+                    write_csv(folder / 'distribution_validation_predictions.csv', distribution)
+                    write_csv(folder / 'distribution_log.csv', distribution_logs)
+                    metrics = pd.concat([metrics, metric_table(distribution.loc[distribution.split.eq('validation')])], ignore_index=True)
+                write_json(folder / 'tuning_protocol.json', cfg.get('tuning',{}))
                 decision["reason"] = "Baseline demonstration; advanced search not executed" if baseline_only else ("Validation threshold triggered bounded 4-config search" if trigger else "All top routes meet validation threshold after SARIMA")
                 write_json(folder / "lightgbm_decision.json", decision)
                 write_csv(folder / "validation_metrics.csv", metrics)
@@ -180,6 +201,7 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                 for name in ["inventory_ledger", "inventory_recommendations"]:
                     (folder / f"{name}.csv.tmp").replace(folder / f"{name}.csv")
                 write_csv(folder / "alerts.csv", alerts)
+                write_json(folder / 'alert_opportunity_diagnostic.json', alert_opportunity_summary(alerts))
                 issue = pd.concat(issues, ignore_index=True)
                 if issue.empty: issue = pd.DataFrame(columns=ROUTE + ["as_of_date", "scenario_id", "status"])
                 write_csv(folder / "inventory_issues.csv", issue)
@@ -223,9 +245,10 @@ def main():
     parser.add_argument("--demo", action="store_true", help="Generate only synthetic orders for an independent demonstration")
     parser.add_argument("--baseline-only", action="store_true", help="MVP/demo only; does not claim SARIMA/LightGBM executed")
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument('--validation-cache-run', help='Import sealed historical validation evidence explicitly; run new candidates fresh')
     args = parser.parse_args()
     try:
-        execute(args.config, args.stage, args.run_id, args.demo, args.baseline_only, args.resume)
+        execute(args.config, args.stage, args.run_id, args.demo, args.baseline_only, args.resume, args.validation_cache_run)
     except Exception as error:
         detail = str(error) if isinstance(error, DataQualityError) else "Check local manifest/configuration; source preserved"
         print(f"Pipeline stopped: {type(error).__name__}. {detail}", file=sys.stderr)
