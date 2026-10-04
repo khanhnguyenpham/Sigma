@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from src.common import ITEM, ROUTE
+from src.transactions import replay_transactions, whole_quantity
 
 
 def initialize_partners(sales, cfg):
@@ -36,6 +37,8 @@ def partner_params(carrier, cfg):
     for key in ["lead_time_days", "review_days", "safety_days", "moq"]:
         if key not in params or not np.isfinite(params[key]) or params[key] < 0:
             raise ValueError("invalid_partner_config")
+    for key in ['lead_time_days', 'review_days', 'moq']:
+        whole_quantity(params[key])
     if params["lead_time_days"] < 1 or params["review_days"] < 1 or params["moq"] < 1:
         raise ValueError("invalid_partner_config")
     if params["lead_time_days"] + params["review_days"] > cfg["horizon"]:
@@ -45,7 +48,10 @@ def partner_params(carrier, cfg):
 
 def replenishment(on_hand, forecast, pending_quantity, params):
     forecast = np.asarray(forecast, dtype=float)
-    L, R = int(params["lead_time_days"]), int(params["review_days"])
+    L, R = whole_quantity(params["lead_time_days"]), whole_quantity(params["review_days"])
+    moq = whole_quantity(params['moq'])
+    if L < 1 or R < 1 or moq < 1 or not np.isfinite(params['safety_days']) or params['safety_days'] < 0:
+        raise ValueError('Invalid inventory policy parameters')
     if len(forecast) < L + R or not np.isfinite(forecast).all() or (forecast < 0).any():
         raise ValueError("Invalid or insufficient inventory forecast")
     safety = math.ceil(params["safety_days"] * forecast.mean())
@@ -55,7 +61,7 @@ def replenishment(on_hand, forecast, pending_quantity, params):
     trigger = on_hand < rop
     q = math.ceil(max(0, order_up_to - ip)) if trigger else 0
     if q > 0:
-        q = max(q, int(params["moq"]))
+        q = max(q, moq)
     return {"SS": safety, "ROP": rop, "S": order_up_to, "IP": ip, "Q": q,
             "needs_replenishment": trigger, "on_hand": on_hand}
 
@@ -127,7 +133,7 @@ def declared_receipts(cfg, origin):
     entries = []
     for row in cfg["inventory"]["initial_receipts"]:
         key = tuple(row[field] for field in ITEM)
-        quantity = int(row["quantity"])
+        quantity = whole_quantity(row["quantity"])
         if quantity <= 0 or pd.Timestamp(row["eta"]) <= pd.Timestamp(origin):
             raise ValueError("Invalid pending receipt declaration")
         if pd.Timestamp(row.get("ordered_at", origin)) > pd.Timestamp(origin):
@@ -137,7 +143,8 @@ def declared_receipts(cfg, origin):
     return entries
 
 
-def run_policy(matrix, forecast_table, cfg, scenario, progress=lambda message: None):
+def run_policy(matrix, forecast_table, cfg, scenario, progress=lambda message: None,
+               transactions=None, event_writer=None):
     first = pd.Timestamp(cfg["test_start"])
     end = pd.Timestamp(cfg["test_end"])
     stocks = initial_stock(matrix, first - pd.Timedelta(days=1), cfg)
@@ -160,19 +167,26 @@ def run_policy(matrix, forecast_table, cfg, scenario, progress=lambda message: N
                 keep.append(receipt)
         pending = keep
         keys_today = set(stocks) | set(received) | set(matrix.columns[matrix.loc[day].gt(0)])
+        active_shock = True
+        if 'demand_start' in scenario:
+            shock_start = pd.Timestamp(scenario['demand_start'])
+            active_shock = shock_start <= day < shock_start + pd.Timedelta(days=scenario['demand_days'])
+        multiplier = scenario['demand_multiplier'] if active_shock else 1.0
+        day_quantities = {key: (float(observed_today.get(key, 0)),
+                               int(round(float(observed_today.get(key, 0)) * multiplier)))
+                          for key in keys_today}
+        transactional = None
+        if transactions is not None:
+            transactional = replay_transactions(day, opening, received, day_quantities,
+                transactions.get(day, ()), scenario['name'], cfg['assumption_version'], event_writer)
         daily_entries = {}
         for key in sorted(keys_today):
             start = opening.get(key, 0)
             amount = received.get(key, 0)
             # Demand stress is an explicit integer scenario, never edits actual sales.
-            observed = float(observed_today.get(key, 0))
-            active_shock = True
-            if "demand_start" in scenario:
-                shock_start = pd.Timestamp(scenario["demand_start"])
-                active_shock = shock_start <= day < shock_start + pd.Timedelta(days=scenario["demand_days"])
-            multiplier = scenario["demand_multiplier"] if active_shock else 1.0
-            demand = int(round(observed * multiplier))
-            closing, fulfilled, shortage = consume(start + amount, demand)
+            observed, demand = day_quantities[key]
+            closing, fulfilled, shortage = (transactional[key] if transactional is not None
+                                           else consume(start + amount, demand))
             stocks[key] = closing
             entry = {**dict(zip(ITEM, key)), "date": day, "scenario_id": scenario["name"],
                      "opening": start, "receipts": amount, "historical_sales": observed,

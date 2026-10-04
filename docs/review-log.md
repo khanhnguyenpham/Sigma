@@ -443,3 +443,27 @@ Diagnostic train `train_noise_diagnostic_v1` theo giả định arrival độc l
 Replay: TP 1.931, FP 854, FN 936; precision 69,335727%, recall 67,352633%, early-event-rate 31,391699%, late 1.031, mean day error 4,657690; 5.520 windows/1.099 đã trống. 417 FN có cơ hội ≥7 ngày; 1.550 trước ngày 7 giữ trong mẫu số 2.867. Base fill rate 82,571393%. 59 tests đạt; AppTest v6 0 exception/10 bảng với China/China Mobile, origin 31/10, h8–14. Raw hash nguyên. Word/slide không sửa.
 
 Rà R06 phát hiện ledger tổng item/ngày dù cân bằng không cung cấp thứ tự order_datetime/order_id. Tiếp tục bổ sung event ledger và đối soát giao dịch; không nhận R06 đầy đủ từ bằng chứng tổng ngày hoặc sửa sealed v6.
+
+### CHG-016 — Sổ giao dịch UTC và bảo toàn kịch bản
+
+Theo R06/PLAN 6.2, CLI tồn xử lý receipt đầu ngày rồi sale theo order_datetime UTC/order_id trong toàn ngày. Mỗi sale ghi stock_before/fulfilled/shortage/stock_after vào inventory_events.csv private local, không hiển thị hoặc export ID trên dashboard. Ngày không event vẫn có opening/closing trong ledger ngày. Kịch bản nhu cầu theo item-day giữ tổng số nguyên đã khai báo và phân bổ largest remainders theo quantity lịch sử; hòa phần dư theo thứ tự giao dịch. Historical quantity không sửa; base bằng sale gốc. Cấm tự cắt phần thập phân L/R/MOQ hoặc receipt quantity. Không thay forecast/ngưỡng/metric/target.
+
+Config 1.5.0; giữ config v6 tại config.integrated-v6.json. V7 sẽ nhập evidence validation v6 có lineage, khóa selection chỉ từ validation, chấm test/forecast/tồn lại; không sửa sealed run v6. Verification độc lập kiểm chronological sequence, receipt timing, identity/quantity/timestamp với source audited (không log record), partial fulfillment từng sale, stock chain và các tổng/day. Kiểm thử fixture/tamper trước run thật; chưa nhận v7 hoàn thành hoặc R05 đạt.
+
+### E20 — Chẩn đoán validation của pool và khách hàng
+
+Chỉ đọc validation của sealed v6, tối ưu phép kết hợp không âm các forecast ứng viên đủ coverage/không lỗi, có constant không âm, theo cùng positive-day MAPE h1–7. Fit và score trên cùng validation nên đây là tham chiếu lạc quan hồi cứu, không phải backtest causal, không dùng làm candidate hoặc chấm nghiệm thu. 0/10 đạt 20%; fitted MAPE 35,308842–50,056933%. Protocol SHA-256 `dac8f1e1eb8e38cd67e5a270be2764cd8689ade2482e0c40c93d1d1385776a15`. Phạm vi kết luận: kết hợp tuyến tính pool hiện có vẫn thiếu trên mẫu validation này; không chứng minh mọi mô hình đều không thể đạt. Không đọc test để tối ưu weights.
+
+Train-only: 66.619 sales rows/13.316 customer IDs, 53.303 giao dịch sau lần xuất hiện đầu trong snapshot (80,011708%); median gap 46,119606 ngày. Không xuất IDs. Nhãn customer_type của nguồn là new/returning, không phải B2B/B2C; first-seen trong snapshot không đồng nghĩa khách mới thật. Khoảng cách lặp gần 7/14/28/30 ngày không chứng minh có lịch gia hạn đúng validity_days.
+
+### CHG-017 — Thử nghiệm composition/cohort chỉ trên validation
+
+Bốn ứng viên cố định: cửa sổ 180/365 × weighted L1 positive-day MAPE/Poisson, 31 leaves/min-child 100/300 trees/seed 42. Thêm 11 feature tổng hợp lịch sử: số đơn, first-seen trong snapshot, source-labeled-new share, mean price, eSIM share, basket size và order-date-plus-validity proxy; tất cả cutoff origin. Proxy validity không là activation, expiry thật, cam kết gia hạn hoặc target. Customer/order IDs không đưa vào mô hình/đầu ra public. Protocol được ghi trước fit trong outputs/cohort_validation_v1; kiểm sửa future quantity/validity/price/customer không đổi feature tại cutoff. Chỉ tích hợp nếu validation có lợi, không dùng test chọn hoặc sửa target/top/split/metric. Chưa nhận nghiệm thu mô hình này.
+
+### E21 — Giao dịch v7 đã kiểm trực tiếp
+
+`sigma_transaction_v7` complete bảy stage, config 1.5.0. 51 validation candidate evidence v6 nhập với provenance, không nhận đã fit lại các candidate cũ; test/forecast/tồn chạy lại. Bảy bảng selection/validation/test/acceptance/forecast/demo_forecast/simulation_metrics khớp v6 ở 1e-8 (run_id khác). R05 vẫn 0/10, không đổi target/top/split/metric hoặc chọn bằng test.
+
+51 tệp sealed, manifest SHA-256 `c42bc862631398ab504c237a8ff82f649d1000313690fbb16e4358585fafcd7e`; code SHA-256 `1500b536f16317ceba9bc527f948e578b92fc0c8f92bc1d119f12aaa7959a696`. `verify_release.py` kiểm 1.100.320 ledger rows, 84 pins, 265,994 private events gồm 163,098 sale và 102,896 receipt qua 13 scenario. Kiểm UTC/tiebreak, receipt đầu ngày, sequence, lịch sử IDs/quantity/timestamp/item khớp source audited trong bộ nhớ, partial fulfillment, stock chain và event/day conservation. Verification ngoài sealed run SHA-256 `a0519b80dd364af33e4c0bb34cbfa33a0b2b8f642a5e44cc674acd1f12ca050c`. Không in hoặc đưa source IDs vào tài liệu/Git. Raw SHA-256 nguyên.
+
+75 tests đạt; AppTest 0 exception/10 bảng với South Korea/KT, origin 31/10, h8–14. Demo `demo_transaction_v7_verify` trong .venv-verify tái lập 14 bảng với demo v5, integer exact/float 1e-8; 49.015 event đối soát (43.719 sale/5.296 receipt), AppTest 0 exception/10 bảng. Demo manifest SHA-256 `c11a6d126154a7ab935d5d0665bf7ff7efa7a75444b49b5de81b591021db7a9c`. Hai môi trường cùng máy không thay diễn tập máy khác. Word/slide không sửa; PR draft/mentor review và R05 vẫn mở.

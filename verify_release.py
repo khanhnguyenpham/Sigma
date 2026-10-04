@@ -10,6 +10,8 @@ import pandas as pd
 
 from src.common import ROOT, ROUTE, ITEM, code_hash, sha256, validate_run, write_json
 from src.evaluation import metric_table
+from src.data import audit_orders
+from src.transactions import verify_events
 
 
 def verify(folder):
@@ -54,6 +56,8 @@ def verify(folder):
             scenario_sales[scenario]=scenario_sales.get(scenario,0)+total
         rows += len(chunk)
     assert all(total==expected_sales for total in scenario_sales.values())
+    sales, _ = audit_orders(ROOT / cfg['source'], cfg)
+    event_verification = verify_events(folder/'inventory_events.csv', folder/'inventory_ledger.csv', sales, cfg)
     recommendations = 0
     for chunk in pd.read_csv(folder / 'inventory_recommendations.csv',chunksize=50000,low_memory=False):
         np.testing.assert_array_equal(chunk.needs_replenishment,chunk.on_hand.lt(chunk.ROP))
@@ -86,7 +90,7 @@ def verify(folder):
         'alert_windows':len(alerts),'scenarios':len(scenario_sales),
         'environment_pins_verified':len(packages),'environment_packages':packages,
         'requirements_lock_sha256':sha256(ROOT/'requirements.txt'),
-        'entrypoint_sha256':sha256(Path(__file__))}
+        'entrypoint_sha256':sha256(Path(__file__)), 'transaction_events':event_verification}
 
 
 def main():
