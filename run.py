@@ -18,6 +18,7 @@ from src.inventory import initialize_partners, item_matrix, replay_alerts, run_p
 from src.models import baseline_backtest, forecast_at, lgbm_rolling, sarima_validation, selected_backtest, robust_validation, distribution_validation
 from src.context_models import context_validation
 from src.validation_cache import import_validation
+from src.count_models import COUNT_SPECS, count_rolling
 from src.reporting import eda, generate_synthetic
 from src.calendar_models import calendar_validation
 
@@ -96,6 +97,7 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
             elif current == "validation":
                 baseline_predictions = read_predictions(folder / "baseline_validation_predictions.csv")
                 frames = [baseline_predictions]
+                imported_families = []
                 failed = set()
                 decision = {"condition": "Any train top10 above 20% validation h1-7 after SARIMA", "triggered": False}
                 if not baseline_only and not validation_cache_run:
@@ -111,6 +113,7 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                     metrics, failed, evidence = import_validation(root / validation_cache_run,
                         folder, cfg, manifest['source_sha256'], daily, top)
                     manifest['validation_import'] = evidence
+                    imported_families = evidence['imported_model_families']
                 provisional = select_models(metrics, top, cfg, failed)
                 trigger = provisional.loc[provisional.is_top10, "validation_target_met"].eq(False).any()
                 if trigger and not baseline_only and not validation_cache_run:
@@ -136,16 +139,21 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                         validation = pd.concat([validation, calendar], ignore_index=True)
                         metrics = metric_table(validation[validation.split.eq("validation")])
                     write_json(folder / "tuning_protocol.json", cfg["tuning"])
-                if cfg.get('tuning',{}).get('context_enabled') and not baseline_only:
+                if cfg.get('tuning',{}).get('context_enabled') and not baseline_only and 'context' not in imported_families:
                     context, context_logs = context_validation(daily, top, cfg, progress)
                     write_csv(folder / 'context_validation_predictions.csv', context)
                     write_csv(folder / 'context_log.csv', context_logs)
                     metrics = pd.concat([metrics, metric_table(context.loc[context.split.eq('validation')])], ignore_index=True)
-                if cfg.get('tuning',{}).get('distribution_enabled') and not baseline_only:
+                if cfg.get('tuning',{}).get('distribution_enabled') and not baseline_only and 'distribution' not in imported_families:
                     distribution, distribution_logs = distribution_validation(daily, top, cfg)
                     write_csv(folder / 'distribution_validation_predictions.csv', distribution)
                     write_csv(folder / 'distribution_log.csv', distribution_logs)
                     metrics = pd.concat([metrics, metric_table(distribution.loc[distribution.split.eq('validation')])], ignore_index=True)
+                if cfg.get('tuning',{}).get('count_enabled') and not baseline_only and 'count' not in imported_families:
+                    count, count_logs = count_rolling(daily,sales,top,cfg,list(COUNT_SPECS),'validation',progress)
+                    write_csv(folder / 'count_validation_predictions.csv',count)
+                    write_csv(folder / 'count_log.csv',count_logs)
+                    metrics = pd.concat([metrics,metric_table(count.loc[count.split.eq('validation')])],ignore_index=True)
                 write_json(folder / 'tuning_protocol.json', cfg.get('tuning',{}))
                 decision["reason"] = "Baseline demonstration; advanced search not executed" if baseline_only else ("Validation threshold triggered bounded 4-config search" if trigger else "All top routes meet validation threshold after SARIMA")
                 write_json(folder / "lightgbm_decision.json", decision)
@@ -155,7 +163,7 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                 selected = pd.read_csv(folder / "selected_models.csv")
                 # Selection file is sealed before this first access to test scoring.
                 manifest["selection_sha256_before_test"] = sha256(folder / "selected_models.csv")
-                predictions, logs = selected_backtest(daily, selected, top, cfg, progress)
+                predictions, logs = selected_backtest(daily, selected, top, cfg, progress, sales=sales)
                 predictions["run_id"] = run_id
                 metrics = metric_table(predictions[predictions.split.eq("test")])
                 write_csv(folder / "predictions.csv", predictions)
@@ -166,8 +174,8 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                     raise ValueError("Selection changed after test access")
             elif current == "forecast":
                 selected = pd.read_csv(folder / "selected_models.csv")
-                latest = forecast_at(daily, selected, top, cfg["forecast_origin"], cfg, progress)
-                demo_forecast = forecast_at(daily, selected, top, cfg["demo_origin"], cfg, progress)
+                latest = forecast_at(daily, selected, top, cfg["forecast_origin"], cfg, progress, sales=sales)
+                demo_forecast = forecast_at(daily, selected, top, cfg["demo_origin"], cfg, progress, sales=sales)
                 latest["run_id"] = run_id; demo_forecast["run_id"] = run_id
                 write_csv(folder / "forecast.csv", latest)
                 write_csv(folder / "demo_forecast.csv", demo_forecast)
