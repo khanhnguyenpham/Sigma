@@ -84,7 +84,9 @@ def verify(folder):
         'forecast_rows':len(selected)*cfg['horizon'],'prediction_rows':len(predictions),
         'ledger_rows':rows,'recommendation_rows':recommendations,
         'alert_windows':len(alerts),'scenarios':len(scenario_sales),
-        'environment_pins_verified':len(packages),'entrypoint_sha256':sha256(Path(__file__))}
+        'environment_pins_verified':len(packages),'environment_packages':packages,
+        'requirements_lock_sha256':sha256(ROOT/'requirements.txt'),
+        'entrypoint_sha256':sha256(Path(__file__))}
 
 
 def main():

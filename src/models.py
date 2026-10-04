@@ -12,6 +12,7 @@ from src.common import BASELINES, ROUTE
 from src.calendar_models import fit_calendar, predict_calendar
 from src.seasonal_models import distribution_forecast, SEASONAL_SPECS
 from src.context_models import CONTEXT_SPECS, context_rolling, fit_context, prepare_context, context_features
+from src.count_models import fit_count, predict_count, count_rolling
 
 
 def sarima_specs():
@@ -246,12 +247,12 @@ def training_matrix(series_map, cutoff, horizon):
     return (np.concatenate(x), np.concatenate(y)) if x else (np.empty((0, len(FEATURES))), np.empty(0))
 
 
-def selected_backtest(daily, selected, top, cfg, progress=lambda message: None):
+def selected_backtest(daily, selected, top, cfg, progress=lambda message: None, sales=None):
     frames, logs = [], []
     series_map = series_by_route(daily)
     for row in selected.itertuples(index=False):
         keys = (row.destination_country, row.carrier)
-        if row.model.startswith(("lgbm_", "context_")):
+        if row.model.startswith(("lgbm_", "context_", "count_")):
             continue
         progress(f"Test locked model {row.model}")
         frame, log = rolling_route(series_map[keys], keys, row.model, cfg["test_start"], cfg["test_end"], cfg, row.fallback_model)
@@ -274,10 +275,17 @@ def selected_backtest(daily, selected, top, cfg, progress=lambda message: None):
         frame['requested_model'] = frame.model
         frame['model'] = 'selected'
         frames.append(frame); logs.append(log)
+    ids = sorted(set(selected.loc[selected.model.str.startswith('count_'), 'model']))
+    if ids:
+        frame, log = count_rolling(daily,sales,top,cfg,ids,'test',progress)
+        frame = frame.merge(selected[ROUTE + ['model']],on=ROUTE + ['model'],how='inner',validate='many_to_one')
+        frame['requested_model'] = frame.model
+        frame['model'] = 'selected'
+        frames.append(frame); logs.append(log)
     return pd.concat(frames, ignore_index=True), pd.concat(logs, ignore_index=True)
 
 
-def forecast_at(daily, selected, top, origin, cfg, progress=lambda message: None):
+def forecast_at(daily, selected, top, origin, cfg, progress=lambda message: None, sales=None):
     origin = pd.Timestamp(origin)
     if origin < pd.Timestamp(cfg["validation_end"]):
         raise ValueError("Locked selection cannot forecast before its validation cutoff")
@@ -286,6 +294,7 @@ def forecast_at(daily, selected, top, origin, cfg, progress=lambda message: None
     fitted_lgbm = {}
     fitted_context = {}
     contexts = None
+    count_forecasts = {}
     rows = []
     for row in selected.itertuples(index=False):
         keys = (row.destination_country, row.carrier)
@@ -311,6 +320,11 @@ def forecast_at(daily, selected, top, origin, cfg, progress=lambda message: None
             except (ValueError, RuntimeError, np.linalg.LinAlgError):
                 pred = baseline(values, row.fallback_model, cfg["horizon"])
                 effective = row.fallback_model
+        elif row.model.startswith('count_'):
+            if row.model not in count_forecasts:
+                state = fit_count(daily,sales,list(top_series),origin,row.model,cfg)
+                count_forecasts[row.model] = predict_count(state,daily,list(top_series),origin,cfg)
+            pred = count_forecasts[row.model][keys]
         elif row.model.startswith('context_'):
             if contexts is None:
                 contexts = prepare_context(daily, list(top_series), origin)

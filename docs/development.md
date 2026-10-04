@@ -140,3 +140,7 @@ Phiên nhận bàn giao xác minh lại tệp/hash/config/manifest hiện có v�
 ### Phạm vi mới theo CHG-012/013 — 05/10/2026
 
 Ưu tiên project: T09/R05, T10/R07 chưa đạt; chưa làm tiếp Word/slide cho tới yêu cầu mới của người dùng. Bàn giao CHG-011 ở trên là lịch sử. Đã thêm thử nghiệm context validation-only, kiểm tra future mutation ở mọi tuyến và căn chỉnh training/inference; tổng 45 tests đạt. Không sửa run v4: mã mới cần run mới nếu tích hợp sản xuất. Chẩn đoán cơ hội cảnh báo là phân tích sau replay, không làm feature hoặc thay mẫu số nghiệm thu.
+
+### Run tích hợp và xác minh v5/v6 — CHG-014/015
+
+V5 qua 53 tests và `verify_release.py`, 48 tệp sealed, 1.100.320 ledger, 84 pins, AppTest 0 exception/10 bảng; demo môi trường thứ hai tái lập 14 bảng. V6 tích hợp count model theo validation, 59 tests đạt, run thật complete, 50 tệp sealed; verify_release kiểm 1.100.320 ledger/84 pins và AppTest 0 exception/10 bảng. Ledger giao dịch R06 còn bổ sung riêng; kỹ thuật chạy đúng không thay nghiệm thu R05. Các bằng chứng v5 E17 vẫn thuộc mã/run v5, không gọi hash của mã mới là mã v5. Word/slide chưa làm tiếp. Xác minh lưu JSON ngoài sealed run; ghi manifest/source/code/requirements lock và package versions; code khác phải tạo run mới.

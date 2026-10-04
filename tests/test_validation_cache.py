@@ -47,3 +47,14 @@ def test_historical_import_rejects_test_metrics_even_if_sealed(tmp_path):
     seal_manifest(source,manifest)
     with pytest.raises(ValueError,match='Only validation'):
         import_validation(source,dest,cfg,'synthetic-hash',daily,top)
+
+
+def test_historical_import_rejects_disabled_candidate_family(tmp_path):
+    source,dest,cfg,daily,top,manifest=cache_fixture(tmp_path)
+    write_csv(source/'validation_metrics.csv',pd.DataFrame({'split':['validation'],'model':['context_365_mape']}))
+    seal_manifest(source,manifest)
+    with pytest.raises(ValueError,match='disabled model family'):
+        import_validation(source,dest,cfg,'synthetic-hash',daily,top)
+    cfg['tuning']['context_enabled']=True
+    _,_,evidence=import_validation(source,dest,cfg,'synthetic-hash',daily,top)
+    assert evidence['imported_model_families']==['context']
