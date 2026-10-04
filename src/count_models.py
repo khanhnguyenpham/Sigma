@@ -12,6 +12,14 @@ COUNT_SPECS = {'count_calendar_365': (365, 'calendar'),
                'count_calendar_all': (0, 'calendar'),
                'count_context_180': (180, 'context'),
                'count_context_365': (365, 'context')}
+MONTHLY_COUNT_SPECS = {'countmonth_365': (365, 'monthly'), 'countmonth_all': (0, 'monthly')}
+
+
+def monthly_calendar(dates):
+    dates = pd.DatetimeIndex(dates)
+    return np.column_stack([(dates.dayofweek == day).astype(float) for day in range(7)]
+        + [(dates.month == month).astype(float) for month in range(1, 13)]
+        + [(dates - pd.Timestamp('2024-01-01')).days / 365.25])
 
 
 def count_action(rates, size_probabilities):
@@ -54,7 +62,7 @@ def fit_count(daily, sales, keys, origin, model_id, cfg):
     from sklearn.dummy import DummyRegressor
     if sales is None:
         raise ValueError('Count model requires audited sales to estimate historical basket sizes')
-    window,kind = COUNT_SPECS[model_id]
+    window,kind = (COUNT_SPECS | MONTHLY_COUNT_SPECS)[model_id]
     origin = pd.Timestamp(origin)
     past = sales.loc[sales.date.le(origin)]
     distributions = {key:g.quantity.value_counts(normalize=True).to_dict() for key,g in past.groupby(ROUTE)}
@@ -70,7 +78,8 @@ def fit_count(daily, sales, keys, origin, model_id, cfg):
             if not len(observed) or not np.isfinite(observed).all() or observed.lt(0).any():
                 raise ValueError('Incomplete order count history')
             estimator = PoissonRegressor(alpha=.1,max_iter=1000) if observed.gt(0).any() else DummyRegressor(strategy='constant',constant=0)
-            model[key] = estimator.fit(trend_calendar(observed.index),observed)
+            features = monthly_calendar(observed.index) if kind == 'monthly' else trend_calendar(observed.index)
+            model[key] = estimator.fit(features,observed)
     return {'model':model, 'kind':kind, 'distributions':distributions, 'fit_cutoff':origin}
 
 
@@ -92,13 +101,14 @@ def predict_count(state, daily, keys, origin, cfg):
                                   for h in range(1,cfg['horizon']+1)],ignore_index=True)
             rates = state['model'].predict(features)
         else:
-            rates = state['model'][key].predict(trend_calendar(targets))
+            features = monthly_calendar(targets) if state['kind'] == 'monthly' else trend_calendar(targets)
+            rates = state['model'][key].predict(features)
         result[key] = count_action(rates,distribution)
     return result
 
 
 def count_rolling(daily, sales, top, cfg, model_ids, split, progress=print):
-    if split not in ('validation','test') or not set(model_ids).issubset(COUNT_SPECS):
+    if split not in ('validation','test') or not set(model_ids).issubset(COUNT_SPECS | MONTHLY_COUNT_SPECS):
         raise ValueError('Invalid count evaluation')
     observed = daily.loc[daily.date.le(cfg[f'{split}_end'])].copy()
     keys = sorted(map(tuple,top[ROUTE].to_numpy()))
