@@ -152,3 +152,7 @@ V5 qua 53 tests và `verify_release.py`, 48 tệp sealed, 1.100.320 ledger, 84 p
 ### Kiểm cohort v8 — CHG-017/E23
 
 83 tests đạt; mới kiểm first-seen/giá/basket/validity proxy tính tay, horizon không dùng đơn sau origin, training/inference alignment, future mutation không đổi X/y/forecast, activation không ảnh hưởng và invalid covariate không loại sales. 51.520 validation predictions khớp prototype 1e-8. V8 verify 53 hashes/84 pins/265.985 events; AppTest 0 exception/10 bảng. Verification thêm code_file SHA-256 của run.py/app.py/src để truy đúng mã hiện hành; file ngoài sealed run và hash ở E23, không sửa bằng chứng cũ.
+
+### Kiểm v9 — CHG-018/019/E25
+
+92 tests đạt. Kiểm monthly calendar/future mutation/dispatch, origin stale/missing/non-midnight, demo failed resume không đổi nguồn và không khôi phục nguồn mất, orphan-dir không ghi đè, allocation plan không dùng matrix/forecast/window cũ. Real base replay từ locked forecast v8 tái lập ledger/recommendations 84.640 rows mỗi bảng ở 1e-8, events khớp source; phép dùng lại allocation không đổi công thức. Verify_release tái tính nguồn→daily/train top/validation-only selection/actual test và forecast trước chấm metric. CSV None/blank ở validation_target_met được chuẩn hóa nullable boolean, không thay kết quả. V9 real/demo verified; 14 bảng demo tái lập, AppTest 0 exception/10 bảng ở cả hai. Hash chi tiết E25.

@@ -109,7 +109,8 @@ def allocation(matrix, forecasts, origin, cfg):
         if totals.sum() <= 0:
             issues.append({**dict(zip(ROUTE, route)), "as_of_date": origin, "status": "missing_allocation_basis"}); continue
         vector = group.sort_values("horizon_day").forecast_qty.to_numpy(dtype=float)
-        if len(vector) != cfg["horizon"] or not np.isfinite(vector).all():
+        if (len(vector) != cfg['horizon'] or not np.isfinite(vector).all() or (vector < 0).any()
+                or not np.array_equal(group.horizon_day.sort_values().to_numpy(), np.arange(1, cfg['horizon'] + 1))):
             raise ValueError("Incomplete route inventory forecast")
         weights = totals / totals.sum()
         for key in keys:
@@ -117,6 +118,52 @@ def allocation(matrix, forecasts, origin, cfg):
         if not np.allclose(sum(result[key] for key in keys), vector, atol=cfg["numeric_tolerance"], rtol=0):
             raise ValueError("Allocation failed conservation")
     return result, issues
+
+
+class AllocationPlan:
+    """Reuse the same causal allocations across independent policy scenarios.
+
+    Input fingerprints reject stale plans. Threshold/initial-stock settings
+    may vary: allocation uses only the frozen forecast, historical matrix,
+    allocation windows and horizon, not partner lead time or safety settings.
+    """
+    def __init__(self, matrix, forecast_table, cfg):
+        self.signature = self._signature(cfg)
+        self.matrix_fingerprint = self._fingerprint(matrix)
+        self.forecast_fingerprint = self._forecast_fingerprint(forecast_table)
+        self.allocations = {}
+        for origin, group in forecast_table.groupby('as_of_date', sort=True):
+            details, issues = allocation(matrix, group, origin, cfg)
+            for vector in details.values():
+                vector.setflags(write=False)
+            self.allocations[origin] = (details, issues)
+
+    @staticmethod
+    def _signature(cfg):
+        return (cfg['horizon'], cfg['inventory']['allocation_window_days'],
+                cfg['inventory']['allocation_fallback_days'])
+
+    @staticmethod
+    def _fingerprint(frame):
+        digest = hashlib.sha256(pd.util.hash_pandas_object(frame, index=True).to_numpy().tobytes())
+        digest.update(repr(list(frame.columns)).encode('utf-8'))
+        return digest.hexdigest()
+
+    @classmethod
+    def _forecast_fingerprint(cls, table):
+        columns = ['as_of_date'] + ROUTE + ['horizon_day', 'forecast_qty']
+        canonical = table[columns].sort_values(columns[:-1]).reset_index(drop=True)
+        return cls._fingerprint(canonical)
+
+    def validate(self, matrix, forecast_table, cfg):
+        if (self.signature != self._signature(cfg) or self.matrix_fingerprint != self._fingerprint(matrix)
+                or self.forecast_fingerprint != self._forecast_fingerprint(forecast_table)):
+            raise ValueError('Allocation plan differs from input or allocation configuration')
+
+    def at(self, origin):
+        if pd.Timestamp(origin) not in self.allocations:
+            raise ValueError('Missing full-horizon allocation at decision origin')
+        return self.allocations[pd.Timestamp(origin)]
 
 
 def initial_stock(matrix, origin, cfg):
@@ -144,12 +191,14 @@ def declared_receipts(cfg, origin):
 
 
 def run_policy(matrix, forecast_table, cfg, scenario, progress=lambda message: None,
-               transactions=None, event_writer=None):
+               transactions=None, event_writer=None, allocation_plan=None):
     first = pd.Timestamp(cfg["test_start"])
     end = pd.Timestamp(cfg["test_end"])
     stocks = initial_stock(matrix, first - pd.Timedelta(days=1), cfg)
     pending = declared_receipts(cfg, first - pd.Timedelta(days=1))
     by_origin = {date: group for date, group in forecast_table.groupby("as_of_date")}
+    if allocation_plan is not None:
+        allocation_plan.validate(matrix, forecast_table, cfg)
     ledgers, recommendations, issues = [], [], []
     for day in pd.date_range(first, end):
         observed_today = matrix.loc[day].to_dict()
@@ -196,7 +245,8 @@ def run_policy(matrix, forecast_table, cfg, scenario, progress=lambda message: N
         if day not in by_origin:
             # Tail origins still need a full H forecast, not truncated test labels.
             raise ValueError("Missing full-horizon policy forecast at decision origin")
-        details, allocation_issues = allocation(matrix, by_origin[day], day, cfg)
+        details, allocation_issues = (allocation_plan.at(day) if allocation_plan is not None
+                                     else allocation(matrix, by_origin[day], day, cfg))
         issues.extend(allocation_issues)
         for key, vector in details.items():
             stocks.setdefault(key, 0)

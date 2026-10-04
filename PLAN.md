@@ -384,7 +384,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
-- **Trạng thái:** Đang xử lý R05; v8 tích hợp 55 ứng viên, chọn bằng validation; test vẫn 0/10 đạt, chưa nghiệm thu.
+- **Trạng thái:** Đang xử lý R05; v9 tích hợp 57 ứng viên, chọn bằng validation; test vẫn 0/10 đạt, chưa nghiệm thu.
 - **Mục tiêu/yêu cầu:** R04, R05, R09.
 - **Đầu vào/công việc/đầu ra:** T07/T08/MVP → khóa, test cuối, forecast → selected_models, test metrics, đạt/chưa đạt.
 - **Phụ thuộc:** T06, T07, T08 hoặc biên bản không kích hoạt T08.
@@ -399,7 +399,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Hiếu phụ trách; Khang review.
 
-- **Trạng thái:** Đã kiểm tra giao dịch/tồn/replay v8; tỷ lệ sớm 31,29%; giữ giả định mô phỏng, không bảo đảm mọi ca.
+- **Trạng thái:** Đã kiểm tra giao dịch/tồn/replay v9; tỷ lệ sớm 32,26%; giữ giả định mô phỏng, không bảo đảm mọi ca.
 - **Mục tiêu/yêu cầu:** R06, R07.
 - **Đầu vào/công việc/đầu ra:** Sales/forecast/A09–A16 → mapping/tham số riêng/ledger/ETA/strict threshold/replay/độ nhạy → recommendations, alerts, simulation_metrics.
 - **Phụ thuộc:** T06 để phát triển; kết quả cuối nhận T09.
@@ -427,7 +427,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Du review. Mỗi tác giả cung cấp kiểm thử/bằng chứng cho module của mình.
 
-- **Trạng thái:** 83 tests đạt; demo môi trường thứ hai tái lập 14 bảng; v8 qua kiểm hash/giao dịch/Q/AppTest.
+- **Trạng thái:** 92 tests đạt; demo môi trường thứ hai tái lập 14 bảng; v9 qua kiểm nguồn/selection/actual/hash/giao dịch/Q/AppTest.
 - **Mục tiêu/yêu cầu:** R01, R03–R09.
 - **Đầu vào/công việc/đầu ra:** Pipeline → ca mục 8/môi trường local sạch/kiểm tra gói → tests, checks, run tái lập.
 - **Phụ thuộc:** T09, T10, T11.
