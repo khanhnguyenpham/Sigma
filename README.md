@@ -2,7 +2,7 @@
 
 Ứng dụng Streamlit chạy local trên Windows, tích hợp audit dữ liệu, EDA, dự báo 46 tuyến, phân bổ SKU, mô phỏng nhập hàng và cảnh báo. Mã, cấu hình, tests và notebook đã được triển khai; đã có bản nháp Word/slide lịch sử ở local; CHG-012 yêu cầu chỉ tập trung project, chưa làm tiếp tài liệu báo cáo.
 
-**Kết quả ngày 05/10/2026:** bản thử nghiệm `sigma_release_v4` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 40,93–61,96%. Dự án còn đang hoàn thiện, chưa nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
+**Kết quả ngày 05/10/2026:** bản thử nghiệm `sigma_integrated_v6` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 40,93–58,13%. Dự án còn đang hoàn thiện, chưa nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
 
 **Tinh chỉnh:** V2 thêm 8 robust và 4 LightGBM weighted-L1; V3 thêm 12 hồi quy lịch (37 ứng viên tổng cộng trên mỗi top 10). Chọn bằng validation, giữ 0/10 đạt. Test cũ được sử dụng lại, không phải kiểm định độc lập. Mean MAPE từng tuyến v1 50,53%; v2 48,35%; v3 49,03%. Không chọn V2 chỉ vì test tốt hơn; bản release dùng lựa chọn theo validation của V3. EDA lễ giữ nhóm unknown và mẫu số, không suy nhân quả.
 
@@ -109,3 +109,14 @@ Lệnh run và xác minh đã chạy thực:
 ```
 
 Tham số `--validation-cache-run` nhập tường minh bằng chứng validation lịch sử cùng source, config lõi, daily/top và hash; không nhập test, không nhận đã chạy lại 37 ứng viên cũ. 10 ứng viên mới chạy fresh, chọn lại chỉ bằng validation. Bỏ tham số này để chạy toàn bộ ứng viên từ đầu. Cache local không đi kèm clone GitHub. `validation_import.json` ghi nguồn/mã/hash cũ. Config v4 giữ ở `config.release-v4.json`. Test cũ đã xem; v5 vẫn 0/10 đạt 20%.
+
+## Run tích hợp v6 — 51 ứng viên, R05 vẫn chưa đạt
+
+Config 1.4.0 thêm bốn mô hình dự báo số đơn và phân phối quantity/đơn chỉ từ lịch sử tại origin. Tác vụ MAPE dùng phân phối compound Poisson; không thay sales target. Ba tuyến chọn count model bằng validation. Config v5 giữ ở `config.integrated-v5.json`.
+
+```powershell
+& .venv/Scripts/python.exe run.py --run-id sigma_integrated_v6 --validation-cache-run sigma_integrated_v5
+& .venv/Scripts/python.exe verify_release.py --run-id sigma_integrated_v6
+```
+
+Run v6 nhập 47 bằng chứng validation v5 với lineage, chạy bốn ứng viên mới fresh; test/forecast/tồn chạy lại. 59 tests đạt, 50 tệp sealed, 84 pins đúng và AppTest 0 exception/10 bảng. Test đã xem: 0/10 đạt 20%, MAPE 40,93–58,13%, mean route MAPE 48,22%, độ phủ 100%. Bản kiểm tra tồn theo ngày chưa thay chứng cứ xử lý từng giao dịch; phần bổ sung R06 được ghi riêng và không sửa sealed run v6. Word/slide vẫn chờ yêu cầu lại.

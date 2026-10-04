@@ -1,0 +1,127 @@
+{
+  "config_version": "1.3.0",
+  "target_definition_version": "sales-success-utc-v1",
+  "assumption_version": "A08-A17-experiment-v1",
+  "source": "data/sigma_sim_data_orders.csv",
+  "output_root": "outputs",
+  "observation_start": "2024-01-01",
+  "observation_end": "2025-12-31",
+  "train_end": "2025-06-30",
+  "validation_start": "2025-07-01",
+  "validation_end": "2025-09-30",
+  "test_start": "2025-10-01",
+  "test_end": "2025-12-31",
+  "demo_origin": "2025-10-31",
+  "forecast_origin": "2025-12-31",
+  "sales_statuses": [
+    "success"
+  ],
+  "known_statuses": [
+    "success",
+    "refunded",
+    "failed",
+    "timeout",
+    "pending"
+  ],
+  "horizon": 14,
+  "refit_days": 7,
+  "seed": 42,
+  "top_n": 10,
+  "mape_limit_pct": 20.0,
+  "numeric_tolerance": 1e-08,
+  "sarima_maxiter": 100,
+  "sarima_workers": 3,
+  "lightgbm_threads": 4,
+  "inventory": {
+    "initial_cover_days": 7,
+    "initial_window_days": 28,
+    "allocation_window_days": 30,
+    "allocation_fallback_days": 90,
+    "partner_map": {},
+    "partners": {},
+    "initial_receipts": [],
+    "assumption_status": "user-approved-experiment-not-mentor-confirmed"
+  },
+  "anomalies": {
+    "history_days": 28,
+    "minimum_history_days": 14,
+    "robust_z_threshold": 4.0,
+    "relative_change_threshold": 0.5
+  },
+  "stress_scenarios": [
+    {
+      "name": "base",
+      "demand_multiplier": 1.0,
+      "receipt_fraction": 1.0,
+      "receipt_delay_days": 0
+    },
+    {
+      "name": "one_day_drop",
+      "demand_multiplier": 0.0,
+      "demand_start": "2025-11-15",
+      "demand_days": 1,
+      "receipt_fraction": 1.0,
+      "receipt_delay_days": 0
+    },
+    {
+      "name": "demand_drop",
+      "demand_multiplier": 0.3,
+      "demand_start": "2025-11-15",
+      "demand_days": 7,
+      "receipt_fraction": 1.0,
+      "receipt_delay_days": 0
+    },
+    {
+      "name": "demand_surge",
+      "demand_multiplier": 2.0,
+      "demand_start": "2025-11-15",
+      "demand_days": 3,
+      "receipt_fraction": 1.0,
+      "receipt_delay_days": 0
+    },
+    {
+      "name": "partial_receipt",
+      "demand_multiplier": 1.0,
+      "receipt_fraction": 0.5,
+      "receipt_delay_days": 0
+    },
+    {
+      "name": "late_receipt",
+      "demand_multiplier": 1.0,
+      "receipt_fraction": 1.0,
+      "receipt_delay_days": 3
+    },
+    {
+      "name": "no_receipt",
+      "demand_multiplier": 1.0,
+      "receipt_fraction": 0.0,
+      "receipt_delay_days": 0
+    }
+  ],
+  "evaluation_protocol": "follow_up_tuning_test_previously_seen_not_independent",
+  "tuning": {
+    "enabled": true,
+    "robust_windows": [
+      28,
+      90,
+      180,
+      0
+    ],
+    "weekday_prior_strength": 20,
+    "additional_lgbm_objective": "positive-day inverse-label weighted L1, 4 fixed leaf/min-child combinations",
+    "selection": "unchanged validation rule; test never used to rank candidates",
+    "reason": "User requested further tuning after original test failure; reused test is disclosed, no new independent holdout available",
+    "calendar_enabled": true,
+    "calendar_windows": [
+      365,
+      0
+    ],
+    "calendar_harmonics": [
+      1,
+      2
+    ],
+    "calendar_losses": "weighted LAD alpha 0.001/0.01, Poisson alpha 0.1; 12 fixed candidates",
+    "context_enabled": true,
+    "distribution_enabled": true
+  }
+}
