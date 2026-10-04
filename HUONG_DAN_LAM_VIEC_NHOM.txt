@@ -1,3 +1,14 @@
+CẬP NHẬT 05/10/2026 — ĐÃ CÓ PHẦN MỀM LOCAL
+
+1. Trên máy hiện tại: mở PowerShell tại project, chạy .\start_dashboard.ps1.
+2. Máy mới: đọc README.md, cài Python 3.14, tạo .venv và cài requirements.txt.
+3. Demo không cần dữ liệu thật: .\.venv\Scripts\python.exe run.py --demo --baseline-only --run-id demo_local.
+4. Dữ liệu thật chỉ đặt local trong data/, chạy run.py với run-id mới; không commit CSV/outputs.
+5. Kiểm tra trước commit: .\.venv\Scripts\python.exe -m pytest và git diff --check.
+6. Đẩy code theo nhánh codex/, mở PR vào main; không push token/.venv/outputs/dữ liệu thật.
+7. MAPE <=20% là tiêu chí từng top 10, chưa được đáp ứng bởi run đầu; đọc bảng accuracy_acceptance của run đang dùng, không nói đã đạt chỉ vì app chạy.
+8. Word tiến độ M2 và slide đã tạo local trong reports/M2 theo CHG-011; không push các tệp này. Hướng dẫn phân công cũ dưới đây là lịch sử; cách làm hiện tại solo với trợ lý.
+
 HƯỚNG DẪN LÀM VIỆC NHÓM SIGMA TRÊN GITHUB
 Cập nhật: 04/10/2026 (Asia/Saigon)
 Repository: https://github.com/khanhnguyenpham/Sigma
