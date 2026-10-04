@@ -202,9 +202,9 @@ Sáu bảng lựa chọn/validation/test/forecast tái lập v3 theo dung sai 1e
 
 ### E15 — Báo cáo tiến độ M2 và slide local
 
-Theo CHG-011, đã tạo `reports/M2/SIGMA_Bao_cao_tien_do_M2.docx` 10 trang, SHA256 `7a1f3f170939f5dfbeaaad221509084c245a93cf7624fa96a3e0c75848a5c295`, và `SIGMA_Slide_bao_cao_M2_final.pptx` 16 slide, SHA256 `e01032f04c230b1d78ce6c23b022bb37dda52d67b7139df5abe179b950b641c4`. Nội dung truy về release_v4 và giữ rõ 0/10 đạt R05, early-event-rate 31,67%, test reuse và giả định. Không bịa tên trường/mentor hoặc đóng góp cá nhân.
+Theo CHG-011, đã tạo `reports/M2/SIGMA_Bao_cao_tien_do_M2.docx` 10 trang, SHA256 `7a1f3f170939f5dfbeaaad221509084c245a93cf7624fa96a3e0c75848a5c295`, và `SIGMA_Slide_bao_cao_M2_ban_giao.pptx` 16 slide, SHA256 `1063e90cc4d9f2fccb919e2411b36be128a0b42136179a8694621e9e6354a768`. Nội dung truy về release_v4 và giữ rõ 0/10 đạt R05, early-event-rate 31,67%, test reuse và giả định. Không bịa tên trường/mentor hoặc đóng góp cá nhân.
 
-DOCX: render_docx.py đã thử nhưng thiếu LibreOffice, dùng Word cài sẵn chạy ẩn export PDF QA và Poppler tạo ảnh. Đã kiểm tra mọi trang, sửa đường kẻ tiêu đề rồi render lại. PPTX: Artifact Tool export/import, finalizer kiểm tra gói/layout/font, hai chart native có workbook snapshot khớp cache và bảng native. Đã render mọi slide và kiểm tra bố cục; không tuyên bố đã mở/chỉnh sửa trong PowerPoint. File QA và report có kết quả riêng tư đều ignored/local, không push. T13 mới hoàn thành phần tiến độ M2, báo cáo cuối kỳ/bảo vệ còn mở.
+DOCX: render_docx.py đã thử nhưng thiếu LibreOffice, dùng Word cài sẵn chạy ẩn export PDF QA và Poppler tạo ảnh. Đã kiểm tra mọi trang, sửa đường kẻ tiêu đề rồi render lại. Ghi chú thuyết trình đã rà bằng tiếng Việt, giải thích chỉ số/mẫu số và giới hạn từng slide. PPTX: Artifact Tool export/import, finalizer kiểm tra gói/layout/font, hai chart native có workbook snapshot khớp cache và bảng native. Đã render mọi slide và kiểm tra bố cục; không tuyên bố đã mở/chỉnh sửa trong PowerPoint. File QA và report có kết quả riêng tư đều ignored/local, không push. T13 mới hoàn thành phần tiến độ M2, báo cáo cuối kỳ/bảo vệ còn mở.
 
 <a id="report-review"></a>
 ## 3. Sổ rà soát báo cáo gốc
