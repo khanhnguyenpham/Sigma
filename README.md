@@ -2,7 +2,7 @@
 
 Ứng dụng Streamlit chạy local trên Windows, tích hợp audit dữ liệu, EDA, dự báo 46 tuyến, phân bổ SKU, mô phỏng nhập hàng và cảnh báo. Mã, cấu hình, tests và notebook đã được triển khai; đã có bản nháp Word/slide lịch sử ở local; CHG-012 yêu cầu chỉ tập trung project, chưa làm tiếp tài liệu báo cáo.
 
-**Kết quả ngày 05/10/2026:** bản thử nghiệm `sigma_cohort_v8` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 40,93–58,13%. Dự án còn đang hoàn thiện, chưa nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
+**Kết quả ngày 05/10/2026:** bản thử nghiệm `sigma_monthly_v9` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 40,93–58,13%. Dự án còn đang hoàn thiện, chưa nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
 
 **Tinh chỉnh:** V2 thêm 8 robust và 4 LightGBM weighted-L1; V3 thêm 12 hồi quy lịch (37 ứng viên tổng cộng trên mỗi top 10). Chọn bằng validation, giữ 0/10 đạt. Test cũ được sử dụng lại, không phải kiểm định độc lập. Mean MAPE từng tuyến v1 50,53%; v2 48,35%; v3 49,03%. Không chọn V2 chỉ vì test tốt hơn; bản release dùng lựa chọn theo validation của V3. EDA lễ giữ nhóm unknown và mẫu số, không suy nhân quả.
 
@@ -146,3 +146,18 @@ Config 1.6.0 tích hợp bốn cohort candidate, catalog 55. Source identifiers 
 ```
 
 51 evidence validation cũ nhập với lineage, bốn cohort chạy fresh. 51.520 dự báo cohort khớp prototype 1e-8; lựa chọn mới ở TrueMove H/SKT chỉ dựa validation. 83 tests đạt; 53 sealed files; 265.985 events và 1.100.320 ngày/item/scenario đối soát; AppTest 0 exception/10 bảng. Demo .venv-verify tái lập 14 bảng và kiểm events. Test đã xem: 0/10 đạt, mean route MAPE 48,05%, range 40,93–58,13%; coverage 100%. Replay early-event-rate 31,29%, base fill rate 82,63%. Không đánh dấu toàn bài đạt. Config v7 giữ ở config.transaction-v7.json. Các lệnh v7 cũng thuộc mã/run lịch sử khi chuyển sang v8; dùng run-id mới, không sửa sealed evidence.
+
+## Run v9 hiện hành — tháng, origin và demo độc lập
+
+Config 1.7.0 có 57 ứng viên; hai countmonth_365/all dùng lịch weekday/month biết trước tại origin. 55 validation evidence v8 nhập có lineage, hai monthly chạy fresh; 25.760 cặp khớp prototype 1e-8. Config cũ giữ ở config.cohort-v8.json. Run-id mới, không sửa hoặc resume sealed run bằng mã khác.
+
+```powershell
+& .venv/Scripts/python.exe run.py --run-id sigma_monthly_v9 --validation-cache-run sigma_cohort_v8
+& .venv/Scripts/python.exe verify_release.py --run-id sigma_monthly_v9
+```
+
+Các lệnh v8 phía trên là lịch sử của mã v8. Với clone mới không có validation cache, bỏ --validation-cache-run để tính validation từ đầu. Chặn origin tương lai/không là ngày UTC đã chốt/thiếu actual tuyến; tháng 01/2026 chưa có actual. Demo mới giữ synthetic_orders.csv riêng trong outputs/<run_id>, manifest ghi nguồn thật dùng; resume không sinh lại hoặc ghi đè nguồn đã mất/đổi. AllocationPlan dùng lại đúng vector causal cho các scenario; stale matrix/forecast/window bị chặn, công thức tồn giữ nguyên.
+
+92 tests đạt, 55 sealed files, 266.091 events/13 scenario và 1.100.320 ledger đối soát. Verify tái tính daily quantity, train top10, selection validation-only, actual test/forecast từ nguồn audited, rồi metric/stock/trigger/Q/hash/84 pins. Demo môi trường thứ hai tái lập 14 bảng, nguồn riêng được seal/verify; AppTest real Thailand/AIS và demo Vietnam/Vinaphone 0 exception/10 bảng, origin 31/10/2025, h8–14. Hai môi trường trên cùng máy chưa thay kiểm thử máy khác.
+
+R05 vẫn 0/10: mean route MAPE 46,496812%, range 38,662919–58,134251%, coverage 100%; test đã xem và đánh giá lại, chưa là kiểm định độc lập mới. Replay early-event-rate 32,263690%, base fill 83,373% là mô phỏng, không bảo đảm mọi ca. Không gọi toàn bài hoàn thành; Word/slide chưa làm tiếp.

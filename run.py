@@ -15,11 +15,11 @@ import pandas as pd
 from src.common import ROOT, ROUTE, DataQualityError, code_hash, new_manifest, read_config, seal_manifest, sha256, write_csv, write_json
 from src.data import audit_orders, daily_sales, observed_anomalies, route_top
 from src.evaluation import acceptance, metric_table, select_models
-from src.inventory import initialize_partners, item_matrix, replay_alerts, run_policy, simulation_metrics, alert_opportunity_summary
+from src.inventory import initialize_partners, item_matrix, replay_alerts, run_policy, simulation_metrics, alert_opportunity_summary, AllocationPlan
 from src.models import baseline_backtest, forecast_at, lgbm_rolling, sarima_validation, selected_backtest, robust_validation, distribution_validation
 from src.context_models import context_validation
 from src.validation_cache import import_validation
-from src.count_models import COUNT_SPECS, count_rolling
+from src.count_models import COUNT_SPECS, MONTHLY_COUNT_SPECS, count_rolling
 from src.reporting import eda, generate_synthetic
 from src.calendar_models import calendar_validation
 from src.transactions import EVENT_COLUMNS, prepare_transactions
@@ -49,13 +49,19 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
         raise ValueError('Historical validation import is only for a full private run')
     if validation_cache_run and not re.fullmatch(r'[A-Za-z0-9_-]+',validation_cache_run):
         raise ValueError('Invalid historical validation run id')
-    if (folder / "manifest.json").exists() and not resume:
+    if folder.exists() and any(folder.iterdir()) and not resume:
         raise ValueError("Run exists; use a new id or explicitly --resume")
+    if resume and not (folder / 'manifest.json').is_file():
+        raise ValueError('Cannot resume without the original manifest; use a new run id')
     folder.mkdir(parents=True, exist_ok=True)
     source = (ROOT / cfg["source"]).resolve()
     if demo:
-        source = root / "synthetic_orders.csv"
-        generate_synthetic(source, cfg)
+        source = folder / 'synthetic_orders.csv'
+        if resume:
+            if not source.is_file():
+                raise ValueError('Original synthetic source is missing; choose a new run id')
+        else:
+            generate_synthetic(source, cfg)
     if not source.is_relative_to(ROOT):
         raise ValueError("Source must be local to the project")
     sales, audit = audit_orders(source, cfg)
@@ -68,6 +74,7 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
             raise ValueError("Cannot change model mode while resuming")
     else:
         manifest = new_manifest(cfg, source, run_id)
+        manifest['source_relative_path'] = source.relative_to(ROOT).as_posix()
         manifest["source_kind"] = "generated_synthetic" if demo else "private_order_snapshot"
         manifest["execution_mode"] = "baseline_demo" if baseline_only else "full"
     manifest["evaluation_protocol"] = cfg.get("evaluation_protocol", "first_locked_test")
@@ -162,6 +169,11 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                     write_csv(folder / 'cohort_validation_predictions.csv',cohort)
                     write_csv(folder / 'cohort_log.csv',cohort_logs)
                     metrics = pd.concat([metrics,metric_table(cohort.loc[cohort.split.eq('validation')])],ignore_index=True)
+                if cfg.get('tuning',{}).get('countmonth_enabled') and not baseline_only and 'countmonth' not in imported_families:
+                    monthly, monthly_logs = count_rolling(daily,sales,top,cfg,list(MONTHLY_COUNT_SPECS),'validation',progress)
+                    write_csv(folder / 'countmonth_validation_predictions.csv',monthly)
+                    write_csv(folder / 'countmonth_log.csv',monthly_logs)
+                    metrics = pd.concat([metrics,metric_table(monthly.loc[monthly.split.eq('validation')])],ignore_index=True)
                 write_json(folder / 'tuning_protocol.json', cfg.get('tuning',{}))
                 decision["reason"] = "Baseline demonstration; advanced search not executed" if baseline_only else ("Validation threshold triggered bounded 4-config search" if trigger else "All top routes meet validation threshold after SARIMA")
                 write_json(folder / "lightgbm_decision.json", decision)
@@ -192,6 +204,8 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                 latest = read_predictions(folder / "forecast.csv")
                 forecast_table = pd.concat([predictions, latest], ignore_index=True)
                 matrix = item_matrix(sales, cfg)
+                progress('Prepare shared causal SKU allocations')
+                allocation_plan = AllocationPlan(matrix, forecast_table, cfg)
                 policy_summaries, issues = [], []
                 alerts = replay_alerts(matrix, forecast_table, cfg)
                 scenarios = [(cfg, s) for s in cfg["stress_scenarios"]]
@@ -213,7 +227,8 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                     event_writer.writeheader()
                     for index, (modified, scenario) in enumerate(scenarios):
                         ledger, rec, issue = run_policy(matrix, forecast_table, modified, scenario, progress,
-                                                       transactions=transactions, event_writer=event_writer)
+                                                       transactions=transactions, event_writer=event_writer,
+                                                       allocation_plan=allocation_plan)
                         mode = "w" if index == 0 else "a"
                         ledger.to_csv(folder / "inventory_ledger.csv.tmp", mode=mode, header=index == 0, index=False)
                         rec.to_csv(folder / "inventory_recommendations.csv.tmp", mode=mode, header=index == 0, index=False)

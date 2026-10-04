@@ -253,7 +253,7 @@ def selected_backtest(daily, selected, top, cfg, progress=lambda message: None, 
     series_map = series_by_route(daily)
     for row in selected.itertuples(index=False):
         keys = (row.destination_country, row.carrier)
-        if row.model.startswith(("lgbm_", "context_", "count_", 'cohort_')):
+        if row.model.startswith(("lgbm_", "context_", "count_", 'countmonth_', 'cohort_')):
             continue
         progress(f"Test locked model {row.model}")
         frame, log = rolling_route(series_map[keys], keys, row.model, cfg["test_start"], cfg["test_end"], cfg, row.fallback_model)
@@ -276,7 +276,7 @@ def selected_backtest(daily, selected, top, cfg, progress=lambda message: None, 
         frame['requested_model'] = frame.model
         frame['model'] = 'selected'
         frames.append(frame); logs.append(log)
-    ids = sorted(set(selected.loc[selected.model.str.startswith('count_'), 'model']))
+    ids = sorted(set(selected.loc[selected.model.str.startswith(('count_', 'countmonth_')), 'model']))
     if ids:
         frame, log = count_rolling(daily,sales,top,cfg,ids,'test',progress)
         frame = frame.merge(selected[ROUTE + ['model']],on=ROUTE + ['model'],how='inner',validate='many_to_one')
@@ -293,8 +293,25 @@ def selected_backtest(daily, selected, top, cfg, progress=lambda message: None, 
     return pd.concat(frames, ignore_index=True), pd.concat(logs, ignore_index=True)
 
 
-def forecast_at(daily, selected, top, origin, cfg, progress=lambda message: None, sales=None):
+def ensure_forecast_origin(daily, origin):
     origin = pd.Timestamp(origin)
+    if origin.tzinfo is not None:
+        origin = origin.tz_convert('UTC').tz_localize(None)
+    if pd.isna(origin) or origin != origin.normalize():
+        raise ValueError('Forecast origin must be a closed UTC calendar day')
+    current = daily.loc[daily.date.eq(origin)]
+    routes = daily[ROUTE].drop_duplicates()
+    if len(current) != len(routes) or current.duplicated(ROUTE).any():
+        raise ValueError('Forecast origin has no complete observed route-day coverage')
+    if not np.isfinite(current.sales_qty).all():
+        raise ValueError('Forecast origin has missing actual sales')
+    if 'actual_available' in current and not current.actual_available.eq(True).all():
+        raise ValueError('Forecast origin has unavailable actual sales')
+    return origin
+
+
+def forecast_at(daily, selected, top, origin, cfg, progress=lambda message: None, sales=None):
+    origin = ensure_forecast_origin(daily, origin)
     if origin < pd.Timestamp(cfg["validation_end"]):
         raise ValueError("Locked selection cannot forecast before its validation cutoff")
     series_map = series_by_route(daily)
@@ -336,7 +353,7 @@ def forecast_at(daily, selected, top, origin, cfg, progress=lambda message: None
                 model = fit_cohort(daily, sales, list(top_series), origin, window, loss, cfg)
                 cohort_forecasts[row.model] = predict_cohort(model, daily, sales, list(top_series), origin, cfg)
             pred = cohort_forecasts[row.model][keys]
-        elif row.model.startswith('count_'):
+        elif row.model.startswith(('count_', 'countmonth_')):
             if row.model not in count_forecasts:
                 state = fit_count(daily,sales,list(top_series),origin,row.model,cfg)
                 count_forecasts[row.model] = predict_count(state,daily,list(top_series),origin,cfg)

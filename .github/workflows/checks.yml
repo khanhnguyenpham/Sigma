@@ -20,7 +20,7 @@ jobs:
           from streamlit.testing.v1 import AppTest;
           m = validate_run(ROOT / 'outputs' / 'ci_demo');
           assert m['source_kind'] == 'generated_synthetic';
-          source = ROOT / 'outputs' / 'synthetic_orders.csv';
+          source = ROOT / m['source_relative_path'];
           assert sha256(source) == m['source_sha256'];
           sales, audit = audit_orders(source, m['config']);
           events = verify_events(ROOT / 'outputs' / 'ci_demo' / 'inventory_events.csv',

@@ -9,8 +9,8 @@ import numpy as np
 import pandas as pd
 
 from src.common import ROOT, ROUTE, ITEM, code_hash, sha256, validate_run, write_json
-from src.evaluation import metric_table
-from src.data import audit_orders
+from src.evaluation import metric_table, select_models
+from src.data import audit_orders, daily_sales, route_top
 from src.transactions import verify_events
 
 
@@ -20,9 +20,35 @@ def verify(folder):
     cfg = manifest['config']
     if manifest['code_sha256'] != code_hash():
         raise ValueError('Verification requires the code used by this run')
-    if sha256(ROOT / cfg['source']) != manifest['source_sha256']:
+    source = (ROOT / (manifest.get('source_relative_path') or cfg['source'])).resolve()
+    if not source.is_relative_to(ROOT):
+        raise ValueError('Source path escapes the project')
+    if sha256(source) != manifest['source_sha256']:
         raise ValueError('Raw input hash differs')
+    sales, _ = audit_orders(source, cfg)
+    truth_daily = daily_sales(sales, cfg)
+    daily = pd.read_csv(folder / 'daily_sales.csv', parse_dates=['date'])
+    try:
+        pd.testing.assert_frame_equal(daily, truth_daily, check_dtype=False, atol=cfg['numeric_tolerance'], rtol=0)
+        top = pd.read_csv(folder/'top_routes.csv')
+        pd.testing.assert_frame_equal(top, route_top(truth_daily,cfg), check_dtype=False, atol=0, rtol=0)
+    except AssertionError:
+        raise ValueError('Daily sales or train top routes differ from the audited source') from None
     selected = pd.read_csv(folder / 'selected_models.csv')
+    invalid = set()
+    if (folder/'sarima_log.csv').is_file():
+        log = pd.read_csv(folder/'sarima_log.csv')
+        invalid = {((row.destination_country,row.carrier),row.model)
+                   for row in log.loc[log.status.eq('failed')].itertuples(index=False)}
+    expected_selection = select_models(pd.read_csv(folder/'validation_metrics.csv'), top, cfg, invalid)
+    # CSV blanks deserialize as NaN; the selector returns None for non-top routes.
+    for frame in (selected, expected_selection):
+        frame['validation_target_met'] = frame['validation_target_met'].astype('boolean')
+    try:
+        pd.testing.assert_frame_equal(selected, expected_selection, check_dtype=False,
+                                      atol=cfg['numeric_tolerance'], rtol=0)
+    except AssertionError:
+        raise ValueError('Locked selection differs from the declared validation-only rule') from None
     if sha256(folder / 'selected_models.csv') != manifest['selection_sha256_before_test']:
         raise ValueError('Model selection differs from the pre-test lock')
     predictions = pd.read_csv(folder / 'predictions.csv', parse_dates=['as_of_date','target_date'])
@@ -31,18 +57,27 @@ def verify(folder):
     assert predictions.groupby(ROUTE + ['as_of_date']).size().eq(cfg['horizon']).all()
     assert predictions.loc[predictions.split.eq('outside_test'),'actual_qty'].isna().all()
     assert predictions.forecast_qty.ge(0).all() and np.isfinite(predictions.forecast_qty).all()
+    origins = set(pd.date_range(pd.Timestamp(cfg['test_start'])-pd.Timedelta(days=1),
+                                pd.Timestamp(cfg['test_end'])-pd.Timedelta(days=1)))
+    assert set(predictions.as_of_date) == origins
+    assert len(predictions.groupby(ROUTE+['as_of_date'])) == len(selected)*len(origins)
+    actual_truth = truth_daily[['date']+ROUTE+['sales_qty']].rename(columns={'date':'target_date','sales_qty':'truth_qty'})
+    aligned = predictions.merge(actual_truth,on=ROUTE+['target_date'],how='left',validate='many_to_one')
+    expected_actual = aligned.truth_qty.where(aligned.target_date.le(pd.Timestamp(cfg['test_end'])))
+    if not np.allclose(aligned.actual_qty,expected_actual,atol=0,rtol=0,equal_nan=True):
+        raise ValueError('Backtest actual quantities differ from the audited daily sales or split visibility')
     recomputed = metric_table(predictions.loc[predictions.split.eq('test')])
     actual_metrics = pd.read_csv(folder / 'metrics.csv')
     pd.testing.assert_frame_equal(recomputed,actual_metrics,check_dtype=False,atol=cfg['numeric_tolerance'],rtol=0)
     for name in ('forecast.csv','demo_forecast.csv'):
-        forecast = pd.read_csv(folder / name)
+        forecast = pd.read_csv(folder / name,parse_dates=['target_date'])
         assert len(forecast)==len(selected)*cfg['horizon']
         assert forecast.groupby(ROUTE).horizon_day.nunique().eq(cfg['horizon']).all()
         assert not forecast.duplicated(ROUTE + ['horizon_day']).any()
         assert forecast.forecast_qty.ge(0).all()
-        if name=='forecast.csv':
-            assert forecast.actual_qty.isna().all()
-    daily = pd.read_csv(folder / 'daily_sales.csv',parse_dates=['date'])
+        aligned_forecast = forecast.merge(actual_truth,on=ROUTE+['target_date'],how='left',validate='many_to_one')
+        if not np.allclose(aligned_forecast.actual_qty,aligned_forecast.truth_qty,atol=0,rtol=0,equal_nan=True):
+            raise ValueError('Forecast actual quantities do not match available audited sales')
     expected_sales = daily.loc[daily.date.between(cfg['test_start'],cfg['test_end']),'sales_qty'].sum()
     scenario_sales = {};rows=0
     for chunk in pd.read_csv(folder / 'inventory_ledger.csv',chunksize=50000):
@@ -56,7 +91,6 @@ def verify(folder):
             scenario_sales[scenario]=scenario_sales.get(scenario,0)+total
         rows += len(chunk)
     assert all(total==expected_sales for total in scenario_sales.values())
-    sales, _ = audit_orders(ROOT / cfg['source'], cfg)
     event_verification = verify_events(folder/'inventory_events.csv', folder/'inventory_ledger.csv', sales, cfg)
     recommendations = 0
     for chunk in pd.read_csv(folder / 'inventory_recommendations.csv',chunksize=50000,low_memory=False):
@@ -83,6 +117,7 @@ def verify(folder):
         packages[package]=actual
     return {'run_id':manifest['run_id'],'run_manifest_sha256':sha256(folder/'manifest.json'),
         'code_sha256':code_hash(),
+        'audited_daily_top_selection_actuals_verified':True,
         'code_files_sha256':{path.relative_to(ROOT).as_posix():sha256(path)
                             for path in [ROOT/'run.py',ROOT/'app.py']+sorted((ROOT/'src').glob('*.py'))},
         'checks_passed':True,'product_fully_accepted':False,
