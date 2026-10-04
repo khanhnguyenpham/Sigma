@@ -90,20 +90,26 @@ def fit_context(daily,keys,cutoff,window,loss,cfg):
     model.fit(x,y,sample_weight=weights,categorical_feature=['route_index','target_weekday','target_month'])
     return model
 
-def context_validation(daily,top,cfg,progress=print):
-    # Drop outside-validation rows before any new model operation.
-    observed=daily.loc[daily.date.le(pd.Timestamp(cfg['validation_end']))].copy()
+def context_rolling(daily,top,cfg,model_ids,split,progress=print):
+    if split not in {'validation','test'}:
+        raise ValueError('Unsupported context evaluation split')
+    specs={name:(window,loss) for name,window,loss in CONTEXT_SPECS}
+    if not set(model_ids).issubset(specs):
+        raise ValueError('Unknown context model')
+    # Labels after the evaluated split are absent even at its trailing origins.
+    observed=daily.loc[daily.date.le(pd.Timestamp(cfg[f'{split}_end']))].copy()
     actual_lookup=observed.set_index(['date']+ROUTE).sales_qty.to_dict()
     keys=sorted(map(tuple,top[ROUTE].to_numpy()));rows=[];logs=[]
-    origins=pd.date_range(pd.Timestamp(cfg['validation_start'])-pd.Timedelta(days=1),
-                          pd.Timestamp(cfg['validation_end'])-pd.Timedelta(days=1))
-    for model_id,window,loss in CONTEXT_SPECS:
+    origins=pd.date_range(pd.Timestamp(cfg[f'{split}_start'])-pd.Timedelta(days=1),
+                          pd.Timestamp(cfg[f'{split}_end'])-pd.Timedelta(days=1))
+    for model_id in model_ids:
+        window,loss=specs[model_id]
         model=None
         for i,origin in enumerate(origins):
             if i%cfg['refit_days']==0:
                 model=fit_context(observed,keys,origin,window,loss,cfg)
                 logs.append({'model':model_id,'fit_cutoff':origin,'max_label_date':origin,'status':'ok'})
-                progress(f'{model_id}: validation fit {origin.date()}')
+                progress(f'{model_id}: {split} fit {origin.date()}')
             contexts=prepare_context(observed,keys,origin)
             all_x=[];metadata=[]
             for key in keys:
@@ -115,7 +121,12 @@ def context_validation(daily,top,cfg,progress=print):
                 target=origin+pd.Timedelta(days=h)
                 actual=actual_lookup.get((target,*key),np.nan)
                 rows.append({**dict(zip(ROUTE,key)),'as_of_date':origin,'target_date':target,
+                             'forecast_date':target,'effective_model':model_id,
                              'horizon_day':h,'model':model_id,'forecast_qty':float(pred),
                              'actual_qty':float(actual),
-                             'split':'validation' if target<=pd.Timestamp(cfg['validation_end']) else 'outside_validation'})
+                             'split':split if target<=pd.Timestamp(cfg[f'{split}_end']) else 'outside_'+split})
     return pd.DataFrame(rows),pd.DataFrame(logs)
+
+
+def context_validation(daily,top,cfg,progress=print):
+    return context_rolling(daily,top,cfg,[name for name,_,_ in CONTEXT_SPECS],'validation',progress)

@@ -89,10 +89,23 @@ GitHub chỉ nhận mã, cấu hình, khóa môi trường, tests với fixture 
 
 Mỗi experiment-id phải mới để giữ bằng chứng cũ. Script xác minh hash đầu vào từ manifest nguồn, lưu protocol, log cutoff, predictions/metrics/comparison trong outputs riêng. Kết quả: 2/10 tuyến cải thiện validation, 0/10 đạt ≤20%; đầy đủ 623 cặp h1–7 mỗi tuyến/mô hình. Không có dự báo test trong thử nghiệm. Không tự chuyển kết quả này thành run sản xuất.
 
-`alert_opportunity_summary` chẩn đoán sau replay: phân biệt ca hết hàng trước ngày 7 từ origin và ca có cơ hội báo sớm. Đây là diagnostic, không dùng làm feature hoặc thay mẫu số `early_event_rate`. Bộ kiểm thử hiện hành có 45 ca đạt; run v4 vẫn giữ hash/mã lịch sử.
+`alert_opportunity_summary` chẩn đoán sau replay: phân biệt ca hết hàng trước ngày 7 từ origin và ca có cơ hội báo sớm. Đây là diagnostic, không dùng làm feature hoặc thay mẫu số `early_event_rate`. Bộ kiểm thử hiện hành có 53 ca đạt; run v4 vẫn giữ hash/mã lịch sử.
 
 ## Bản nháp báo cáo được giữ local
 
 Tệp local trong `reports/M2/`: `SIGMA_Bao_cao_tien_do_M2.docx` (10 trang) và `SIGMA_Slide_bao_cao_M2_ban_giao.pptx` (16 slide, có speaker notes, bảng/biểu đồ chỉnh sửa được). Báo cáo gồm phương pháp, kết quả từng tuyến, tình huống mô phỏng, ma trận R01–R09, giới hạn và kịch bản demo. Word/slide giữ local ngoài Git vì dùng kết quả run riêng tư. Theo CHG-012, giữ bản nháp lịch sử và chưa chỉnh sửa tiếp; người dùng sẽ yêu cầu Word/slide sau. Bản nháp chưa chứng minh nghiệm thu project.
 
 Release có 43 tệp khớp hash manifest, 37 tests đã chạy đạt và 1.100.320 dòng ledger cân bằng. Đánh giá chính vẫn 0/10 tuyến đạt R05; replay chỉ 31,67% sự kiện báo trước ít nhất 7 ngày. Xem review-log E14/E15 để truy vết.
+
+## Run tích hợp v5 — đã kiểm tra kỹ thuật, chưa đạt R05
+
+Config 1.3.0 tích hợp thêm context và phân phối lân cận mùa vụ vào validation, backtest khóa, forecast và tồn. Tối ưu truy cập ledger giữ nguyên công thức/giả định. Script `verify_release.py` kiểm lại metric, forecast, cân bằng ledger, strict trigger/Q, event và môi trường; lưu bằng chứng ngoài run sealed.
+
+Lệnh run và xác minh đã chạy thực:
+
+```powershell
+& .venv/Scripts/python.exe run.py --run-id sigma_integrated_v5 --validation-cache-run sigma_release_v4
+& .venv/Scripts/python.exe verify_release.py --run-id sigma_integrated_v5
+```
+
+Tham số `--validation-cache-run` nhập tường minh bằng chứng validation lịch sử cùng source, config lõi, daily/top và hash; không nhập test, không nhận đã chạy lại 37 ứng viên cũ. 10 ứng viên mới chạy fresh, chọn lại chỉ bằng validation. Bỏ tham số này để chạy toàn bộ ứng viên từ đầu. Cache local không đi kèm clone GitHub. `validation_import.json` ghi nguồn/mã/hash cũ. Config v4 giữ ở `config.release-v4.json`. Test cũ đã xem; v5 vẫn 0/10 đạt 20%.

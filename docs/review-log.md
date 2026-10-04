@@ -399,3 +399,35 @@ Ngày 05/10/2026, chạy `.venv/Scripts/python.exe validate_context.py` local: b
 Chẩn đoán cảnh báo dùng `alert_opportunity_summary` trên alerts v4: 2.867 actual events, 1.550 trước ngày 7, 1.317 có cơ hội, 409 FN trong nhóm có cơ hội; opportunity rate 45,9365%, recall nhóm có cơ hội 68,9446%. Giữ nguyên early-event-rate v4 31,67% và mẫu số tất cả events. File diagnostic SHA-256 `ce763ad032ff7d6f777787cd63891df3291fc15a1ed1541641cf3b87f346e64d`.
 
 Chạy `.venv/Scripts/python.exe -m pytest -q`: **45 passed** sau khi bổ sung fallback cho cửa sổ training toàn 0 (Poisson và weighted L1), gồm ca sửa toàn bộ tương lai các tuyến không đổi feature/nhãn, đối chiếu weekday/tổng quốc gia bằng tay, alignment training/inference h1/7/14 và mẫu số cảnh báo. Raw CSV kiểm hash trực tiếp vẫn `6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b`. Run v4 và Word/slide giữ nguyên; chưa chứng minh production phiên bản mới, chưa nghiệm thu toàn bài. Bước tiếp: xử lý 409 ca bỏ sót và đánh giá cách theo dõi tồn từ sớm; cải thiện mô hình chọn bằng validation, giữ tiêu chí.
+
+### CHG-014 — Tiếp tục hoàn thiện, đăng ký trước run mới
+
+05/10/2026: người dùng yêu cầu tiếp tục tới khi đạt tất cả tiêu chí, không dừng sau mỗi thử nghiệm. T13 vẫn chưa làm tiếp. Tích hợp bốn context vào validation/locked-test/forecast của CLI; thêm sáu phân phối lân cận mùa vụ, bandwidth 14/28/56 ngày × có/không hiệu chỉnh mức bán 28 ngày, action tối thiểu hóa MAPE ngày dương theo kernel Gaussian lịch biết trước. Cả sáu chỉ dùng history tới origin, mức hiệu chỉnh clip 0,5–2 đăng ký trước. Seed/split/top 10/target/metric giữ nguyên; test cũ đã xem, không dùng chọn lại.
+
+Config 1.3.0 có 47 ứng viên top 10. Run mới có thể nhập tường minh **bằng chứng validation lịch sử** của v4: xác minh source/hash, daily/top/config, không nhập metrics test; giữ historical code hash/provenance và chạy 10 ứng viên mới thực sự. Không nhận đã chạy lại SARIMA cũ. Test/forecast/tồn chạy lại theo lựa chọn validation mới. Tối ưu truy cập tồn không thay công thức/stock giả định/mẫu số cảnh báo. Các ca fixture và kiểm cân bằng/run mới phải đạt trước bàn giao.
+
+R07 hiện hành yêu cầu ca chuẩn ngày 10 có ≥7 ngày, ngày 3 không tính đạt, replay không chồng, precision/recall/rate và giới hạn; **không có ngưỡng precision/recall chính thức hoặc cam kết mọi cú sốc**. Phân biệt hoàn thành cơ chế/đo lường với tỷ lệ sớm quan sát thấp. Không sửa yêu cầu để gọi 31,67% thành cảnh báo mọi ca.
+
+### Chẩn đoán giả định nhiễu — đăng ký trước tính toán
+
+Dùng riêng train để mô tả lượng đơn/ngày và phân phối quantity/đơn. Tính rủi ro MAPE của mô hình tham chiếu đơn đến độc lập Poisson, lượng mỗi đơn theo tần suất train, cường độ theo tháng train. Đây là tính toán phụ thuộc giả định, không phải chặn dưới cho mọi thuật toán trên dữ liệu thật, không làm forecast/chọn model và không chấm test. Mục đích kiểm tra mức biến động do số đơn nhỏ trước khi tăng tìm kiếm cấu hình thiếu căn cứ.
+
+### CHG-015 — Đăng ký thử nghiệm số đơn trước chạy
+
+05/10/2026: thử bốn cấu hình validation-only: Poisson lịch gồm weekday, 2 harmonic năm và trend elapsed-year, cửa sổ 365/toàn history; LightGBM context Poisson trên order_count, cửa sổ 180/365 ngày. Số đơn và tỷ lệ quantity/đơn chỉ từ lịch sử success tới fit cutoff. Chuyển cường độ đơn sang forecast quantity bằng phân phối compound Poisson với frequency quantity/đơn lịch sử, action tối thiểu hóa MAPE ngày dương; không dùng phân phối future hoặc ID. Seed 42, refit 7 ngày, cùng split/top10/horizon/metric; bốn cấu hình cố định, chưa tích hợp production và không xem test để chọn. Lý do: quantity 1–4 và số đơn thấp là nguồn phương sai lớn; train 2025 có mức bán cao hơn cùng kỳ 2024, mô hình lịch cũ chưa có trend. Kết quả chưa biết tại lúc đăng ký.
+
+### E17 — Run tích hợp v5 và kiểm tra trực tiếp
+
+Run `sigma_integrated_v5` hoàn tất bảy stage: 47 ứng viên trên top 10, trong đó 37 ứng viên nhập evidence validation v4 được ghi `validation_import.json`, 10 ứng viên mới chạy fresh. Lựa chọn validation mới ở TrueMove H, LG U+, SoftBank và dtac. Test đã dùng lại: 0/10 đạt, MAPE 40,933418–61,957794%, mean route MAPE 49,504049%; độ phủ 100%. Không chọn lại bằng test hoặc nhận cải thiện mọi tuyến.
+
+Manifest có 48 tệp sealed, SHA-256 `24bf4038d5ea51cd8ed15d3fab1250dca2a84c1221f23916248bdbbe81def174`; code SHA-256 `fe8c2f8761cdb407f5dea708b96d326414db0ba72f54e6dd085ac8d4ae9eb582`. `verify_release.py --run-id sigma_integrated_v5` kiểm trực tiếp metric từ predictions, 644 forecast, 1.100.320 dòng ledger số nguyên/không âm/cân bằng, lịch sử bán không đổi trong 13 scenario, strict trigger/Q/MOQ, event duy nhất và 84 package đúng pin. Verification lưu ngoài sealed run, SHA-256 `ea7e84d22e173567dc7143de0fb07266376cba95122c1f0f80e9197000fbab65`.
+
+Replay v5: 5.520 windows, 1.099 đã trống không tính event mới; TP 1.945, FP 861, FN 922; precision 69,315752%, recall 67,840949%, early-event-rate 31,496338%, muộn 1.042. 414 ca FN có cơ hội ≥7 ngày; 1.550 actual events trước ngày 7 vẫn nằm trong mẫu số 2.867. Fill rate base 82,608968%. Không thêm ngưỡng precision/recall chính thức hoặc dùng opportunity recall thay metric chính.
+
+`pytest -q`: 53 passed. AppTest v5 0 exceptions, 10 bảng; kiểm Japan/SoftBank, origin 31/10 và h8–14. `.venv-verify` chạy `demo_integrated_v5_verify`: 14 bảng khớp demo_release, số nguyên tuyệt đối và số thực 1e-8; manifest SHA-256 `1580d41e59aaccf7e3fb1476233aff55b5e7200b44d821e64eddd24d0743bcb4`. Hai môi trường cùng máy không thay diễn tập máy thứ hai. Raw hash giữ nguyên. Word/slide không sửa.
+
+### E18 — Thử nghiệm count CHG-015
+
+`count_validation_v1` chỉ validation, bốn cấu hình có trend/quantity-distribution lịch sử: cải thiện LG U+ (39,465932% xuống khoảng 36,647%), China Mobile (49,202676% xuống khoảng 42,310%) và KT (49,228794% xuống khoảng 45,897%). Vẫn 0/10 đạt 20%, không chấm test hoặc tích hợp production tại thời điểm bằng chứng này. Protocol SHA-256 `b1a0df9b5c19a002b60c8f44c929467afd72c2406d962b49d5e4a5bf82f6be6d`. Action compound Poisson kiểm độc lập bằng SciPy Poisson PMF/brute-force MAPE ở rate 1/3/10 và rate 0 trả 0.
+
+Diagnostic train `train_noise_diagnostic_v1` theo giả định arrival độc lập/quantity thực nghiệm có risk tham chiếu trung bình theo tuyến khoảng 39,8–50,8%; không phải chặn dưới cho mọi thuật toán hoặc bằng chứng test bất khả thi. Không sửa R05, target, top 10 hoặc ngày chấm. Bước tiếp: tích hợp các count candidate có cải thiện validation, kiểm leakage/selection/forecast và run tiếp; mục tiêu hoàn thiện vẫn đang hoạt động, chưa nghiệm thu toàn bài.

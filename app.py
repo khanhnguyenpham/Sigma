@@ -126,6 +126,13 @@ with tabs[3]:
     st.caption("Chẩn đoán không tự sửa actual, không khẳng định nguyên nhân và không dự đoán trước sự kiện chưa có tín hiệu.")
     st.subheader("Replay cảnh báo · đợt 14 ngày không chồng lấn, không đặt mới")
     st.dataframe(chosen(load("alerts.csv")), hide_index=True, width="stretch")
+    if 'alert_opportunity_diagnostic.json' in manifest['files']:
+        diagnostic = json.loads((folder / 'alert_opportunity_diagnostic.json').read_text(encoding='utf-8'))
+        st.caption('Toàn bộ tuyến trong replay: phân biệt thời gian bắt đầu theo dõi và lỗi phát hiện. '
+                   'Các ca cạn trước ngày 7 vẫn nằm trong mẫu số tỷ lệ báo sớm chính.')
+        st.write(f"Ca cạn trước ngày 7: {diagnostic['events_before_day7']:,}; "
+                 f"ca có cơ hội báo trước ≥7 ngày: {diagnostic['events_with_7day_opportunity']:,}; "
+                 f"ca bị bỏ sót trong nhóm có cơ hội: {diagnostic['missed_events_with_7day_opportunity']:,}.")
 with tabs[4]:
     st.caption("Bán giảm/tăng và hàng nhận thiếu/trễ là các kịch bản giả định riêng; không sửa CSV hoặc forecast chọn bằng test.")
     st.dataframe(load("simulation_metrics.csv"), hide_index=True, width="stretch")

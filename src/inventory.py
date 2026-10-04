@@ -116,8 +116,9 @@ def allocation(matrix, forecasts, origin, cfg):
 def initial_stock(matrix, origin, cfg):
     params = cfg["inventory"]
     history = matrix.loc[pd.Timestamp(origin) - pd.Timedelta(days=params["initial_window_days"] - 1):pd.Timestamp(origin)]
+    known = matrix.loc[:pd.Timestamp(origin)].sum().gt(0)
     return {key: math.ceil(params["initial_cover_days"] * value) for key, value in history.mean().items()
-            if matrix.loc[:pd.Timestamp(origin), key].sum() > 0}
+            if known[key]}
 
 
 def declared_receipts(cfg, origin):
@@ -144,6 +145,7 @@ def run_policy(matrix, forecast_table, cfg, scenario, progress=lambda message: N
     by_origin = {date: group for date, group in forecast_table.groupby("as_of_date")}
     ledgers, recommendations, issues = [], [], []
     for day in pd.date_range(first, end):
+        observed_today = matrix.loc[day].to_dict()
         opening = stocks.copy()
         received = {}
         keep = []
@@ -163,7 +165,7 @@ def run_policy(matrix, forecast_table, cfg, scenario, progress=lambda message: N
             start = opening.get(key, 0)
             amount = received.get(key, 0)
             # Demand stress is an explicit integer scenario, never edits actual sales.
-            observed = float(matrix.loc[day, key]) if key in matrix.columns else 0
+            observed = float(observed_today.get(key, 0))
             active_shock = True
             if "demand_start" in scenario:
                 shock_start = pd.Timestamp(scenario["demand_start"])

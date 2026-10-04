@@ -58,3 +58,18 @@ def test_inactive_training_window_produces_finite_zero_forecast(loss):
     context=prepare_context(daily,keys,cutoff)[keys[0]]
     prediction=model.predict(context_features(context,[79],14))
     np.testing.assert_array_equal(prediction,[0.])
+
+
+def test_context_integrated_test_and_forecast_remain_causal():
+    from src.models import selected_backtest, forecast_at
+    daily=fixture_daily();top=pd.DataFrame({'destination_country':['A'],'carrier':['a']})
+    selected=top.assign(model='context_180_mape',fallback_model='ma7')
+    cfg={'horizon':14,'seed':42,'lightgbm_threads':1,'refit_days':7,
+         'validation_end':'2024-03-19','test_start':'2024-03-20','test_end':'2024-03-21'}
+    result,_=selected_backtest(daily,selected,top,cfg)
+    assert len(result)==28 and result.model.eq('selected').all()
+    assert result.loc[result.target_date.gt(cfg['test_end']),'actual_qty'].isna().all()
+    first=forecast_at(daily,selected,top,'2024-03-19',cfg)
+    daily.loc[daily.date.gt('2024-03-19'),'sales_qty']=1e6
+    altered=forecast_at(daily,selected,top,'2024-03-19',cfg)
+    np.testing.assert_array_equal(first.forecast_qty,altered.forecast_qty)
