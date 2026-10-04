@@ -243,6 +243,26 @@ def replay_alerts(matrix, forecast_table, cfg):
     return pd.DataFrame(records)
 
 
+def alert_opportunity_summary(alerts):
+    """Post-replay diagnosis, never a feature or replacement acceptance metric.
+
+    An actual depletion before day 7 cannot receive seven days' notice at
+    the single starting origin. Retain those events in the original denominator.
+    """
+    events = alerts.actual_days.notna() & ~alerts.already_empty
+    eligible = events & alerts.actual_days.ge(7)
+    detected_eligible = eligible & alerts.tp
+    total = int(events.sum())
+    opportunities = int(eligible.sum())
+    return {'actual_depletion_events': total,
+            'events_before_day7': int((events & alerts.actual_days.lt(7)).sum()),
+            'events_with_7day_opportunity': opportunities,
+            'missed_events_with_7day_opportunity': int((eligible & alerts.fn).sum()),
+            'single_origin_opportunity_rate': opportunities / total if total else np.nan,
+            'recall_with_7day_opportunity': int(detected_eligible.sum()) / opportunities if opportunities else np.nan,
+            'diagnostic_only': True}
+
+
 def simulation_metrics(ledgers, alerts):
     rows = []
     for name, ledger in ledgers.groupby("scenario_id"):

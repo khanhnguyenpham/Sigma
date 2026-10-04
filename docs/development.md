@@ -136,3 +136,7 @@ Phiên nhận bàn giao xác minh lại tệp/hash/config/manifest hiện có v�
 - Kiểm tra: 37 tests, pip check hai môi trường, 14 bảng demo tái lập, ledger số nguyên và không âm, AppTest release 0 exception/10 bảng; Word 10 trang và PPTX 16 slide đã render/kiểm tra. CI chỉ chạy dữ liệu giả.
 - Giới hạn: R05 0/10 đạt, MAPE 40,93–61,96%; early-event-rate 31,67%; test đã dùng lại; tồn/nhập giả định; thiếu ảnh/PDF nguồn; chưa diễn tập run thật máy thứ hai/mentor nghiệm thu. Kết quả activation cũ không chứng minh sales.
 - Tiến độ: TASK, PLAN, requirements, README, PROJECTMAP và review-log đồng bộ. Bước tiếp: rà mentor A08–A17, chẩn đoán R05/cảnh báo và diễn tập demo theo README. Không đổi actual/tiêu chí hoặc công khai dữ liệu local.
+
+### Phạm vi mới theo CHG-012/013 — 05/10/2026
+
+Ưu tiên project: T09/R05, T10/R07 chưa đạt; chưa làm tiếp Word/slide cho tới yêu cầu mới của người dùng. Bàn giao CHG-011 ở trên là lịch sử. Đã thêm thử nghiệm context validation-only, kiểm tra future mutation ở mọi tuyến và căn chỉnh training/inference; tổng 45 tests đạt. Không sửa run v4: mã mới cần run mới nếu tích hợp sản xuất. Chẩn đoán cơ hội cảnh báo là phân tích sau replay, không làm feature hoặc thay mẫu số nghiệm thu.

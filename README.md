@@ -1,8 +1,8 @@
 # SIGMA — Dự báo bán và mô phỏng tồn kho
 
-Ứng dụng Streamlit chạy local trên Windows, tích hợp audit dữ liệu, EDA, dự báo 46 tuyến, phân bổ SKU, mô phỏng nhập hàng và cảnh báo. Mã, cấu hình, tests và notebook đã được triển khai; đã có Word tiến độ M2 và slide báo cáo ở local theo CHG-011.
+Ứng dụng Streamlit chạy local trên Windows, tích hợp audit dữ liệu, EDA, dự báo 46 tuyến, phân bổ SKU, mô phỏng nhập hàng và cảnh báo. Mã, cấu hình, tests và notebook đã được triển khai; đã có bản nháp Word/slide lịch sử ở local; CHG-012 yêu cầu chỉ tập trung project, chưa làm tiếp tài liệu báo cáo.
 
-**Kết quả ngày 05/10/2026:** run bàn giao `sigma_release_v4` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 40,93–61,96%. Đây là sản phẩm phần mềm có tiêu chí độ chính xác chưa đạt, chưa phải nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
+**Kết quả ngày 05/10/2026:** bản thử nghiệm `sigma_release_v4` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 40,93–61,96%. Dự án còn đang hoàn thiện, chưa nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
 
 **Tinh chỉnh:** V2 thêm 8 robust và 4 LightGBM weighted-L1; V3 thêm 12 hồi quy lịch (37 ứng viên tổng cộng trên mỗi top 10). Chọn bằng validation, giữ 0/10 đạt. Test cũ được sử dụng lại, không phải kiểm định độc lập. Mean MAPE từng tuyến v1 50,53%; v2 48,35%; v3 49,03%. Không chọn V2 chỉ vì test tốt hơn; bản release dùng lựa chọn theo validation của V3. EDA lễ giữ nhóm unknown và mẫu số, không suy nhân quả.
 
@@ -79,8 +79,20 @@ Có thể chạy từng stage:
 
 GitHub chỉ nhận mã, cấu hình, khóa môi trường, tests với fixture giả, notebook không output và tài liệu. Không đưa CSV thật, `outputs/`, môi trường, token hoặc file đăng nhập vào commit. GitHub Actions chạy tests, pipeline demo giả và AppTest trên Windows sạch; không có dữ liệu thật trên CI. Một lần chạy CI không thay diễn tập giao diện trên máy Windows thứ hai.
 
-## Báo cáo tiến độ M2
+## Thử nghiệm context — CHG-013
 
-Tệp local trong `reports/M2/`: `SIGMA_Bao_cao_tien_do_M2.docx` (10 trang) và `SIGMA_Slide_bao_cao_M2_ban_giao.pptx` (16 slide, có speaker notes, bảng/biểu đồ chỉnh sửa được). Báo cáo gồm phương pháp, kết quả từng tuyến, tình huống mô phỏng, ma trận R01–R09, giới hạn và kịch bản demo. Word/slide giữ local ngoài Git vì dùng kết quả run riêng tư. Báo cáo tiến độ chưa thay nghiệm thu độ chính xác, báo cáo cuối kỳ hoặc bảo vệ.
+`validate_context.py` và `src/context_models.py` thử bốn cấu hình có lịch sử tổng quốc gia/toàn hệ thống tại origin. Chỉ chấm validation, chưa được tích hợp selection/forecast/dashboard. Lệnh đã chạy local:
+
+```powershell
+& .venv/Scripts/python.exe validate_context.py --source-run sigma_release_v4 --experiment-id context_validation_v1
+```
+
+Mỗi experiment-id phải mới để giữ bằng chứng cũ. Script xác minh hash đầu vào từ manifest nguồn, lưu protocol, log cutoff, predictions/metrics/comparison trong outputs riêng. Kết quả: 2/10 tuyến cải thiện validation, 0/10 đạt ≤20%; đầy đủ 623 cặp h1–7 mỗi tuyến/mô hình. Không có dự báo test trong thử nghiệm. Không tự chuyển kết quả này thành run sản xuất.
+
+`alert_opportunity_summary` chẩn đoán sau replay: phân biệt ca hết hàng trước ngày 7 từ origin và ca có cơ hội báo sớm. Đây là diagnostic, không dùng làm feature hoặc thay mẫu số `early_event_rate`. Bộ kiểm thử hiện hành có 45 ca đạt; run v4 vẫn giữ hash/mã lịch sử.
+
+## Bản nháp báo cáo được giữ local
+
+Tệp local trong `reports/M2/`: `SIGMA_Bao_cao_tien_do_M2.docx` (10 trang) và `SIGMA_Slide_bao_cao_M2_ban_giao.pptx` (16 slide, có speaker notes, bảng/biểu đồ chỉnh sửa được). Báo cáo gồm phương pháp, kết quả từng tuyến, tình huống mô phỏng, ma trận R01–R09, giới hạn và kịch bản demo. Word/slide giữ local ngoài Git vì dùng kết quả run riêng tư. Theo CHG-012, giữ bản nháp lịch sử và chưa chỉnh sửa tiếp; người dùng sẽ yêu cầu Word/slide sau. Bản nháp chưa chứng minh nghiệm thu project.
 
 Release có 43 tệp khớp hash manifest, 37 tests đã chạy đạt và 1.100.320 dòng ledger cân bằng. Đánh giá chính vẫn 0/10 tuyến đạt R05; replay chỉ 31,67% sự kiện báo trước ít nhất 7 ngày. Xem review-log E14/E15 để truy vết.

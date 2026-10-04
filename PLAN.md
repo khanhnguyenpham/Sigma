@@ -4,7 +4,7 @@
 
 **Trạng thái lịch sử 04/10/2026:** Người dùng đã yêu cầu triển khai phần mềm xuyên suốt, kiểm thử/Git và tình huống thực tế (CHG-007); báo cáo/slide để sau. Chưa có mã pipeline, môi trường khóa, huấn luyện, mô phỏng hoặc nghiệm thu M1/M2/M3; các lựa chọn triển khai đang chờ làm rõ. Giới hạn chỉ ba Markdown là phạm vi lịch sử ngày 02/10/2026, không áp dụng cho yêu cầu mới.
 
-**Trạng thái 05/10/2026:** Run sigma_release_v4 hoàn tất và kiểm tra hash/tồn/UI. R05 chưa đạt, 0/10 top 10 MAPE ≤20%; test dùng lại sau tinh chỉnh được công khai. CHG-011 yêu cầu Word tiến độ M2 và slide, đã tạo ở local. T14 chưa nghiệm thu toàn bài. Các mô tả “chưa có/dự kiến” ngày 02/10 là bối cảnh lịch sử.
+**Trạng thái 05/10/2026:** Run sigma_release_v4 đã kiểm tra hash/tồn/UI. R05 chưa đạt, 0/10 top 10 MAPE ≤20%; test cũ đã xem. CHG-012 yêu cầu chỉ tập trung project; Word/slide chỉ làm tiếp khi người dùng yêu cầu lại. T09/T10 đang xử lý tiêu chí còn thiếu; thử nghiệm context CHG-013 cải thiện validation 2 tuyến, vẫn 0/10 đạt, chưa tích hợp sản xuất. T14 chưa nghiệm thu toàn bài. Các mô tả “chưa có/dự kiến” ngày 02/10 là lịch sử.
 
 ## 1. Cách sử dụng và thay đổi chính
 
@@ -384,7 +384,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
-- **Trạng thái:** Đã khóa/chấm release_v4 với 37 cấu hình; R05 chưa đạt. Công khai test dùng lại sau tinh chỉnh.
+- **Trạng thái:** Đang xử lý R05; release_v4 0/10 đạt. Thử nghiệm context chỉ trên validation theo CHG-013; test cũ đã xem.
 - **Mục tiêu/yêu cầu:** R04, R05, R09.
 - **Đầu vào/công việc/đầu ra:** T07/T08/MVP → khóa, test cuối, forecast → selected_models, test metrics, đạt/chưa đạt.
 - **Phụ thuộc:** T06, T07, T08 hoặc biên bản không kích hoạt T08.
@@ -399,7 +399,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Hiếu phụ trách; Khang review.
 
-- **Trạng thái:** Hoàn thành mô phỏng release_v4 và kiểm tra 13 chính sách/replay; cảnh báo sớm còn hạn chế.
+- **Trạng thái:** Đang xử lý R07; giữ kết quả mô phỏng v4, rà cơ hội báo trước và ca bỏ sót; chưa đạt cảnh báo mọi ca.
 - **Mục tiêu/yêu cầu:** R06, R07.
 - **Đầu vào/công việc/đầu ra:** Sales/forecast/A09–A16 → mapping/tham số riêng/ledger/ETA/strict threshold/replay/độ nhạy → recommendations, alerts, simulation_metrics.
 - **Phụ thuộc:** T06 để phát triển; kết quả cuối nhận T09.
@@ -427,7 +427,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Du review. Mỗi tác giả cung cấp kiểm thử/bằng chứng cho module của mình.
 
-- **Trạng thái:** Hoàn thành kiểm tra local, demo tái lập và CI; chưa diễn tập run thật trên máy thứ hai.
+- **Trạng thái:** Đã kiểm tra v4; 45 tests hiện hành đạt. Thử nghiệm mới cần xác minh riêng; chưa diễn tập máy thứ hai.
 - **Mục tiêu/yêu cầu:** R01, R03–R09.
 - **Đầu vào/công việc/đầu ra:** Pipeline → ca mục 8/môi trường local sạch/kiểm tra gói → tests, checks, run tái lập.
 - **Phụ thuộc:** T09, T10, T11.
@@ -440,7 +440,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Cường phụ trách; Nguyên review. Các tác giả cung cấp phần phương pháp/kết quả truy về run.
 
-- **Trạng thái:** Đã tạo Word tiến độ M2 10 trang và slide M2 16 trang theo CHG-011; báo cáo cuối kỳ/bảo vệ còn mở.
+- **Trạng thái:** Chưa làm tiếp theo CHG-012; giữ Word/slide cũ làm bản nháp lịch sử, chờ người dùng yêu cầu lại.
 - **Mục tiêu/yêu cầu:** R01–R09.
 - **Đầu vào/công việc/đầu ra:** Run kiểm tra/review-log → viết sales/phương pháp/kết quả/giả định/độ nhạy/giới hạn → report.md/pdf, slides, demo-script.
 - **Phụ thuộc:** T09–T12.
@@ -453,7 +453,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Khang review.
 
-- **Trạng thái:** Bàn giao phần mềm và báo cáo tiến độ M2; chưa nghiệm thu toàn bài vì R05/cảnh báo sớm và review còn mở.
+- **Trạng thái:** Chưa nghiệm thu toàn bài; ưu tiên hoàn thiện project, R05/R07 và review còn mở.
 - **Mục tiêu/yêu cầu:** R01–R09.
 - **Đầu vào/công việc/đầu ra:** Sản phẩm/kiểm tra/báo cáo → ma trận/diễn tập máy khác/gói phù hợp quyền → biên bản, gói riêng tư hoặc giả, giới hạn.
 - **Phụ thuộc:** T12, T13.

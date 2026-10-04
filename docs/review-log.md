@@ -383,3 +383,19 @@ Các nguồn này hỗ trợ lựa chọn phương pháp/công cụ, không xác
 Ngày tham khảo trong lượt khảo sát: 02/10/2026. Phiên bản phụ thuộc cụ thể chưa được lựa chọn hoặc kiểm chứng bằng cài đặt dự án.
 
 | CHG-011 | 05/10/2026 | Người dùng yêu cầu hoàn thiện sản phẩm rồi tạo Word báo cáo tiến độ M2 và slide báo cáo | Thay deferral T13 của CHG-008. Tạo báo cáo tiến độ từ release đã kiểm tra, đọc yêu cầu và giữ giới hạn thực tế. Word/slide có số liệu local không push. R05/cảnh báo sớm và nghiệm thu toàn bài không tự đổi sang đạt. |
+
+### Điều chỉnh ưu tiên sau CHG-011
+
+- **CHG-012, 05/10/2026:** Người dùng yêu cầu chỉ tập trung hoàn thiện project; Word/slide chỉ làm tiếp khi người dùng yêu cầu lại. T13 tạm dừng phần soạn tài liệu, giữ bản nháp cũ làm lịch sử. T09/R05 và T10/R07 tiếp tục xử lý; chưa nghiệm thu toàn bài. Việc tạo báo cáo trước khi đạt tiêu chí trong CHG-011 không phù hợp thứ tự người dùng mong muốn.
+- **CHG-013, đăng ký trước chạy ngày 05/10/2026:** thử nghiệm riêng bốn LightGBM context: cửa sổ nhãn 180/365 ngày × Poisson/L1 trọng số 1/y ngày dương. 25 feature gồm lịch biết trước, lịch sử tuyến, tổng quốc gia/toàn hệ thống đã quan sát tại origin. Seed 42, 300 cây, 31 lá, min-child 50, refit 7 ngày; cùng top 10 train/split/horizon/metric. Chỉ chấm validation, chưa tích hợp selection sản xuất; không dùng test để lựa chọn. Test cũ đã được xem ở vòng trước và không trở thành holdout độc lập. Kết quả lưu local riêng, không sửa run v4.
+- **Chẩn đoán trực tiếp replay v4:** trong 2.867 sự kiện hết hàng có 1.550 xảy ra trước ngày 7 từ origin; 1.317 có cơ hội báo trước ít nhất 7 ngày, trong đó 409 bị bỏ sót. Trần cơ hội tại origin theo thiết kế reset tồn đầu hiện tại là 45,94%; đây là giới hạn thiết kế replay, không phải bằng chứng ngưỡng dự báo R05 bất khả thi. Giữ mẫu số/metric cũ, không loại ca khó để nâng tỷ lệ. Bước tiếp theo là tách cơ hội theo dõi khỏi lỗi phát hiện và kiểm tra thuật toán cảnh báo.
+
+### E16 — Thử nghiệm context và chẩn đoán cảnh báo trực tiếp
+
+Ngày 05/10/2026, chạy `.venv/Scripts/python.exe validate_context.py` local: bốn cấu hình, 56 lần fit weekly, 40 nhóm model/tuyến h1–7, mỗi nhóm 623 cặp có độ phủ 100%; không có predictions test. TrueMove H validation MAPE từ 38,397185% xuống 36,841717%; LG U+ từ 39,952113% xuống 39,465932%. Các tuyến còn lại không cải thiện; 0/10 đạt 20%. Chưa tích hợp selection sản xuất hoặc chạy test mới. Không khẳng định yêu cầu R05 đã đạt hoặc không thể đạt.
+
+Đầu ra riêng `outputs/context_validation_v1/`: protocol SHA-256 `c6fcb0af461ad15301dd2913db92986e4cb95ae72ca687b9972bbd87bf3b2345`; comparison SHA-256 `ceb954706b244c39a791045b1ce81f387df43630e5a459b075bff2e7bb9d37d9`. Protocol giữ code hash tại thời điểm khởi chạy; sửa diagnostic tồn sau đó không sửa các mô hình/đầu vào experiment.
+
+Chẩn đoán cảnh báo dùng `alert_opportunity_summary` trên alerts v4: 2.867 actual events, 1.550 trước ngày 7, 1.317 có cơ hội, 409 FN trong nhóm có cơ hội; opportunity rate 45,9365%, recall nhóm có cơ hội 68,9446%. Giữ nguyên early-event-rate v4 31,67% và mẫu số tất cả events. File diagnostic SHA-256 `ce763ad032ff7d6f777787cd63891df3291fc15a1ed1541641cf3b87f346e64d`.
+
+Chạy `.venv/Scripts/python.exe -m pytest -q`: **45 passed** sau khi bổ sung fallback cho cửa sổ training toàn 0 (Poisson và weighted L1), gồm ca sửa toàn bộ tương lai các tuyến không đổi feature/nhãn, đối chiếu weekday/tổng quốc gia bằng tay, alignment training/inference h1/7/14 và mẫu số cảnh báo. Raw CSV kiểm hash trực tiếp vẫn `6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b`. Run v4 và Word/slide giữ nguyên; chưa chứng minh production phiên bản mới, chưa nghiệm thu toàn bài. Bước tiếp: xử lý 409 ca bỏ sót và đánh giá cách theo dõi tồn từ sớm; cải thiện mô hình chọn bằng validation, giữ tiêu chí.
