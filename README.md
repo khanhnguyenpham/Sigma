@@ -2,7 +2,7 @@
 
 Ứng dụng Streamlit chạy local trên Windows, tích hợp audit dữ liệu, EDA, dự báo 46 tuyến, phân bổ SKU, mô phỏng nhập hàng và cảnh báo. Mã, cấu hình, tests và notebook đã được triển khai; đã có bản nháp Word/slide lịch sử ở local; CHG-012 yêu cầu chỉ tập trung project, chưa làm tiếp tài liệu báo cáo.
 
-**Kết quả ngày 05/10/2026:** bản thử nghiệm `sigma_transaction_v7` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 40,93–58,13%. Dự án còn đang hoàn thiện, chưa nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
+**Kết quả ngày 05/10/2026:** bản thử nghiệm `sigma_cohort_v8` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 40,93–58,13%. Dự án còn đang hoàn thiện, chưa nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
 
 **Tinh chỉnh:** V2 thêm 8 robust và 4 LightGBM weighted-L1; V3 thêm 12 hồi quy lịch (37 ứng viên tổng cộng trên mỗi top 10). Chọn bằng validation, giữ 0/10 đạt. Test cũ được sử dụng lại, không phải kiểm định độc lập. Mean MAPE từng tuyến v1 50,53%; v2 48,35%; v3 49,03%. Không chọn V2 chỉ vì test tốt hơn; bản release dùng lựa chọn theo validation của V3. EDA lễ giữ nhóm unknown và mẫu số, không suy nhân quả.
 
@@ -135,3 +135,14 @@ Config 1.5.0 và `src/transactions.py` thực hiện receipt đầu ngày rồi 
 Run đã kiểm 51 sealed files, 1.100.320 ledger rows, event chronology/stock chain/đối soát audited sales và 84 pins. 75 tests đạt; AppTest 0 exception/10 bảng khi đổi South Korea/KT, origin và h8–14. Forecast, selection, metric và mô phỏng ngày khớp v6; R05 vẫn 0/10. Demo môi trường thứ hai tái lập 14 bảng và kiểm events riêng. Máy thật thứ hai/mentor review vẫn thiếu; không coi hai virtualenv cùng máy thay việc đó.
 
 Các lệnh v5/v6 bên trên ghi lệnh lịch sử tại E17/E19 với mã tương ứng. Mã mới không xác minh được code hash của run cũ; dùng mục v7 và tên run mới khi chạy lại. Không sửa hoặc seal lại run lịch sử. Validation cache chỉ có local; clone sạch có thể bỏ tham số cache để chạy fresh. Prototype cohort CHG-017 hiện chỉ thử validation, chưa tích hợp CLI hoặc nghiệm thu.
+
+## Run composition/cohort v8 — đã kiểm tra
+
+Config 1.6.0 tích hợp bốn cohort candidate, catalog 55. Source identifiers chỉ dùng tính first-seen trong bộ nhớ, không làm input model. Features tổng hợp cutoff origin; order-date-plus-validity chỉ là proxy thử nghiệm, không là activation/expiry/gia hạn đã xác nhận. Giá/validity không hợp lệ là covariate thiếu, không loại sale hợp lệ.
+
+```powershell
+& .venv/Scripts/python.exe run.py --run-id sigma_cohort_v8 --validation-cache-run sigma_transaction_v7
+& .venv/Scripts/python.exe verify_release.py --run-id sigma_cohort_v8
+```
+
+51 evidence validation cũ nhập với lineage, bốn cohort chạy fresh. 51.520 dự báo cohort khớp prototype 1e-8; lựa chọn mới ở TrueMove H/SKT chỉ dựa validation. 83 tests đạt; 53 sealed files; 265.985 events và 1.100.320 ngày/item/scenario đối soát; AppTest 0 exception/10 bảng. Demo .venv-verify tái lập 14 bảng và kiểm events. Test đã xem: 0/10 đạt, mean route MAPE 48,05%, range 40,93–58,13%; coverage 100%. Replay early-event-rate 31,29%, base fill rate 82,63%. Không đánh dấu toàn bài đạt. Config v7 giữ ở config.transaction-v7.json. Các lệnh v7 cũng thuộc mã/run lịch sử khi chuyển sang v8; dùng run-id mới, không sửa sealed evidence.

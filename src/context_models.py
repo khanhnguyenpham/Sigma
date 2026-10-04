@@ -1,6 +1,5 @@
-"""Candidate experiment using only route/country/global history known at origin.
+"""Integrated candidates using route/country/global history known at origin.
 
-Kept outside the production selection until validation demonstrates a benefit.
 Calendar dates are known ahead. Other routes' future sales are never features.
 """
 from __future__ import annotations

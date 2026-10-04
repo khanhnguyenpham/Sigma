@@ -23,6 +23,7 @@ from src.count_models import COUNT_SPECS, count_rolling
 from src.reporting import eda, generate_synthetic
 from src.calendar_models import calendar_validation
 from src.transactions import EVENT_COLUMNS, prepare_transactions
+from src.cohort_models import COHORT_SPECS, cohort_rolling
 
 STAGES = ["audit", "eda", "baseline", "validation", "test", "forecast", "inventory"]
 
@@ -156,6 +157,11 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                     write_csv(folder / 'count_validation_predictions.csv',count)
                     write_csv(folder / 'count_log.csv',count_logs)
                     metrics = pd.concat([metrics,metric_table(count.loc[count.split.eq('validation')])],ignore_index=True)
+                if cfg.get('tuning',{}).get('cohort_enabled') and not baseline_only and 'cohort' not in imported_families:
+                    cohort, cohort_logs = cohort_rolling(daily,sales,top,cfg,[name for name,_,_ in COHORT_SPECS],'validation',progress)
+                    write_csv(folder / 'cohort_validation_predictions.csv',cohort)
+                    write_csv(folder / 'cohort_log.csv',cohort_logs)
+                    metrics = pd.concat([metrics,metric_table(cohort.loc[cohort.split.eq('validation')])],ignore_index=True)
                 write_json(folder / 'tuning_protocol.json', cfg.get('tuning',{}))
                 decision["reason"] = "Baseline demonstration; advanced search not executed" if baseline_only else ("Validation threshold triggered bounded 4-config search" if trigger else "All top routes meet validation threshold after SARIMA")
                 write_json(folder / "lightgbm_decision.json", decision)
