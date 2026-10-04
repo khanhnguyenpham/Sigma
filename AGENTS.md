@@ -28,7 +28,7 @@ Không phải đọc mọi tài liệu cho chỉnh sửa nhỏ. PLAN giữ thi�
 - Giữ nguyên CSV gốc; làm sạch/dedup chỉ trong đầu ra dẫn xuất có log. Không in order/customer ID, sao chép bản ghi riêng tư vào tài liệu hoặc đưa dữ liệu vào truy vấn ngoài. Run thật ở local; không tự upload, push hoặc publish.
 - Không khôi phục tệp đã xóa, sửa lịch sử hay cấu hình Git toàn cục. Nếu Git root ngoài project hoặc lỗi ownership, ghi giới hạn và tiếp tục kiểm tra tệp/hash trong project; không quét kho cha.
 - Phân biệt bằng chứng kiểm tra trực tiếp với nhật ký cũ. Kiểm tra tệp thực tế trước khi nhận đã có code, test, run hoặc lệnh chạy.
-- Hiện chỉ có CSV và tài liệu. `src/`, `tests/`, `config.json`, CLI/notebook và dashboard trong PLAN là **dự kiến, chưa triển khai**. Khi được giao kỹ thuật, theo cấu trúc PLAN; CLI/notebook dùng cùng mã, cấu hình tập trung, phiên bản/seed/manifest theo development. Chưa có phiên bản thư viện được khóa.
+- Tại 02/10/2026 chỉ có CSV và tài liệu; trạng thái này là lịch sử. Ngày 05/10 đã triển khai mã, tests, config, CLI/notebook và dashboard, xem TASK/README. `src/`, `tests/`, `config.json`, CLI/notebook và dashboard trong PLAN là thiết kế gốc, nay cần đối chiếu tệp/run thực tế. Khi được giao kỹ thuật, theo cấu trúc PLAN; CLI/notebook dùng cùng mã, cấu hình tập trung, phiên bản/seed/manifest theo development. requirements.txt đã khóa phiên bản thư viện, xác minh môi trường ở E13/E14.
 - Thiếu nguồn khác ngày không có giao dịch; chưa actual không phải 0. Giữ giới hạn snapshot trạng thái, không nhận đã tái dựng dữ liệu có sẵn tại origin vận hành thật.
 
 ## Kiểm tra và kết thúc lượt

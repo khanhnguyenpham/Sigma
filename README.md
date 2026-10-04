@@ -1,64 +1,86 @@
-# SIGMA — Dự báo số bán và mô phỏng tồn kho
+# SIGMA — Dự báo bán và mô phỏng tồn kho
 
-**Trạng thái ngày 02/10/2026 (Asia/Saigon):** Có dữ liệu order và bộ tài liệu phát triển; chưa có pipeline, cấu hình chạy, tests, notebook, mô hình, dashboard hoặc run dự án. T01 đang làm; T02–T14 chưa làm. Bộ tài liệu bổ sung này dựa trên ba nguồn phiên bản 2.0, không thay đổi nội dung các nguồn đó.
+Ứng dụng Streamlit chạy local trên Windows, tích hợp audit dữ liệu, EDA, dự báo 46 tuyến, phân bổ SKU, mô phỏng nhập hàng và cảnh báo. Mã, cấu hình, tests và notebook đã được triển khai; đã có Word tiến độ M2 và slide báo cáo ở local theo CHG-011.
 
-SIGMA hướng tới dự báo tổng `quantity` SIM/gói data bán theo ngày UTC và tuyến `(destination_country, carrier)`, so sánh mô hình rồi phân bổ forecast để mô phỏng tồn kho/cảnh báo theo đối tác. Target không phải activation. Bộ lọc `success` theo `order_datetime` là **A08 đề xuất**, chưa phải quy tắc kế toán hay xác nhận mentor về trạng thái đơn.
+**Kết quả ngày 05/10/2026:** run bàn giao `sigma_release_v4` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 40,93–61,96%. Đây là sản phẩm phần mềm có tiêu chí độ chính xác chưa đạt, chưa phải nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
 
-## Đầu vào và giới hạn
+**Tinh chỉnh:** V2 thêm 8 robust và 4 LightGBM weighted-L1; V3 thêm 12 hồi quy lịch (37 ứng viên tổng cộng trên mỗi top 10). Chọn bằng validation, giữ 0/10 đạt. Test cũ được sử dụng lại, không phải kiểm định độc lập. Mean MAPE từng tuyến v1 50,53%; v2 48,35%; v3 49,03%. Không chọn V2 chỉ vì test tốt hơn; bản release dùng lựa chọn theo validation của V3. EDA lễ giữ nhóm unknown và mẫu số, không suy nhân quả.
 
-CSV order cục bộ `data/sigma_sim_data_orders.csv` là dữ liệu thực duy nhất được cung cấp theo xác nhận người dùng. Khảo sát chỉ đọc xác minh 100.000 dòng, 20 cột, 46 tuyến; ngày đặt UTC từ 01/01/2024 đến 31/12/2025. CSV không được đưa lên GitHub; xem [hướng dẫn dữ liệu cục bộ](data/README.md). Ý nghĩa chi tiết và giới hạn snapshot nằm trong [data-contract](docs/data-contract.md).
+## Chạy nhanh trên máy hiện tại
 
-Tồn kho, nhập hàng, lead time và mapping đối tác sẽ dùng giả định/mô phỏng có nhãn; không phụ thuộc việc xin thêm dữ liệu nội bộ. Lượng bán quan sát không đồng nhất với toàn bộ nhu cầu thị trường. Xử lý dữ liệu riêng tư tại môi trường dự án cục bộ; không upload, push hoặc publish dữ liệu/run thật.
-
-Ảnh đề bài và PDF được tài liệu tham chiếu nhưng chưa có trong workspace. Bằng chứng đã đọc chúng, kết quả activation cũ và ghi nhận Git trong nhật ký là lịch sử, không phải kiểm tra trực tiếp của lượt này. Xem [hiện trạng và sai khác](PROJECTMAP.md#source-gaps), gồm giới hạn Git và chênh lệch hash do xuống dòng.
-
-## Đọc bộ tài liệu
-
-| Tài liệu | Mục đích |
-|---|---|
-| [AGENTS](AGENTS.md) | Quy tắc ngắn cho Codex và cách chọn tài liệu cần đọc |
-| [TASK](TASK.md) | Điều phối T01–T14, bằng chứng còn thiếu và bước kế tiếp |
-| [PROJECTMAP](PROJECTMAP.md) | Tệp thực tế, cấu trúc dự kiến, luồng và tác động thay đổi |
-| [PLAN](PLAN.md) | Thiết kế chi tiết, giả định Axx, phương pháp và nhiệm vụ |
-| [requirements](docs/requirements.md) | Nguồn yêu cầu, R01–R09 và tiêu chí nghiệm thu |
-| [review-log](docs/review-log.md) | Bằng chứng lịch sử, quyết định và quy trình quản lý thay đổi |
-| [data-contract](docs/data-contract.md) | Schema nguồn, định nghĩa dữ liệu và giao diện đầu ra dự kiến |
-| [development](docs/development.md) | Cách triển khai, kiểm tra, quản lý run và bàn giao phiên |
-
-Người mới đọc README → TASK → PROJECTMAP, sau đó phần chuyên môn liên quan. Ba nguồn phiên bản 2.0 có câu “lượt này chỉ cập nhật ba Markdown”: đó là phạm vi lượt cũ; lượt hiện tại bổ sung đúng sáu tài liệu theo yêu cầu mới, vẫn chưa triển khai kỹ thuật.
-
-## Phương pháp và stack dự kiến
-
-Theo PLAN: Python local; pandas/numpy, statsmodels SARIMA, matplotlib, Streamlit; LightGBM có điều kiện sau đánh giá validation. Chưa cài/khóa phụ thuộc hay kiểm chứng tương thích cho dự án. Runtime dùng khảo sát không phải môi trường huấn luyện đã bàn giao.
-
-Top 10 chọn theo quantity bán trong train 01/01/2024–30/06/2025; validation 01/07/2025–30/09/2025; test 01/10/2025–31/12/2025. Horizon 14 ngày, chính h1–7 và h8–14 riêng. [R05](docs/requirements.md#r05) giữ MAPE ngày dương ≤20% cho từng tuyến top 10, kèm độ phủ/MAE/WAPE/bias; chưa có kết quả forecast sales để kết luận đạt.
-
-Ngưỡng tồn riêng theo đối tác; trigger `closing_on_hand < ROP`, IP dùng tính lượng đặt. Các tham số A08–A17 còn là đề xuất. Dashboard, báo cáo và kiểm tra cảnh báo ≥7 ngày đều là sản phẩm dự kiến, chưa nghiệm thu.
-
-## Cách chạy
-
-**Chưa có lệnh chạy dự án được kiểm chứng**, vì `run.py`, `config.json`, `requirements.txt` và `app.py` chưa tồn tại. Không cài thư viện hoặc chạy pipeline chỉ từ hướng dẫn này.
-
-Ví dụ CLI trích từ thiết kế PLAN mục 4.2 — **dự kiến, chưa kiểm chứng**:
-
-```text
-python run.py --config config.json --stage audit
-```
-
-Các stage dự kiến khác: `backtest`, `forecast`, `inventory`, `report`, `all`; chọn một stage. Hướng dẫn môi trường/lệnh thật chỉ được bổ sung sau T02 có bằng chứng chạy. Notebook local dự kiến dùng cùng mã CLI; Colab nếu cần chỉ là minh họa với dữ liệu giả.
-
-## Bước tiếp theo
-
-Rà soát/khép phần tài liệu của [T01](PLAN.md#t01), giữ nguồn, giả định và giới hạn rõ ràng. Khi được giao triển khai kỹ thuật và điều kiện T01 có bằng chứng, bắt đầu [T02](PLAN.md#t02), sau đó T03 → T04 → T05. Việc tạo tài liệu không hoàn thành task kỹ thuật hoặc nghiệm thu M1/M2/M3.
-
-## Repository Git
-
-Repository theo yêu cầu người dùng: [khanhnguyenpham/Sigma](https://github.com/khanhnguyenpham/Sigma). Bản hiện tại lưu bộ tài liệu phát triển, chưa có mã triển khai. Dữ liệu nguồn, kết quả chạy, môi trường cục bộ và thông tin đăng nhập được loại bằng `.gitignore`.
-
-Để lấy tài liệu và làm việc trên ổ F:
+Mở PowerShell trong thư mục project, chạy:
 
 ```powershell
-git clone https://github.com/khanhnguyenpham/Sigma.git F:\code\Sigma
+.\start_dashboard.ps1
 ```
 
-Chỉ chạy lệnh trên khi thư mục đích chưa tồn tại. CSV cần được cung cấp cục bộ theo [hướng dẫn dữ liệu](data/README.md); clone repository không tự tải dữ liệu riêng tư.
+Mở địa chỉ `http://127.0.0.1:8501`. Chọn bộ kết quả `sigma_release_v4` để xem bản bàn giao đã kiểm tra; `sigma_full_v1` giữ làm lịch sử. Chọn `demo_release` để xem dữ liệu giả. Dashboard có sáu tab: bán & dự báo, đánh giá, tồn & đặt hàng, cảnh báo, kịch bản, audit & giới hạn. Chạy pipeline trước khi mở dashboard trên máy mới.
+
+## Cài trên máy Windows mới
+
+Môi trường đã kiểm chứng: Python 3.14.7, Windows 64-bit. Cài Python, Git và mở PowerShell:
+
+```powershell
+git clone https://github.com/khanhnguyenpham/Sigma.git
+cd Sigma
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe -m pytest
+```
+
+Nếu `python` trỏ tới phiên bản khác, dùng đường dẫn Python 3.14 đã cài. Không cần activate môi trường. `requirements.txt` khóa phiên bản; `requirements-demo.txt` tham chiếu cùng môi trường để demo không khác phép tính.
+
+Demo độc lập, không cần CSV riêng tư:
+
+```powershell
+.\.venv\Scripts\python.exe run.py --demo --baseline-only --run-id demo_local
+.\start_dashboard.ps1
+```
+
+Demo sinh toàn bộ dữ liệu giả, chỉ chạy ba baseline và mô phỏng; không chứng minh chất lượng mô hình trên sales thật. Chạy thêm `--demo` mà không có `--baseline-only` nếu muốn thử cả quy trình chọn mô hình với dữ liệu giả.
+
+## Chạy dữ liệu thật local
+
+Đặt bản CSV được phép sử dụng tại `data/sigma_sim_data_orders.csv`, giữ nguyên byte. Clone GitHub không tải dữ liệu này. Đọc [data/README](data/README.md) và [data-contract](docs/data-contract.md) trước khi đổi nguồn.
+
+```powershell
+.\.venv\Scripts\python.exe run.py --run-id sigma_local
+```
+
+Lệnh thực hiện audit → EDA → baseline → validation → test → forecast → inventory. SARIMA thử 6 cấu hình trên top 10; LightGBM thử 4 cấu hình nếu điều kiện validation kích hoạt. Chọn bằng validation rồi khóa trước test. Kết quả nằm ở `outputs/sigma_local/`, gồm manifest, predictions, metric, forecast, ledger, recommendations, alerts, bảng kịch bản và hình EDA. Dữ liệu/run thật chỉ giữ local.
+
+Có thể chạy từng stage:
+
+```powershell
+.\.venv\Scripts\python.exe run.py --stage audit --run-id sigma_steps
+.\.venv\Scripts\python.exe run.py --stage eda --run-id sigma_steps --resume
+.\.venv\Scripts\python.exe run.py --run-id sigma_steps --resume
+```
+
+`--resume` chỉ chấp nhận cùng input/config/mã/mode, bỏ qua stage đã hoàn tất. Stage thất bại sẽ chạy lại; không ghi đè run khác. Nếu đổi cấu hình hoặc mã, tạo run-id mới. Dashboard từ chối run chưa hoàn tất hoặc artifact sai hash. Notebook [run_local](notebooks/run_local.ipynb) gọi cùng API với CLI và không chứa output riêng tư.
+
+## Quy ước và giới hạn
+
+- Target là tổng `quantity` của trạng thái `success` theo ngày UTC, tuyến `(destination_country, carrier)`; activation không làm target hoặc điều kiện loại sale. A08–A17 được người dùng chọn cho thực nghiệm, chưa phải mentor xác nhận.
+- Train 01/01/2024–30/06/2025; validation 01/07–30/09/2025; test 01/10–31/12/2025. Top 10 lấy từ train. Horizon 14 ngày; h1–7 chính, h8–14 riêng; MAPE ngày dương, kèm MAE/WAPE/bias/độ phủ. Forecast sau 31/12/2025 chưa có actual, không gán 0.
+- Chỉ order là dữ liệu được cung cấp. Tồn đầu, mapping đối tác, lead time và receipts đều có nhãn giả định/mô phỏng. Khi cấu hình mapping/partners rỗng, bootstrap train-only tạo từng đối tác và ghi trong `effective_config.json`; cấu hình thiếu một phần không được tự lấp.
+- Trigger `closing_on_hand < ROP`; IP tính lượng đặt, không thay trigger. Ledger theo item/ngày UTC, nhận đầu ngày và quyết định cuối ngày; tương đương cộng giao dịch trong các điều kiện này, chưa mô phỏng receipt nội ngày, FIFO hoặc thay thế SKU.
+- Có 7 kịch bản cơ sở/stress: cơ sở, một ngày bán về 0, giảm nhiều ngày, tăng bán, nhận thiếu, nhận trễ, không nhận; thêm 6 biến thể độ nhạy. Đây là giả định, không dự đoán được mọi cú sốc bất ngờ. Cảnh báo bất thường phát ra sau khi quan sát và không khẳng định nguyên nhân.
+- Kịch bản làm tròn demand về đơn vị nguyên; receipt_fraction áp trên từng lượng đặt và làm tròn xuống. Đơn một sản phẩm với tỷ lệ 50% có thể nhận 0; phần chưa nhận giả định hủy, không tạo backorder thật.
+- Đánh giá cảnh báo replay không đặt mới được tách khỏi chính sách có bổ sung hàng. Kết quả tồn mô phỏng không chứng minh hiệu quả vận hành thật.
+- Snapshot trạng thái cuối không tái dựng thông tin doanh nghiệp có tại origin thật. Ảnh kickoff và PDF nguồn đang thiếu; triển khai dựa trên PLAN/requirements cùng thông tin người dùng thuật lại, không nhận đã đọc nguồn thiếu.
+
+## Cấu trúc và hướng dẫn
+
+`run.py` điều phối; `src/data.py` audit/chuỗi; `src/models.py` forecast; `src/calendar_models.py` hồi quy mùa vụ; `src/evaluation.py` metric/chọn; `src/inventory.py` tồn/cảnh báo; `src/reporting.py` EDA/demo; `src/common.py` manifest; `app.py` dashboard; `config.json` cấu hình tập trung; `tests/` ca dữ liệu giả và phép tính độc lập.
+
+Đọc [TASK](TASK.md) để xem tiến độ, [PLAN](PLAN.md) để xem phương pháp, [requirements](docs/requirements.md) để xem nghiệm thu, [development](docs/development.md) để kiểm tra/bàn giao, [PROJECTMAP](PROJECTMAP.md) để phân biệt hiện trạng và lịch sử. Quy trình Git solo/nhóm ở [hướng dẫn TXT](HUONG_DAN_LAM_VIEC_NHOM.txt).
+
+GitHub chỉ nhận mã, cấu hình, khóa môi trường, tests với fixture giả, notebook không output và tài liệu. Không đưa CSV thật, `outputs/`, môi trường, token hoặc file đăng nhập vào commit. GitHub Actions chạy tests, pipeline demo giả và AppTest trên Windows sạch; không có dữ liệu thật trên CI. Một lần chạy CI không thay diễn tập giao diện trên máy Windows thứ hai.
+
+## Báo cáo tiến độ M2
+
+Tệp local trong `reports/M2/`: `SIGMA_Bao_cao_tien_do_M2.docx` (10 trang) và `SIGMA_Slide_bao_cao_M2_final.pptx` (16 slide, có speaker notes, bảng/biểu đồ chỉnh sửa được). Báo cáo gồm phương pháp, kết quả từng tuyến, tình huống mô phỏng, ma trận R01–R09, giới hạn và kịch bản demo. Word/slide giữ local ngoài Git vì dùng kết quả run riêng tư. Báo cáo tiến độ chưa thay nghiệm thu độ chính xác, báo cáo cuối kỳ hoặc bảo vệ.
+
+Release có 43 tệp khớp hash manifest, 37 tests đã chạy đạt và 1.100.320 dòng ledger cân bằng. Đánh giá chính vẫn 0/10 tuyến đạt R05; replay chỉ 31,67% sự kiện báo trước ít nhất 7 ngày. Xem review-log E14/E15 để truy vết.

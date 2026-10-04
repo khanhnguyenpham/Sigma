@@ -1,5 +1,7 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+**Cập nhật 05/10/2026:** Mã và quy trình chạy đã triển khai; lệnh thật tại README. Python 3.14.7, phiên bản khóa trong requirements.txt; config chứa seed 42 và dung sai số thực 1e-8. Kiểm tra release và báo cáo M2 ghi ở E13–E15/TASK. Phần ghi “chưa có/dự kiến” ngày 02/10 dưới đây là bối cảnh lịch sử và checklist thiết kế, không phải hiện trạng triển khai. Git root hiện nằm trong project; không sửa cấu hình Git toàn cục.
+
 **Bản hướng dẫn:** 1.0 — 02/10/2026 (Asia/Saigon), dựa trên [PLAN 2.0](../PLAN.md), [requirements](requirements.md), [review-log](review-log.md). **Hiện trạng:** tài liệu và CSV; chưa có mã, config, phụ thuộc được khóa, tests hoặc run. Quy trình kỹ thuật dưới đây là **dự kiến, chưa triển khai**. Lượt tạo tài liệu không cài đặt, huấn luyện, mô phỏng hay nghiệm thu kỹ thuật.
 
 ## 1. Bắt đầu và trình tự task
@@ -125,4 +127,12 @@ Thay đổi tiến độ đã đồng bộ ở đâu:
 Bước tiếp theo, phụ thuộc và điều kiện bắt đầu:
 ```
 
-Phiên nhận bàn giao xác minh lại tệp/hash/config/manifest hiện có và Git nếu kiểm tra được trong project; không suy trạng thái từ cây dự kiến hoặc lời “đã chạy” thiếu bằng chứng. Đọc phần yêu cầu/nhật ký liên quan nếu đổi nghiệp vụ. Hiện bước kỹ thuật đầu tiên vẫn là T02 sau điều kiện T01 và yêu cầu triển khai mới, chưa phải chạy mô hình ngay.
+Phiên nhận bàn giao xác minh lại tệp/hash/config/manifest hiện có và Git nếu kiểm tra được trong project; không suy trạng thái từ cây dự kiến hoặc lời “đã chạy” thiếu bằng chứng. Đọc phần yêu cầu/nhật ký liên quan nếu đổi nghiệp vụ. T02–T12 nay đã có triển khai; kiểm tra trạng thái/run hiện hành ở TASK và README, không dùng bước tiếp theo ngày 02/10 để suy tiến độ.
+
+### Bàn giao trực tiếp ngày 05 tháng 10 năm 2026
+
+- Phạm vi: phần mềm T01–T12 và Word/slide tiến độ M2 của T13 theo CHG-008–011. T14 chưa nghiệm thu toàn bài.
+- Sản phẩm: src/tests/config/CLI/notebook/dashboard đã có; run sigma_release_v4 complete với 43 tệp sealed; báo cáo local reports/M2. E14/E15 ghi hash và kết quả trực tiếp.
+- Kiểm tra: 37 tests, pip check hai môi trường, 14 bảng demo tái lập, ledger số nguyên và không âm, AppTest release 0 exception/10 bảng; Word 10 trang và PPTX 16 slide đã render/kiểm tra. CI chỉ chạy dữ liệu giả.
+- Giới hạn: R05 0/10 đạt, MAPE 40,93–61,96%; early-event-rate 31,67%; test đã dùng lại; tồn/nhập giả định; thiếu ảnh/PDF nguồn; chưa diễn tập run thật máy thứ hai/mentor nghiệm thu. Kết quả activation cũ không chứng minh sales.
+- Tiến độ: TASK, PLAN, requirements, README, PROJECTMAP và review-log đồng bộ. Bước tiếp: rà mentor A08–A17, chẩn đoán R05/cảnh báo và diễn tập demo theo README. Không đổi actual/tiêu chí hoặc công khai dữ liệu local.

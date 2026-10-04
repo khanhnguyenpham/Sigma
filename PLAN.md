@@ -2,7 +2,9 @@
 
 **Phiên bản:** 2.0 — 02/10/2026 (Asia/Saigon).
 
-**Trạng thái:** Khảo sát đã thực hiện, triển khai chưa bắt đầu. Lượt này chỉ cập nhật ba Markdown; chưa tạo mã, cài thư viện, huấn luyện, mô phỏng hoặc nghiệm thu M1/M2/M3. Chưa có run dự án.
+**Trạng thái lịch sử 04/10/2026:** Người dùng đã yêu cầu triển khai phần mềm xuyên suốt, kiểm thử/Git và tình huống thực tế (CHG-007); báo cáo/slide để sau. Chưa có mã pipeline, môi trường khóa, huấn luyện, mô phỏng hoặc nghiệm thu M1/M2/M3; các lựa chọn triển khai đang chờ làm rõ. Giới hạn chỉ ba Markdown là phạm vi lịch sử ngày 02/10/2026, không áp dụng cho yêu cầu mới.
+
+**Trạng thái 05/10/2026:** Run sigma_release_v4 hoàn tất và kiểm tra hash/tồn/UI. R05 chưa đạt, 0/10 top 10 MAPE ≤20%; test dùng lại sau tinh chỉnh được công khai. CHG-011 yêu cầu Word tiến độ M2 và slide, đã tạo ở local. T14 chưa nghiệm thu toàn bài. Các mô tả “chưa có/dự kiến” ngày 02/10 là bối cảnh lịch sử.
 
 ## 1. Cách sử dụng và thay đổi chính
 
@@ -276,7 +278,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Khang review. Chưa xác nhận năng lực/quỹ giờ hoặc nhận việc; xem [phân công nhóm](TASK.md#team-assignment).
 
-- **Trạng thái:** Đang làm — cập nhật tài liệu 2.0, chưa nghiệm thu kỹ thuật.
+- **Trạng thái:** Hoàn thành phần yêu cầu; giữ nguồn thiếu và giả định thực nghiệm.
 - **Mục tiêu/yêu cầu:** R01–R09; số bán, nguồn mentor thuật lại và giả định.
 - **Đầu vào/công việc/đầu ra:** Ba nguồn/xác nhận mới → CHG-003 và tác động → PLAN, requirements, review-log.
 - **Phụ thuộc:** Không.
@@ -289,7 +291,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Nguyên review.
 
-- **Trạng thái:** Chưa làm.
+- **Trạng thái:** Đã triển khai; cài khóa phụ thuộc và pip check trong hai môi trường local.
 - **Mục tiêu/yêu cầu:** R09; xử lý riêng tư, notebook/CLI cùng mã.
 - **Đầu vào/công việc/đầu ra:** T01 → local environment, kiểm tra/khóa phụ thuộc, CLI/notebook → requirements, run.py, run_local.ipynb, hướng dẫn.
 - **Phụ thuộc:** T01.
@@ -302,7 +304,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Du phụ trách; Nguyên review.
 
-- **Trạng thái:** Chưa làm.
+- **Trạng thái:** Hoàn thành audit chạy thật và fixtures; hash nguồn giữ nguyên.
 - **Mục tiêu/yêu cầu:** R01, R09.
 - **Đầu vào/công việc/đầu ra:** CSV/config → audit schema/thời gian/quantity/trạng thái/trùng/activation riêng → audit, bảng lỗi, processed.
 - **Phụ thuộc:** T02.
@@ -315,7 +317,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Du phụ trách; Cường review.
 
-- **Trạng thái:** Chưa làm.
+- **Trạng thái:** Đã triển khai chuỗi sales, lịch và EDA; giới hạn nguồn lịch được ghi.
 - **Mục tiêu/yêu cầu:** R02, R04.
 - **Đầu vào/công việc/đầu ra:** T03/lịch công khai → 731 ngày/46 tuyến và EDA → daily_sales, calendar, bảng/hình.
 - **Phụ thuộc:** T03.
@@ -328,7 +330,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
-- **Trạng thái:** Chưa làm; MA7 activation cần tính lại, không thay task.
+- **Trạng thái:** Hoàn thành top 10 train và ba baseline sales chạy thật.
 - **Mục tiêu/yêu cầu:** R03–R05.
 - **Đầu vào/công việc/đầu ra:** Sales/protocol → top 10 train, rolling origin/metric → top_routes, predictions, metrics.
 - **Phụ thuộc:** T04.
@@ -343,7 +345,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Hiếu review. Hiếu hỗ trợ tồn tối thiểu, Cường hỗ trợ màn hình tối thiểu.
 
-- **Trạng thái:** Chưa làm.
+- **Trạng thái:** Hoàn thành MVP xuyên suốt bằng demo giả và run thật v1.
 - **Mục tiêu/yêu cầu:** R03, R04, R06–R09.
 - **Đầu vào/công việc/đầu ra:** Baseline/cấu hình nhỏ → forecast/phân bổ/ledger/dashboard → run đầu tiên.
 - **Phụ thuộc:** T05.
@@ -356,7 +358,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Tuấn Anh phụ trách; Nguyên review.
 
-- **Trạng thái:** Chưa làm.
+- **Trạng thái:** Hoàn thành 60 ứng viên SARIMA validation; có log loại/hội tụ.
 - **Mục tiêu/yêu cầu:** R04, R05.
 - **Đầu vào/công việc/đầu ra:** Sales/evaluator → 6 cấu hình top 10 → validation/predictions/log hội tụ.
 - **Phụ thuộc:** T05.
@@ -369,7 +371,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Tuấn Anh phụ trách khi kích hoạt; Nguyên review cả kết quả hoặc biên bản không kích hoạt.
 
-- **Trạng thái:** Chưa làm; chỉ kích hoạt theo mục 5.3.
+- **Trạng thái:** Hoàn thành; điều kiện kích hoạt, 4 cấu hình Poisson đã chạy.
 - **Mục tiêu/yêu cầu:** R04, R05.
 - **Đầu vào/công việc/đầu ra:** Validation T07 → 4 cấu hình pooled/direct → metric hoặc biên bản không kích hoạt.
 - **Phụ thuộc:** T07.
@@ -382,7 +384,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
-- **Trạng thái:** Chưa làm.
+- **Trạng thái:** Đã khóa/chấm release_v4 với 37 cấu hình; R05 chưa đạt. Công khai test dùng lại sau tinh chỉnh.
 - **Mục tiêu/yêu cầu:** R04, R05, R09.
 - **Đầu vào/công việc/đầu ra:** T07/T08/MVP → khóa, test cuối, forecast → selected_models, test metrics, đạt/chưa đạt.
 - **Phụ thuộc:** T06, T07, T08 hoặc biên bản không kích hoạt T08.
@@ -397,7 +399,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Hiếu phụ trách; Khang review.
 
-- **Trạng thái:** Chưa làm.
+- **Trạng thái:** Hoàn thành mô phỏng release_v4 và kiểm tra 13 chính sách/replay; cảnh báo sớm còn hạn chế.
 - **Mục tiêu/yêu cầu:** R06, R07.
 - **Đầu vào/công việc/đầu ra:** Sales/forecast/A09–A16 → mapping/tham số riêng/ledger/ETA/strict threshold/replay/độ nhạy → recommendations, alerts, simulation_metrics.
 - **Phụ thuộc:** T06 để phát triển; kết quả cuối nhận T09.
@@ -410,7 +412,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Cường phụ trách; Hiếu review.
 
-- **Trạng thái:** Chưa làm.
+- **Trạng thái:** Hoàn thành dashboard local và AppTest release: 0 exception, 10 bảng, các bộ lọc hoạt động.
 - **Mục tiêu/yêu cầu:** R08, R09.
 - **Đầu vào/công việc/đầu ra:** T09/T10 → bộ lọc, actual/forecast, metric, bảng giả định, tồn/cảnh báo, export kiểm soát → app.py/hướng dẫn.
 - **Phụ thuộc:** T06, T09, T10.
@@ -425,7 +427,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Du review. Mỗi tác giả cung cấp kiểm thử/bằng chứng cho module của mình.
 
-- **Trạng thái:** Chưa làm.
+- **Trạng thái:** Hoàn thành kiểm tra local, demo tái lập và CI; chưa diễn tập run thật trên máy thứ hai.
 - **Mục tiêu/yêu cầu:** R01, R03–R09.
 - **Đầu vào/công việc/đầu ra:** Pipeline → ca mục 8/môi trường local sạch/kiểm tra gói → tests, checks, run tái lập.
 - **Phụ thuộc:** T09, T10, T11.
@@ -438,7 +440,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Cường phụ trách; Nguyên review. Các tác giả cung cấp phần phương pháp/kết quả truy về run.
 
-- **Trạng thái:** Chưa làm.
+- **Trạng thái:** Đã tạo Word tiến độ M2 10 trang và slide M2 16 trang theo CHG-011; báo cáo cuối kỳ/bảo vệ còn mở.
 - **Mục tiêu/yêu cầu:** R01–R09.
 - **Đầu vào/công việc/đầu ra:** Run kiểm tra/review-log → viết sales/phương pháp/kết quả/giả định/độ nhạy/giới hạn → report.md/pdf, slides, demo-script.
 - **Phụ thuộc:** T09–T12.
@@ -451,7 +453,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Khang review.
 
-- **Trạng thái:** Chưa làm.
+- **Trạng thái:** Bàn giao phần mềm và báo cáo tiến độ M2; chưa nghiệm thu toàn bài vì R05/cảnh báo sớm và review còn mở.
 - **Mục tiêu/yêu cầu:** R01–R09.
 - **Đầu vào/công việc/đầu ra:** Sản phẩm/kiểm tra/báo cáo → ma trận/diễn tập máy khác/gói phù hợp quyền → biên bản, gói riêng tư hoặc giả, giới hạn.
 - **Phụ thuộc:** T12, T13.
@@ -462,6 +464,24 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 **Tổng:** 97–149 người-giờ chưa gồm T08; 105–163 nếu kích hoạt T08. T10 tăng 4–6 và T12 tăng 2 người-giờ ở cả hai cận so với 1.0, cho chính sách đối tác, sổ giao dịch, độ nhạy và bảo mật; chưa gồm chờ phản hồi/thời gian máy chạy.
 
 ## 8. Kiểm thử và bàn giao
+
+### Tình huống thực tế bổ sung theo CHG-007 — đề xuất triển khai
+
+Theo yêu cầu người dùng ngày 04/10/2026, bổ sung các ca dưới vào T03–T12. Phạm vi phần mềm được yêu cầu triển khai xuyên suốt; T13 ban đầu để sau, nay có Word/slide tiến độ M2 theo CHG-011. Các lựa chọn đã được người dùng chốt tại CHG-008: local, giả định thực nghiệm, cả giảm bán và nhận thiếu/trễ; push chỉ code/config/tests giả/notebook không output/tài liệu. Không đổi target, top 10, split, metric hoặc tự xác nhận nguồn kickoff thiếu.
+
+| Nhóm ca | Hành vi cần kiểm chứng | Task hiện có |
+|---|---|---|
+| Bán giảm đột ngột một ngày, về 0 hoặc giảm nhiều ngày | Giữ actual hợp lệ, không xóa/impute để hạ MAPE; cảnh báo sau khi quan sát, không dùng cờ tương lai | T04, T05, T07–T09, T12 |
+| Bán tăng đột ngột/phục hồi | Không cap đỉnh; đánh giá forecast và nguy cơ shortage theo dữ liệu giữ nguyên | T04–T10, T12 |
+| Doanh thu giảm nhưng quantity không giảm | Tách chẩn đoán quantity/giá/cơ cấu sản phẩm; không coi doanh thu là target hoặc khẳng định nguyên nhân | T03, T04, T11, T12 |
+| Thiếu dữ liệu, ngày chưa có actual, nguồn không đầy đủ | Missing giữ thiếu và có lý do; không gán 0 hoặc chấm như nhãn hợp lệ | T03–T05, T11, T12 |
+| ID trùng, timestamp timezone khác/naive, quantity lỗi, trạng thái lạ | Fixture giả có kỳ vọng; bản dẫn xuất/log/chặn rõ; không ghi đè nguồn hoặc bỏ sale vì activation | T03, T12 |
+| Lượng thực nhận thấp hơn lượng đặt, về nhiều đợt hoặc không về | Kịch bản mô phỏng; chỉ cộng lượng đã nhận, phần chưa nhận/trạng thái hủy phải khai báo; IP và Q tránh đặt trùng | T10, T12 |
+| ETA trễ, hàng chưa tới lúc hết tồn | Không cộng tồn trước nhận thực mô phỏng; cảnh báo/ngày cạn và shortage giữ đúng | T10, T12 |
+| Tuyến/SKU mới, cả cửa sổ phân bổ không có cơ sở | Báo thiếu cơ sở/mapping/config, không chuyển forecast sang tuyến khác hoặc tự đoán ngưỡng | T03, T10, T11, T12 |
+| Run dừng giữa chừng, thiếu bảng, sai phiên bản | Manifest ghi failed/incomplete; dashboard từ chối gói sai; không giả làm run thành công | T02, T06, T11, T12 |
+
+Shock bán và nguồn cung dùng các hệ số/mức trễ có cấu hình và nhãn kịch bản; giá trị cụ thể ghi trước khi chạy, không chọn theo test nhằm làm đẹp kết quả. Không suy ra lost sales thật hoặc forecast lượng nhập đối tác khi không có dữ liệu nhập. Ca bị chặn và quy tắc phục hồi cần có hướng dẫn; không hứa dự đoán mọi bất ngờ.
 
 Các ca bắt buộc khi triển khai:
 
@@ -484,7 +504,7 @@ Ghi nguồn/ngày/mã → xác định R/A/T/đầu ra ảnh hưởng → sửa 
 
 **Hiện tại:** chỉ cập nhật/kiểm tra ba Markdown. Không có câu hỏi nghiệp vụ bắt buộc để hoàn tất bước này; phần ngoài order đã có giả định cơ sở. A08–A17 chờ nhóm xem xét, không yêu cầu xin dữ liệu doanh nghiệp. R05/R07 chưa có bằng chứng nghiệm thu; quỹ giờ chưa biết.
 
-**Bước kỹ thuật tiếp theo khi được giao:** T02 local, rồi T03/T04/T05 theo sales 2.0; chưa thực hiện trong lượt này. Khi tiếp tục chat khác, đọc ba tài liệu, Git, config/manifest thực tế nếu có; không suy ra tiến độ từ cây tệp dự kiến.
+**Bước kỹ thuật hiện hành:** phần mềm và báo cáo tiến độ M2 đã có bằng chứng ở E11–E15. Còn R05, cảnh báo sớm, review mentor và diễn tập máy thứ hai. Không chọn mô hình bằng test, không đổi tiêu chí/actual. Khi tiếp tục, đọc TASK/PROJECTMAP và xác minh config/manifest/Git thực tế.
 
 ## 10. Lịch sử phiên bản
 

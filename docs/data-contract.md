@@ -1,5 +1,7 @@
 # Hợp đồng dữ liệu SIGMA
 
+**Triển khai 05/10/2026:** Audit/chuỗi/forecast/metric/phân bổ/tồn đã có trong src và CLI. Tên đầu ra thực cùng version/hash ghi trong manifest mỗi run; `forecast_qty` là giá trị dự báo, `target_date` là ngày được dự báo. Mô phỏng dùng ledger item/ngày, điều kiện tương đương giao dịch tại README và ledger_method.json. Các mô tả “dự kiến/chưa có” ngày 02/10 bên dưới giữ làm lịch sử thiết kế. Không nâng giả định thành dữ liệu thật.
+
 **Bản tài liệu:** 1.0 — 02/10/2026 (Asia/Saigon), diễn giải [PLAN 2.0](../PLAN.md), [requirements 2.0](requirements.md) và [review-log 2.0](review-log.md). Schema nguồn đã khảo sát chỉ đọc; schema processed/run bên dưới **dự kiến, chưa triển khai**. Không có từ điển dữ liệu doanh nghiệp để xác nhận toàn bộ ý nghĩa tên cột.
 
 <a id="source-check"></a>
@@ -84,6 +86,8 @@ sales_qty[UTC_date(order_datetime), destination_country, carrier]
 Theo [requirements](requirements.md), lưới thiết kế 01/01/2024–31/12/2025 gồm 731 ngày; train 01/01/2024–30/06/2025, validation 01/07/2025–30/09/2025, test 01/10/2025–31/12/2025. Top 10 cố định theo quantity bán train giảm dần, hòa theo tên tuyến; không dùng doanh thu, activation, số đơn hoặc test. H=14; h1–7 chính, h8–14 riêng.
 
 ## 4. Quy tắc làm sạch và missing — thiết kế chưa triển khai
+
+**Bổ sung ngày 04/10/2026 (CHG-007):** Chuẩn hóa là parse/kiểm tra ở bản dẫn xuất có dấu vết, không sửa nguồn hoặc ép dữ liệu hợp lệ cho hợp mô hình. Timestamp có offset được chuyển UTC; timestamp naive không tự gán timezone. Chuỗi khóa chuẩn hóa phải khai báo quy tắc và phát hiện va chạm, không tự hợp nhất tuyến/SKU khác nhau. Quantity không nguyên dương và trạng thái lạ được báo lỗi, không đoán. Giá/doanh thu được audit riêng; lỗi tiền không tự chứng minh quantity sai. Ngày giảm/tăng bán thật không được tự xóa, cap hoặc impute; mất nguồn không phải ngày bán 0. Kịch bản biến động nguồn cung và lượng bán phải tách khỏi dữ liệu quan sát.
 
 | Trường hợp | Xử lý theo PLAN / ranh giới suy luận |
 |---|---|
