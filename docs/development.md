@@ -148,3 +148,7 @@ V5 qua 53 tests và `verify_release.py`, 48 tệp sealed, 1.100.320 ledger, 84 p
 ### Kiểm giao dịch v7 — CHG-016/E21
 
 `pytest -q`: 75 tests đạt, gồm receipt trước midnight sale, timestamp/ID tiebreak toàn ngày, stock chain/partial fulfillment từng item, shock apportionment số nguyên, ngày nhận không sale, thiếu/trùng transaction bị chặn, event tamper và fractional config. Verification v7 đối chiếu private events với nguồn audited rồi ledger chunks; không log source IDs/records. 51 hashes sealed, 84 pins, AppTest 0 exception/10 bảng, bảy bảng forecast/selection/metric/mô phỏng khớp v6 tại 1e-8. Demo .venv-verify tái lập 14 bảng và chronology/event/day, không thay diễn tập máy khác. README clone đúng nhánh draft có mã, chưa nhận main/PR merged.
+
+### Kiểm cohort v8 — CHG-017/E23
+
+83 tests đạt; mới kiểm first-seen/giá/basket/validity proxy tính tay, horizon không dùng đơn sau origin, training/inference alignment, future mutation không đổi X/y/forecast, activation không ảnh hưởng và invalid covariate không loại sales. 51.520 validation predictions khớp prototype 1e-8. V8 verify 53 hashes/84 pins/265.985 events; AppTest 0 exception/10 bảng. Verification thêm code_file SHA-256 của run.py/app.py/src để truy đúng mã hiện hành; file ngoài sealed run và hash ở E23, không sửa bằng chứng cũ.
