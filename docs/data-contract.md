@@ -1,6 +1,6 @@
 # Hợp đồng dữ liệu SIGMA
 
-**Triển khai 05/10/2026:** Audit/chuỗi/forecast/metric/phân bổ/tồn đã có trong src và CLI. Tên đầu ra thực cùng version/hash ghi trong manifest mỗi run; `forecast_qty` là giá trị dự báo, `target_date` là ngày được dự báo. Mô phỏng dùng ledger item/ngày, điều kiện tương đương giao dịch tại README và ledger_method.json. Các mô tả “dự kiến/chưa có” ngày 02/10 bên dưới giữ làm lịch sử thiết kế. Không nâng giả định thành dữ liệu thật.
+**Triển khai 05/10/2026:** Audit/chuỗi/forecast/metric/phân bổ/tồn đã có trong src và CLI. Tên đầu ra thực cùng version/hash ghi trong manifest mỗi run; `forecast_qty` là giá trị dự báo, `target_date` là ngày được dự báo. CHG-016 thêm xử lý giao dịch UTC và event ledger, đã kiểm run v7; không chỉ dùng phép tương đương tổng ngày để nhận R06 đủ bằng chứng. Các mô tả “dự kiến/chưa có” ngày 02/10 bên dưới giữ làm lịch sử thiết kế. Không nâng giả định thành dữ liệu thật.
 
 **Bản tài liệu:** 1.0 — 02/10/2026 (Asia/Saigon), diễn giải [PLAN 2.0](../PLAN.md), [requirements 2.0](requirements.md) và [review-log 2.0](review-log.md). Schema nguồn đã khảo sát chỉ đọc; schema processed/run bên dưới **dự kiến, chưa triển khai**. Không có từ điển dữ liệu doanh nghiệp để xác nhận toàn bộ ý nghĩa tên cột.
 
@@ -159,3 +159,11 @@ Tất cả sản phẩm dưới **chưa tồn tại**. Căn cứ PLAN mục 4.2,
 - Mô phỏng chỉ trừ fulfilled, không tồn âm; không thay sales lịch sử bằng fulfilled để khớp tồn giả định. Trigger strict <, IP tính Q; H phải đủ L+R.
 - MAPE chỉ actual>0 nhưng MAE/WAPE/bias trên mọi cặp có nhãn. MAPE toàn 0, WAPE có mẫu số 0 không xác định; thiếu nhãn không chấm. Cùng target_date qua nhiều origin không phải nhiều ngày độc lập.
 - Dashboard/báo cáo từ chối trộn run/phiên bản hoặc dùng kết quả hết hiệu lực. Nhãn dự kiến trong tài liệu chỉ được thay bằng đã triển khai sau có sản phẩm/kiểm tra thật.
+
+## Event ledger hiện hành — CHG-016
+
+`inventory_events.csv` là đầu ra private local, chứa order_id phục vụ đối soát; không đưa vào Git, log, tài liệu hoặc export dashboard. Khóa `(scenario_id, date, event_sequence)` liên tục trong ngày. Receipt có order_id trống, timestamp 00:00 UTC và xảy ra trước mọi sale trong ngày. Sale theo order_datetime UTC rồi order_id, cùng dữ liệu audited, không dùng activation. ITEM vẫn là destination_country/carrier/sku/product_type.
+
+Mỗi event có event_type, event_datetime, historical_quantity, scenario_quantity, received_quantity, stock_before, fulfilled, shortage, stock_after, is_simulated và assumption_version. Receipt chỉ cộng lượng nhận; sale đáp ứng min(stock_before, scenario_quantity). Historical quantity không đổi; stress item-day được chia số nguyên bằng largest remainders theo quantity gốc, hòa phần dư theo thứ tự giao dịch. Đây là phân bổ nhu cầu mô phỏng, không suy ra từng đơn thực đã đổi quantity.
+
+Đối soát stock_after=stock_before+received_quantity−fulfilled, scenario_quantity=fulfilled+shortage; stock trước event tiếp theo khớp stock sau event trước cho cùng item/ngày. Tổng event khớp ledger ngày; ngày không event vẫn có opening/closing trong inventory_ledger.csv. Thiếu hoặc trùng giao dịch chặn đối soát thay vì điền 0. Chỉ base có historical_sales=fulfilled+shortage; stress dùng scenario_demand cho đẳng thức này và giữ historical_sales để so sánh.
