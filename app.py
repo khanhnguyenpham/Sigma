@@ -26,6 +26,13 @@ name = st.sidebar.selectbox("Bộ kết quả", names, index=index)
 folder = run_root / name
 try:
     manifest = validate_run(folder)
+    required = {"daily_sales.csv", "forecast.csv", "demo_forecast.csv", "metrics.csv", "selected_models.csv",
+                "accuracy_acceptance.csv", "inventory_ledger.csv", "inventory_recommendations.csv", "alerts.csv",
+                "simulation_metrics.csv", "observed_anomalies.csv", "inventory_issues.csv", "scenario_configs.json", "data_audit.json"}
+    if manifest.get("schema_version") != "1" or not required.issubset(manifest["files"]):
+        raise ValueError("Unsupported schema or missing required dashboard artifacts")
+    if not {"horizon", "forecast_origin", "demo_origin"}.issubset(manifest.get("config", {})):
+        raise ValueError("Missing run configuration")
 except (OSError, ValueError, KeyError) as error:
     st.error(f"Không thể mở run: {error}. Chọn run hoàn tất và đúng hash; không dùng gói bị sửa hoặc thiếu.")
     st.stop()

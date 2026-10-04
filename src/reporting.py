@@ -44,7 +44,24 @@ def eda(daily, folder, cfg):
     folder = Path(folder)
     figure_dir = folder / "figures"
     figure_dir.mkdir(parents=True, exist_ok=True)
-    write_csv(folder / "calendar.csv", calendar_table(daily.destination_country.unique(), cfg))
+    calendar = calendar_table(daily.destination_country.unique(), cfg)
+    write_csv(folder / "calendar.csv", calendar)
+    holiday_daily = daily.merge(calendar[["destination_country", "date", "holiday_known", "holiday_name"]],
+                                on=["destination_country", "date"], how="left", validate="many_to_one")
+    holiday_daily["holiday_group"] = np.where(~holiday_daily.holiday_known.fillna(False), "unknown",
+                                             np.where(holiday_daily.holiday_name.fillna("").ne(""), "holiday", "ordinary"))
+    holiday_summary = holiday_daily.groupby(["destination_country", "holiday_group"]).sales_qty.agg(
+        mean_quantity="mean", total_quantity="sum", labeled_route_days="count").reset_index()
+    holiday_summary["interpretation"] = "Descriptive association; unequal samples, weekday/season/product mix can confound; unknown is not ordinary"
+    write_csv(folder / "eda_holidays.csv", holiday_summary)
+    pooled = holiday_daily.groupby("holiday_group").sales_qty.agg(["mean", "count"])
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.bar(pooled.index, pooled["mean"], color="#7c3aed")
+    for index, (_, row) in enumerate(pooled.iterrows()):
+        ax.text(index, row["mean"], f"n={int(row['count'])}", ha="center", va="bottom")
+    ax.set(xlabel="Public-calendar category; unknown kept separately", ylabel="Mean sales quantity / labeled route-day",
+           title="Descriptive holiday association; not a causal effect")
+    fig.tight_layout(); fig.savefig(figure_dir / "holidays.png", dpi=150); plt.close(fig)
     route_summary = daily.groupby(ROUTE).agg(total_sales_qty=("sales_qty", "sum"),
                                             observed_days=("sales_qty", "count"),
                                             zero_days=("sales_qty", lambda x: int(x.eq(0).sum())),
