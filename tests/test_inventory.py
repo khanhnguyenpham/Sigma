@@ -93,3 +93,28 @@ def test_missing_receipt_declaration_is_not_empty(cfg):
     del cfg["inventory"]["initial_receipts"]
     with pytest.raises(ValueError, match="declaration"):
         declared_receipts(cfg, "2025-09-30")
+
+
+def test_alert_opportunity_keeps_early_events_in_denominator():
+    from src.inventory import alert_opportunity_summary
+    alerts = pd.DataFrame({'actual_days': [6, 7, 12, np.nan, np.nan],
+        'already_empty': [False, False, False, False, True],
+        'tp': [True, True, False, False, False],
+        'fn': [False, False, True, False, False]})
+    stats = alert_opportunity_summary(alerts)
+    assert stats['actual_depletion_events'] == 3
+    assert stats['events_before_day7'] == 1
+    assert stats['events_with_7day_opportunity'] == 2
+    assert stats['missed_events_with_7day_opportunity'] == 1
+    assert stats['single_origin_opportunity_rate'] == 2/3
+    assert stats['recall_with_7day_opportunity'] == .5
+
+
+def test_alert_opportunity_no_events_is_unknown_not_perfect():
+    from src.inventory import alert_opportunity_summary
+    alerts = pd.DataFrame({'actual_days': [np.nan], 'already_empty': [True],
+                          'tp': [False], 'fn': [False]})
+    stats = alert_opportunity_summary(alerts)
+    assert stats['actual_depletion_events'] == 0
+    assert np.isnan(stats['single_origin_opportunity_rate'])
+    assert np.isnan(stats['recall_with_7day_opportunity'])
