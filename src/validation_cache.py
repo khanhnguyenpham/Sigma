@@ -18,7 +18,7 @@ def import_validation(source, destination, cfg, source_sha256, daily, top):
     current, historical = copy.deepcopy(cfg), copy.deepcopy(manifest['config'])
     for config in (current, historical):
         config.pop('config_version', None)
-        for name in ('context_enabled', 'distribution_enabled', 'count_enabled'):
+        for name in ('context_enabled', 'distribution_enabled', 'count_enabled', 'cohort_enabled'):
             config.get('tuning', {}).pop(name, None)
     if current != historical:
         raise ValueError('Historical validation configuration differs')
@@ -29,14 +29,14 @@ def import_validation(source, destination, cfg, source_sha256, daily, top):
     if not metrics.split.eq('validation').all():
         raise ValueError('Only validation metrics may be imported')
     imported_families = []
-    for family in ('context','distribution','count'):
+    for family in ('context','distribution','count','cohort'):
         if metrics.model.str.startswith(family+'_').any():
             if not cfg.get('tuning',{}).get(family+'_enabled'):
                 raise ValueError('Historical validation includes a disabled model family')
             imported_families.append(family)
     names = [name for name in manifest['files'] if name.endswith('_validation_predictions.csv')
              or name in ('sarima_log.csv','lightgbm_log.csv','tuning_log.csv','calendar_log.csv',
-                         'context_log.csv','distribution_log.csv','count_log.csv')]
+                         'context_log.csv','distribution_log.csv','count_log.csv','cohort_log.csv')]
     for name in names:
         if Path(name).name != name:
             raise ValueError('Invalid historical validation artifact path')

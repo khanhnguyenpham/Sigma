@@ -82,6 +82,9 @@ def verify(folder):
         assert actual==pin, f'Environment differs for {package}'
         packages[package]=actual
     return {'run_id':manifest['run_id'],'run_manifest_sha256':sha256(folder/'manifest.json'),
+        'code_sha256':code_hash(),
+        'code_files_sha256':{path.relative_to(ROOT).as_posix():sha256(path)
+                            for path in [ROOT/'run.py',ROOT/'app.py']+sorted((ROOT/'src').glob('*.py'))},
         'checks_passed':True,'product_fully_accepted':False,
         'acceptance_limit':'Technical invariants verified; R05 and external academic acceptance evaluated separately',
         'top10_accuracy_passed':int(acceptance.accuracy_passed.sum()),
