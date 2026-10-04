@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.common import ROOT, ROUTE, code_hash, new_manifest, read_config, seal_manifest, sha256, write_csv, write_json
+from src.common import ROOT, ROUTE, DataQualityError, code_hash, new_manifest, read_config, seal_manifest, sha256, write_csv, write_json
 from src.data import audit_orders, daily_sales, observed_anomalies, route_top
 from src.evaluation import acceptance, metric_table, select_models
 from src.inventory import initialize_partners, item_matrix, replay_alerts, run_policy, simulation_metrics
@@ -227,7 +227,8 @@ def main():
     try:
         execute(args.config, args.stage, args.run_id, args.demo, args.baseline_only, args.resume)
     except Exception as error:
-        print(f"Pipeline stopped: {type(error).__name__}. Check local manifest/configuration; source preserved.", file=sys.stderr)
+        detail = str(error) if isinstance(error, DataQualityError) else "Check local manifest/configuration; source preserved"
+        print(f"Pipeline stopped: {type(error).__name__}. {detail}", file=sys.stderr)
         return 1
     return 0
 
