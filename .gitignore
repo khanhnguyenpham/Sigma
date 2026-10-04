@@ -8,6 +8,8 @@ reports/
 .venv/
 .venv*/
 .tools/
+.chart-data-*/
+.codex-finalizer/
 venv/
 env/
 __pycache__/
