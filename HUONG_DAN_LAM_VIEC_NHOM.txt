@@ -1,0 +1,273 @@
+HƯỚNG DẪN LÀM VIỆC NHÓM SIGMA TRÊN GITHUB
+Cập nhật: 04/10/2026 (Asia/Saigon)
+Repository: https://github.com/khanhnguyenpham/Sigma
+
+PHẦN HIỆN HÀNH: LÀM SOLO VÀ PUSH TỪNG PHẦN (CHG-006)
+
+Người dùng chọn làm solo ngày 04/10/2026. Phần hướng dẫn nhóm ở dưới giữ
+làm lịch sử CHG-004/005; tên đầu mối/reviewer nhóm không còn áp dụng.
+Bạn thực hiện các task T01-T14 với trợ lý hỗ trợ từng phần. Không cần chia
+task cho sáu người. Mỗi lần làm một mục tiêu nhỏ, kiểm tra rồi commit/push.
+
+Thứ tự: T01 -> T02 -> T03 -> T04 -> T05 -> T06 -> T07 -> xét T08
+-> T09 -> T10 -> T11 -> T12 -> T13 -> T14. Giữ phụ thuộc trong PLAN.
+T08 chỉ làm khi đủ điều kiện; không kích hoạt phải có biên bản.
+Các phần nhỏ, đầu ra và cửa kiểm tra cho mỗi task nằm trong TASK.md mục SOLO.
+
+Cách làm một task:
+  1. Đọc mục Txx trong PLAN và yêu cầu liên quan.
+  2. Chọn một phần nhỏ: mục tiêu, file sửa, đầu ra, kiểm tra cần chạy.
+  3. Làm phần đó, chạy kiểm tra phù hợp, xem git diff và git status.
+  4. Stage đúng file đã rà soát, xem git diff --cached, commit.
+  5. Push nhánh; lặp lại phần nhỏ tiếp theo trên cùng nhánh.
+  6. Đủ tiêu chí task thì tự review và merge qua PR, cập nhật main.
+     PR đang làm có thể để Draft; tự review không phải review độc lập.
+  7. Cập nhật TASK/PLAN theo bằng chứng thật, rồi tạo nhánh task tiếp theo.
+
+Ví dụ bắt đầu T02 SAU KHI T01 đủ bằng chứng và đã merge:
+  git status
+  git switch main
+  git pull --ff-only origin main
+  git switch -c codex/t02-local-environment
+
+Ví dụ commit/push SAU KHI đã tạo và kiểm tra các file môi trường:
+  git add requirements.txt README.md
+  git diff --cached
+  git commit -m "T02: set up local environment"
+  git push -u origin codex/t02-local-environment
+
+requirements.txt hiện chưa tồn tại; đây là ví dụ cho phần kỹ thuật tương lai,
+không phải lệnh đã chạy. Thay danh sách file bằng file thật của phần mình làm.
+Các lần sau trên cùng nhánh: git add đúng file -> git diff --cached
+-> git commit -m "mô tả thay đổi" -> git push.
+
+Khi task xong, mở PR từ nhánh task vào main, ghi kiểm tra/kết quả và giới hạn.
+Chỉ merge sau đủ kiểm tra. Nếu GitHub yêu cầu reviewer độc lập, phải tuân thủ
+quy tắc repository; không tắt bảo vệ hoặc tự nhận đã được người khác duyệt.
+
+Phần đầu tiên được chuẩn bị là tài liệu hướng dẫn solo và điều phối Git.
+Không coi commit/push tài liệu là hoàn thành T01 hoặc các task kỹ thuật.
+CSV, dữ liệu processed/run thật, notebook output riêng tư và thông tin đăng
+nhập giữ local. Không git add . hoặc push --force để xử lý lỗi thiếu hiểu rõ.
+Gặp lỗi thì giữ thay đổi và đọc thông báo; không reset/xóa code để làm sạch.
+
+--- HƯỚNG DẪN NHÓM CŨ: LỊCH SỬ, KHÔNG ÁP DỤNG CHO SOLO ---
+
+Quy trình chung:
+Nhận task -> cập nhật main -> tạo nhánh -> làm và kiểm tra -> commit
+-> push nhánh -> tạo Pull Request -> review -> merge -> cập nhật main.
+
+1. QUY ƯỚC CỦA NHÓM
+
+- main là bản chung. Thành viên gửi thay đổi qua Pull Request (PR).
+- Cả 6 người cùng làm một Txx; xong và kiểm tra chung mới sang Txx tiếp theo.
+- Mỗi task có một đầu mối chia việc nhỏ/tổng hợp và một người review.
+- Mỗi người dùng nhánh riêng cho phần nhỏ trong Txx, ví dụ:
+  codex/t03-du-schema, codex/t03-hieu-duplicates. Không cùng push một nhánh.
+  Các ví dụ codex/t03-data-audit bên dưới minh họa một phần đóng góp;
+  thay tên nhánh bằng phần nhỏ thực tế của mình.
+- Giữ mã T01-T14 theo TASK.md và PLAN.md; không tạo hệ mã task khác.
+- Thống nhất phạm vi file/module trước khi làm để giảm xung đột.
+- Không tự thay target, split, metric hoặc nâng giả định thành xác nhận.
+- Push có thể thực hiện nhiều lần khi đang làm. Push thành công không đồng
+  nghĩa task đã hoàn thành hoặc code đã được nhập vào main.
+
+2. NGƯỜI ĐIỀU PHỐI CHUẨN BỊ
+
+- Mời thành viên tại Settings -> Collaborators; thành viên chấp nhận lời mời.
+- Rà soát file được chia sẻ, .gitignore và lịch sử commit trước khi push.
+- Tạo Issue cho từng Txx cần triển khai, gán Assignees và người review.
+- Issue phải có: phạm vi, đầu ra, phụ thuộc, tiêu chí hoàn thành và kiểm tra.
+- Issue dùng phối hợp; TASK.md và PLAN.md vẫn phải đồng bộ tiến độ.
+- Nếu tài khoản/repository hỗ trợ, cấu hình bảo vệ main để yêu cầu PR và review.
+
+Mẫu nội dung Issue:
+  Task: Txx - tên nhiệm vụ trong PLAN
+  Người phụ trách / người review: ...
+  Phạm vi, file/module dự kiến sửa: ...
+  Phụ thuộc và điều kiện bắt đầu: ...
+  Đầu ra cần bàn giao: ...
+  Tiêu chí và kiểm tra phải chạy: ...
+
+Đầu mối task đề xuất cho 6 người, ngày 04/10/2026:
+  Nguyên: T01, T05, T09, T14 - điều phối, baseline, đánh giá, nghiệm thu.
+  Khang: T02, T06, T12 - môi trường, tích hợp, kiểm thử/tái lập.
+  Du: T03, T04 - audit, daily sales, lịch và EDA.
+  Tuấn Anh: T07, T08 nếu kích hoạt - SARIMA và LightGBM có điều kiện.
+  Hiếu: T10 - phân bổ, ledger, cảnh báo và độ nhạy.
+  Cường: T11, T13 - dashboard, báo cáo, slide và demo.
+Cả nhóm đều đóng góp trong task đang mở; các tên trên là đầu mối tổng hợp.
+Người dùng đã chọn cách cả nhóm làm từng task; vai trò đầu mối còn đề xuất.
+Chưa có thông tin năng lực/quỹ giờ hoặc xác nhận nhận việc của từng người.
+Xem TASK.md mục phân công nhóm và từng Txx trong PLAN.md để biết reviewer,
+phụ thuộc, hỗ trợ giữa thành viên và việc chuẩn bị đầu tiên. Phân công không
+thay trạng thái; chưa có code, test, pipeline hoặc run dự án được triển khai.
+
+Không bắt đầu tất cả task cùng lúc. T03 chờ T02; T04 chờ T03; T05 chờ T04.
+Cách phối hợp: T01 -> T02 -> T03 -> T04 -> T05 -> T06 -> T07 -> xét T08
+-> T09 -> T10 -> T11 -> T12 -> T13 -> T14. T08 không kích hoạt phải có biên bản.
+Giữ nguyên phụ thuộc gốc trong PLAN. Trong một task, phần nhỏ có thể làm
+đồng thời; đầu mối thống nhất file/section mỗi người sửa, ghép PR theo thứ tự
+phụ thuộc rồi kiểm tra chung. Ví dụ việc nhỏ T01 và T03 nằm trong TASK.md.
+
+3. CHUẨN BỊ TRÊN MÁY MỖI THÀNH VIÊN
+
+Cần có Git, tài khoản GitHub và quyền truy cập repository.
+Mở PowerShell/terminal tại nơi muốn lưu project, chạy một lần:
+
+  git clone https://github.com/khanhnguyenpham/Sigma.git
+  cd Sigma
+
+Nếu đã clone thì mở terminal trong thư mục project, không clone chồng lên đó.
+Nếu Git chưa có tên/email, cấu hình riêng trong repository sau khi clone:
+
+  git config user.name "Ten cua ban"
+  git config user.email "email-cua-ban@example.com"
+
+Thay tên/email ví dụ bằng thông tin của mình; có thể dùng email noreply GitHub.
+Đăng nhập qua cơ chế xác thực GitHub khi Git yêu cầu. Không dán token vào
+file, URL remote, Issue hoặc PR. Không dùng mật khẩu tài khoản cho Git HTTPS.
+
+Đọc README.md -> TASK.md -> PROJECTMAP.md -> mục Txx trong PLAN.md.
+Đọc thêm tài liệu chuyên môn được AGENTS.md chỉ dẫn cho phần việc của mình.
+
+CSV thật không có trong bản clone. Người được quyền sử dụng dữ liệu tự đặt
+bản được cấp phép tại data/sigma_sim_data_orders.csv trên máy cục bộ.
+Hiện chưa có pipeline, bộ dữ liệu demo hoặc lệnh chạy dự án được kiểm chứng.
+Các đường dẫn code/test ở ví dụ bên dưới là cấu trúc dự kiến, chưa tồn tại.
+
+4. NHẬN TASK VÀ TẠO NHÁNH
+
+Ví dụ nhận T03. Đảm bảo git status sạch trước khi đổi nhánh:
+
+  git status
+  git switch main
+  git pull --ff-only origin main
+  git switch -c codex/t03-data-audit
+
+Nếu đang có thay đổi chưa commit, hoàn tất và commit trên đúng nhánh hiện tại
+trước; không xóa thay đổi để làm sạch. Nếu pull báo lỗi, xử lý trước khi tiếp tục.
+Tên nhánh trên chỉ là ví dụ; thay T03/tên mô tả bằng task của mình.
+Không chạy lại lệnh tạo nhánh nếu nhánh đã có; dùng git switch TEN_NHANH.
+
+Làm đúng phạm vi, ghi thay đổi và chạy kiểm tra phù hợp với task.
+Không suy rằng task đã hoàn thành chỉ vì đã viết code hoặc hướng dẫn.
+
+5. COMMIT VÀ PUSH PHẦN VIỆC
+
+Ví dụ sau khi đã tạo code và test của T03:
+
+  git status
+  git diff
+  git add src/data.py tests/test_data.py
+  git diff --cached
+  git commit -m "T03: add sales data audit"
+  git push -u origin codex/t03-data-audit
+
+Thay đường dẫn bằng file thật của task. Stage thêm tài liệu tiến độ/bằng chứng
+nếu đã sửa và kiểm tra. git diff --cached cho biết nội dung chuẩn bị commit.
+Tránh git add . khi chưa rà soát file riêng tư và file ngoài phạm vi.
+
+Commit lưu phiên bản trên máy; push gửi các commit của nhánh lên GitHub.
+Lần đầu dùng -u để thiết lập nhánh theo dõi. Những lần sửa tiếp trên cùng nhánh:
+
+  git add src/data.py tests/test_data.py
+  git diff --cached
+  git commit -m "T03: fix audit validation"
+  git push
+
+6. TẠO PULL REQUEST VÀ REVIEW
+
+Sau khi push, mở repository trên GitHub:
+  Pull requests -> New pull request.
+  Base: main. Compare: nhánh task của mình.
+  Tiêu đề: T03 - Audit và chuẩn hóa số bán (ví dụ).
+  Chọn reviewer là thành viên khác.
+
+Mẫu nội dung PR:
+  Task/Issue liên quan: ...
+  Vấn đề và thay đổi đã làm: ...
+  File/đầu ra chính: ...
+  Kiểm tra thực chạy, phạm vi và kết quả: ...
+  Kiểm tra chưa chạy, giới hạn và việc còn lại: ...
+  Cập nhật TASK/PLAN và bằng chứng liên quan: ...
+  Bước tiếp theo và điều kiện bàn giao: ...
+
+Không đưa dữ liệu/ID/log riêng tư vào PR. Nếu chưa xong, tạo Draft PR.
+Chỉ dùng "Closes #SO_ISSUE" khi PR thực sự đáp ứng toàn bộ Issue; khi merge
+vào nhánh mặc định, cú pháp này có thể tự đóng Issue.
+
+Reviewer kiểm tra phạm vi, code, bằng chứng kiểm tra và bảo mật nội dung.
+Nếu cần sửa, tác giả commit/push tiếp vào cùng nhánh; PR tự cập nhật.
+Khi đủ tiêu chí và được review, người được nhóm phân quyền thực hiện merge.
+Chỉ xóa nhánh task sau khi merge và không còn phần việc chưa bàn giao.
+
+7. NHẬN CODE CHUNG SAU KHI MERGE
+
+Khi không có thay đổi chưa commit:
+
+  git switch main
+  git pull --ff-only origin main
+
+Bắt đầu task mới bằng một nhánh mới từ main vừa cập nhật.
+Nếu đang làm trên nhánh task và cần nhận code mới của main, commit phần việc
+hiện tại trước, rồi chạy trên nhánh task:
+
+  git fetch origin
+  git merge origin/main
+
+Nếu không có conflict, chạy lại kiểm tra bị ảnh hưởng rồi push nhánh task.
+
+8. XỬ LÝ LỖI THƯỜNG GẶP
+
+Push bị từ chối do quyền/xác thực:
+  Kiểm tra git remote -v, đúng tài khoản và đã chấp nhận lời mời collaborator.
+
+Push bị từ chối vì nhánh remote có commit mới:
+  Đảm bảo đã commit thay đổi local. Trên nhánh task có upstream, chạy:
+    git pull --no-rebase
+  Xử lý conflict nếu có, kiểm tra lại rồi git push. Không dùng push --force.
+
+Merge conflict:
+  1. Chạy git status để xem file xung đột.
+  2. Trao đổi với người sửa cùng file để thống nhất nội dung cần giữ.
+  3. Sửa từng đoạn có <<<<<<<, =======, >>>>>>>; bỏ các dấu conflict.
+  4. git add từng file đã xử lý.
+  5. git commit để hoàn tất merge, kiểm tra lại rồi git push.
+  Nếu chưa thể giải quyết và merge vẫn đang diễn ra, có thể git merge --abort
+  để hủy lần merge này. Chỉ bắt đầu merge khi đã commit sạch phần việc local.
+
+File không được Git nhận:
+  Kiểm tra git check-ignore -v DUONG_DAN_FILE.
+  Không dùng git add -f để đưa dữ liệu riêng tư vượt qua .gitignore.
+
+9. QUY TẮC DỮ LIỆU VÀ NGHIỆM THU SIGMA
+
+- Không push CSV order gốc, dữ liệu processed thật, outputs/run thật,
+  notebook output chứa dữ liệu thật, thông tin đăng nhập hoặc định danh.
+- Không ghi đè/làm sạch trực tiếp CSV gốc; dẫn xuất và dedup phải có log.
+- .gitignore chỉ ngăn file chưa tracked. File đã tracked/lịch sử chứa dữ liệu
+  không được làm sạch bằng cách chỉ thêm ignore; dừng push và báo điều phối.
+  Không tự sửa lịch sử Git. Repo private vẫn phải tuân thủ quy định dữ liệu.
+- Target là quantity bán theo ngày UTC và tuyến; không dùng activation làm target.
+- Giữ split, top 10 theo train và nguyên tắc không nhìn tương lai trong PLAN.
+- Tồn, nhập, lead time và mapping đối tác phải có nhãn giả định/mô phỏng.
+- Khi đổi tiến độ, đồng bộ Txx trong TASK.md và PLAN.md. Có bằng chứng/quyết
+  định mới thì cập nhật review-log; đổi nghiệm thu thì cập nhật requirements.
+- Hoàn thành cần sản phẩm và kiểm tra thực chạy. Ghi rõ chưa đạt, chưa chạy
+  hoặc cần kiểm tra lại; không thay tiêu chí để đóng task.
+
+10. TÀI LIỆU TRA CỨU
+
+Trong repository:
+  TASK.md; PLAN.md; AGENTS.md; PROJECTMAP.md; README.md.
+  data/README.md; docs/data-contract.md; docs/requirements.md.
+  docs/development.md: checklist hoàn thành và mẫu bàn giao.
+  docs/review-log.md: bằng chứng, quyết định và quy trình thay đổi.
+
+GitHub:
+  https://docs.github.com/en/get-started/using-github/github-flow
+  https://docs.github.com/en/get-started/git-basics/ignoring-files
+
+Đây là hướng dẫn thao tác, không phải biên bản phân công hay bằng chứng đã
+clone, commit, push, merge, chạy pipeline hoặc hoàn thành T01-T14.

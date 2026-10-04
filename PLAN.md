@@ -265,12 +265,16 @@ Tại origin đợt, dự đoán có/không cạn và ngày cạn; so với đư
 
 ## 7. Nhiệm vụ, phụ thuộc và công sức
 
+**Cách làm hiện hành ngày 04/10/2026 (CHG-006):** Người dùng chọn làm solo với hỗ trợ từng phần và push Git tăng dần. Người dùng thực hiện/tổng hợp toàn bộ T01–T14, tự rà diff và chạy kiểm tra; không coi tự rà là review độc lập. Tên đầu mối/reviewer ở các trường phân công dưới đây là **lịch sử CHG-004/005, hết áp dụng**, được giữ để truy vết. Thứ tự T01–T07, xét T08, rồi T09–T14; T08 không kích hoạt phải có biên bản. Giữ nguyên phụ thuộc, công sức tổng, tiêu chí và trạng thái; xem [phần nhỏ và quy trình solo](TASK.md#solo-workflow). Chưa biết quỹ giờ solo, chưa cam kết đủ nguồn lực cho mốc cũ.
+
 Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lại → hoàn thành; “bị thay thế” giữ lịch sử. T01 đang làm ở mức tài liệu; T02–T14 chưa làm. Kết quả khảo sát cũ cần tính lại không có nghĩa task kỹ thuật đã hoàn thành.
 
 ### Giai đoạn 1 — Bù M1
 
 <a id="t01"></a>
 ### T01 — Chốt và cập nhật yêu cầu
+
+- **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Khang review. Chưa xác nhận năng lực/quỹ giờ hoặc nhận việc; xem [phân công nhóm](TASK.md#team-assignment).
 
 - **Trạng thái:** Đang làm — cập nhật tài liệu 2.0, chưa nghiệm thu kỹ thuật.
 - **Mục tiêu/yêu cầu:** R01–R09; số bán, nguồn mentor thuật lại và giả định.
@@ -283,6 +287,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t02"></a>
 ### T02 — Môi trường cục bộ và lệnh chạy
 
+- **Phân công đề xuất 04/10/2026:** Khang phụ trách; Nguyên review.
+
 - **Trạng thái:** Chưa làm.
 - **Mục tiêu/yêu cầu:** R09; xử lý riêng tư, notebook/CLI cùng mã.
 - **Đầu vào/công việc/đầu ra:** T01 → local environment, kiểm tra/khóa phụ thuộc, CLI/notebook → requirements, run.py, run_local.ipynb, hướng dẫn.
@@ -293,6 +299,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t03"></a>
 ### T03 — Audit và chuẩn hóa số bán
+
+- **Phân công đề xuất 04/10/2026:** Du phụ trách; Nguyên review.
 
 - **Trạng thái:** Chưa làm.
 - **Mục tiêu/yêu cầu:** R01, R09.
@@ -305,6 +313,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t04"></a>
 ### T04 — Chuỗi số bán, lịch và EDA
 
+- **Phân công đề xuất 04/10/2026:** Du phụ trách; Cường review.
+
 - **Trạng thái:** Chưa làm.
 - **Mục tiêu/yêu cầu:** R02, R04.
 - **Đầu vào/công việc/đầu ra:** T03/lịch công khai → 731 ngày/46 tuyến và EDA → daily_sales, calendar, bảng/hình.
@@ -315,6 +325,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t05"></a>
 ### T05 — Top 10 và ba baseline
+
+- **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
 - **Trạng thái:** Chưa làm; MA7 activation cần tính lại, không thay task.
 - **Mục tiêu/yêu cầu:** R03–R05.
@@ -329,6 +341,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t06"></a>
 ### T06 — MVP xuyên suốt
 
+- **Phân công đề xuất 04/10/2026:** Khang phụ trách; Hiếu review. Hiếu hỗ trợ tồn tối thiểu, Cường hỗ trợ màn hình tối thiểu.
+
 - **Trạng thái:** Chưa làm.
 - **Mục tiêu/yêu cầu:** R03, R04, R06–R09.
 - **Đầu vào/công việc/đầu ra:** Baseline/cấu hình nhỏ → forecast/phân bổ/ledger/dashboard → run đầu tiên.
@@ -339,6 +353,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t07"></a>
 ### T07 — SARIMA
+
+- **Phân công đề xuất 04/10/2026:** Tuấn Anh phụ trách; Nguyên review.
 
 - **Trạng thái:** Chưa làm.
 - **Mục tiêu/yêu cầu:** R04, R05.
@@ -351,6 +367,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t08"></a>
 ### T08 — LightGBM có điều kiện
 
+- **Phân công đề xuất 04/10/2026:** Tuấn Anh phụ trách khi kích hoạt; Nguyên review cả kết quả hoặc biên bản không kích hoạt.
+
 - **Trạng thái:** Chưa làm; chỉ kích hoạt theo mục 5.3.
 - **Mục tiêu/yêu cầu:** R04, R05.
 - **Đầu vào/công việc/đầu ra:** Validation T07 → 4 cấu hình pooled/direct → metric hoặc biên bản không kích hoạt.
@@ -361,6 +379,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t09"></a>
 ### T09 — Khóa và đánh giá M2
+
+- **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
 - **Trạng thái:** Chưa làm.
 - **Mục tiêu/yêu cầu:** R04, R05, R09.
@@ -375,6 +395,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t10"></a>
 ### T10 — Đối tác, sổ tồn và cảnh báo
 
+- **Phân công đề xuất 04/10/2026:** Hiếu phụ trách; Khang review.
+
 - **Trạng thái:** Chưa làm.
 - **Mục tiêu/yêu cầu:** R06, R07.
 - **Đầu vào/công việc/đầu ra:** Sales/forecast/A09–A16 → mapping/tham số riêng/ledger/ETA/strict threshold/replay/độ nhạy → recommendations, alerts, simulation_metrics.
@@ -385,6 +407,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t11"></a>
 ### T11 — Dashboard và cập nhật cục bộ
+
+- **Phân công đề xuất 04/10/2026:** Cường phụ trách; Hiếu review.
 
 - **Trạng thái:** Chưa làm.
 - **Mục tiêu/yêu cầu:** R08, R09.
@@ -399,6 +423,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t12"></a>
 ### T12 — Kiểm thử, tái lập và bảo mật gói
 
+- **Phân công đề xuất 04/10/2026:** Khang phụ trách; Du review. Mỗi tác giả cung cấp kiểm thử/bằng chứng cho module của mình.
+
 - **Trạng thái:** Chưa làm.
 - **Mục tiêu/yêu cầu:** R01, R03–R09.
 - **Đầu vào/công việc/đầu ra:** Pipeline → ca mục 8/môi trường local sạch/kiểm tra gói → tests, checks, run tái lập.
@@ -410,6 +436,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t13"></a>
 ### T13 — Báo cáo, slide và bảo vệ
 
+- **Phân công đề xuất 04/10/2026:** Cường phụ trách; Nguyên review. Các tác giả cung cấp phần phương pháp/kết quả truy về run.
+
 - **Trạng thái:** Chưa làm.
 - **Mục tiêu/yêu cầu:** R01–R09.
 - **Đầu vào/công việc/đầu ra:** Run kiểm tra/review-log → viết sales/phương pháp/kết quả/giả định/độ nhạy/giới hạn → report.md/pdf, slides, demo-script.
@@ -420,6 +448,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t14"></a>
 ### T14 — Nghiệm thu và đóng gói
+
+- **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Khang review.
 
 - **Trạng thái:** Chưa làm.
 - **Mục tiêu/yêu cầu:** R01–R09.
