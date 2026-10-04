@@ -144,3 +144,7 @@ Phiên nhận bàn giao xác minh lại tệp/hash/config/manifest hiện có v�
 ### Run tích hợp và xác minh v5/v6 — CHG-014/015
 
 V5 qua 53 tests và `verify_release.py`, 48 tệp sealed, 1.100.320 ledger, 84 pins, AppTest 0 exception/10 bảng; demo môi trường thứ hai tái lập 14 bảng. V6 tích hợp count model theo validation, 59 tests đạt, run thật complete, 50 tệp sealed; verify_release kiểm 1.100.320 ledger/84 pins và AppTest 0 exception/10 bảng. Ledger giao dịch R06 còn bổ sung riêng; kỹ thuật chạy đúng không thay nghiệm thu R05. Các bằng chứng v5 E17 vẫn thuộc mã/run v5, không gọi hash của mã mới là mã v5. Word/slide chưa làm tiếp. Xác minh lưu JSON ngoài sealed run; ghi manifest/source/code/requirements lock và package versions; code khác phải tạo run mới.
+
+### Kiểm giao dịch v7 — CHG-016/E21
+
+`pytest -q`: 75 tests đạt, gồm receipt trước midnight sale, timestamp/ID tiebreak toàn ngày, stock chain/partial fulfillment từng item, shock apportionment số nguyên, ngày nhận không sale, thiếu/trùng transaction bị chặn, event tamper và fractional config. Verification v7 đối chiếu private events với nguồn audited rồi ledger chunks; không log source IDs/records. 51 hashes sealed, 84 pins, AppTest 0 exception/10 bảng, bảy bảng forecast/selection/metric/mô phỏng khớp v6 tại 1e-8. Demo .venv-verify tái lập 14 bảng và chronology/event/day, không thay diễn tập máy khác. README clone đúng nhánh draft có mã, chưa nhận main/PR merged.

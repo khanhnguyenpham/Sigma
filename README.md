@@ -2,7 +2,7 @@
 
 Ứng dụng Streamlit chạy local trên Windows, tích hợp audit dữ liệu, EDA, dự báo 46 tuyến, phân bổ SKU, mô phỏng nhập hàng và cảnh báo. Mã, cấu hình, tests và notebook đã được triển khai; đã có bản nháp Word/slide lịch sử ở local; CHG-012 yêu cầu chỉ tập trung project, chưa làm tiếp tài liệu báo cáo.
 
-**Kết quả ngày 05/10/2026:** bản thử nghiệm `sigma_integrated_v6` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 40,93–58,13%. Dự án còn đang hoàn thiện, chưa nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
+**Kết quả ngày 05/10/2026:** bản thử nghiệm `sigma_transaction_v7` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 40,93–58,13%. Dự án còn đang hoàn thiện, chưa nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
 
 **Tinh chỉnh:** V2 thêm 8 robust và 4 LightGBM weighted-L1; V3 thêm 12 hồi quy lịch (37 ứng viên tổng cộng trên mỗi top 10). Chọn bằng validation, giữ 0/10 đạt. Test cũ được sử dụng lại, không phải kiểm định độc lập. Mean MAPE từng tuyến v1 50,53%; v2 48,35%; v3 49,03%. Không chọn V2 chỉ vì test tốt hơn; bản release dùng lựa chọn theo validation của V3. EDA lễ giữ nhóm unknown và mẫu số, không suy nhân quả.
 
@@ -21,7 +21,7 @@ Mở địa chỉ `http://127.0.0.1:8501`. Chọn bộ kết quả `sigma_releas
 Môi trường đã kiểm chứng: Python 3.14.7, Windows 64-bit. Cài Python, Git và mở PowerShell:
 
 ```powershell
-git clone https://github.com/khanhnguyenpham/Sigma.git
+git clone --branch codex/sigma-local-pipeline https://github.com/khanhnguyenpham/Sigma.git
 cd Sigma
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
@@ -30,6 +30,8 @@ python -m venv .venv
 ```
 
 Nếu `python` trỏ tới phiên bản khác, dùng đường dẫn Python 3.14 đã cài. Không cần activate môi trường. `requirements.txt` khóa phiên bản; `requirements-demo.txt` tham chiếu cùng môi trường để demo không khác phép tính.
+
+Mã hiện hành ở nhánh `codex/sigma-local-pipeline`, PR số 1 còn draft; các lệnh trên clone đúng nhánh có sản phẩm. Chưa coi main đã nhận mã hoặc PR đã được review/merge.
 
 Demo độc lập, không cần CSV riêng tư:
 
@@ -65,7 +67,7 @@ Có thể chạy từng stage:
 - Target là tổng `quantity` của trạng thái `success` theo ngày UTC, tuyến `(destination_country, carrier)`; activation không làm target hoặc điều kiện loại sale. A08–A17 được người dùng chọn cho thực nghiệm, chưa phải mentor xác nhận.
 - Train 01/01/2024–30/06/2025; validation 01/07–30/09/2025; test 01/10–31/12/2025. Top 10 lấy từ train. Horizon 14 ngày; h1–7 chính, h8–14 riêng; MAPE ngày dương, kèm MAE/WAPE/bias/độ phủ. Forecast sau 31/12/2025 chưa có actual, không gán 0.
 - Chỉ order là dữ liệu được cung cấp. Tồn đầu, mapping đối tác, lead time và receipts đều có nhãn giả định/mô phỏng. Khi cấu hình mapping/partners rỗng, bootstrap train-only tạo từng đối tác và ghi trong `effective_config.json`; cấu hình thiếu một phần không được tự lấp.
-- Trigger `closing_on_hand < ROP`; IP tính lượng đặt, không thay trigger. Ledger theo item/ngày UTC, nhận đầu ngày và quyết định cuối ngày; tương đương cộng giao dịch trong các điều kiện này, chưa mô phỏng receipt nội ngày, FIFO hoặc thay thế SKU.
+- Trigger `closing_on_hand < ROP`; IP tính lượng đặt, không thay trigger. Nhận đầu ngày UTC, xử lý sale theo order_datetime/order_id và quyết định cuối ngày. `inventory_events.csv` ghi từng giao dịch, `inventory_ledger.csv` đối soát item/ngày; không mô phỏng receipt nội ngày, FIFO hoặc thay thế SKU.
 - Có 7 kịch bản cơ sở/stress: cơ sở, một ngày bán về 0, giảm nhiều ngày, tăng bán, nhận thiếu, nhận trễ, không nhận; thêm 6 biến thể độ nhạy. Đây là giả định, không dự đoán được mọi cú sốc bất ngờ. Cảnh báo bất thường phát ra sau khi quan sát và không khẳng định nguyên nhân.
 - Kịch bản làm tròn demand về đơn vị nguyên; receipt_fraction áp trên từng lượng đặt và làm tròn xuống. Đơn một sản phẩm với tỷ lệ 50% có thể nhận 0; phần chưa nhận giả định hủy, không tạo backorder thật.
 - Đánh giá cảnh báo replay không đặt mới được tách khỏi chính sách có bổ sung hàng. Kết quả tồn mô phỏng không chứng minh hiệu quả vận hành thật.
@@ -120,3 +122,16 @@ Config 1.4.0 thêm bốn mô hình dự báo số đơn và phân phối quantit
 ```
 
 Run v6 nhập 47 bằng chứng validation v5 với lineage, chạy bốn ứng viên mới fresh; test/forecast/tồn chạy lại. 59 tests đạt, 50 tệp sealed, 84 pins đúng và AppTest 0 exception/10 bảng. Test đã xem: 0/10 đạt 20%, MAPE 40,93–58,13%, mean route MAPE 48,22%, độ phủ 100%. Bản kiểm tra tồn theo ngày chưa thay chứng cứ xử lý từng giao dịch; phần bổ sung R06 được ghi riêng và không sửa sealed run v6. Word/slide vẫn chờ yêu cầu lại.
+
+## Run giao dịch v7 — mã hiện hành
+
+Config 1.5.0 và `src/transactions.py` thực hiện receipt đầu ngày rồi từng sale theo UTC timestamp/order_id. Sổ private `inventory_events.csv` chứa ID và không được Git hoặc dashboard export. Sale có lượng yêu cầu mô phỏng, đáp ứng/thiếu và stock trước/sau; lịch sử không sửa. Kịch bản tăng/giảm giữ tổng item/ngày bằng phân bổ số nguyên đã khai báo. Cấu hình L/R/MOQ và receipt quantity có phần thập phân bị từ chối thay vì tự cắt.
+
+```powershell
+& .venv/Scripts/python.exe run.py --run-id sigma_transaction_v7 --validation-cache-run sigma_integrated_v6
+& .venv/Scripts/python.exe verify_release.py --run-id sigma_transaction_v7
+```
+
+Run đã kiểm 51 sealed files, 1.100.320 ledger rows, event chronology/stock chain/đối soát audited sales và 84 pins. 75 tests đạt; AppTest 0 exception/10 bảng khi đổi South Korea/KT, origin và h8–14. Forecast, selection, metric và mô phỏng ngày khớp v6; R05 vẫn 0/10. Demo môi trường thứ hai tái lập 14 bảng và kiểm events riêng. Máy thật thứ hai/mentor review vẫn thiếu; không coi hai virtualenv cùng máy thay việc đó.
+
+Các lệnh v5/v6 bên trên ghi lệnh lịch sử tại E17/E19 với mã tương ứng. Mã mới không xác minh được code hash của run cũ; dùng mục v7 và tên run mới khi chạy lại. Không sửa hoặc seal lại run lịch sử. Validation cache chỉ có local; clone sạch có thể bỏ tham số cache để chạy fresh. Prototype cohort CHG-017 hiện chỉ thử validation, chưa tích hợp CLI hoặc nghiệm thu.
