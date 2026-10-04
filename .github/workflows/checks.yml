@@ -11,3 +11,13 @@ jobs:
       - run: python -m pip install -r requirements.txt
       - run: python -m pip check
       - run: python -m pytest
+      - run: python run.py --config config.original.json --demo --baseline-only --run-id ci_demo
+      - name: Verify synthetic pipeline and dashboard
+        run: >-
+          python -c "from src.common import ROOT, validate_run;
+          from streamlit.testing.v1 import AppTest;
+          m = validate_run(ROOT / 'outputs' / 'ci_demo');
+          assert m['source_kind'] == 'generated_synthetic';
+          at = AppTest.from_file('app.py', default_timeout=60).run();
+          assert not at.exception;
+          print('Synthetic pipeline and dashboard verified on clean Windows runner')"
