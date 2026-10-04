@@ -6,6 +6,8 @@ reports/
 
 # Local environments, caches and build artifacts.
 .venv/
+.venv*/
+.tools/
 venv/
 env/
 __pycache__/
