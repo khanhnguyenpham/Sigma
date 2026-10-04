@@ -1,5 +1,5 @@
 {
-  "config_version": "1.2.0",
+  "config_version": "1.1.0",
   "target_definition_version": "sales-success-utc-v1",
   "assumption_version": "A08-A17-experiment-v1",
   "source": "data/sigma_sim_data_orders.csv",
@@ -110,16 +110,6 @@
     "weekday_prior_strength": 20,
     "additional_lgbm_objective": "positive-day inverse-label weighted L1, 4 fixed leaf/min-child combinations",
     "selection": "unchanged validation rule; test never used to rank candidates",
-    "reason": "User requested further tuning after original test failure; reused test is disclosed, no new independent holdout available",
-    "calendar_enabled": true,
-    "calendar_windows": [
-      365,
-      0
-    ],
-    "calendar_harmonics": [
-      1,
-      2
-    ],
-    "calendar_losses": "weighted LAD alpha 0.001/0.01, Poisson alpha 0.1; 12 fixed candidates"
+    "reason": "User requested further tuning after original test failure; reused test is disclosed, no new independent holdout available"
   }
 }

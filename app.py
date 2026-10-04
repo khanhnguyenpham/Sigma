@@ -44,7 +44,7 @@ def load(name):
 @st.cache_data(show_spinner=False)
 def filtered_table(path, expected_hash, destination, carrier):
     chunks = []
-    for chunk in pd.read_csv(path, chunksize=50000):
+    for chunk in pd.read_csv(path, chunksize=50000, low_memory=False):
         chunks.append(chunk.loc[chunk.destination_country.eq(destination) & chunk.carrier.eq(carrier)])
     return pd.concat(chunks, ignore_index=True)
 
@@ -54,6 +54,8 @@ def load_route(name):
 
 
 cfg = manifest["config"]
+if "previously_seen" in manifest.get("evaluation_protocol", ""):
+    st.warning("Đây là tinh chỉnh sau khi đã xem test v1. Test được đánh giá lại; chưa có kiểm định độc lập mới.")
 daily = load("daily_sales.csv")
 daily["date"] = pd.to_datetime(daily.date)
 routes = daily[ROUTE].drop_duplicates().sort_values(ROUTE)

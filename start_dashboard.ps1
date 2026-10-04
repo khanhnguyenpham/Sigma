@@ -3,4 +3,4 @@ Set-Location -LiteralPath $PSScriptRoot
 if (-not (Test-Path -LiteralPath ".venv\Scripts\python.exe")) {
     throw "Create .venv and install requirements.txt first; see README.md."
 }
-& ".\.venv\Scripts\python.exe" -m streamlit run app.py --server.address 127.0.0.1 --server.port 8501 --browser.gatherUsageStats false
+& ".\.venv\Scripts\python.exe" -m streamlit run app.py --server.headless true --server.address 127.0.0.1 --server.port 8501 --browser.gatherUsageStats false

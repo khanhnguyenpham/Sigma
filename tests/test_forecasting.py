@@ -95,3 +95,22 @@ def test_robust_model_never_reads_future_and_scores_full_zero_coverage():
     actual = a.loc[a.target_date.le(dates[65])]
     assert score(actual)["coverage"] == 1
     assert score(actual)["n_zero_pairs"] > 0
+
+
+def test_calendar_known_future_dates_do_not_use_future_labels():
+    from src.models import rolling_route
+    dates = pd.date_range("2024-01-01", periods=80)
+    series = pd.Series(np.arange(80) % 5, index=dates, dtype=float)
+    changed = series.copy(); changed.loc[dates[60]:] = 1000
+    cfg = {"horizon": 14, "refit_days": 7}
+    a, _ = rolling_route(series, ("Synthetic", "Carrier"), "calendar_365_1_0p001_lad", dates[60], dates[62], cfg)
+    b, _ = rolling_route(changed, ("Synthetic", "Carrier"), "calendar_365_1_0p001_lad", dates[60], dates[62], cfg)
+    first = a.as_of_date.min()
+    np.testing.assert_allclose(a.loc[a.as_of_date.eq(first), "forecast_qty"], b.loc[b.as_of_date.eq(first), "forecast_qty"])
+
+
+def test_calendar_all_zero_history_predicts_zero_without_percentage_division():
+    from src.calendar_models import fit_calendar, predict_calendar
+    dates = pd.date_range("2024-01-01", periods=30)
+    state = fit_calendar(pd.Series(0., index=dates), "calendar_365_1_0p001_lad")
+    np.testing.assert_array_equal(predict_calendar(state, pd.date_range("2024-02-01", periods=14)), np.zeros(14))
