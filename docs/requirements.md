@@ -1,6 +1,8 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
-**Phiên bản:** 2.0 — 02/10/2026. **Trạng thái:** Khảo sát đã thực hiện, triển khai chưa bắt đầu; chưa có yêu cầu nào nghiệm thu toàn bộ. Lượt này chỉ cập nhật ba Markdown.
+**Tiến độ 05/10/2026:** Phần mềm local và release_v4 đã kiểm tra; tiêu chí R01–R09 giữ nguyên. Test h1–7 đủ độ phủ nhưng 0/10 top 10 đạt R05 (40,93–61,96%). Cảnh báo trước ≥7 ngày đạt 31,67% sự kiện replay. Word tiến độ M2 và slide đã tạo theo CHG-011. A08–A17 là thực nghiệm người dùng chọn, chưa mentor xác nhận. Chưa nghiệm thu toàn bài.
+
+**Phiên bản:** 2.0 — 02/10/2026; bổ sung phạm vi/ca thực tế ngày 04/10/2026 (CHG-007). **Trạng thái lịch sử 02–04/10:** Khảo sát đã thực hiện; lúc đó chưa triển khai. CHG-008 đã chốt lựa chọn local/Git, CHG-011 yêu cầu thêm Word/slide M2. Trạng thái hiện hành ở đầu tài liệu. Giới hạn chỉ ba Markdown là lịch sử, không áp dụng cho yêu cầu mới.
 
 [Kế hoạch hiện hành](../PLAN.md) · [Nhật ký và thay đổi](review-log.md)
 
@@ -132,9 +134,22 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 - **Tiêu chí:** Môi trường local sạch và máy demo chạy theo README; cùng input/config/seed tái lập, số nguyên tuyệt đối và số thực theo dung sai đã ghi. Manifest hash/Python/thư viện/cutoff/seed; báo cáo truy về run. Thay A08 tính lại chuỗi/top 10/mô hình/tồn, thay A12 tính lại tồn/cảnh báo, giữ forecast nếu độc lập. Kết quả cũ mất hiệu lực phải đánh dấu. Không upload thật/tìm kiếm ngoài chứa dữ liệu riêng tư; allowlist gói chia sẻ không raw/ID/notebook output/lịch sử Git chứa CSV.
 - **Sản phẩm dự kiến:** Ba Markdown; README mới, notebook local, mã/config/phụ thuộc, tests/checks, manifest, báo cáo/slide, biên bản nghiệm thu và gói phù hợp quyền.
 - **Nhiệm vụ:** [T01](../PLAN.md#t01), [T02](../PLAN.md#t02), [T03](../PLAN.md#t03), [T06](../PLAN.md#t06), [T09](../PLAN.md#t09), [T10](../PLAN.md#t10), [T11](../PLAN.md#t11), [T12](../PLAN.md#t12), [T13](../PLAN.md#t13), [T14](../PLAN.md#t14).
-- **Giới hạn:** CSV đã tracked, .gitignore không xóa lịch sử; không push/công khai hoặc tự viết lại Git. Colab dữ liệu thật bị thay bằng local; Colab nếu cần chỉ minh họa giả.
+- **Giới hạn lịch sử 02/10:** CSV từng được ghi là tracked trong kho cũ; không viết lại lịch sử. **Workspace hiện tại đã kiểm tra:** Git root đúng project, CSV/outputs bị ignore và không nằm trong đối tượng lịch sử local; chỉ push allowlist theo CHG-008. Colab dữ liệu thật bị thay bằng local; Colab nếu cần chỉ minh họa giả.
 
 ## 4. Quyết định, đề xuất và phần chưa kiểm chứng
+
+### Bổ sung phạm vi triển khai và tình huống thực tế — 04/10/2026
+
+Người dùng yêu cầu trợ lý triển khai phần mềm xuyên suốt, kiểm thử và quản lý Git; báo cáo/slide làm sau. Đây là phạm vi hành động mới thay giới hạn chỉ tài liệu U03/U05 cho các lượt triển khai, không đổi mục tiêu sales hoặc xác nhận mentor. Các lựa chọn chờ tại 04/10 đã được người dùng chốt ở CHG-008; chỉ là thực nghiệm, không mentor xác nhận. R01–R09 và T01–T14 giữ nguyên, chưa nghiệm thu kỹ thuật.
+
+Người dùng yêu cầu chuẩn hóa dữ liệu, xử lý biến động bán/doanh thu và tình huống đối tác nhập ít hơn (CHG-007). Các yêu cầu bổ sung truy vào task hiện có:
+
+- **R01, R09 / T03, T12:** parse và chuẩn hóa ở bản dẫn xuất, bảo toàn nguồn/hash; lỗi thiếu/trùng/UTC/quantity/trạng thái có log tổng hợp và hành vi chặn rõ. Không ép số, đoán khóa/ngày hoặc đổi dữ liệu để đạt metric. Giá/doanh thu lỗi ảnh hưởng phân tích tiền phải được phân biệt với tính hợp lệ target quantity.
+- **R02, R04, R05 / T04–T09, T12:** ngày giảm/tăng bán hợp lệ, ngày 0 và biến động kéo dài vẫn nằm trong chuỗi và tập chấm. Doanh thu là chỉ báo chẩn đoán bổ sung, không thay target quantity hay top 10 train. Theo dõi mức bán/doanh thu sau khi ngày được quan sát; ngưỡng phát hiện/feature chỉ dùng lịch sử tới origin. Không tuyên bố biết trước sự kiện không có tín hiệu hoặc nguyên nhân chưa quan sát.
+- **R06, R07 / T10, T12:** chuẩn bị hai nhóm kịch bản riêng: biến động lượng bán và biến động nguồn cung (lượng thực nhận thấp hơn lượng đặt, về trễ, không về). Ngữ nghĩa “đối tác ít nhập” đang chờ làm rõ. Chỉ order là dữ liệu thật; các kịch bản nhập/ETA và biến động được tạo có nhãn, không coi là forecast đã học từ dữ liệu nhập doanh nghiệp.
+- **R08, R09 / T11, T12:** dashboard hiển thị cảnh báo chất lượng dữ liệu/bất thường bán tách khỏi cảnh báo tồn. Run thiếu/failed/trộn phiên bản không được hiển thị như hoàn tất; không che lỗi bằng 0 hoặc dùng kết quả cũ như mới.
+
+Mỗi kịch bản có cấu hình, kỳ vọng độc lập và kết quả kiểm thử; không cam kết bao phủ mọi sự kiện chưa biết. Các cảnh báo/chẩn đoán bổ sung không tạo ngưỡng nghiệm thu mới cho precision/recall hoặc đổi R05. Điều kiện “kickoff” hiện chỉ đối chiếu được với PLAN/requirements; chưa có nguồn kickoff riêng, ảnh/PDF tham chiếu vẫn thiếu và không nhận đã đọc.
 
 | Nhóm | Nội dung hiện hành | Nguồn/trạng thái |
 |---|---|---|
@@ -143,7 +158,7 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 | Ràng buộc | Chỉ order thực; phần còn lại nhóm giả định; không xin thêm nội bộ; bảo mật | U04 |
 | Giữ lựa chọn cũ | Tuyến quốc gia–nhà mạng; MAPE ngày dương từng tuyến; mô phỏng, demo riêng, M2 17/10/2026, M3 07/11/2026, bù M1 | U02, phần không mâu thuẫn |
 | Đề xuất có thể điều chỉnh | success làm sales, Vina→Vinaphone, tồn đầu 7 ngày, L=3, b=4/2, review=1, MOQ=1, receipts đầu rỗng, seed=42 | A08–A17/P02; chưa gắn nhãn nhóm/mentor thống nhất |
-| Phạm vi hành động | Cập nhật ba Markdown hiện có; chưa code/cài đặt/thực nghiệm | U05 |
+| Phạm vi hành động lịch sử | Cập nhật ba Markdown hiện có; chưa code/cài đặt/thực nghiệm | U05; được yêu cầu triển khai CHG-007 thay phạm vi hành động, không thay nghiệp vụ |
 
 Không có câu hỏi cần trả lời để cập nhật tài liệu. Trạng thái lịch sử, số bán thuần/gộp, mapping partner và vận hành tồn thật là giới hạn/giả định, không trở thành phụ thuộc xin thêm dữ liệu. Quỹ giờ nhóm chưa rõ; tổng 97–149 người-giờ hoặc 105–163 nếu T08 kích hoạt không phải cam kết nhân lực.
 

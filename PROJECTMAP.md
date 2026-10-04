@@ -1,11 +1,13 @@
 # Bản đồ project SIGMA
 
+**Hiện trạng 05/10/2026:** Workspace hiện tại `C:/Users/nguye/OneDrive/Desktop/TTDN_Sigma`. Đã có `src/`, `tests/`, `config.json`, `run.py`, `app.py`, khóa phụ thuộc, notebook, script dashboard và CI. Run local thật `outputs/sigma_release_v4/`; demo giả `outputs/demo_release/`; Word/slide local `reports/M2/`. Dữ liệu và outputs không thuộc gói Git. Các cây/tình trạng ngày 02/10 bên dưới là lịch sử trước triển khai; trạng thái hiện hành tại TASK và README. Git root đã kiểm tra nằm đúng project, không còn dùng giới hạn kho cha cũ để mô tả workspace này.
+
 **Thời điểm đối chiếu:** 02/10/2026 (Asia/Saigon). **Thư mục project:** `C:/Users/asus/OneDrive/Máy tính/sigma/Sim-Demand-Forecasting-main`.
 
-Bản đồ này ghi tệp thực tế và sai khác nguồn; [PLAN 2.0](PLAN.md) vẫn giữ thiết kế chi tiết, [requirements](docs/requirements.md) giữ nghiệm thu, [review-log](docs/review-log.md) giữ lịch sử. Đã kiểm tra danh sách tệp, đọc ba nguồn, khảo sát CSV chỉ đọc; không chạy pipeline hay đọc lại ảnh/PDF đang thiếu.
+Bản đồ này ghi tệp thực tế và sai khác nguồn; [PLAN 2.0](PLAN.md) vẫn giữ thiết kế chi tiết, [requirements](docs/requirements.md) giữ nghiệm thu, [review-log](docs/review-log.md) giữ lịch sử. Mô tả khảo sát chỉ đọc ngày 02/10 bên dưới giữ làm lịch sử. Pipeline hiện đã chạy, xem E11–E15; ảnh/PDF nguồn vẫn thiếu và không nhận đã đọc lại.
 
 <a id="actual-tree"></a>
-## Cây thực tế sau lượt tạo tài liệu
+## Cây trước triển khai — lịch sử 02/10/2026
 
 ```text
 Sim-Demand-Forecasting-main/
@@ -26,7 +28,7 @@ Sim-Demand-Forecasting-main/
 Bốn tệp có trước và sáu tài liệu mới là toàn bộ tệp hiện có trong project tại lần đối chiếu này. Chưa có mã nguồn, cấu hình, môi trường dự án, tests, notebook, outputs hoặc báo cáo chạy. Không tìm thấy AGENTS áp dụng trong project/các thư mục cha ở bước khảo sát trước khi tạo AGENTS mới. Vai trò và lộ trình đọc từng tài liệu tại [README](README.md).
 
 <a id="planned-tree"></a>
-## Cấu trúc dự kiến — chưa triển khai
+## Cấu trúc thiết kế trước triển khai — lịch sử 02/10/2026
 
 Trích nhóm sản phẩm từ PLAN mục 4; cây dưới chỉ liệt kê phần kỹ thuật còn thiếu. Tên/path không chứng minh sản phẩm tồn tại; không tạo thư mục rỗng hoặc khôi phục tệp cũ để làm đủ cây.
 

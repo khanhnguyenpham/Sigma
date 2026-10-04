@@ -1,6 +1,8 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
-**Phiên bản:** 2.0 — 02/10/2026. **Trạng thái:** Khảo sát đã thực hiện, triển khai chưa bắt đầu. Lượt này cập nhật ba Markdown, không huấn luyện hoặc chạy thực nghiệm mới. Bằng chứng activation cũ được giữ như lịch sử, cần tính lại cho mục tiêu số bán.
+**Phiên bản lịch sử:** 2.0 — 02/10/2026. **Trạng thái tại 02/10:** Khảo sát đã thực hiện, triển khai chưa bắt đầu. Lượt này cập nhật ba Markdown, không huấn luyện hoặc chạy thực nghiệm mới. Bằng chứng activation cũ được giữ như lịch sử, cần tính lại cho mục tiêu số bán.
+
+**Cập nhật triển khai 05/10/2026:** E01–E10/RV/QA-DOC cũ là lịch sử, không phải kiểm tra lại ảnh/PDF đang thiếu. E11 trở đi là bằng chứng kiểm tra trực tiếp lượt triển khai; CHG-008 cho phép local và push allowlist, CHG-009/010 cho phép tinh chỉnh bằng validation và công khai test đã xem. Không nghiệm thu toàn bài khi R05 chưa đạt.
 
 [Kế hoạch hiện hành](../PLAN.md) · [Yêu cầu và tiêu chí nghiệm thu](requirements.md)
 
@@ -174,6 +176,36 @@ Git hiện theo dõi CSV nguồn và hai tài liệu gốc. `.gitignore` không 
 
 Không có nguồn tồn kho/nhập hàng/lead time thật. Đây là ràng buộc đã được U04 xác nhận, **không phải vấn đề chặn cần doanh nghiệp giải quyết**. Giá trị cơ sở A09–A17 dùng cho mô phỏng, gắn nhãn và đánh giá độ nhạy. Xử lý thật chuyển về local; Colab nếu có chỉ minh họa giả. Lượt cập nhật tài liệu không thực hiện upload hoặc tạo môi trường.
 
+### E11 — Audit và pipeline sales thực chạy, 05/10/2026
+
+Run `sigma_full_v1` đã complete: audit → EDA → baseline → validation → test → forecast → inventory. CSV local 100.000 dòng/20 cột; success 93.104 dòng, 118.296 quantity; 46 tuyến × 731 ngày = 33.626 route-days. Hash trước/sau `6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b` giữ nguyên. Không có lỗi target/duplicate/đối soát tiền trong nguồn này; 5.691 activation thiếu không dùng loại sale. Audit và fixtures vẫn chặn lỗi target, giữ money diagnostics riêng. Forecast latest 46 × 14 = 644 cặp, actual tháng 01/2026 trống.
+
+### E12 — Tinh chỉnh hữu hạn, không đổi tiêu chí
+
+V1: 3 baseline, 6 SARIMA/top10 và 4 LightGBM Poisson khi điều kiện validation kích hoạt. 59/60 SARIMA có độ phủ validation đầy đủ; 1 ứng viên loại do fit/hội tụ. V2 thêm 8 weighted-median robust và 4 LightGBM inverse-label weighted L1; V3 thêm 12 hồi quy lịch biết trước, tổng 37 cấu hình trên từng top10. Calendar dùng thứ trong tuần và harmonic năm, không dùng actual tương lai; exploratory validation và CLI khớp 143.640 cặp ở dung sai 1e-8. Model selection vẫn validation, mọi nhãn fit <= cutoff.
+
+Test v1: 0/10 đạt, MAPE 41,10–73,65%, mean MAPE tuyến 50,53%. V2: 0/10, mean 48,35%. V3: 0/10, 40,93–61,96%, mean 49,03%, 6 tuyến cải thiện so với v1. **Không chọn V2 vì test tốt hơn:** V3 có lựa chọn theo validation; test đã xem và đánh giá lại không độc lập. MAE/WAPE/bias/độ phủ vẫn công bố, không lấy mean hoặc WAPE thay tiêu chí từng tuyến. Dữ liệu/target/top10/split/ngưỡng giữ nguyên. Các thử nghiệm chưa chứng minh 20% là bất khả thi, cũng chưa có bằng chứng đạt ngưỡng.
+
+### E13 — Kiểm tra local, tái lập, CI và Git
+
+`python -m pytest` trong môi trường khóa đã chạy 37 tests đạt; ca tính tay, missing/0, giữ hash, duplicate/quantity/UTC, lựa chọn validation, chống leakage, phân bổ/balance/trigger/ETA, cảnh báo, run hỏng và calendar unknown. `pip check` đạt trong .venv và .venv-verify. Demo v1 và demo_release cùng input hash/config/seed: 14 bảng khớp, số nguyên tuyệt đối, số thực 1e-8, loại run-id để đối chiếu. Baseline/SARIMA/LightGBM Poisson validation v1 và v2 trong môi trường sạch có hash CSV giống tuyệt đối.
+
+AppTest demo và run thật v1: 0 exception, 10 bảng; đổi origin và nhóm horizon đạt. Kiểm tra trình duyệt local hiển thị sáu tab, actual/forecast và nhãn tồn mô phỏng, cảnh báo R05. Run v1 có 1.100.320 ledger rows/13 chính sách: cân bằng tồn và demand=fulfilled+shortage đúng tuyệt đối, không âm, historical sales không đổi giữa scenario; 5.520 alert item-windows event-id duy nhất. Replay cảnh báo không đặt mới tách khỏi policy. V3 early-event-rate khoảng 31,67%, chưa chứng minh mọi ca báo trước >=7 ngày; không tự thêm ngưỡng precision/recall nghiệm thu.
+
+Git root đã xác minh đúng project; CSV/outputs/.venv/.tools ignored. Stage allowlist đầu 24 file không có ID nguồn, token, CSV/run thật; notebook không output. Push nhánh codex/sigma-local-pipeline thành công theo CHG-008, Draft PR #1. Windows CI [37225721518](https://github.com/khanhnguyenpham/Sigma/actions/runs/37225721518) thành công với tests + pipeline demo giả + AppTest trên runner sạch; không có raw orders trên CI. Chưa diễn tập UI trên máy Windows cá nhân thứ hai. Tại thời điểm E13, báo cáo/slide chưa tạo; trạng thái mới ở E15/CHG-011.
+
+### E14 — Kiểm tra bản release bàn giao
+
+Run `sigma_release_v4` complete, cấu hình 1.2.1, 43 tệp sealed khớp hash. CSV gốc giữ SHA256 `6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b`. Mã thực chạy có hash `289064ed0368262fb1027b304732f793700a3a34d0b367f1e7198be0334370c1`, khớp working code khi kiểm tra. Git revision trong manifest ở đầu run không đại diện mọi thay đổi chưa commit, dùng code hash để nhận diện. Manifest SHA256 `dbfa747134e2769cbf81214c7cb7dadfc2e6aa0806b9ce413e923beb1496c152`.
+
+Sáu bảng lựa chọn/validation/test/forecast tái lập v3 theo dung sai 1e-8. Top 10 có 623 cặp h1–7/tuyến, độ phủ 100%, 0/10 đạt MAPE ≤20%, khoảng 40,93–61,96%. Forecast mới 644 cặp, actual tháng 01/2026 trống. Kiểm tra 1.100.320 dòng ledger cân bằng số nguyên/không âm, nhu cầu bằng đáp ứng cộng thiếu; Q và trigger strict < đúng, event-id replay duy nhất. Khóa 84 package được kiểm chứng trong environment_verification trước seal. AppTest release: 0 exception/10 bảng khi đổi quốc gia/carrier, origin và h8–14. Launcher đã chạy local trên 127.0.0.1:8501 và chọn release thật hoàn chỉnh mới nhất.
+
+### E15 — Báo cáo tiến độ M2 và slide local
+
+Theo CHG-011, đã tạo `reports/M2/SIGMA_Bao_cao_tien_do_M2.docx` 10 trang, SHA256 `7a1f3f170939f5dfbeaaad221509084c245a93cf7624fa96a3e0c75848a5c295`, và `SIGMA_Slide_bao_cao_M2_final.pptx` 16 slide, SHA256 `e01032f04c230b1d78ce6c23b022bb37dda52d67b7139df5abe179b950b641c4`. Nội dung truy về release_v4 và giữ rõ 0/10 đạt R05, early-event-rate 31,67%, test reuse và giả định. Không bịa tên trường/mentor hoặc đóng góp cá nhân.
+
+DOCX: render_docx.py đã thử nhưng thiếu LibreOffice, dùng Word cài sẵn chạy ẩn export PDF QA và Poppler tạo ảnh. Đã kiểm tra mọi trang, sửa đường kẻ tiêu đề rồi render lại. PPTX: Artifact Tool export/import, finalizer kiểm tra gói/layout/font, hai chart native có workbook snapshot khớp cache và bảng native. Đã render mọi slide và kiểm tra bố cục; không tuyên bố đã mở/chỉnh sửa trong PowerPoint. File QA và report có kết quả riêng tư đều ignored/local, không push. T13 mới hoàn thành phần tiến độ M2, báo cáo cuối kỳ/bảo vệ còn mở.
+
 <a id="report-review"></a>
 ## 3. Sổ rà soát báo cáo gốc
 
@@ -251,6 +283,9 @@ Mọi quyết định dưới đây được ghi ngày **02/10/2026**. “Bạn 
 | DEC19 | Sales 01/01/2024–31/12/2025 và top 10 train — P02/E09 | Dẫn xuất target mới, bỏ biên activation; khảo sát không thay pipeline |
 | DEC20 | on_hand < ROP, IP tính Q; ledger/ETA/thiếu giữ sales gốc — U04/P02 | Thay trigger; R06/R07, T06/T10–T14; công thức/tham số là chính sách mô phỏng |
 | DEC21 | Cập nhật ba tệp hiện có — U05 | Ghi 2.0, giữ mã/lịch sử, chưa bắt đầu kỹ thuật |
+| DEC22 | Phần mềm local/Git allowlist và A08–A17 thực nghiệm — CHG-008, người dùng đồng ý | Thay giới hạn hành động chỉ tài liệu ở DEC21; không xác nhận mentor/nguồn thiếu. Báo cáo/slide để sau. |
+| DEC24 | Word tiến độ M2 và slide sau phần mềm — CHG-011, người dùng yêu cầu | Thay việc để sau ở CHG-008. Tạo từ run đã kiểm tra, giữ chưa đạt R05/cảnh báo, lưu local; không tự nâng nghiệm thu. |
+| DEC23 | Tinh chỉnh thêm bằng validation — CHG-009/010, yêu cầu người dùng | Giữ tiêu chí 20%/target/split; test đã xem được công khai, không gọi độc lập hoặc chọn bản bằng test. |
 
 <a id="impact-v2"></a>
 ### CHG-003 — Ma trận thay đổi và tác động
@@ -268,7 +303,7 @@ Mọi quyết định dưới đây được ghi ngày **02/10/2026**. “Bạn 
 
 **Vô hiệu hóa:** E06 và lựa chọn/dự báo/metric/hình theo activation chỉ là lịch sử, **cần tính lại** cho sales. Ngưỡng chung/trigger IP≤ROP cũ **bị thay thế**. Chưa có run/mô hình/dashboard đã triển khai để xóa hoặc đổi nhãn thành run mới. E03–E05 vẫn là khảo sát đúng phạm vi; T03/T04 phải sinh lại bằng mã. Không ghi T02–T14 “đã xong rồi cần sửa” vì chúng chưa bắt đầu.
 
-## 5. Lỗi kỹ thuật và kiểm tra hiện tại
+## 5. Kiểm tra ngày 02/10/2026 — lịch sử
 
 - Chưa có mã nguồn dự án nên chưa có lỗi runtime/model hoặc bộ kiểm thử dự án được thực thi.
 - Lượt khảo sát gặp lỗi encoding khi in tiếng Việt từ Python, sau đó cấu hình stdout UTF-8 và đọc được báo cáo; không phải lỗi PDF hoặc dữ liệu.
@@ -316,6 +351,10 @@ Ví dụ tác động: CHG-003 đổi target sang sales nên T03 cần định n
 | CHG-004 | 04/10/2026 | Người dùng yêu cầu chia task triển khai và cung cấp 6 tên: Nguyên, Khang, Du, Tuấn Anh, Hiếu, Cường | Đề xuất người phụ trách/review cho T01–T14 trong TASK/PLAN và cập nhật hướng dẫn TXT. Chưa có năng lực, quỹ giờ, GitHub username hoặc xác nhận nhận việc; không đổi nghiệp vụ, A08–A17, phụ thuộc, công sức hay trạng thái. Chưa tạo Issue, push hoặc triển khai code |
 | CHG-005 | 04/10/2026 | Người dùng làm rõ muốn cả nhóm cùng làm từng task một | Thay cách làm các module song song của CHG-004 bằng cùng một Txx, chia checklist nhỏ cho 6 người, PR riêng từng phần và kiểm tra chung trước chuyển task. TASK/PLAN/TXT được đồng bộ; người phụ trách cũ là đầu mối đề xuất. Ước lượng tải cá nhân cũ cần phân bổ lại; công sức tổng, nghiệp vụ, phụ thuộc, trạng thái giữ nguyên. Chưa tạo Issue/push hoặc triển khai code |
 | CHG-006 | 04/10/2026 | Người dùng yêu cầu được hướng dẫn làm solo và push Git từng phần | Thay cách phối hợp CHG-004/005 bằng người dùng làm toàn bộ T01–T14 với hỗ trợ từng phần; giữ phân công nhóm làm lịch sử hết áp dụng. TASK/PLAN/TXT mô tả phần nhỏ, kiểm tra, commit/push code và tài liệu được phép. Không đổi nghiệp vụ, giả định, phụ thuộc, nghiệm thu hoặc công sức tổng; chưa biết quỹ giờ solo. Lượt này chuẩn bị phần tài liệu/Git, chưa triển khai pipeline; kết quả push cần kiểm chứng riêng |
+| CHG-007 | 04/10/2026 | Người dùng yêu cầu trợ lý làm phần mềm xuyên suốt/Git, báo cáo và slide sau; bổ sung chuẩn hóa theo kickoff, giảm bán/doanh thu và đối tác nhập ít | TASK/PLAN/requirements/data-contract bổ sung hành vi và ca stress vào T03–T12; không đổi target/split/metric, không xác nhận A08–A17 hay nguồn kickoff thiếu. Local/online, cấu hình cơ sở, quyền push cụ thể và nghĩa “nhập ít” đang chờ làm rõ. Preflight chỉ đọc 100.000 dòng bằng Python standard library: không phát hiện lỗi độ rộng, quantity, order timestamp, duplicate hoặc đối soát doanh thu; 5.691 activation trống; 46 tuyến. SHA-256 trước/sau giữ 6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b. Chưa có audit pipeline, fixture, stress run hoặc nghiệm thu T02–T14; commit 25fb7f5 vẫn local, push trước bị auto-review từ chối |
+| CHG-008 | 05/10/2026 | Người dùng trả lời “đồng ý” sau lựa chọn triển khai và yêu cầu làm A–Z | Chọn Streamlit local Windows, PLAN/requirements làm căn cứ khi nguồn kickoff thiếu; A08–A17 cho thực nghiệm, không mentor xác nhận; cả giảm bán và nhận thiếu/trễ. Cho phép push mã/config/tests fixture giả/notebook không output/tài liệu, gồm commit 25fb7f5, tới khanhnguyenpham/Sigma qua nhánh và PR. CSV/run thật/token không push. T13 báo cáo/slide vẫn để sau. CHG-007 chờ lựa chọn đã được thay thế; không đổi tiêu chí độ chính xác. |
+| CHG-009 | 05/10/2026 | Người dùng yêu cầu phải tinh chỉnh để đáp ứng yêu cầu | Sau khi công bố test v1 0/10 đạt, mở thí nghiệm v2: giữ dữ liệu/target/top10/split/metric/ngưỡng; thêm 8 robust weighted-median (4 cửa sổ × có/không shrink thứ trong tuần) và 4 LightGBM inverse-label weighted-L1, chọn bằng validation như cũ. Test đã được xem; v2 đánh giá lại trên test cũ, không gọi kiểm định độc lập. Không nâng trạng thái R05 nếu vẫn chưa đạt; lưu v1, config.original.json và v2 tách run/config version. |
+| CHG-010 | 05/10/2026 | Tiếp tục yêu cầu tinh chỉnh CHG-009 | V3 thêm 12 hồi quy lịch biết trước: cửa sổ 365/toàn lịch sử × 1/2 harmonic năm × weighted LAD alpha 0,001/0,01 hoặc Poisson alpha 0,1; feature thứ trong tuần và sin/cos day-of-year. Thử nghiệm chỉ dùng nhãn tới cutoff trên validation, không dùng nhãn test để chọn; validation cải thiện thêm 2 tuyến nên tích hợp CLI/dashboard và chạy lại toàn bộ. Test vẫn là test đã xem, không độc lập. Không đổi R05 hoặc target/ngưỡng. |
 
 Giới hạn và trạng thái còn mở, không phải yêu cầu xin thêm dữ liệu doanh nghiệp:
 
@@ -342,3 +381,5 @@ Các nguồn này hỗ trợ lựa chọn phương pháp/công cụ, không xác
 - [Google Colab FAQ](https://research.google.com/colaboratory/faq.html): nguồn tham khảo phương án 1.0; ở 2.0 Colab chỉ tùy chọn minh họa dữ liệu giả, không tải dữ liệu thật.
 
 Ngày tham khảo trong lượt khảo sát: 02/10/2026. Phiên bản phụ thuộc cụ thể chưa được lựa chọn hoặc kiểm chứng bằng cài đặt dự án.
+
+| CHG-011 | 05/10/2026 | Người dùng yêu cầu hoàn thiện sản phẩm rồi tạo Word báo cáo tiến độ M2 và slide báo cáo | Thay deferral T13 của CHG-008. Tạo báo cáo tiến độ từ release đã kiểm tra, đọc yêu cầu và giữ giới hạn thực tế. Word/slide có số liệu local không push. R05/cảnh báo sớm và nghiệm thu toàn bài không tự đổi sang đạt. |
