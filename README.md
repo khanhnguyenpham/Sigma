@@ -2,7 +2,7 @@
 
 Ứng dụng Streamlit chạy local trên Windows, tích hợp audit dữ liệu, EDA, dự báo 46 tuyến, phân bổ SKU, mô phỏng nhập hàng và cảnh báo. Mã, cấu hình, tests và notebook đã được triển khai; đã có bản nháp Word/slide lịch sử ở local; CHG-012 yêu cầu chỉ tập trung project, chưa làm tiếp tài liệu báo cáo.
 
-**Kết quả ngày 05/10/2026:** bản thử nghiệm `sigma_monthly_v9` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 40,93–58,13%. Dự án còn đang hoàn thiện, chưa nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
+**Kết quả ngày 05/10/2026:** bản thử nghiệm `sigma_hierarchical_v10` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 38,58–58,13%. Dự án còn đang hoàn thiện, chưa nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
 
 **Tinh chỉnh:** V2 thêm 8 robust và 4 LightGBM weighted-L1; V3 thêm 12 hồi quy lịch (37 ứng viên tổng cộng trên mỗi top 10). Chọn bằng validation, giữ 0/10 đạt. Test cũ được sử dụng lại, không phải kiểm định độc lập. Mean MAPE từng tuyến v1 50,53%; v2 48,35%; v3 49,03%. Không chọn V2 chỉ vì test tốt hơn; bản release dùng lựa chọn theo validation của V3. EDA lễ giữ nhóm unknown và mẫu số, không suy nhân quả.
 
@@ -14,7 +14,7 @@ Mở PowerShell trong thư mục project, chạy:
 .\start_dashboard.ps1
 ```
 
-Mở địa chỉ `http://127.0.0.1:8501`. Chọn bộ kết quả `sigma_release_v4` để xem bản bàn giao đã kiểm tra; `sigma_full_v1` giữ làm lịch sử. Chọn `demo_release` để xem dữ liệu giả. Dashboard có sáu tab: bán & dự báo, đánh giá, tồn & đặt hàng, cảnh báo, kịch bản, audit & giới hạn. Chạy pipeline trước khi mở dashboard trên máy mới.
+Mở địa chỉ `http://127.0.0.1:8501`. Launcher chọn run thật hoàn tất mới nhất; chọn `sigma_hierarchical_v10` để xem run hiện hành và `demo_hierarchical_v10_verify` để xem demo giả. Các run v1–v9 giữ làm lịch sử. Dashboard có sáu tab: bán & dự báo, đánh giá, tồn & đặt hàng, cảnh báo, kịch bản, audit & giới hạn. Chạy pipeline trước khi mở dashboard trên máy mới.
 
 ## Cài trên máy Windows mới
 
@@ -147,7 +147,7 @@ Config 1.6.0 tích hợp bốn cohort candidate, catalog 55. Source identifiers 
 
 51 evidence validation cũ nhập với lineage, bốn cohort chạy fresh. 51.520 dự báo cohort khớp prototype 1e-8; lựa chọn mới ở TrueMove H/SKT chỉ dựa validation. 83 tests đạt; 53 sealed files; 265.985 events và 1.100.320 ngày/item/scenario đối soát; AppTest 0 exception/10 bảng. Demo .venv-verify tái lập 14 bảng và kiểm events. Test đã xem: 0/10 đạt, mean route MAPE 48,05%, range 40,93–58,13%; coverage 100%. Replay early-event-rate 31,29%, base fill rate 82,63%. Không đánh dấu toàn bài đạt. Config v7 giữ ở config.transaction-v7.json. Các lệnh v7 cũng thuộc mã/run lịch sử khi chuyển sang v8; dùng run-id mới, không sửa sealed evidence.
 
-## Run v9 hiện hành — tháng, origin và demo độc lập
+## Run v9 — lịch sử đã kiểm tra, tháng, origin và demo độc lập
 
 Config 1.7.0 có 57 ứng viên; hai countmonth_365/all dùng lịch weekday/month biết trước tại origin. 55 validation evidence v8 nhập có lineage, hai monthly chạy fresh; 25.760 cặp khớp prototype 1e-8. Config cũ giữ ở config.cohort-v8.json. Run-id mới, không sửa hoặc resume sealed run bằng mã khác.
 
@@ -161,3 +161,16 @@ Các lệnh v8 phía trên là lịch sử của mã v8. Với clone mới khôn
 92 tests đạt, 55 sealed files, 266.091 events/13 scenario và 1.100.320 ledger đối soát. Verify tái tính daily quantity, train top10, selection validation-only, actual test/forecast từ nguồn audited, rồi metric/stock/trigger/Q/hash/84 pins. Demo môi trường thứ hai tái lập 14 bảng, nguồn riêng được seal/verify; AppTest real Thailand/AIS và demo Vietnam/Vinaphone 0 exception/10 bảng, origin 31/10/2025, h8–14. Hai môi trường trên cùng máy chưa thay kiểm thử máy khác.
 
 R05 vẫn 0/10: mean route MAPE 46,496812%, range 38,662919–58,134251%, coverage 100%; test đã xem và đánh giá lại, chưa là kiểm định độc lập mới. Replay early-event-rate 32,263690%, base fill 83,373% là mô phỏng, không bảo đảm mọi ca. Không gọi toàn bài hoàn thành; Word/slide chưa làm tiếp.
+
+## Run v10 hiện hành — aggregate arrivals và tỷ trọng tuyến
+
+Config 1.8.0, catalog 59; giữ config v9 tại config.monthly-v9.json. Hai hiercount dùng aggregate order arrivals dự báo từ lịch biết trước, phân bổ bằng historical-month/recent route shares tại origin; basket quantity chuyển sang forecast sales quantity. Không dùng tổng actual tương lai; coherence chỉ áp dụng expected order counts trước sales action, không nhận tổng quantity forecast bằng tổng order count. 57 evidence validation v9 nhập có lineage; hai ứng viên mới chạy fresh, 25.760 cặp khớp prototype 1e-8.
+
+```powershell
+& .venv/Scripts/python.exe run.py --run-id sigma_hierarchical_v10 --validation-cache-run sigma_monthly_v9
+& .venv/Scripts/python.exe verify_release.py --run-id sigma_hierarchical_v10
+```
+
+Clone mới không có validation cache thì bỏ --validation-cache-run và dùng run-id mới. Lệnh v9/v8 phía trên là lịch sử mã tương ứng; không sửa/resume sealed run bằng mã mới. Verify tái tính cả nhãn quantity và metric của toàn bộ validation predictions, kể cả evidence nhập; kiểm train top/selection/actual test và forecast, hash, stock/event/day/Q. 100 tests đạt; 57 sealed files, 266,469 events, 1.100.320 ledger, 84 pins. Demo nguồn riêng tái lập 14 bảng, verify/AppTest real và demo 0 exception/10 bảng.
+
+R05 vẫn 0/10, MAPE 38,58–58,13%, mean route MAPE 46.503945%, coverage 100%. Có tuyến test tốt hơn và kém hơn v9; không chọn lại bằng test. Test đã xem, chưa là kiểm định độc lập mới. Replay early-event-rate 33.135682%, base fill 83.755010% là mô phỏng. Chưa nghiệm thu toàn bài; Word/slide chưa làm tiếp.

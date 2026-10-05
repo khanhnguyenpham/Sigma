@@ -156,3 +156,9 @@ V5 qua 53 tests và `verify_release.py`, 48 tệp sealed, 1.100.320 ledger, 84 p
 ### Kiểm v9 — CHG-018/019/E25
 
 92 tests đạt. Kiểm monthly calendar/future mutation/dispatch, origin stale/missing/non-midnight, demo failed resume không đổi nguồn và không khôi phục nguồn mất, orphan-dir không ghi đè, allocation plan không dùng matrix/forecast/window cũ. Real base replay từ locked forecast v8 tái lập ledger/recommendations 84.640 rows mỗi bảng ở 1e-8, events khớp source; phép dùng lại allocation không đổi công thức. Verify_release tái tính nguồn→daily/train top/validation-only selection/actual test và forecast trước chấm metric. CSV None/blank ở validation_target_met được chuẩn hóa nullable boolean, không thay kết quả. V9 real/demo verified; 14 bảng demo tái lập, AppTest 0 exception/10 bảng ở cả hai. Hash chi tiết E25.
+
+### Kiểm v10 — CHG-020/E27
+
+100 tests đạt; hierarchical kiểm future mutation, tỷ trọng 3:1 tính tay và tổng shares=1 khi tháng chưa có lịch sử, missing actual/count, all-zero, future fit và dispatch H14. Verify_release tái tính quantity labels/metric validation từ predictions của mọi family kể cả cache; fixtures chặn nhãn số đơn thay quantity, metric tự sửa dù được seal và missing forecast không có log excluded fit failure. SARIMA failed có NaN được giữ trong evidence/coverage nhưng loại khỏi selection, không coi là forecast hợp lệ. V10 real/demo verified; 25.760 fresh validation pairs khớp prototype 1e-8, 14 bảng demo tái lập, AppTest real/demo không exception/10 bảng. Các cải thiện validation không bảo đảm cải thiện test; không thay selection đã khóa.
+
+**Độ nhạy E28:** Sau verify, tổng hợp ledger theo scenario/tuyến, kiểm fill không nhất thiết đơn điệu từng tuyến khi đổi cover/L/safety; tổng demand/fulfilled/shortage giữ nguồn sealed. Phân tích riêng ngoài sealed run, hashes/parent manifest ở E28; không dùng chọn model/tham số từ test.
