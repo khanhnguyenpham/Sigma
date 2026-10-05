@@ -17,12 +17,15 @@ from lightgbm import LGBMRegressor
 
 from src.common import ROOT, ROUTE, read_config, sha256, write_csv, write_json
 from src.data import audit_orders, daily_sales, route_top
+from weekly_macro import MACRO_FEATURES, MACRO_AMOUNTS, prepare_macro, macro_inputs
+from weekly_calibration import fit_factors
 
 FEATURES = ['route_index', 'block', 'origin_weekday', 'start_month', 'year_sin',
             'year_cos', 'elapsed_days', 'sum7', 'sum14', 'sum28', 'sum90',
             'previous7', 'std28', 'positive_share28', 'orders28', 'basket28']
 AMOUNTS = ['sum7', 'sum14', 'sum28', 'sum90', 'previous7', 'std28']
 CATEGORIES = ['route_index', 'block', 'origin_weekday', 'start_month']
+ANNUAL_FEATURES = ['prior_year_week7', 'prior_year_mean28_week', 'prior_year_mean90_week']
 
 
 def checked_series(daily):
@@ -42,6 +45,7 @@ def checked_series(daily):
 
 def prepare(daily, settings):
     result = {}
+    macro = prepare_macro(daily) if any(spec.get('macro_features') for spec in settings['models'].values()) else None
     for route_index, (key, group) in enumerate(checked_series(daily).items()):
         y, orders = group.sales_qty.astype(float), group.order_count.astype(float)
         origins = y.index[settings['minimum_history_days'] - 1:]
@@ -60,7 +64,17 @@ def prepare(daily, settings):
                 'positive_share28': y.gt(0).rolling(28).mean().reindex(origins).to_numpy(),
                 'orders28': orders.rolling(28).sum().reindex(origins).to_numpy(),
                 'basket28': (sums[28] / orders.rolling(28).sum().clip(lower=1)).reindex(origins).to_numpy()})
-            result[(key, block)] = {'x': x[FEATURES], 'origins': origins,
+            prior = ends - pd.DateOffset(years=1)
+            if (prior + pd.Timedelta(days=45) > origins).any():
+                raise ValueError('Prior-year feature window exceeds origin')
+            x[ANNUAL_FEATURES[0]] = sums[7].reindex(prior).to_numpy()
+            x[ANNUAL_FEATURES[1]] = (y.rolling(28, center=True, min_periods=28).mean() * 7).reindex(prior).to_numpy()
+            x[ANNUAL_FEATURES[2]] = (y.rolling(90, center=True, min_periods=90).mean() * 7).reindex(prior).to_numpy()
+            if macro is not None:
+                extra = macro_inputs(macro, key[0], y, origins, ends)
+                x[MACRO_FEATURES] = extra.to_numpy()
+            names = FEATURES + ANNUAL_FEATURES + (MACRO_FEATURES if macro is not None else [])
+            result[(key, block)] = {'x': x[names], 'origins': origins,
                 'starts': starts, 'ends': ends,
                 'y': sums[7].reindex(ends).to_numpy(float),
                 'scale': np.maximum(sums[90].reindex(origins).to_numpy() * 7 / 90, 1.)}
@@ -68,9 +82,15 @@ def prepare(daily, settings):
 
 
 def inputs(table, spec, indices):
-    x = table['x'].iloc[indices].copy()
+    names = FEATURES + (ANNUAL_FEATURES if spec.get('annual_features', False) else [])
+    if spec.get('macro_features', False):
+        names += MACRO_FEATURES
+    x = table['x'].iloc[indices][names].copy()
     if spec.get('units') == 'ratio':
-        x[AMOUNTS] = x[AMOUNTS].div(table['scale'][indices], axis=0)
+        amount_names = AMOUNTS + (ANNUAL_FEATURES if spec.get('annual_features', False) else [])
+        if spec.get('macro_features', False):
+            amount_names += MACRO_AMOUNTS
+        x[amount_names] = x[amount_names].div(table['scale'][indices], axis=0)
     return x
 
 
@@ -133,18 +153,72 @@ def predict_one(model, table, origin, spec):
     return max(0., value)
 
 
+def predict_batch(model, prepared, origin, spec):
+    keys, xs, scales = [], [], []
+    for key, table in prepared.items():
+        indices = np.flatnonzero(table['origins'] == origin)
+        if len(indices) != 1:
+            raise ValueError('Missing or duplicate forecast origin')
+        keys.append(key); xs.append(inputs(table, spec, indices))
+        scales.append(table['scale'][indices[0]])
+    values = np.asarray(model.predict(pd.concat(xs, ignore_index=True)), dtype=float)
+    if spec['units'] == 'ratio':
+        values *= np.asarray(scales)
+    if not np.isfinite(values).all():
+        raise ValueError('Nonfinite batch forecast')
+    return dict(zip(keys, np.maximum(values, 0)))
+
+
+def blend_values(component_values, weights):
+    weights = np.asarray(weights, dtype=float)
+    if (len(weights) != len(component_values) or not np.isfinite(weights).all()
+            or (weights < 0).any() or not np.isclose(weights.sum(), 1., atol=1e-12, rtol=0)):
+        raise ValueError('Blend requires nonnegative weights summing to one')
+    keys = set(component_values[0])
+    if any(set(values) != keys for values in component_values):
+        raise ValueError('Blend components have incomplete coverage')
+    return {key: float(sum(weight * values[key] for weight, values in zip(weights, component_values)))
+            for key in component_values[0]}
+
+
 def phase(daily, cfg, settings, start, end, name, out, choices=None):
     prepared, groups = prepare(daily, settings), checked_series(daily)
     origins = pd.date_range(pd.Timestamp(start) - pd.Timedelta(days=1), pd.Timestamp(end) - pd.Timedelta(days=1))
-    rows, logs = [], []
+    rows, logs, head_logs, fit_cache, predict_cache = [], [], [], {}, {}
     identifiers = sorted(set(choices.values())) if choices else list(settings['models'])
     for ident in identifiers:
         spec = settings['models'][ident]
         state = None
         for i, origin in enumerate(origins):
-            if spec['kind'] == 'lgbm' and i % settings['refit_days'] == 0:
-                state, log = fit(prepared, origin, spec, cfg, settings)
-                logs.append({'model': ident, 'fit_cutoff': origin, **log})
+            components = (spec['components'] if spec['kind'] == 'blend'
+                          else [spec['parent']] if spec['kind'] == 'calibrated' else [ident])
+            if spec['kind'] in ('lgbm', 'blend', 'calibrated'):
+                if i % settings['refit_days'] == 0:
+                    state = []
+                    for component in components:
+                        component_spec = settings['models'][component]
+                        if component_spec['kind'] != 'lgbm':
+                            raise ValueError('Weekly blend components must be direct LightGBM models')
+                        cache_key = (component, origin)
+                        if cache_key not in fit_cache:
+                            fit_cache[cache_key] = fit(prepared, origin, component_spec, cfg, settings)
+                        model, log = fit_cache[cache_key]
+                        state.append((model, component_spec))
+                        logs.append({'model': ident, 'component': component, 'fit_cutoff': origin, **log})
+                    if spec['kind'] == 'calibrated':
+                        factors, head_log = fit_factors(prepared, origin, spec, cfg, settings,
+                            fit_cache, predict_cache, fit, predict_batch)
+                        head_logs.extend([{'model': ident, **row} for row in head_log])
+                values = []
+                for component, (model, component_spec) in zip(components, state):
+                    prediction_key = (component, origin)
+                    if prediction_key not in predict_cache:
+                        predict_cache[prediction_key] = predict_batch(model, prepared, origin, component_spec)
+                    values.append(predict_cache[prediction_key])
+                predicted = blend_values(values, spec['weights']) if spec['kind'] == 'blend' else values[0]
+                base_prediction = predicted.copy()
+                if spec['kind'] == 'calibrated':
+                    predicted = {key: value * factors[key] for key, value in predicted.items()}
             for (key, block), table in prepared.items():
                 if choices and choices[key] != ident:
                     continue
@@ -156,16 +230,19 @@ def phase(daily, cfg, settings, start, end, name, out, choices=None):
                 actual = table['y'][idx]
                 if not np.isfinite(actual):
                     raise ValueError('Missing complete-week actual')
-                value = (predict_one(state, table, origin, spec) if spec['kind'] == 'lgbm'
+                value = (predicted[(key, block)] if spec['kind'] in ('lgbm', 'blend', 'calibrated')
                          else baseline_total(groups[key], origin, spec))
                 rows.append({**dict(zip(ROUTE, key)), 'model': ident, 'as_of_date': origin,
                     'window_start': start_date, 'window_end': end_date, 'week_block': block,
                     'forecast_qty_7d': value, 'actual_qty_7d': actual, 'split': name,
-                    'weekly_cadence': i % 7 == 0})
+                    'weekly_cadence': i % 7 == 0,
+                    'base_forecast_qty_7d': base_prediction[(key, block)] if spec['kind'] == 'calibrated' else value,
+                    'calibration_factor': factors[(key, block)] if spec['kind'] == 'calibrated' else 1.})
         print(f'{name}: completed {ident}', flush=True)
     frame = pd.DataFrame(rows)
     write_csv(out / f'{name}_weekly_predictions.csv', frame)
     write_csv(out / f'{name}_fit_log.csv', pd.DataFrame(logs))
+    write_csv(out / f'{name}_head_log.csv', pd.DataFrame(head_logs))
     write_csv(out / f'{name}_weekly_metrics.csv', metrics(frame, start, end))
     return frame
 
@@ -225,6 +302,8 @@ def run_weekly(run_id, weekly_config='config.weekly.json'):
     protocol = {'status': 'registered_before_fit', 'weekly_config': settings, 'base_config': cfg,
         'created_at_utc': datetime.now(timezone.utc).isoformat(), 'source_sha256': sha256(source),
         'entrypoint_sha256': sha256(Path(__file__)), 'config_sha256': sha256(settings_path),
+        'feature_module_sha256': {'weekly_macro.py': sha256(ROOT / 'weekly_macro.py')},
+        'calibration_module_sha256': sha256(ROOT / 'weekly_calibration.py'),
         'target': 'Seven-day sum of unchanged UTC success quantity, never average or order count',
         'selection': 'Per-route validation daily-origin h1-7 weekly MAPE, then MAE, then lexical id; full coverage required',
         'test_limit': 'Existing test already viewed during daily experiments; this is retrospective evaluation, not independent acceptance',
@@ -258,13 +337,31 @@ def run_weekly(run_id, weekly_config='config.weekly.json'):
     prepared, groups = prepare(daily, settings), checked_series(daily)
     origin = pd.Timestamp(cfg['forecast_origin'])
     future, allocation, fits = [], [], {}
+    future_fit_cache, future_predict_cache, future_head_cache, future_head_logs = {}, {}, {}, []
     for key, ident in choices.items():
         spec = settings['models'][ident]
-        if spec['kind'] == 'lgbm' and ident not in fits:
-            fits[ident] = fit(prepared, origin, spec, cfg, settings)[0]
+        components = (spec['components'] if spec['kind'] == 'blend'
+                      else [spec['parent']] if spec['kind'] == 'calibrated' else [ident])
+        if spec['kind'] in ('lgbm', 'blend', 'calibrated'):
+            for component in components:
+                if component not in fits:
+                    component_spec = settings['models'][component]
+                    if component_spec['kind'] != 'lgbm':
+                        raise ValueError('Weekly blend components must be direct LightGBM models')
+                    fits[component] = fit(prepared, origin, component_spec, cfg, settings)[0]
+            if spec['kind'] == 'calibrated' and ident not in future_head_cache:
+                future_head_cache[ident], head_log = fit_factors(prepared, origin, spec, cfg, settings,
+                    future_fit_cache, future_predict_cache, fit, predict_batch)
+                future_head_logs.extend([{'model': ident, **row} for row in head_log])
         for block in settings['blocks']:
-            value = (predict_one(fits[ident], prepared[(key, block)], origin, spec)
-                if spec['kind'] == 'lgbm' else baseline_total(groups[key], origin, spec))
+            if spec['kind'] in ('lgbm', 'blend', 'calibrated'):
+                values = [{(key, block): predict_one(fits[component], prepared[(key, block)], origin, settings['models'][component])}
+                          for component in components]
+                value = blend_values(values, spec['weights'])[(key, block)] if spec['kind'] == 'blend' else values[0][(key, block)]
+                if spec['kind'] == 'calibrated':
+                    value *= future_head_cache[ident][(key, block)]
+            else:
+                value = baseline_total(groups[key], origin, spec)
             dates, allocated = allocate_daily(value, groups[key], origin, block, settings['allocation_history_days'])
             future.append({**dict(zip(ROUTE, key)), 'model': ident, 'as_of_date': origin,
                 'window_start': dates[0], 'window_end': dates[-1], 'week_block': block,
@@ -276,6 +373,7 @@ def run_weekly(run_id, weekly_config='config.weekly.json'):
     write_csv(out / 'weekly_forecast.csv', pd.DataFrame(future))
     write_csv(out / 'daily_allocation.csv', pd.DataFrame(allocation))
     write_csv(out / 'daily_sales.csv', daily)
+    write_csv(out / 'future_head_log.csv', pd.DataFrame(future_head_logs))
     tm = metrics(test, cfg['test_start'], cfg['test_end'])
     result = selected[ROUTE + ['model', 'is_top10']].merge(tm, on=ROUTE + ['model'], validate='one_to_many')
     write_csv(out / 'selected_test_weekly_metrics.csv', result)
@@ -290,8 +388,14 @@ def run_weekly(run_id, weekly_config='config.weekly.json'):
         'test_weekly_full_coverage': bool(result.coverage.eq(1).all()),
         'daily_R05_met': False, 'test_is_independent': False, 'production_daily_modified': False,
         'routes': len(choices), 'forecast_windows': len(future), 'daily_allocation_rows': len(allocation),
-        'source_audit_rows': audit.get('rows'),
+        'source_audit_rows': audit['rows_raw'],
         'files': {p.name: sha256(p) for p in sorted(out.iterdir()) if p.is_file()}}
+    if (sha256(Path(__file__)) != protocol['entrypoint_sha256']
+            or sha256(settings_path) != protocol['config_sha256']
+            or sha256(ROOT / 'weekly_macro.py') != protocol['feature_module_sha256']['weekly_macro.py']
+            or sha256(ROOT / 'weekly_calibration.py') != protocol['calibration_module_sha256']
+            or not summary['raw_unchanged']):
+        raise ValueError('Input, configuration or model code changed during weekly run')
     write_json(out / 'summary.json', summary)
     print(json.dumps({k: v for k, v in summary.items() if k != 'files'}, ensure_ascii=False), flush=True)
     return summary

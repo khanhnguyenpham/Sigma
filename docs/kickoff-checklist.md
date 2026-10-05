@@ -22,6 +22,6 @@
 | M3 | Cảnh báo cạn kho trước ≥7 ngày | R07/T10: replay có ca sớm/muộn/bỏ sót, chưa bảo đảm toàn bộ ca |
 | M3 | Dashboard theo dõi dự báo và sai số thực tế | R08/T11: dashboard ngày và màn hình tuần local; actual tương lai để trống |
 
-Dòng “KỸ NĂNG RÈN ĐƯỢC”: Pandas · feature engineering; SARIMA / Prophet; LightGBM; Job chạy định kỳ; Dashboard sai số. Chạy định kỳ là phần cần hoàn thiện vận hành; ảnh không cung cấp lịch chạy cụ thể.
+Dòng “KỸ NĂNG RÈN ĐƯỢC”: Pandas · feature engineering; SARIMA / Prophet; LightGBM; Job chạy định kỳ; Dashboard sai số. E37 đã chạy job local refresh/skip, kiểm lỗi/khóa/last-good; script lịch Windows được chuẩn bị nhưng chưa cài nền. Ảnh không cung cấp lịch chạy cụ thể.
 
 Ảnh không ghi năm, split, cách xử lý MAPE khi actual bằng 0, horizon hoặc ngưỡng precision/recall. Giữ protocol hiện hành; không suy diễn thông tin không có trên ảnh. Năm 2026 có nguồn lựa chọn người dùng/báo cáo lịch sử. M01 số bán và M02 ngưỡng riêng đối tác vẫn là mentor do người dùng thuật lại, không phải xác nhận được chứng minh bởi ảnh này.

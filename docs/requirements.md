@@ -1,5 +1,7 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**Cập nhật 05/10/2026 — CHG-024/025, E37–E39:** đã áp dụng **khách đặt D → giao D+7 ngày lịch UTC**, không trễ giao, gồm cuối tuần; không đổi lead time nhập kho. Người dùng mô tả snapshot order là giả định; đây là nguồn thuật lại, vẫn giữ dữ liệu/outputs private và raw nguyên. [Sản phẩm chung và lịch giao](customer-delivery.md) mở bằng `start_product.ps1` tại cổng 8503. Run tuần hiện hành `sigma_weekly_calibrated_v5`: test hồi cứu **9/10**, mean **15,97%**, LG U+ **21,36%**; chọn validation rồi khóa trước test. 920 khuyến nghị tồn từ phân bổ tuần đã đối soát, replay cùng 5.520 cửa sổ báo sớm **33,73%**; chưa chạy lại toàn bộ chính sách liên tục bằng tuần. 150 tests đạt, AppTest năm trang/không exception; job refresh/skip chạy thật, script đăng ký lịch nền được chuẩn bị nhưng chưa cài. R05 ngày **0/10**, R07/T14 vẫn mở. **Sau khi đủ điều kiện nghiệm thu mới làm bản so sánh chính thức ngày/tổng 7 ngày và tổ chức lại code**, đúng thứ tự người dùng yêu cầu; chưa làm lại Word/slide. Những cập nhật E36/v1 bên dưới là lịch sử.
+
 **Bổ sung CHG-023/E35–E36:** người dùng gửi lại ảnh kickoff và yêu cầu làm mô hình dự báo tổng bán 7 ngày thay cách dự báo từng ngày. Đã triển khai phương án tuần riêng, [protocol/kết quả](weekly-forecast.md), test tuần hồi cứu 9/10≤20%, AIS 22,14%; R05 theo ngày và các ngưỡng chính thức giữ mở tới khi có xác nhận thay nghiệm thu. Không đổi sales/split/top10 hoặc dùng metric tuần để nhận đạt ngày. R08 có dashboard tuần; R06/R07 chưa thay chính sách tồn hoặc nhận cảnh báo đạt từ kết quả tuần.
 
 **Tiến độ 05/10/2026:** Phần mềm local và sigma_scaled_v11 đã kiểm tra; tiêu chí R01–R09 giữ nguyên. Test h1–7 đủ độ phủ nhưng 0/10 top 10 đạt R05 (41,89–58,13%). Cảnh báo trước ≥7 ngày đạt 33,10% sự kiện replay v11. CHG-022/E33 đã tạo Word và slide tiến độ gửi mentor theo yêu cầu mới. E34 hiệu chỉnh/kết hợp dự báo vẫn 0/10 validation, không tích hợp và không chấm test mới. A08–A17 là thực nghiệm người dùng chọn, chưa mentor xác nhận. Chưa nghiệm thu toàn bài.
@@ -27,8 +29,11 @@ Xác nhận mới của mentor do người dùng cung cấp thay phần cũ mâu
 | P02 | Phương án 2.0 cụ thể hóa M01/M02/U04; A08–A17 vẫn **đề xuất**, chưa có bằng chứng nhóm/mentor xác nhận tham số |
 | U05 | Yêu cầu “Cập nhật lại các file MD”: cho phép áp dụng bản cập nhật vào ba tệp hiện có, chưa triển khai phần mềm |
 | U06 | CHG-023 ngày05/10/2026: người dùng yêu cầu **làm mô hình dự báo tổng lượt bán trong7ngày**; thực hiện bằng tổng quantity cùng A08. Cho phép triển khai phương án tuần, chưa chứng minh mentor chấp thuận đổi R05 theo ngày |
+| M03 | Ngày 05/10/2026 người dùng thuật lại mentor: **giao đến khách đúng 7 ngày tính từ khách đặt**, mọi trường hợp không trễ; câu trả lời làm rõ phạm vi customer order→delivery, không phải supplier→warehouse |
+| U07 | CHG-024: người dùng mô tả order là dữ liệu giả định; cho phép áp dụng D+7 không customer delay. Không cho phép sửa nguồn/sales/split hoặc coi lịch cam kết là actual giao |
+| U08 | CHG-025: sau khi đủ các yêu cầu/điều kiện, làm so sánh chính thức dự báo từng ngày với tổng 7 ngày và tổ chức lại code. Hai việc này chưa được đóng từ bảng đối soát nghiên cứu |
 
-M01/M02 ghi đúng nguồn thuật lại, không giả nhận đã xem hai ảnh. Không cần xin lại quyết định mentor đã chốt hoặc dữ liệu doanh nghiệp sẽ không cung cấp. Ngày ghi nhận theo Asia/Saigon; ngày trong dữ liệu theo UTC.
+M01/M02/M03 ghi đúng nguồn thuật lại, không giả nhận đã xem hai ảnh. Không cần xin lại quyết định mentor đã chốt hoặc dữ liệu doanh nghiệp sẽ không cung cấp. Ngày ghi nhận theo Asia/Saigon; ngày trong dữ liệu theo UTC.
 
 ## 2. Định nghĩa và phân loại hiện hành
 
@@ -175,3 +180,10 @@ Chỉ gọi toàn dự án hoàn thành khi đủ bằng chứng bắt buộc; n
 |---|---|---|
 | 1.0 | 02/10/2026 | R01–R09 theo target activation/lựa chọn cũ; chưa có phản hồi mới lúc ghi nhận |
 | 2.0 | 02/10/2026 | CHG-003 áp dụng M01/M02/U04/U05: sales, partner, giả định, local/bảo mật; mã yêu cầu giữ nguyên, chưa nghiệm thu |
+
+
+### Quy tắc giao khách theo CHG-024 — bổ sung R06/R08/R09
+
+Giao khách D+7 theo ngày lịch UTC, gồm cuối tuần, delay khách bằng 0. Run lịch giao phải cùng nguồn/target/split/origin với hai cha tuần và ngày/tồn; lượng cam kết đã biết chỉ dùng đơn đặt ≤origin, lượng từ đơn chưa đặt lấy forecast và có nhãn riêng. Quantity theo item và tuyến phải bảo toàn, không xuất order/customer ID, actual giao thiếu giữ NaN. Thời gian nhập hàng kho và kịch bản nhận ít/trễ/không về không đổi từ xác nhận customer delivery này. Tồn khả dụng mô phỏng đã trừ khi nhận đặt hàng, không trừ lần hai vào D+7. E37/E39 kiểm các điều kiện này, chưa nhận R05/R07 đạt.
+
+Nguồn U07 cập nhật thông tin “chỉ order thực” của U04/DEC17: hiện là **snapshot được người dùng mô tả giả định**, chưa độc lập xác minh cách sinh. Quy tắc bảo mật/bảo toàn và các bằng chứng lịch sử không bị xóa. Vẫn chưa có xác nhận mentor thay metric ngày bằng tổng tuần; câu hỏi đang chờ không làm mất quyền tiếp tục các phần kỹ thuật độc lập.

@@ -53,6 +53,46 @@ def test_weekly_features_and_fit_ignore_every_future_sale():
         assert predict_one(a, before[key], cutoff, spec) == predict_one(b, after[key], cutoff, spec)
 
 
+def test_weekly_annual_inputs_align_calendar_year_and_exclude_future():
+    from weekly_forecast import inputs, ANNUAL_FEATURES
+    daily = sample(); origin = pd.Timestamp('2025-02-28')
+    spec = {**settings()['models']['week_lgbm_l1_ratio'], 'annual_features': True}
+    before = prepare(daily, settings())
+    altered = daily.copy()
+    altered.loc[altered.date.gt(origin), ['sales_qty', 'order_count']] = 999999.
+    after = prepare(altered, settings())
+    for key in before:
+        indices = np.flatnonzero(before[key]['origins'] <= origin)
+        pd.testing.assert_frame_equal(inputs(before[key], spec, indices), inputs(after[key], spec, indices))
+    table = before[(('Fake', 'A'), 1)]
+    idx = np.flatnonzero(table['origins'] == origin)[0]
+    expected = daily.loc[daily.date.between('2024-03-01', '2024-03-07'), 'sales_qty'].sum()
+    assert table['x'].iloc[idx][ANNUAL_FEATURES[0]] == expected
+    assert len(inputs(table, spec, [idx]).columns) == len(inputs(table, settings()['models']['week_lgbm_l1_ratio'], [idx]).columns) + 3
+
+
+def test_weekly_batch_predict_matches_individual_quantity_predictions():
+    from weekly_forecast import predict_batch
+    data = sample(); prepared = prepare(data, settings()); origin = pd.Timestamp('2025-04-30')
+    spec = {**settings()['models']['week_lgbm_l1_ratio'], 'annual_features': True}
+    model, _ = fit(prepared, origin, spec, {'seed': 42, 'lightgbm_threads': 1}, settings())
+    batch = predict_batch(model, prepared, origin, spec)
+    for key, table in prepared.items():
+        assert batch[key] == predict_one(model, table, origin, spec)
+
+
+def test_weekly_blend_is_fixed_convex_and_requires_all_pairs():
+    from weekly_forecast import blend_values
+    key = (('Fake', 'A'), 1)
+    assert blend_values([{key: 10.}, {key: 30.}], [.25, .75])[key] == 25.
+    with pytest.raises(ValueError):
+        blend_values([{key: 10.}, {}], [.25, .75])
+    with pytest.raises(ValueError):
+        blend_values([{key: 10.}, {key: 30.}], [-.25, 1.25])
+    with pytest.raises(ValueError):
+        blend_values([{key: 10.}, {key: 30.}], [.25, .25])
+
+
 @pytest.mark.parametrize('problem', ['missing_day', 'missing_value', 'negative', 'duplicate'])
 def test_weekly_incomplete_history_is_blocked(problem):
     daily = sample()
