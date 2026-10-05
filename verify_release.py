@@ -40,6 +40,36 @@ def verify(folder):
         log = pd.read_csv(folder/'sarima_log.csv')
         invalid = {((row.destination_country,row.carrier),row.model)
                    for row in log.loc[log.status.eq('failed')].itertuples(index=False)}
+    # Imported validation must also retain correct quantity labels and metrics.
+    # Hash lineage alone does not establish that old evidence used the right target.
+    actual_truth = truth_daily[['date']+ROUTE+['sales_qty']].rename(columns={'date':'target_date','sales_qty':'truth_qty'})
+    validation_frames = []
+    for name in sorted(manifest['files']):
+        if not name.endswith('_validation_predictions.csv'):
+            continue
+        frame = pd.read_csv(folder/name, parse_dates=['as_of_date','target_date'])
+        assert (frame.target_date == frame.as_of_date + pd.to_timedelta(frame.horizon_day,unit='D')).all()
+        assert frame.forecast_qty.dropna().ge(0).all()
+        assert not np.isinf(frame.forecast_qty).any()
+        missing = frame.loc[frame.forecast_qty.isna(),ROUTE+['model']].drop_duplicates()
+        if any(((row.destination_country,row.carrier),row.model) not in invalid
+               for row in missing.itertuples(index=False)):
+            raise ValueError('Missing validation forecast without a logged excluded fit failure')
+        aligned_validation = frame.merge(actual_truth,on=ROUTE+['target_date'],how='left',validate='many_to_one')
+        expected_validation = aligned_validation.truth_qty.where(aligned_validation.target_date.le(pd.Timestamp(cfg['validation_end'])))
+        if not np.allclose(aligned_validation.actual_qty,expected_validation,atol=0,rtol=0,equal_nan=True):
+            raise ValueError('Validation actual quantities differ from audited source or split visibility')
+        validation_frames.append(frame.loc[frame.split.eq('validation')])
+    validation_predictions = pd.concat(validation_frames,ignore_index=True)
+    assert not validation_predictions.duplicated(ROUTE+['model','as_of_date','horizon_day']).any()
+    keys = ['split','model']+ROUTE+['horizon_group']
+    recomputed_validation = metric_table(validation_predictions).sort_values(keys).reset_index(drop=True)
+    declared_validation = pd.read_csv(folder/'validation_metrics.csv').sort_values(keys).reset_index(drop=True)
+    try:
+        pd.testing.assert_frame_equal(recomputed_validation,declared_validation,check_dtype=False,
+                                      atol=cfg['numeric_tolerance'],rtol=0)
+    except AssertionError:
+        raise ValueError('Validation metrics differ from the preserved prediction evidence') from None
     expected_selection = select_models(pd.read_csv(folder/'validation_metrics.csv'), top, cfg, invalid)
     # CSV blanks deserialize as NaN; the selector returns None for non-top routes.
     for frame in (selected, expected_selection):
@@ -61,7 +91,6 @@ def verify(folder):
                                 pd.Timestamp(cfg['test_end'])-pd.Timedelta(days=1)))
     assert set(predictions.as_of_date) == origins
     assert len(predictions.groupby(ROUTE+['as_of_date'])) == len(selected)*len(origins)
-    actual_truth = truth_daily[['date']+ROUTE+['sales_qty']].rename(columns={'date':'target_date','sales_qty':'truth_qty'})
     aligned = predictions.merge(actual_truth,on=ROUTE+['target_date'],how='left',validate='many_to_one')
     expected_actual = aligned.truth_qty.where(aligned.target_date.le(pd.Timestamp(cfg['test_end'])))
     if not np.allclose(aligned.actual_qty,expected_actual,atol=0,rtol=0,equal_nan=True):
@@ -118,6 +147,7 @@ def verify(folder):
     return {'run_id':manifest['run_id'],'run_manifest_sha256':sha256(folder/'manifest.json'),
         'code_sha256':code_hash(),
         'audited_daily_top_selection_actuals_verified':True,
+        'validation_prediction_labels_and_metrics_verified':True,
         'code_files_sha256':{path.relative_to(ROOT).as_posix():sha256(path)
                             for path in [ROOT/'run.py',ROOT/'app.py']+sorted((ROOT/'src').glob('*.py'))},
         'checks_passed':True,'product_fully_accepted':False,
