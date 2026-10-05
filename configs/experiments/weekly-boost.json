@@ -1,0 +1,490 @@
+{
+  "weekly_version": "weekly-quantity-registered-booster-v13",
+  "base_config": "config.json",
+  "target": "sum_success_quantity_next_seven_utc_days",
+  "blocks": [
+    1,
+    2
+  ],
+  "training_window_days": 365,
+  "minimum_history_days": 90,
+  "refit_days": 7,
+  "allocation_history_days": 90,
+  "models": {
+    "week_last7": {
+      "kind": "mean",
+      "window": 7
+    },
+    "week_ma28": {
+      "kind": "mean",
+      "window": 28
+    },
+    "week_ma90": {
+      "kind": "mean",
+      "window": 90
+    },
+    "week_mape90": {
+      "kind": "weighted_median",
+      "window": 90
+    },
+    "week_mape365": {
+      "kind": "weighted_median",
+      "window": 365
+    },
+    "week_lgbm_l1_raw": {
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "raw",
+      "leaves": 7
+    },
+    "week_lgbm_l1_ratio": {
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 7
+    },
+    "week_lgbm_l1_ratio15": {
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 15
+    },
+    "week_lgbm_poisson": {
+      "kind": "lgbm",
+      "objective": "poisson",
+      "units": "raw",
+      "leaves": 7
+    },
+    "week_lgbm_annual_raw7": {
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "raw",
+      "leaves": 7,
+      "annual_features": true
+    },
+    "week_lgbm_annual_ratio7": {
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 7,
+      "annual_features": true
+    },
+    "week_lgbm_annual_ratio15": {
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 15,
+      "annual_features": true
+    },
+    "week_blend_annual25": {
+      "kind": "blend",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_lgbm_l1_ratio15"
+      ],
+      "weights": [
+        0.25,
+        0.75
+      ]
+    },
+    "week_blend_annual50": {
+      "kind": "blend",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_lgbm_l1_ratio15"
+      ],
+      "weights": [
+        0.5,
+        0.5
+      ]
+    },
+    "week_blend_annual75": {
+      "kind": "blend",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_lgbm_l1_ratio15"
+      ],
+      "weights": [
+        0.75,
+        0.25
+      ]
+    },
+    "week_lgbm_macro_raw7": {
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "raw",
+      "leaves": 7,
+      "annual_features": true,
+      "macro_features": true
+    },
+    "week_lgbm_macro_ratio7": {
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 7,
+      "annual_features": true,
+      "macro_features": true
+    },
+    "week_lgbm_macro_ratio15": {
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 15,
+      "annual_features": true,
+      "macro_features": true
+    },
+    "week_cal_week_lgbm_annual_ratio7_28_p0": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_annual_ratio7",
+      "history_days": 28,
+      "prior_weeks": 0
+    },
+    "week_cal_week_lgbm_annual_ratio7_28_p4": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_annual_ratio7",
+      "history_days": 28,
+      "prior_weeks": 4
+    },
+    "week_cal_week_lgbm_annual_ratio7_56_p0": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_annual_ratio7",
+      "history_days": 56,
+      "prior_weeks": 0
+    },
+    "week_cal_week_lgbm_annual_ratio7_56_p4": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_annual_ratio7",
+      "history_days": 56,
+      "prior_weeks": 4
+    },
+    "week_cal_week_lgbm_l1_ratio15_28_p0": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_l1_ratio15",
+      "history_days": 28,
+      "prior_weeks": 0
+    },
+    "week_cal_week_lgbm_l1_ratio15_28_p4": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_l1_ratio15",
+      "history_days": 28,
+      "prior_weeks": 4
+    },
+    "week_cal_week_lgbm_l1_ratio15_56_p0": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_l1_ratio15",
+      "history_days": 56,
+      "prior_weeks": 0
+    },
+    "week_cal_week_lgbm_l1_ratio15_56_p4": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_l1_ratio15",
+      "history_days": 56,
+      "prior_weeks": 4
+    },
+    "week_cal_week_lgbm_macro_ratio7_28_p0": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_macro_ratio7",
+      "history_days": 28,
+      "prior_weeks": 0
+    },
+    "week_cal_week_lgbm_macro_ratio7_28_p4": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_macro_ratio7",
+      "history_days": 28,
+      "prior_weeks": 4
+    },
+    "week_cal_week_lgbm_macro_ratio7_56_p0": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_macro_ratio7",
+      "history_days": 56,
+      "prior_weeks": 0
+    },
+    "week_cal_week_lgbm_macro_ratio7_56_p4": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_macro_ratio7",
+      "history_days": 56,
+      "prior_weeks": 4
+    },
+    "week_linear_h1_a0p01": {
+      "kind": "linear_week",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "harmonics": 1,
+      "alpha": 0.01
+    },
+    "week_linear_h2_a0p001": {
+      "kind": "linear_week",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "harmonics": 2,
+      "alpha": 0.001
+    },
+    "week_linear_h2_a0p01": {
+      "kind": "linear_week",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "harmonics": 2,
+      "alpha": 0.01
+    },
+    "week_linear_h2_a0p1": {
+      "kind": "linear_week",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "harmonics": 2,
+      "alpha": 0.1
+    },
+    "week_mix_56_p0": {
+      "kind": "adaptive_mix",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_linear_h2_a0p01"
+      ],
+      "history_days": 56,
+      "prior_weeks": 0
+    },
+    "week_mix_56_p4": {
+      "kind": "adaptive_mix",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_linear_h2_a0p01"
+      ],
+      "history_days": 56,
+      "prior_weeks": 4
+    },
+    "week_mix_84_p0": {
+      "kind": "adaptive_mix",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_linear_h2_a0p01"
+      ],
+      "history_days": 84,
+      "prior_weeks": 0
+    },
+    "week_mix_84_p4": {
+      "kind": "adaptive_mix",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_linear_h2_a0p01"
+      ],
+      "history_days": 84,
+      "prior_weeks": 4
+    },
+    "week_local_annual_raw7": {
+      "kind": "local_week",
+      "estimator": "boosted_median",
+      "objective": "regression_l1",
+      "units": "raw",
+      "annual_features": true,
+      "leaves": 7
+    },
+    "week_local_annual_ratio7": {
+      "kind": "local_week",
+      "estimator": "boosted_median",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "annual_features": true,
+      "leaves": 7
+    },
+    "week_local_annual_ratio15": {
+      "kind": "local_week",
+      "estimator": "boosted_median",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "annual_features": true,
+      "leaves": 15
+    },
+    "week_local_annual_median_h2_a0p01": {
+      "kind": "local_week",
+      "estimator": "annual_median",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "annual_features": true,
+      "harmonics": 2,
+      "alpha": 0.01
+    },
+    "week_calblend_linear25": {
+      "kind": "calibrated_blend",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_linear_h2_a0p01"
+      ],
+      "parent": "week_lgbm_annual_ratio7",
+      "history_days": 56,
+      "prior_weeks": 4,
+      "weights": [
+        0.25,
+        0.75
+      ],
+      "calibrated_reference": "week_cal_week_lgbm_annual_ratio7_56_p4"
+    },
+    "week_calblend_linear50": {
+      "kind": "calibrated_blend",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_linear_h2_a0p01"
+      ],
+      "parent": "week_lgbm_annual_ratio7",
+      "history_days": 56,
+      "prior_weeks": 4,
+      "weights": [
+        0.5,
+        0.5
+      ],
+      "calibrated_reference": "week_cal_week_lgbm_annual_ratio7_56_p4"
+    },
+    "week_calblend_linear75": {
+      "kind": "calibrated_blend",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_linear_h2_a0p01"
+      ],
+      "parent": "week_lgbm_annual_ratio7",
+      "history_days": 56,
+      "prior_weeks": 4,
+      "weights": [
+        0.75,
+        0.25
+      ],
+      "calibrated_reference": "week_cal_week_lgbm_annual_ratio7_56_p4"
+    },
+    "week_calblend_macro25": {
+      "kind": "calibrated_blend",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_lgbm_macro_ratio15"
+      ],
+      "parent": "week_lgbm_annual_ratio7",
+      "history_days": 56,
+      "prior_weeks": 4,
+      "weights": [
+        0.25,
+        0.75
+      ],
+      "calibrated_reference": "week_cal_week_lgbm_annual_ratio7_56_p4"
+    },
+    "week_calblend_macro50": {
+      "kind": "calibrated_blend",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_lgbm_macro_ratio15"
+      ],
+      "parent": "week_lgbm_annual_ratio7",
+      "history_days": 56,
+      "prior_weeks": 4,
+      "weights": [
+        0.5,
+        0.5
+      ],
+      "calibrated_reference": "week_cal_week_lgbm_annual_ratio7_56_p4"
+    },
+    "week_calblend_macro75": {
+      "kind": "calibrated_blend",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_lgbm_macro_ratio15"
+      ],
+      "parent": "week_lgbm_annual_ratio7",
+      "history_days": 56,
+      "prior_weeks": 4,
+      "weights": [
+        0.75,
+        0.25
+      ],
+      "calibrated_reference": "week_cal_week_lgbm_annual_ratio7_56_p4"
+    },
+    "week_macromix_56_p0": {
+      "kind": "adaptive_mix",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_lgbm_macro_ratio15"
+      ],
+      "history_days": 56,
+      "prior_weeks": 0
+    },
+    "week_macromix_56_p4": {
+      "kind": "adaptive_mix",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_lgbm_macro_ratio15"
+      ],
+      "history_days": 56,
+      "prior_weeks": 4
+    },
+    "week_macromix_84_p0": {
+      "kind": "adaptive_mix",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_lgbm_macro_ratio15"
+      ],
+      "history_days": 84,
+      "prior_weeks": 0
+    },
+    "week_macromix_84_p4": {
+      "kind": "adaptive_mix",
+      "components": [
+        "week_lgbm_annual_ratio7",
+        "week_lgbm_macro_ratio15"
+      ],
+      "history_days": 84,
+      "prior_weeks": 4
+    },
+    "week_lgbm_annual_ratio7_n300": {
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 7,
+      "annual_features": true,
+      "n_estimators": 300
+    },
+    "week_cal_week_lgbm_annual_ratio7_n300_56_p0": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_annual_ratio7_n300",
+      "history_days": 56,
+      "prior_weeks": 0
+    },
+    "week_cal_week_lgbm_annual_ratio7_n300_56_p4": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_annual_ratio7_n300",
+      "history_days": 56,
+      "prior_weeks": 4
+    },
+    "week_lgbm_macro_ratio15_n300": {
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 15,
+      "annual_features": true,
+      "macro_features": true,
+      "n_estimators": 300
+    },
+    "week_cal_week_lgbm_macro_ratio15_n300_56_p0": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_macro_ratio15_n300",
+      "history_days": 56,
+      "prior_weeks": 0
+    },
+    "week_cal_week_lgbm_macro_ratio15_n300_56_p4": {
+      "kind": "calibrated",
+      "parent": "week_lgbm_macro_ratio15_n300",
+      "history_days": 56,
+      "prior_weeks": 4
+    }
+  },
+  "n_estimators": 150,
+  "learning_rate": 0.03,
+  "min_child_samples": 100,
+  "reg_lambda": 10.0,
+  "selection": "validation_h1_7_positive_week_mape_then_mae_then_model",
+  "daily_acceptance_replaced": false,
+  "annual_feature_note": "Historical target week one calendar year earlier and centered 28/90-day means, always ending before current origin; v1 candidates retain original inputs",
+  "blend_note": "Three fixed convex weights registered before fitting/scoring; select exclusively using the unchanged validation metric",
+  "macro_note": "Country/global trailing7,28,90 quantity and prior-year week plus trailing90 route share; historical information only; choices locked on unchanged validation before test",
+  "calibration_note": "Non-overlapping past-origin teacher forecasts; teacher labels<=teacher origin, head labels end<=current fit cutoff; fixed factor bounds0.5..1.5, identity prior0/4 weeks; validation-only joint selection",
+  "linear_hypothesis": "Per-route regularized weighted median regression with causal scaling and smooth annual calendar, same validation selection",
+  "adaptive_hypothesis": "Route/block mixing weights learned from completed teacher forecasts only, to respond to model drift without changing selection or the target",
+  "local_hypothesis": "Separate route relationships instead of pooled tree splits; annual missing imputed from training only for regularized median, same selection rule",
+  "combination_hypothesis": "Fixed mixtures of past-error calibrated annual tree with either smooth seasonal median or macro tree reduce disagreement variance; no weights optimized on test",
+  "macro_mixture_hypothesis": "Past completed teacher errors adapt the annual/macro contribution as relative performance shifts; same four predefined history/prior settings and same selection",
+  "boost_hypothesis": "At the unchanged learning rate, additional trees may reduce underfitting of annual/macro relationships; historical calibration with both existing prior choices remains causal",
+  "boosting_hypothesis": "E46 deferred proposal now supported: 300 trees instead of 150 at unchanged learning rate; two pooled parents and four causal calibrations. Select only on validation; test previously viewed."
+}

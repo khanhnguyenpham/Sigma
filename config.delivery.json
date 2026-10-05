@@ -1,0 +1,13 @@
+{
+  "delivery_version": "customer-fixed-seven-days-v1",
+  "base_config": "config.json",
+  "customer_delivery_days": 7,
+  "customer_delay_days": 0,
+  "day_basis": "utc_calendar_days_including_weekends",
+  "scope": "customer_order_to_customer_delivery_only",
+  "assumption_source": "mentor_retold_by_user_and_user_confirmed_2026-10-05",
+  "source_description": "provided_snapshot_described_as_assumed_by_user_2026-10-05_not_independently_verified",
+  "supplier_lead_time_modified": false,
+  "weekly_run": "sigma_weekly_boost_v13",
+  "daily_run": "sigma_scaled_v11"
+}

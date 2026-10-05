@@ -1,5 +1,15 @@
 # Hợp đồng dữ liệu SIGMA
 
+**Hiện hành CHG-028/E53–E55 — 06/10/2026:** sản phẩm mặc định dùng V13 với 58 ứng viên chọn bằng validation, cùng policy V4, stock V7, customer V6 và comparison V3. Bộ báo cáo đã khóa tại sigma_m2m3_checkpoint_v3; mở start_m2m3.ps1 ở cổng 8504. **214 tests và CI Windows của commit 183ed10 đạt**; đã đối soát 447.810 cặp dự báo, 42.136 hệ số hiệu chỉnh, 1.100.320 dòng sổ, 267.908 giao dịch/nhập và 920 mặt hàng. AppTest sáu trang, bốn kịch bản và bộ lọc SKU/loại đạt. Job Windows 07:00 đã cài, chạy thử mã 0. Tuần đạt 9/10, MAPE trung bình 16,17%, LG U+ 21,19%; R05 ngày vẫn 0/10, tỷ lệ báo sớm 33,73% trên 2.867 sự kiện. **Chưa nghiệm thu toàn bài.** Dữ liệu gốc và 59 artifact v11 nguyên; src/ và run.py không đổi, app.py chỉ thêm khóa bộ run. Word/slide chưa làm lại; các cập nhật cũ bên dưới là lịch sử.
+
+**Lịch sử CHG-027/E43–E49 — 05/10/2026:** sản phẩm mặc định dùng sigma_weekly_refactored_v12; đã hoàn tất bản so sánh ngày/tổng7 ngày và tổ chức mã sigma/ +29 entry points legacy/ +configs/experiments. 192 tests đạt; parity364.320 validation cache/7.590 fresh test/92 future/644 daily rows ở1e-8, cùng46 lựa chọn; raw/59 v11 files nguyên. Full policyV3 kiểm13 kịch bản/1.100.320 ledger/267.812 events; snapshotV6 kiểm920 items từ đúng policy; customerV5 kiểmD+7; AppTest6 trang và4 bộ lọc scenario đạt. Tuần9/10, mean16,19%, LG U+21,19%; R05 ngày0/10, early≥7 ngày33,80% cùng2867 events; chưa nghiệm thu toàn bài. CHG-027 thay thứ tự hoãn CHG-025; Word/slide không làm lại. Các cập nhật bên dưới E37–E41 là lịch sử.
+
+**Cập nhật 05/10/2026 — CHG-024/025, E37–E39:** đã áp dụng **khách đặt D → giao D+7 ngày lịch UTC**, không trễ giao, gồm cuối tuần; không đổi lead time nhập kho. Người dùng mô tả snapshot order là giả định; đây là nguồn thuật lại, vẫn giữ dữ liệu/outputs private và raw nguyên. [Sản phẩm chung và lịch giao](customer-delivery.md) mở bằng `start_product.ps1` tại cổng 8503. Run tuần hiện hành `sigma_weekly_calibrated_v5`: test hồi cứu **9/10**, mean **15,97%**, LG U+ **21,36%**; chọn validation rồi khóa trước test. 920 khuyến nghị tồn từ phân bổ tuần đã đối soát, replay cùng 5.520 cửa sổ báo sớm **33,73%**; chưa chạy lại toàn bộ chính sách liên tục bằng tuần. 150 tests đạt, AppTest năm trang/không exception; job refresh/skip chạy thật, script đăng ký lịch nền được chuẩn bị nhưng chưa cài. R05 ngày **0/10**, R07/T14 vẫn mở. **Sau khi đủ điều kiện nghiệm thu mới làm bản so sánh chính thức ngày/tổng 7 ngày và tổ chức lại code**, đúng thứ tự người dùng yêu cầu; chưa làm lại Word/slide. Những cập nhật E36/v1 bên dưới là lịch sử.
+
+**Phương án tuần CHG-023/E36:** cùng target sales-success-utc-v1, tổng quantity của bảy ngày UTC liên tiếp. `weekly_forecast.csv`: route, model, as_of_date, window_start, window_end, week_block1/2, forecast_qty_7d, actual_qty_7d; actual tương lai để trống. `daily_allocation.csv`: route/origin/target_date/horizon_day/week_block/forecast_qty, is_daily_allocation=true; bảy forecast_qty cộng đúng forecast_qty_7d. Không phải dữ liệu tồn thực hoặc bảy dự báo ngày độc lập. Cửa sổ thiếu bảy actual không được chấm như tuần đầy đủ; metric tuần có coverage/zero-window count/MAE/WAPE/bias và cadence. [Protocol và lệnh thực chạy](weekly-forecast.md); schema run ngày không đổi.
+
+**Triển khai 05/10/2026:** Audit/chuỗi/forecast/metric/phân bổ/tồn đã có trong src và CLI. Tên đầu ra thực cùng version/hash ghi trong manifest mỗi run; `forecast_qty` là giá trị dự báo, `target_date` là ngày được dự báo. CHG-016 thêm xử lý giao dịch UTC và event ledger, đã kiểm run v7; không chỉ dùng phép tương đương tổng ngày để nhận R06 đủ bằng chứng. Các mô tả “dự kiến/chưa có” ngày 02/10 bên dưới giữ làm lịch sử thiết kế. Không nâng giả định thành dữ liệu thật.
+
 **Bản tài liệu:** 1.0 — 02/10/2026 (Asia/Saigon), diễn giải [PLAN 2.0](../PLAN.md), [requirements 2.0](requirements.md) và [review-log 2.0](review-log.md). Schema nguồn đã khảo sát chỉ đọc; schema processed/run bên dưới **dự kiến, chưa triển khai**. Không có từ điển dữ liệu doanh nghiệp để xác nhận toàn bộ ý nghĩa tên cột.
 
 <a id="source-check"></a>
@@ -85,6 +95,8 @@ Theo [requirements](requirements.md), lưới thiết kế 01/01/2024–31/12/20
 
 ## 4. Quy tắc làm sạch và missing — thiết kế chưa triển khai
 
+**Bổ sung ngày 04/10/2026 (CHG-007):** Chuẩn hóa là parse/kiểm tra ở bản dẫn xuất có dấu vết, không sửa nguồn hoặc ép dữ liệu hợp lệ cho hợp mô hình. Timestamp có offset được chuyển UTC; timestamp naive không tự gán timezone. Chuỗi khóa chuẩn hóa phải khai báo quy tắc và phát hiện va chạm, không tự hợp nhất tuyến/SKU khác nhau. Quantity không nguyên dương và trạng thái lạ được báo lỗi, không đoán. Giá/doanh thu được audit riêng; lỗi tiền không tự chứng minh quantity sai. Ngày giảm/tăng bán thật không được tự xóa, cap hoặc impute; mất nguồn không phải ngày bán 0. Kịch bản biến động nguồn cung và lượng bán phải tách khỏi dữ liệu quan sát.
+
 | Trường hợp | Xử lý theo PLAN / ranh giới suy luận |
 |---|---|
 | Thiếu cột bắt buộc tạo target, thiếu/sai order timestamp, khóa tuyến, order_id hoặc quantity | Ghi lỗi và cách ly/chặn phần target bị ảnh hưởng; không tự đoán ngày/khóa/số lượng. Rà chi tiết ca lỗi ở T03 trước khi chạy phụ thuộc |
@@ -155,3 +167,26 @@ Tất cả sản phẩm dưới **chưa tồn tại**. Căn cứ PLAN mục 4.2,
 - Mô phỏng chỉ trừ fulfilled, không tồn âm; không thay sales lịch sử bằng fulfilled để khớp tồn giả định. Trigger strict <, IP tính Q; H phải đủ L+R.
 - MAPE chỉ actual>0 nhưng MAE/WAPE/bias trên mọi cặp có nhãn. MAPE toàn 0, WAPE có mẫu số 0 không xác định; thiếu nhãn không chấm. Cùng target_date qua nhiều origin không phải nhiều ngày độc lập.
 - Dashboard/báo cáo từ chối trộn run/phiên bản hoặc dùng kết quả hết hiệu lực. Nhãn dự kiến trong tài liệu chỉ được thay bằng đã triển khai sau có sản phẩm/kiểm tra thật.
+
+## Event ledger hiện hành — CHG-016
+
+`inventory_events.csv` là đầu ra private local, chứa order_id phục vụ đối soát; không đưa vào Git, log, tài liệu hoặc export dashboard. Khóa `(scenario_id, date, event_sequence)` liên tục trong ngày. Receipt có order_id trống, timestamp 00:00 UTC và xảy ra trước mọi sale trong ngày. Sale theo order_datetime UTC rồi order_id, cùng dữ liệu audited, không dùng activation. ITEM vẫn là destination_country/carrier/sku/product_type.
+
+Mỗi event có event_type, event_datetime, historical_quantity, scenario_quantity, received_quantity, stock_before, fulfilled, shortage, stock_after, is_simulated và assumption_version. Receipt chỉ cộng lượng nhận; sale đáp ứng min(stock_before, scenario_quantity). Historical quantity không đổi; stress item-day được chia số nguyên bằng largest remainders theo quantity gốc, hòa phần dư theo thứ tự giao dịch. Đây là phân bổ nhu cầu mô phỏng, không suy ra từng đơn thực đã đổi quantity.
+
+Đối soát stock_after=stock_before+received_quantity−fulfilled, scenario_quantity=fulfilled+shortage; stock trước event tiếp theo khớp stock sau event trước cho cùng item/ngày. Tổng event khớp ledger ngày; ngày không event vẫn có opening/closing trong inventory_ledger.csv. Thiếu hoặc trùng giao dịch chặn đối soát thay vì điền 0. Chỉ base có historical_sales=fulfilled+shortage; stress dùng scenario_demand cho đẳng thức này và giữ historical_sales để so sánh.
+
+**Features cohort CHG-017:** First-seen chỉ trong snapshot; source label new/returning giữ ý nghĩa chưa xác nhận. Model không nhận customer_id/order_id. Giá không hợp lệ/invalid money thành missing price feature; validity không nguyên/không hợp lệ thành missing proxy. Không dùng activation và không loại quantity bán hợp lệ vì covariate thiếu. Proxy order_date+validity_days chỉ tính từ đơn đã quan sát tại origin, không nhận là expiry hoặc lịch mua lại thật.
+
+**Hierarchical arrivals CHG-020:** Aggregate order_count là intermediate, không đổi target sales_qty. Phân bổ dựa monthly/recent shares từ ngày đã quan sát, giữ tổng expected arrivals trước positive-day quantity action. Không sử dụng aggregate actual sau origin hoặc claim quantity forecast cộng bằng số đơn. Invalid/missing aggregate counts/actual bị chặn; all-zero không giả tạo demand.
+
+**Chuẩn hóa độc lập CHG-021:** check_data.py dùng nguồn đúng hash của manifest, đối chiếu quantity/order_count từng route-day và top10 train, không sửa nguồn. Train feature export có quantity int64, numeric data_gb/validity/giá/chi phí/revenue, *_valid và revenue_consistent; thiếu/không hợp lệ thành NaN+cờ, không tự đổi target sale. Giữ route/item labels và ý nghĩa plan_type=unlimited chưa có từ điển doanh nghiệp; không suy data_gb là quota tổng của unlimited. CSV feature không có order/customer ID, chỉ train và private local. StandardScaler model fit x tại cutoff; forecast và metric dùng quantity đơn vị gốc.
+
+
+## Schema giao khách và tồn từ tuần — E37/E39
+
+`delivery_commitments.csv`: ITEM, order_date UTC, delivery_date=order_date+7, commitment_qty nguyên, customer_delay_days=0, is_assumed_delivery=true. `delivery_projection.csv`: ROUTE, as_of_date, order_date=delivery_date−7, delivery_date, delivery_horizon_day 1–21, known_commitment_qty, forecast_from_future_orders_qty, planned_delivery_qty bằng tổng hai phần, basis, actual_delivered_qty thiếu. Đơn ≤origin mới thuộc known; hai phần không gộp thành actual.
+
+`weekly_item_recommendations.csv`: ITEM, origin, partner, on_hand/SS/ROP/S/IP/Q, pending_quantity, eta_if_ordered, depletion_state/date, is_simulated=true, decision_applied=false. Stock/pending là snapshot mô phỏng base v11; vector tuần phân bổ weekday lịch sử rồi item share causal. Strict on_hand<ROP, IP chỉ lượng đặt. Chưa chạy lại lịch sử policy liên tục bằng tuần, không gửi đơn thật. Replay tuần dùng cùng 5.520 cửa sổ, initial stock/actual path/mẫu số của v11; không chọn bỏ ca dưới 7 ngày.
+
+Các protocol/summary có kind, hash nguồn/cha/mã, không được lẫn family. Job giữ last_good_run local, skip khi fingerprint không đổi sau khi kiểm hash run; lỗi không thay run tốt hoặc log nội dung chứa định danh.

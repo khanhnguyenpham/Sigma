@@ -1,6 +1,16 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
-**Phiên bản:** 2.0 — 02/10/2026. **Trạng thái:** Khảo sát đã thực hiện, triển khai chưa bắt đầu; chưa có yêu cầu nào nghiệm thu toàn bộ. Lượt này chỉ cập nhật ba Markdown.
+**Hiện hành CHG-028/E53–E55 — 06/10/2026:** sản phẩm mặc định dùng V13 với 58 ứng viên chọn bằng validation, cùng policy V4, stock V7, customer V6 và comparison V3. Bộ báo cáo đã khóa tại sigma_m2m3_checkpoint_v3; mở start_m2m3.ps1 ở cổng 8504. **214 tests và CI Windows của commit 183ed10 đạt**; đã đối soát 447.810 cặp dự báo, 42.136 hệ số hiệu chỉnh, 1.100.320 dòng sổ, 267.908 giao dịch/nhập và 920 mặt hàng. AppTest sáu trang, bốn kịch bản và bộ lọc SKU/loại đạt. Job Windows 07:00 đã cài, chạy thử mã 0. Tuần đạt 9/10, MAPE trung bình 16,17%, LG U+ 21,19%; R05 ngày vẫn 0/10, tỷ lệ báo sớm 33,73% trên 2.867 sự kiện. **Chưa nghiệm thu toàn bài.** Dữ liệu gốc và 59 artifact v11 nguyên; src/ và run.py không đổi, app.py chỉ thêm khóa bộ run. Word/slide chưa làm lại; các cập nhật cũ bên dưới là lịch sử.
+
+**Lịch sử CHG-027/E43–E49 — 05/10/2026:** sản phẩm mặc định dùng sigma_weekly_refactored_v12; đã hoàn tất bản so sánh ngày/tổng7 ngày và tổ chức mã sigma/ +29 entry points legacy/ +configs/experiments. 192 tests đạt; parity364.320 validation cache/7.590 fresh test/92 future/644 daily rows ở1e-8, cùng46 lựa chọn; raw/59 v11 files nguyên. Full policyV3 kiểm13 kịch bản/1.100.320 ledger/267.812 events; snapshotV6 kiểm920 items từ đúng policy; customerV5 kiểmD+7; AppTest6 trang và4 bộ lọc scenario đạt. Tuần9/10, mean16,19%, LG U+21,19%; R05 ngày0/10, early≥7 ngày33,80% cùng2867 events; chưa nghiệm thu toàn bài. CHG-027 thay thứ tự hoãn CHG-025; Word/slide không làm lại. Các cập nhật bên dưới E37–E41 là lịch sử.
+
+**Cập nhật 05/10/2026 — CHG-024/025, E37–E39:** đã áp dụng **khách đặt D → giao D+7 ngày lịch UTC**, không trễ giao, gồm cuối tuần; không đổi lead time nhập kho. Người dùng mô tả snapshot order là giả định; đây là nguồn thuật lại, vẫn giữ dữ liệu/outputs private và raw nguyên. [Sản phẩm chung và lịch giao](customer-delivery.md) mở bằng `start_product.ps1` tại cổng 8503. Run tuần hiện hành `sigma_weekly_calibrated_v5`: test hồi cứu **9/10**, mean **15,97%**, LG U+ **21,36%**; chọn validation rồi khóa trước test. 920 khuyến nghị tồn từ phân bổ tuần đã đối soát, replay cùng 5.520 cửa sổ báo sớm **33,73%**; chưa chạy lại toàn bộ chính sách liên tục bằng tuần. 150 tests đạt, AppTest năm trang/không exception; job refresh/skip chạy thật, script đăng ký lịch nền được chuẩn bị nhưng chưa cài. R05 ngày **0/10**, R07/T14 vẫn mở. **Sau khi đủ điều kiện nghiệm thu mới làm bản so sánh chính thức ngày/tổng 7 ngày và tổ chức lại code**, đúng thứ tự người dùng yêu cầu; chưa làm lại Word/slide. Những cập nhật E36/v1 bên dưới là lịch sử.
+
+**Bổ sung CHG-023/E35–E36:** người dùng gửi lại ảnh kickoff và yêu cầu làm mô hình dự báo tổng bán 7 ngày thay cách dự báo từng ngày. Đã triển khai phương án tuần riêng, [protocol/kết quả](weekly-forecast.md), test tuần hồi cứu 9/10≤20%, AIS 22,14%; R05 theo ngày và các ngưỡng chính thức giữ mở tới khi có xác nhận thay nghiệm thu. Không đổi sales/split/top10 hoặc dùng metric tuần để nhận đạt ngày. R08 có dashboard tuần; R06/R07 chưa thay chính sách tồn hoặc nhận cảnh báo đạt từ kết quả tuần.
+
+**Tiến độ 05/10/2026:** Phần mềm local và sigma_scaled_v11 đã kiểm tra; tiêu chí R01–R09 giữ nguyên. Test h1–7 đủ độ phủ nhưng 0/10 top 10 đạt R05 (41,89–58,13%). Cảnh báo trước ≥7 ngày đạt 33,10% sự kiện replay v11. CHG-022/E33 đã tạo Word và slide tiến độ gửi mentor theo yêu cầu mới. E34 hiệu chỉnh/kết hợp dự báo vẫn 0/10 validation, không tích hợp và không chấm test mới. A08–A17 là thực nghiệm người dùng chọn, chưa mentor xác nhận. Chưa nghiệm thu toàn bài.
+
+**Phiên bản:** 2.0 — 02/10/2026; bổ sung phạm vi/ca thực tế ngày 04/10/2026 (CHG-007). **Trạng thái lịch sử 02–04/10:** Khảo sát đã thực hiện; lúc đó chưa triển khai. CHG-008 đã chốt lựa chọn local/Git, CHG-011 yêu cầu thêm Word/slide M2. Trạng thái hiện hành ở đầu tài liệu. Giới hạn chỉ ba Markdown là lịch sử, không áp dụng cho yêu cầu mới.
 
 [Kế hoạch hiện hành](../PLAN.md) · [Nhật ký và thay đổi](review-log.md)
 
@@ -10,8 +20,8 @@ Xác nhận mới của mentor do người dùng cung cấp thay phần cũ mâu
 
 | Mã | Nguồn và phạm vi |
 |---|---|
-| S01 | [Ảnh đề bài](PROJECT_REQUIREMENTS.png): ban đầu nói kích hoạt; tuyến quốc gia–nhà mạng, M1–M3, MAPE≤20% top 10, cảnh báo trước≥7 ngày, dashboard. Phần target được M01 thay thế |
-| S02 | [Báo cáo nhóm 45 trang](<Báo cáo chi tiết Sigma.pdf>): bản nháp/phương pháp/nhận định cần đối chiếu, mốc có năm |
+| S01 | [Ảnh kickoff đã đọc trực tiếp lại ngày05/10/2026](kickoff-checklist.md): ban đầu nói kích hoạt theo ngày; tuyến quốc gia–nhà mạng, M1–M3, MAPE≤20% top10, cảnh báo trước≥7ngày, dashboard. Phần target được M01 thuật lại thay thế; ảnh mới lưu local ignored, không phục hồi tệp xóa |
+| S02 | Báo cáo nhóm 45 trang (`Báo cáo chi tiết Sigma.pdf`, hiện thiếu nguồn): bản nháp/phương pháp/nhận định cần đối chiếu, mốc có năm; không nhận đã đọc lại hoặc khôi phục tệp |
 | S03 | [CSV order](../data/sigma_sim_data_orders.csv): 100.000 dòng, 20 cột; dữ liệu quan sát |
 | U01 | Yêu cầu khảo sát đầy đủ, bảo toàn gốc, quản lý thay đổi và bàn giao có bằng chứng ngày 02/10/2026 |
 | U02 | Lựa chọn cũ: target mọi activation gồm refunded, MAPE ngày dương từng tuyến, mô phỏng, Colab/demo riêng, giữ mốc. Chỉ phần mâu thuẫn bị thay, xem DEC01–DEC13 |
@@ -22,8 +32,12 @@ Xác nhận mới của mentor do người dùng cung cấp thay phần cũ mâu
 | U04 | Tệp yêu cầu cập nhật ngày 02/10/2026: chỉ order thực vì bảo mật, nhóm giả định phần còn lại; không chờ dữ liệu nội bộ; tồn < ngưỡng; bảo mật/độ nhạy/truy vết |
 | P02 | Phương án 2.0 cụ thể hóa M01/M02/U04; A08–A17 vẫn **đề xuất**, chưa có bằng chứng nhóm/mentor xác nhận tham số |
 | U05 | Yêu cầu “Cập nhật lại các file MD”: cho phép áp dụng bản cập nhật vào ba tệp hiện có, chưa triển khai phần mềm |
+| U06 | CHG-023 ngày05/10/2026: người dùng yêu cầu **làm mô hình dự báo tổng lượt bán trong7ngày**; thực hiện bằng tổng quantity cùng A08. Cho phép triển khai phương án tuần, chưa chứng minh mentor chấp thuận đổi R05 theo ngày |
+| M03 | Ngày 05/10/2026 người dùng thuật lại mentor: **giao đến khách đúng 7 ngày tính từ khách đặt**, mọi trường hợp không trễ; câu trả lời làm rõ phạm vi customer order→delivery, không phải supplier→warehouse |
+| U07 | CHG-024: người dùng mô tả order là dữ liệu giả định; cho phép áp dụng D+7 không customer delay. Không cho phép sửa nguồn/sales/split hoặc coi lịch cam kết là actual giao |
+| U08 | CHG-025: sau khi đủ các yêu cầu/điều kiện, làm so sánh chính thức dự báo từng ngày với tổng 7 ngày và tổ chức lại code. Hai việc này chưa được đóng từ bảng đối soát nghiên cứu |
 
-M01/M02 ghi đúng nguồn thuật lại, không giả nhận đã xem hai ảnh. Không cần xin lại quyết định mentor đã chốt hoặc dữ liệu doanh nghiệp sẽ không cung cấp. Ngày ghi nhận theo Asia/Saigon; ngày trong dữ liệu theo UTC.
+M01/M02/M03 ghi đúng nguồn thuật lại, không giả nhận đã xem hai ảnh. Không cần xin lại quyết định mentor đã chốt hoặc dữ liệu doanh nghiệp sẽ không cung cấp. Ngày ghi nhận theo Asia/Saigon; ngày trong dữ liệu theo UTC.
 
 ## 2. Định nghĩa và phân loại hiện hành
 
@@ -132,9 +146,22 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 - **Tiêu chí:** Môi trường local sạch và máy demo chạy theo README; cùng input/config/seed tái lập, số nguyên tuyệt đối và số thực theo dung sai đã ghi. Manifest hash/Python/thư viện/cutoff/seed; báo cáo truy về run. Thay A08 tính lại chuỗi/top 10/mô hình/tồn, thay A12 tính lại tồn/cảnh báo, giữ forecast nếu độc lập. Kết quả cũ mất hiệu lực phải đánh dấu. Không upload thật/tìm kiếm ngoài chứa dữ liệu riêng tư; allowlist gói chia sẻ không raw/ID/notebook output/lịch sử Git chứa CSV.
 - **Sản phẩm dự kiến:** Ba Markdown; README mới, notebook local, mã/config/phụ thuộc, tests/checks, manifest, báo cáo/slide, biên bản nghiệm thu và gói phù hợp quyền.
 - **Nhiệm vụ:** [T01](../PLAN.md#t01), [T02](../PLAN.md#t02), [T03](../PLAN.md#t03), [T06](../PLAN.md#t06), [T09](../PLAN.md#t09), [T10](../PLAN.md#t10), [T11](../PLAN.md#t11), [T12](../PLAN.md#t12), [T13](../PLAN.md#t13), [T14](../PLAN.md#t14).
-- **Giới hạn:** CSV đã tracked, .gitignore không xóa lịch sử; không push/công khai hoặc tự viết lại Git. Colab dữ liệu thật bị thay bằng local; Colab nếu cần chỉ minh họa giả.
+- **Giới hạn lịch sử 02/10:** CSV từng được ghi là tracked trong kho cũ; không viết lại lịch sử. **Workspace hiện tại đã kiểm tra:** Git root đúng project, CSV/outputs bị ignore và không nằm trong đối tượng lịch sử local; chỉ push allowlist theo CHG-008. Colab dữ liệu thật bị thay bằng local; Colab nếu cần chỉ minh họa giả.
 
 ## 4. Quyết định, đề xuất và phần chưa kiểm chứng
+
+### Bổ sung phạm vi triển khai và tình huống thực tế — 04/10/2026
+
+Người dùng yêu cầu trợ lý triển khai phần mềm xuyên suốt, kiểm thử và quản lý Git; báo cáo/slide làm sau. Đây là phạm vi hành động mới thay giới hạn chỉ tài liệu U03/U05 cho các lượt triển khai, không đổi mục tiêu sales hoặc xác nhận mentor. Các lựa chọn chờ tại 04/10 đã được người dùng chốt ở CHG-008; chỉ là thực nghiệm, không mentor xác nhận. R01–R09 và T01–T14 giữ nguyên, chưa nghiệm thu kỹ thuật.
+
+Người dùng yêu cầu chuẩn hóa dữ liệu, xử lý biến động bán/doanh thu và tình huống đối tác nhập ít hơn (CHG-007). Các yêu cầu bổ sung truy vào task hiện có:
+
+- **R01, R09 / T03, T12:** parse và chuẩn hóa ở bản dẫn xuất, bảo toàn nguồn/hash; lỗi thiếu/trùng/UTC/quantity/trạng thái có log tổng hợp và hành vi chặn rõ. Không ép số, đoán khóa/ngày hoặc đổi dữ liệu để đạt metric. Giá/doanh thu lỗi ảnh hưởng phân tích tiền phải được phân biệt với tính hợp lệ target quantity.
+- **R02, R04, R05 / T04–T09, T12:** ngày giảm/tăng bán hợp lệ, ngày 0 và biến động kéo dài vẫn nằm trong chuỗi và tập chấm. Doanh thu là chỉ báo chẩn đoán bổ sung, không thay target quantity hay top 10 train. Theo dõi mức bán/doanh thu sau khi ngày được quan sát; ngưỡng phát hiện/feature chỉ dùng lịch sử tới origin. Không tuyên bố biết trước sự kiện không có tín hiệu hoặc nguyên nhân chưa quan sát.
+- **R06, R07 / T10, T12:** chuẩn bị hai nhóm kịch bản riêng: biến động lượng bán và biến động nguồn cung (lượng thực nhận thấp hơn lượng đặt, về trễ, không về). Ngữ nghĩa “đối tác ít nhập” đang chờ làm rõ. Chỉ order là dữ liệu thật; các kịch bản nhập/ETA và biến động được tạo có nhãn, không coi là forecast đã học từ dữ liệu nhập doanh nghiệp.
+- **R08, R09 / T11, T12:** dashboard hiển thị cảnh báo chất lượng dữ liệu/bất thường bán tách khỏi cảnh báo tồn. Run thiếu/failed/trộn phiên bản không được hiển thị như hoàn tất; không che lỗi bằng 0 hoặc dùng kết quả cũ như mới.
+
+Mỗi kịch bản có cấu hình, kỳ vọng độc lập và kết quả kiểm thử; không cam kết bao phủ mọi sự kiện chưa biết. Các cảnh báo/chẩn đoán bổ sung không tạo ngưỡng nghiệm thu mới cho precision/recall hoặc đổi R05. Điều kiện “kickoff” hiện chỉ đối chiếu được với PLAN/requirements; chưa có nguồn kickoff riêng, ảnh/PDF tham chiếu vẫn thiếu và không nhận đã đọc.
 
 | Nhóm | Nội dung hiện hành | Nguồn/trạng thái |
 |---|---|---|
@@ -143,7 +170,7 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 | Ràng buộc | Chỉ order thực; phần còn lại nhóm giả định; không xin thêm nội bộ; bảo mật | U04 |
 | Giữ lựa chọn cũ | Tuyến quốc gia–nhà mạng; MAPE ngày dương từng tuyến; mô phỏng, demo riêng, M2 17/10/2026, M3 07/11/2026, bù M1 | U02, phần không mâu thuẫn |
 | Đề xuất có thể điều chỉnh | success làm sales, Vina→Vinaphone, tồn đầu 7 ngày, L=3, b=4/2, review=1, MOQ=1, receipts đầu rỗng, seed=42 | A08–A17/P02; chưa gắn nhãn nhóm/mentor thống nhất |
-| Phạm vi hành động | Cập nhật ba Markdown hiện có; chưa code/cài đặt/thực nghiệm | U05 |
+| Phạm vi hành động lịch sử | Cập nhật ba Markdown hiện có; chưa code/cài đặt/thực nghiệm | U05; được yêu cầu triển khai CHG-007 thay phạm vi hành động, không thay nghiệp vụ |
 
 Không có câu hỏi cần trả lời để cập nhật tài liệu. Trạng thái lịch sử, số bán thuần/gộp, mapping partner và vận hành tồn thật là giới hạn/giả định, không trở thành phụ thuộc xin thêm dữ liệu. Quỹ giờ nhóm chưa rõ; tổng 97–149 người-giờ hoặc 105–163 nếu T08 kích hoạt không phải cam kết nhân lực.
 
@@ -157,3 +184,10 @@ Chỉ gọi toàn dự án hoàn thành khi đủ bằng chứng bắt buộc; n
 |---|---|---|
 | 1.0 | 02/10/2026 | R01–R09 theo target activation/lựa chọn cũ; chưa có phản hồi mới lúc ghi nhận |
 | 2.0 | 02/10/2026 | CHG-003 áp dụng M01/M02/U04/U05: sales, partner, giả định, local/bảo mật; mã yêu cầu giữ nguyên, chưa nghiệm thu |
+
+
+### Quy tắc giao khách theo CHG-024 — bổ sung R06/R08/R09
+
+Giao khách D+7 theo ngày lịch UTC, gồm cuối tuần, delay khách bằng 0. Run lịch giao phải cùng nguồn/target/split/origin với hai cha tuần và ngày/tồn; lượng cam kết đã biết chỉ dùng đơn đặt ≤origin, lượng từ đơn chưa đặt lấy forecast và có nhãn riêng. Quantity theo item và tuyến phải bảo toàn, không xuất order/customer ID, actual giao thiếu giữ NaN. Thời gian nhập hàng kho và kịch bản nhận ít/trễ/không về không đổi từ xác nhận customer delivery này. Tồn khả dụng mô phỏng đã trừ khi nhận đặt hàng, không trừ lần hai vào D+7. E37/E39 kiểm các điều kiện này, chưa nhận R05/R07 đạt.
+
+Nguồn U07 cập nhật thông tin “chỉ order thực” của U04/DEC17: hiện là **snapshot được người dùng mô tả giả định**, chưa độc lập xác minh cách sinh. Quy tắc bảo mật/bảo toàn và các bằng chứng lịch sử không bị xóa. Vẫn chưa có xác nhận mentor thay metric ngày bằng tổng tuần; câu hỏi đang chờ không làm mất quyền tiếp tục các phần kỹ thuật độc lập.

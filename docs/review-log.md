@@ -1,6 +1,10 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
-**Phiên bản:** 2.0 — 02/10/2026. **Trạng thái:** Khảo sát đã thực hiện, triển khai chưa bắt đầu. Lượt này cập nhật ba Markdown, không huấn luyện hoặc chạy thực nghiệm mới. Bằng chứng activation cũ được giữ như lịch sử, cần tính lại cho mục tiêu số bán.
+**CHG-029/E56 — 06/10/2026:** người dùng yêu cầu cải thiện chất lượng để nộp/bảo vệ. Đăng ký thử nghiệm validation-only về bộ nhớ mùa vụ tuần: bốn cấu hình Gaussian khoảng cách lịch tròn 28/56 ngày × quantity thô hoặc chuẩn hóa theo 90 ngày tại origin, thêm hai biến thể ratio giảm trọng số lịch sử với half-life 90 ngày (sáu tổng). Áp dụng cùng cấu hình cho mọi tuyến; refit 7 ngày, nhãn kết thúc không sau cutoff. Mục tiêu là kiểm giả thuyết thiếu khả năng học mùa vụ, không tăng số cây thêm. So sánh validation với lựa chọn V13 đã khóa; không chấm test hoặc chuyển production trong thử nghiệm này. Đăng ký trước fit, chưa có kết quả. Chẩn đoán CV/tự tương quan và fit hồi cứu tháng×weekday chỉ mô tả dữ liệu, không là chứng minh MAPE 20% bất khả thi. Giữ target/top10/split/ngưỡng/R05 và bộ trình diễn V13 nguyên; không làm Word/slide mới, không hứa điểm mentor.
+
+**Phiên bản lịch sử:** 2.0 — 02/10/2026. **Trạng thái tại 02/10:** Khảo sát đã thực hiện, triển khai chưa bắt đầu. Lượt này cập nhật ba Markdown, không huấn luyện hoặc chạy thực nghiệm mới. Bằng chứng activation cũ được giữ như lịch sử, cần tính lại cho mục tiêu số bán.
+
+**Cập nhật triển khai 05/10/2026:** E01–E10/RV/QA-DOC cũ là lịch sử, không phải kiểm tra lại ảnh/PDF đang thiếu. E11 trở đi là bằng chứng kiểm tra trực tiếp lượt triển khai; CHG-008 cho phép local và push allowlist, CHG-009/010 cho phép tinh chỉnh bằng validation và công khai test đã xem. Không nghiệm thu toàn bài khi R05 chưa đạt.
 
 [Kế hoạch hiện hành](../PLAN.md) · [Yêu cầu và tiêu chí nghiệm thu](requirements.md)
 
@@ -174,6 +178,36 @@ Git hiện theo dõi CSV nguồn và hai tài liệu gốc. `.gitignore` không 
 
 Không có nguồn tồn kho/nhập hàng/lead time thật. Đây là ràng buộc đã được U04 xác nhận, **không phải vấn đề chặn cần doanh nghiệp giải quyết**. Giá trị cơ sở A09–A17 dùng cho mô phỏng, gắn nhãn và đánh giá độ nhạy. Xử lý thật chuyển về local; Colab nếu có chỉ minh họa giả. Lượt cập nhật tài liệu không thực hiện upload hoặc tạo môi trường.
 
+### E11 — Audit và pipeline sales thực chạy, 05/10/2026
+
+Run `sigma_full_v1` đã complete: audit → EDA → baseline → validation → test → forecast → inventory. CSV local 100.000 dòng/20 cột; success 93.104 dòng, 118.296 quantity; 46 tuyến × 731 ngày = 33.626 route-days. Hash trước/sau `6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b` giữ nguyên. Không có lỗi target/duplicate/đối soát tiền trong nguồn này; 5.691 activation thiếu không dùng loại sale. Audit và fixtures vẫn chặn lỗi target, giữ money diagnostics riêng. Forecast latest 46 × 14 = 644 cặp, actual tháng 01/2026 trống.
+
+### E12 — Tinh chỉnh hữu hạn, không đổi tiêu chí
+
+V1: 3 baseline, 6 SARIMA/top10 và 4 LightGBM Poisson khi điều kiện validation kích hoạt. 59/60 SARIMA có độ phủ validation đầy đủ; 1 ứng viên loại do fit/hội tụ. V2 thêm 8 weighted-median robust và 4 LightGBM inverse-label weighted L1; V3 thêm 12 hồi quy lịch biết trước, tổng 37 cấu hình trên từng top10. Calendar dùng thứ trong tuần và harmonic năm, không dùng actual tương lai; exploratory validation và CLI khớp 143.640 cặp ở dung sai 1e-8. Model selection vẫn validation, mọi nhãn fit <= cutoff.
+
+Test v1: 0/10 đạt, MAPE 41,10–73,65%, mean MAPE tuyến 50,53%. V2: 0/10, mean 48,35%. V3: 0/10, 40,93–61,96%, mean 49,03%, 6 tuyến cải thiện so với v1. **Không chọn V2 vì test tốt hơn:** V3 có lựa chọn theo validation; test đã xem và đánh giá lại không độc lập. MAE/WAPE/bias/độ phủ vẫn công bố, không lấy mean hoặc WAPE thay tiêu chí từng tuyến. Dữ liệu/target/top10/split/ngưỡng giữ nguyên. Các thử nghiệm chưa chứng minh 20% là bất khả thi, cũng chưa có bằng chứng đạt ngưỡng.
+
+### E13 — Kiểm tra local, tái lập, CI và Git
+
+`python -m pytest` trong môi trường khóa đã chạy 37 tests đạt; ca tính tay, missing/0, giữ hash, duplicate/quantity/UTC, lựa chọn validation, chống leakage, phân bổ/balance/trigger/ETA, cảnh báo, run hỏng và calendar unknown. `pip check` đạt trong .venv và .venv-verify. Demo v1 và demo_release cùng input hash/config/seed: 14 bảng khớp, số nguyên tuyệt đối, số thực 1e-8, loại run-id để đối chiếu. Baseline/SARIMA/LightGBM Poisson validation v1 và v2 trong môi trường sạch có hash CSV giống tuyệt đối.
+
+AppTest demo và run thật v1: 0 exception, 10 bảng; đổi origin và nhóm horizon đạt. Kiểm tra trình duyệt local hiển thị sáu tab, actual/forecast và nhãn tồn mô phỏng, cảnh báo R05. Run v1 có 1.100.320 ledger rows/13 chính sách: cân bằng tồn và demand=fulfilled+shortage đúng tuyệt đối, không âm, historical sales không đổi giữa scenario; 5.520 alert item-windows event-id duy nhất. Replay cảnh báo không đặt mới tách khỏi policy. V3 early-event-rate khoảng 31,67%, chưa chứng minh mọi ca báo trước >=7 ngày; không tự thêm ngưỡng precision/recall nghiệm thu.
+
+Git root đã xác minh đúng project; CSV/outputs/.venv/.tools ignored. Stage allowlist đầu 24 file không có ID nguồn, token, CSV/run thật; notebook không output. Push nhánh codex/sigma-local-pipeline thành công theo CHG-008, Draft PR #1. Windows CI [37225721518](https://github.com/khanhnguyenpham/Sigma/actions/runs/37225721518) thành công với tests + pipeline demo giả + AppTest trên runner sạch; không có raw orders trên CI. Chưa diễn tập UI trên máy Windows cá nhân thứ hai. Tại thời điểm E13, báo cáo/slide chưa tạo; trạng thái mới ở E15/CHG-011.
+
+### E14 — Kiểm tra bản release bàn giao
+
+Run `sigma_release_v4` complete, cấu hình 1.2.1, 43 tệp sealed khớp hash. CSV gốc giữ SHA256 `6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b`. Mã thực chạy có hash `289064ed0368262fb1027b304732f793700a3a34d0b367f1e7198be0334370c1`, khớp working code khi kiểm tra. Git revision trong manifest ở đầu run không đại diện mọi thay đổi chưa commit, dùng code hash để nhận diện. Manifest SHA256 `dbfa747134e2769cbf81214c7cb7dadfc2e6aa0806b9ce413e923beb1496c152`.
+
+Sáu bảng lựa chọn/validation/test/forecast tái lập v3 theo dung sai 1e-8. Top 10 có 623 cặp h1–7/tuyến, độ phủ 100%, 0/10 đạt MAPE ≤20%, khoảng 40,93–61,96%. Forecast mới 644 cặp, actual tháng 01/2026 trống. Kiểm tra 1.100.320 dòng ledger cân bằng số nguyên/không âm, nhu cầu bằng đáp ứng cộng thiếu; Q và trigger strict < đúng, event-id replay duy nhất. Khóa 84 package được kiểm chứng trong environment_verification trước seal. AppTest release: 0 exception/10 bảng khi đổi quốc gia/carrier, origin và h8–14. Launcher đã chạy local trên 127.0.0.1:8501 và chọn release thật hoàn chỉnh mới nhất.
+
+### E15 — Báo cáo tiến độ M2 và slide local
+
+Theo CHG-011, đã tạo `reports/M2/SIGMA_Bao_cao_tien_do_M2.docx` 10 trang, SHA256 `7a1f3f170939f5dfbeaaad221509084c245a93cf7624fa96a3e0c75848a5c295`, và `SIGMA_Slide_bao_cao_M2_ban_giao.pptx` 16 slide, SHA256 `1063e90cc4d9f2fccb919e2411b36be128a0b42136179a8694621e9e6354a768`. Nội dung truy về release_v4 và giữ rõ 0/10 đạt R05, early-event-rate 31,67%, test reuse và giả định. Không bịa tên trường/mentor hoặc đóng góp cá nhân.
+
+DOCX: render_docx.py đã thử nhưng thiếu LibreOffice, dùng Word cài sẵn chạy ẩn export PDF QA và Poppler tạo ảnh. Đã kiểm tra mọi trang, sửa đường kẻ tiêu đề rồi render lại. Ghi chú thuyết trình đã rà bằng tiếng Việt, giải thích chỉ số/mẫu số và giới hạn từng slide. PPTX: Artifact Tool export/import, finalizer kiểm tra gói/layout/font, hai chart native có workbook snapshot khớp cache và bảng native. Đã render mọi slide và kiểm tra bố cục; không tuyên bố đã mở/chỉnh sửa trong PowerPoint. File QA và report có kết quả riêng tư đều ignored/local, không push. T13 mới hoàn thành phần tiến độ M2, báo cáo cuối kỳ/bảo vệ còn mở.
+
 <a id="report-review"></a>
 ## 3. Sổ rà soát báo cáo gốc
 
@@ -251,6 +285,9 @@ Mọi quyết định dưới đây được ghi ngày **02/10/2026**. “Bạn 
 | DEC19 | Sales 01/01/2024–31/12/2025 và top 10 train — P02/E09 | Dẫn xuất target mới, bỏ biên activation; khảo sát không thay pipeline |
 | DEC20 | on_hand < ROP, IP tính Q; ledger/ETA/thiếu giữ sales gốc — U04/P02 | Thay trigger; R06/R07, T06/T10–T14; công thức/tham số là chính sách mô phỏng |
 | DEC21 | Cập nhật ba tệp hiện có — U05 | Ghi 2.0, giữ mã/lịch sử, chưa bắt đầu kỹ thuật |
+| DEC22 | Phần mềm local/Git allowlist và A08–A17 thực nghiệm — CHG-008, người dùng đồng ý | Thay giới hạn hành động chỉ tài liệu ở DEC21; không xác nhận mentor/nguồn thiếu. Báo cáo/slide để sau. |
+| DEC24 | Word tiến độ M2 và slide sau phần mềm — CHG-011, người dùng yêu cầu | Thay việc để sau ở CHG-008. Tạo từ run đã kiểm tra, giữ chưa đạt R05/cảnh báo, lưu local; không tự nâng nghiệm thu. |
+| DEC23 | Tinh chỉnh thêm bằng validation — CHG-009/010, yêu cầu người dùng | Giữ tiêu chí 20%/target/split; test đã xem được công khai, không gọi độc lập hoặc chọn bản bằng test. |
 
 <a id="impact-v2"></a>
 ### CHG-003 — Ma trận thay đổi và tác động
@@ -268,7 +305,7 @@ Mọi quyết định dưới đây được ghi ngày **02/10/2026**. “Bạn 
 
 **Vô hiệu hóa:** E06 và lựa chọn/dự báo/metric/hình theo activation chỉ là lịch sử, **cần tính lại** cho sales. Ngưỡng chung/trigger IP≤ROP cũ **bị thay thế**. Chưa có run/mô hình/dashboard đã triển khai để xóa hoặc đổi nhãn thành run mới. E03–E05 vẫn là khảo sát đúng phạm vi; T03/T04 phải sinh lại bằng mã. Không ghi T02–T14 “đã xong rồi cần sửa” vì chúng chưa bắt đầu.
 
-## 5. Lỗi kỹ thuật và kiểm tra hiện tại
+## 5. Kiểm tra ngày 02/10/2026 — lịch sử
 
 - Chưa có mã nguồn dự án nên chưa có lỗi runtime/model hoặc bộ kiểm thử dự án được thực thi.
 - Lượt khảo sát gặp lỗi encoding khi in tiếng Việt từ Python, sau đó cấu hình stdout UTF-8 và đọc được báo cáo; không phải lỗi PDF hoặc dữ liệu.
@@ -313,6 +350,13 @@ Ví dụ tác động: CHG-003 đổi target sang sales nên T03 cần định n
 | CHG-001 | 02/10/2026 | Bạn chấp nhận kế hoạch sau khảo sát và các lựa chọn U02 | Thiết lập R01–R09, T01–T14, A01–A07; chưa tạo sản phẩm kỹ thuật |
 | CHG-002 | 02/10/2026 | Bạn yêu cầu tạm thời chỉ tạo ba Markdown rồi xác nhận thực hiện | Giới hạn hành động ở tài liệu; giữ nguyên phương án dự án; không khôi phục 26 tệp đã xóa |
 | CHG-003 | 02/10/2026 | M01/M02 thuật lại mentor, U04 chỉ order/bảo mật/giả định, U05 yêu cầu cập nhật MD | Đã áp dụng phiên bản 2.0 vào ba tài liệu; tác động tại ma trận trên. A08–A17 đề xuất; kỹ thuật chưa bắt đầu, kết quả activation cần tính lại |
+| CHG-004 | 04/10/2026 | Người dùng yêu cầu chia task triển khai và cung cấp 6 tên: Nguyên, Khang, Du, Tuấn Anh, Hiếu, Cường | Đề xuất người phụ trách/review cho T01–T14 trong TASK/PLAN và cập nhật hướng dẫn TXT. Chưa có năng lực, quỹ giờ, GitHub username hoặc xác nhận nhận việc; không đổi nghiệp vụ, A08–A17, phụ thuộc, công sức hay trạng thái. Chưa tạo Issue, push hoặc triển khai code |
+| CHG-005 | 04/10/2026 | Người dùng làm rõ muốn cả nhóm cùng làm từng task một | Thay cách làm các module song song của CHG-004 bằng cùng một Txx, chia checklist nhỏ cho 6 người, PR riêng từng phần và kiểm tra chung trước chuyển task. TASK/PLAN/TXT được đồng bộ; người phụ trách cũ là đầu mối đề xuất. Ước lượng tải cá nhân cũ cần phân bổ lại; công sức tổng, nghiệp vụ, phụ thuộc, trạng thái giữ nguyên. Chưa tạo Issue/push hoặc triển khai code |
+| CHG-006 | 04/10/2026 | Người dùng yêu cầu được hướng dẫn làm solo và push Git từng phần | Thay cách phối hợp CHG-004/005 bằng người dùng làm toàn bộ T01–T14 với hỗ trợ từng phần; giữ phân công nhóm làm lịch sử hết áp dụng. TASK/PLAN/TXT mô tả phần nhỏ, kiểm tra, commit/push code và tài liệu được phép. Không đổi nghiệp vụ, giả định, phụ thuộc, nghiệm thu hoặc công sức tổng; chưa biết quỹ giờ solo. Lượt này chuẩn bị phần tài liệu/Git, chưa triển khai pipeline; kết quả push cần kiểm chứng riêng |
+| CHG-007 | 04/10/2026 | Người dùng yêu cầu trợ lý làm phần mềm xuyên suốt/Git, báo cáo và slide sau; bổ sung chuẩn hóa theo kickoff, giảm bán/doanh thu và đối tác nhập ít | TASK/PLAN/requirements/data-contract bổ sung hành vi và ca stress vào T03–T12; không đổi target/split/metric, không xác nhận A08–A17 hay nguồn kickoff thiếu. Local/online, cấu hình cơ sở, quyền push cụ thể và nghĩa “nhập ít” đang chờ làm rõ. Preflight chỉ đọc 100.000 dòng bằng Python standard library: không phát hiện lỗi độ rộng, quantity, order timestamp, duplicate hoặc đối soát doanh thu; 5.691 activation trống; 46 tuyến. SHA-256 trước/sau giữ 6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b. Chưa có audit pipeline, fixture, stress run hoặc nghiệm thu T02–T14; commit 25fb7f5 vẫn local, push trước bị auto-review từ chối |
+| CHG-008 | 05/10/2026 | Người dùng trả lời “đồng ý” sau lựa chọn triển khai và yêu cầu làm A–Z | Chọn Streamlit local Windows, PLAN/requirements làm căn cứ khi nguồn kickoff thiếu; A08–A17 cho thực nghiệm, không mentor xác nhận; cả giảm bán và nhận thiếu/trễ. Cho phép push mã/config/tests fixture giả/notebook không output/tài liệu, gồm commit 25fb7f5, tới khanhnguyenpham/Sigma qua nhánh và PR. CSV/run thật/token không push. T13 báo cáo/slide vẫn để sau. CHG-007 chờ lựa chọn đã được thay thế; không đổi tiêu chí độ chính xác. |
+| CHG-009 | 05/10/2026 | Người dùng yêu cầu phải tinh chỉnh để đáp ứng yêu cầu | Sau khi công bố test v1 0/10 đạt, mở thí nghiệm v2: giữ dữ liệu/target/top10/split/metric/ngưỡng; thêm 8 robust weighted-median (4 cửa sổ × có/không shrink thứ trong tuần) và 4 LightGBM inverse-label weighted-L1, chọn bằng validation như cũ. Test đã được xem; v2 đánh giá lại trên test cũ, không gọi kiểm định độc lập. Không nâng trạng thái R05 nếu vẫn chưa đạt; lưu v1, config.original.json và v2 tách run/config version. |
+| CHG-010 | 05/10/2026 | Tiếp tục yêu cầu tinh chỉnh CHG-009 | V3 thêm 12 hồi quy lịch biết trước: cửa sổ 365/toàn lịch sử × 1/2 harmonic năm × weighted LAD alpha 0,001/0,01 hoặc Poisson alpha 0,1; feature thứ trong tuần và sin/cos day-of-year. Thử nghiệm chỉ dùng nhãn tới cutoff trên validation, không dùng nhãn test để chọn; validation cải thiện thêm 2 tuyến nên tích hợp CLI/dashboard và chạy lại toàn bộ. Test vẫn là test đã xem, không độc lập. Không đổi R05 hoặc target/ngưỡng. |
 
 Giới hạn và trạng thái còn mở, không phải yêu cầu xin thêm dữ liệu doanh nghiệp:
 
@@ -339,3 +383,417 @@ Các nguồn này hỗ trợ lựa chọn phương pháp/công cụ, không xác
 - [Google Colab FAQ](https://research.google.com/colaboratory/faq.html): nguồn tham khảo phương án 1.0; ở 2.0 Colab chỉ tùy chọn minh họa dữ liệu giả, không tải dữ liệu thật.
 
 Ngày tham khảo trong lượt khảo sát: 02/10/2026. Phiên bản phụ thuộc cụ thể chưa được lựa chọn hoặc kiểm chứng bằng cài đặt dự án.
+
+| CHG-011 | 05/10/2026 | Người dùng yêu cầu hoàn thiện sản phẩm rồi tạo Word báo cáo tiến độ M2 và slide báo cáo | Thay deferral T13 của CHG-008. Tạo báo cáo tiến độ từ release đã kiểm tra, đọc yêu cầu và giữ giới hạn thực tế. Word/slide có số liệu local không push. R05/cảnh báo sớm và nghiệm thu toàn bài không tự đổi sang đạt. |
+
+### Điều chỉnh ưu tiên sau CHG-011
+
+- **CHG-012, 05/10/2026:** Người dùng yêu cầu chỉ tập trung hoàn thiện project; Word/slide chỉ làm tiếp khi người dùng yêu cầu lại. T13 tạm dừng phần soạn tài liệu, giữ bản nháp cũ làm lịch sử. T09/R05 và T10/R07 tiếp tục xử lý; chưa nghiệm thu toàn bài. Việc tạo báo cáo trước khi đạt tiêu chí trong CHG-011 không phù hợp thứ tự người dùng mong muốn.
+- **CHG-013, đăng ký trước chạy ngày 05/10/2026:** thử nghiệm riêng bốn LightGBM context: cửa sổ nhãn 180/365 ngày × Poisson/L1 trọng số 1/y ngày dương. 25 feature gồm lịch biết trước, lịch sử tuyến, tổng quốc gia/toàn hệ thống đã quan sát tại origin. Seed 42, 300 cây, 31 lá, min-child 50, refit 7 ngày; cùng top 10 train/split/horizon/metric. Chỉ chấm validation, chưa tích hợp selection sản xuất; không dùng test để lựa chọn. Test cũ đã được xem ở vòng trước và không trở thành holdout độc lập. Kết quả lưu local riêng, không sửa run v4.
+- **Chẩn đoán trực tiếp replay v4:** trong 2.867 sự kiện hết hàng có 1.550 xảy ra trước ngày 7 từ origin; 1.317 có cơ hội báo trước ít nhất 7 ngày, trong đó 409 bị bỏ sót. Trần cơ hội tại origin theo thiết kế reset tồn đầu hiện tại là 45,94%; đây là giới hạn thiết kế replay, không phải bằng chứng ngưỡng dự báo R05 bất khả thi. Giữ mẫu số/metric cũ, không loại ca khó để nâng tỷ lệ. Bước tiếp theo là tách cơ hội theo dõi khỏi lỗi phát hiện và kiểm tra thuật toán cảnh báo.
+
+### E16 — Thử nghiệm context và chẩn đoán cảnh báo trực tiếp
+
+Ngày 05/10/2026, chạy `.venv/Scripts/python.exe validate_context.py` local: bốn cấu hình, 56 lần fit weekly, 40 nhóm model/tuyến h1–7, mỗi nhóm 623 cặp có độ phủ 100%; không có predictions test. TrueMove H validation MAPE từ 38,397185% xuống 36,841717%; LG U+ từ 39,952113% xuống 39,465932%. Các tuyến còn lại không cải thiện; 0/10 đạt 20%. Chưa tích hợp selection sản xuất hoặc chạy test mới. Không khẳng định yêu cầu R05 đã đạt hoặc không thể đạt.
+
+Đầu ra riêng `outputs/context_validation_v1/`: protocol SHA-256 `c6fcb0af461ad15301dd2913db92986e4cb95ae72ca687b9972bbd87bf3b2345`; comparison SHA-256 `ceb954706b244c39a791045b1ce81f387df43630e5a459b075bff2e7bb9d37d9`. Protocol giữ code hash tại thời điểm khởi chạy; sửa diagnostic tồn sau đó không sửa các mô hình/đầu vào experiment.
+
+Chẩn đoán cảnh báo dùng `alert_opportunity_summary` trên alerts v4: 2.867 actual events, 1.550 trước ngày 7, 1.317 có cơ hội, 409 FN trong nhóm có cơ hội; opportunity rate 45,9365%, recall nhóm có cơ hội 68,9446%. Giữ nguyên early-event-rate v4 31,67% và mẫu số tất cả events. File diagnostic SHA-256 `ce763ad032ff7d6f777787cd63891df3291fc15a1ed1541641cf3b87f346e64d`.
+
+Chạy `.venv/Scripts/python.exe -m pytest -q`: **45 passed** sau khi bổ sung fallback cho cửa sổ training toàn 0 (Poisson và weighted L1), gồm ca sửa toàn bộ tương lai các tuyến không đổi feature/nhãn, đối chiếu weekday/tổng quốc gia bằng tay, alignment training/inference h1/7/14 và mẫu số cảnh báo. Raw CSV kiểm hash trực tiếp vẫn `6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b`. Run v4 và Word/slide giữ nguyên; chưa chứng minh production phiên bản mới, chưa nghiệm thu toàn bài. Bước tiếp: xử lý 409 ca bỏ sót và đánh giá cách theo dõi tồn từ sớm; cải thiện mô hình chọn bằng validation, giữ tiêu chí.
+
+### CHG-014 — Tiếp tục hoàn thiện, đăng ký trước run mới
+
+05/10/2026: người dùng yêu cầu tiếp tục tới khi đạt tất cả tiêu chí, không dừng sau mỗi thử nghiệm. T13 vẫn chưa làm tiếp. Tích hợp bốn context vào validation/locked-test/forecast của CLI; thêm sáu phân phối lân cận mùa vụ, bandwidth 14/28/56 ngày × có/không hiệu chỉnh mức bán 28 ngày, action tối thiểu hóa MAPE ngày dương theo kernel Gaussian lịch biết trước. Cả sáu chỉ dùng history tới origin, mức hiệu chỉnh clip 0,5–2 đăng ký trước. Seed/split/top 10/target/metric giữ nguyên; test cũ đã xem, không dùng chọn lại.
+
+Config 1.3.0 có 47 ứng viên top 10. Run mới có thể nhập tường minh **bằng chứng validation lịch sử** của v4: xác minh source/hash, daily/top/config, không nhập metrics test; giữ historical code hash/provenance và chạy 10 ứng viên mới thực sự. Không nhận đã chạy lại SARIMA cũ. Test/forecast/tồn chạy lại theo lựa chọn validation mới. Tối ưu truy cập tồn không thay công thức/stock giả định/mẫu số cảnh báo. Các ca fixture và kiểm cân bằng/run mới phải đạt trước bàn giao.
+
+R07 hiện hành yêu cầu ca chuẩn ngày 10 có ≥7 ngày, ngày 3 không tính đạt, replay không chồng, precision/recall/rate và giới hạn; **không có ngưỡng precision/recall chính thức hoặc cam kết mọi cú sốc**. Phân biệt hoàn thành cơ chế/đo lường với tỷ lệ sớm quan sát thấp. Không sửa yêu cầu để gọi 31,67% thành cảnh báo mọi ca.
+
+### Chẩn đoán giả định nhiễu — đăng ký trước tính toán
+
+Dùng riêng train để mô tả lượng đơn/ngày và phân phối quantity/đơn. Tính rủi ro MAPE của mô hình tham chiếu đơn đến độc lập Poisson, lượng mỗi đơn theo tần suất train, cường độ theo tháng train. Đây là tính toán phụ thuộc giả định, không phải chặn dưới cho mọi thuật toán trên dữ liệu thật, không làm forecast/chọn model và không chấm test. Mục đích kiểm tra mức biến động do số đơn nhỏ trước khi tăng tìm kiếm cấu hình thiếu căn cứ.
+
+### CHG-015 — Đăng ký thử nghiệm số đơn trước chạy
+
+05/10/2026: thử bốn cấu hình validation-only: Poisson lịch gồm weekday, 2 harmonic năm và trend elapsed-year, cửa sổ 365/toàn history; LightGBM context Poisson trên order_count, cửa sổ 180/365 ngày. Số đơn và tỷ lệ quantity/đơn chỉ từ lịch sử success tới fit cutoff. Chuyển cường độ đơn sang forecast quantity bằng phân phối compound Poisson với frequency quantity/đơn lịch sử, action tối thiểu hóa MAPE ngày dương; không dùng phân phối future hoặc ID. Seed 42, refit 7 ngày, cùng split/top10/horizon/metric; bốn cấu hình cố định, chưa tích hợp production và không xem test để chọn. Lý do: quantity 1–4 và số đơn thấp là nguồn phương sai lớn; train 2025 có mức bán cao hơn cùng kỳ 2024, mô hình lịch cũ chưa có trend. Kết quả chưa biết tại lúc đăng ký.
+
+### E17 — Run tích hợp v5 và kiểm tra trực tiếp
+
+Run `sigma_integrated_v5` hoàn tất bảy stage: 47 ứng viên trên top 10, trong đó 37 ứng viên nhập evidence validation v4 được ghi `validation_import.json`, 10 ứng viên mới chạy fresh. Lựa chọn validation mới ở TrueMove H, LG U+, SoftBank và dtac. Test đã dùng lại: 0/10 đạt, MAPE 40,933418–61,957794%, mean route MAPE 49,504049%; độ phủ 100%. Không chọn lại bằng test hoặc nhận cải thiện mọi tuyến.
+
+Manifest có 48 tệp sealed, SHA-256 `24bf4038d5ea51cd8ed15d3fab1250dca2a84c1221f23916248bdbbe81def174`; code SHA-256 `fe8c2f8761cdb407f5dea708b96d326414db0ba72f54e6dd085ac8d4ae9eb582`. `verify_release.py --run-id sigma_integrated_v5` kiểm trực tiếp metric từ predictions, 644 forecast, 1.100.320 dòng ledger số nguyên/không âm/cân bằng, lịch sử bán không đổi trong 13 scenario, strict trigger/Q/MOQ, event duy nhất và 84 package đúng pin. Verification lưu ngoài sealed run, SHA-256 `ea7e84d22e173567dc7143de0fb07266376cba95122c1f0f80e9197000fbab65`.
+
+Replay v5: 5.520 windows, 1.099 đã trống không tính event mới; TP 1.945, FP 861, FN 922; precision 69,315752%, recall 67,840949%, early-event-rate 31,496338%, muộn 1.042. 414 ca FN có cơ hội ≥7 ngày; 1.550 actual events trước ngày 7 vẫn nằm trong mẫu số 2.867. Fill rate base 82,608968%. Không thêm ngưỡng precision/recall chính thức hoặc dùng opportunity recall thay metric chính.
+
+`pytest -q`: 53 passed. AppTest v5 0 exceptions, 10 bảng; kiểm Japan/SoftBank, origin 31/10 và h8–14. `.venv-verify` chạy `demo_integrated_v5_verify`: 14 bảng khớp demo_release, số nguyên tuyệt đối và số thực 1e-8; manifest SHA-256 `1580d41e59aaccf7e3fb1476233aff55b5e7200b44d821e64eddd24d0743bcb4`. Hai môi trường cùng máy không thay diễn tập máy thứ hai. Raw hash giữ nguyên. Word/slide không sửa.
+
+### E18 — Thử nghiệm count CHG-015
+
+`count_validation_v1` chỉ validation, bốn cấu hình có trend/quantity-distribution lịch sử: cải thiện LG U+ (39,465932% xuống khoảng 36,647%), China Mobile (49,202676% xuống khoảng 42,310%) và KT (49,228794% xuống khoảng 45,897%). Vẫn 0/10 đạt 20%, không chấm test hoặc tích hợp production tại thời điểm bằng chứng này. Protocol SHA-256 `b1a0df9b5c19a002b60c8f44c929467afd72c2406d962b49d5e4a5bf82f6be6d`. Action compound Poisson kiểm độc lập bằng SciPy Poisson PMF/brute-force MAPE ở rate 1/3/10 và rate 0 trả 0.
+
+Diagnostic train `train_noise_diagnostic_v1` theo giả định arrival độc lập/quantity thực nghiệm có risk tham chiếu trung bình theo tuyến khoảng 39,8–50,8%; không phải chặn dưới cho mọi thuật toán hoặc bằng chứng test bất khả thi. Không sửa R05, target, top 10 hoặc ngày chấm. Bước tiếp: tích hợp các count candidate có cải thiện validation, kiểm leakage/selection/forecast và run tiếp; mục tiêu hoàn thiện vẫn đang hoạt động, chưa nghiệm thu toàn bài.
+
+**Tiếp tục CHG-015:** Sau kết quả validation ba tuyến cải thiện, tích hợp bốn count candidate vào CLI/test khóa/forecast bằng sales audited để giữ causal basket-size distribution. Config 1.4.0 có 51 ứng viên. Run mới nhập evidence validation v5 tường minh, giữ lineage và không nhận chạy lại 47 ứng viên cũ; count candidate mới chạy fresh. Không thay metric, top 10 hoặc target, không dùng test để chọn. Kiểm tra lại numerical match với experiment, anti-leakage, PMF/action độc lập và run xuyên suốt.
+
+### E19 — Run tích hợp v6 đã kiểm tra trực tiếp
+
+`sigma_integrated_v6` complete bảy stage, 51 ứng viên/top 10: nhập 47 evidence validation v5, bốn count candidate chạy fresh. 51.520 dự báo validation count khớp experiment CHG-015 tại dung sai 1e-8. Lựa chọn mới chỉ dựa validation ở China Mobile, KT, LG U+. Test đã xem: 0/10 đạt, MAPE 40,933418–58,134251%, mean route MAPE 48,216811%; mỗi tuyến đủ 623 cặp h1–7, coverage 100%. Giữ target/top/split/ngưỡng; không nhận kết quả test độc lập.
+
+50 tệp sealed; manifest SHA-256 `8f16bec3f81aa39a7763e371db23989eebee4d190c8c698683ed5fdb2a91ad54`; code SHA-256 `4ca833a16973b7687538ac6447993f1bc6e60bceea37458a51e6463e4f005d29`. `verify_release.py` kiểm metric từ predictions, forecast 644 cặp, 1.100.320 ledger số nguyên/cân bằng, historical_sales 15.968/scenario, strict trigger/Q và 84 package. Verification ngoài run SHA-256 `6ed72f9e83c6ca88fa0245db2c41dbea3174fe8a4949245587b33fe6ea191ead` có cả package versions/lock hash. Code v6 khác v5; không dùng mã mới nhận đã xác minh lại run v5.
+
+Replay: TP 1.931, FP 854, FN 936; precision 69,335727%, recall 67,352633%, early-event-rate 31,391699%, late 1.031, mean day error 4,657690; 5.520 windows/1.099 đã trống. 417 FN có cơ hội ≥7 ngày; 1.550 trước ngày 7 giữ trong mẫu số 2.867. Base fill rate 82,571393%. 59 tests đạt; AppTest v6 0 exception/10 bảng với China/China Mobile, origin 31/10, h8–14. Raw hash nguyên. Word/slide không sửa.
+
+Rà R06 phát hiện ledger tổng item/ngày dù cân bằng không cung cấp thứ tự order_datetime/order_id. Tiếp tục bổ sung event ledger và đối soát giao dịch; không nhận R06 đầy đủ từ bằng chứng tổng ngày hoặc sửa sealed v6.
+
+### CHG-016 — Sổ giao dịch UTC và bảo toàn kịch bản
+
+Theo R06/PLAN 6.2, CLI tồn xử lý receipt đầu ngày rồi sale theo order_datetime UTC/order_id trong toàn ngày. Mỗi sale ghi stock_before/fulfilled/shortage/stock_after vào inventory_events.csv private local, không hiển thị hoặc export ID trên dashboard. Ngày không event vẫn có opening/closing trong ledger ngày. Kịch bản nhu cầu theo item-day giữ tổng số nguyên đã khai báo và phân bổ largest remainders theo quantity lịch sử; hòa phần dư theo thứ tự giao dịch. Historical quantity không sửa; base bằng sale gốc. Cấm tự cắt phần thập phân L/R/MOQ hoặc receipt quantity. Không thay forecast/ngưỡng/metric/target.
+
+Config 1.5.0; giữ config v6 tại config.integrated-v6.json. V7 sẽ nhập evidence validation v6 có lineage, khóa selection chỉ từ validation, chấm test/forecast/tồn lại; không sửa sealed run v6. Verification độc lập kiểm chronological sequence, receipt timing, identity/quantity/timestamp với source audited (không log record), partial fulfillment từng sale, stock chain và các tổng/day. Kiểm thử fixture/tamper trước run thật; chưa nhận v7 hoàn thành hoặc R05 đạt.
+
+### E20 — Chẩn đoán validation của pool và khách hàng
+
+Chỉ đọc validation của sealed v6, tối ưu phép kết hợp không âm các forecast ứng viên đủ coverage/không lỗi, có constant không âm, theo cùng positive-day MAPE h1–7. Fit và score trên cùng validation nên đây là tham chiếu lạc quan hồi cứu, không phải backtest causal, không dùng làm candidate hoặc chấm nghiệm thu. 0/10 đạt 20%; fitted MAPE 35,308842–50,056933%. Protocol SHA-256 `dac8f1e1eb8e38cd67e5a270be2764cd8689ade2482e0c40c93d1d1385776a15`. Phạm vi kết luận: kết hợp tuyến tính pool hiện có vẫn thiếu trên mẫu validation này; không chứng minh mọi mô hình đều không thể đạt. Không đọc test để tối ưu weights.
+
+Train-only: 66.619 sales rows/13.316 customer IDs, 53.303 giao dịch sau lần xuất hiện đầu trong snapshot (80,011708%); median gap 46,119606 ngày. Không xuất IDs. Nhãn customer_type của nguồn là new/returning, không phải B2B/B2C; first-seen trong snapshot không đồng nghĩa khách mới thật. Khoảng cách lặp gần 7/14/28/30 ngày không chứng minh có lịch gia hạn đúng validity_days.
+
+### CHG-017 — Thử nghiệm composition/cohort chỉ trên validation
+
+Bốn ứng viên cố định: cửa sổ 180/365 × weighted L1 positive-day MAPE/Poisson, 31 leaves/min-child 100/300 trees/seed 42. Thêm 11 feature tổng hợp lịch sử: số đơn, first-seen trong snapshot, source-labeled-new share, mean price, eSIM share, basket size và order-date-plus-validity proxy; tất cả cutoff origin. Proxy validity không là activation, expiry thật, cam kết gia hạn hoặc target. Customer/order IDs không đưa vào mô hình/đầu ra public. Protocol được ghi trước fit trong outputs/cohort_validation_v1; kiểm sửa future quantity/validity/price/customer không đổi feature tại cutoff. Chỉ tích hợp nếu validation có lợi, không dùng test chọn hoặc sửa target/top/split/metric. Chưa nhận nghiệm thu mô hình này.
+
+### E21 — Giao dịch v7 đã kiểm trực tiếp
+
+`sigma_transaction_v7` complete bảy stage, config 1.5.0. 51 validation candidate evidence v6 nhập với provenance, không nhận đã fit lại các candidate cũ; test/forecast/tồn chạy lại. Bảy bảng selection/validation/test/acceptance/forecast/demo_forecast/simulation_metrics khớp v6 ở 1e-8 (run_id khác). R05 vẫn 0/10, không đổi target/top/split/metric hoặc chọn bằng test.
+
+51 tệp sealed, manifest SHA-256 `c42bc862631398ab504c237a8ff82f649d1000313690fbb16e4358585fafcd7e`; code SHA-256 `1500b536f16317ceba9bc527f948e578b92fc0c8f92bc1d119f12aaa7959a696`. `verify_release.py` kiểm 1.100.320 ledger rows, 84 pins, 265,994 private events gồm 163,098 sale và 102,896 receipt qua 13 scenario. Kiểm UTC/tiebreak, receipt đầu ngày, sequence, lịch sử IDs/quantity/timestamp/item khớp source audited trong bộ nhớ, partial fulfillment, stock chain và event/day conservation. Verification ngoài sealed run SHA-256 `a0519b80dd364af33e4c0bb34cbfa33a0b2b8f642a5e44cc674acd1f12ca050c`. Không in hoặc đưa source IDs vào tài liệu/Git. Raw SHA-256 nguyên.
+
+75 tests đạt; AppTest 0 exception/10 bảng với South Korea/KT, origin 31/10, h8–14. Demo `demo_transaction_v7_verify` trong .venv-verify tái lập 14 bảng với demo v5, integer exact/float 1e-8; 49.015 event đối soát (43.719 sale/5.296 receipt), AppTest 0 exception/10 bảng. Demo manifest SHA-256 `c11a6d126154a7ab935d5d0665bf7ff7efa7a75444b49b5de81b591021db7a9c`. Hai môi trường cùng máy không thay diễn tập máy khác. Word/slide không sửa; PR draft/mentor review và R05 vẫn mở.
+
+### E22 — Composition/cohort validation CHG-017
+
+Bốn ứng viên hoàn tất 51.520 cặp dự báo, 40 nhóm metric chính đều đủ coverage, 0/10 đạt 20%. Best cohort_365_mape cải thiện hai tuyến trên validation: TrueMove H 35,169584% so với lựa chọn v6 36,841717%; SKT 45,496615% so với 45,868388%. Không cải thiện tám tuyến khác. Protocol SHA-256 `b511832145a16cb5bee22d48e7f605c1b6e63def6613e76853f597454a7f28f7`; experiment chỉ đọc val/train, test chưa chấm cho các ứng viên này.
+
+**Tiếp tục CHG-017:** Tích hợp `src/cohort_models.py` và bốn ứng viên vào CLI/selection/test khóa/forecast, giữ feature horizon causal và không dùng IDs làm input model. Invalid price/validity trở thành missing covariate, không mất sale hợp lệ; validity không nguyên không tự cắt để tạo proxy. 83 tests đạt trước run thật. Config 1.6.0, 55 ứng viên; giữ config v7 ở config.transaction-v7.json. V8 nhập 51 evidence validation v7 tường minh, chạy bốn cohort fresh, khóa selection bằng validation rồi chấm test/forecast/tồn; kiểm numerical match prototype. Không nhận 20% hoặc v8 complete trước kiểm thực.
+
+### E23 — Run cohort v8 đã kiểm trực tiếp
+
+`sigma_cohort_v8` complete bảy stage, catalog 55: nhập 51 evidence validation v7, bốn cohort fresh; selection mới TrueMove H/SKT chỉ bằng validation. 51.520 dự báo cohort production khớp prototype CHG-017 tại 1e-8. Test đã xem: 0/10 đạt, mean route MAPE 48,045274%, range 40,933418–58,134251%; 623 cặp h1–7/tuyến, coverage 100%. Không đổi tiêu chí hoặc chọn bằng test.
+
+53 files sealed, manifest SHA-256 `3ec3c31bb2d95c5486721511a3a5088baf85f4c31725f75779dd4cf9bfb7edae`; code SHA-256 `b7e6d6e6beecc6bdb2c23c6626620f4890075b38c73be911dc2e961993b4ce5d`. Verify metric/644 forecast/1.100.320 ledger/84 pins/265.985 events (163.098 sale/102.887 receipt)/13 scenarios; history identities/quantity/item/timestamp/stock chain/event-day match audited source without public record output. Verification ngoài sealed run SHA-256 `09a2f4c728b9e01d4891ddd6ff34d05968dc8c25095b7ad0a47608e373453e85`, thêm từng code_file hash. Raw hash nguyên.
+
+83 tests đạt. AppTest 0 exception/10 bảng ở Thailand/TrueMove H, origin 31/10 và h8–14. Replay TP 1.936/FP 858/FN 931, precision 69,291339%, recall 67,527032%, early 31,287060%, late 1.039, day error 4,655475; 420 FN có cơ hội ≥7 ngày, không bỏ 1.550 event trước ngày 7 khỏi mẫu số. Base fill rate 82,634018%. Demo `demo_cohort_v8_verify` môi trường thứ hai tái lập 14 bảng v7, 49.015 events đối soát; manifest SHA-256 `5b3bb34e5f647486f7d51c3c1bae468ff5a8e9149cd97be071b5b2ecb535cccf`. Hai môi trường cùng máy không thay diễn tập thật máy khác. Word/slide giữ nguyên.
+
+### CHG-018 / E24 — Count calendar tháng, chỉ validation
+
+Protocol viết trước fit ở outputs/count_monthly_validation_v1; hai ứng viên cố định 365/all, Poisson alpha 0.1, weekday/month indicators và elapsed-year trend biết trước tại origin. Basket distribution/count action giữ causal và positive-day MAPE; không đọc test. 25.760 cặp, đủ coverage ở 20 nhóm h1–7, 0/10 dưới 20%. Best monthly cải thiện sáu tuyến validation so với v8: LG U+ 35,229595%; dtac 38,349461%; au 38,631444%; KT 45,707953%; AIS 46,045369%; NTT Docomo 49,296264%. Bốn tuyến khác không cải thiện. Protocol SHA-256 `93a19b6187db18f472f84495609fec5e8b11b1dbd8ce6e9c55532690a0e9b89e`. Chưa nhận đã tích hợp production hoặc chấm test. Mẫu lịch tháng tránh giả định đã biết các ngày nghỉ bổ sung được công bố sau origin; holiday EDA library hiện vẫn là reference hồi cứu.
+
+**Tiếp tục CHG-018:** Tích hợp countmonth_365/all thành family riêng, giữ count model cũ và chronology/split/metric; config 1.7.0 có 57 ứng viên, config v8 giữ ở config.cohort-v8.json. 92 tests đạt trước run thật, gồm future mask/weekday-month indicators/selected dispatch và operation guards. V9 nhập 55 validation evidence v8, hai monthly candidate fresh rồi khóa selection trước test. Chưa nhận v9 hoàn tất hoặc đạt R05.
+
+### CHG-019 — Origin hợp lệ, demo isolate và allocation reuse
+
+R04/R08: Chặn origin không là ngày UTC đã chốt, thiếu coverage tuyến, thiếu actual hoặc actual_available=false; không dời last observed vào origin tương lai hoặc coi thiếu là 0. R09: Mỗi demo có synthetic_orders.csv riêng trong run, manifest ghi source_relative_path; failed resume không regenerate/overwrite source, không khôi phục source đã mất; không ghi đè run-dir có nội dung khi thiếu provenance. Nguồn doanh nghiệp không sửa. CI/verify đọc đúng nguồn thực được manifest chỉ rõ.
+
+R06/R09: AllocationPlan chia sẻ đúng cùng vectors causal theo origin qua 13 scenario; fingerprint matrix/forecast/config windows ngăn dùng plan cũ. Initial cover/L/safety có thể khác nhưng không thay allocation. Chặn duplicate/missing horizon và negative vector. Kết quả phải đối soát bằng fixture và replay base thật từ forecast v8, không lấy tăng tốc làm bằng chứng forecast đạt. V9 chạy thật theo selection validation mới và verify độc lập. Không sửa sealed v8; không làm Word/slide.
+
+### E25 — Run monthly v9 và operational guards đã kiểm trực tiếp
+
+sigma_monthly_v9 complete bảy stage. Catalog 57; nhập 55 evidence validation v8 có provenance, chỉ hai monthly chạy fresh. 25.760 cặp khớp prototype ở 1e-8. Selection khóa trước test bằng validation, không đổi target/top10/split/metric. Test đã xem: 0/10 đạt, mean route MAPE 46,496812%, range 38,662919–58,134251%; coverage 100%, 623 cặp h1–7/tuyến và 92 target days (không nhận 623 mẫu độc lập). R05 chưa đạt.
+
+55 sealed files; manifest SHA-256 `353f61d689d28ecb473714436754de21cd971e7bd16e4de3283162626030078d`; code SHA-256 `adb70645f08c4cd52f09d566b524c9f48abe5e4bc243a85a66ece4ee8b954bca`. Verification SHA-256 `bd422489fb3347ab949ee936af2dde77fb7b8cba640b551320aa0d4936218bbe` ngoài sealed run: tái tính nguồn audited→daily quantity/train top10/selection validation-only/actual test-forecast, metric/644 forecast/1.100.320 ledger/84 pins; 266.091 events gồm 163.098 sale/102.993 receipt qua 13 scenario khớp lịch sử/chronology/stock chain/tổng ngày. Raw hash nguyên. Khởi tạo từ snapshot trạng thái hiện có, không nhận đã tái dựng availability vận hành thật.
+
+Replay TP 2.005/FP 883/FN 862, precision 69,425208%, recall 69,933729%, early 32,263690%, late 1.080, day error 4,518204; 5.520 windows/1.099 existing empty excluded. Base fill 83,372996% là mô phỏng. R07 không bảo đảm mọi ca, không đặt thêm ngưỡng nghiệm thu.
+
+92 tests đạt. Demo demo_monthly_v9_verify trong .venv-verify tái lập 14 bảng demo v8 ở 1e-8, verify 7.176 ledger/49.015 events/84 pins và nguồn riêng sealed; demo manifest SHA-256 `f8a0540a7733cdf1c2818bf4ddb32aed2f04e328a963093e487b2f54e7191e98`. Real AppTest Thailand/AIS và demo AppTest Vietnam/Vinaphone: 0 exception/10 bảng, origin 31/10/2025, h8–14. QA SHA-256 `804e2cd6ab23472a050d00387546d92247d6f11d859ec1350b2ce438fc488eb8`. Hai môi trường cùng máy chưa thay diễn tập máy khác; chưa nghiệm thu toàn bài, Word/slide không sửa.
+
+CHG-019 AllocationPlan: real base replay theo forecast v8 tái lập hai bảng 84.640 rows/bảng, 21.586 events/12.546 sale/9.040 receipt được đối soát. Summary SHA-256 `e0bf101a3e4af68fe9fee20c6141b1f6d938dbb61d9111926c9e4b1e145f19cf`. Timing 25,248s chuẩn bị/13,589s replay chỉ một lần local, không là benchmark before/after. Origin thiếu actual/non-midnight/stale, duplicate horizon/negative forecast, source missing/changed và stale allocation bị chặn qua fixtures. Không sửa sealed v8 hay xóa lịch sử.
+
+### CHG-020 / E26 — Aggregate arrivals và route shares, chỉ validation
+
+Hai ứng viên đăng ký trước fit: hiercount_365_share90 và hiercount_all_share180. Aggregate Poisson weekday/month/trend trên số đơn tất cả tuyến; route shares = 0,5 historical month + 0,5 recent 90/180 days, month prior strength 100 orders cố định. Chỉ dữ liệu đến origin, quantity basket đến cutoff; không đổi quantity target hoặc ngầm dùng total actual tương lai. Weekly refit, H14, positive-day MAPE action giữ nguyên. Protocol SHA-256 `300b14bf3b561f649ec27188dbfdc7caedb62c3ed6301851ae119ba98165d6cc`; 25.760 pairs, 20 primary groups đủ coverage, future mutation tại train_end không đổi forecast 10 tuyến. Chỉ đọc validation để đánh giá, không dùng test chọn.
+
+Best validation cải thiện bảy tuyến so v9: au 37,162299%; dtac 37,628274%; SKT 44,218517%; KT 45,130124%; AIS 45,456764%; NTT Docomo 49,034660%; SoftBank 50,540080%. LG U+/TrueMove H/China Mobile không cải thiện; 0/10 đạt 20%. Tích hợp hai candidate thành family hiercount riêng trong src/hierarchical_models.py và config 1.8.0; giữ config v9 tại config.monthly-v9.json. 97 tests đạt trước run, gồm causal mutation/all-route share sum/missing actual/all-zero/selected dispatch. V10 nhập 57 evidence validation v9, chạy hai mới rồi khóa trước chấm test; chưa nhận run complete hoặc R05 đạt.
+
+### E27 — Run hierarchical v10 đã kiểm trực tiếp
+
+sigma_hierarchical_v10 complete bảy stage; catalog 59, nhập 57 evidence validation v9 với provenance, chạy hai hiercount fresh. 25.760 cặp khớp prototype 1e-8. Selection đổi bảy tuyến chỉ theo validation, khóa trước test. Test đã xem: 0/10 đạt, mean route MAPE 46.503945%, range 38.582119–58.134251%; coverage 100%, 623 cặp h1–7 và 92 target days/tuyến. KT và au kém hơn v9 trên test, một số tuyến tốt hơn; không chọn lại mô hình dựa trên test. R05 vẫn chưa đạt.
+
+57 sealed files; manifest SHA-256 `2e129eefb493b97b3a3aed4c9cc72f143d952bc278f9d8a24dfab734887683b0`; code SHA-256 `c59fd16eee52bded5bfbee7b4111b4f4cb3ff9811b4cc63191b35eacda7b02c1`; verification SHA-256 `f8114807390d1e113752dfd470f09a6b4f24065cd62175b5a8b6617ee1287c18` ngoài sealed run. Verify nguồn→daily quantity/train top/selection validation-only/actual test/forecast và thêm nhãn quantity/metric toàn bộ validation predictions kể cả cache. 644 forecast/59.248 backtest/1.100.320 ledger/84 pins; 266469 events gồm 163098 sale/103371 receipt qua 13 scenario, đối soát audited source/UTC/partial fulfill/stock chain/day. Raw hash nguyên, không công khai IDs/records.
+
+Replay TP 2030/FP 886/FN 837, precision 69.615912%, recall 70.805720%, early 33.135682%, late 1080, mean day error 4.489163; 5.520 windows/1.099 existing empty excluded. Base fill 83.755010% là mô phỏng, không bảo đảm mọi ca hoặc đặt ngưỡng nghiệm thu mới.
+
+100 tests đạt. Demo demo_hierarchical_v10_verify .venv-verify tái lập 14 bảng v9 ở 1e-8, verify 7.176 ledger/49.015 events/84 pins; source riêng trong sealed run. Demo manifest SHA-256 `069cf056dfea15bd5fc21617a6d18bf99607c6e04347c2f16fa38ce855d51add`; QA SHA-256 `b48abea7497088cc07d5c53f07d5a72c4adc700a1ab2b5139bf1eccf3b775e0d`. AppTest real Thailand/AIS, demo Vietnam/Vinaphone, origin 31/10/2025 và h8–14: 0 exception/10 bảng. Hai môi trường cùng máy chưa thay diễn tập máy khác. V9 đã push b5adbc0; Windows CI [push](https://github.com/khanhnguyenpham/Sigma/actions/runs/37245341018) và [PR](https://github.com/khanhnguyenpham/Sigma/actions/runs/37245343593) success. Không sửa sealed v9, Word/slide không sửa, chưa nghiệm thu toàn bài.
+
+### E28 — Độ nhạy tồn v10, kết luận có đảo chiều
+
+Phân tích mô tả sau replay, không dùng chọn model hoặc feature. Từ ledger sealed v10, tổng demand/fulfilled/shortage theo scenario/tuyến; mean route closing = tổng closing/92 ngày. Summary ngoài sealed run SHA-256 `0e6602c3217fd468e6937020a04652e5b1f99ee2b4c90a4dee0e6cb48673065c`, liên kết parent manifest v10 và hashes hai bảng tổng hợp local. Tồn/nhập vẫn giả định; không công khai bảng riêng tư.
+
+Toàn bộ tuyến gộp: cover 3/7/14 ngày có fill 83,498246/83,755010/84,487725%; L 1/3/7 ngày có fill 90,449649/83,755010/78,920341%; safety multiplier 0,5/1/1,5 có fill 81,788577/83,755010/85,971944%. Khi xét từng tuyến, kết luận chiều fill đảo ở 2/46 tuyến theo cover, 1/46 theo L, 1/46 theo safety. Không nói tăng buffer luôn cải thiện mọi tuyến; đây là kết quả chính sách reorder/ETA/MOQ đang mô phỏng, chưa suy nguyên nhân hoặc tối ưu tham số theo test. Mean stock không luôn tăng theo cover ở 5 tuyến, theo L ở 30 tuyến; theo safety không đảo ở 46 tuyến.
+
+Base fill 83,755010%; partial receipt 50% giảm còn 41,345190%, trễ 3 ngày còn 70,465932%, không nhận còn 7,690381%; surge tăng nhu cầu 3 ngày đạt fill 82,261977%. Drop 1 ngày và drop 7 ngày giữ lượng lịch sử trong events, chỉ scenario_demand đổi; không thay target sales hoặc gọi fulfilled là demand thật. Kịch bản không dự báo trước cú sốc chưa biết và không bao quát mọi trường hợp thực tế.
+
+### E29 — Đủ cặp validation và CI v10
+
+Verify bổ sung kiểm không trùng pair, origins đúng toàn validation, H đủ từng origin/model/tuyến và mỗi model/tuyến đủ số origins, rồi mới tái tính label/metric/selection. Fixture thiếu pair bị chặn dù được seal; missing forecast không có log failure/excluded bị chặn, SARIMA failed có NaN vẫn giữ làm evidence coverage thấp và không chọn. Tổng 101 tests đạt; real sigma_hierarchical_v10 và demo_hierarchical_v10_verify verify lại đạt. Không đổi target/selection/model/forecast/manifest/sealed files; core code hash vẫn khớp v10, raw hash nguyên.
+
+Verification trước E27 lưu nguyên ở outputs/sigma_hierarchical_v10_verification_v1.json, SHA-256 `f8114807390d1e113752dfd470f09a6b4f24065cd62175b5a8b6617ee1287c18`. Kết quả kiểm bổ sung ở outputs/sigma_hierarchical_v10_verification.json, SHA-256 `07ca0273f6e4e5e37e66d704ec89c3f5346e2a4937083e303e216605fe1abf67`; demo verification SHA-256 `3fd42dd3d8444ee8f4615ac041a7b862f73c8baa59f76d8b9ded203afd4fe06d`. Các tệp này local ngoài sealed run, không push. CI commit 173ae9e [push](https://github.com/khanhnguyenpham/Sigma/actions/runs/37246508041) và [PR](https://github.com/khanhnguyenpham/Sigma/actions/runs/37246512646) success với 100 tests lúc đó; kiểm bổ sung 101 tests được push riêng. R05 vẫn 0/10; chưa nghiệm thu toàn bài, chưa làm tiếp Word/slide.
+
+### CHG-021 / E30 — Rà lại chuẩn hóa và loss model theo yêu cầu người dùng
+
+Người dùng yêu cầu tiếp tục hoàn thiện và rà chuẩn hóa dữ liệu/mô hình vì R05 chưa đạt. Đối soát độc lập trực tiếp từ CSV (không gọi src.data.audit_orders/daily_sales): 100.000 rows, 93.104 sales, 118.296 quantity, 66.619 train rows; quantity/day UTC và order_count từng route-day khớp v10 tuyệt đối, top10 train khớp. Covariates validity/data_gb/giá/chi phí/revenue chuyển numeric, flags explicit; invalid=0 trên nguồn này. Không đổi route/item keys, không sửa raw, không làm mượt/xóa outlier target. Feature CSV chỉ train, không IDs, private local. Summary SHA-256 `566902068a408ab15d7b3c67647c61e58ff9c8274513b6ae6ec836a53d6777cc`; đây là bằng chứng kiểm tra trực tiếp, không tự nhận đã tái dựng availability doanh nghiệp.
+
+Pool diagnosis v10: LP nonnegative combination 59 complete/nonfailed candidates + constant, fit và score cùng validation (tham chiếu hồi cứu lạc quan, không candidate causal/không test). Vẫn 0/10 dưới 20%, min 34,388599%, max 48,134049%. Protocol SHA-256 `bd38f44f159726b5e9d50f90946cd17ee4babb9c916239a72089f7db8184f857`. Không chứng minh mọi mô hình đều không thể đạt, chỉ combining pool này chưa đủ trên validation này.
+
+Thử tám direct calendar weighted-L1 cấu hình đăng ký trước fit (365/all × alpha .001/.01 × raw feature/StandardScaler). Scaler chỉ fit dữ liệu đến cutoff mỗi lần, không scale target quantity hoặc fit trên tương lai. 51.520 pairs mỗi nhóm raw/scaled, đủ coverage, kiểm future mutation. Best raw cải thiện AIS 44,054370% và SKT 44,211401%; best scaled cải thiện AIS 43,372739% so 45,456764% v10, chín tuyến khác không tốt hơn. 0/10 đạt 20%; không xem test cho thử nghiệm này. Protocol raw SHA-256 `6291cc7c3ba37c013225f679c9a15f10f4f60f7607f467a6f8e19558c114ab5f`, scaled SHA-256 `8da10d8801655ad3a532285ee9b3f6cf59ca3b0bd4de0c1291ea0da124b3a80e`.
+
+Chỉ tích hợp hai cấu hình có lợi theo validation: monthlad_0_0p001/scaledmonthlad_0_0p001; sáu cấu hình không cải thiện giữ prototype, không tăng production catalog vì số lượng. Config 1.9.0, production catalog 61 (67 đã thử khi tính cả sáu prototype), giữ config v10 ở config.hierarchical-v10.json. src/monthly_lad.py dùng positive-label inverse weights, giữ zero trong evaluation, không đổi quantity/split/top10/metric. V11 nhập 59 evidence validation v10 có lineage, chạy hai mới/khóa trước test; không sửa sealed v10 và không làm Word/slide. Chưa nhận V11 đạt R05 trước run thực.
+
+### E31 — Run scaled/loss v11 và chuẩn hóa độc lập đã kiểm trực tiếp
+
+sigma_scaled_v11 complete bảy stage. Production catalog 61 (59 validation evidence nhập từ v10, hai monthly-L1 fresh). 25.760 cặp production khớp hai prototype 1e-8. AIS chọn scaledmonthlad_0_0p001, SKT chọn monthlad_0_0p001 chỉ bằng validation, khóa trước test. Test đã xem: 0/10 đạt, mean route MAPE 47.589594%, range 41.890877–58.134251%, 623 cặp h1–7/92 target days/tuyến, coverage 100%. AIS/SKT test kém hơn v10; không lấy test để rollback/chọn lại. R05 chưa đạt; không nhận chuẩn hóa chắc chắn tạo độ chính xác 20%.
+
+59 files sealed; manifest SHA-256 `bc32eea8351919d71ce92cda32381845a72ebfba3c8b1873f096feeeee3eb9c2`; core code SHA-256 `e05bc3df1a81bb023d2a5ba01d98efed174183a1a6728a50bec7269b3c5a760f`; verification SHA-256 `113e79831f6ec67c2e1204e6fa72bb33e260fcf109a0ced2ff72489a830622db`. Verify nguyên raw/daily/train-top/quantity labels và metrics tất cả validation, đủ origin–horizon, selection/actual test và forecast/644 forecast/59.248 backtest/1.100.320 ledger/84 pins. 266222 events = 163098 sale + 103124 receipt/13 scenario, source chronology/stock chain/day đối soát. Dữ liệu raw nguyên, run cũ không sửa.
+
+Replay TP 2029/FP 886/FN 838, precision 69.605489%, recall 70.770841%, early 33.100802%, late 1080, mean day error 4.518482; 5.520 windows/1.099 existing-empty excluded. Base fill 83.523297% mô phỏng, không là guarantee hay ngưỡng mentor.
+
+107 tests đạt. Demo demo_scaled_v11_verify .venv-verify tái lập 14 bảng v10 ở 1e-8, 7.176 ledger/49.015 events/84 pins verified. AppTest real Thailand/AIS, demo Vietnam/Vinaphone, 31/10/2025/h8–14: 0 exception/10 bảng. Demo manifest SHA-256 `8231726c40a3f3974c524ef2632df1bdd90bd83e5de8e63996fba86f01217568`; QA SHA-256 `9e63965f78b93fcdbceec63b8cf5bd61279ba51dfd918659f6831913c2868ca3`. Hai môi trường cùng máy chưa thay diễn tập máy khác.
+
+check_data.py production CLI đã chạy nguồn thật v11 và fake demo: normalized numeric feature CSV có validity/revenue flags, không IDs, chỉ train. Real check summary SHA-256 `bb388437aad8f709762d67659552d0ff1477527223f011927c912bbd828f3a6c`; fake summary `c32ac3db89a5f6bfeef5b29503ebe030262f811d63ff6496a23df368aa7c34f7`; v2 recheck v10 `90e5c0b50c1e654d2957268d79a83fc99f63763a60a2e2e27e38008d234566f5`. Độc lập không gọi audit_orders/daily_sales của pipeline, raw→daily count/quantity/top10 khớp tuyệt đối. Root helper không thuộc core model hash, tool hash ghi trong summary. Các output này private ngoài sealed run. Chưa nghiệm thu toàn bài; Word/slide không sửa.
+
+### E32 — Campaign có chọn trong train, chưa có cải thiện đủ để tích hợp
+
+Theo yêu cầu tiếp tục hoàn thiện của người dùng, giữ production v11 và thực hiện một đợt ablation có hệ thống trong validation_campaign.py. Không đổi requirement, không đọc/chấm test cho nghiên cứu; snapshot gốc được audit rồi filter trước daily/features/fit. Mười tuyến xếp hạng theo quantity đến 30/04/2025 cho inner phase, kiểm khớp top10 train cuối kỳ; không lấy thứ hạng cuối kỳ để thay lại nhóm inner. Protocol lưu trước fit, SHA-256 `73ec3e2c04e7f56e089d8875202efcbeb06103220cfe065aa5135661e594dbaf`; tool SHA-256 `f5125b192e05970317ae311d3cc778e6a38d3d73e5edca946ca38e955b05a635`.
+
+12 specs cố định: calendar/history/annual × raw/ratio × leaves7/31; window365, 200 estimators, learning_rate .03, min_child150, lambda10, seed42, threads4. Calendar/history gồm route/country/global past, order-count/basket past, lịch đã biết; annual thêm target-date một năm trước và cửa sổ ±7/±28 đã kết thúc trước origin, căn calendar-year/năm nhuận. Ratio dùng mean90 đến origin (floor1), inverse normalized-label weights tương ứng relative quantity error, forecast trả lại quantity gốc. Zero labels giữ trong đánh giá; target không làm mượt/lọc outlier. LightGBM L1 dùng loss phù hợp MAPE dương, không coi scale là bảo đảm chất lượng.
+
+Inner phase 01/05–30/06/2025 nằm trong train: 102.480 pairs, 120 primary model/route groups full coverage; cả ứng viên tốt nhất mỗi tuyến cũng 0/10 đạt20. Lựa chọn theo MAPE/MAE/lexical khóa trước outer phase; inner-selected SHA-256 `2819a28c637649db0344c642198b3b67eb01aed49594a14b6e61928b2a1b96a7`. Official validation 01/07–30/09: 154.560 pairs, 120 primary groups full coverage, mỗi model/route 623 eligible h1–7 pairs/92 target days. Locked selection mean MAPE 44.968965%, range 36.287133–52.093932%, 0/10 đạt20. Kể cả chọn ứng viên tốt nhất hồi cứu trên outer validation vẫn 0/10 đạt20, không sử dụng cách chọn này cho production. Campaign summary SHA-256 `bf21b46f0a343764b5ab73288415dc5cbd4f7a10ca05674be2b63ff9822fd437`.
+
+Đối soát independent CSV→quantity/day UTC/train-top, đủ origin–horizon mọi model/tuyến, labels, metric và inner lock đạt. So sánh cùng cặp với v11 validation-selected: v11 mean41.978903%, campaign tăng2.990062 điểm phần trăm; một tuyến point estimate tốt hơn, không tuyến nào có toàn CI95% delta dưới0. Bootstrap paired circular full-calendar target-day blocks7, 2.000 draws, seed42; không nhận 623 pairs là 623 ngày độc lập. Baseline v11 được chọn trên chính validation nên so sánh không độc lập; CI là mô tả sau nhiều đợt thử, không bảo đảm tương lai hay chứng minh mọi mô hình không thể đạt20. Quantity1–3 chiếm11.048478% cặp dương và26.906837% tổng relative-error v11 validation; đây là phân rã lỗi, không xác định nguyên nhân hoặc cho phép loại ngày nhỏ.
+
+Kết quả phân tích cuối `outputs/sigma_ablation_analysis_v3/`, summary SHA-256 `e30284a0987c4a7c57603fede53750791878221e5c0439f452b322d105a32088`. V1 protocol có lỗi tên cột raw, v2 sửa trước phân tích, v3 căn full calendar để giữ ngày zero; giữ các protocol cũ local, không thay block/draws/seed theo kết quả. Không chạy phân tích v1/v2 để lựa mô hình, không sửa sealed outputs production. Campaign/analysis đều private local.
+
+111 tests pass (107 có trước + bốn kiểm feature/fit future mutation, calendar-year leap alignment, ratio phục hồi units, inner-selector từ chối validation/test). Source hash và core code hash vẫn khớp E31; toàn bộ 59 sealed files v11 nguyên. Không tích hợp 12 ứng viên vì chưa giúp đạt yêu cầu; catalog production vẫn61, không chạy test lại. TASK/PLAN đồng bộ T09/T12, README/PROJECTMAP/development ghi workflow và giới hạn. R05/R07/T14 vẫn mở; không sửa Word/slide. Bước tiếp là dùng ablation và phân rã lỗi để xác định giả thuyết có tín hiệu ngoài mẫu, không nhận tăng số mô hình/tests là gần nghiệm thu.
+
+### CHG-022 / E33 — Báo cáo tiến độ chi tiết và slide M2 gửi mentor
+
+Ngày 05/10/2026, người dùng yêu cầu gấp Word báo cáo tiến độ chi tiết và slide M2 để nộp mentor trước. Yêu cầu mới kết thúc việc hoãn soạn theo CHG-012 trong phạm vi báo cáo tiến độ, không tự thay đổi nghiệm thu R05/R07/T14. Không bịa tên trường/mentor, đóng góp cá nhân hoặc dữ liệu tồn doanh nghiệp. Phân công sáu thành viên và lịch đến 17/10 là đề xuất, chưa xác nhận thực hiện.
+
+Đầu ra private local `reports/M2_2026-10-05/`:
+- `SIGMA_Bao_cao_tien_do_M2_Nop_mentor_2026-10-05_v3.docx`: 18 trang, 19 bảng chỉnh sửa được, một hình EDA từ sealed v11; SHA256 `666284c3b1c0e0ece60786d365518035280047bab0eb700bc7ec9e9a3aa6014c`.
+- `SIGMA_Slide_bao_cao_M2_Nop_mentor_2026-10-05_v2.pptx`: 24 slide, 24 phần ghi chú thuyết trình tiếng Việt, 19 bảng native và hai biểu đồ kèm workbook sửa được; SHA256 `b69c4ca74548c4df3e5bbfe0bc5454d59608d69891c2959f632d822efb6c777b`.
+
+Đọc trực tiếp hash các bảng/hình dùng từ v11, raw và các summary/verification/QA/campaign E32 trước soạn. Báo cáo giữ 0/10 R05, MAPE test 41,89–58,13%, coverage 100%, replay sớm 33,10%; tách phương pháp, số liệu validation/test/horizon, 13 scenario và giả định A08–A17. Mã production, CSV gốc và sealed run không sửa; lượt báo cáo không chạy lại mô hình hoặc tests sản phẩm. 111 tests và CI là bằng chứng phiên E32/commit fe69ac1, không nhận chạy lại trong lượt này.
+
+QA thực chạy: canonical render_docx không có LibreOffice nên dùng Microsoft Word hidden export PDF local, Poppler rasterize; đã xem riêng cả 18 trang cuối. PPTX dùng artifact-tool/finalizer: package/layout/font/native table/chart/workbook kiểm đạt, import lại chính file cuối và xem riêng 24 slide. Không nhận đã chạy native PowerPoint. Kiểm XML đếm trang/bảng/ghi chú/chart/workbooks, các số chính và đối chiếu tokens với order/customer IDs nguồn: 0 trùng. Dấu trang/hình giữ nguyên trong bản cuối v3; bản DOCX v2 có lỗi mất ngắt trang trong bước làm sạch chữ, không bàn giao. Logs, PDF/PNGs QA và receipts nằm `.tools/m2_20261005/`, ignored; chỉ hai file cuối giao người dùng, không tự upload/push.
+
+T13/TASK/PLAN/PROJECTMAP đã đồng bộ. Báo cáo tiến độ đã có; nghiệm thu toàn bài còn mở. Bước tiếp: người dùng/nhóm rà báo cáo, diễn tập demo và tiếp tục phân tích R05/R07 theo protocol; không đổi target/split/top10/metric để đạt bằng hình thức.
+
+### E34 — Hiệu chỉnh/kết hợp có chọn trong train, chưa đạt R05
+
+Người dùng yêu cầu tiếp tục hoàn thiện sản phẩm đáp ứng kickoff sau khi nhận báo cáo tiến độ. Tiêu chí R01–R09 giữ nguyên; chưa có quyền sửa ngưỡng/target/split để nhận đạt. Workspace vẫn thiếu ảnh/PDF kickoff gốc, đã đề nghị đối chiếu nguyên văn tiêu chí, không nhận đã đọc nguồn thiếu. R05/R07/T14 chưa đóng; yêu cầu hoàn thiện không tạo bằng chứng để hứa trước độ chính xác.
+
+Đã triển khai `calibrate_campaign.py`: phối hợp convex, affine positive-day weighted-LAD và affine regularized; dùng dự báo causal E32 đã kiểm/hash giữ nguyên. Head học tháng 5, chỉ chấm chọn tháng 6 với origin ≥31/05/2025 để không dùng head fit sau origin; tất cả chọn nằm trong train. Khóa theo tuyến trước chấm validation tháng 7–9. Refit head 7 ngày, nhãn tối đa ≤cutoff, không dùng test chọn/tuning. Không đổi catalog/config/production hoặc báo cáo E33.
+
+Run local `sigma_calibration_campaign_v2` complete, validation 0/10 đạt20%, mean45,106266%, range38,636338–52,101122%; v11 validation mean41,978903%. SKT giảm1,017510 điểm nhưng vẫn43,193891%; chín tuyến khác kém hơn nên chưa có căn cứ để đưa cả phương pháp vào production. Không chấm test mới. Run v1 giữ lịch sử; v2 bổ sung guard phase/horizon/nhãn âm, kết quả giống v1. Summary v2 SHA256 `0eb9d4d87066bbfe6040c05748fa5af452e439b3bdf317cbc40b2327025fde45`, selection SHA256 `6e58875ab3aa6d9e9ff915a3348f4efe77183074f1e0b3437525c0f2b5ad6517`.
+
+`verify_calibration.py` đã chạy độc lập: đọc raw→success quantity UTC/train-top, đủ 11.970 cặp validation (623h1–7 và574h8–14 mỗi tuyến), actual/metric khớp, nhãn head≤cutoff và mọi forecast tái tạo từ weights/base forecasts trong1e−8. Raw và toàn bộ59 sealed files v11 nguyên. Summary đối soát tại `outputs/sigma_calibration_verification_v1/summary.json`, output/IDs giữ private local. Bốn tests mới kiểm future-mutation, nghiệm convex tính tay độc lập, missing coverage bị chặn và nhãn âm không bị bỏ để chấm dễ; full suite115tests đạt. Chưa nhận CI mới trước khi có kết quả remote.
+
+Chẩn đoán train547ngày: meanquantity4,47–9,57/ngày vàstd3,11–5,05; tương quan lag1 sau loại trung bình tháng/weekday −0,0094–0,1037. Calendar fit lạc quan in-sample weighted-median vẫn33,36–42,72% MAPE. Đây là dấu hiệu phần biến động còn lớn và nhóm lịch hiện tại chưa đủ; không phải cận dưới tối ưu cho mọi mô hình, không chứng minh mục tiêu20% bất khả thi. Không dùng diagnostic này làm forecast, bỏ ngày thấp hoặc thay mẫu số.
+
+TASK/PLAN/T09/T12, PROJECTMAP/README/requirements đã đồng bộ. Bước tiếp: đối chiếu kickoff gốc khi có nguồn; kiểm giả thuyết feature/tín hiệu quá khứ dựa trên phân rã sai số, giữ lựa chọn trước chấm và không claim toàn bài đạt. Cần hướng có tín hiệu mới ngoài mẫu, không chạy thêm thuật toán chỉ để tăng số lượng.
+
+Mã/tests/tài liệu E34 cùng cập nhật báo cáo E33 đã push commit `2f15f94` lên `codex/sigma-local-pipeline`; actual CSV/run/Word/slide không trong commit. GitHub Actions kiểm đúng head SHA: [push](https://github.com/khanhnguyenpham/Sigma/actions/runs/37295773007) và [PR](https://github.com/khanhnguyenpham/Sigma/actions/runs/37295779249) đều success. Draft PR1 đã cập nhật mô tả, giữ draft; chưa merge hoặc nghiệm thu. Ghi nhận này chỉ cập nhật bằng chứng remote, không đổi code hoặc kết quả nghiên cứu.
+
+### E35 — Đã đọc ảnh kickoff người dùng gửi lại
+
+Ngày 05/10/2026 người dùng gửi JPG `f43397dd-bd00-4bd4-b239-f1daa267ced2.jpg` và yêu cầu “nhìn và làm đi”. Đã xem trực tiếp ảnh: dự báo kích hoạt theo ngày/tuyến, M1 chuẩn hóa/mùa vụ/baseline, M2 mô hình/MAPE≤20%/top10/so sánh, M3 safety stock/ROP/cảnh báo trước≥7ngày/dashboard; dòng kỹ năng có job định kỳ. [Đối chiếu và nguyên văn](kickoff-checklist.md). Không tự diễn giải dấu `/` thành bắt buộc cả SARIMA/Prophet/LightGBM; ảnh không ghi năm hoặc protocol metric.
+
+Bản sao byte giữ ignored local `reports/requirements/kickoff_received_2026-10-05.jpg`, SHA256 `ee6b9837b60d5321683b1e452204f22b188a5a43f11f8072a4fca9fb82f1b7b2`; không phục hồi ảnh cũ đã xóa/không push ảnh. S01 cập nhật nguồn đã đọc trực tiếp, các ghi nhận thiếu ảnh trước E35 giữ lịch sử. PDF và ảnh mentor M01/M02 vẫn thiếu; M01 số bán/M02 ngưỡng riêng đối tác vẫn là thuật lại, không nâng thành đã xem. Giữ target sales theo M01 và các ràng buộc nguồn hiện hành.
+
+### CHG-023 / E36 — Làm mô hình dự báo tổng quantity trong 7 ngày
+
+Người dùng yêu cầu: “thay vì mô hình dự đoán từng ngày thì dùng mô hình dự đoán tổng lượt bán trong 7 ngày được không, làm đi”. Cho phép triển khai phương án tuần; chưa có bằng chứng mentor chấp thuận thay nghiệm thu theo ngày của S01/R05. Đơn vị giữ quantity/A08, không đổi sang order_count/doanh thu hoặc activation. Giữ split/top10 train/seed, threshold20%; không dùng weekly metric để nhận đạt daily R05.
+
+Đã có `weekly_forecast.py`, `config.weekly.json`, `verify_weekly.py`, `weekly_app.py`, `start_weekly_dashboard.ps1`, mười tests mới và [hướng dẫn](weekly-forecast.md). Đăng ký chín mô hình trước fit: last7, MA28/90, weighted median weekly90/365, bốn LightGBM trực tiếp L1/raw/ratio và Poisson; pooled nhận diện tuyến, lựa chọn riêng từng tuyến. Target là tổng ngày1–7/ngày8–14; lịch/feature chỉ tới origin, weekly label có end≤cutoff, refit7ngày. Ratio được khôi phục quantity. Lựa chọn validation h1–7 weekly positive-MAPE/full coverage rồi MAE/tên, lưu/hash trước tổng hợp/chấm test. Future-mutation/thiếu ngày/nhãn âm/zero-week/conservation/hash/path traversal đều được kiểm bằng fixture giả.
+
+Run `outputs/sigma_weekly_v1/` complete, 46 tuyến/92 tổng tương lai/644 phần ngày theo weekday90 quá khứ. Actual tương lai trống, không gọi phân bổ là mô hình ngày độc lập. Validation khóa8/10≤20%, range12,93–20,41%; test hồi cứu9/10≤20%, mean17,192945%, range13,415419–22,141090%, AIS22,141090% còn chưa đạt. Test này đã được xem trong nghiên cứu ngày, không nhận kiểm định độc lập. Chạy mỗi7ngày cũng9/10, AIS24,589706%; không chọn lịch thuận lợi. Khối8–14 riêng. Các cửa sổ đầy đủ coverage100%, h1–7 có86 cặp/tuyến hoặc13 tuần không chồng lấn. Không chấm tuần thiếu nhãn cuối split như tuần đủ hoặc đổi mẫu số để cải thiện.
+
+`verify_weekly.py` bản kiểm bổ sung chạy `sigma_weekly_verification_v2`: 75.900 cặp raw→UTC quantity→tổng tuần khớp; đủ mọi route/model/block/origin, nhãn fit≤cutoff, lựa chọn đúng validation, manual MAPE/MAE/WAPE/bias khớp trong1e−8, tương lai thiếu actual và tổng phân bổ tuần khớp. Raw hash và59 sealed files v11 nguyên; mã core ngày/config1.9.0/Word/slide không sửa. Verification_v1 giữ lịch sử trước guard toàn nhóm; v2 thêm kiểm đủ route/model/block và hash hai bảng phân tích.
+
+So cùng cửa sổ test, mean weekly MAPE top10: trực tiếp17,192945%; cộng ngày v11 29,898718%; naive40,366682%; MA7 19,177956%; MA28 18,089670%. Phân bổ về ngày có diagnostic mean positive-day MAPE51,108744% trên các cửa sổ đủ tuần, không phải lưới nghiệm thu R05 đầy đủ; không nhận tuần tốt nghĩa là ngày tốt. Chính sách tồn ngày/replay/cảnh báo v11 chưa đổi; cần tích hợp/kiểm riêng forecast phân bổ trước thay đường chạy T10.
+
+Run summary SHA256 `099adf7c5fed3ec66c1dc59865524c4a0d71e0886a2183c83af0ef013f8d1ee3`; selection SHA256 `f8d78e776a8926a95b13b7c9a7a7574079d83f2158de2d775df23d9574eb08ff`. Verification v2 khóa comparison `9b849d8b14ffec8413ac537f193d18b8e0cbd9c4a329323f5e3a3b41d959f2fc`, daily diagnostic `08e3b675ea16d45d297c009d8f04cbff7bdc2570e819a3b7888966bf7085d688`. Các CSV/run giữ local.
+
+`pytest -q` toàn suite125tests đạt; AppTest thật4tab/6bảng/0exception, kiểm Thailand/AIS/lịch7ngày/khối8–14; launcher PowerShell parse đạt. T09/T11/T12 và TASK/PLAN/PROJECTMAP/requirements/data-contract/development/README đã đồng bộ. R05 ngày, AIS tuần, R07/T10 và T14 vẫn mở. Git chỉ mã/config/tests/tài liệu. Bước tiếp: dùng validation và giả thuyết khóa trước chấm để cải thiện, kiểm tích hợp chính sách tồn từ tổng tuần, giữ lịch vận hành còn cần làm; không lấy test AIS để chọn lại hoặc làm lại báo cáo chưa được yêu cầu.
+
+Commit mã `a8421234bcde61df4a4b2303993d54924bf16e9e` đã push lên `codex/sigma-local-pipeline`. GitHub Actions kiểm đúng SHA: [push](https://github.com/khanhnguyenpham/Sigma/actions/runs/37299653238) và [PR](https://github.com/khanhnguyenpham/Sigma/actions/runs/37299659054) đều completed/success trên Windows sạch. Draft PR1 đã cập nhật mô tả đúng daily/weekly/giới hạn, chưa merge. Dashboard tuần server local cổng8502 trả HTTP200/health ok, đã yêu cầu mở panel browser. Chỉ cập nhật tài liệu ghi CI sau commit mã; không đổi forecast/test/selection/run.
+
+
+### CHG-024/025 — Giao khách, nguồn giả định và thứ tự hoàn thiện
+
+| ID | Ngày | Nguồn | Quyết định và tác động |
+|---|---|---|---|
+| CHG-024 | 05/10/2026 | Mentor 7 ngày do người dùng thuật lại, người dùng xác nhận **khách đặt→khách nhận** và mô tả order là giả định | M03/U07: D+7 ngày lịch UTC, customer delay 0, không đổi supplier lead time. Code/run/verification lịch giao, menu sản phẩm, job local; giữ nguồn và lịch sử U04/DEC17. Không đổi target hoặc nhận MAPE đạt từ backlog biết trước. |
+| CHG-025 | 05/10/2026 | Sau khi đủ yêu cầu/điều kiện, người dùng yêu cầu so sánh dự báo ngày/tổng 7 ngày và tổ chức lại code | U08: giữ T09/T10/T14 đang mở; bản so sánh chính thức và đợt dọn cấu trúc chưa thực hiện. Bảng đối soát metric nghiên cứu không đóng hai việc này; chưa làm tiếp Word/slide. |
+
+### E37 — Customer D+7, menu sản phẩm và job local, 05/10/2026
+
+**Nguồn M03/U07:** người dùng thuật lại mentor, làm rõ customer order→delivery; không có ảnh M03 được đọc. Order hiện được mô tả giả định, chưa độc lập xác minh bộ sinh. Thông tin U04/DEC17 “order thực” là lịch sử; bảo mật/bảo toàn/split/target vẫn giữ. `delivery.py`, config.delivery, independent verify, tests, menu/launcher/job/installer đã có. D+7 UTC gồm weekend; không thay supplierL3 hoặc các stress nhập.
+
+`sigma_delivery_v3` từ V5/v11: 100.000 dòng audit, 80.105 nhóm cam kết, 118.296 quantity, 1.885 quantity đã đặt giao 7 ngày tới; 966 projection rows/46 tuyến×21 ngày,phần đơn mới dự báo 14 ngày 2948,02524067 quantity. Source raw SHA `6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b`, summary SHA `e4efa00d63ce135ead1ec2d35a2308aa9dd083165aca319acf0515a4fc5cf741`. Independent `sigma_delivery_verification_v3`: known only orders≤origin; raw aggregation đúng 7 calendar, forecastshift+quantity bảo toàn, actual giao NaN, không export IDs,59 hashes sealed v11 và raw nguyên. V1/V2 và verifier lịch sử giữ local; không sửa sealed run.
+
+CLI refresh tạo `sigma_delivery_job_20261005T123438490909`, lần tiếp `skipped_unchanged`; run job independent verify đạt, summary SHA `29342f177417369f0e74bba0a1b6c99d0d1b14bbd625efd4877da96d297d0c52`. Fixtures kiểm lock chạy chồng, lỗi giữ state tốt bytewise, input change bị chặn và lỗi chỉ log category. Script Windows Task Scheduler parse đạt, **chưa đăng ký lịch nền**, không gọi daily 07:00 active. Server menu chung 8503 health HTTP 200/ok, đã yêu cầu mở panel browser; AppTest 5 trang/filter Thailand-AIS không exception, QA `outputs/sigma_product_qa_v2.json`. Giao lịch không chứng minh actual giao/tồn đủ/MAPE ngày đạt.
+
+CHG-025 giữ thứ tự: đủ điều kiện rồi bản so sánh chính thức ngày/tổng tuần và đợt tổ chức lại code. Chưa đóng hai việc từ các bảng verifier. README/TASK/PLAN/PROJECTMAP/requirements/data-contract/development đồng bộ; Word/slide giữ bản cũ, không tự tạo/upload.
+
+### E38 — Tín hiệu cùng kỳ, macro và head causal cho tổng tuần, 05/10/2026
+
+Các config riêng đăng ký trước fit: V2 annual 12 ứng viên, V3 fixed blend 15, V4 macro 18, V5 calibration 30. Mỗi run chọn validation từng tuyến, full coverage, lock SHA trước test. Mean top 10 test lần lượt 16,090186%;16,180811%;15,997608%;15,966928%. Không chọn phiên bản theo test: V5 validation mean 15,406536% tốt hơn V4 15,440931%; validation V5 9/10, China Mobile 20,411711%; test 9/10, LG U+ 21,356535%,12,672661–21,356535%,coverage 1. Lịch 7 ngày không chồng lấn 9/10, LG U+ 21,027461%. Không đổi LG về model cũ đạt trên test.
+
+V5 summary SHA `a1efacce7ffa492bec53e4fe012676373491848918b8f0a1ebf9258d52893f3e`; selection SHA `63bf14769c237bd1c8431c3d2b71babf65159c538f56ceab534b353af1a5dec8`. Independent verifier `sigma_weekly_calibrated_verification_v1` kiểm 235.290 prediction pairs, raw quantity/top 10/nhãn/coverage/metric/selection/cutoff/future actual NaN/conservation; raw và 59 sealed v11 nguyên. Head verifier `sigma_weekly_calibration_head_verification_v1` refit teacher≤pastorigin, label ends≤headcutoff, reconstruct weighted median/prior/clamp độc lập 27.876 factors, base×factor đúng, 136.620 validation pairs cũ V4 không đổi 1e−8. V2/V3/V4 generic verifiers cũng đã chạy 98.670/121.440/144.210 pairs. Một bản headverifier bị ngắt để sửa reset index khi thêm prior sau lọc zero; bản cuối đã chạy đầy đủ, không thay factor/mô hình/run V5. Test đã xem vẫn đánh giá hồi cứu, không holdout độc lập. R05 ngày v11 0/10 giữ nguyên.
+
+### E39 — Phân bổ tuần vào khuyến nghị tồn và replay cùng mẫu số, 05/10/2026
+
+`weekly_inventory.py` tạo 920 khuyến nghị snapshot 31/12/2025 từ V5/v11: giữ partner thresholds, strict on_hand<ROP,SS/ROP/S/IP/Q/ETA; pending chỉ đơn đã đặt chưa về ở origin. Snapshot tồn v11 đã trừ lúc đặt/reservation, customer D+7 không trừ lần 2. Không áp dụng Q, không gửi đơn; **chưa chạy lại toàn bộ continuous policy bằng tuần**. V1 partial lỗi tênconfig target được giữ local; V2 đã complete, V3 đọc prior only-column tránh DtypeWarning và complete. `sigma_weekly_inventory_v3` summary SHA `5ec46f0fa4101a530f863133950ee30603e8fd0b7a73c5def010d37c1d135c58`.
+
+Replay cùng 5.520 item windows và 2.867 actual events, actual date/path khớp v11: TP 2071/FP 836/FN 796,precision 71,241830%,recall 72,235787%,early 33,728636%; không bỏ early<7 ngày, không tăng tồn vô hạn hoặc đổi mẫu số. Independent `sigma_weekly_inventory_verification_v1`: raw SKU shares/stock/pending integer/threshold/Q/depletion 920 items và raw actual paths 5.520 windows khớp,59 sealed v11 và raw nguyên. Bốn tests mới kiểm conservation H14,strict formula/pending ETA, future mutation, missing block/stale forecast; toàn suite **150 tests pass**. Menu weekly inventory AppTest 2 bảng; R05/R07/T14 vẫn mở; chỉ push mã/config/tests/tài liệu, outputs/job state/reports không push.
+
+**Bàn giao mã E37–E39:** commit `eb1962a3f8de0576600278f4136040ed55784eb9` đã push lên `codex/sigma-local-pipeline`. Xác minh chính xác head SHA: [CI push](https://github.com/khanhnguyenpham/Sigma/actions/runs/37312001266) và [CI PR](https://github.com/khanhnguyenpham/Sigma/actions/runs/37312007859) đều completed/success trên Windows sạch. Draft [PR1](https://github.com/khanhnguyenpham/Sigma/pull/1) đã cập nhật mô tả sản phẩm và giới hạn, chưa merge. Publish scan 37 tệp không có định danh nguồn hoặc credential; kiểm 15 liên kết/anchor mới, fence 12 Markdown và trạng thái TASK/PLAN đạt. Server sản phẩm cổng 8503 vẫn health ok; raw và 59 sealed v11 kiểm lại nguyên, entrypoint tuần khớp protocol đã đăng ký. Commit ghi bằng chứng CI sau đây chỉ sửa tài liệu, không sửa mã hoặc run. Bước tiếp T09/T10: cải thiện ngoài mẫu bằng validation, hoàn tất kiểm policy liên tục từ tuần; giữ R05/R07/T14 mở. Bản so sánh chính thức và tổ chức lại code theo CHG-025 còn chờ đủ điều kiện nghiệm thu.
+
+
+### CHG-026 — Tiếp tục hoàn thiện theo yêu cầu người dùng, 05/10/2026
+
+Người dùng yêu cầu tiếp tục tới khi đạt. Giữ R01–R09, A08–A17 và CHG-024/025: không thay dữ liệu, top10, split, target hoặc tiêu chí để đạt; không suy customer D+7 thành supplier L=7. T09 tiếp tục thử mô hình chọn validation; T10 hoàn thiện chính sách tồn liên tục theo tuần, T11 bổ sung màn hình 13 kịch bản. R05 ngày/R07/T14 còn mở; bản so sánh chính thức và đợt tổ chức lại code vẫn theo thứ tự CHG-025. Không làm tiếp Word/slide.
+
+### E40 — Mô hình tuần tuyến tính V6 và phối hợp V7, 05/10/2026
+
+V6 đăng ký 34 ứng viên: V5 cộng bốn hồi quy median theo từng tuyến, lịch sin/cos năm 1/2 harmonic, lag đã biết, chuẩn hóa chỉ từ train và L1 alpha 0,001/0,01/0,1. Weight inverse target dương; zero vẫn giữ trong metric. `sigma_weekly_linear_v6`: validation 10/10, mean 15,033558%; test hồi cứu vẫn 9/10, mean 16,109422%, LG U+ 21,356535%. Lựa chọn khóa bằng validation; không đổi LG U+ vì xem test. Summary SHA `673a798f90d5e55f979dff7c8358491ea10ef82d182449c9112b2196a520d800`, selection SHA `b21182537fdc5166d0f8838c25f80e8db5ee8254d36ddd797df0f0229c699266`. `sigma_weekly_linear_verification_v1` kiểm 265.650 cặp; raw và 59 tệp sealed v11 nguyên.
+
+V7 đăng ký 38 ứng viên: thêm bốn phối hợp annual LightGBM/linear, head 56/84 ngày và prior 0/4 tuần. Teacher tại mỗi origin quá khứ chỉ fit nhãn đã có; trọng số phối hợp tối ưu relative absolute loss của các tuần không chồng lấn đã kết thúc tại head cutoff, prior trọng số 0,5. Không học bằng test hoặc actual trong tương lai. V7 đang chạy tại thời điểm ghi đăng ký này; chưa nhận đạt. Tests inverse-relative-loss/convex bounds, future mutation, fit cutoff và dispatch đã pass.
+
+### E41 — Chính sách liên tục theo tuần đã chạy/đối soát, 05/10/2026
+
+`weekly_policy.py` chạy `sigma_weekly_policy_v1` từ V5/v11, giữ nguyên tham số tồn/nhập và 13 kịch bản. Mỗi quyết định có đủ H14 ở 93 origins 30/09–31/12/2025: 59.892 dòng forecast, 1.100.320 dòng ledger và cùng số recommendations, 267.827 events gồm 163.098 sales và 104.729 receipts. Cửa sổ cuối chưa đủ actual vẫn dự báo causal từ model đã khóa, refit neo theo split; actual ngoài nguồn để thiếu. Nhập 00:00 UTC trước bán theo order_datetime/order_id; trừ tồn đúng một lần khi đặt, không trừ lại tại D+7. Summary SHA `79951fb7767b93ae32ee31e8a09b5d005704a22fd37e01e85d22d866c48f0cc3`.
+
+Base fill 85,038828%, nhận 50% fill 42,272044%, trễ nhập 3 ngày 72,463677%, không nhập 7,690381%. Độ nhạy L1 fill 90,837926%, L7 80,241733%, cover14 85,658818%, safety×1,5 87,049098%; đây là mô phỏng, không tối ưu tham số để che thiếu hàng. Replay giữ 5.520 cửa sổ/2.867 actual events/1.099 đã cạn loại trước: early 33,728636%, precision 71,241830%, recall 72,235787%; không bỏ ca cạn dưới 7 ngày.
+
+`sigma_weekly_policy_verification_v1` đã đối soát độc lập mọi dòng số nguyên ledger/Q/IP, ma trận đơn đang về và lượng nhận thiếu/trễ, raw SKU shares/SS/ROP/S, bảo toàn tổng tuần và các forecast đã khóa, thứ tự events và mẫu số replay. 59 tệp v11/raw nguyên. Toàn suite 160 ca pass. AppTest năm trang không exception; tồn tuần có 4 bảng, lọc Thailand/AIS đã kiểm. V1 policy là bản lịch sử code tại lúc chạy; hỗ trợ head mixture bổ sung sau V1 cần run mới. Phần E39 “chưa chạy policy liên tục” đã được thay bằng bằng chứng E41, không sửa run E39.
+
+### Đăng ký mở rộng E42 — mô hình riêng từng tuyến, chưa chạy
+
+Giả thuyết chung: cây pooled có thể chia sẻ sai quan hệ giữa các tuyến; thêm ba boosted median riêng từng tuyến (raw7/ratio7/ratio15) và một median tuyến tính có lịch sử cùng kỳ được impute từ train. Mỗi tuyến dùng lịch sử/scale có sẵn tại origin, weight inverse target dương, route-specific weight normalization, training window và refit giữ nguyên. Annual missing được impute bằng median train và có indicator; không điền bằng dữ liệu tương lai. Bốn ứng viên đăng ký trước fit, chọn vẫn MAPE validation h1–7 rồi MAE/tên với full coverage. Không xem riêng LG U+ trên test để chọn hoặc sửa selection. Chạy sau V7 hoàn tất; kết quả và runtime phải kiểm trước đưa vào sản phẩm.
+
+
+E42 bổ sung trước fit: V8 dùng 42 ứng viên, tái sử dụng nguyên 288.420 cặp validation của 38 ứng viên V7 sau kiểm hash/nguồn/base protocol/spec và tham số. Chỉ fit bốn ứng viên mới trên validation; selection tính lại trên đủ 42, lưu/hash rồi chạy test mới cho các model được chọn. Không tái sử dụng test để chọn; CLI không có tùy chọn bỏ tuyến khó. Protocol mới ghi SHA summary/prediction của cha và module cache; run cha không bị sửa. Không nhận đã fit lại 38 ứng viên cache trong V8; bỏ tùy chọn cache sẽ fit lại đầy đủ theo cùng cấu hình.
+
+
+### Đăng ký E43 — phối hợp sau hiệu chỉnh quá khứ, chưa chạy
+
+Giả thuyết: phối hợp dự báo annual đã hiệu chỉnh causal với median lịch trơn hoặc cây macro để giảm phương sai do bất đồng mô hình. Đăng ký sáu ứng viên chung cho đủ 46 tuyến: trọng số annual cố định 25/50/75%, annual parent ratio7/head56/prior4 không đổi; component thứ hai linear h2 alpha0,01 hoặc macro ratio15. Không tìm trọng số theo test hoặc cấu hình riêng LG U+. V9 có 48 ứng viên, tái sử dụng nguyên validation V8 sau xác thực cache, chỉ fit sáu ứng viên mới; selection vẫn cùng MAPE/MAE/tên, test chạy sau khóa. Cần kiểm lượng trước/sau head, fit_cutoff, metric, chính sách tail và UI; chưa nhận đạt.
+
+
+### Đăng ký E44 — phối hợp annual/macro thích ứng, chưa chạy
+
+Tiếp tục kiểm drift bằng head đã kiểm E40: bốn ứng viên annual ratio7 + macro ratio15, lịch sử teacher 56/84 ngày và prior trọng số0,5 với 0/4 tuần. Teacher labels≤teacher origin, head chỉ học các tuần đã kết thúc tại cutoff, trọng số convex giữ quantity. V10 có 52 ứng viên, giữ 48 validation cũ sau xác thực cache; lựa chọn vẫn cùng tiêu chí, khóa rồi test. Không chọn trọng số theo test hoặc đổi bộ lọc. Không sửa code mô hình giữa V9 đang chạy; cấu hình mới đăng ký riêng trước fit.
+
+
+E40/V7 bổ sung sau thực chạy: `sigma_weekly_mix_v7` complete, validation 10/10, mean 14.996939%; test tuần hồi cứu 9/10, mean 16.209849%, LG U+ vẫn 21,356535%. Coverage100%, summary SHA `da751df0a169e2282b3fbd1e6ae70fe8ca5346783344fa22806c2eb44fcf5d06`, selection SHA `202d86d3a565126948b52030d3520dc9be8b6167ef954f7fc51f2eb3454aa579`. `sigma_weekly_mix_verification_v1` kiểm 296,010 cặp; raw/59 sealed v11 nguyên. `sigma_weekly_mix_head_verification_v1` kiểm 9,292 trọng số và 31,195 quantity rows, replay teacher/convex objective khớp, 258,060 cặp V6 không đổi.
+
+E42/V8 bổ sung sau thực chạy: `sigma_weekly_local_v8` complete, validation 10/10, mean 14.996939%; test tuần hồi cứu 9/10, mean 16.209849%, LG U+ vẫn 21,356535%. Coverage100%, summary SHA `21e4024b48b95757f70c3ee3c9aab15c91007213ec13f4d7935d538f3716b229`, selection SHA `3795d7bb0c9eb7d49daf3d5fa1afd2d986ce30ce51dc64561417b3cee3e1e26a`. `sigma_weekly_local_verification_v1` kiểm 326,370 cặp; raw/59 sealed v11 nguyên. `sigma_weekly_local_fit_verification_v1` đối soát toàn bộ 288,420 cặp cache V7, tái fit 17 checkpoints đầu/cuối mỗi model/phase và 3,034 cặp, kiểm độc lập 230 bộ median/mean train. Không nhận kiểm mọi checkpoint từ kiểm mẫu; generic đã kiểm đủ mọi nhãn/metric/coverage.
+
+### E45 — Demo đầy đủ từ nguồn tự sinh và cách chọn bundle, 05/10/2026
+
+`demo_product.py --prefix sigma_synthetic_product_v1` đã chạy từ `config.original.json`/seed42, sinh ba tuyến riêng có nhãn generated_synthetic, không đọc/sửa snapshot được cung cấp. Tạo đủ daily/weekly/customer D+7/stock/policy và bốn verifier. Weekly chỉ là demo năm phương pháp/ba tuyến; không thay chiến dịch 48/52 ứng viên hoặc nghiệm thu top10 của nguồn được cung cấp. Synthetic source SHA `b5561e4e0ff084336c98f9fdd2d9f480b309ff0e4d64054932048c2e30c554b0`. Policy demo có 13 kịch bản/7.176 dòng ledger/49.741 events, 36 replay windows; integer balances/Q/IP/chronology và lượng trước/sau D+7 đối soát.
+
+`check_product.py` kiểm cả năm trang và CSV của bundle, cadence7/khối8–14, 21 delivery days/actual thiếu/giao đúngD+7, lượng dự báo bảo toàn; kiểm bốn bộ lọc policy base/nhận50%/trễ3/ngừng nhập và balances của các dòng được hiển thị, không exception. QA `sigma_synthetic_product_qa_v1` giữ local. Chọn `-DeliveryConfig` cho launcher và biến process `SIGMA_DELIVERY_CONFIG`; overview/weekly default lấy lại bundle ở mỗi rerun, không giữ mặc định stale V5. Demo hiển thị3/3 và provenance do phần mềm sinh; không gọi3/10 hoặc dùng dữ liệu demo để nhận đạt nguồn bài. Namespace job theo đường dẫn bundle riêng, không ghi đè state actual; explicit default của CLI/TaskScheduler giữ namespace cũ. Tests env/path escape/state isolation pass. CI bổ sung build/check chính bundle demo này trên Windows sạch; CI mới chưa chạy tại lúc ghi.
+
+
+
+### Đăng ký E46 — đủ vòng boosting và hiệu chỉnh causal, chưa chạy
+
+Thử giả thuyết underfit với 300 cây thay vì150 ở learning rate0,03 không đổi; hai parent annual ratio7/macro ratio15 và head56/prior0 hoặc4 cho mỗi parent, tổng sáu ứng viên mới chung đủ46 tuyến. V11 có58 ứng viên; nguồn/split/metric/selection giữ nguyên, cache52 validation cũ chỉ sau xác thực. Cần bổ sung override số cây ở spec và kiểm count/mutation trước chạy; tham số default150 của các model cũ không đổi. Không sửa code khi V10 hoặc policyV2 còn chạy; không chọn cấu hình dựa trên test. Đây là nghiên cứu thêm, chưa nhận đạt R05 hoặc tích hợp.
+
+
+### CHG-027 — làm so sánh và tổ chức code ngay, 05/10/2026
+
+Người dùng: “bạn làm hoàn thiện và cải tiến hơn cho tôi chưa, làm so sánh sắp xếp lại code các thứ đi”. Thứ tự CHG-025 được thay: làm bản so sánh chính thức và refactor ngay trong lượt này, vẫn tiếp tục mục tiêu hoàn thiện. R05 không đổi; không làm Word/slide. E46 chỉ đăng ký, chưa triển khai override số cây/chưa chạy; cấu hình đề xuất giữ ignored local, không gọi là model đã thực hiện.
+
+### E47 — so sánh cùng cửa sổ và sổ tồn, đã chạy
+
+Run sigma_day_week_comparison_v1 dùng weekly V9/v11/policyV2: 7.590 cửa sổ 46 tuyến, 86 cửa sổ h1–7 và79 h8–14/tuyến; cadence13/12 riêng. MAPE tuần trực tiếp thấp hơn tổng daily model ở cả10 tuyến, mean16,193421%, 9/10 đạt; LG U+21,192259%. Grid ngày R05 vẫn623 cặp/tuyến, 0/10; diagnostic602 cặp h1–7/tuyến chấm cả daily model và phân bổ tuần, không nhận phân bổ là model ngày đạt. So sánh13 kịch bản tồn giữ cùng demand; base fill83,523297% →84,969940%, shortage2631→2400; cảnh báo≥7 ngày33,100802%→33,798396%, cùng2867 sự kiện/5520 cửa sổ/1099 đã cạn loại trước. CSV/Markdown/HTML/hình giữ local, không có source IDs. Nguồn raw và59 v11 files được xác thực nguyên. Summary chứa hash từng bảng/hình và cha; test hồi cứu, không độc lập.
+
+### E48 — đăng ký refactor trước chạy parity
+
+Gom31 implementation vào sigma/forecasting, inventory, delivery, jobs, ui, verification, experiments, analysis; root giữ alias CLI/import để không làm hỏng lệnh cũ. Config nghiên cứu vào configs/experiments; configs/weekly.json giữ48 ứng viên V9, không đổi lựa chọn mô hình. CLI python -m sigma có help và các lệnh theo chức năng. Hash phải trỏ implementation thực và core đã import, không chỉ wrapper. Cho phép dùng lại validation cùng ứng viên sau xác thực; selection tính lại/lưu hash rồi fit test/future mới, parity ở1e-8 và hash raw/59 daily files. Run mới sigma_weekly_refactored_v12 chưa nhận xong tại lúc đăng ký. src/run.py/app.py ngày không đổi.
+
+
+E43 bổ sung sau chạy: sigma_weekly_combined_v9 đã complete/coverage100%; validation10/10, test9/10, mean16,193421%, LG U+21,192259%. SummarySHA6b8c6e6e774f33c87693f8a8887347c07e236ba63b8ef50f58797a8766415a9b; generic371.910 pairs, kiểm46041 quantity blends/32844 factors và318780 validation cache không đổi. sigma_weekly_policy_v2 complete/13 kịch bản/1100320 ledger/267812 events, basefill84,969940%/early33,798396%; verifier toàn sổ/events/denominator pass. sigma_weekly_inventory_v5 lấy đúng stock parent policyV2 (920 items), verifier pass/5520 replay/2867 events; summaryfb0d399baf32ff9a763852e3fc8d549d128b3843fe935bb9ae36c293f4b1780d. sigma_delivery_v4 nguồnV9 đã verifyD+7/118296 quantity. Không sửa các run cũ.
+
+E44 bổ sung sau chạy: sigma_weekly_macro_mix_v10 complete/52 ứng viên, validation10/10/test9/10; top10 giống V9 nhưng một số tuyến ngoài top10 đổi lựa chọn validation, nên không trộn V10 với policyV9. SummarySHA4f36d45e71340177f527ac75c9aded5a762dd6b0ad3477ba0c605acad48ecb1a; generic402270 pairs, independentmix17204 weights/61722 quantity rows,364320 cache V9 nguyên. Đợt mới CHG-027 dùng cấu hình sản phẩm V9 đã kiểm cùng bộ policy/stock/customer; không chọn lại model top10 bằng test. V10 giữ nghiên cứu riêng.
+
+E48 parity đã chạy: sigma_weekly_refactored_v12 summaryee0f61d065e009381bcaacb06fdf76967f3af895f68c67457ee80793c450f7d1; sigma_weekly_refactor_parity_v1 kiểm364320 cached validation/7590 fresh test/184 selected metrics/92 future/644 allocations, tất cả số thực1e-8 và cùng46 lựa chọn. SHA selection không byte-identical do read/write float CSV: không sửa selection/run cũ để ép hash; mỗi run tự khóa hash trước test, semantic/numerical parity được kiểm trực tiếp. 29 alias chuyển vào legacy; root giữ sản phẩm/job và core ngày. 192 tests pass; demoV2/13 kịch bản đã kiểm, trang so sánh bổ sung và6 trang AppTest demo không exception; bundle nguồn bài sau refactor còn đang kiểm trước promotion.
+
+
+### E49 — bộ sản phẩm sau refactor đã kiểm và chọn mặc định
+
+V12 generic kiểm371910 prediction pairs; parityE48 giữ model/numeric1e-8. PolicyV3 từV12 có13 scenarios/93 origins/59892 forecasts/1100320 ledger vàrecommendations/267812 events; verifier độc lập quantity integer, raw shares, thresholds, pending event matrix, chronology, tail labels và5520 replay cùng2867 actualevents đạt. SummarySHA43f1ec2986babba4dcc3a4ef30b1392bbd1d289eac7ad3bb9817bdd10a3a3095. Basefill84,969940%/early33,798396% khớpV9 policy.
+
+StockV6 lấy đúng policyV3 closing/pending; 920 SS/ROP/IP/Q/ETA đối soát, summary4eaeb5c1bfb7061222faa8146d8fe8ff538c4765b0100a03b869340557d52cd5. CustomerV5 kiểm80105 groups/118296 historicalqty/1885 knownnext7/966 projectedroute-days, fixed7calendar/no delay/actualmissing; summary6afe75ad6367dac6b8179b6c6d478f29c3707ba27e5d38fa448a9beda2ef8aaa. Bundle staging6 trang AppTest không exception,4 scenarios base/partial/late/none mỗi1840 ThailandAIS ledger rows khớp balance. config.delivery.json được chọnV12 sau tất cả evidence đã verified, SHA552cf2398eac298c6fec69667ee5f79afd130fc6dca29c112baf09eb3da2a823.
+
+So sánhV2 giữ đúng7590 windows/13 scenarios; bốn CSV aggregate vàfigure byte-identical vớiV1 trướcrefactor; prose sửa nhãn chưa đạt chung. Tất cả output giữ local. DemoV3 từ nguồn sinh riêng đã chạy đầy đủ CLI mới gồm compare, verify vàpolicy/stock/customer; không đọc suppliedCSV. SourceSHA b5561e4e0ff084336c98f9fdd2d9f480b309ff0e4d64054932048c2e30c554b0, chỉ3 tuyến khôngcertify top10. 192tests/full đã đạt,14ca affected delivery/bundle/alias pass sau guardhash. R05/R07/T14 còn mở; test hồi cứu, không tự nhận100%.
+
+
+E49 bổ sung refresh: CLI defaultV12 tạo sigma_delivery_job_20261005T160156072664 rồi lần kế tiếp skipped_unchanged; verifier rawD+7/80105groups/118296qty/966days pass, summary80136b5979c0e754f4d41c4b5a757e65948adae745e0fe294f2d1db905300f2e. Jobstate local, lịchWindows vẫn chưa cài. DemoV3 QA6 trang/current canonical paths/4 scenariofilters pass ởsigma_synthetic_product_qa_v4; không thay bằng runprivate trên CI. Quétpublish143 text files không IDs/token, khôngCSV/outputs/reports/.tools;203 local links/anchors và15 Markdown fences pass, hai link nguồn lịch sử thiếu được giữ khai báo, không phục hồi.
+
+
+### E50 — commit và Windows CI của bản mã đã tổ chức
+
+Commit mã043cf8595803f6331ebec4ca1eac14aa63af849e đã push codex/sigma-local-pipeline. Kiểm đúnghead, hai workflow hoàn tấtsuccess: [push CI](https://github.com/khanhnguyenpham/Sigma/actions/runs/37338362331), [PR CI](https://github.com/khanhnguyenpham/Sigma/actions/runs/37338369564). Windows sạch cài dependencies/pipcheck,192tests, dailyfake/audit, fullsyntheticproduct/compare/verifiers và6-pageAppTest/scenariofilters pass; không có suppliedCSV trên CI. Artifact PR1 vẫnattached/draft, khôngmerge. Health local8503 trả200/ok. Các chỉnh docs/TXT ghi E50 về sau không đổi implementation đã kiểm ởcommit này.
+
+Cập nhật mô tả PR bằng nội dung đã chuẩn bị bị automated approval review từ chối: reviewer xem đây là external messaging vàcông bố riêng aggregate private-derived metadata, không coi quyềnpushcode là quyềnupdatePRbody. Đã hỏi người dùng quyền riêng; chưa nhận trả lời/chưa sửa PRbody, khôngworkaround. Việc đọc CI/commitcode/kiểm vàbàn giao vẫn hoàn tất trong phạm vi đã cho phép.
+
+
+### CHG-028 — Hoàn thiện tối đa sản phẩm phục vụ M2–M3, 06/10/2026
+
+Nguồn: người dùng yêu cầu tinh chỉnh sản phẩm cuối để đem báo cáo M2–M3. Tiếp tục T09–T12/T14, giữ R05 ngày và metric tuần riêng; chưa tạo lại Word/slide. Không nâng giả định/đạt kỹ thuật thành nghiệm thu. Bản V12 vẫn là mặc định cho tới khi có kiểm tra đủ bộ phụ thuộc. Không đăng lại nội dung PR đang chờ người dùng cho phép.
+
+### E51 — Đăng ký ngân sách booster trước chạy V13, 06/10/2026
+
+E46 đã đăng ký giả thuyết 300 cây nhưng hoãn khi tổ chức mã. Nay `sigma/forecasting/boosting.py` kiểm số nguyên1–2000 và override chỉ cho booster; pooled/local dùng đúng override, mặc định cũ giữ nguyên. 28 ca kiểm booster/local/weekly đạt, gồm số cây thực23 và future mutation. Cấu hình `configs/experiments/weekly-boost.json`: giữ52 ứng viên V10, thêm2 parent300cây +4 head causalhistory56/prior0 hoặc4 (58 tổng), learning rate/split/source/top10/metric giữ nguyên. Dự kiến run mới `sigma_weekly_boost_v13`, authenticate cache validationV10, khóa selection mới trước fresh test; test đã xem, không là kiểm định độc lập. Đây là đăng ký trước fit, chưa có kết quả V13.
+
+
+### E52 — Quy tắc chọn bản tích hợp trước kết quả testV13, 06/10/2026
+
+Đã đọc selection validation khóaV13: top10 mean14,978399%,10/10; TrueMoveH chọn annual300, LG U+ giữ calblendmacro75. Chưa đọc summary/metric testV13. Quy tắc tích hợp: nếu generic verifier/source/conservation/cutoff/cache và tests đạt, dùng selectionV13 từ validation cho bộ sản phẩm mới, bất kể test có cải thiện hay không; không chọn V12/V13 bằng test. Không ghi đè bộ báo cáoV12 đã khóa. Tạo policy/snapshot/customer/comparison/QA mới tương ứng trước khi đổi mặc định; giữ R05 mở.
+
+
+### E53 — V13 đã chạy và đối soát độc lập, 06/10/2026
+
+Run sigma_weekly_boost_v13 complete,58 ứng viên; cache394680 validationpairs từV10,6 ứng viên mới fitvalidation, fresh test/future. SelectionSHA1b24d9ed4d33ea5a407d634c83b0cdac2df62d41aebdf8250dfb3797c5f93848 khóa trước test; summarySHAd2e0a1fedede62c7fa02f154100223423aad71d404e6bd52378005c4ac057d2f. Validation10/10mean14,978399%; test9/10mean16,173459%,LG U+21,192259%,coverage100%. Generic sigma_weekly_boost_verification_v13 kiểm447810pairs, nhãnquantityUTC/toptrain/metric/cutoff/grid/fullcoverage/phân bổH14/actualNaN/source và59 tệp sealedv11 đạt. Calibration replay chi tiết đang chạy, chưa nhận hoàn tất. CustomerV6/verificationV6 kiểm80105groups/118296quantity/1885knownnext7/966route-days; futureH14qty2926,629101; summarySHA1a5e42cd1887d22a730415e58e2ca6ce8831e894991ac92e36d040a8fbd1c5bd. PolicyV4 còn đang chuẩn bịH14; chưa đổi mặc định. Lệnh verify-delivery gọi sớm khi run chưa complete đã được chạy lại đúng sau khicomplete, đạt; lỗi CLI flag ban đầu không là lỗi artifact.214tests toàn bộ đạt. app.py thêm3 dòng khóa menu run bằng SIGMA_LOCKED_RUN_ID; src/run.py/CSV và59 artifactv11 nguyên, không đổi dự báo ngày.
+
+
+### E54 — Bộ trình diễn M2–M3 và bản tích hợpV13, 06/10/2026
+
+Đã hoàn tất calibration replay42136factors/136620oldvalidationpairs; policyV4 kiểm13kịch bản/1100320ledger/267908events(163098sale+104810receipts),93originsH14/59892forecasts,chronology/cutoff/integerquantity/parentprediction/raw59sealed đạt. Basefill85,020040%,shortage2392; partial42,265782%,late72,457415%,none7,690381%; early33,728636%,TP2061/FP845/FN806,precision70,922230%,recall71,886990%,2867events/5520windows/1099alreadyemptyexcluded. StockV7 kiểm920items/5520replay, đúngpolicyV4,stricttrigger/quantity/nodoubledebit. CustomerV6/compareV3 đối soát; checkpointV3 kiểmsource/parents/protocolhash/top10/comparison vàexportHTML/CSV/configđãkhóa. AppTest sigma_m2m3_v13_ui_qa:6trang/4kịch bản/SKU+product_type, lựa chọn run ngày chỉV11,khôngexception; bộ demo phầnmềm sinhV4 vàQAđãkiểm riêng.214tests toàn bộ đạt,21tests liênquanjob/bundle/release đạt sau bổsung last_attempttimestamp. app.py chỉ3dòngkhóa run,src/run.pynguyên;59artifactV11+rawnguyên. Bundlemặc định được chuyểnV13 theoquy tắcE52 saukiểm,khôngđổi nghiệmthu.
+
+Windows task SIGMA-Customer-Delivery-Refresh đã cài07:00+07,pythonwẩn,IgnoreNew/StartWhenAvailable/30minmax; Start-ScheduledTask chạy thật LastTaskResult0/Ready,NextRunTime06/10/202607:00. Sandbox đọcSchedulerbịAccessDenied đã đọc lại bằng escalationthànhcông; không làauto-review rejection. CLIrefreshskipped_unchanged giữlastgoodV12 trước chuyểnmặcđịnh; jobcode nayghi last_attempt ngay cảskip. Source/run thật giữlocal,scheduledjobkhôngupload. Server8504bộV12 kiểm200/ok trước chuyểnlauncher; bảnV13 cần khởiđộng lại riêng. Không làm lạiWord/slide,khôngcậpnhậtPRbody đangchờcho phép.
+
+Hashsummary: sigma_weekly_boost_v13: d2e0a1fedede62c7fa02f154100223423aad71d404e6bd52378005c4ac057d2f; sigma_weekly_policy_v4: 084c782c4972cdb45c4e55825be36547e4e98a537c3258341e99c9fad68e8d96; sigma_weekly_inventory_v7: 14c383ffb2f52925a58210ed359076fa89bbebd968134e4e183b2e79ed04c0f6; sigma_delivery_v6: 1a5e42cd1887d22a730415e58e2ca6ce8831e894991ac92e36d040a8fbd1c5bd; sigma_day_week_comparison_v3: 5d0192bd452d67b26bb0ab8f9dd033590a974f328510905c1a94eceaeff97925; sigma_m2m3_checkpoint_v3: 259eca998d44956a011f40b6272cc5390f51fbf641c6813184305cac48a180db.
+
+
+### E55 — Kiểm cuối, job V13 và GitHub CI, 06/10/2026
+
+- Code commit `183ed104f61351c3bc0aed3be285300ad555fb87` đã push lên `codex/sigma-local-pipeline`, 39 tệp mã/config/tests/tài liệu; chỉ `data/README.md` được tracked trong data/outputs/reports/.tools/.venv, không có CSV hay run thật. Privacy scan 39 tệp không có order/customer ID hoặc mẫu credential; 195 link/anchor Markdown và fences đạt, hai nguồn lịch sử thiếu giữ nguyên.
+- CI Windows của đúng commit: [push](https://github.com/khanhnguyenpham/Sigma/actions/runs/37354219823) và [pull_request](https://github.com/khanhnguyenpham/Sigma/actions/runs/37354225347) đều completed/success. Pip check/tests/demo ngày/audit dữ liệu giả/full bundle tự khóa/đối soát/sáu trang và scenario filters/standalone dashboard đều đạt. Full local pytest cuối sau chuyển config V13 và sửa job đạt 214 tests.
+- Default refresh V13 tạo `sigma_delivery_job_20261005T180738816751`, sau đó `skipped_unchanged`; verification V5 kiểm D+7,80105 nhóm/118296 quantity/1885 known-next7/966 route-days/raw/59 sealed đạt, summarySHA618d0e4d9654f88069f6b348e81f70162cc5a9599183492ffe73e10748277332. Scheduler chạy lại 06/10/2026 01:10:55+07, LastTaskResult0, NextRunTime07:00; last_attempt ghi timestamp mới khi skip, last-good giữ nguyên.
+- Server SIGMA đã khởi động lại với checkpoint V3 tại 127.0.0.1:8504, health200/ok. Owned exec session trước được dừng bằng Ctrl+C sau khi native Stop-Process lỗi; không nhận native stop đã thành công. Browser/file mở trong Codex trả queued, không nhận đã hiện tab. Start_m2m3.ps1 trỏ đúng V3; launcher đã chạy thật và parsecheck đạt.
+- Mô tả PR vẫn cũ: chưa gửi lại hành động bị automatic approval review từ chối ở E50 do chưa có quyền gửi số liệu tổng hợp trong nội dung PR. PR vẫn draft, chưa merge. Không thay raw/target/top10/split/metric, không tạo Word/slide mới. Sản phẩm dùng được để demo tiến độ; R05/R07 và mentor nghiệm thu còn mở.
+
+### E57 — Chẩn đoán, thử nghiệm bị loại và màn hình giải thích cảnh báo, 06/10/2026
+
+- CHG-029/E56 đã đăng ký sáu ứng viên trước fit trong protocol local. `sigma_seasonal_validation_v14` complete: 45.540 cặp validation, 46 tuyến, đủ độ phủ; best research từng top 10 chỉ 4/10 đạt20%, 0/10 cải thiện so với V13. Ba tuyến ngoài top 10 cải thiện, chưa tích hợp hoặc chấm test. Giữ sản phẩm V13, không có dự báo/test/selection production mới.
+- `sigma_seasonal_verification_v14` kiểm độc lập tổng quantity của từng nhãn, 1.104 nhóm metric, toàn bộ origin/horizon, khóa so sánh theo validation và 12 future-mutation (sáu ứng viên tại hai cutoff). RawSHA6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b và 59 artifact ngày v11 nguyên. Research summarySHA27a1a462699a8325adee1764e2f71d1fc65c11af572f36fb181072c010f7e82f; verifierSHA4f9793a3cef07fa52c45e681c7ae71a8991958c177e247ba3085c719a56698a0.
+- `dispersion.csv` chỉ dùng train/validation: CV ngày validation top10 0,454–0,598, CV tổng7 ngày0,201–0,348. Fit hồi cứu tháng×weekday MAPE24,54–36,86% chỉ là mô tả, không forecast/cận dưới/chứng minh mục tiêu bất khả thi. Tài liệu `docs/model-diagnostics.md` ghi phạm vi và cách giải thích, không sửa tiêu chí hoặc cam kết điểm.
+- `sigma/analysis/alert_diagnostics.py` + trang tồn hiển thị từng ca không dùng event/order/customer ID, lọc nhóm/tuyến/SKU/loại. Kiểm lại policyV4: 2867events,1550cạntrướcngày7,1317cócơhội,967phát hiện,350bỏ sót; tỷ lệ chính967/2867=33,73%, chẩn đoán967/1317=73,42% không thay mẫu số. 1099alreadyempty loại riêng đúng protocol. Không dùng actual hồi cứu làm feature cảnh báo.
+- Toàn pytest local đạt225, collect xác nhận225. AppTest `sigma_m2m3_diagnostics_filter_ui_v14` và `sigma_synthetic_diagnostics_ui_v14` kiểm sáu trang, bốn kịch bản, nhóm cảnh báo/SKU/loại và sổ 92ngày/mặt hàng; không exception. Lần đầu gọi QA synthetic với tuyến Thailand/AIS bị guard từ chối vì fixture không có tuyến đó; đã dùng đúng tuyến giả mặc định và chạy lại đạt. Mã verifier nay hash cả analysis được UI import.
+- Bộ khóaV3 summarySHA259eca998d44956a011f40b6272cc5390f51fbf641c6813184305cac48a180db nguyên; UI QA mới thay bằng chứng giao diện cũ, không cần fit lại forecast/tồn khi chỉ thêm diễn giải. TASK/PLAN/PROJECTMAP/README/code-map/demo cập nhật, không tạo Word/slide hoặc sửa nội dung PR. R05/R07/T14 giữ mở. CI của thay đổi mới chưa kiểm; CI183ed10/214tests giữ lịch sử. Bước mô hình kế tiếp cần kiểm độ ổn định theo các khối thời gian trong train/validation, không tiếp tục dò cùng test hoặc tăng cây không có giả thuyết.

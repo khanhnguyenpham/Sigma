@@ -1,0 +1,39 @@
+name: Synthetic tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -r requirements.txt
+      - run: python -m pip check
+      - run: python -m pytest
+      - run: python run.py --config config.original.json --demo --baseline-only --run-id ci_demo
+      - run: python check_data.py --run-id ci_demo --output-id ci_data_quality
+      - name: Build and reconcile the complete synthetic product
+        run: python -m sigma demo --prefix ci_product
+      - name: Check all product pages and supplier scenario filters
+        run: >-
+          python -m sigma check-product
+          --delivery-config outputs/ci_product_bundle/delivery.json
+          --output-id ci_product_ui_qa
+      - name: Verify synthetic pipeline and dashboard
+        run: >-
+          python -c "from src.common import ROOT, validate_run, sha256;
+          from src.data import audit_orders;
+          from src.transactions import verify_events;
+          from streamlit.testing.v1 import AppTest;
+          m = validate_run(ROOT / 'outputs' / 'ci_demo');
+          assert m['source_kind'] == 'generated_synthetic';
+          source = ROOT / m['source_relative_path'];
+          assert sha256(source) == m['source_sha256'];
+          sales, audit = audit_orders(source, m['config']);
+          events = verify_events(ROOT / 'outputs' / 'ci_demo' / 'inventory_events.csv',
+          ROOT / 'outputs' / 'ci_demo' / 'inventory_ledger.csv', sales, m['config']);
+          assert events['transaction_day_reconciliation'];
+          at = AppTest.from_file('app.py', default_timeout=60).run();
+          assert not at.exception;
+          print('Synthetic transactions, pipeline and dashboard verified on clean Windows runner')"

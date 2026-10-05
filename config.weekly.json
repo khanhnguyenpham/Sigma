@@ -1,0 +1,27 @@
+{
+  "weekly_version": "weekly-quantity-v1",
+  "base_config": "config.json",
+  "target": "sum_success_quantity_next_seven_utc_days",
+  "blocks": [1, 2],
+  "training_window_days": 365,
+  "minimum_history_days": 90,
+  "refit_days": 7,
+  "allocation_history_days": 90,
+  "models": {
+    "week_last7": {"kind": "mean", "window": 7},
+    "week_ma28": {"kind": "mean", "window": 28},
+    "week_ma90": {"kind": "mean", "window": 90},
+    "week_mape90": {"kind": "weighted_median", "window": 90},
+    "week_mape365": {"kind": "weighted_median", "window": 365},
+    "week_lgbm_l1_raw": {"kind": "lgbm", "objective": "regression_l1", "units": "raw", "leaves": 7},
+    "week_lgbm_l1_ratio": {"kind": "lgbm", "objective": "regression_l1", "units": "ratio", "leaves": 7},
+    "week_lgbm_l1_ratio15": {"kind": "lgbm", "objective": "regression_l1", "units": "ratio", "leaves": 15},
+    "week_lgbm_poisson": {"kind": "lgbm", "objective": "poisson", "units": "raw", "leaves": 7}
+  },
+  "n_estimators": 150,
+  "learning_rate": 0.03,
+  "min_child_samples": 100,
+  "reg_lambda": 10.0,
+  "selection": "validation_h1_7_positive_week_mape_then_mae_then_model",
+  "daily_acceptance_replaced": false
+}

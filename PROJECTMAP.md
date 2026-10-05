@@ -1,11 +1,31 @@
 # Bản đồ project SIGMA
 
+**Bổ sung CHG-029/E56–E57 — 06/10/2026:** `sigma/experiments/seasonal_weekly.py` và verifier chạy validation-only, không cải thiện top 10 nên chưa tích hợp; run local `sigma_seasonal_validation_v14`, đối soát `sigma_seasonal_verification_v14`. `sigma/analysis/alert_diagnostics.py` bổ sung bảng giải thích sự kiện vào dashboard tồn, không sửa policy/forecast/mẫu số. 225 tests local và AppTest mới sáu trang/bốn kịch bản/SKU–loại đạt; CI bổ sung chưa xác minh. [Tài liệu chẩn đoán](docs/model-diagnostics.md) và hướng dẫn demo được cập nhật; run sản phẩm V13, raw/sealed ngày và Word/slide giữ nguyên.
+
+**Hiện hành CHG-028/E53–E55 — 06/10/2026:** sản phẩm mặc định dùng V13 với 58 ứng viên chọn bằng validation, cùng policy V4, stock V7, customer V6 và comparison V3. Bộ báo cáo đã khóa tại sigma_m2m3_checkpoint_v3; mở start_m2m3.ps1 ở cổng 8504. **214 tests và CI Windows của commit 183ed10 đạt**; đã đối soát 447.810 cặp dự báo, 42.136 hệ số hiệu chỉnh, 1.100.320 dòng sổ, 267.908 giao dịch/nhập và 920 mặt hàng. AppTest sáu trang, bốn kịch bản và bộ lọc SKU/loại đạt. Job Windows 07:00 đã cài, chạy thử mã 0. Tuần đạt 9/10, MAPE trung bình 16,17%, LG U+ 21,19%; R05 ngày vẫn 0/10, tỷ lệ báo sớm 33,73% trên 2.867 sự kiện. **Chưa nghiệm thu toàn bài.** Dữ liệu gốc và 59 artifact v11 nguyên; src/ và run.py không đổi, app.py chỉ thêm khóa bộ run. Word/slide chưa làm lại; các cập nhật cũ bên dưới là lịch sử.
+
+**Lịch sử CHG-027/E43–E49 — 05/10/2026:** sản phẩm mặc định dùng sigma_weekly_refactored_v12; đã hoàn tất bản so sánh ngày/tổng7 ngày và tổ chức mã sigma/ +29 entry points legacy/ +configs/experiments. 192 tests đạt; parity364.320 validation cache/7.590 fresh test/92 future/644 daily rows ở1e-8, cùng46 lựa chọn; raw/59 v11 files nguyên. Full policyV3 kiểm13 kịch bản/1.100.320 ledger/267.812 events; snapshotV6 kiểm920 items từ đúng policy; customerV5 kiểmD+7; AppTest6 trang và4 bộ lọc scenario đạt. Tuần9/10, mean16,19%, LG U+21,19%; R05 ngày0/10, early≥7 ngày33,80% cùng2867 events; chưa nghiệm thu toàn bài. CHG-027 thay thứ tự hoãn CHG-025; Word/slide không làm lại. Các cập nhật bên dưới E37–E41 là lịch sử.
+
+**Cập nhật 05/10/2026 — CHG-024/025, E37–E39:** đã áp dụng **khách đặt D → giao D+7 ngày lịch UTC**, không trễ giao, gồm cuối tuần; không đổi lead time nhập kho. Người dùng mô tả snapshot order là giả định; đây là nguồn thuật lại, vẫn giữ dữ liệu/outputs private và raw nguyên. [Sản phẩm chung và lịch giao](docs/customer-delivery.md) mở bằng `start_product.ps1` tại cổng 8503. Run tuần hiện hành `sigma_weekly_calibrated_v5`: test hồi cứu **9/10**, mean **15,97%**, LG U+ **21,36%**; chọn validation rồi khóa trước test. 920 khuyến nghị tồn từ phân bổ tuần đã đối soát, replay cùng 5.520 cửa sổ báo sớm **33,73%**; chưa chạy lại toàn bộ chính sách liên tục bằng tuần. 150 tests đạt, AppTest năm trang/không exception; job refresh/skip chạy thật, script đăng ký lịch nền được chuẩn bị nhưng chưa cài. R05 ngày **0/10**, R07/T14 vẫn mở. **Sau khi đủ điều kiện nghiệm thu mới làm bản so sánh chính thức ngày/tổng 7 ngày và tổ chức lại code**, đúng thứ tự người dùng yêu cầu; chưa làm lại Word/slide. Những cập nhật E36/v1 bên dưới là lịch sử.
+
+**Nguồn và phương án mới 05/10/2026 — E35/E36:** ảnh kickoff JPG mới đã xem trực tiếp, lưu bản sao ignored local; [đối chiếu nguồn](docs/kickoff-checklist.md) thay tình trạng thiếu ảnh kickoff ở các ghi nhận cũ bên dưới. PDF và ảnh M01/M02 vẫn chưa có; không phục hồi tệp bị xóa. [weekly_forecast.py](sigma/forecasting/weekly.py), [config.weekly.json](config.weekly.json), [verify_weekly.py](sigma/verification/weekly.py), [weekly_app.py](sigma/ui/weekly.py), [launcher](start_weekly_dashboard.ps1), [tests](tests/test_weekly_forecast.py), [hướng dẫn tuần](docs/weekly-forecast.md) đã có thật. Run `outputs/sigma_weekly_v1/` và verification_v2 giữ private; test tuần 9/10, AIS 22,14%, chưa thay R05 ngày. 125 tests/AppTest đạt; mã core ngày/v11 không sửa. Các tình trạng thiếu nguồn ở E34 và ngày02/10 là lịch sử.
+
+**Hiện trạng 05/10/2026:** Workspace hiện tại `C:/Users/nguye/OneDrive/Desktop/TTDN_Sigma`. Đã có `src/`, `tests/`, `config.json`, `run.py`, `app.py`, khóa phụ thuộc, notebook, script dashboard và CI. Run local thật hiện hành `outputs/sigma_scaled_v11/`; demo giả `outputs/demo_scaled_v11_verify/`; Word/slide local `reports/M2/`. Dữ liệu và outputs không thuộc gói Git. Các cây/tình trạng ngày 02/10 bên dưới là lịch sử trước triển khai; trạng thái hiện hành tại TASK và README. Git root đã kiểm tra nằm đúng project, không còn dùng giới hạn kho cha cũ để mô tả workspace này.
+
+**Nghiên cứu E32:** Có [validation_campaign.py](sigma/experiments/validation.py) và [bốn ca kiểm](tests/test_validation_campaign.py); 111 tests hiện hành đạt. Campaign 12 cấu hình chọn trên tháng 5–6 nằm trong train, sau đó chấm toàn validation tháng 7–9: 0/10 đạt 20%, chưa tích hợp. Output riêng `outputs/sigma_ablation_campaign_v1/`, đối soát/so sánh `outputs/sigma_ablation_analysis_v3/`, đều private local. Mã production, 59 tệp sealed v11 và raw hash giữ nguyên; không chạy test mới, không sửa Word/slide.
+
+**Lịch sử phạm vi CHG-012/013:** tập trung hoàn thiện project, chưa làm tiếp Word/slide. Có `validate_context.py`, `src/context_models.py`, tests và kết quả validation local `outputs/context_validation_v1/`; chưa tích hợp mô hình context vào production. E16 ghi kiểm tra trực tiếp; R05/R07 vẫn mở.
+
+**Báo cáo tiến độ M2 E33 / CHG-022:** Người dùng yêu cầu ưu tiên Word báo cáo chi tiết và slide để nộp mentor trước. Bản hiện hành local tại `reports/M2_2026-10-05/`: `SIGMA_Bao_cao_tien_do_M2_Nop_mentor_2026-10-05_v3.docx` (18 trang), `SIGMA_Slide_bao_cao_M2_Nop_mentor_2026-10-05_v2.pptx` (24 slide có ghi chú). Đã kiểm bố cục và không có định danh nguồn; dùng số liệu sealed v11 và nghiên cứu E32. Run/mã production không sửa, R05/R07/T14 vẫn mở; không tự upload báo cáo.
+
+**Nghiên cứu E34:** [calibrate_campaign.py](sigma/experiments/calibration.py), [verify_calibration.py](sigma/verification/daily_calibration.py) và [bốn ca kiểm](tests/test_calibrate_campaign.py) đã chạy; toàn suite 115 tests đạt. Head phối hợp/hiệu chỉnh học tháng 5, chọn tháng 6 trong train rồi khóa trước validation; refit 7 ngày chỉ dùng nhãn đã qua. Run riêng `outputs/sigma_calibration_campaign_v2/`, đối soát `outputs/sigma_calibration_verification_v1/`: vẫn 0/10 đạt 20%, 38,64–52,10%; mean kém v11 validation. Không tích hợp, không chấm test mới hoặc sửa sealed v11. Chẩn đoán train theo tháng/weekday là in-sample, không phải cận dưới cho mọi mô hình. Ảnh/PDF kickoff gốc vẫn thiếu; đã đề nghị đối chiếu nguyên văn, chưa tự thay tiêu chí.
+
 **Thời điểm đối chiếu:** 02/10/2026 (Asia/Saigon). **Thư mục project:** `C:/Users/asus/OneDrive/Máy tính/sigma/Sim-Demand-Forecasting-main`.
 
-Bản đồ này ghi tệp thực tế và sai khác nguồn; [PLAN 2.0](PLAN.md) vẫn giữ thiết kế chi tiết, [requirements](docs/requirements.md) giữ nghiệm thu, [review-log](docs/review-log.md) giữ lịch sử. Đã kiểm tra danh sách tệp, đọc ba nguồn, khảo sát CSV chỉ đọc; không chạy pipeline hay đọc lại ảnh/PDF đang thiếu.
+Bản đồ này ghi tệp thực tế và sai khác nguồn; [PLAN 2.0](PLAN.md) vẫn giữ thiết kế chi tiết, [requirements](docs/requirements.md) giữ nghiệm thu, [review-log](docs/review-log.md) giữ lịch sử. Mô tả khảo sát chỉ đọc ngày 02/10 bên dưới giữ làm lịch sử. Pipeline hiện đã chạy, xem E11–E15; ảnh/PDF nguồn vẫn thiếu và không nhận đã đọc lại.
 
 <a id="actual-tree"></a>
-## Cây thực tế sau lượt tạo tài liệu
+## Cây trước triển khai — lịch sử 02/10/2026
 
 ```text
 Sim-Demand-Forecasting-main/
@@ -26,7 +46,7 @@ Sim-Demand-Forecasting-main/
 Bốn tệp có trước và sáu tài liệu mới là toàn bộ tệp hiện có trong project tại lần đối chiếu này. Chưa có mã nguồn, cấu hình, môi trường dự án, tests, notebook, outputs hoặc báo cáo chạy. Không tìm thấy AGENTS áp dụng trong project/các thư mục cha ở bước khảo sát trước khi tạo AGENTS mới. Vai trò và lộ trình đọc từng tài liệu tại [README](README.md).
 
 <a id="planned-tree"></a>
-## Cấu trúc dự kiến — chưa triển khai
+## Cấu trúc thiết kế trước triển khai — lịch sử 02/10/2026
 
 Trích nhóm sản phẩm từ PLAN mục 4; cây dưới chỉ liệt kê phần kỹ thuật còn thiếu. Tên/path không chứng minh sản phẩm tồn tại; không tạo thư mục rỗng hoặc khôi phục tệp cũ để làm đủ cây.
 
@@ -125,3 +145,17 @@ Các sai khác trên không tự xác nhận hoặc bác bỏ nghiệp vụ đã
 - Bốn liên kết trong hai tài liệu nguồn tới ảnh/PDF thiếu vẫn là giới hạn đã ghi ở bảng trên; không tính chúng là liên kết mới đạt kiểm tra. Bằng chứng lịch sử và kiểm tra trực tiếp đã được tách rõ.
 
 Đây là kiểm tra Markdown/schema/truy vết và bảo toàn nguồn, **không phải kiểm thử pipeline hoặc nghiệm thu T02–T14/M1/M2/M3**. Chưa cài thư viện, huấn luyện hoặc mô phỏng. Bước tiếp theo: rà soát đóng phần tài liệu T01 theo tiêu chí trong PLAN; T02 chỉ bắt đầu khi được giao kỹ thuật và điều kiện T01 có bằng chứng, sau đó T03 → T04 → T05.
+
+**Cập nhật CHG-014:** Có `src/seasonal_models.py`, `src/validation_cache.py`, `verify_release.py`, config 1.3.0 và run tích hợp v5 đang kiểm tra. Context đã tích hợp CLI; mô tả chưa tích hợp CHG-013 bên trên chỉ kết quả lịch sử. Demo `demo_integrated_v5_verify` trong môi trường thứ hai tái lập 14 bảng. R05 vẫn 0/10, không gọi toàn bài đã đạt.
+
+**Cập nhật CHG-015/E19:** `src/count_models.py`, config 1.4.0 và v6 đã kiểm tra kỹ thuật (59 tests/50 sealed files/AppTest), 51 ứng viên chọn bằng validation; R05 vẫn 0/10. R06 còn bổ sung thứ tự giao dịch; không nâng ledger tổng ngày thành bằng chứng giao dịch.
+
+**Cập nhật CHG-016/E21:** Có `src/transactions.py`, config 1.5.0, `config.integrated-v6.json` và run v7 đã đối soát event/day/nguồn audited. 75 tests đạt; mã hiện hành xử lý thứ tự giao dịch thật trong mô phỏng, không chỉ chứng minh tương đương tổng ngày. Prototype cohort CHG-017 chỉ validation, chưa tích hợp production.
+
+**Cập nhật CHG-017/E23:** Có `src/cohort_models.py`, config 1.6.0, config v7 lưu và run v8 đã kiểm 83 tests/53 hashes/AppTest. Cohort đã tích hợp CLI sau validation, không còn chỉ prototype. R05 vẫn 0/10; dữ liệu/proxy/giả định giữ nhãn.
+
+**Cập nhật CHG-018/019/E25:** Config 1.7.0, catalog 57 và run sigma_monthly_v9 đã kiểm 92 tests/55 hashes/nguồn/top/selection/actual/AppTest. Có tests/test_operational_guards.py, AllocationPlan causal và nguồn giả riêng trong mỗi run. R05 vẫn 0/10; Word/slide chưa làm tiếp.
+
+**Cập nhật CHG-020/E27:** Có src/hierarchical_models.py, tests/test_hierarchical_models.py và tests/test_release_verification.py. Config 1.8.0/catalog 59; v10 đã kiểm 100 tests/nguồn và metric validation/top/selection/actual/ledger/events/AppTest. R05 vẫn 0/10, không chọn bằng test; Word/slide chưa làm tiếp.
+
+**Cập nhật CHG-021/E31:** Có check_data.py, src/monthly_lad.py và tests chuẩn hóa/scaler. Config 1.9.0, v11 kiểm 107 tests/59 sealed hashes/nguồn/validation/ledger/events/AppTest. Chuẩn hóa độc lập và scaler causal được kiểm; test vẫn 0/10, không chọn lại bằng test; Word/slide chưa làm tiếp.

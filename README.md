@@ -1,64 +1,89 @@
-# SIGMA — Dự báo số bán và mô phỏng tồn kho
+# SIGMA — Dự báo nhu cầu, tồn kho và lịch giao khách
 
-**Trạng thái ngày 02/10/2026 (Asia/Saigon):** Có dữ liệu order và bộ tài liệu phát triển; chưa có pipeline, cấu hình chạy, tests, notebook, mô hình, dashboard hoặc run dự án. T01 đang làm; T02–T14 chưa làm. Bộ tài liệu bổ sung này dựa trên ba nguồn phiên bản 2.0, không thay đổi nội dung các nguồn đó.
+Sản phẩm Streamlit chạy local trên Windows. Menu gồm tổng quan, dự báo tổng 7 ngày, giao khách D+7, tồn từ dự báo tuần, so sánh ngày/tuần và phần dự báo ngày/tồn/cảnh báo. Mã được gom theo chức năng; bắt đầu từ [bản đồ mã](docs/code-map.md).
 
-SIGMA hướng tới dự báo tổng `quantity` SIM/gói data bán theo ngày UTC và tuyến `(destination_country, carrier)`, so sánh mô hình rồi phân bổ forecast để mô phỏng tồn kho/cảnh báo theo đối tác. Target không phải activation. Bộ lọc `success` theo `order_datetime` là **A08 đề xuất**, chưa phải quy tắc kế toán hay xác nhận mentor về trạng thái đơn.
+**Chưa nghiệm thu toàn bài:** tuần đạt 9/10 top 10, LG U+ 21,19%; R05 ngày vẫn 0/10. Test đã từng được xem, là đánh giá hồi cứu. Giữ nguyên nguồn, target, split, top 10 và metric. [Bảng so sánh](docs/day-week-comparison.md) chấm các phương án trên cùng cửa sổ, giữ riêng tiêu chí ngày.
 
-## Đầu vào và giới hạn
-
-CSV order cục bộ `data/sigma_sim_data_orders.csv` là dữ liệu thực duy nhất được cung cấp theo xác nhận người dùng. Khảo sát chỉ đọc xác minh 100.000 dòng, 20 cột, 46 tuyến; ngày đặt UTC từ 01/01/2024 đến 31/12/2025. CSV không được đưa lên GitHub; xem [hướng dẫn dữ liệu cục bộ](data/README.md). Ý nghĩa chi tiết và giới hạn snapshot nằm trong [data-contract](docs/data-contract.md).
-
-Tồn kho, nhập hàng, lead time và mapping đối tác sẽ dùng giả định/mô phỏng có nhãn; không phụ thuộc việc xin thêm dữ liệu nội bộ. Lượng bán quan sát không đồng nhất với toàn bộ nhu cầu thị trường. Xử lý dữ liệu riêng tư tại môi trường dự án cục bộ; không upload, push hoặc publish dữ liệu/run thật.
-
-Ảnh đề bài và PDF được tài liệu tham chiếu nhưng chưa có trong workspace. Bằng chứng đã đọc chúng, kết quả activation cũ và ghi nhận Git trong nhật ký là lịch sử, không phải kiểm tra trực tiếp của lượt này. Xem [hiện trạng và sai khác](PROJECTMAP.md#source-gaps), gồm giới hạn Git và chênh lệch hash do xuống dòng.
-
-## Đọc bộ tài liệu
-
-| Tài liệu | Mục đích |
-|---|---|
-| [AGENTS](AGENTS.md) | Quy tắc ngắn cho Codex và cách chọn tài liệu cần đọc |
-| [TASK](TASK.md) | Điều phối T01–T14, bằng chứng còn thiếu và bước kế tiếp |
-| [PROJECTMAP](PROJECTMAP.md) | Tệp thực tế, cấu trúc dự kiến, luồng và tác động thay đổi |
-| [PLAN](PLAN.md) | Thiết kế chi tiết, giả định Axx, phương pháp và nhiệm vụ |
-| [requirements](docs/requirements.md) | Nguồn yêu cầu, R01–R09 và tiêu chí nghiệm thu |
-| [review-log](docs/review-log.md) | Bằng chứng lịch sử, quyết định và quy trình quản lý thay đổi |
-| [data-contract](docs/data-contract.md) | Schema nguồn, định nghĩa dữ liệu và giao diện đầu ra dự kiến |
-| [development](docs/development.md) | Cách triển khai, kiểm tra, quản lý run và bàn giao phiên |
-
-Người mới đọc README → TASK → PROJECTMAP, sau đó phần chuyên môn liên quan. Ba nguồn phiên bản 2.0 có câu “lượt này chỉ cập nhật ba Markdown”: đó là phạm vi lượt cũ; lượt hiện tại bổ sung đúng sáu tài liệu theo yêu cầu mới, vẫn chưa triển khai kỹ thuật.
-
-## Phương pháp và stack dự kiến
-
-Theo PLAN: Python local; pandas/numpy, statsmodels SARIMA, matplotlib, Streamlit; LightGBM có điều kiện sau đánh giá validation. Chưa cài/khóa phụ thuộc hay kiểm chứng tương thích cho dự án. Runtime dùng khảo sát không phải môi trường huấn luyện đã bàn giao.
-
-Top 10 chọn theo quantity bán trong train 01/01/2024–30/06/2025; validation 01/07/2025–30/09/2025; test 01/10/2025–31/12/2025. Horizon 14 ngày, chính h1–7 và h8–14 riêng. [R05](docs/requirements.md#r05) giữ MAPE ngày dương ≤20% cho từng tuyến top 10, kèm độ phủ/MAE/WAPE/bias; chưa có kết quả forecast sales để kết luận đạt.
-
-Ngưỡng tồn riêng theo đối tác; trigger `closing_on_hand < ROP`, IP dùng tính lượng đặt. Các tham số A08–A17 còn là đề xuất. Dashboard, báo cáo và kiểm tra cảnh báo ≥7 ngày đều là sản phẩm dự kiến, chưa nghiệm thu.
-
-## Cách chạy
-
-**Chưa có lệnh chạy dự án được kiểm chứng**, vì `run.py`, `config.json`, `requirements.txt` và `app.py` chưa tồn tại. Không cài thư viện hoặc chạy pipeline chỉ từ hướng dẫn này.
-
-Ví dụ CLI trích từ thiết kế PLAN mục 4.2 — **dự kiến, chưa kiểm chứng**:
-
-```text
-python run.py --config config.json --stage audit
-```
-
-Các stage dự kiến khác: `backtest`, `forecast`, `inventory`, `report`, `all`; chọn một stage. Hướng dẫn môi trường/lệnh thật chỉ được bổ sung sau T02 có bằng chứng chạy. Notebook local dự kiến dùng cùng mã CLI; Colab nếu cần chỉ là minh họa với dữ liệu giả.
-
-## Bước tiếp theo
-
-Rà soát/khép phần tài liệu của [T01](PLAN.md#t01), giữ nguồn, giả định và giới hạn rõ ràng. Khi được giao triển khai kỹ thuật và điều kiện T01 có bằng chứng, bắt đầu [T02](PLAN.md#t02), sau đó T03 → T04 → T05. Việc tạo tài liệu không hoàn thành task kỹ thuật hoặc nghiệm thu M1/M2/M3.
-
-## Repository Git
-
-Repository theo yêu cầu người dùng: [khanhnguyenpham/Sigma](https://github.com/khanhnguyenpham/Sigma). Bản hiện tại lưu bộ tài liệu phát triển, chưa có mã triển khai. Dữ liệu nguồn, kết quả chạy, môi trường cục bộ và thông tin đăng nhập được loại bằng `.gitignore`.
-
-Để lấy tài liệu và làm việc trên ổ F:
+## Bản dùng báo cáo M2–M3
 
 ```powershell
-git clone https://github.com/khanhnguyenpham/Sigma.git F:\code\Sigma
+.\start_m2m3.ps1
 ```
 
-Chỉ chạy lệnh trên khi thư mục đích chưa tồn tại. CSV cần được cung cấp cục bộ theo [hướng dẫn dữ liệu](data/README.md); clone repository không tự tải dữ liệu riêng tư.
+Mở `http://127.0.0.1:8504`, bộ run V13 đã khóa, bảng tình trạng HTML và bộ lọc SKU/loại. [Hướng dẫn demo 8–10 phút](docs/m2m3-demo.md). Thiếu/sai hash dừng, không đổi sang run khác. Clone mới dùng cấu hình demo được tự sinh/khóa.
+
+## Mở sản phẩm trên máy hiện tại
+
+```powershell
+.\start_product.ps1
+```
+
+Mở `http://127.0.0.1:8503`. Bộ run chọn trong [config.delivery.json](config.delivery.json). Dashboard đọc artifact đã seal; từ chối thiếu/sai hash và không tự huấn luyện khi mở. Dữ liệu/outputs giữ local.
+
+## Cài và chạy demo trên máy mới
+
+```powershell
+git clone --branch codex/sigma-local-pipeline https://github.com/khanhnguyenpham/Sigma.git
+cd Sigma
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe -m pytest
+.\.venv\Scripts\python.exe -m sigma demo --prefix demo_team
+.\.venv\Scripts\python.exe -m sigma check-product --delivery-config outputs/demo_team_bundle/delivery.json --output-id demo_team_ui_qa
+.\start_product.ps1 -DeliveryConfig outputs/demo_team_bundle/delivery.json
+```
+
+Đã kiểm môi trường Python 3.14.7/Windows 64-bit, phụ thuộc được khóa. Demo tự sinh ba tuyến riêng, tạo pipeline ngày/tuần, D+7, policy 13 kịch bản, snapshot đúng policy, so sánh và đối soát độc lập. Demo 3/3 không chứng minh top 10 của nguồn bài đạt. Dùng prefix mới, không ghi đè run.
+
+GitHub chỉ có mã/config/fixture giả/notebook không output/tài liệu. CSV, outputs, reports, môi trường và job state không upload. Nhánh `codex/sigma-local-pipeline`; [PR1](https://github.com/khanhnguyenpham/Sigma/pull/1) còn draft, chưa merge.
+
+## Pipeline với CSV được cung cấp
+
+Nguồn riêng tư `data/sigma_sim_data_orders.csv` không có trong clone; giữ nguyên byte và đọc [data-contract](docs/data-contract.md). Người dùng mô tả nguồn là giả định, chưa xác minh độc lập.
+
+```powershell
+.\.venv\Scripts\python.exe run.py --run-id day_new
+.\.venv\Scripts\python.exe -m sigma weekly --config configs/weekly.json --run-id week_new
+.\.venv\Scripts\python.exe -m sigma verify-weekly --run-id week_new --daily-run day_new --output-id week_new_verified
+.\.venv\Scripts\python.exe -m sigma policy --weekly-run week_new --daily-run day_new --run-id policy_new
+.\.venv\Scripts\python.exe -m sigma verify-weekly-policy --run-id policy_new --output-id policy_new_verified
+.\.venv\Scripts\python.exe -m sigma stock --weekly-run week_new --daily-run day_new --stock-policy-run policy_new --run-id stock_new
+.\.venv\Scripts\python.exe -m sigma verify-weekly-inventory --run-id stock_new --output-id stock_new_verified
+.\.venv\Scripts\python.exe -m sigma delivery --weekly-run week_new --daily-run day_new --run-id delivery_new
+.\.venv\Scripts\python.exe -m sigma verify-delivery --run-id delivery_new --output-id delivery_new_verified
+.\.venv\Scripts\python.exe -m sigma compare --weekly-run week_new --daily-run day_new --policy-run policy_new --output-id comparison_new
+```
+
+Để mở bộ run mới, tạo bản sao config.delivery.json với đúng weekly_run/daily_run, rồi truyền `-DeliveryConfig` cho launcher sau đối soát. Weekly config sản phẩm có 58 ứng viên V13; chọn từng tuyến bằng validation rồi khóa trước test. Cache `--reuse-validation-from` phải cùng nguồn/protocol/ứng viên, có hash nguyên; luôn tính lại selection và test/future, không gọi cache là fit mới.
+
+CLI `python -m sigma --help` liệt kê lệnh; `python -m sigma weekly --help` xem tham số. 29 lệnh/import cũ nằm trong legacy/, ví dụ `python legacy/weekly_forecast.py --help`; implementation nằm trong sigma/. Pipeline ngày vẫn dùng src/, run.py và app.py; đợt tổ chức mã giữ nguyên byte ba phần này và sealed v11.
+
+## Quy tắc và kết quả
+
+| Phần | Quy tắc/kết quả |
+|---|---|
+| Target | Quantity success/ngày đặt UTC/tuyến; A08 thực nghiệm, không lọc activation |
+| Split | Train 01/01/2024–30/06/2025; validation 01/07–30/09/2025; test 01/10–31/12/2025; top 10 từ train |
+| Dự báo | H14, hai tổng 7 ngày; h1–7 chính/h8–14 riêng; refit 7 ngày; nhãn chỉ tới cutoff |
+| Tuần | 9/10 ≤20%, mean 16,17%, LG U+ 21,19%; coverage100%, MAPE/MAE/WAPE/bias/zero báo kèm |
+| Ngày R05 | 0/10 ≤20%, MAPE41,89–58,13%; chưa xác nhận mentor đổi sang metric tuần |
+| Giao khách | Đặt D → lịch D+7 ngày lịch UTC, cuối tuần/không trễ theo người dùng; chưa có actual giao |
+| Tồn | Tuyến×SKU×product_type, giả định riêng đối tác; closing_on_hand<ROP; IP chỉ tính Q |
+| Giao dịch | Nhập đầu ngày UTC, bán theo timestamp/ID; đối soát sổ ngày; trừ tồn một lần khi đặt |
+| 13 kịch bản | Cơ sở, bán sụt một ngày, giảm/tăng nhiều ngày, nhập50%, nhập trễ3 ngày, không nhập, 6 biến thể độ nhạy |
+| So sánh policy | Base fill83,52%→85,02%; shortage2631→2392; early≥7 ngày33,10%→33,73%, cùng2867 sự kiện |
+
+Tồn/nhập/mapping/lead time nhà cung cấp là mô phỏng, tách thời gian giao khách7 ngày. Chưa actual khác số0. Snapshot trạng thái cuối không tái dựng thông tin có tại origin vận hành thật. Không khẳng định dự đoán mọi cú sốc hoặc cảnh báo đạt mọi ca.
+
+## Kiểm tra và cập nhật
+
+225 tests local đã qua sau bổ sung nghiên cứu mùa vụ và giải thích cảnh báo; CI Windows push/PR của commit `183ed10` đạt với 214 tests trước bổ sung này. Các ca kiểm gồm: fixture giả, leakage, metric, quantity/chronology, cache/tamper, alias và provenance. Verifier toàn run và AppTest được lưu riêng; số tests không thay nghiệm thu accuracy. [Chẩn đoán M2–M3](docs/model-diagnostics.md) giải thích biến động ngày/tuần, thử nghiệm bị loại và các ca cảnh báo muộn/bỏ sót.
+
+```powershell
+.\.venv\Scripts\python.exe -m sigma refresh --delivery-config config.delivery.json
+```
+
+Job cập nhật lịch D+7 từ forecast đã kiểm; skip input không đổi, chống chạy trùng, giữ last-good khi lỗi. Đổi raw cần pipeline mới. [Hướng dẫn giao/job](docs/customer-delivery.md) có lịch Windows07:00 đã cài và chạy thử mã0; pythonwẩn/IgnoreNew/StartWhenAvailable. Job chỉ refreshD+7, không tự huấn luyện toàn bộ với CSV mới; ghi last_attempt ngay cả khi skipped_unchanged.
+
+Đọc [TASK](TASK.md), [requirements](docs/requirements.md), [PLAN](PLAN.md), [development](docs/development.md), [review-log](docs/review-log.md#evidence). [README lịch sử](docs/history/README-before-code-organization.md) giữ số liệu trước CHG-027. Word/slide M2 lịch sử giữ local, không làm lại trong đợt này.
