@@ -8,6 +8,8 @@
 
 ## 1. Cách sử dụng và thay đổi chính
 
+**Bổ sung CHG-023/E35–E36 ngày05/10/2026:** đã đối chiếu trực tiếp [ảnh kickoff mới nhận](docs/kickoff-checklist.md). Theo yêu cầu người dùng, T09/T11/T12 thêm [mô hình dự báo trực tiếp tổng quantity 7 ngày](docs/weekly-forecast.md) và dashboard riêng; giữ train/validation/test/top10/sales, lựa chọn validation rồi khóa trước test. Test tổng tuần9/10 đạt20%, mean17,19%, AIS22,14%; 125tests và verification75.900pairs đạt. Đây là phương án mở rộng đã được phép thực hiện, chưa phải xác nhận mentor thay R05 ngày. R05/R07/T14 vẫn mở; T10 chưa tự chuyển chính sách tồn sang forecast tuần. Nội dung thiết kế theo ngày bên dưới và các mô tả nguồn cũ giữ lịch sử/phạm vi rõ.
+
 Tài liệu này giữ phương án hiện hành và T01–T14. [Yêu cầu](docs/requirements.md) giữ R01–R09, nguồn và tiêu chí. [Nhật ký](docs/review-log.md) giữ bằng chứng, quyết định cũ và CHG-003. Đường dẫn trong dấu mã là sản phẩm dự kiến, không có nghĩa đã tồn tại.
 
 Phiên bản 2.0 áp dụng xác nhận mentor **do người dùng thuật lại**: M01 về số lượng bán không phụ thuộc active/top 10 theo số bán; M02 về ngưỡng nhập riêng theo đối tác; U04 về chỉ order thực, phần còn lại giả định và bảo mật. Hai ảnh mentor được nhắc đến chưa có tệp để đọc trực tiếp. Thông tin thuật lại đủ để cập nhật; không yêu cầu cung cấp thêm dữ liệu doanh nghiệp. Bộ lọc trạng thái và các con số tồn kho bên dưới vẫn là **đề xuất**, không phải số mentor xác nhận.

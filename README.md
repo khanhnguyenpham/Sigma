@@ -1,5 +1,7 @@
 # SIGMA — Dự báo bán và mô phỏng tồn kho
 
+**Phương án tổng 7 ngày đã chạy (CHG-023/E36):** [hướng dẫn và kết quả tuần](docs/weekly-forecast.md). Test hồi cứu tuần h1–7: 9/10 top 10 đạt20%, mean17,19%; AIS còn22,14%. Chạy `.\start_weekly_dashboard.ps1 -RunId sigma_weekly_v1` để xem tại cổng8502. MAPE tuần chưa thay tiêu chí ngày; run ngày v11 và R05/R07 giữ trạng thái bên dưới. [Ảnh kickoff nhận lại](docs/kickoff-checklist.md) đã đọc trực tiếp tại E35.
+
 Ứng dụng Streamlit chạy local trên Windows, tích hợp audit dữ liệu, EDA, dự báo 46 tuyến, phân bổ SKU, mô phỏng nhập hàng và cảnh báo. Mã, cấu hình, tests và notebook đã được triển khai; đã có bản nháp Word/slide lịch sử ở local; CHG-012 yêu cầu chỉ tập trung project, chưa làm tiếp tài liệu báo cáo.
 
 **Kết quả ngày 05/10/2026:** bản thử nghiệm `sigma_scaled_v11` dùng snapshot order 2024–2025. Test h1–7 có độ phủ 100%; **0/10 tuyến top 10 đạt MAPE ≤20%**, MAPE khoảng 41,89–58,13%. Dự án còn đang hoàn thiện, chưa nghiệm thu toàn bộ bài. Không sửa actual hoặc chọn lại mô hình bằng test.
