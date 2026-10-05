@@ -192,3 +192,15 @@ Clone mới bỏ --validation-cache-run để fit validation từ đầu; dùng 
 107 tests đạt, 59 sealed files; 266,222 events/13 scenario/1.100.320 ledger/84 pins verified. 25.760 fresh validation pairs khớp hai prototype 1e-8; demo môi trường thứ hai tái lập 14 bảng, AppTest real/demo 0 exception/10 bảng. Chuẩn hóa độc lập xác nhận 93.104 sales/118.296 quantity/66.619 train rows, source hash nguyên.
 
 R05 vẫn 0/10: test MAPE 41,89–58,13%, mean route MAPE 47.589594%, coverage 100%. AIS/SKT được chọn tốt hơn trên validation nhưng test kém hơn v10; không rollback dựa vào test. Test đã xem, chưa kiểm định độc lập mới. Replay early 33.100802%, simulated base fill 83.523297%. Phần mềm chạy đúng và dữ liệu chuẩn hóa không đồng nghĩa đạt độ chính xác 20%; chưa nghiệm thu toàn bài, Word/slide chưa làm tiếp.
+
+## Campaign nghiên cứu E32 — chọn trong train trước khi chấm validation
+
+[validation_campaign.py](validation_campaign.py) chạy riêng khỏi production. Mười tuyến xếp hạng bằng quantity đến 30/04/2025 cho giai đoạn chọn cấu hình; script xác minh chúng khớp top10 train cuối kỳ, không đổi lại danh sách hồi cứu. Tháng 5–6 chỉ là phần tuning nằm trong train; split chính tháng 7–9 và tháng 10–12 giữ nguyên. Lịch sử global/country/route kết thúc origin; đặc trưng cùng kỳ năm trước căn ngày lịch, kể cả năm nhuận. Mọi nhãn fit ≤ cutoff, refit 7 ngày, H14.
+
+```powershell
+& .venv/Scripts/python.exe validation_campaign.py --output-id sigma_ablation_campaign_v1
+```
+
+Lệnh trên đã chạy thực; dùng output-id mới khi chạy lại. Protocol lưu trước fit, output giữ local; không ghi đè, không sửa config/selected_models/forecast v11. Snapshot gốc được audit, rồi bỏ sales test trước aggregation/features/ranking/fit/scoring. Mười hai cấu hình = lịch/lịch sử/cùng kỳ × quantity gốc/tỷ lệ theo mean90 đến origin × 7/31 leaves. Tỷ lệ chỉ dùng khi học, forecast phục hồi quantity gốc; inverse-label weighted L1 giữ mục tiêu relative error. Ngày 0 vẫn có trong đánh giá. Tham số loss/trees tham chiếu [tài liệu LightGBM](https://lightgbm.readthedocs.io/en/latest/Parameters.html); tách thời gian theo [hướng dẫn scikit-learn](https://scikit-learn.org/stable/modules/cross_validation.html#time-series-split).
+
+Kết quả đã đối soát: 102.480 pairs trong train và 154.560 pairs validation, 120 nhóm h1–7 mỗi giai đoạn đủ coverage. Lựa chọn khóa trong train đạt validation mean MAPE 44,968965%, range 36,287133–52,093932%; 0/10 đạt 20%, kể cả chọn lạc quan ứng viên tốt nhất trên validation cũng 0/10. So sánh theo target-day blocks 7 ngày/2.000 draws không thấy cải thiện rõ ràng so v11 trên validation; v11 đã chọn bằng chính validation nên so sánh này không độc lập. Không tích hợp 12 cấu hình và không chạy lại test. Tổng 111 tests pass, production v11/source/sealed files nguyên. Đây là bằng chứng một đợt thử chưa đạt, không là chứng minh mọi mô hình đều không thể đạt R05.

@@ -384,7 +384,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
-- **Trạng thái:** Đang xử lý R05; v11 có 61 ứng viên production, scaler/loss fit tại cutoff; test vẫn 0/10 đạt, chưa nghiệm thu.
+- **Trạng thái:** Đang xử lý R05; giữ production v11 với 61 ứng viên, test 0/10; đợt ablation chọn trong train cũng 0/10 validation, chưa tích hợp.
 - **Mục tiêu/yêu cầu:** R04, R05, R09.
 - **Đầu vào/công việc/đầu ra:** T07/T08/MVP → khóa, test cuối, forecast → selected_models, test metrics, đạt/chưa đạt.
 - **Phụ thuộc:** T06, T07, T08 hoặc biên bản không kích hoạt T08.
@@ -427,7 +427,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Du review. Mỗi tác giả cung cấp kiểm thử/bằng chứng cho module của mình.
 
-- **Trạng thái:** 107 tests đạt; kiểm chuẩn hóa độc lập, demo tái lập 14 bảng; v11 qua kiểm nguồn/validation/selection/actual/hash/giao dịch/Q/AppTest.
+- **Trạng thái:** 111 tests đạt, gồm bốn kiểm nghiên cứu; v11 giữ kiểm nguồn/hash/tồn/UI; campaign kiểm độc lập quantity, cặp ngày–horizon và lựa chọn trong train.
 - **Mục tiêu/yêu cầu:** R01, R03–R09.
 - **Đầu vào/công việc/đầu ra:** Pipeline → ca mục 8/môi trường local sạch/kiểm tra gói → tests, checks, run tái lập.
 - **Phụ thuộc:** T09, T10, T11.

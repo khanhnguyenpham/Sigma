@@ -2,6 +2,8 @@
 
 **Hiện trạng 05/10/2026:** Workspace hiện tại `C:/Users/nguye/OneDrive/Desktop/TTDN_Sigma`. Đã có `src/`, `tests/`, `config.json`, `run.py`, `app.py`, khóa phụ thuộc, notebook, script dashboard và CI. Run local thật hiện hành `outputs/sigma_scaled_v11/`; demo giả `outputs/demo_scaled_v11_verify/`; Word/slide local `reports/M2/`. Dữ liệu và outputs không thuộc gói Git. Các cây/tình trạng ngày 02/10 bên dưới là lịch sử trước triển khai; trạng thái hiện hành tại TASK và README. Git root đã kiểm tra nằm đúng project, không còn dùng giới hạn kho cha cũ để mô tả workspace này.
 
+**Nghiên cứu E32:** Có [validation_campaign.py](validation_campaign.py) và [bốn ca kiểm](tests/test_validation_campaign.py); 111 tests hiện hành đạt. Campaign 12 cấu hình chọn trên tháng 5–6 nằm trong train, sau đó chấm toàn validation tháng 7–9: 0/10 đạt 20%, chưa tích hợp. Output riêng `outputs/sigma_ablation_campaign_v1/`, đối soát/so sánh `outputs/sigma_ablation_analysis_v3/`, đều private local. Mã production, 59 tệp sealed v11 và raw hash giữ nguyên; không chạy test mới, không sửa Word/slide.
+
 **Lịch sử phạm vi CHG-012/013:** tập trung hoàn thiện project, chưa làm tiếp Word/slide. Có `validate_context.py`, `src/context_models.py`, tests và kết quả validation local `outputs/context_validation_v1/`; chưa tích hợp mô hình context vào production. E16 ghi kiểm tra trực tiếp; R05/R07 vẫn mở.
 
 **Thời điểm đối chiếu:** 02/10/2026 (Asia/Saigon). **Thư mục project:** `C:/Users/asus/OneDrive/Máy tính/sigma/Sim-Demand-Forecasting-main`.
