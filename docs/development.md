@@ -164,3 +164,7 @@ V5 qua 53 tests và `verify_release.py`, 48 tệp sealed, 1.100.320 ledger, 84 p
 **Độ nhạy E28:** Sau verify, tổng hợp ledger theo scenario/tuyến, kiểm fill không nhất thiết đơn điệu từng tuyến khi đổi cover/L/safety; tổng demand/fulfilled/shortage giữ nguồn sealed. Phân tích riêng ngoài sealed run, hashes/parent manifest ở E28; không dùng chọn model/tham số từ test.
 
 **Kiểm E29:** 101 tests đạt; fixture missing origin–horizon pair bị chặn dù CSV/manifest đã seal. Verifier kiểm mọi model/tuyến đủ origin và H, không dùng số dòng thiếu làm mẫu số coverage. Re-verify real/demo v10 đạt; mã core/forecast/run sealed không thay. Verification v1 ngoài run được lưu riêng trước khi tạo kết quả kiểm bổ sung, hashes tại E29.
+
+### Kiểm chuẩn hóa/loss v11 — CHG-021/E31
+
+107 tests đạt: scaler mean bằng đúng feature history tới cutoff, future quantity mutation không đổi fit/forecast, quantity units giữ 30 sau scaler, all-zero/missing/future-fit guards và dispatch H14. check_data.py được kiểm bằng quantity tính tay 3, invalid validity không mất sale, export không IDs, raw/old output hashes nguyên. Verify real/demo và fresh validation numerical parity đạt; CI thêm independent data check với synthetic only. Test v11 kém hơn v10 ở AIS/SKT dù validation tốt hơn, không dùng test chọn lại.
