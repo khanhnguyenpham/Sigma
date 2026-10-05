@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 import pytest
-from calibrate_campaign import fit_head,predict_head,matrix
+from sigma.experiments.calibration import fit_head,predict_head,matrix
 
 
 def test_future_labels_and_forecasts_cannot_change_a_calibration_head():

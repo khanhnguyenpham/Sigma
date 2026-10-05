@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from weekly_macro import prepare_macro, macro_inputs
+from sigma.forecasting.macro import prepare_macro, macro_inputs
 
 
 def sample():

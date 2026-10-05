@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from validation_campaign import features, fit, predict, model_inputs, choose_inner, SPECS
+from sigma.experiments.validation import features, fit, predict, model_inputs, choose_inner, SPECS
 
 
 def example_daily():
