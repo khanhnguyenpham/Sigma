@@ -1,5 +1,7 @@
 # Hợp đồng dữ liệu SIGMA
 
+**Phương án tuần CHG-023/E36:** cùng target sales-success-utc-v1, tổng quantity của bảy ngày UTC liên tiếp. `weekly_forecast.csv`: route, model, as_of_date, window_start, window_end, week_block1/2, forecast_qty_7d, actual_qty_7d; actual tương lai để trống. `daily_allocation.csv`: route/origin/target_date/horizon_day/week_block/forecast_qty, is_daily_allocation=true; bảy forecast_qty cộng đúng forecast_qty_7d. Không phải dữ liệu tồn thực hoặc bảy dự báo ngày độc lập. Cửa sổ thiếu bảy actual không được chấm như tuần đầy đủ; metric tuần có coverage/zero-window count/MAE/WAPE/bias và cadence. [Protocol và lệnh thực chạy](weekly-forecast.md); schema run ngày không đổi.
+
 **Triển khai 05/10/2026:** Audit/chuỗi/forecast/metric/phân bổ/tồn đã có trong src và CLI. Tên đầu ra thực cùng version/hash ghi trong manifest mỗi run; `forecast_qty` là giá trị dự báo, `target_date` là ngày được dự báo. CHG-016 thêm xử lý giao dịch UTC và event ledger, đã kiểm run v7; không chỉ dùng phép tương đương tổng ngày để nhận R06 đủ bằng chứng. Các mô tả “dự kiến/chưa có” ngày 02/10 bên dưới giữ làm lịch sử thiết kế. Không nâng giả định thành dữ liệu thật.
 
 **Bản tài liệu:** 1.0 — 02/10/2026 (Asia/Saigon), diễn giải [PLAN 2.0](../PLAN.md), [requirements 2.0](requirements.md) và [review-log 2.0](review-log.md). Schema nguồn đã khảo sát chỉ đọc; schema processed/run bên dưới **dự kiến, chưa triển khai**. Không có từ điển dữ liệu doanh nghiệp để xác nhận toàn bộ ý nghĩa tên cột.
