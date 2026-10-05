@@ -1,5 +1,7 @@
 # Kế hoạch dự án SIGMA
 
+**Cập nhật 05/10/2026 — CHG-024/025, E37–E39:** đã áp dụng **khách đặt D → giao D+7 ngày lịch UTC**, không trễ giao, gồm cuối tuần; không đổi lead time nhập kho. Người dùng mô tả snapshot order là giả định; đây là nguồn thuật lại, vẫn giữ dữ liệu/outputs private và raw nguyên. [Sản phẩm chung và lịch giao](docs/customer-delivery.md) mở bằng `start_product.ps1` tại cổng 8503. Run tuần hiện hành `sigma_weekly_calibrated_v5`: test hồi cứu **9/10**, mean **15,97%**, LG U+ **21,36%**; chọn validation rồi khóa trước test. 920 khuyến nghị tồn từ phân bổ tuần đã đối soát, replay cùng 5.520 cửa sổ báo sớm **33,73%**; chưa chạy lại toàn bộ chính sách liên tục bằng tuần. 150 tests đạt, AppTest năm trang/không exception; job refresh/skip chạy thật, script đăng ký lịch nền được chuẩn bị nhưng chưa cài. R05 ngày **0/10**, R07/T14 vẫn mở. **Sau khi đủ điều kiện nghiệm thu mới làm bản so sánh chính thức ngày/tổng 7 ngày và tổ chức lại code**, đúng thứ tự người dùng yêu cầu; chưa làm lại Word/slide. Những cập nhật E36/v1 bên dưới là lịch sử.
+
 **Phiên bản:** 2.0 — 02/10/2026 (Asia/Saigon).
 
 **Trạng thái lịch sử 04/10/2026:** Người dùng đã yêu cầu triển khai phần mềm xuyên suốt, kiểm thử/Git và tình huống thực tế (CHG-007); báo cáo/slide để sau. Chưa có mã pipeline, môi trường khóa, huấn luyện, mô phỏng hoặc nghiệm thu M1/M2/M3; các lựa chọn triển khai đang chờ làm rõ. Giới hạn chỉ ba Markdown là phạm vi lịch sử ngày 02/10/2026, không áp dụng cho yêu cầu mới.
@@ -386,7 +388,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
-- **Trạng thái:** Đang xử lý R05; giữ production v11 với 61 ứng viên, test 0/10. Ablation E32 và hiệu chỉnh/kết hợp E34 chọn trong train đều 0/10 validation, chưa tích hợp; không chấm test mới.
+- **Trạng thái:** Đang xử lý R05; ngày v11 0/10. Tuần V5 validation/test 9/10, test mean 15,97%, LG U+ 21,36%; chưa thay nghiệm thu ngày. E38 đã đối soát 235.290 cặp và 27.876 hệ số head.
 - **Mục tiêu/yêu cầu:** R04, R05, R09.
 - **Đầu vào/công việc/đầu ra:** T07/T08/MVP → khóa, test cuối, forecast → selected_models, test metrics, đạt/chưa đạt.
 - **Phụ thuộc:** T06, T07, T08 hoặc biên bản không kích hoạt T08.
@@ -401,7 +403,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Hiếu phụ trách; Khang review.
 
-- **Trạng thái:** Đã kiểm tra giao dịch/tồn/replay v11; tỷ lệ sớm 33,10%; giữ giả định mô phỏng, không bảo đảm mọi ca.
+- **Trạng thái:** Ngày v11 replay sớm 33,10%; E39 khuyến nghị snapshot từ tuần 920 items, replay cùng mẫu số sớm 33,73%. Toàn bộ policy liên tục bằng tuần chưa chạy lại; chưa bảo đảm R07.
 - **Mục tiêu/yêu cầu:** R06, R07.
 - **Đầu vào/công việc/đầu ra:** Sales/forecast/A09–A16 → mapping/tham số riêng/ledger/ETA/strict threshold/replay/độ nhạy → recommendations, alerts, simulation_metrics.
 - **Phụ thuộc:** T06 để phát triển; kết quả cuối nhận T09.
@@ -414,7 +416,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Cường phụ trách; Hiếu review.
 
-- **Trạng thái:** Hoàn thành dashboard local và AppTest release: 0 exception, 10 bảng, các bộ lọc hoạt động.
+- **Trạng thái:** Đã tích hợp một menu gồm tổng quan, tuần, giao D+7, tồn từ tuần, tồn/ngày; AppTest 5 trang không exception. Job refresh/skip đã chạy; lịch nền chưa được cài.
 - **Mục tiêu/yêu cầu:** R08, R09.
 - **Đầu vào/công việc/đầu ra:** T09/T10 → bộ lọc, actual/forecast, metric, bảng giả định, tồn/cảnh báo, export kiểm soát → app.py/hướng dẫn.
 - **Phụ thuộc:** T06, T09, T10.
@@ -429,7 +431,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Du review. Mỗi tác giả cung cấp kiểm thử/bằng chứng cho module của mình.
 
-- **Trạng thái:** 115 tests đạt, gồm bốn kiểm hiệu chỉnh mới; v11 giữ kiểm nguồn/hash/tồn/UI. E34 kiểm độc lập raw→quantity, 11.970 cặp validation, metric và tái tạo forecast từ trọng số; không đồng nghĩa đạt R05.
+- **Trạng thái:** 150 tests đạt; E37–E39 kiểm D+7/cutoff/hệ số/quantity/tồn/nhận trước bán/hash. Raw và 59 sealed files v11 nguyên; số tests không thay nghiệm thu R05/R07.
 - **Mục tiêu/yêu cầu:** R01, R03–R09.
 - **Đầu vào/công việc/đầu ra:** Pipeline → ca mục 8/môi trường local sạch/kiểm tra gói → tests, checks, run tái lập.
 - **Phụ thuộc:** T09, T10, T11.
@@ -455,7 +457,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Khang review.
 
-- **Trạng thái:** Chưa nghiệm thu toàn bài; ưu tiên hoàn thiện project, R05/R07 và review còn mở.
+- **Trạng thái:** Chưa nghiệm thu toàn bài; R05/R07 và review còn mở. CHG-025 xếp bản so sánh chính thức ngày/7 ngày và tổ chức lại code sau khi đủ các điều kiện, chưa đóng hai việc này.
 - **Mục tiêu/yêu cầu:** R01–R09.
 - **Đầu vào/công việc/đầu ra:** Sản phẩm/kiểm tra/báo cáo → ma trận/diễn tập máy khác/gói phù hợp quyền → biên bản, gói riêng tư hoặc giả, giới hạn.
 - **Phụ thuộc:** T12, T13.
