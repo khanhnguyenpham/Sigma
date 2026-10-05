@@ -4,7 +4,7 @@ import os
 import pandas as pd
 import streamlit as st
 
-from delivery import validate_delivery, delivery_settings
+from sigma.delivery.customer import validate_delivery, delivery_settings
 from src.common import ROOT, ROUTE
 
 st.set_page_config(page_title='SIGMA · Giao hàng D+7', page_icon='📦', layout='wide')
@@ -42,7 +42,8 @@ st.info('Bảy ngày đầu là lịch của đơn đã đặt. Từ ngày 8 tr�
 left, right = st.columns(2)
 left.metric('Đơn vị đã đặt, dự kiến giao 7 ngày tới', int(chosen.known_commitment_qty.sum()))
 right.metric('Đơn vị dự báo bán mới trong 14 ngày tới', f'{chosen.forecast_from_future_orders_qty.sum():.2f}')
-st.caption(f"Chốt dữ liệu: {pd.Timestamp(summary['as_of_date']).date()} · Snapshot do người dùng mô tả là giả định; không phải dữ liệu cập nhật hôm nay.")
+source_label = 'Nguồn demo do phần mềm sinh' if summary['source_kind'] == 'generated_synthetic_demo' else 'Snapshot do người dùng mô tả là giả định'
+st.caption(f"Chốt dữ liệu: {pd.Timestamp(summary['as_of_date']).date()} · {source_label}; không phải dữ liệu cập nhật hôm nay.")
 st.bar_chart(chosen.set_index('delivery_date')[['known_commitment_qty', 'forecast_from_future_orders_qty']])
 st.dataframe(chosen, hide_index=True)
 st.warning('Lịch D+7 không xác nhận kho đủ hàng. Xem riêng tồn/thiếu hụt; thời gian nhập hàng từ đối tác về kho được cấu hình độc lập.')
