@@ -427,7 +427,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Du review. Mỗi tác giả cung cấp kiểm thử/bằng chứng cho module của mình.
 
-- **Trạng thái:** 100 tests đạt; demo môi trường thứ hai tái lập 14 bảng; v10 qua kiểm nguồn/validation/selection/actual/hash/giao dịch/Q/AppTest.
+- **Trạng thái:** 101 tests đạt; demo môi trường thứ hai tái lập 14 bảng; v10 qua kiểm nguồn/validation/selection/actual/hash/giao dịch/Q/AppTest.
 - **Mục tiêu/yêu cầu:** R01, R03–R09.
 - **Đầu vào/công việc/đầu ra:** Pipeline → ca mục 8/môi trường local sạch/kiểm tra gói → tests, checks, run tái lập.
 - **Phụ thuộc:** T09, T10, T11.
