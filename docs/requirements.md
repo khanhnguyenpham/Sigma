@@ -1,6 +1,6 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
-**Bổ sung CHG-023/E35–E36:** người dùng gửi lại ảnh kickoff và yêu cầu làm mô hình dự báo tổng bán7ngày thay cách dự báo từng ngày. Đã triển khai phương án tuần riêng, [protocol/kết quả](weekly-forecast.md), test tuần hồi cứu9/10≤20%, AIS22,14%; R05 theo ngày và các ngưỡng chính thức giữ mở tới khi có xác nhận thay nghiệm thu. Không đổi sales/split/top10 hoặc dùng metric tuần để nhận đạt ngày. R08 có dashboard tuần; R06/R07 chưa thay chính sách tồn hoặc nhận cảnh báo đạt từ kết quả tuần.
+**Bổ sung CHG-023/E35–E36:** người dùng gửi lại ảnh kickoff và yêu cầu làm mô hình dự báo tổng bán 7 ngày thay cách dự báo từng ngày. Đã triển khai phương án tuần riêng, [protocol/kết quả](weekly-forecast.md), test tuần hồi cứu 9/10≤20%, AIS 22,14%; R05 theo ngày và các ngưỡng chính thức giữ mở tới khi có xác nhận thay nghiệm thu. Không đổi sales/split/top10 hoặc dùng metric tuần để nhận đạt ngày. R08 có dashboard tuần; R06/R07 chưa thay chính sách tồn hoặc nhận cảnh báo đạt từ kết quả tuần.
 
 **Tiến độ 05/10/2026:** Phần mềm local và sigma_scaled_v11 đã kiểm tra; tiêu chí R01–R09 giữ nguyên. Test h1–7 đủ độ phủ nhưng 0/10 top 10 đạt R05 (41,89–58,13%). Cảnh báo trước ≥7 ngày đạt 33,10% sự kiện replay v11. CHG-022/E33 đã tạo Word và slide tiến độ gửi mentor theo yêu cầu mới. E34 hiệu chỉnh/kết hợp dự báo vẫn 0/10 validation, không tích hợp và không chấm test mới. A08–A17 là thực nghiệm người dùng chọn, chưa mentor xác nhận. Chưa nghiệm thu toàn bài.
 
