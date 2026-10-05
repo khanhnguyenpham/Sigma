@@ -4,7 +4,7 @@
 
 **Trạng thái lịch sử 04/10/2026:** Người dùng đã yêu cầu triển khai phần mềm xuyên suốt, kiểm thử/Git và tình huống thực tế (CHG-007); báo cáo/slide để sau. Chưa có mã pipeline, môi trường khóa, huấn luyện, mô phỏng hoặc nghiệm thu M1/M2/M3; các lựa chọn triển khai đang chờ làm rõ. Giới hạn chỉ ba Markdown là phạm vi lịch sử ngày 02/10/2026, không áp dụng cho yêu cầu mới.
 
-**Trạng thái 05/10/2026:** Run sigma_scaled_v11 đã kiểm tra chuẩn hóa/nguồn/validation/hash/tồn/UI. R05 chưa đạt, 0/10 top 10 MAPE ≤20%; test cũ đã xem. CHG-012 yêu cầu chỉ tập trung project; Word/slide chỉ làm tiếp khi người dùng yêu cầu lại. T09/T10 đã kiểm tra v11: 61 ứng viên production gồm context, phân phối mùa vụ, count, cohort, hierarchical arrivals và monthly weighted-L1; vẫn 0/10 đạt R05. R06 đã đối soát ledger giao dịch v11 ngoài cân bằng theo ngày. T14 chưa nghiệm thu toàn bài. Các mô tả “chưa có/dự kiến” ngày 02/10 là lịch sử.
+**Trạng thái 05/10/2026:** Run sigma_scaled_v11 đã kiểm tra chuẩn hóa/nguồn/validation/hash/tồn/UI. R05 chưa đạt, 0/10 top 10 MAPE ≤20%; test cũ đã xem. Theo yêu cầu mới CHG-022, đã tạo Word báo cáo tiến độ chi tiết và slide M2 để nộp mentor (E33); việc hoãn soạn theo CHG-012 kết thúc trong phạm vi này. T09/T10 đã kiểm tra v11: 61 ứng viên production gồm context, phân phối mùa vụ, count, cohort, hierarchical arrivals và monthly weighted-L1; vẫn 0/10 đạt R05. R06 đã đối soát ledger giao dịch v11 ngoài cân bằng theo ngày. T14 chưa nghiệm thu toàn bài. Các mô tả “chưa có/dự kiến” ngày 02/10 là lịch sử.
 
 ## 1. Cách sử dụng và thay đổi chính
 
@@ -384,7 +384,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
-- **Trạng thái:** Đang xử lý R05; giữ production v11 với 61 ứng viên, test 0/10; đợt ablation chọn trong train cũng 0/10 validation, chưa tích hợp.
+- **Trạng thái:** Đang xử lý R05; giữ production v11 với 61 ứng viên, test 0/10. Ablation E32 và hiệu chỉnh/kết hợp E34 chọn trong train đều 0/10 validation, chưa tích hợp; không chấm test mới.
 - **Mục tiêu/yêu cầu:** R04, R05, R09.
 - **Đầu vào/công việc/đầu ra:** T07/T08/MVP → khóa, test cuối, forecast → selected_models, test metrics, đạt/chưa đạt.
 - **Phụ thuộc:** T06, T07, T08 hoặc biên bản không kích hoạt T08.
@@ -427,7 +427,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Du review. Mỗi tác giả cung cấp kiểm thử/bằng chứng cho module của mình.
 
-- **Trạng thái:** 111 tests đạt, gồm bốn kiểm nghiên cứu; v11 giữ kiểm nguồn/hash/tồn/UI; campaign kiểm độc lập quantity, cặp ngày–horizon và lựa chọn trong train.
+- **Trạng thái:** 115 tests đạt, gồm bốn kiểm hiệu chỉnh mới; v11 giữ kiểm nguồn/hash/tồn/UI. E34 kiểm độc lập raw→quantity, 11.970 cặp validation, metric và tái tạo forecast từ trọng số; không đồng nghĩa đạt R05.
 - **Mục tiêu/yêu cầu:** R01, R03–R09.
 - **Đầu vào/công việc/đầu ra:** Pipeline → ca mục 8/môi trường local sạch/kiểm tra gói → tests, checks, run tái lập.
 - **Phụ thuộc:** T09, T10, T11.
@@ -440,7 +440,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Cường phụ trách; Nguyên review. Các tác giả cung cấp phần phương pháp/kết quả truy về run.
 
-- **Trạng thái:** Chưa làm tiếp theo CHG-012; giữ Word/slide cũ làm bản nháp lịch sử, chờ người dùng yêu cầu lại.
+- **Trạng thái:** Theo yêu cầu mới CHG-022, đã tạo Word báo cáo tiến độ chi tiết 18 trang và slide M2 24 trang gửi mentor; đã kiểm tại E33. Báo cáo cuối/bảo vệ và nghiệm thu toàn bài còn mở; bản cũ giữ lịch sử, tài liệu mới private local.
 - **Mục tiêu/yêu cầu:** R01–R09.
 - **Đầu vào/công việc/đầu ra:** Run kiểm tra/review-log → viết sales/phương pháp/kết quả/giả định/độ nhạy/giới hạn → report.md/pdf, slides, demo-script.
 - **Phụ thuộc:** T09–T12.
