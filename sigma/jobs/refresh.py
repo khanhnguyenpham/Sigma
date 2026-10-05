@@ -63,7 +63,9 @@ def refresh(job_folder=None, worker=execute, get_fingerprint=fingerprint, valida
         current = get_fingerprint()
         if previous.get('fingerprint') == current and previous.get('last_good_run'):
             validator(ROOT / 'outputs' / previous['last_good_run'])
-            return {'status': 'skipped_unchanged', 'last_good_run': previous['last_good_run']}
+            result = {'status': 'skipped_unchanged', 'last_good_run': previous['last_good_run']}
+            write_json(folder / 'last_attempt.json', {**result, 'checked_at_utc': datetime.now(timezone.utc).isoformat()})
+            return result
         run_id = 'sigma_delivery_job_' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%f')
         worker(run_id)
         if get_fingerprint() != current:
@@ -72,13 +74,14 @@ def refresh(job_folder=None, worker=execute, get_fingerprint=fingerprint, valida
         state = {'fingerprint': current, 'last_good_run': run_id,
             'updated_at_utc': datetime.now(timezone.utc).isoformat()}
         write_json(state_path, state)
-        write_json(folder / 'last_attempt.json', {'status': 'complete', 'run_id': run_id})
+        write_json(folder / 'last_attempt.json', {'status': 'complete', 'run_id': run_id,
+            'checked_at_utc': datetime.now(timezone.utc).isoformat()})
         return {'status': 'complete', 'last_good_run': run_id}
     except Exception as error:
         # Exception text could include private values; only store the category.
         result = {'status': 'failed', 'error_category': type(error).__name__,
             'last_good_run': previous.get('last_good_run'), 'last_good_run_modified': False}
-        write_json(folder / 'last_attempt.json', result)
+        write_json(folder / 'last_attempt.json', {**result, 'checked_at_utc': datetime.now(timezone.utc).isoformat()})
         return result
     finally:
         if lock.is_file() and lock.read_text(encoding='utf-8') == token:
