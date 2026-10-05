@@ -1,6 +1,6 @@
 # Kế hoạch dự án SIGMA
 
-**Hiện hành CHG-028/E53–E54 — 06/10/2026:** bản tích hợp dùng sigma_weekly_boost_v13 (58 ứng viên, chọn validation), policyV4/stockV7/customerV6/comparisonV3; bộ báo cáo khóa tại sigma_m2m3_checkpoint_v3, mở start_m2m3.ps1/cổng8504. 214 tests đạt; generic447.810pairs, calibration42.136factors, fullpolicy1.100.320ledger/267.908events, snapshot920items vàD+7 đối soát; AppTest6trang/4kịch bản/SKU+loại đạt. JobWindows07:00 đã cài và chạy thử trả0. Tuần9/10mean16,17%,LG U+21,19%; R05 ngày0/10, cảnh báo early33,73% cùng2867events; **chưa nghiệm thu toàn bài**. Raw/59artifactv11 nguyên; src/run.py không đổi; app.py chỉ thêm khóa bộ run. Word/slide không làm lại. Các cập nhật CHG-027 và cũ hơn bên dưới là lịch sử.
+**Hiện hành CHG-028/E53–E55 — 06/10/2026:** sản phẩm mặc định dùng V13 với 58 ứng viên chọn bằng validation, cùng policy V4, stock V7, customer V6 và comparison V3. Bộ báo cáo đã khóa tại sigma_m2m3_checkpoint_v3; mở start_m2m3.ps1 ở cổng 8504. **214 tests và CI Windows của commit 183ed10 đạt**; đã đối soát 447.810 cặp dự báo, 42.136 hệ số hiệu chỉnh, 1.100.320 dòng sổ, 267.908 giao dịch/nhập và 920 mặt hàng. AppTest sáu trang, bốn kịch bản và bộ lọc SKU/loại đạt. Job Windows 07:00 đã cài, chạy thử mã 0. Tuần đạt 9/10, MAPE trung bình 16,17%, LG U+ 21,19%; R05 ngày vẫn 0/10, tỷ lệ báo sớm 33,73% trên 2.867 sự kiện. **Chưa nghiệm thu toàn bài.** Dữ liệu gốc và 59 artifact v11 nguyên; src/ và run.py không đổi, app.py chỉ thêm khóa bộ run. Word/slide chưa làm lại; các cập nhật cũ bên dưới là lịch sử.
 
 **Lịch sử CHG-027/E43–E49 — 05/10/2026:** sản phẩm mặc định dùng sigma_weekly_refactored_v12; đã hoàn tất bản so sánh ngày/tổng7 ngày và tổ chức mã sigma/ +29 entry points legacy/ +configs/experiments. 192 tests đạt; parity364.320 validation cache/7.590 fresh test/92 future/644 daily rows ở1e-8, cùng46 lựa chọn; raw/59 v11 files nguyên. Full policyV3 kiểm13 kịch bản/1.100.320 ledger/267.812 events; snapshotV6 kiểm920 items từ đúng policy; customerV5 kiểmD+7; AppTest6 trang và4 bộ lọc scenario đạt. Tuần9/10, mean16,19%, LG U+21,19%; R05 ngày0/10, early≥7 ngày33,80% cùng2867 events; chưa nghiệm thu toàn bài. CHG-027 thay thứ tự hoãn CHG-025; Word/slide không làm lại. Các cập nhật bên dưới E37–E41 là lịch sử.
 
@@ -392,7 +392,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
-- **Trạng thái:** V13 chọn validation10/10, test hồi cứu9/10mean16,17%,LG U+21,19%; generic447810pairs/calibration42136factors đạt. Ngàyv11 vẫn0/10, giữ R05 mở.
+- **Trạng thái:** V13: validation 10/10; test hồi cứu 9/10, MAPE trung bình 16,17%, LG U+ 21,19%. Đối soát 447.810 cặp/42.136 hệ số đạt. Ngày v11 vẫn 0/10; R05 còn mở.
 - **Mục tiêu/yêu cầu:** R04, R05, R09.
 - **Đầu vào/công việc/đầu ra:** T07/T08/MVP → khóa, test cuối, forecast → selected_models, test metrics, đạt/chưa đạt.
 - **Phụ thuộc:** T06, T07, T08 hoặc biên bản không kích hoạt T08.
@@ -435,7 +435,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Du review. Mỗi tác giả cung cấp kiểm thử/bằng chứng cho module của mình.
 
-- **Trạng thái:** 214 tests đạt; generic447810pairs/calibration42136factors, fullpolicy/stock/customer và6trang kiểm độc lập; raw/59sealedv11 nguyên. CI bản mới chờ kiểm sau push; CI043cf85 lịch sử đã đạt.
+- **Trạng thái:** 214 tests đạt; generic447810pairs/calibration42136factors, fullpolicy/stock/customer và6trang kiểm độc lập; raw/59sealedv11 nguyên. CI Windows push/PR của commit 183ed10 đều đạt tại E55; CI 043cf85 giữ làm lịch sử.
 - **Mục tiêu/yêu cầu:** R01, R03–R09.
 - **Đầu vào/công việc/đầu ra:** Pipeline → ca mục 8/môi trường local sạch/kiểm tra gói → tests, checks, run tái lập.
 - **Phụ thuộc:** T09, T10, T11.

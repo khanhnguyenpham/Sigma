@@ -10,7 +10,7 @@ Sản phẩm Streamlit chạy local trên Windows. Menu gồm tổng quan, dự 
 .\start_m2m3.ps1
 ```
 
-Mở `http://127.0.0.1:8504`, bộ runV13 đã khóa, bảng tình trạngHTML và bộ lọc SKU/loại. [Hướng dẫn demo8–10phút](docs/m2m3-demo.md). Thiếu/sai hash dừng, không đổi sang run khác. Clone mới dùng cấu hình demo được tự sinh/khóa.
+Mở `http://127.0.0.1:8504`, bộ run V13 đã khóa, bảng tình trạng HTML và bộ lọc SKU/loại. [Hướng dẫn demo 8–10 phút](docs/m2m3-demo.md). Thiếu/sai hash dừng, không đổi sang run khác. Clone mới dùng cấu hình demo được tự sinh/khóa.
 
 ## Mở sản phẩm trên máy hiện tại
 
@@ -78,7 +78,7 @@ Tồn/nhập/mapping/lead time nhà cung cấp là mô phỏng, tách thời gia
 
 ## Kiểm tra và cập nhật
 
-214 tests đã qua: fixture giả, leakage, metric, quantity/chronology, cache/tamper, alias và provenance. Verifier toàn run và AppTest lọc bảng/kịch bản được lưu riêng; số tests không thay nghiệm thu accuracy.
+214 tests đã qua; CI Windows push/PR của code commit `183ed10` cũng đạt. Các ca kiểm gồm: fixture giả, leakage, metric, quantity/chronology, cache/tamper, alias và provenance. Verifier toàn run và AppTest lọc bảng/kịch bản được lưu riêng; số tests không thay nghiệm thu accuracy.
 
 ```powershell
 .\.venv\Scripts\python.exe -m sigma refresh --delivery-config config.delivery.json
