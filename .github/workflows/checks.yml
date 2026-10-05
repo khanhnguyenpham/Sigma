@@ -13,6 +13,13 @@ jobs:
       - run: python -m pytest
       - run: python run.py --config config.original.json --demo --baseline-only --run-id ci_demo
       - run: python check_data.py --run-id ci_demo --output-id ci_data_quality
+      - name: Build and reconcile the complete synthetic product
+        run: python -m sigma demo --prefix ci_product
+      - name: Check all product pages and supplier scenario filters
+        run: >-
+          python -m sigma check-product
+          --delivery-config outputs/ci_product_bundle/delivery.json
+          --output-id ci_product_ui_qa
       - name: Verify synthetic pipeline and dashboard
         run: >-
           python -c "from src.common import ROOT, validate_run, sha256;

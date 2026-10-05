@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 from src.common import ITEM, read_config
-from weekly_inventory import pending_orders, snapshot_recommendations, complete_replay_forecasts
+from sigma.inventory.snapshot import pending_orders, snapshot_recommendations, complete_replay_forecasts
 
 
 def inputs():

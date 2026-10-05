@@ -8,8 +8,9 @@ import numpy as np
 import pandas as pd
 
 from src.common import ROOT, ITEM, ROUTE, sha256, validate_run, write_json
-from verify_weekly import validate_weekly
-from weekly_inventory import validate_inventory
+from sigma.verification.weekly import validate_weekly
+from sigma.inventory.policy import validate_policy
+from sigma.inventory.snapshot import validate_inventory
 
 
 def verify(run_id, output_id):
@@ -30,9 +31,17 @@ def verify(run_id, output_id):
     raw = raw.loc[raw.order_status.isin(cfg['sales_statuses'])]
     item_series = {key: g.groupby('date').quantity.sum().reindex(pd.date_range(cfg['observation_start'], cfg['observation_end']), fill_value=0)
         for key, g in raw.groupby(ITEM)}
-    parent_ledger = pd.read_csv(ddir / 'inventory_ledger.csv', usecols=ITEM + ['date', 'scenario_id', 'closing'], parse_dates=['date'])
+    stock_dir = ddir
+    if protocol.get('stock_policy_run'):
+        stock_dir = ROOT / 'outputs' / protocol['stock_policy_run']
+        policy = validate_policy(stock_dir)
+        policy_protocol = json.loads((stock_dir / 'protocol.json').read_text(encoding='utf-8'))
+        assert policy['weekly_run'] == summary['weekly_run'] and policy['daily_run'] == summary['daily_run']
+        assert policy['source_sha256'] == summary['source_sha256'] and policy_protocol['config'] == cfg
+        assert sha256(stock_dir / 'summary.json') == protocol['stock_policy_summary_sha256']
+    parent_ledger = pd.read_csv(stock_dir / 'inventory_ledger.csv', usecols=ITEM + ['date', 'scenario_id', 'closing'], parse_dates=['date'])
     parent_stock = parent_ledger.loc[parent_ledger.date.eq(origin) & parent_ledger.scenario_id.eq('base')].set_index(ITEM).closing
-    parent_orders = pd.read_csv(ddir / 'inventory_recommendations.csv', usecols=ITEM + ['as_of_date', 'eta', 'scenario_id', 'Q'], parse_dates=['as_of_date', 'eta'])
+    parent_orders = pd.read_csv(stock_dir / 'inventory_recommendations.csv', usecols=ITEM + ['as_of_date', 'eta', 'scenario_id', 'Q'], parse_dates=['as_of_date', 'eta'])
     pending = parent_orders.loc[parent_orders.scenario_id.eq('base') & parent_orders.as_of_date.le(origin)
         & parent_orders.eta.gt(origin) & parent_orders.Q.gt(0)]
     rec = pd.read_csv(folder / 'weekly_item_recommendations.csv', parse_dates=['expected_depletion_date', 'eta_if_ordered'])
@@ -100,6 +109,7 @@ def verify(run_id, output_id):
         'integer_quantity_conservation': True, 'strict_on_hand_trigger': True, 'customer_stock_not_deducted_twice': True,
         'actual_events': tp + fn, 'tp': tp, 'fp': fp, 'fn': fn,
         'daily_sealed_files_unchanged': len(daily['files']), 'source_unchanged': True,
+        'stock_source_run': protocol.get('stock_source_run', summary['daily_run']),
         'inventory_summary_sha256': sha256(folder / 'summary.json'), 'project_fully_accepted': False}
     write_json(out / 'summary.json', result)
     print(json.dumps(result), flush=True)

@@ -6,9 +6,9 @@ import re
 import numpy as np
 import pandas as pd
 
-from delivery import validate_delivery
+from sigma.delivery.customer import validate_delivery
 from src.common import ROOT, ITEM, ROUTE, sha256, validate_run, write_json
-from verify_weekly import validate_weekly
+from sigma.verification.weekly import validate_weekly
 
 
 def verify(run_id, output_id):

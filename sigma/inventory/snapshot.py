@@ -10,8 +10,9 @@ from src.common import ROOT, ITEM, ROUTE, sha256, validate_run, write_csv, write
 from src.data import audit_orders
 from src.inventory import (item_matrix, allocation, replenishment, partner_params,
     project_depletion, replay_alerts, simulation_metrics, declared_receipts)
-from weekly_forecast import allocate_daily, checked_series
-from verify_weekly import validate_weekly
+from sigma.forecasting.weekly import allocate_daily, checked_series
+from sigma.verification.weekly import validate_weekly
+from sigma.inventory.policy import validate_policy
 
 
 def pending_orders(recommendations, cfg, origin):
@@ -93,7 +94,24 @@ def validate_inventory(folder):
     return summary
 
 
-def execute(run_id, weekly_run, daily_run='sigma_scaled_v11'):
+def stock_parent(policy_run, weekly_run, daily_run, cfg, source_digest):
+    if policy_run is None:
+        return ROOT / 'outputs' / daily_run, {'stock_source_run': daily_run, 'stock_policy_run': None,
+            'stock_origin': 'base closing balances and pending orders of sealed daily simulated policy'}
+    if not re.fullmatch(r'[A-Za-z0-9_-]+', policy_run):
+        raise ValueError('Invalid stock policy run id')
+    folder = ROOT / 'outputs' / policy_run
+    info = validate_policy(folder)
+    protocol = json.loads((folder / 'protocol.json').read_text(encoding='utf-8'))
+    if (info['weekly_run'] != weekly_run or info['daily_run'] != daily_run
+            or info['source_sha256'] != source_digest or protocol['config'] != cfg):
+        raise ValueError('Stock policy does not match forecast and base protocol')
+    return folder, {'stock_source_run': policy_run, 'stock_policy_run': policy_run,
+        'stock_policy_summary_sha256': sha256(folder / 'summary.json'),
+        'stock_origin': 'base closing balances and pending orders of the matching continuous weekly policy'}
+
+
+def execute(run_id, weekly_run, daily_run='sigma_scaled_v11', stock_policy_run=None):
     if not all(re.fullmatch(r'[A-Za-z0-9_-]+', x) for x in [run_id, weekly_run, daily_run]):
         raise ValueError('Invalid local run id')
     out = ROOT / 'outputs' / run_id
@@ -107,11 +125,12 @@ def execute(run_id, weekly_run, daily_run='sigma_scaled_v11'):
             raise ValueError('Parent protocols differ')
     source = ROOT / cfg['source']
     assert sha256(source) == w['source_sha256'] == d['source_sha256']
+    stock_dir, stock_info = stock_parent(stock_policy_run, weekly_run, daily_run, cfg, sha256(source))
     origin = pd.Timestamp(cfg['forecast_origin'])
     protocol = {'source_sha256': sha256(source), 'entrypoint_sha256': sha256(__file__),
         'weekly_run': weekly_run, 'weekly_summary_sha256': sha256(wdir / 'summary.json'),
         'daily_run': daily_run, 'daily_manifest_sha256': sha256(ddir / 'manifest.json'),
-        'stock_origin': 'base closing balances and pending orders of sealed daily simulated policy',
+        **stock_info,
         'customer_delivery_scope': 'D+7 customer handover; available stock deducted at order reservation, never twice',
         'inventory': cfg['inventory'], 'weekly_allocation_days': wp['weekly_config']['allocation_history_days'],
         'decision_applied': False, 'full_weekly_continuous_policy_run': False}
@@ -119,8 +138,8 @@ def execute(run_id, weekly_run, daily_run='sigma_scaled_v11'):
     sales, _ = audit_orders(source, cfg)
     matrix = item_matrix(sales, cfg)
     future = pd.read_csv(wdir / 'daily_allocation.csv', parse_dates=['as_of_date', 'target_date'])
-    ledger = pd.read_csv(ddir / 'inventory_ledger.csv', parse_dates=['date'])
-    prior = pd.read_csv(ddir / 'inventory_recommendations.csv',
+    ledger = pd.read_csv(stock_dir / 'inventory_ledger.csv', parse_dates=['date'])
+    prior = pd.read_csv(stock_dir / 'inventory_recommendations.csv',
         usecols=ITEM + ['as_of_date', 'eta', 'scenario_id', 'Q'], parse_dates=['as_of_date', 'eta'])
     recommendations = snapshot_recommendations(matrix, future, ledger, prior, cfg, origin)
     write_csv(out / 'weekly_item_recommendations.csv', recommendations)
@@ -139,9 +158,13 @@ def execute(run_id, weekly_run, daily_run='sigma_scaled_v11'):
     write_csv(out / 'weekly_alert_replay.csv', alerts)
     write_csv(out / 'weekly_inventory_metrics.csv', metrics)
     validate_weekly(wdir); validate_run(ddir)
+    _, final_stock = stock_parent(stock_policy_run, weekly_run, daily_run, cfg, sha256(source))
+    if final_stock != stock_info:
+        raise ValueError('Stock policy changed during snapshot creation')
     assert sha256(source) == protocol['source_sha256'] and sha256(__file__) == protocol['entrypoint_sha256']
     summary = {'status': 'complete', 'kind': 'weekly_inventory_snapshot', 'run_id': run_id,
         'weekly_run': weekly_run, 'daily_run': daily_run, 'as_of_date': origin.isoformat(),
+        **stock_info,
         'source_sha256': protocol['source_sha256'], 'item_recommendations': len(recommendations),
         'replay_windows': len(alerts), 'unchanged_actual_event_denominator': True,
         'early_event_rate': float(metrics.early_event_rate.iloc[0]),
@@ -159,5 +182,6 @@ if __name__ == '__main__':
     parser.add_argument('--run-id', required=True)
     parser.add_argument('--weekly-run', required=True)
     parser.add_argument('--daily-run', default='sigma_scaled_v11')
+    parser.add_argument('--stock-policy-run', help='Use matching weekly-policy balances instead of the daily simulated snapshot')
     args = parser.parse_args()
-    execute(args.run_id, args.weekly_run, args.daily_run)
+    execute(args.run_id, args.weekly_run, args.daily_run, args.stock_policy_run)

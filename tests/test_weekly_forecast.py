@@ -6,8 +6,8 @@ import pandas as pd
 import pytest
 
 from src.common import ROOT
-from weekly_forecast import prepare, checked_series, fit, predict_one, allocate_daily, metrics
-from verify_weekly import validate_weekly
+from sigma.forecasting.weekly import prepare, checked_series, fit, predict_one, allocate_daily, metrics
+from sigma.verification.weekly import validate_weekly
 from src.common import sha256
 
 
@@ -54,7 +54,7 @@ def test_weekly_features_and_fit_ignore_every_future_sale():
 
 
 def test_weekly_annual_inputs_align_calendar_year_and_exclude_future():
-    from weekly_forecast import inputs, ANNUAL_FEATURES
+    from sigma.forecasting.weekly import inputs, ANNUAL_FEATURES
     daily = sample(); origin = pd.Timestamp('2025-02-28')
     spec = {**settings()['models']['week_lgbm_l1_ratio'], 'annual_features': True}
     before = prepare(daily, settings())
@@ -72,7 +72,7 @@ def test_weekly_annual_inputs_align_calendar_year_and_exclude_future():
 
 
 def test_weekly_batch_predict_matches_individual_quantity_predictions():
-    from weekly_forecast import predict_batch
+    from sigma.forecasting.weekly import predict_batch
     data = sample(); prepared = prepare(data, settings()); origin = pd.Timestamp('2025-04-30')
     spec = {**settings()['models']['week_lgbm_l1_ratio'], 'annual_features': True}
     model, _ = fit(prepared, origin, spec, {'seed': 42, 'lightgbm_threads': 1}, settings())
@@ -82,7 +82,7 @@ def test_weekly_batch_predict_matches_individual_quantity_predictions():
 
 
 def test_weekly_blend_is_fixed_convex_and_requires_all_pairs():
-    from weekly_forecast import blend_values
+    from sigma.forecasting.weekly import blend_values
     key = (('Fake', 'A'), 1)
     assert blend_values([{key: 10.}, {key: 30.}], [.25, .75])[key] == 25.
     with pytest.raises(ValueError):

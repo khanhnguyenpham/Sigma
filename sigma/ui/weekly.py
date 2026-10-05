@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 
 from src.common import ROOT, ROUTE
-from verify_weekly import validate_weekly
+from sigma.verification.weekly import validate_weekly
 
 st.set_page_config(page_title='SIGMA · Tổng bán 7 ngày', page_icon='📊', layout='wide')
 st.title('SIGMA · Dự báo tổng quantity bán trong 7 ngày')
@@ -60,7 +60,9 @@ with tabs[1]:
     view = scores.loc[scores.cadence.eq(cadence) & scores.week_block.eq(block)]
     top = view.loc[view.is_top10]
     passed = int((top.mape_positive_week_pct.le(20) & top.coverage.eq(1)).sum())
-    st.metric('Top 10 có MAPE tổng tuần ≤20% trên test hồi cứu', f'{passed}/10')
+    st.metric('Tuyến chủ lực có MAPE tổng tuần ≤20% trên test hồi cứu', f'{passed}/{len(top)}')
+    if len(top) < 10:
+        st.caption(f'Run này có {len(top)} tuyến chủ lực; chưa phải phép chấm đủ 10 tuyến của snapshot được cung cấp.')
     st.dataframe(top, hide_index=True)
     st.dataframe(route(view), hide_index=True)
     validation = pd.read_csv(folder / 'validation_weekly_metrics.csv')

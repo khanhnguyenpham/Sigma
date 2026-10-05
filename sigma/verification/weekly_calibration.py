@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 
 from src.common import ROOT, ROUTE, sha256, write_json
-from verify_weekly import validate_weekly
-from weekly_forecast import prepare, fit, predict_batch
+from sigma.verification.weekly import validate_weekly
+from sigma.forecasting.weekly import prepare, fit, predict_batch
 
 
 def independent_factor(predicted, actual, prior):
