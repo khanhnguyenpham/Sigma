@@ -78,7 +78,7 @@ Tồn/nhập/mapping/lead time nhà cung cấp là mô phỏng, tách thời gia
 
 ## Kiểm tra và cập nhật
 
-214 tests đã qua; CI Windows push/PR của code commit `183ed10` cũng đạt. Các ca kiểm gồm: fixture giả, leakage, metric, quantity/chronology, cache/tamper, alias và provenance. Verifier toàn run và AppTest lọc bảng/kịch bản được lưu riêng; số tests không thay nghiệm thu accuracy.
+225 tests local đã qua sau bổ sung nghiên cứu mùa vụ và giải thích cảnh báo; CI Windows push/PR của commit `183ed10` đạt với 214 tests trước bổ sung này. Các ca kiểm gồm: fixture giả, leakage, metric, quantity/chronology, cache/tamper, alias và provenance. Verifier toàn run và AppTest được lưu riêng; số tests không thay nghiệm thu accuracy. [Chẩn đoán M2–M3](docs/model-diagnostics.md) giải thích biến động ngày/tuần, thử nghiệm bị loại và các ca cảnh báo muộn/bỏ sót.
 
 ```powershell
 .\.venv\Scripts\python.exe -m sigma refresh --delivery-config config.delivery.json

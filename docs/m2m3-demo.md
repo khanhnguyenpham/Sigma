@@ -25,6 +25,8 @@ Mở `http://127.0.0.1:8504`. Bộ khóa local `outputs/sigma_m2m3_checkpoint_v3
 
 ## Chuẩn bị và kiểm tra trước buổi báo cáo
 
+Đọc [chẩn đoán mô hình](model-diagnostics.md) để giải thích số bán ngày/tổng tuần và các ca cảnh báo. Ở bước 5, mở **Giải thích từng ca cảnh báo trong replay**, lọc nhóm bỏ sót hoặc cạn trước ngày 7; bảng áp dụng cả bộ lọc tuyến/SKU/loại. Replay có 1.550 ca cạn trước ngày 7 và 350 ca bỏ sót dù còn cơ hội ≥7 ngày. Giữ tỷ lệ chính 33,73% trên 2.867 sự kiện; chẩn đoán nhóm đủ thời gian không thay mẫu số nghiệm thu.
+
 ```powershell
 .\.venv\Scripts\python.exe -m sigma check-product --delivery-config outputs/sigma_m2m3_checkpoint_v3/delivery.json --country Thailand --carrier AIS --output-id demo_before_meeting_qa
 ```
