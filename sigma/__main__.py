@@ -11,6 +11,7 @@ COMMANDS = {
     'refresh': 'sigma.jobs.refresh',
     'compare': 'sigma.analysis.comparison',
     'demo': 'sigma.demo',
+    'release-check': 'sigma.release',
     'check-product': 'sigma.verification.product',
     'verify-refactor': 'sigma.verification.refactor',
     **{name: 'sigma.verification.' + name.removeprefix('verify-').replace('-', '_')

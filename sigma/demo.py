@@ -1,4 +1,4 @@
-"""Build a separate, fully verified synthetic bundle for the five-page product."""
+"""Build a separate, verified and frozen synthetic six-page product bundle."""
 import argparse
 import copy
 import json
@@ -15,6 +15,7 @@ from sigma.verification.delivery import verify as verify_delivery
 from sigma.verification.weekly_inventory import verify as verify_stock
 from sigma.verification.weekly_policy import verify as verify_policy
 from sigma.analysis.comparison import compare
+from sigma.release import execute as freeze_release
 
 
 def create_demo(prefix):
@@ -47,6 +48,8 @@ def create_demo(prefix):
     write_json(weekly_path, settings)
     run_weekly(names['weekly'], weekly_path.relative_to(ROOT).as_posix())
     bundle = json.loads((ROOT / 'config.delivery.json').read_text(encoding='utf-8'))
+    for name in ['product_runs', 'product_summary_hashes', 'release_checkpoint']:
+        bundle.pop(name, None)
     bundle.update(base_config=base_path.relative_to(ROOT).as_posix(), weekly_run=names['weekly'],
         daily_run=names['daily'], source_description='generated_synthetic_demo')
     bundle_path = setup / 'delivery.json'
@@ -59,11 +62,16 @@ def create_demo(prefix):
     verify_stock(names['stock'], prefix + '_verify_stock')
     verify_policy(names['policy'], prefix + '_verify_policy')
     compare(names['weekly'], names['daily'], names['policy'], prefix + '_comparison')
+    checkpoint = prefix + '_release'
+    freeze_release(str(bundle_path), checkpoint, names['delivery'], names['policy'], names['stock'], prefix + '_comparison')
+    frozen = json.loads((ROOT / 'outputs' / checkpoint / 'delivery.json').read_text(encoding='utf-8'))
+    write_json(bundle_path, frozen)
     source = ROOT / daily['source_relative_path']
     if sha256(source) != daily['source_sha256']:
         raise ValueError('Synthetic source changed during integration')
     result = {'status': 'verified', 'kind': 'generated_synthetic_product_bundle', 'runs': names,
         'delivery_config': bundle_path.relative_to(ROOT).as_posix(),
+        'release_checkpoint': checkpoint,
         'generated_source_sha256': sha256(source), 'source_generated_by_this_program': True,
         'supplied_snapshot_read_or_modified': False, 'certifies_supplied_snapshot_accuracy': False,
         'project_fully_accepted': False}
