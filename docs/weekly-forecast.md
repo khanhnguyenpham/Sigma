@@ -1,5 +1,7 @@
 # Dự báo tổng quantity bán trong 7 ngày
 
+**Hiện hành E38 ngày 05/10/2026:** `sigma_weekly_calibrated_v5`, 30 ứng viên đăng ký trước fit, validation 9/10 và test hồi cứu 9/10; mean test **15,97%**, LG U+ **21,36%** còn chưa đạt. `config.weekly-calibrated.json` là cấu hình đang dùng trong sản phẩm chung. V1/E36 bên dưới giữ lịch sử, AIS không còn là tuyến test chưa đạt của V5. [Sản phẩm, D+7 và job](customer-delivery.md); R05 ngày chưa đổi.
+
 Theo CHG-023 ngày 05/10/2026, người dùng yêu cầu làm mô hình dự báo tổng bán 7 ngày. Đã triển khai và chạy thật phương án tuần riêng, không ghi đè run ngày `sigma_scaled_v11`. Đơn vị là **tổng quantity sản phẩm bán**, không phải số đơn, số kích hoạt, doanh thu hoặc trung bình ngày.
 
 ## Sử dụng
@@ -58,6 +60,31 @@ So sánh cùng 86 cửa sổ/tuyến trên test, mean MAPE tuần của top 10: 
 
 ## Phạm vi nghiệm thu
 
-Người dùng đã cho phép **làm phương án dự báo tổng 7 ngày**. Ảnh kickoff vẫn nói theo ngày; chưa có xác nhận mentor cho phép thay phép chấm ngày bằng phép chấm tổng tuần. Vì vậy R05 ngày vẫn mở; R05 tuần cũng còn AIS chưa đạt. Cảnh báo trước ≥7 ngày cần chuỗi phân bổ/kiểm replay riêng và không tự nhận đạt từ MAPE tuần.
+Người dùng đã cho phép **làm phương án dự báo tổng 7 ngày**. Ảnh kickoff vẫn nói theo ngày; chưa có xác nhận mentor cho phép thay phép chấm ngày bằng phép chấm tổng tuần. Vì vậy R05 ngày vẫn mở; Tại E36/V1, R05 tuần còn AIS chưa đạt; hiện V5 còn LG U+. Cảnh báo trước ≥7 ngày cần chuỗi phân bổ/kiểm replay riêng và không tự nhận đạt từ MAPE tuần.
 
-Tiếp theo: phân tích độ ổn định validation của mô hình tuần và thử giả thuyết mới trước chấm; giữ AIS là ca chưa đạt, không chọn lại dựa trên test. Tích hợp và kiểm chính sách tồn từ phân bổ tuần trước khi thay đường chạy tồn; lịch cập nhật local còn cần hoàn thiện. Chưa đóng T14.
+Bước tiếp tại E36/V1 (lịch sử): phân tích độ ổn định validation của mô hình tuần và thử giả thuyết mới trước chấm; giữ AIS là ca chưa đạt, không chọn lại dựa trên test. Tích hợp và kiểm chính sách tồn từ phân bổ tuần trước khi thay đường chạy tồn; lịch cập nhật local còn cần hoàn thiện. Chưa đóng T14.
+
+
+## Nghiên cứu mở rộng V2–V5 và bằng chứng E38
+
+V2 thêm lịch sử cùng kỳ năm trước theo DateOffset năm (xử lý năm nhuận), tuần cũ và mean 28/90 centered quanh ngày **quá khứ**, đầu ra ratio giữ quantity. V3 thêm ba phối hợp cố định 25/50/75% đã đăng ký; V4 thêm lịch sử quốc gia/toàn tuyến và tỷ trọng route causal. V5 thêm 12 head: ba parent × lịch sử 28/56 ngày × identity prior 0/4 tuần. Teacher fit nhãn≤origin dự báo quá khứ; head chỉ dùng tuần có ngày cuối≤head cutoff, không chồng lấn trong cùng block. Factor là weighted median y/p với trọng số p/y, identity prior, giới hạn 0,5–1,5. Zero tuần giữ trong metric; nếu lịch sử không đủ điều kiện tính hệ số thì dùng 1. Refit 7 ngày và lựa chọn mỗi tuyến bằng validation không đổi.
+
+| Run | Ứng viên | Mean MAPE test tuần top10 | Tuyến test chưa đạt |
+|---|---:|---:|---|
+| sigma_weekly_v1 | 9 | 17,19% | AIS 22,14% |
+| sigma_weekly_annual_v2 | 12 | 16,09% | LG U+ 21,08% |
+| sigma_weekly_blend_v3 | 15 | 16,18% | LG U+ 21,08% |
+| sigma_weekly_macro_v4 | 18 | 16,00% | LG U+ 21,08% |
+| sigma_weekly_calibrated_v5 | 30 | 15,97% | LG U+ 21,36% |
+
+V5 được dùng vì validation mean 15,4065% tốt hơn V4 15,4409%, không chọn phiên bản theo test. Không đổi LG U+ về một mô hình cũ chỉ vì mô hình cũ đạt test. Lịch không chồng lấn V5 vẫn 9/10, LG U+ 21,03%. Kiểm độc lập raw/coverage/metric của V5 đối soát 235.290 cặp; replay teacher và công thức head độc lập kiểm 27.876 hệ số, 136.620 cặp validation của 18 ứng viên V4 giữ nguyên tại dung sai 1e−8. Raw và 59 tệp sealed v11 nguyên. Test vẫn đã xem, không holdout độc lập.
+
+Lệnh tạo run mới (không ghi đè các run đã seal):
+
+```powershell
+.\.venv\Scripts\python.exe weekly_forecast.py --config config.weekly-calibrated.json --run-id weekly_new
+.\.venv\Scripts\python.exe verify_weekly.py --run-id weekly_new --output-id weekly_new_verify
+.\.venv\Scripts\python.exe verify_weekly_calibration.py --run-id weekly_new --output-id weekly_head_verify
+```
+
+Phần “so sánh cùng cửa sổ” E36 là đối soát nghiên cứu lịch sử. Bản so sánh chính thức theo CHG-025 và tổ chức lại code chỉ thực hiện sau khi đủ điều kiện nghiệm thu; không nhận hai việc đó đã xong từ các CSV kiểm chứng.
