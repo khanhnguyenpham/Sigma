@@ -8,6 +8,8 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import platform
+import importlib.metadata
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -17,8 +19,14 @@ from lightgbm import LGBMRegressor
 
 from src.common import ROOT, ROUTE, read_config, sha256, write_csv, write_json
 from src.data import audit_orders, daily_sales, route_top
-from weekly_macro import MACRO_FEATURES, MACRO_AMOUNTS, prepare_macro, macro_inputs
-from weekly_calibration import fit_factors
+from sigma.forecasting.macro import MACRO_FEATURES, MACRO_AMOUNTS, prepare_macro, macro_inputs
+from sigma.forecasting.calibration import fit_factors
+from sigma.forecasting.linear import WeeklyLinear
+from sigma.forecasting.mix import fit_mix, mixed_values
+from sigma.forecasting.local import WeeklyLocal
+from sigma.forecasting.reuse import validation_cache
+from sigma.forecasting.combine import calibrated_blend_values
+from sigma.provenance import implementation_hashes
 
 FEATURES = ['route_index', 'block', 'origin_weekday', 'start_month', 'year_sin',
             'year_cos', 'elapsed_days', 'sum7', 'sum14', 'sum28', 'sum90',
@@ -114,7 +122,11 @@ def fit(prepared, cutoff, spec, cfg, settings):
         weights = np.divide(1., y, out=np.zeros_like(y), where=y > 0)
     else:
         weights = np.ones_like(y)
-    if not np.any(y > 0):
+    if spec['kind'] == 'linear_week':
+        model = WeeklyLinear(spec).fit(x, y, weights)
+    elif spec['kind'] == 'local_week':
+        model = WeeklyLocal(spec, cfg, settings).fit(x, y, weights)
+    elif not np.any(y > 0):
         from sklearn.dummy import DummyRegressor
         model = DummyRegressor(strategy='constant', constant=0.).fit(x, y)
     else:
@@ -181,23 +193,23 @@ def blend_values(component_values, weights):
             for key in component_values[0]}
 
 
-def phase(daily, cfg, settings, start, end, name, out, choices=None):
+def phase(daily, cfg, settings, start, end, name, out, choices=None, model_ids=None):
     prepared, groups = prepare(daily, settings), checked_series(daily)
     origins = pd.date_range(pd.Timestamp(start) - pd.Timedelta(days=1), pd.Timestamp(end) - pd.Timedelta(days=1))
-    rows, logs, head_logs, fit_cache, predict_cache = [], [], [], {}, {}
-    identifiers = sorted(set(choices.values())) if choices else list(settings['models'])
+    rows, logs, head_logs, mix_logs, fit_cache, predict_cache = [], [], [], [], {}, {}
+    identifiers = sorted(set(choices.values())) if choices else (model_ids if model_ids is not None else list(settings['models']))
     for ident in identifiers:
         spec = settings['models'][ident]
         state = None
         for i, origin in enumerate(origins):
-            components = (spec['components'] if spec['kind'] == 'blend'
+            components = (spec['components'] if spec['kind'] in ('blend', 'adaptive_mix', 'calibrated_blend')
                           else [spec['parent']] if spec['kind'] == 'calibrated' else [ident])
-            if spec['kind'] in ('lgbm', 'blend', 'calibrated'):
+            if spec['kind'] in ('lgbm', 'linear_week', 'local_week', 'blend', 'calibrated', 'adaptive_mix', 'calibrated_blend'):
                 if i % settings['refit_days'] == 0:
                     state = []
                     for component in components:
                         component_spec = settings['models'][component]
-                        if component_spec['kind'] != 'lgbm':
+                        if component_spec['kind'] not in ('lgbm', 'linear_week', 'local_week'):
                             raise ValueError('Weekly blend components must be direct LightGBM models')
                         cache_key = (component, origin)
                         if cache_key not in fit_cache:
@@ -205,10 +217,14 @@ def phase(daily, cfg, settings, start, end, name, out, choices=None):
                         model, log = fit_cache[cache_key]
                         state.append((model, component_spec))
                         logs.append({'model': ident, 'component': component, 'fit_cutoff': origin, **log})
-                    if spec['kind'] == 'calibrated':
+                    if spec['kind'] in ('calibrated', 'calibrated_blend'):
                         factors, head_log = fit_factors(prepared, origin, spec, cfg, settings,
                             fit_cache, predict_cache, fit, predict_batch)
                         head_logs.extend([{'model': ident, **row} for row in head_log])
+                    if spec['kind'] == 'adaptive_mix':
+                        mixing_weights, mix_log = fit_mix(prepared, origin, spec, cfg, settings,
+                            fit_cache, predict_cache, fit, predict_batch)
+                        mix_logs.extend([{'model': ident, **row} for row in mix_log])
                 values = []
                 for component, (model, component_spec) in zip(components, state):
                     prediction_key = (component, origin)
@@ -216,6 +232,10 @@ def phase(daily, cfg, settings, start, end, name, out, choices=None):
                         predict_cache[prediction_key] = predict_batch(model, prepared, origin, component_spec)
                     values.append(predict_cache[prediction_key])
                 predicted = blend_values(values, spec['weights']) if spec['kind'] == 'blend' else values[0]
+                if spec['kind'] == 'adaptive_mix':
+                    predicted = mixed_values(values, mixing_weights)
+                if spec['kind'] == 'calibrated_blend':
+                    predicted = calibrated_blend_values(values, factors, spec['weights'])
                 base_prediction = predicted.copy()
                 if spec['kind'] == 'calibrated':
                     predicted = {key: value * factors[key] for key, value in predicted.items()}
@@ -230,19 +250,24 @@ def phase(daily, cfg, settings, start, end, name, out, choices=None):
                 actual = table['y'][idx]
                 if not np.isfinite(actual):
                     raise ValueError('Missing complete-week actual')
-                value = (predicted[(key, block)] if spec['kind'] in ('lgbm', 'blend', 'calibrated')
+                value = (predicted[(key, block)] if spec['kind'] in ('lgbm', 'linear_week', 'local_week', 'blend', 'calibrated', 'adaptive_mix', 'calibrated_blend')
                          else baseline_total(groups[key], origin, spec))
                 rows.append({**dict(zip(ROUTE, key)), 'model': ident, 'as_of_date': origin,
                     'window_start': start_date, 'window_end': end_date, 'week_block': block,
                     'forecast_qty_7d': value, 'actual_qty_7d': actual, 'split': name,
                     'weekly_cadence': i % 7 == 0,
                     'base_forecast_qty_7d': base_prediction[(key, block)] if spec['kind'] == 'calibrated' else value,
-                    'calibration_factor': factors[(key, block)] if spec['kind'] == 'calibrated' else 1.})
+                    'calibration_factor': factors[(key, block)] if spec['kind'] == 'calibrated' else 1.,
+                    'mixture_first_qty': values[0][(key, block)] if spec['kind'] in ('adaptive_mix', 'calibrated_blend') else np.nan,
+                    'mixture_second_qty': values[1][(key, block)] if spec['kind'] in ('adaptive_mix', 'calibrated_blend') else np.nan,
+                    'mixture_first_weight': mixing_weights[(key, block)] if spec['kind'] == 'adaptive_mix' else np.nan,
+                    'component_calibration_factor': factors[(key, block)] if spec['kind'] == 'calibrated_blend' else np.nan})
         print(f'{name}: completed {ident}', flush=True)
     frame = pd.DataFrame(rows)
     write_csv(out / f'{name}_weekly_predictions.csv', frame)
     write_csv(out / f'{name}_fit_log.csv', pd.DataFrame(logs))
     write_csv(out / f'{name}_head_log.csv', pd.DataFrame(head_logs))
+    write_csv(out / f'{name}_mix_log.csv', pd.DataFrame(mix_logs))
     write_csv(out / f'{name}_weekly_metrics.csv', metrics(frame, start, end))
     return frame
 
@@ -284,7 +309,7 @@ def allocate_daily(total, group, origin, block, history_days=90):
     return dates, allocated
 
 
-def run_weekly(run_id, weekly_config='config.weekly.json'):
+def run_weekly(run_id, weekly_config='config.weekly.json', reuse_validation_from=None):
     if not re.fullmatch(r'[A-Za-z0-9_-]+', run_id):
         raise ValueError('Invalid run id')
     settings_path = (ROOT / weekly_config).resolve()
@@ -298,12 +323,26 @@ def run_weekly(run_id, weekly_config='config.weekly.json'):
     source = (ROOT / cfg['source']).resolve()
     if not out.is_relative_to(ROOT) or not source.is_relative_to(ROOT):
         raise ValueError('Run/source must be local')
+    cached = None
+    if reuse_validation_from is not None:
+        if not re.fullmatch(r'[A-Za-z0-9_-]+', reuse_validation_from):
+            raise ValueError('Invalid validation parent run id')
+        cache_folder = ROOT / cfg['output_root'] / reuse_validation_from
+        cached = validation_cache(cache_folder, cfg, settings, sha256(source))
+        fresh_ids = [name for name in settings['models'] if name not in set(cached[0].model)]
     out.mkdir(exist_ok=False)
     protocol = {'status': 'registered_before_fit', 'weekly_config': settings, 'base_config': cfg,
         'created_at_utc': datetime.now(timezone.utc).isoformat(), 'source_sha256': sha256(source),
         'entrypoint_sha256': sha256(Path(__file__)), 'config_sha256': sha256(settings_path),
-        'feature_module_sha256': {'weekly_macro.py': sha256(ROOT / 'weekly_macro.py')},
-        'calibration_module_sha256': sha256(ROOT / 'weekly_calibration.py'),
+        'implementation_modules_sha256': implementation_hashes('forecasting'),
+        'feature_module_sha256': {'sigma/forecasting/macro.py': sha256(ROOT / 'sigma/forecasting/macro.py')},
+        'calibration_module_sha256': sha256(ROOT / 'sigma/forecasting/calibration.py'),
+        'linear_module_sha256': sha256(ROOT / 'sigma/forecasting/linear.py'),
+        'mixture_module_sha256': sha256(ROOT / 'sigma/forecasting/mix.py'),
+        'extension_modules_sha256': {name: sha256(ROOT / name) for name in ['sigma/forecasting/local.py', 'sigma/forecasting/reuse.py', 'sigma/forecasting/combine.py']},
+        'validation_cache': cached[2] if cached is not None else None,
+        'python': platform.python_version(), 'requirements_sha256': sha256(ROOT / 'requirements.txt'),
+        'packages': {name: importlib.metadata.version(name) for name in ['numpy', 'pandas', 'lightgbm', 'scikit-learn', 'scipy']},
         'target': 'Seven-day sum of unchanged UTC success quantity, never average or order count',
         'selection': 'Per-route validation daily-origin h1-7 weekly MAPE, then MAE, then lexical id; full coverage required',
         'test_limit': 'Existing test already viewed during daily experiments; this is retrospective evaluation, not independent acceptance',
@@ -317,7 +356,24 @@ def run_weekly(run_id, weekly_config='config.weekly.json'):
     val_daily = daily_sales(val_sales, cfg).loc[lambda f: f.date.le(cfg['validation_end'])].copy()
     top = route_top(val_daily, cfg)
     write_csv(out / 'top_routes.csv', top)
-    val = phase(val_daily, cfg, settings, cfg['validation_start'], cfg['validation_end'], 'validation', out)
+    if cached is not None and not fresh_ids:
+        # A structural refactor can authenticate the same validation and then
+        # recompute test/future forecasts. Do not claim a fresh validation fit.
+        val = cached[0].iloc[:0].copy()
+        for name in cached[1]:
+            write_csv(out / name, pd.DataFrame())
+    else:
+        val = phase(val_daily, cfg, settings, cfg['validation_start'], cfg['validation_end'], 'validation', out,
+            model_ids=fresh_ids if cached is not None else None)
+    if cached is not None:
+        val = pd.concat([cached[0], val], ignore_index=True)
+        write_csv(out / 'validation_weekly_predictions.csv', val)
+        for name, old_log in cached[1].items():
+            path = out / name
+            fresh_log = pd.read_csv(path) if path.stat().st_size > 3 else pd.DataFrame()
+            write_csv(path, pd.concat([old_log, fresh_log], ignore_index=True))
+        write_csv(out / 'validation_weekly_metrics.csv', metrics(val, cfg['validation_start'], cfg['validation_end']))
+        print(f"Authenticated and reused {cached[2]['prediction_pairs_reused']} validation pairs; selection recomputed", flush=True)
     vm = metrics(val, cfg['validation_start'], cfg['validation_end'])
     eligible = vm.loc[vm.week_block.eq(1) & vm.cadence.eq('daily_origins') & vm.coverage.eq(1) & vm.mape_positive_week_pct.notna()]
     selected = eligible.sort_values(['mape_positive_week_pct', 'mae_week_qty', 'model']).drop_duplicates(ROUTE)
@@ -337,35 +393,48 @@ def run_weekly(run_id, weekly_config='config.weekly.json'):
     prepared, groups = prepare(daily, settings), checked_series(daily)
     origin = pd.Timestamp(cfg['forecast_origin'])
     future, allocation, fits = [], [], {}
-    future_fit_cache, future_predict_cache, future_head_cache, future_head_logs = {}, {}, {}, []
+    future_fit_cache, future_predict_cache, future_head_cache, future_head_logs, future_mix_cache, future_mix_logs = {}, {}, {}, [], {}, []
     for key, ident in choices.items():
         spec = settings['models'][ident]
-        components = (spec['components'] if spec['kind'] == 'blend'
+        components = (spec['components'] if spec['kind'] in ('blend', 'adaptive_mix', 'calibrated_blend')
                       else [spec['parent']] if spec['kind'] == 'calibrated' else [ident])
-        if spec['kind'] in ('lgbm', 'blend', 'calibrated'):
+        if spec['kind'] in ('lgbm', 'linear_week', 'local_week', 'blend', 'calibrated', 'adaptive_mix', 'calibrated_blend'):
             for component in components:
                 if component not in fits:
                     component_spec = settings['models'][component]
-                    if component_spec['kind'] != 'lgbm':
+                    if component_spec['kind'] not in ('lgbm', 'linear_week', 'local_week'):
                         raise ValueError('Weekly blend components must be direct LightGBM models')
                     fits[component] = fit(prepared, origin, component_spec, cfg, settings)[0]
-            if spec['kind'] == 'calibrated' and ident not in future_head_cache:
+            if spec['kind'] in ('calibrated', 'calibrated_blend') and ident not in future_head_cache:
                 future_head_cache[ident], head_log = fit_factors(prepared, origin, spec, cfg, settings,
                     future_fit_cache, future_predict_cache, fit, predict_batch)
                 future_head_logs.extend([{'model': ident, **row} for row in head_log])
+            if spec['kind'] == 'adaptive_mix' and ident not in future_mix_cache:
+                future_mix_cache[ident], mix_log = fit_mix(prepared, origin, spec, cfg, settings,
+                    future_fit_cache, future_predict_cache, fit, predict_batch)
+                future_mix_logs.extend([{'model': ident, **row} for row in mix_log])
         for block in settings['blocks']:
-            if spec['kind'] in ('lgbm', 'blend', 'calibrated'):
+            if spec['kind'] in ('lgbm', 'linear_week', 'local_week', 'blend', 'calibrated', 'adaptive_mix', 'calibrated_blend'):
                 values = [{(key, block): predict_one(fits[component], prepared[(key, block)], origin, settings['models'][component])}
                           for component in components]
                 value = blend_values(values, spec['weights'])[(key, block)] if spec['kind'] == 'blend' else values[0][(key, block)]
+                if spec['kind'] == 'adaptive_mix':
+                    weight = future_mix_cache[ident][(key, block)]
+                    value = weight * values[0][(key, block)] + (1 - weight) * values[1][(key, block)]
                 if spec['kind'] == 'calibrated':
                     value *= future_head_cache[ident][(key, block)]
+                if spec['kind'] == 'calibrated_blend':
+                    value = calibrated_blend_values(values, {(key, block): future_head_cache[ident][(key, block)]}, spec['weights'])[(key, block)]
             else:
                 value = baseline_total(groups[key], origin, spec)
             dates, allocated = allocate_daily(value, groups[key], origin, block, settings['allocation_history_days'])
             future.append({**dict(zip(ROUTE, key)), 'model': ident, 'as_of_date': origin,
                 'window_start': dates[0], 'window_end': dates[-1], 'week_block': block,
-                'forecast_qty_7d': value, 'actual_qty_7d': np.nan})
+                'forecast_qty_7d': value, 'actual_qty_7d': np.nan,
+                'mixture_first_qty': values[0][(key, block)] if spec['kind'] in ('adaptive_mix', 'calibrated_blend') else np.nan,
+                'mixture_second_qty': values[1][(key, block)] if spec['kind'] in ('adaptive_mix', 'calibrated_blend') else np.nan,
+                'mixture_first_weight': future_mix_cache[ident][(key, block)] if spec['kind'] == 'adaptive_mix' else np.nan,
+                'component_calibration_factor': future_head_cache[ident][(key, block)] if spec['kind'] == 'calibrated_blend' else np.nan})
             for h, (date, qty) in enumerate(zip(dates, allocated), 1 + 7 * (block - 1)):
                 allocation.append({**dict(zip(ROUTE, key)), 'model': ident, 'as_of_date': origin,
                     'target_date': date, 'horizon_day': h, 'week_block': block, 'forecast_qty': qty,
@@ -374,6 +443,7 @@ def run_weekly(run_id, weekly_config='config.weekly.json'):
     write_csv(out / 'daily_allocation.csv', pd.DataFrame(allocation))
     write_csv(out / 'daily_sales.csv', daily)
     write_csv(out / 'future_head_log.csv', pd.DataFrame(future_head_logs))
+    write_csv(out / 'future_mix_log.csv', pd.DataFrame(future_mix_logs))
     tm = metrics(test, cfg['test_start'], cfg['test_end'])
     result = selected[ROUTE + ['model', 'is_top10']].merge(tm, on=ROUTE + ['model'], validate='one_to_many')
     write_csv(out / 'selected_test_weekly_metrics.csv', result)
@@ -391,11 +461,20 @@ def run_weekly(run_id, weekly_config='config.weekly.json'):
         'source_audit_rows': audit['rows_raw'],
         'files': {p.name: sha256(p) for p in sorted(out.iterdir()) if p.is_file()}}
     if (sha256(Path(__file__)) != protocol['entrypoint_sha256']
+            or implementation_hashes('forecasting') != protocol['implementation_modules_sha256']
             or sha256(settings_path) != protocol['config_sha256']
-            or sha256(ROOT / 'weekly_macro.py') != protocol['feature_module_sha256']['weekly_macro.py']
-            or sha256(ROOT / 'weekly_calibration.py') != protocol['calibration_module_sha256']
+            or sha256(ROOT / 'sigma/forecasting/macro.py') != protocol['feature_module_sha256']['sigma/forecasting/macro.py']
+            or sha256(ROOT / 'sigma/forecasting/calibration.py') != protocol['calibration_module_sha256']
+            or sha256(ROOT / 'sigma/forecasting/linear.py') != protocol['linear_module_sha256']
+            or sha256(ROOT / 'sigma/forecasting/mix.py') != protocol['mixture_module_sha256']
+            or any(sha256(ROOT / name) != digest for name, digest in protocol['extension_modules_sha256'].items())
+            or sha256(ROOT / 'requirements.txt') != protocol['requirements_sha256']
             or not summary['raw_unchanged']):
         raise ValueError('Input, configuration or model code changed during weekly run')
+    if cached is not None:
+        _, _, checked_cache = validation_cache(cache_folder, cfg, settings, sha256(source))
+        if checked_cache != cached[2]:
+            raise ValueError('Validation parent changed during extension')
     write_json(out / 'summary.json', summary)
     print(json.dumps({k: v for k, v in summary.items() if k != 'files'}, ensure_ascii=False), flush=True)
     return summary
@@ -405,5 +484,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run-id', required=True)
     parser.add_argument('--config', default='config.weekly.json')
+    parser.add_argument('--reuse-validation-from', help='Verified immutable validation parent; test is recomputed')
     args = parser.parse_args()
-    run_weekly(args.run_id, args.config)
+    run_weekly(args.run_id, args.config, args.reuse_validation_from)

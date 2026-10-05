@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from weekly_calibration import relative_factor, fit_factors
+from sigma.forecasting.calibration import relative_factor, fit_factors
 
 
 def test_weekly_calibration_factor_minimizes_relative_error_with_bounded_prior():

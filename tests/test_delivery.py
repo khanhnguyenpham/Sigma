@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from delivery import commitments, projection, delivery_settings
+from sigma.delivery.customer import commitments, projection, delivery_settings
 
 
 def orders():

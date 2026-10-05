@@ -657,3 +657,88 @@ V5 summary SHA `a1efacce7ffa492bec53e4fe012676373491848918b8f0a1ebf9258d52893f3e
 Replay cùng 5.520 item windows và 2.867 actual events, actual date/path khớp v11: TP 2071/FP 836/FN 796,precision 71,241830%,recall 72,235787%,early 33,728636%; không bỏ early<7 ngày, không tăng tồn vô hạn hoặc đổi mẫu số. Independent `sigma_weekly_inventory_verification_v1`: raw SKU shares/stock/pending integer/threshold/Q/depletion 920 items và raw actual paths 5.520 windows khớp,59 sealed v11 và raw nguyên. Bốn tests mới kiểm conservation H14,strict formula/pending ETA, future mutation, missing block/stale forecast; toàn suite **150 tests pass**. Menu weekly inventory AppTest 2 bảng; R05/R07/T14 vẫn mở; chỉ push mã/config/tests/tài liệu, outputs/job state/reports không push.
 
 **Bàn giao mã E37–E39:** commit `eb1962a3f8de0576600278f4136040ed55784eb9` đã push lên `codex/sigma-local-pipeline`. Xác minh chính xác head SHA: [CI push](https://github.com/khanhnguyenpham/Sigma/actions/runs/37312001266) và [CI PR](https://github.com/khanhnguyenpham/Sigma/actions/runs/37312007859) đều completed/success trên Windows sạch. Draft [PR1](https://github.com/khanhnguyenpham/Sigma/pull/1) đã cập nhật mô tả sản phẩm và giới hạn, chưa merge. Publish scan 37 tệp không có định danh nguồn hoặc credential; kiểm 15 liên kết/anchor mới, fence 12 Markdown và trạng thái TASK/PLAN đạt. Server sản phẩm cổng 8503 vẫn health ok; raw và 59 sealed v11 kiểm lại nguyên, entrypoint tuần khớp protocol đã đăng ký. Commit ghi bằng chứng CI sau đây chỉ sửa tài liệu, không sửa mã hoặc run. Bước tiếp T09/T10: cải thiện ngoài mẫu bằng validation, hoàn tất kiểm policy liên tục từ tuần; giữ R05/R07/T14 mở. Bản so sánh chính thức và tổ chức lại code theo CHG-025 còn chờ đủ điều kiện nghiệm thu.
+
+
+### CHG-026 — Tiếp tục hoàn thiện theo yêu cầu người dùng, 05/10/2026
+
+Người dùng yêu cầu tiếp tục tới khi đạt. Giữ R01–R09, A08–A17 và CHG-024/025: không thay dữ liệu, top10, split, target hoặc tiêu chí để đạt; không suy customer D+7 thành supplier L=7. T09 tiếp tục thử mô hình chọn validation; T10 hoàn thiện chính sách tồn liên tục theo tuần, T11 bổ sung màn hình 13 kịch bản. R05 ngày/R07/T14 còn mở; bản so sánh chính thức và đợt tổ chức lại code vẫn theo thứ tự CHG-025. Không làm tiếp Word/slide.
+
+### E40 — Mô hình tuần tuyến tính V6 và phối hợp V7, 05/10/2026
+
+V6 đăng ký 34 ứng viên: V5 cộng bốn hồi quy median theo từng tuyến, lịch sin/cos năm 1/2 harmonic, lag đã biết, chuẩn hóa chỉ từ train và L1 alpha 0,001/0,01/0,1. Weight inverse target dương; zero vẫn giữ trong metric. `sigma_weekly_linear_v6`: validation 10/10, mean 15,033558%; test hồi cứu vẫn 9/10, mean 16,109422%, LG U+ 21,356535%. Lựa chọn khóa bằng validation; không đổi LG U+ vì xem test. Summary SHA `673a798f90d5e55f979dff7c8358491ea10ef82d182449c9112b2196a520d800`, selection SHA `b21182537fdc5166d0f8838c25f80e8db5ee8254d36ddd797df0f0229c699266`. `sigma_weekly_linear_verification_v1` kiểm 265.650 cặp; raw và 59 tệp sealed v11 nguyên.
+
+V7 đăng ký 38 ứng viên: thêm bốn phối hợp annual LightGBM/linear, head 56/84 ngày và prior 0/4 tuần. Teacher tại mỗi origin quá khứ chỉ fit nhãn đã có; trọng số phối hợp tối ưu relative absolute loss của các tuần không chồng lấn đã kết thúc tại head cutoff, prior trọng số 0,5. Không học bằng test hoặc actual trong tương lai. V7 đang chạy tại thời điểm ghi đăng ký này; chưa nhận đạt. Tests inverse-relative-loss/convex bounds, future mutation, fit cutoff và dispatch đã pass.
+
+### E41 — Chính sách liên tục theo tuần đã chạy/đối soát, 05/10/2026
+
+`weekly_policy.py` chạy `sigma_weekly_policy_v1` từ V5/v11, giữ nguyên tham số tồn/nhập và 13 kịch bản. Mỗi quyết định có đủ H14 ở 93 origins 30/09–31/12/2025: 59.892 dòng forecast, 1.100.320 dòng ledger và cùng số recommendations, 267.827 events gồm 163.098 sales và 104.729 receipts. Cửa sổ cuối chưa đủ actual vẫn dự báo causal từ model đã khóa, refit neo theo split; actual ngoài nguồn để thiếu. Nhập 00:00 UTC trước bán theo order_datetime/order_id; trừ tồn đúng một lần khi đặt, không trừ lại tại D+7. Summary SHA `79951fb7767b93ae32ee31e8a09b5d005704a22fd37e01e85d22d866c48f0cc3`.
+
+Base fill 85,038828%, nhận 50% fill 42,272044%, trễ nhập 3 ngày 72,463677%, không nhập 7,690381%. Độ nhạy L1 fill 90,837926%, L7 80,241733%, cover14 85,658818%, safety×1,5 87,049098%; đây là mô phỏng, không tối ưu tham số để che thiếu hàng. Replay giữ 5.520 cửa sổ/2.867 actual events/1.099 đã cạn loại trước: early 33,728636%, precision 71,241830%, recall 72,235787%; không bỏ ca cạn dưới 7 ngày.
+
+`sigma_weekly_policy_verification_v1` đã đối soát độc lập mọi dòng số nguyên ledger/Q/IP, ma trận đơn đang về và lượng nhận thiếu/trễ, raw SKU shares/SS/ROP/S, bảo toàn tổng tuần và các forecast đã khóa, thứ tự events và mẫu số replay. 59 tệp v11/raw nguyên. Toàn suite 160 ca pass. AppTest năm trang không exception; tồn tuần có 4 bảng, lọc Thailand/AIS đã kiểm. V1 policy là bản lịch sử code tại lúc chạy; hỗ trợ head mixture bổ sung sau V1 cần run mới. Phần E39 “chưa chạy policy liên tục” đã được thay bằng bằng chứng E41, không sửa run E39.
+
+### Đăng ký mở rộng E42 — mô hình riêng từng tuyến, chưa chạy
+
+Giả thuyết chung: cây pooled có thể chia sẻ sai quan hệ giữa các tuyến; thêm ba boosted median riêng từng tuyến (raw7/ratio7/ratio15) và một median tuyến tính có lịch sử cùng kỳ được impute từ train. Mỗi tuyến dùng lịch sử/scale có sẵn tại origin, weight inverse target dương, route-specific weight normalization, training window và refit giữ nguyên. Annual missing được impute bằng median train và có indicator; không điền bằng dữ liệu tương lai. Bốn ứng viên đăng ký trước fit, chọn vẫn MAPE validation h1–7 rồi MAE/tên với full coverage. Không xem riêng LG U+ trên test để chọn hoặc sửa selection. Chạy sau V7 hoàn tất; kết quả và runtime phải kiểm trước đưa vào sản phẩm.
+
+
+E42 bổ sung trước fit: V8 dùng 42 ứng viên, tái sử dụng nguyên 288.420 cặp validation của 38 ứng viên V7 sau kiểm hash/nguồn/base protocol/spec và tham số. Chỉ fit bốn ứng viên mới trên validation; selection tính lại trên đủ 42, lưu/hash rồi chạy test mới cho các model được chọn. Không tái sử dụng test để chọn; CLI không có tùy chọn bỏ tuyến khó. Protocol mới ghi SHA summary/prediction của cha và module cache; run cha không bị sửa. Không nhận đã fit lại 38 ứng viên cache trong V8; bỏ tùy chọn cache sẽ fit lại đầy đủ theo cùng cấu hình.
+
+
+### Đăng ký E43 — phối hợp sau hiệu chỉnh quá khứ, chưa chạy
+
+Giả thuyết: phối hợp dự báo annual đã hiệu chỉnh causal với median lịch trơn hoặc cây macro để giảm phương sai do bất đồng mô hình. Đăng ký sáu ứng viên chung cho đủ 46 tuyến: trọng số annual cố định 25/50/75%, annual parent ratio7/head56/prior4 không đổi; component thứ hai linear h2 alpha0,01 hoặc macro ratio15. Không tìm trọng số theo test hoặc cấu hình riêng LG U+. V9 có 48 ứng viên, tái sử dụng nguyên validation V8 sau xác thực cache, chỉ fit sáu ứng viên mới; selection vẫn cùng MAPE/MAE/tên, test chạy sau khóa. Cần kiểm lượng trước/sau head, fit_cutoff, metric, chính sách tail và UI; chưa nhận đạt.
+
+
+### Đăng ký E44 — phối hợp annual/macro thích ứng, chưa chạy
+
+Tiếp tục kiểm drift bằng head đã kiểm E40: bốn ứng viên annual ratio7 + macro ratio15, lịch sử teacher 56/84 ngày và prior trọng số0,5 với 0/4 tuần. Teacher labels≤teacher origin, head chỉ học các tuần đã kết thúc tại cutoff, trọng số convex giữ quantity. V10 có 52 ứng viên, giữ 48 validation cũ sau xác thực cache; lựa chọn vẫn cùng tiêu chí, khóa rồi test. Không chọn trọng số theo test hoặc đổi bộ lọc. Không sửa code mô hình giữa V9 đang chạy; cấu hình mới đăng ký riêng trước fit.
+
+
+E40/V7 bổ sung sau thực chạy: `sigma_weekly_mix_v7` complete, validation 10/10, mean 14.996939%; test tuần hồi cứu 9/10, mean 16.209849%, LG U+ vẫn 21,356535%. Coverage100%, summary SHA `da751df0a169e2282b3fbd1e6ae70fe8ca5346783344fa22806c2eb44fcf5d06`, selection SHA `202d86d3a565126948b52030d3520dc9be8b6167ef954f7fc51f2eb3454aa579`. `sigma_weekly_mix_verification_v1` kiểm 296,010 cặp; raw/59 sealed v11 nguyên. `sigma_weekly_mix_head_verification_v1` kiểm 9,292 trọng số và 31,195 quantity rows, replay teacher/convex objective khớp, 258,060 cặp V6 không đổi.
+
+E42/V8 bổ sung sau thực chạy: `sigma_weekly_local_v8` complete, validation 10/10, mean 14.996939%; test tuần hồi cứu 9/10, mean 16.209849%, LG U+ vẫn 21,356535%. Coverage100%, summary SHA `21e4024b48b95757f70c3ee3c9aab15c91007213ec13f4d7935d538f3716b229`, selection SHA `3795d7bb0c9eb7d49daf3d5fa1afd2d986ce30ce51dc64561417b3cee3e1e26a`. `sigma_weekly_local_verification_v1` kiểm 326,370 cặp; raw/59 sealed v11 nguyên. `sigma_weekly_local_fit_verification_v1` đối soát toàn bộ 288,420 cặp cache V7, tái fit 17 checkpoints đầu/cuối mỗi model/phase và 3,034 cặp, kiểm độc lập 230 bộ median/mean train. Không nhận kiểm mọi checkpoint từ kiểm mẫu; generic đã kiểm đủ mọi nhãn/metric/coverage.
+
+### E45 — Demo đầy đủ từ nguồn tự sinh và cách chọn bundle, 05/10/2026
+
+`demo_product.py --prefix sigma_synthetic_product_v1` đã chạy từ `config.original.json`/seed42, sinh ba tuyến riêng có nhãn generated_synthetic, không đọc/sửa snapshot được cung cấp. Tạo đủ daily/weekly/customer D+7/stock/policy và bốn verifier. Weekly chỉ là demo năm phương pháp/ba tuyến; không thay chiến dịch 48/52 ứng viên hoặc nghiệm thu top10 của nguồn được cung cấp. Synthetic source SHA `b5561e4e0ff084336c98f9fdd2d9f480b309ff0e4d64054932048c2e30c554b0`. Policy demo có 13 kịch bản/7.176 dòng ledger/49.741 events, 36 replay windows; integer balances/Q/IP/chronology và lượng trước/sau D+7 đối soát.
+
+`check_product.py` kiểm cả năm trang và CSV của bundle, cadence7/khối8–14, 21 delivery days/actual thiếu/giao đúngD+7, lượng dự báo bảo toàn; kiểm bốn bộ lọc policy base/nhận50%/trễ3/ngừng nhập và balances của các dòng được hiển thị, không exception. QA `sigma_synthetic_product_qa_v1` giữ local. Chọn `-DeliveryConfig` cho launcher và biến process `SIGMA_DELIVERY_CONFIG`; overview/weekly default lấy lại bundle ở mỗi rerun, không giữ mặc định stale V5. Demo hiển thị3/3 và provenance do phần mềm sinh; không gọi3/10 hoặc dùng dữ liệu demo để nhận đạt nguồn bài. Namespace job theo đường dẫn bundle riêng, không ghi đè state actual; explicit default của CLI/TaskScheduler giữ namespace cũ. Tests env/path escape/state isolation pass. CI bổ sung build/check chính bundle demo này trên Windows sạch; CI mới chưa chạy tại lúc ghi.
+
+
+
+### Đăng ký E46 — đủ vòng boosting và hiệu chỉnh causal, chưa chạy
+
+Thử giả thuyết underfit với 300 cây thay vì150 ở learning rate0,03 không đổi; hai parent annual ratio7/macro ratio15 và head56/prior0 hoặc4 cho mỗi parent, tổng sáu ứng viên mới chung đủ46 tuyến. V11 có58 ứng viên; nguồn/split/metric/selection giữ nguyên, cache52 validation cũ chỉ sau xác thực. Cần bổ sung override số cây ở spec và kiểm count/mutation trước chạy; tham số default150 của các model cũ không đổi. Không sửa code khi V10 hoặc policyV2 còn chạy; không chọn cấu hình dựa trên test. Đây là nghiên cứu thêm, chưa nhận đạt R05 hoặc tích hợp.
+
+
+### CHG-027 — làm so sánh và tổ chức code ngay, 05/10/2026
+
+Người dùng: “bạn làm hoàn thiện và cải tiến hơn cho tôi chưa, làm so sánh sắp xếp lại code các thứ đi”. Thứ tự CHG-025 được thay: làm bản so sánh chính thức và refactor ngay trong lượt này, vẫn tiếp tục mục tiêu hoàn thiện. R05 không đổi; không làm Word/slide. E46 chỉ đăng ký, chưa triển khai override số cây/chưa chạy; cấu hình đề xuất giữ ignored local, không gọi là model đã thực hiện.
+
+### E47 — so sánh cùng cửa sổ và sổ tồn, đã chạy
+
+Run sigma_day_week_comparison_v1 dùng weekly V9/v11/policyV2: 7.590 cửa sổ 46 tuyến, 86 cửa sổ h1–7 và79 h8–14/tuyến; cadence13/12 riêng. MAPE tuần trực tiếp thấp hơn tổng daily model ở cả10 tuyến, mean16,193421%, 9/10 đạt; LG U+21,192259%. Grid ngày R05 vẫn623 cặp/tuyến, 0/10; diagnostic602 cặp h1–7/tuyến chấm cả daily model và phân bổ tuần, không nhận phân bổ là model ngày đạt. So sánh13 kịch bản tồn giữ cùng demand; base fill83,523297% →84,969940%, shortage2631→2400; cảnh báo≥7 ngày33,100802%→33,798396%, cùng2867 sự kiện/5520 cửa sổ/1099 đã cạn loại trước. CSV/Markdown/HTML/hình giữ local, không có source IDs. Nguồn raw và59 v11 files được xác thực nguyên. Summary chứa hash từng bảng/hình và cha; test hồi cứu, không độc lập.
+
+### E48 — đăng ký refactor trước chạy parity
+
+Gom31 implementation vào sigma/forecasting, inventory, delivery, jobs, ui, verification, experiments, analysis; root giữ alias CLI/import để không làm hỏng lệnh cũ. Config nghiên cứu vào configs/experiments; configs/weekly.json giữ48 ứng viên V9, không đổi lựa chọn mô hình. CLI python -m sigma có help và các lệnh theo chức năng. Hash phải trỏ implementation thực và core đã import, không chỉ wrapper. Cho phép dùng lại validation cùng ứng viên sau xác thực; selection tính lại/lưu hash rồi fit test/future mới, parity ở1e-8 và hash raw/59 daily files. Run mới sigma_weekly_refactored_v12 chưa nhận xong tại lúc đăng ký. src/run.py/app.py ngày không đổi.
+
+
+E43 bổ sung sau chạy: sigma_weekly_combined_v9 đã complete/coverage100%; validation10/10, test9/10, mean16,193421%, LG U+21,192259%. SummarySHA6b8c6e6e774f33c87693f8a8887347c07e236ba63b8ef50f58797a8766415a9b; generic371.910 pairs, kiểm46041 quantity blends/32844 factors và318780 validation cache không đổi. sigma_weekly_policy_v2 complete/13 kịch bản/1100320 ledger/267812 events, basefill84,969940%/early33,798396%; verifier toàn sổ/events/denominator pass. sigma_weekly_inventory_v5 lấy đúng stock parent policyV2 (920 items), verifier pass/5520 replay/2867 events; summaryfb0d399baf32ff9a763852e3fc8d549d128b3843fe935bb9ae36c293f4b1780d. sigma_delivery_v4 nguồnV9 đã verifyD+7/118296 quantity. Không sửa các run cũ.
+
+E44 bổ sung sau chạy: sigma_weekly_macro_mix_v10 complete/52 ứng viên, validation10/10/test9/10; top10 giống V9 nhưng một số tuyến ngoài top10 đổi lựa chọn validation, nên không trộn V10 với policyV9. SummarySHA4f36d45e71340177f527ac75c9aded5a762dd6b0ad3477ba0c605acad48ecb1a; generic402270 pairs, independentmix17204 weights/61722 quantity rows,364320 cache V9 nguyên. Đợt mới CHG-027 dùng cấu hình sản phẩm V9 đã kiểm cùng bộ policy/stock/customer; không chọn lại model top10 bằng test. V10 giữ nghiên cứu riêng.
+
+E48 parity đã chạy: sigma_weekly_refactored_v12 summaryee0f61d065e009381bcaacb06fdf76967f3af895f68c67457ee80793c450f7d1; sigma_weekly_refactor_parity_v1 kiểm364320 cached validation/7590 fresh test/184 selected metrics/92 future/644 allocations, tất cả số thực1e-8 và cùng46 lựa chọn. SHA selection không byte-identical do read/write float CSV: không sửa selection/run cũ để ép hash; mỗi run tự khóa hash trước test, semantic/numerical parity được kiểm trực tiếp. 29 alias chuyển vào legacy; root giữ sản phẩm/job và core ngày. 192 tests pass; demoV2/13 kịch bản đã kiểm, trang so sánh bổ sung và6 trang AppTest demo không exception; bundle nguồn bài sau refactor còn đang kiểm trước promotion.
+
+
+### E49 — bộ sản phẩm sau refactor đã kiểm và chọn mặc định
+
+V12 generic kiểm371910 prediction pairs; parityE48 giữ model/numeric1e-8. PolicyV3 từV12 có13 scenarios/93 origins/59892 forecasts/1100320 ledger vàrecommendations/267812 events; verifier độc lập quantity integer, raw shares, thresholds, pending event matrix, chronology, tail labels và5520 replay cùng2867 actualevents đạt. SummarySHA43f1ec2986babba4dcc3a4ef30b1392bbd1d289eac7ad3bb9817bdd10a3a3095. Basefill84,969940%/early33,798396% khớpV9 policy.
+
+StockV6 lấy đúng policyV3 closing/pending; 920 SS/ROP/IP/Q/ETA đối soát, summary4eaeb5c1bfb7061222faa8146d8fe8ff538c4765b0100a03b869340557d52cd5. CustomerV5 kiểm80105 groups/118296 historicalqty/1885 knownnext7/966 projectedroute-days, fixed7calendar/no delay/actualmissing; summary6afe75ad6367dac6b8179b6c6d478f29c3707ba27e5d38fa448a9beda2ef8aaa. Bundle staging6 trang AppTest không exception,4 scenarios base/partial/late/none mỗi1840 ThailandAIS ledger rows khớp balance. config.delivery.json được chọnV12 sau tất cả evidence đã verified, SHA552cf2398eac298c6fec69667ee5f79afd130fc6dca29c112baf09eb3da2a823.
+
+So sánhV2 giữ đúng7590 windows/13 scenarios; bốn CSV aggregate vàfigure byte-identical vớiV1 trướcrefactor; prose sửa nhãn chưa đạt chung. Tất cả output giữ local. DemoV3 từ nguồn sinh riêng đã chạy đầy đủ CLI mới gồm compare, verify vàpolicy/stock/customer; không đọc suppliedCSV. SourceSHA b5561e4e0ff084336c98f9fdd2d9f480b309ff0e4d64054932048c2e30c554b0, chỉ3 tuyến khôngcertify top10. 192tests/full đã đạt,14ca affected delivery/bundle/alias pass sau guardhash. R05/R07/T14 còn mở; test hồi cứu, không tự nhận100%.
+
+
+E49 bổ sung refresh: CLI defaultV12 tạo sigma_delivery_job_20261005T160156072664 rồi lần kế tiếp skipped_unchanged; verifier rawD+7/80105groups/118296qty/966days pass, summary80136b5979c0e754f4d41c4b5a757e65948adae745e0fe294f2d1db905300f2e. Jobstate local, lịchWindows vẫn chưa cài. DemoV3 QA6 trang/current canonical paths/4 scenariofilters pass ởsigma_synthetic_product_qa_v4; không thay bằng runprivate trên CI. Quétpublish143 text files không IDs/token, khôngCSV/outputs/reports/.tools;203 local links/anchors và15 Markdown fences pass, hai link nguồn lịch sử thiếu được giữ khai báo, không phục hồi.

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 from datetime import datetime, timezone
 
@@ -15,13 +16,19 @@ import pandas as pd
 
 from src.common import ROOT, ITEM, ROUTE, read_config, sha256, write_csv, write_json, validate_run
 from src.data import audit_orders
-from verify_weekly import validate_weekly
+from sigma.verification.weekly import validate_weekly
+from sigma.provenance import implementation_hashes
 
 
-def delivery_settings(path='config.delivery.json'):
-    path = (ROOT / path).resolve()
+def delivery_config_path(path=None):
+    path = (ROOT / (path if path is not None else os.environ.get('SIGMA_DELIVERY_CONFIG', 'config.delivery.json'))).resolve()
     if not path.is_relative_to(ROOT):
         raise ValueError('Delivery config must be local')
+    return path
+
+
+def delivery_settings(path=None):
+    path = delivery_config_path(path)
     settings = json.loads(path.read_text(encoding='utf-8'))
     if (settings['customer_delivery_days'] != 7 or settings['customer_delay_days'] != 0
             or settings['scope'] != 'customer_order_to_customer_delivery_only'
@@ -114,7 +121,7 @@ def validate_delivery(folder):
     return summary
 
 
-def execute(run_id, config='config.delivery.json', weekly_run=None, daily_run=None):
+def execute(run_id, config=None, weekly_run=None, daily_run=None):
     settings = delivery_settings(config)
     weekly_run = weekly_run or settings['weekly_run']
     daily_run = daily_run or settings['daily_run']
@@ -141,7 +148,8 @@ def execute(run_id, config='config.delivery.json', weekly_run=None, daily_run=No
     protocol = {'settings': settings, 'base_config': cfg, 'weekly_run': weekly_run, 'daily_run': daily_run,
         'weekly_summary_sha256': sha256(weekly_folder / 'summary.json'),
         'daily_manifest_sha256': sha256(daily_folder / 'manifest.json'), 'source_sha256': source_hash,
-        'entrypoint_sha256': sha256(ROOT / 'delivery.py'),
+        'entrypoint_sha256': sha256(__file__),
+        'implementation_modules_sha256': implementation_hashes('delivery'),
         'created_at_utc': datetime.now(timezone.utc).isoformat(),
         'acceptance_limit': 'Known next-week delivery commitments are not predictions of unknown future sales.',
         'inventory_limit': 'Planned delivery dates do not prove stock availability; existing shortage warnings still apply.',
@@ -156,8 +164,9 @@ def execute(run_id, config='config.delivery.json', weekly_run=None, daily_run=No
     write_csv(out / 'delivery_projection.csv', view)
     validate_weekly(weekly_folder)
     validate_run(daily_folder)
-    if sha256(source) != source_hash:
-        raise ValueError('Source changed during customer-delivery projection')
+    if (sha256(source) != source_hash or sha256(__file__) != protocol['entrypoint_sha256']
+            or implementation_hashes('delivery') != protocol['implementation_modules_sha256']):
+        raise ValueError('Source or implementation changed during customer-delivery projection')
     summary = {'status': 'complete', 'kind': 'fixed_customer_delivery_run', 'run_id': run_id,
         'created_at_utc': protocol['created_at_utc'], 'as_of_date': origin.isoformat(),
         'customer_delivery_days': 7, 'customer_delay_days': 0, 'supplier_lead_time_modified': False,
@@ -178,7 +187,7 @@ def execute(run_id, config='config.delivery.json', weekly_run=None, daily_run=No
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run-id', required=True)
-    parser.add_argument('--config', default='config.delivery.json')
+    parser.add_argument('--config')
     parser.add_argument('--weekly-run')
     parser.add_argument('--daily-run')
     args = parser.parse_args()
