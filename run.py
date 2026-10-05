@@ -24,6 +24,7 @@ from src.reporting import eda, generate_synthetic
 from src.calendar_models import calendar_validation
 from src.transactions import EVENT_COLUMNS, prepare_transactions
 from src.cohort_models import COHORT_SPECS, cohort_rolling
+from src.hierarchical_models import HIERARCHICAL_SPECS, hierarchical_rolling
 
 STAGES = ["audit", "eda", "baseline", "validation", "test", "forecast", "inventory"]
 
@@ -174,6 +175,11 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                     write_csv(folder / 'countmonth_validation_predictions.csv',monthly)
                     write_csv(folder / 'countmonth_log.csv',monthly_logs)
                     metrics = pd.concat([metrics,metric_table(monthly.loc[monthly.split.eq('validation')])],ignore_index=True)
+                if cfg.get('tuning',{}).get('hiercount_enabled') and not baseline_only and 'hiercount' not in imported_families:
+                    hierarchy, hierarchy_logs = hierarchical_rolling(daily,sales,top,cfg,list(HIERARCHICAL_SPECS),'validation',progress)
+                    write_csv(folder / 'hiercount_validation_predictions.csv',hierarchy)
+                    write_csv(folder / 'hiercount_log.csv',hierarchy_logs)
+                    metrics = pd.concat([metrics,metric_table(hierarchy.loc[hierarchy.split.eq('validation')])],ignore_index=True)
                 write_json(folder / 'tuning_protocol.json', cfg.get('tuning',{}))
                 decision["reason"] = "Baseline demonstration; advanced search not executed" if baseline_only else ("Validation threshold triggered bounded 4-config search" if trigger else "All top routes meet validation threshold after SARIMA")
                 write_json(folder / "lightgbm_decision.json", decision)

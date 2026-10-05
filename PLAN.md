@@ -4,7 +4,7 @@
 
 **Trạng thái lịch sử 04/10/2026:** Người dùng đã yêu cầu triển khai phần mềm xuyên suốt, kiểm thử/Git và tình huống thực tế (CHG-007); báo cáo/slide để sau. Chưa có mã pipeline, môi trường khóa, huấn luyện, mô phỏng hoặc nghiệm thu M1/M2/M3; các lựa chọn triển khai đang chờ làm rõ. Giới hạn chỉ ba Markdown là phạm vi lịch sử ngày 02/10/2026, không áp dụng cho yêu cầu mới.
 
-**Trạng thái 05/10/2026:** Run sigma_release_v4 đã kiểm tra hash/tồn/UI. R05 chưa đạt, 0/10 top 10 MAPE ≤20%; test cũ đã xem. CHG-012 yêu cầu chỉ tập trung project; Word/slide chỉ làm tiếp khi người dùng yêu cầu lại. T09/T10 đã kiểm tra v8: 55 ứng viên gồm context, phân phối mùa vụ, count và cohort; vẫn 0/10 đạt R05. R06 đã đối soát ledger giao dịch v7 ngoài cân bằng theo ngày. T14 chưa nghiệm thu toàn bài. Các mô tả “chưa có/dự kiến” ngày 02/10 là lịch sử.
+**Trạng thái 05/10/2026:** Run sigma_hierarchical_v10 đã kiểm tra nguồn/validation/hash/tồn/UI. R05 chưa đạt, 0/10 top 10 MAPE ≤20%; test cũ đã xem. CHG-012 yêu cầu chỉ tập trung project; Word/slide chỉ làm tiếp khi người dùng yêu cầu lại. T09/T10 đã kiểm tra v10: 59 ứng viên gồm context, phân phối mùa vụ, count, cohort và hierarchical arrivals; vẫn 0/10 đạt R05. R06 đã đối soát ledger giao dịch v10 ngoài cân bằng theo ngày. T14 chưa nghiệm thu toàn bài. Các mô tả “chưa có/dự kiến” ngày 02/10 là lịch sử.
 
 ## 1. Cách sử dụng và thay đổi chính
 
@@ -269,7 +269,7 @@ Tại origin đợt, dự đoán có/không cạn và ngày cạn; so với đư
 
 **Cách làm hiện hành ngày 04/10/2026 (CHG-006):** Người dùng chọn làm solo với hỗ trợ từng phần và push Git tăng dần. Người dùng thực hiện/tổng hợp toàn bộ T01–T14, tự rà diff và chạy kiểm tra; không coi tự rà là review độc lập. Tên đầu mối/reviewer ở các trường phân công dưới đây là **lịch sử CHG-004/005, hết áp dụng**, được giữ để truy vết. Thứ tự T01–T07, xét T08, rồi T09–T14; T08 không kích hoạt phải có biên bản. Giữ nguyên phụ thuộc, công sức tổng, tiêu chí và trạng thái; xem [phần nhỏ và quy trình solo](TASK.md#solo-workflow). Chưa biết quỹ giờ solo, chưa cam kết đủ nguồn lực cho mốc cũ.
 
-Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lại → hoàn thành; “bị thay thế” giữ lịch sử. T01 đang làm ở mức tài liệu; T02–T14 chưa làm. Kết quả khảo sát cũ cần tính lại không có nghĩa task kỹ thuật đã hoàn thành.
+Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lại → hoàn thành; “bị thay thế” giữ lịch sử. Tại khảo sát 02/10, T01 đang làm ở mức tài liệu; T02–T14 chưa làm. Trạng thái hiện hành nằm ở từng task bên dưới. Kết quả khảo sát cũ cần tính lại không có nghĩa task kỹ thuật đã hoàn thành.
 
 ### Giai đoạn 1 — Bù M1
 
@@ -384,7 +384,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
-- **Trạng thái:** Đang xử lý R05; v9 tích hợp 57 ứng viên, chọn bằng validation; test vẫn 0/10 đạt, chưa nghiệm thu.
+- **Trạng thái:** Đang xử lý R05; v10 tích hợp 59 ứng viên, chọn bằng validation; test vẫn 0/10 đạt, chưa nghiệm thu.
 - **Mục tiêu/yêu cầu:** R04, R05, R09.
 - **Đầu vào/công việc/đầu ra:** T07/T08/MVP → khóa, test cuối, forecast → selected_models, test metrics, đạt/chưa đạt.
 - **Phụ thuộc:** T06, T07, T08 hoặc biên bản không kích hoạt T08.
@@ -399,7 +399,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Hiếu phụ trách; Khang review.
 
-- **Trạng thái:** Đã kiểm tra giao dịch/tồn/replay v9; tỷ lệ sớm 32,26%; giữ giả định mô phỏng, không bảo đảm mọi ca.
+- **Trạng thái:** Đã kiểm tra giao dịch/tồn/replay v10; tỷ lệ sớm 33,14%; giữ giả định mô phỏng, không bảo đảm mọi ca.
 - **Mục tiêu/yêu cầu:** R06, R07.
 - **Đầu vào/công việc/đầu ra:** Sales/forecast/A09–A16 → mapping/tham số riêng/ledger/ETA/strict threshold/replay/độ nhạy → recommendations, alerts, simulation_metrics.
 - **Phụ thuộc:** T06 để phát triển; kết quả cuối nhận T09.
@@ -427,7 +427,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Du review. Mỗi tác giả cung cấp kiểm thử/bằng chứng cho module của mình.
 
-- **Trạng thái:** 92 tests đạt; demo môi trường thứ hai tái lập 14 bảng; v9 qua kiểm nguồn/selection/actual/hash/giao dịch/Q/AppTest.
+- **Trạng thái:** 100 tests đạt; demo môi trường thứ hai tái lập 14 bảng; v10 qua kiểm nguồn/validation/selection/actual/hash/giao dịch/Q/AppTest.
 - **Mục tiêu/yêu cầu:** R01, R03–R09.
 - **Đầu vào/công việc/đầu ra:** Pipeline → ca mục 8/môi trường local sạch/kiểm tra gói → tests, checks, run tái lập.
 - **Phụ thuộc:** T09, T10, T11.

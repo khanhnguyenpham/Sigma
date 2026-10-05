@@ -1,5 +1,5 @@
 {
-  "config_version": "1.8.0",
+  "config_version": "1.7.0",
   "target_definition_version": "sales-success-utc-v1",
   "assumption_version": "A08-A17-experiment-v1",
   "source": "data/sigma_sim_data_orders.csv",
@@ -125,7 +125,6 @@
     "distribution_enabled": true,
     "count_enabled": true,
     "cohort_enabled": true,
-    "countmonth_enabled": true,
-    "hiercount_enabled": true
+    "countmonth_enabled": true
   }
 }
