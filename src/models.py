@@ -14,6 +14,7 @@ from src.seasonal_models import distribution_forecast, SEASONAL_SPECS
 from src.context_models import CONTEXT_SPECS, context_rolling, fit_context, prepare_context, context_features
 from src.count_models import fit_count, predict_count, count_rolling
 from src.cohort_models import COHORT_SPECS, fit_cohort, predict_cohort, cohort_rolling
+from src.hierarchical_models import fit_hierarchical, predict_hierarchical, hierarchical_rolling
 
 
 def sarima_specs():
@@ -253,7 +254,7 @@ def selected_backtest(daily, selected, top, cfg, progress=lambda message: None, 
     series_map = series_by_route(daily)
     for row in selected.itertuples(index=False):
         keys = (row.destination_country, row.carrier)
-        if row.model.startswith(("lgbm_", "context_", "count_", 'countmonth_', 'cohort_')):
+        if row.model.startswith(("lgbm_", "context_", "count_", 'countmonth_', 'cohort_', 'hiercount_')):
             continue
         progress(f"Test locked model {row.model}")
         frame, log = rolling_route(series_map[keys], keys, row.model, cfg["test_start"], cfg["test_end"], cfg, row.fallback_model)
@@ -286,6 +287,13 @@ def selected_backtest(daily, selected, top, cfg, progress=lambda message: None, 
     ids = sorted(set(selected.loc[selected.model.str.startswith('cohort_'), 'model']))
     if ids:
         frame, log = cohort_rolling(daily, sales, top, cfg, ids, 'test', progress)
+        frame = frame.merge(selected[ROUTE + ['model']], on=ROUTE + ['model'], how='inner', validate='many_to_one')
+        frame['requested_model'] = frame.model
+        frame['model'] = 'selected'
+        frames.append(frame); logs.append(log)
+    ids = sorted(set(selected.loc[selected.model.str.startswith('hiercount_'), 'model']))
+    if ids:
+        frame, log = hierarchical_rolling(daily, sales, top, cfg, ids, 'test', progress)
         frame = frame.merge(selected[ROUTE + ['model']], on=ROUTE + ['model'], how='inner', validate='many_to_one')
         frame['requested_model'] = frame.model
         frame['model'] = 'selected'
@@ -353,6 +361,11 @@ def forecast_at(daily, selected, top, origin, cfg, progress=lambda message: None
                 model = fit_cohort(daily, sales, list(top_series), origin, window, loss, cfg)
                 cohort_forecasts[row.model] = predict_cohort(model, daily, sales, list(top_series), origin, cfg)
             pred = cohort_forecasts[row.model][keys]
+        elif row.model.startswith('hiercount_'):
+            if row.model not in count_forecasts:
+                state = fit_hierarchical(daily, sales, list(top_series), origin, row.model, cfg)
+                count_forecasts[row.model] = predict_hierarchical(state, daily, list(top_series), origin, cfg)
+            pred = count_forecasts[row.model][keys]
         elif row.model.startswith(('count_', 'countmonth_')):
             if row.model not in count_forecasts:
                 state = fit_count(daily,sales,list(top_series),origin,row.model,cfg)
