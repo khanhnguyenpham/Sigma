@@ -1,6 +1,7 @@
-param([ValidateRange(1024, 65535)][int]$Port = 8503)
+param([ValidateRange(1024, 65535)][int]$Port = 8503, [string]$DeliveryConfig = 'config.delivery.json')
 $ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath $PSScriptRoot
+$env:SIGMA_DELIVERY_CONFIG = $DeliveryConfig
 if (-not (Test-Path -LiteralPath '.venv\Scripts\python.exe')) {
     throw 'Create .venv and install requirements.txt first; see README.md.'
 }
