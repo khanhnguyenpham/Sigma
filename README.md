@@ -171,6 +171,8 @@ Config 1.8.0, catalog 59; giữ config v9 tại config.monthly-v9.json. Hai hier
 & .venv/Scripts/python.exe verify_release.py --run-id sigma_hierarchical_v10
 ```
 
-Clone mới không có validation cache thì bỏ --validation-cache-run và dùng run-id mới. Lệnh v9/v8 phía trên là lịch sử mã tương ứng; không sửa/resume sealed run bằng mã mới. Verify tái tính cả nhãn quantity và metric của toàn bộ validation predictions, kể cả evidence nhập; kiểm train top/selection/actual test và forecast, hash, stock/event/day/Q. 100 tests đạt; 57 sealed files, 266,469 events, 1.100.320 ledger, 84 pins. Demo nguồn riêng tái lập 14 bảng, verify/AppTest real và demo 0 exception/10 bảng.
+Clone mới không có validation cache thì bỏ --validation-cache-run và dùng run-id mới. Lệnh v9/v8 phía trên là lịch sử mã tương ứng; không sửa/resume sealed run bằng mã mới. Verify tái tính cả nhãn quantity và metric của toàn bộ validation predictions, kể cả evidence nhập; kiểm train top/selection/actual test và forecast, hash, stock/event/day/Q. 101 tests đạt; 57 sealed files, 266,469 events, 1.100.320 ledger, 84 pins. Demo nguồn riêng tái lập 14 bảng, verify/AppTest real và demo 0 exception/10 bảng.
 
 R05 vẫn 0/10, MAPE 38,58–58,13%, mean route MAPE 46.503945%, coverage 100%. Có tuyến test tốt hơn và kém hơn v9; không chọn lại bằng test. Test đã xem, chưa là kiểm định độc lập mới. Replay early-event-rate 33.135682%, base fill 83.755010% là mô phỏng. Chưa nghiệm thu toàn bài; Word/slide chưa làm tiếp.
+
+**Kiểm bổ sung E29:** Verify yêu cầu đủ từng cặp origin–horizon cho mỗi model/tuyến validation, giữ tail ngoài split có actual trống và missing forecast chỉ được giữ nếu candidate đã có log failure/excluded. 101 tests đạt; real/demo verify lại, không thay model, forecast hoặc sealed run.

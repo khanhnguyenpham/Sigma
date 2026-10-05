@@ -44,10 +44,18 @@ def verify(folder):
     # Hash lineage alone does not establish that old evidence used the right target.
     actual_truth = truth_daily[['date']+ROUTE+['sales_qty']].rename(columns={'date':'target_date','sales_qty':'truth_qty'})
     validation_frames = []
+    validation_origins = pd.date_range(pd.Timestamp(cfg['validation_start'])-pd.Timedelta(days=1),
+                                       pd.Timestamp(cfg['validation_end'])-pd.Timedelta(days=1))
     for name in sorted(manifest['files']):
         if not name.endswith('_validation_predictions.csv'):
             continue
         frame = pd.read_csv(folder/name, parse_dates=['as_of_date','target_date'])
+        pair_key = ['model']+ROUTE+['as_of_date','horizon_day']
+        if (frame.duplicated(pair_key).any() or not frame.as_of_date.isin(validation_origins).all()
+                or not frame.horizon_day.between(1,cfg['horizon']).all()
+                or not frame.groupby(['model']+ROUTE+['as_of_date']).size().eq(cfg['horizon']).all()
+                or not frame.groupby(['model']+ROUTE).as_of_date.nunique().eq(len(validation_origins)).all()):
+            raise ValueError('Validation evidence is missing or duplicating required origin-horizon pairs')
         assert (frame.target_date == frame.as_of_date + pd.to_timedelta(frame.horizon_day,unit='D')).all()
         assert frame.forecast_qty.dropna().ge(0).all()
         assert not np.isinf(frame.forecast_qty).any()
