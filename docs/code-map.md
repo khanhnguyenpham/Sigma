@@ -39,6 +39,8 @@ outputs/                   # run/hình/job state private, ignored Git
 | Refresh local và giữ run tốt | [jobs/refresh](../sigma/jobs/refresh.py) |
 | Menu sản phẩm và trang so sánh | [ui/product](../sigma/ui/product.py), [ui/comparison](../sigma/ui/comparison.py) |
 | Bản so sánh có CSV, Markdown, HTML và hình | [analysis/comparison](../sigma/analysis/comparison.py) |
+| Giải thích sự kiện cạn, giữ mẫu số replay | [analysis/alert_diagnostics](../sigma/analysis/alert_diagnostics.py) |
+| Nghiên cứu mùa vụ validation và đối soát | [experiments/seasonal_weekly](../sigma/experiments/seasonal_weekly.py), [verification/seasonal_weekly](../sigma/verification/seasonal_weekly.py) |
 | Kiểm thay đổi cấu trúc không đổi kết quả | [verification/refactor](../sigma/verification/refactor.py) |
 | Khóa bản báo cáo M2–M3, bảng đạt/chưa đạt và lỗi bộ demo | [release](../sigma/release.py), [product_catalog](../sigma/product_catalog.py), [ui/bundle](../sigma/ui/bundle.py) |
 | Audit, target, metric và sổ giao dịch ngày | [src/data](../src/data.py), [evaluation](../src/evaluation.py), [inventory](../src/inventory.py), [transactions](../src/transactions.py) |

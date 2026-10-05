@@ -20,6 +20,8 @@ COMMANDS = {
                     'verify-weekly-inventory', 'verify-delivery']},
     'validate-daily': 'sigma.experiments.validation',
     'calibrate-daily': 'sigma.experiments.calibration',
+    'validate-seasonal-weekly': 'sigma.experiments.seasonal_weekly',
+    'verify-seasonal-weekly': 'sigma.verification.seasonal_weekly',
 }
 
 

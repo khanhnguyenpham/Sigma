@@ -58,7 +58,17 @@ def check(output_id, config=None, country=None, carrier=None):
     assert delivery.loc[delivery.delivery_horizon_day.le(7), 'forecast_from_future_orders_qty'].eq(0).all()
     np.testing.assert_allclose(delivery.forecast_from_future_orders_qty.sum(), expected.forecast_qty_7d.sum(), rtol=0, atol=1e-8)
     filtered('sigma/ui/inventory.py')
-    assert len(at.dataframe) == 4
+    assert len(at.dataframe) == 5
+    event_table = at.dataframe[2].value
+    assert event_table.destination_country.eq(country).all() and event_table.carrier.eq(carrier).all()
+    assert 'diagnostic_group' in event_table and 'event_id' not in event_table
+    groups = next(w for w in at.selectbox if w.label == 'Nhóm ca cảnh báo')
+    if len(groups.options) > 1:
+        chosen_group = list(groups.options)[1]
+        groups.select(chosen_group).run()
+        assert not at.exception and len(at.dataframe[2].value) > 0
+        assert at.dataframe[2].value.diagnostic_group.eq(chosen_group).all()
+        next(w for w in at.selectbox if w.label == 'Nhóm ca cảnh báo').select('Tất cả').run()
     scenario_rows = []
     for scenario in ['base', 'partial_receipt', 'late_receipt', 'no_receipt']:
         next(w for w in at.selectbox if w.label == 'Kịch bản tồn tuần').select(scenario).run()
@@ -76,6 +86,7 @@ def check(output_id, config=None, country=None, carrier=None):
     assert not at.exception
     assert at.dataframe[0].value.sku.eq(chosen_sku).all() and at.dataframe[0].value.product_type.eq(chosen_type).all()
     assert at.dataframe[-1].value.sku.eq(chosen_sku).all() and at.dataframe[-1].value.product_type.eq(chosen_type).all()
+    assert at.dataframe[2].value.sku.eq(chosen_sku).all() and at.dataframe[2].value.product_type.eq(chosen_type).all()
     assert len(at.dataframe[-1].value) == 92
     at.switch_page('sigma/ui/comparison.py').run()
     assert not at.exception and len(at.dataframe) == 4
@@ -95,7 +106,7 @@ def check(output_id, config=None, country=None, carrier=None):
         'configured_weekly_run': bundle['weekly_run'], 'configured_daily_run': bundle['daily_run'],
         'weekly_summary_sha256': sha256(wdir / 'summary.json'), 'delivery_config_sha256': sha256(path),
         'product_entrypoint_sha256': sha256(ROOT / 'sigma_product.py'),
-        'implementation_modules_sha256': implementation_hashes('ui', 'verification'),
+        'implementation_modules_sha256': implementation_hashes('ui', 'verification', 'analysis'),
         'source_kind': bundle['source_description'], 'project_fully_accepted': False,
         'weekly_test_passed': weekly['top10_test_weekly_passed']}
     out = ROOT / 'outputs' / output_id
