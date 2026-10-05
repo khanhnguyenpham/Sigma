@@ -1,3 +1,27 @@
+CẬP NHẬT HIỆN HÀNH 05/10/2026 — CHG-027: SẢN PHẨM VÀ MÃ ĐÃ TỔ CHỨC
+
+1. Máy hiện tại: mở PowerShell tại project, chạy .\start_product.ps1;
+   truy cập http://127.0.0.1:8503. Có 6 trang, gồm so sánh ngày/tổng 7 ngày.
+2. Đọc README.md để cài máy mới. Demo riêng không cần CSV được cung cấp:
+   .\.venv\Scripts\python.exe -m sigma demo --prefix demo_team
+   .\start_product.ps1 -DeliveryConfig outputs/demo_team_bundle/delivery.json
+   Dùng prefix mới mỗi lần; không ghi đè run.
+3. Đọc docs/code-map.md: implementation trong sigma/, core ngày trong src/;
+   cấu hình tuần configs/weekly.json; nghiên cứu configs/experiments/.
+   29 lệnh cũ nằm trong legacy/. Dùng python -m sigma --help để xem CLI mới.
+4. Chỉ push mã, cấu hình, tests với dữ liệu giả, notebook không output và docs.
+   CSV, outputs, reports, môi trường, job state và thông tin đăng nhập giữ local.
+5. Trước commit: python -m pytest và git diff --check; đọc diff, chọn đúng file.
+   Dùng nhánh codex/sigma-local-pipeline; PR số 1 vẫn draft, chưa merge main.
+6. Mô hình tổng 7 ngày hiện đạt 9/10 tuyến <=20%, LG U+ 21,19%; ngày R05 vẫn
+   0/10. Hai target/metric khác nhau; không nhận tuần đạt thay nghiệm thu ngày.
+7. Khách đặt D -> lịch giao D+7 ngày lịch UTC, không trễ theo giả định đã chốt.
+   Lead time nhà cung cấp/tồn/nhập là giả định riêng, không trừ tồn lần thứ hai.
+8. Có bản so sánh chính thức và 192 tests local đã qua. Word/slide M2 cũ giữ
+   lịch sử local; đợt này không làm lại. TASK/PLAN ghi phần còn chưa nghiệm thu.
+
+PHẦN BÊN DƯỚI LÀ HƯỚNG DẪN LỊCH SỬ TRƯỚC CHG-027
+
 CẬP NHẬT 05/10/2026 — ĐÃ CÓ PHẦN MỀM LOCAL
 
 1. Trên máy hiện tại: mở PowerShell tại project, chạy .\start_dashboard.ps1.

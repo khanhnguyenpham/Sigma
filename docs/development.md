@@ -187,3 +187,16 @@ E32 chưa đạt: inner-locked outer validation 0/10, MAPE 36,29–52,09%. Khôn
 ### Kiểm sản phẩm chung E37–E39
 
 150 tests đạt; raw và v11 giữ byte/hash. Verifier tuần kiểm 235.290 cặp dự báo; kiểm lại 27.876 hệ số từ dự báo quá khứ và 136.620 cặp validation không đổi. Lịch D+7 bảo toàn 118.296 quantity, có 1.885 đơn vị đã đặt cho tuần tới, 966 dòng tuyến/ngày và chưa có actual giao. Verifier tồn kiểm 920 items và 5.520 cửa sổ replay từ raw. AppTest năm trang không exception; health cổng 8503 trả HTTP 200/ok. CLI refresh complete rồi skipped_unchanged; run tốt đã verify, lịch Windows chưa cài. Bản so sánh chính thức và tổ chức lại code theo CHG-025 chưa đóng; R05 ngày, LG U+ tuần, R07 và T14 còn mở. Không sửa reports hoặc sealed run; sau thay mã/config tạo run-id mới và kiểm nguồn/cha/protocol/metric/quantity theo [hướng dẫn sản phẩm](customer-delivery.md).
+
+
+### Bàn giao CHG-027/E47–E50 — 05/10/2026 (Asia/Saigon)
+
+- Project: C:/Users/nguye/OneDrive/Desktop/TTDN_Sigma; T09/T10/T11/T12/T14. Bản so sánh và tổ chức mã đã thực hiện ngay theo yêu cầu mới; R05/R07/T14 chưa nghiệm thu toàn bài.
+- Nguồn: quantity success UTC A08 thực nghiệm, split/top 10 train giữ nguyên; khách D+7 theo CHG-024, tách supplier lead time. Raw nguyên và run ngày v11/59 files nguyên.
+- Tệp: sigma/ theo forecasting/inventory/delivery/jobs/ui/verification/analysis/experiments; configs/weekly.json và configs/experiments; 29 alias legacy; README/code-map/day-week-comparison/TASK/PLAN/requirements/review-log/TXT đã cập nhật. Word/slide không sửa.
+- Run/hash: weekly_refactored_v12 summary ee0f61d065e009381bcaacb06fdf76967f3af895f68c67457ee80793c450f7d1; policy_v3 43f1ec2986babba4dcc3a4ef30b1392bbd1d289eac7ad3bb9817bdd10a3a3095; stock_v6/customer_v5/comparison_v2 và các verification ở outputs local. Prefix đầy đủ sigma_ như E49. config.delivery.json mặc định V12.
+- Kiểm thực: 192 tests; generic 371.910 pairs; parity 364.320 validation cache/7.590 fresh test/92 future/644 allocations ở 1e-8 và cùng model choices; full policy 1.100.320 ledger/267.812 events; snapshot 920 items; D+7 raw quantity; six-page QA nguồn bài và demo; refresh complete rồi skipped_unchanged; health 200. Windows CI push và PR của code commit043cf85 đều success, xem E50.
+- Giới hạn: tuần9/10, mean16,19%, LG U+21,19%; ngày R05 vẫn0/10. Test đã xem, cảnh báo early33,80% cùng2867 events chưa đạt mọi ca. Lịch Windows chưa cài, nguồn PDF/ảnh M01–M02 thiếu. SHA selection giữa hai run có thể khác do float CSV, không sửa sealed run; mỗi run giữ lock riêng, parity numeric đã kiểm.
+- Kết quả lịch sử: V5/V9/V10 và bản docs cũ được giữ lịch sử; khi sửa thuật toán/config cần run mới, không dùng số tests thay accuracy. E46 boosting chỉ đăng ký/chưa triển khai/chưa chạy, proposal ignored local.
+- Tiến độ đã đồng bộ TASK/PLAN/requirements/data-contract/PROJECTMAP/README/review-log. Mã đã push nhánh codex/sigma-local-pipeline, PR1 vẫn draft. PR body update chưa được thực hiện vì automated approval review từ chối external disclosure; câu hỏi quyền riêng đang chờ người dùng.
+- Bước tiếp: tiếp tục giả thuyết đăng ký và lựa chọn validation để xử lý LG U+/R05; chốt metric ngày/tuần với mentor, kiểm giới hạn cảnh báo; giữ dữ liệu/run local. Chỉ cập nhật PR body sau cho phép trực tiếp; không tự nhận 100% hoặc làm Word/slide.

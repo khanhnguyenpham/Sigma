@@ -742,3 +742,10 @@ So sánhV2 giữ đúng7590 windows/13 scenarios; bốn CSV aggregate vàfigure 
 
 
 E49 bổ sung refresh: CLI defaultV12 tạo sigma_delivery_job_20261005T160156072664 rồi lần kế tiếp skipped_unchanged; verifier rawD+7/80105groups/118296qty/966days pass, summary80136b5979c0e754f4d41c4b5a757e65948adae745e0fe294f2d1db905300f2e. Jobstate local, lịchWindows vẫn chưa cài. DemoV3 QA6 trang/current canonical paths/4 scenariofilters pass ởsigma_synthetic_product_qa_v4; không thay bằng runprivate trên CI. Quétpublish143 text files không IDs/token, khôngCSV/outputs/reports/.tools;203 local links/anchors và15 Markdown fences pass, hai link nguồn lịch sử thiếu được giữ khai báo, không phục hồi.
+
+
+### E50 — commit và Windows CI của bản mã đã tổ chức
+
+Commit mã043cf8595803f6331ebec4ca1eac14aa63af849e đã push codex/sigma-local-pipeline. Kiểm đúnghead, hai workflow hoàn tấtsuccess: [push CI](https://github.com/khanhnguyenpham/Sigma/actions/runs/37338362331), [PR CI](https://github.com/khanhnguyenpham/Sigma/actions/runs/37338369564). Windows sạch cài dependencies/pipcheck,192tests, dailyfake/audit, fullsyntheticproduct/compare/verifiers và6-pageAppTest/scenariofilters pass; không có suppliedCSV trên CI. Artifact PR1 vẫnattached/draft, khôngmerge. Health local8503 trả200/ok. Các chỉnh docs/TXT ghi E50 về sau không đổi implementation đã kiểm ởcommit này.
+
+Cập nhật mô tả PR bằng nội dung đã chuẩn bị bị automated approval review từ chối: reviewer xem đây là external messaging vàcông bố riêng aggregate private-derived metadata, không coi quyềnpushcode là quyềnupdatePRbody. Đã hỏi người dùng quyền riêng; chưa nhận trả lời/chưa sửa PRbody, khôngworkaround. Việc đọc CI/commitcode/kiểm vàbàn giao vẫn hoàn tất trong phạm vi đã cho phép.
