@@ -6,6 +6,10 @@
 
 **Lịch sử phạm vi CHG-012/013:** tập trung hoàn thiện project, chưa làm tiếp Word/slide. Có `validate_context.py`, `src/context_models.py`, tests và kết quả validation local `outputs/context_validation_v1/`; chưa tích hợp mô hình context vào production. E16 ghi kiểm tra trực tiếp; R05/R07 vẫn mở.
 
+**Báo cáo tiến độ M2 E33 / CHG-022:** Người dùng yêu cầu ưu tiên Word báo cáo chi tiết và slide để nộp mentor trước. Bản hiện hành local tại `reports/M2_2026-10-05/`: `SIGMA_Bao_cao_tien_do_M2_Nop_mentor_2026-10-05_v3.docx` (18 trang), `SIGMA_Slide_bao_cao_M2_Nop_mentor_2026-10-05_v2.pptx` (24 slide có ghi chú). Đã kiểm bố cục và không có định danh nguồn; dùng số liệu sealed v11 và nghiên cứu E32. Run/mã production không sửa, R05/R07/T14 vẫn mở; không tự upload báo cáo.
+
+**Nghiên cứu E34:** [calibrate_campaign.py](calibrate_campaign.py), [verify_calibration.py](verify_calibration.py) và [bốn ca kiểm](tests/test_calibrate_campaign.py) đã chạy; toàn suite 115 tests đạt. Head phối hợp/hiệu chỉnh học tháng 5, chọn tháng 6 trong train rồi khóa trước validation; refit 7 ngày chỉ dùng nhãn đã qua. Run riêng `outputs/sigma_calibration_campaign_v2/`, đối soát `outputs/sigma_calibration_verification_v1/`: vẫn 0/10 đạt 20%, 38,64–52,10%; mean kém v11 validation. Không tích hợp, không chấm test mới hoặc sửa sealed v11. Chẩn đoán train theo tháng/weekday là in-sample, không phải cận dưới cho mọi mô hình. Ảnh/PDF kickoff gốc vẫn thiếu; đã đề nghị đối chiếu nguyên văn, chưa tự thay tiêu chí.
+
 **Thời điểm đối chiếu:** 02/10/2026 (Asia/Saigon). **Thư mục project:** `C:/Users/asus/OneDrive/Máy tính/sigma/Sim-Demand-Forecasting-main`.
 
 Bản đồ này ghi tệp thực tế và sai khác nguồn; [PLAN 2.0](PLAN.md) vẫn giữ thiết kế chi tiết, [requirements](docs/requirements.md) giữ nghiệm thu, [review-log](docs/review-log.md) giữ lịch sử. Mô tả khảo sát chỉ đọc ngày 02/10 bên dưới giữ làm lịch sử. Pipeline hiện đã chạy, xem E11–E15; ảnh/PDF nguồn vẫn thiếu và không nhận đã đọc lại.

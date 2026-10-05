@@ -204,3 +204,14 @@ R05 vẫn 0/10: test MAPE 41,89–58,13%, mean route MAPE 47.589594%, coverage 1
 Lệnh trên đã chạy thực; dùng output-id mới khi chạy lại. Protocol lưu trước fit, output giữ local; không ghi đè, không sửa config/selected_models/forecast v11. Snapshot gốc được audit, rồi bỏ sales test trước aggregation/features/ranking/fit/scoring. Mười hai cấu hình = lịch/lịch sử/cùng kỳ × quantity gốc/tỷ lệ theo mean90 đến origin × 7/31 leaves. Tỷ lệ chỉ dùng khi học, forecast phục hồi quantity gốc; inverse-label weighted L1 giữ mục tiêu relative error. Ngày 0 vẫn có trong đánh giá. Tham số loss/trees tham chiếu [tài liệu LightGBM](https://lightgbm.readthedocs.io/en/latest/Parameters.html); tách thời gian theo [hướng dẫn scikit-learn](https://scikit-learn.org/stable/modules/cross_validation.html#time-series-split).
 
 Kết quả đã đối soát: 102.480 pairs trong train và 154.560 pairs validation, 120 nhóm h1–7 mỗi giai đoạn đủ coverage. Lựa chọn khóa trong train đạt validation mean MAPE 44,968965%, range 36,287133–52,093932%; 0/10 đạt 20%, kể cả chọn lạc quan ứng viên tốt nhất trên validation cũng 0/10. So sánh theo target-day blocks 7 ngày/2.000 draws không thấy cải thiện rõ ràng so v11 trên validation; v11 đã chọn bằng chính validation nên so sánh này không độc lập. Không tích hợp 12 cấu hình và không chạy lại test. Tổng 111 tests pass, production v11/source/sealed files nguyên. Đây là bằng chứng một đợt thử chưa đạt, không là chứng minh mọi mô hình đều không thể đạt R05.
+
+## Hiệu chỉnh/kết hợp E34 — nghiên cứu chưa tích hợp
+
+[calibrate_campaign.py](calibrate_campaign.py) kiểm tra phối hợp không âm, affine weighted-LAD và affine có regularization trên dự báo causal đã lưu của E32. Học head trên nhãn tháng 5, chọn trên origins/target tháng 6 nằm trong train, khóa theo tuyến trước khi chấm validation. Sau đó head refit mỗi 7 ngày bằng các nhãn OOF đã qua cutoff; không đổi target, top10, split chính hoặc metric. Không cần train lại 12 base models nhưng cần output E32 local có hash khớp; clone mới chưa có cache phải chạy workflow E32 trước.
+
+```powershell
+& .venv/Scripts/python.exe calibrate_campaign.py --output-id sigma_calibration_campaign_v2
+& .venv/Scripts/python.exe verify_calibration.py --run-id sigma_calibration_campaign_v2 --output-id sigma_calibration_verification_v1
+```
+
+Các lệnh đã chạy, chạy lại phải chọn id mới. Đối soát độc lập từ raw orders tới daily quantity/11.970 cặp/metric/trọng số đã khớp; 623 cặp h1–7/tuyến, 574 h8–14/tuyến. Toàn suite 115 tests đạt. Validation vẫn 0/10 đạt 20%, range 38,636338–52,101122%, mean 45,106266% so v11 41,978903%; không tích hợp và không chấm test mới. Raw và 59 sealed files v11 giữ nguyên. Train diagnostic chỉ đánh giá biến động và calendar fit in-sample, không phải dự báo hợp lệ hoặc chứng minh mọi mô hình đều không thể đạt. R05/R07 và nghiệm thu toàn bài còn mở.

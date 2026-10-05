@@ -571,3 +571,31 @@ Inner phase 01/05–30/06/2025 nằm trong train: 102.480 pairs, 120 primary mod
 Kết quả phân tích cuối `outputs/sigma_ablation_analysis_v3/`, summary SHA-256 `e30284a0987c4a7c57603fede53750791878221e5c0439f452b322d105a32088`. V1 protocol có lỗi tên cột raw, v2 sửa trước phân tích, v3 căn full calendar để giữ ngày zero; giữ các protocol cũ local, không thay block/draws/seed theo kết quả. Không chạy phân tích v1/v2 để lựa mô hình, không sửa sealed outputs production. Campaign/analysis đều private local.
 
 111 tests pass (107 có trước + bốn kiểm feature/fit future mutation, calendar-year leap alignment, ratio phục hồi units, inner-selector từ chối validation/test). Source hash và core code hash vẫn khớp E31; toàn bộ 59 sealed files v11 nguyên. Không tích hợp 12 ứng viên vì chưa giúp đạt yêu cầu; catalog production vẫn61, không chạy test lại. TASK/PLAN đồng bộ T09/T12, README/PROJECTMAP/development ghi workflow và giới hạn. R05/R07/T14 vẫn mở; không sửa Word/slide. Bước tiếp là dùng ablation và phân rã lỗi để xác định giả thuyết có tín hiệu ngoài mẫu, không nhận tăng số mô hình/tests là gần nghiệm thu.
+
+### CHG-022 / E33 — Báo cáo tiến độ chi tiết và slide M2 gửi mentor
+
+Ngày 05/10/2026, người dùng yêu cầu gấp Word báo cáo tiến độ chi tiết và slide M2 để nộp mentor trước. Yêu cầu mới kết thúc việc hoãn soạn theo CHG-012 trong phạm vi báo cáo tiến độ, không tự thay đổi nghiệm thu R05/R07/T14. Không bịa tên trường/mentor, đóng góp cá nhân hoặc dữ liệu tồn doanh nghiệp. Phân công sáu thành viên và lịch đến 17/10 là đề xuất, chưa xác nhận thực hiện.
+
+Đầu ra private local `reports/M2_2026-10-05/`:
+- `SIGMA_Bao_cao_tien_do_M2_Nop_mentor_2026-10-05_v3.docx`: 18 trang, 19 bảng chỉnh sửa được, một hình EDA từ sealed v11; SHA256 `666284c3b1c0e0ece60786d365518035280047bab0eb700bc7ec9e9a3aa6014c`.
+- `SIGMA_Slide_bao_cao_M2_Nop_mentor_2026-10-05_v2.pptx`: 24 slide, 24 phần ghi chú thuyết trình tiếng Việt, 19 bảng native và hai biểu đồ kèm workbook sửa được; SHA256 `b69c4ca74548c4df3e5bbfe0bc5454d59608d69891c2959f632d822efb6c777b`.
+
+Đọc trực tiếp hash các bảng/hình dùng từ v11, raw và các summary/verification/QA/campaign E32 trước soạn. Báo cáo giữ 0/10 R05, MAPE test 41,89–58,13%, coverage 100%, replay sớm 33,10%; tách phương pháp, số liệu validation/test/horizon, 13 scenario và giả định A08–A17. Mã production, CSV gốc và sealed run không sửa; lượt báo cáo không chạy lại mô hình hoặc tests sản phẩm. 111 tests và CI là bằng chứng phiên E32/commit fe69ac1, không nhận chạy lại trong lượt này.
+
+QA thực chạy: canonical render_docx không có LibreOffice nên dùng Microsoft Word hidden export PDF local, Poppler rasterize; đã xem riêng cả 18 trang cuối. PPTX dùng artifact-tool/finalizer: package/layout/font/native table/chart/workbook kiểm đạt, import lại chính file cuối và xem riêng 24 slide. Không nhận đã chạy native PowerPoint. Kiểm XML đếm trang/bảng/ghi chú/chart/workbooks, các số chính và đối chiếu tokens với order/customer IDs nguồn: 0 trùng. Dấu trang/hình giữ nguyên trong bản cuối v3; bản DOCX v2 có lỗi mất ngắt trang trong bước làm sạch chữ, không bàn giao. Logs, PDF/PNGs QA và receipts nằm `.tools/m2_20261005/`, ignored; chỉ hai file cuối giao người dùng, không tự upload/push.
+
+T13/TASK/PLAN/PROJECTMAP đã đồng bộ. Báo cáo tiến độ đã có; nghiệm thu toàn bài còn mở. Bước tiếp: người dùng/nhóm rà báo cáo, diễn tập demo và tiếp tục phân tích R05/R07 theo protocol; không đổi target/split/top10/metric để đạt bằng hình thức.
+
+### E34 — Hiệu chỉnh/kết hợp có chọn trong train, chưa đạt R05
+
+Người dùng yêu cầu tiếp tục hoàn thiện sản phẩm đáp ứng kickoff sau khi nhận báo cáo tiến độ. Tiêu chí R01–R09 giữ nguyên; chưa có quyền sửa ngưỡng/target/split để nhận đạt. Workspace vẫn thiếu ảnh/PDF kickoff gốc, đã đề nghị đối chiếu nguyên văn tiêu chí, không nhận đã đọc nguồn thiếu. R05/R07/T14 chưa đóng; yêu cầu hoàn thiện không tạo bằng chứng để hứa trước độ chính xác.
+
+Đã triển khai `calibrate_campaign.py`: phối hợp convex, affine positive-day weighted-LAD và affine regularized; dùng dự báo causal E32 đã kiểm/hash giữ nguyên. Head học tháng 5, chỉ chấm chọn tháng 6 với origin ≥31/05/2025 để không dùng head fit sau origin; tất cả chọn nằm trong train. Khóa theo tuyến trước chấm validation tháng 7–9. Refit head 7 ngày, nhãn tối đa ≤cutoff, không dùng test chọn/tuning. Không đổi catalog/config/production hoặc báo cáo E33.
+
+Run local `sigma_calibration_campaign_v2` complete, validation 0/10 đạt20%, mean45,106266%, range38,636338–52,101122%; v11 validation mean41,978903%. SKT giảm1,017510 điểm nhưng vẫn43,193891%; chín tuyến khác kém hơn nên chưa có căn cứ để đưa cả phương pháp vào production. Không chấm test mới. Run v1 giữ lịch sử; v2 bổ sung guard phase/horizon/nhãn âm, kết quả giống v1. Summary v2 SHA256 `0eb9d4d87066bbfe6040c05748fa5af452e439b3bdf317cbc40b2327025fde45`, selection SHA256 `6e58875ab3aa6d9e9ff915a3348f4efe77183074f1e0b3437525c0f2b5ad6517`.
+
+`verify_calibration.py` đã chạy độc lập: đọc raw→success quantity UTC/train-top, đủ 11.970 cặp validation (623h1–7 và574h8–14 mỗi tuyến), actual/metric khớp, nhãn head≤cutoff và mọi forecast tái tạo từ weights/base forecasts trong1e−8. Raw và toàn bộ59 sealed files v11 nguyên. Summary đối soát tại `outputs/sigma_calibration_verification_v1/summary.json`, output/IDs giữ private local. Bốn tests mới kiểm future-mutation, nghiệm convex tính tay độc lập, missing coverage bị chặn và nhãn âm không bị bỏ để chấm dễ; full suite115tests đạt. Chưa nhận CI mới trước khi có kết quả remote.
+
+Chẩn đoán train547ngày: meanquantity4,47–9,57/ngày vàstd3,11–5,05; tương quan lag1 sau loại trung bình tháng/weekday −0,0094–0,1037. Calendar fit lạc quan in-sample weighted-median vẫn33,36–42,72% MAPE. Đây là dấu hiệu phần biến động còn lớn và nhóm lịch hiện tại chưa đủ; không phải cận dưới tối ưu cho mọi mô hình, không chứng minh mục tiêu20% bất khả thi. Không dùng diagnostic này làm forecast, bỏ ngày thấp hoặc thay mẫu số.
+
+TASK/PLAN/T09/T12, PROJECTMAP/README/requirements đã đồng bộ. Bước tiếp: đối chiếu kickoff gốc khi có nguồn; kiểm giả thuyết feature/tín hiệu quá khứ dựa trên phân rã sai số, giữ lựa chọn trước chấm và không claim toàn bài đạt. Cần hướng có tín hiệu mới ngoài mẫu, không chạy thêm thuật toán chỉ để tăng số lượng.
