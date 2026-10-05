@@ -1,5 +1,7 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+**Kiểm CHG-023/E36 — tổng tuần:** [lệnh và protocol](weekly-forecast.md), `weekly_forecast.py`, `verify_weekly.py`, `weekly_app.py`; cấu hình riêng, không thêm phụ thuộc. 125 tests toàn suite đạt; đối soát75.900 cặp từ raw độc lập, selection/metric/full coverage và nhãn fit≤cutoff, tổng phân bổ tuần; raw/59files sealed v11 nguyên. AppTest run thật0exception/4tab/6bảng, kiểm Thailand/AIS/khối8–14/lịch7ngày. Weekly test9/10≤20%, mean17,19%; không nâng R05 ngày hoặc R07. Source/split/top10/seed giữ nguyên; test đã xem không độc lập. Kết quả giữ local, Git chỉ mã/cấu hình/tests/tài liệu. Nguồn kickoff đã xem tại E35, PDF/M01/M02 vẫn thiếu. T09/T10 tiếp tục accuracy và chính sách tồn từ forecast tuần; không chỉnh Word/slide.
+
 **Cập nhật 05/10/2026:** Mã và quy trình chạy đã triển khai; lệnh thật tại README. Python 3.14.7, phiên bản khóa trong requirements.txt; config chứa seed 42 và dung sai số thực 1e-8. Kiểm tra release và báo cáo M2 ghi ở E13–E15/TASK. Phần ghi “chưa có/dự kiến” ngày 02/10 dưới đây là bối cảnh lịch sử và checklist thiết kế, không phải hiện trạng triển khai. Git root hiện nằm trong project; không sửa cấu hình Git toàn cục.
 
 **Bản hướng dẫn:** 1.0 — 02/10/2026 (Asia/Saigon), dựa trên [PLAN 2.0](../PLAN.md), [requirements](requirements.md), [review-log](review-log.md). **Hiện trạng:** tài liệu và CSV; chưa có mã, config, phụ thuộc được khóa, tests hoặc run. Quy trình kỹ thuật dưới đây là **dự kiến, chưa triển khai**. Lượt tạo tài liệu không cài đặt, huấn luyện, mô phỏng hay nghiệm thu kỹ thuật.

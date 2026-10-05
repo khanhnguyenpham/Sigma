@@ -1,5 +1,7 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**Bổ sung CHG-023/E35–E36:** người dùng gửi lại ảnh kickoff và yêu cầu làm mô hình dự báo tổng bán7ngày thay cách dự báo từng ngày. Đã triển khai phương án tuần riêng, [protocol/kết quả](weekly-forecast.md), test tuần hồi cứu9/10≤20%, AIS22,14%; R05 theo ngày và các ngưỡng chính thức giữ mở tới khi có xác nhận thay nghiệm thu. Không đổi sales/split/top10 hoặc dùng metric tuần để nhận đạt ngày. R08 có dashboard tuần; R06/R07 chưa thay chính sách tồn hoặc nhận cảnh báo đạt từ kết quả tuần.
+
 **Tiến độ 05/10/2026:** Phần mềm local và sigma_scaled_v11 đã kiểm tra; tiêu chí R01–R09 giữ nguyên. Test h1–7 đủ độ phủ nhưng 0/10 top 10 đạt R05 (41,89–58,13%). Cảnh báo trước ≥7 ngày đạt 33,10% sự kiện replay v11. CHG-022/E33 đã tạo Word và slide tiến độ gửi mentor theo yêu cầu mới. E34 hiệu chỉnh/kết hợp dự báo vẫn 0/10 validation, không tích hợp và không chấm test mới. A08–A17 là thực nghiệm người dùng chọn, chưa mentor xác nhận. Chưa nghiệm thu toàn bài.
 
 **Phiên bản:** 2.0 — 02/10/2026; bổ sung phạm vi/ca thực tế ngày 04/10/2026 (CHG-007). **Trạng thái lịch sử 02–04/10:** Khảo sát đã thực hiện; lúc đó chưa triển khai. CHG-008 đã chốt lựa chọn local/Git, CHG-011 yêu cầu thêm Word/slide M2. Trạng thái hiện hành ở đầu tài liệu. Giới hạn chỉ ba Markdown là lịch sử, không áp dụng cho yêu cầu mới.
@@ -12,7 +14,7 @@ Xác nhận mới của mentor do người dùng cung cấp thay phần cũ mâu
 
 | Mã | Nguồn và phạm vi |
 |---|---|
-| S01 | [Ảnh đề bài](PROJECT_REQUIREMENTS.png): ban đầu nói kích hoạt; tuyến quốc gia–nhà mạng, M1–M3, MAPE≤20% top 10, cảnh báo trước≥7 ngày, dashboard. Phần target được M01 thay thế |
+| S01 | [Ảnh kickoff đã đọc trực tiếp lại ngày05/10/2026](kickoff-checklist.md): ban đầu nói kích hoạt theo ngày; tuyến quốc gia–nhà mạng, M1–M3, MAPE≤20% top10, cảnh báo trước≥7ngày, dashboard. Phần target được M01 thuật lại thay thế; ảnh mới lưu local ignored, không phục hồi tệp xóa |
 | S02 | [Báo cáo nhóm 45 trang](<Báo cáo chi tiết Sigma.pdf>): bản nháp/phương pháp/nhận định cần đối chiếu, mốc có năm |
 | S03 | [CSV order](../data/sigma_sim_data_orders.csv): 100.000 dòng, 20 cột; dữ liệu quan sát |
 | U01 | Yêu cầu khảo sát đầy đủ, bảo toàn gốc, quản lý thay đổi và bàn giao có bằng chứng ngày 02/10/2026 |
@@ -24,6 +26,7 @@ Xác nhận mới của mentor do người dùng cung cấp thay phần cũ mâu
 | U04 | Tệp yêu cầu cập nhật ngày 02/10/2026: chỉ order thực vì bảo mật, nhóm giả định phần còn lại; không chờ dữ liệu nội bộ; tồn < ngưỡng; bảo mật/độ nhạy/truy vết |
 | P02 | Phương án 2.0 cụ thể hóa M01/M02/U04; A08–A17 vẫn **đề xuất**, chưa có bằng chứng nhóm/mentor xác nhận tham số |
 | U05 | Yêu cầu “Cập nhật lại các file MD”: cho phép áp dụng bản cập nhật vào ba tệp hiện có, chưa triển khai phần mềm |
+| U06 | CHG-023 ngày05/10/2026: người dùng yêu cầu **làm mô hình dự báo tổng lượt bán trong7ngày**; thực hiện bằng tổng quantity cùng A08. Cho phép triển khai phương án tuần, chưa chứng minh mentor chấp thuận đổi R05 theo ngày |
 
 M01/M02 ghi đúng nguồn thuật lại, không giả nhận đã xem hai ảnh. Không cần xin lại quyết định mentor đã chốt hoặc dữ liệu doanh nghiệp sẽ không cung cấp. Ngày ghi nhận theo Asia/Saigon; ngày trong dữ liệu theo UTC.
 

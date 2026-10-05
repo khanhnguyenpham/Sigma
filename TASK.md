@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**Cập nhật tiếp 05/10/2026 — CHG-023/E35–E36:** đã xem ảnh kickoff người dùng gửi; nguồn và đối chiếu tại [checklist](docs/kickoff-checklist.md). Theo yêu cầu mới đã làm mô hình **tổng quantity 7 ngày**, cấu hình riêng, chín ứng viên chọn validation từng tuyến rồi khóa trước test; run `sigma_weekly_v1` có 46 tuyến/92 tổng/644 phần ngày. Test tuần hồi cứu 9/10 đạt20%, mean17,19%, AIS22,14%; không đổi R05 ngày. [Màn hình/hướng dẫn tuần](docs/weekly-forecast.md), 125 tests và AppTest đã kiểm; E36 đối soát75.900 cặp, raw/59files v11 nguyên. T09 tiếp tục phần chưa đạt; T10 chưa thay chính sách tồn bằng tuần, T11 thêm dashboard tuần local, T12 thêm kiểm cutoff/weekly/conservation/tamper. T14 vẫn mở; không làm lại Word/slide.
+
 **Cập nhật:** 05/10/2026 (Asia/Saigon). Phần mềm local và run sigma_scaled_v11 đã kiểm tra kỹ thuật. R05 chưa đạt: 0/10 tuyến, MAPE 41,89–58,13%; test dùng lại sau tinh chỉnh được công khai. Theo yêu cầu mới CHG-022, đã tạo Word báo cáo tiến độ chi tiết 18 trang và slide M2 24 trang để nộp mentor, kiểm bố cục tại E33. Phân công trong báo cáo là đề xuất; không nâng triển khai thành nghiệm thu toàn bài.
 
 PLAN giữ toàn bộ mục tiêu, công việc, rủi ro, công sức và tiêu chí. Bảng dưới tóm tắt đúng mã/tên/phụ thuộc của PLAN; nhấp ID để đến nhiệm vụ chi tiết. “Chưa có” chỉ sản phẩm trong workspace hiện tại, không suy đoán nội dung các tệp cũ bị xóa. Giới hạn kiểm chứng tại [PROJECTMAP](PROJECTMAP.md#source-gaps).
