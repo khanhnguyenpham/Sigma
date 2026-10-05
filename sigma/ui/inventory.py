@@ -6,6 +6,7 @@ from src.common import ROOT
 from sigma.inventory.snapshot import validate_inventory
 from sigma.inventory.policy import validate_policy
 from sigma.ui.bundle import folders_for, settings_for_ui
+from sigma.analysis.alert_diagnostics import explain_events
 
 st.set_page_config(page_title='SIGMA · Tồn từ dự báo tuần', page_icon='📋', layout='wide')
 st.title('Tồn kho và khuyến nghị từ dự báo tổng tuần')
@@ -74,6 +75,22 @@ for p in folders_for(bundle, 'policy'):
         continue
 if policies:
     policy_folder, policy = max(policies, key=lambda v: v[0].stat().st_mtime_ns)
+    with st.expander('Giải thích từng ca cảnh báo trong replay'):
+        events = pd.read_csv(policy_folder / 'alerts.csv')
+        event_view, overall = explain_events(events)
+        st.write(f"Toàn bộ replay: {overall['actual_events']:,} sự kiện cạn; "
+            f"{overall['events_before_day7']:,} ca cạn trước ngày 7; "
+            f"{overall['events_with_7day_opportunity']:,} ca còn cơ hội ≥7 ngày, "
+            f"trong đó bỏ sót {overall['missed_with_7day_opportunity']:,} ca.")
+        st.caption('Mốc 7 ngày tính từ origin của từng đợt replay. Bắt đầu theo dõi khi đã gần cạn không tạo đủ 7 ngày báo trước. Đây là chẩn đoán hồi cứu, không dùng actual tương lai làm tín hiệu cảnh báo; tất cả sự kiện vẫn nằm trong mẫu số chính.')
+        visible = item_filter(event_view.loc[event_view.destination_country.eq(country) & event_view.carrier.eq(carrier)])
+        group = st.selectbox('Nhóm ca cảnh báo', ['Tất cả', *sorted(visible.diagnostic_group.unique())])
+        if group != 'Tất cả':
+            visible = visible.loc[visible.diagnostic_group.eq(group)]
+        st.dataframe(visible, hide_index=True, column_config={
+            'as_of_date': 'Ngày bắt đầu đợt', 'predicted_days': 'Ngày đến cạn dự kiến',
+            'actual_days': 'Ngày đến cạn thực trong mô phỏng', 'diagnostic_group': 'Giải thích',
+            'predicted_depletion_date': 'Ngày cạn dự kiến', 'actual_depletion_date': 'Ngày cạn trong mô phỏng'})
     st.subheader('Chính sách nhập hàng liên tục từ dự báo tuần')
     st.caption('Mô phỏng toàn kỳ 01/10–31/12/2025; giao khách D+7 giữ riêng, nhập kho có kịch bản nhận thiếu/trễ/không về.')
     policy_metrics = pd.read_csv(policy_folder / 'simulation_metrics.csv')
