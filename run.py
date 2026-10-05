@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 
 from src.common import ROOT, ROUTE, DataQualityError, code_hash, new_manifest, read_config, seal_manifest, sha256, write_csv, write_json
 from src.data import audit_orders, daily_sales, observed_anomalies, route_top
@@ -25,6 +26,7 @@ from src.calendar_models import calendar_validation
 from src.transactions import EVENT_COLUMNS, prepare_transactions
 from src.cohort_models import COHORT_SPECS, cohort_rolling
 from src.hierarchical_models import HIERARCHICAL_SPECS, hierarchical_rolling
+from src.monthly_lad import MONTHLY_LAD_SPECS
 
 STAGES = ["audit", "eda", "baseline", "validation", "test", "forecast", "inventory"]
 
@@ -180,6 +182,19 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
                     write_csv(folder / 'hiercount_validation_predictions.csv',hierarchy)
                     write_csv(folder / 'hiercount_log.csv',hierarchy_logs)
                     metrics = pd.concat([metrics,metric_table(hierarchy.loc[hierarchy.split.eq('validation')])],ignore_index=True)
+                if cfg.get('tuning',{}).get('monthlad_enabled') and not baseline_only and 'monthlad' not in imported_families:
+                    monthly_frames,monthly_logs=[],[]
+                    from src.models import series_by_route,rolling_route
+                    monthly_series=series_by_route(daily)
+                    for keys in map(tuple,top[ROUTE].to_numpy()):
+                        for model_id in MONTHLY_LAD_SPECS:
+                            frame,log=rolling_route(monthly_series[keys],keys,model_id,cfg['validation_start'],cfg['validation_end'],cfg)
+                            frame['split']=np.where(frame.target_date.le(pd.Timestamp(cfg['validation_end'])),'validation','outside_validation')
+                            monthly_frames.append(frame);monthly_logs.append(log)
+                    monthly=pd.concat(monthly_frames,ignore_index=True)
+                    write_csv(folder/'monthlad_validation_predictions.csv',monthly)
+                    write_csv(folder/'monthlad_log.csv',pd.concat(monthly_logs,ignore_index=True))
+                    metrics=pd.concat([metrics,metric_table(monthly.loc[monthly.split.eq('validation')])],ignore_index=True)
                 write_json(folder / 'tuning_protocol.json', cfg.get('tuning',{}))
                 decision["reason"] = "Baseline demonstration; advanced search not executed" if baseline_only else ("Validation threshold triggered bounded 4-config search" if trigger else "All top routes meet validation threshold after SARIMA")
                 write_json(folder / "lightgbm_decision.json", decision)

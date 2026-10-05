@@ -15,6 +15,7 @@ from src.context_models import CONTEXT_SPECS, context_rolling, fit_context, prep
 from src.count_models import fit_count, predict_count, count_rolling
 from src.cohort_models import COHORT_SPECS, fit_cohort, predict_cohort, cohort_rolling
 from src.hierarchical_models import fit_hierarchical, predict_hierarchical, hierarchical_rolling
+from src.monthly_lad import MONTHLY_LAD_SPECS, fit_monthly_lad, predict_monthly_lad
 
 
 def sarima_specs():
@@ -132,6 +133,10 @@ def rolling_route(series, keys, model, start, end, cfg, fallback_model=None):
             elif model in SEASONAL_SPECS:
                 pred = distribution_forecast(series.loc[:origin], model,
                     pd.date_range(origin + pd.Timedelta(days=1), periods=cfg["horizon"]))
+            elif model in MONTHLY_LAD_SPECS:
+                if index % cfg["refit_days"] == 0 or state is None:
+                    state = fit_monthly_lad(series, origin, model)
+                pred = predict_monthly_lad(state, pd.date_range(origin + pd.Timedelta(days=1), periods=cfg["horizon"]))
             elif model.startswith("calendar_"):
                 if index % cfg["refit_days"] == 0 or state is None:
                     state = fit_calendar(series.loc[:origin], model)
@@ -339,6 +344,9 @@ def forecast_at(daily, selected, top, origin, cfg, progress=lambda message: None
         elif row.model in SEASONAL_SPECS:
             pred = distribution_forecast(series_map[keys].loc[:origin], row.model,
                 pd.date_range(origin + pd.Timedelta(days=1), periods=cfg["horizon"]))
+        elif row.model in MONTHLY_LAD_SPECS:
+            state = fit_monthly_lad(series_map[keys], origin, row.model)
+            pred = predict_monthly_lad(state, pd.date_range(origin + pd.Timedelta(days=1), periods=cfg["horizon"]))
         elif row.model.startswith("calendar_"):
             state = fit_calendar(series_map[keys].loc[:origin], row.model)
             pred = predict_calendar(state, pd.date_range(origin + pd.Timedelta(days=1), periods=cfg["horizon"]))

@@ -1,6 +1,6 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
-**Tiến độ 05/10/2026:** Phần mềm local và sigma_hierarchical_v10 đã kiểm tra; tiêu chí R01–R09 giữ nguyên. Test h1–7 đủ độ phủ nhưng 0/10 top 10 đạt R05 (38,58–58,13%). Cảnh báo trước ≥7 ngày đạt 33,14% sự kiện replay v10. Word/slide cũ là bản nháp lịch sử; chưa làm tiếp theo CHG-012. A08–A17 là thực nghiệm người dùng chọn, chưa mentor xác nhận. Chưa nghiệm thu toàn bài.
+**Tiến độ 05/10/2026:** Phần mềm local và sigma_scaled_v11 đã kiểm tra; tiêu chí R01–R09 giữ nguyên. Test h1–7 đủ độ phủ nhưng 0/10 top 10 đạt R05 (41,89–58,13%). Cảnh báo trước ≥7 ngày đạt 33,10% sự kiện replay v11. Word/slide cũ là bản nháp lịch sử; chưa làm tiếp theo CHG-012. A08–A17 là thực nghiệm người dùng chọn, chưa mentor xác nhận. Chưa nghiệm thu toàn bài.
 
 **Phiên bản:** 2.0 — 02/10/2026; bổ sung phạm vi/ca thực tế ngày 04/10/2026 (CHG-007). **Trạng thái lịch sử 02–04/10:** Khảo sát đã thực hiện; lúc đó chưa triển khai. CHG-008 đã chốt lựa chọn local/Git, CHG-011 yêu cầu thêm Word/slide M2. Trạng thái hiện hành ở đầu tài liệu. Giới hạn chỉ ba Markdown là lịch sử, không áp dụng cho yêu cầu mới.
 
