@@ -8,6 +8,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from sigma.forecasting.linear import features
+from sigma.forecasting.boosting import estimator_count
 
 
 class WeeklyLocal:
@@ -41,7 +42,7 @@ class WeeklyLocal:
                     model.fit(z.iloc[indices], target, quantileregressor__sample_weight=weight)
                 else:
                     model = LGBMRegressor(objective='regression_l1', num_leaves=self.spec['leaves'],
-                        n_estimators=self.settings['n_estimators'], learning_rate=self.settings['learning_rate'],
+                        n_estimators=estimator_count(self.spec, self.settings), learning_rate=self.settings['learning_rate'],
                         min_child_samples=self.settings['min_child_samples'], reg_lambda=self.settings['reg_lambda'],
                         n_jobs=self.cfg['lightgbm_threads'], random_state=self.cfg['seed'], deterministic=True,
                         force_col_wise=True, verbosity=-1)

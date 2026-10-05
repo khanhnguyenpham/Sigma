@@ -6,13 +6,14 @@ import streamlit as st
 
 from src.common import ROOT, ROUTE
 from sigma.verification.weekly import validate_weekly
+from sigma.ui.bundle import folders_for, settings_for_ui
 
 st.set_page_config(page_title='SIGMA · Tổng bán 7 ngày', page_icon='📊', layout='wide')
 st.title('SIGMA · Dự báo tổng quantity bán trong 7 ngày')
 st.caption('Hai khối riêng: ngày 1–7 và 8–14 · UTC · Chạy và lưu dữ liệu tại máy này')
 st.info('MAPE tuần và MAPE ngày là hai phép đánh giá khác nhau. Kết quả tuần chưa xác nhận đạt R05 theo ngày của kickoff.')
 folders = []
-for p in (ROOT / 'outputs').glob('*'):
+for p in folders_for(settings_for_ui(), 'weekly'):
     if p.is_dir() and (p / 'summary.json').is_file():
         try:
             if validate_weekly(p)['kind'] == 'weekly_quantity_run':

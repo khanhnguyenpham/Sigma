@@ -5,13 +5,13 @@ import pandas as pd
 import streamlit as st
 
 from src.common import ROOT, sha256
-from sigma.delivery.customer import delivery_settings
+from sigma.ui.bundle import folders_for, settings_for_ui
 
 st.set_page_config(page_title='SIGMA · So sánh ngày và tuần', page_icon='⚖️', layout='wide')
 st.title('So sánh dự báo ngày và tổng 7 ngày')
-bundle = delivery_settings()
+bundle = settings_for_ui()
 runs = []
-for folder in (ROOT / 'outputs').glob('*'):
+for folder in folders_for(bundle, 'comparison'):
     if not (folder / 'summary.json').is_file():
         continue
     try:

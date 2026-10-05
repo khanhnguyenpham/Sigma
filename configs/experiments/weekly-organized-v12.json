@@ -1,5 +1,5 @@
 {
-  "weekly_version": "weekly-quantity-registered-booster-v13",
+  "weekly_version": "weekly-quantity-organized-v12",
   "base_config": "config.json",
   "target": "sum_success_quantity_next_seven_utc_days",
   "blocks": [
@@ -391,83 +391,6 @@
         0.25
       ],
       "calibrated_reference": "week_cal_week_lgbm_annual_ratio7_56_p4"
-    },
-    "week_macromix_56_p0": {
-      "kind": "adaptive_mix",
-      "components": [
-        "week_lgbm_annual_ratio7",
-        "week_lgbm_macro_ratio15"
-      ],
-      "history_days": 56,
-      "prior_weeks": 0
-    },
-    "week_macromix_56_p4": {
-      "kind": "adaptive_mix",
-      "components": [
-        "week_lgbm_annual_ratio7",
-        "week_lgbm_macro_ratio15"
-      ],
-      "history_days": 56,
-      "prior_weeks": 4
-    },
-    "week_macromix_84_p0": {
-      "kind": "adaptive_mix",
-      "components": [
-        "week_lgbm_annual_ratio7",
-        "week_lgbm_macro_ratio15"
-      ],
-      "history_days": 84,
-      "prior_weeks": 0
-    },
-    "week_macromix_84_p4": {
-      "kind": "adaptive_mix",
-      "components": [
-        "week_lgbm_annual_ratio7",
-        "week_lgbm_macro_ratio15"
-      ],
-      "history_days": 84,
-      "prior_weeks": 4
-    },
-    "week_lgbm_annual_ratio7_n300": {
-      "kind": "lgbm",
-      "objective": "regression_l1",
-      "units": "ratio",
-      "leaves": 7,
-      "annual_features": true,
-      "n_estimators": 300
-    },
-    "week_cal_week_lgbm_annual_ratio7_n300_56_p0": {
-      "kind": "calibrated",
-      "parent": "week_lgbm_annual_ratio7_n300",
-      "history_days": 56,
-      "prior_weeks": 0
-    },
-    "week_cal_week_lgbm_annual_ratio7_n300_56_p4": {
-      "kind": "calibrated",
-      "parent": "week_lgbm_annual_ratio7_n300",
-      "history_days": 56,
-      "prior_weeks": 4
-    },
-    "week_lgbm_macro_ratio15_n300": {
-      "kind": "lgbm",
-      "objective": "regression_l1",
-      "units": "ratio",
-      "leaves": 15,
-      "annual_features": true,
-      "macro_features": true,
-      "n_estimators": 300
-    },
-    "week_cal_week_lgbm_macro_ratio15_n300_56_p0": {
-      "kind": "calibrated",
-      "parent": "week_lgbm_macro_ratio15_n300",
-      "history_days": 56,
-      "prior_weeks": 0
-    },
-    "week_cal_week_lgbm_macro_ratio15_n300_56_p4": {
-      "kind": "calibrated",
-      "parent": "week_lgbm_macro_ratio15_n300",
-      "history_days": 56,
-      "prior_weeks": 4
     }
   },
   "n_estimators": 150,
@@ -484,7 +407,5 @@
   "adaptive_hypothesis": "Route/block mixing weights learned from completed teacher forecasts only, to respond to model drift without changing selection or the target",
   "local_hypothesis": "Separate route relationships instead of pooled tree splits; annual missing imputed from training only for regularized median, same selection rule",
   "combination_hypothesis": "Fixed mixtures of past-error calibrated annual tree with either smooth seasonal median or macro tree reduce disagreement variance; no weights optimized on test",
-  "macro_mixture_hypothesis": "Past completed teacher errors adapt the annual/macro contribution as relative performance shifts; same four predefined history/prior settings and same selection",
-  "boost_hypothesis": "At the unchanged learning rate, additional trees may reduce underfitting of annual/macro relationships; historical calibration with both existing prior choices remains causal",
-  "boosting_hypothesis": "E46 deferred proposal now supported: 300 trees instead of 150 at unchanged learning rate; two pooled parents and four causal calibrations. Select only on validation; test previously viewed."
+  "refactor_note": "Same 48 V9 candidates and authenticated validation; fresh test/future after structural reorganization, no model retuning"
 }

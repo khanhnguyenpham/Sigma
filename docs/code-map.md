@@ -14,6 +14,8 @@ sigma/
 ├── verification/           # đối soát nhãn, metric, quantity, tồn, UI, parity
 ├── experiments/            # nghiên cứu ngày, tách khỏi cấu hình sản phẩm
 ├── demo.py                 # tạo bundle giả riêng và kiểm xuyên suốt
+├── release.py              # kiểm toàn vẹn, khóa bộ demo M2–M3, HTML tình trạng
+├── product_catalog.py      # đọc đúng run đã khóa; từ chối sai hash
 └── provenance.py           # SHA-256 implementation và core được import
 src/                       # core ngày đã triển khai; không đổi sealed v11
 configs/
@@ -29,6 +31,7 @@ outputs/                   # run/hình/job state private, ignored Git
 |---|---|
 | Feature, backtest, refit và chọn model tuần | [forecasting/weekly](../sigma/forecasting/weekly.py) |
 | Chuẩn hóa ratio, median tuyến tính, mô hình từng tuyến | [linear](../sigma/forecasting/linear.py), [local](../sigma/forecasting/local.py) |
+| Ngân sách số cây từng booster, giữ mặc định và chặn cấu hình sai | [boosting](../sigma/forecasting/boosting.py) |
 | Hiệu chỉnh và kết hợp dự báo | [calibration](../sigma/forecasting/calibration.py), [mix](../sigma/forecasting/mix.py), [combine](../sigma/forecasting/combine.py) |
 | Full H14 cho chính sách và kịch bản | [inventory/policy](../sigma/inventory/policy.py) |
 | Khuyến nghị từ đúng sổ tồn cha | [inventory/snapshot](../sigma/inventory/snapshot.py) |
@@ -37,6 +40,7 @@ outputs/                   # run/hình/job state private, ignored Git
 | Menu sản phẩm và trang so sánh | [ui/product](../sigma/ui/product.py), [ui/comparison](../sigma/ui/comparison.py) |
 | Bản so sánh có CSV, Markdown, HTML và hình | [analysis/comparison](../sigma/analysis/comparison.py) |
 | Kiểm thay đổi cấu trúc không đổi kết quả | [verification/refactor](../sigma/verification/refactor.py) |
+| Khóa bản báo cáo M2–M3, bảng đạt/chưa đạt và lỗi bộ demo | [release](../sigma/release.py), [product_catalog](../sigma/product_catalog.py), [ui/bundle](../sigma/ui/bundle.py) |
 | Audit, target, metric và sổ giao dịch ngày | [src/data](../src/data.py), [evaluation](../src/evaluation.py), [inventory](../src/inventory.py), [transactions](../src/transactions.py) |
 
 CLI mới: `python -m sigma --help`, sau đó `python -m sigma weekly --help` hoặc thay `weekly` bằng `compare`, `policy`, `stock`, `delivery`, `refresh`, `demo`, `check-product`, `verify-refactor`. CLI và notebook/import gọi cùng implementation.

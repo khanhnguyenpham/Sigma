@@ -7,20 +7,23 @@ import streamlit as st
 
 from src.common import ROOT, validate_run
 from sigma.verification.weekly import validate_weekly
-from sigma.delivery.customer import validate_delivery, delivery_settings
+from sigma.delivery.customer import validate_delivery
 from sigma.inventory.policy import validate_policy
+from sigma.ui.bundle import folders_for, settings_for_ui
+from sigma.release import load_checkpoint
 
 
 def overview():
     st.title('SIGMA · Dự báo bán, tồn kho và lịch giao')
-    bundle = delivery_settings()
+    bundle = settings_for_ui()
     source_label = 'Dữ liệu demo được phần mềm sinh' if bundle['source_description'] == 'generated_synthetic_demo' else 'Nguồn do người dùng mô tả là giả định'
     st.caption('Sản phẩm chạy local · Dữ liệu và đầu ra giữ tại máy · ' + source_label)
     st.success('Quy tắc đã chốt: khách đặt ngày D, lịch giao ngày D+7, không trễ giao, kể cả cuối tuần.')
     st.write('Dùng menu để xem dự báo tổng 7 ngày, lịch giao từ đơn đã đặt, tồn kho và cảnh báo. Thời gian giao cho khách được tính riêng với thời gian nhập hàng về kho.')
     rows = []
     weekly, delivery, policy = None, None, None
-    for p in (ROOT / 'outputs').glob('*'):
+    folders = {p for role in ['weekly', 'delivery', 'policy'] for p in folders_for(bundle, role)}
+    for p in sorted(folders):
         if not (p / 'summary.json').is_file():
             continue
         try:
@@ -58,6 +61,8 @@ def overview():
         rows.append({'Phần sản phẩm': 'Cảnh báo từ dự báo tuần trước ≥7 ngày', 'Bằng chứng': policy[0].name,
             'Kết quả': f"{policy[1]['early_event_rate']:.2%} sự kiện replay; giữ các ca cạn trước ngày 7 trong mẫu số"})
     daily_folder = ROOT / 'outputs' / bundle['daily_run']
+    if bundle.get('product_runs'):
+        daily_folder = folders_for(bundle, 'daily')[0]
     try:
         validate_run(daily_folder)
         acceptance = pd.read_csv(daily_folder / 'accuracy_acceptance.csv')
@@ -72,13 +77,27 @@ def overview():
     except (OSError, ValueError, KeyError):
         st.warning('Run tồn/ngày thiếu hoặc đã thay đổi; hãy kiểm tra trước khi dùng số liệu.')
     st.dataframe(pd.DataFrame(rows), hide_index=True)
+    if bundle.get('release_checkpoint'):
+        try:
+            checkpoint, _ = load_checkpoint(bundle)
+            st.subheader('Tình trạng dùng báo cáo M2–M3')
+            st.dataframe(pd.read_csv(checkpoint / 'readiness.csv'), hide_index=True)
+            st.download_button('Tải bảng tình trạng M2–M3 (HTML)', (checkpoint / 'readiness.html').read_bytes(),
+                file_name='sigma_m2m3_readiness.html', mime='text/html')
+        except (OSError, ValueError, KeyError):
+            st.error('Bảng tình trạng M2–M3 đã thay đổi; chạy lại release-check trước khi sử dụng.')
     st.caption('Kết quả dùng snapshot 2024–2025 và đánh giá hồi cứu. Trang không tự huấn luyện, gửi dữ liệu hoặc đổi mô hình khi mở.')
 
 
 st.set_page_config(page_title='SIGMA · Sản phẩm', page_icon='📈', layout='wide')
-bundle = delivery_settings()
+bundle = settings_for_ui()
 os.environ['SIGMA_WEEKLY_RUN_ID'] = bundle['weekly_run']
 os.environ['SIGMA_RUN_ID'] = bundle['daily_run']
+if bundle.get('product_runs'):
+    folders_for(bundle, 'daily')
+    os.environ['SIGMA_LOCKED_RUN_ID'] = bundle['daily_run']
+else:
+    os.environ.pop('SIGMA_LOCKED_RUN_ID', None)
 page = st.navigation([
     st.Page(overview, title='Tổng quan', icon='🏠', default=True),
     st.Page('sigma/ui/weekly.py', title='Dự báo tổng 7 ngày', icon='📊'),

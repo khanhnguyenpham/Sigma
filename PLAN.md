@@ -1,6 +1,8 @@
 # Kế hoạch dự án SIGMA
 
-**Hiện hành CHG-027/E43–E49 — 05/10/2026:** sản phẩm mặc định dùng sigma_weekly_refactored_v12; đã hoàn tất bản so sánh ngày/tổng7 ngày và tổ chức mã sigma/ +29 entry points legacy/ +configs/experiments. 192 tests đạt; parity364.320 validation cache/7.590 fresh test/92 future/644 daily rows ở1e-8, cùng46 lựa chọn; raw/59 v11 files nguyên. Full policyV3 kiểm13 kịch bản/1.100.320 ledger/267.812 events; snapshotV6 kiểm920 items từ đúng policy; customerV5 kiểmD+7; AppTest6 trang và4 bộ lọc scenario đạt. Tuần9/10, mean16,19%, LG U+21,19%; R05 ngày0/10, early≥7 ngày33,80% cùng2867 events; chưa nghiệm thu toàn bài. CHG-027 thay thứ tự hoãn CHG-025; Word/slide không làm lại. Các cập nhật bên dưới E37–E41 là lịch sử.
+**Hiện hành CHG-028/E53–E54 — 06/10/2026:** bản tích hợp dùng sigma_weekly_boost_v13 (58 ứng viên, chọn validation), policyV4/stockV7/customerV6/comparisonV3; bộ báo cáo khóa tại sigma_m2m3_checkpoint_v3, mở start_m2m3.ps1/cổng8504. 214 tests đạt; generic447.810pairs, calibration42.136factors, fullpolicy1.100.320ledger/267.908events, snapshot920items vàD+7 đối soát; AppTest6trang/4kịch bản/SKU+loại đạt. JobWindows07:00 đã cài và chạy thử trả0. Tuần9/10mean16,17%,LG U+21,19%; R05 ngày0/10, cảnh báo early33,73% cùng2867events; **chưa nghiệm thu toàn bài**. Raw/59artifactv11 nguyên; src/run.py không đổi; app.py chỉ thêm khóa bộ run. Word/slide không làm lại. Các cập nhật CHG-027 và cũ hơn bên dưới là lịch sử.
+
+**Lịch sử CHG-027/E43–E49 — 05/10/2026:** sản phẩm mặc định dùng sigma_weekly_refactored_v12; đã hoàn tất bản so sánh ngày/tổng7 ngày và tổ chức mã sigma/ +29 entry points legacy/ +configs/experiments. 192 tests đạt; parity364.320 validation cache/7.590 fresh test/92 future/644 daily rows ở1e-8, cùng46 lựa chọn; raw/59 v11 files nguyên. Full policyV3 kiểm13 kịch bản/1.100.320 ledger/267.812 events; snapshotV6 kiểm920 items từ đúng policy; customerV5 kiểmD+7; AppTest6 trang và4 bộ lọc scenario đạt. Tuần9/10, mean16,19%, LG U+21,19%; R05 ngày0/10, early≥7 ngày33,80% cùng2867 events; chưa nghiệm thu toàn bài. CHG-027 thay thứ tự hoãn CHG-025; Word/slide không làm lại. Các cập nhật bên dưới E37–E41 là lịch sử.
 
 **Cập nhật 05/10/2026 — CHG-024/025, E37–E39:** đã áp dụng **khách đặt D → giao D+7 ngày lịch UTC**, không trễ giao, gồm cuối tuần; không đổi lead time nhập kho. Người dùng mô tả snapshot order là giả định; đây là nguồn thuật lại, vẫn giữ dữ liệu/outputs private và raw nguyên. [Sản phẩm chung và lịch giao](docs/customer-delivery.md) mở bằng `start_product.ps1` tại cổng 8503. Run tuần hiện hành `sigma_weekly_calibrated_v5`: test hồi cứu **9/10**, mean **15,97%**, LG U+ **21,36%**; chọn validation rồi khóa trước test. 920 khuyến nghị tồn từ phân bổ tuần đã đối soát, replay cùng 5.520 cửa sổ báo sớm **33,73%**; chưa chạy lại toàn bộ chính sách liên tục bằng tuần. 150 tests đạt, AppTest năm trang/không exception; job refresh/skip chạy thật, script đăng ký lịch nền được chuẩn bị nhưng chưa cài. R05 ngày **0/10**, R07/T14 vẫn mở. **Sau khi đủ điều kiện nghiệm thu mới làm bản so sánh chính thức ngày/tổng 7 ngày và tổ chức lại code**, đúng thứ tự người dùng yêu cầu; chưa làm lại Word/slide. Những cập nhật E36/v1 bên dưới là lịch sử.
 
@@ -390,7 +392,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
-- **Trạng thái:** Ngày v11 0/10; tuần V12 đã kiểm parity V9, test hồi cứu9/10, mean16,19%, LG U+21,19%. Validation chọn/khóa trước test; không thay R05.
+- **Trạng thái:** V13 chọn validation10/10, test hồi cứu9/10mean16,17%,LG U+21,19%; generic447810pairs/calibration42136factors đạt. Ngàyv11 vẫn0/10, giữ R05 mở.
 - **Mục tiêu/yêu cầu:** R04, R05, R09.
 - **Đầu vào/công việc/đầu ra:** T07/T08/MVP → khóa, test cuối, forecast → selected_models, test metrics, đạt/chưa đạt.
 - **Phụ thuộc:** T06, T07, T08 hoặc biên bản không kích hoạt T08.
@@ -405,7 +407,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Hiếu phụ trách; Khang review.
 
-- **Trạng thái:** E49 policyV3 từ tuầnV12 kiểm13 kịch bản/93 originsH14/1.100.320 ledger/267.812 events; basefill84,97%. SnapshotV6 lấy đúng policy; replay33,80% cùng2867 events, chưa bảo đảm R07 mọi ca.
+- **Trạng thái:** PolicyV4 từV13 đối soát13kịch bản/93originsH14/1100320ledger/267908events; basefill85,02%. StockV7 từ đúngpolicy kiểm920items; early33,73% cùng2867events, chưa bảo đảm mọi ca R07.
 - **Mục tiêu/yêu cầu:** R06, R07.
 - **Đầu vào/công việc/đầu ra:** Sales/forecast/A09–A16 → mapping/tham số riêng/ledger/ETA/strict threshold/replay/độ nhạy → recommendations, alerts, simulation_metrics.
 - **Phụ thuộc:** T06 để phát triển; kết quả cuối nhận T09.
@@ -418,7 +420,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Cường phụ trách; Hiếu review.
 
-- **Trạng thái:** Menu6 trang gồm so sánh ngày/tuần; AppTest nguồn bài vàdemo đạt/bộ lọc scenario đối soát. BundleV12 mặc định; job refresh/skip kiểm riêng; lịch nền chưa cài.
+- **Trạng thái:** Bộ M2–M3 khóaV13, sáu trang/SKU+loại/4kịch bản kiểm qua AppTest. JobWindows07:00 đã cài/chạy thử trả0; refresh giữ last-good. Có launcher8504 và hướng dẫn demo.
 - **Mục tiêu/yêu cầu:** R08, R09.
 - **Đầu vào/công việc/đầu ra:** T09/T10 → bộ lọc, actual/forecast, metric, bảng giả định, tồn/cảnh báo, export kiểm soát → app.py/hướng dẫn.
 - **Phụ thuộc:** T06, T09, T10.
@@ -433,7 +435,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Du review. Mỗi tác giả cung cấp kiểm thử/bằng chứng cho module của mình.
 
-- **Trạng thái:** 192 tests đạt; parity364.320 validation/7.590 fresh test/92 future/644 daily rows; raw/59 sealed v11 nguyên. Verifier toàn policy/stock/customer và6 trang UI đạt; nguồn/run ngày nguyên.
+- **Trạng thái:** 214 tests đạt; generic447810pairs/calibration42136factors, fullpolicy/stock/customer và6trang kiểm độc lập; raw/59sealedv11 nguyên. CI bản mới chờ kiểm sau push; CI043cf85 lịch sử đã đạt.
 - **Mục tiêu/yêu cầu:** R01, R03–R09.
 - **Đầu vào/công việc/đầu ra:** Pipeline → ca mục 8/môi trường local sạch/kiểm tra gói → tests, checks, run tái lập.
 - **Phụ thuộc:** T09, T10, T11.
@@ -459,7 +461,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Khang review.
 
-- **Trạng thái:** Chưa nghiệm thu toàn bài; R05/R07 và review còn mở. CHG-027 đã thực hiện so sánh và tổ chức mã ngay; kiểm tích hợp/6 trang UI đã đạt, bundleV12 mặc định.
+- **Trạng thái:** Đã đóng gói bộ trình diễn M2–M3 có hash/config/run cố định và HTML tình trạng; chưa nghiệm thu toàn bài: R05/R07, mentor review và xác nhận metric tuần còn mở.
 - **Mục tiêu/yêu cầu:** R01–R09.
 - **Đầu vào/công việc/đầu ra:** Sản phẩm/kiểm tra/báo cáo → ma trận/diễn tập máy khác/gói phù hợp quyền → biên bản, gói riêng tư hoặc giả, giới hạn.
 - **Phụ thuộc:** T12, T13.

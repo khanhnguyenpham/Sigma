@@ -1,4 +1,4 @@
-"""Smoke-check all five pages and reconcile filters with their sealed CSVs."""
+"""Smoke-check all six pages and reconcile filters with their sealed CSVs."""
 import argparse
 import json
 import os
@@ -68,6 +68,15 @@ def check(output_id, config=None, country=None, carrier=None):
         np.testing.assert_array_equal(ledger.opening + ledger.receipts - ledger.fulfilled, ledger.closing)
         np.testing.assert_array_equal(ledger.fulfilled + ledger.shortage, ledger.scenario_demand)
         scenario_rows.append({'scenario': scenario, 'route_ledger_rows': len(ledger)})
+    # Item filters must affect both the recommendation and the policy ledger.
+    chosen_sku = sorted(at.dataframe[0].value.sku.unique())[0]
+    next(w for w in at.sidebar.selectbox if w.label == 'Mặt hàng SKU').select(chosen_sku).run()
+    chosen_type = sorted(at.dataframe[0].value.product_type.unique())[0]
+    next(w for w in at.sidebar.selectbox if w.label == 'Loại sản phẩm').select(chosen_type).run()
+    assert not at.exception
+    assert at.dataframe[0].value.sku.eq(chosen_sku).all() and at.dataframe[0].value.product_type.eq(chosen_type).all()
+    assert at.dataframe[-1].value.sku.eq(chosen_sku).all() and at.dataframe[-1].value.product_type.eq(chosen_type).all()
+    assert len(at.dataframe[-1].value) == 92
     at.switch_page('sigma/ui/comparison.py').run()
     assert not at.exception and len(at.dataframe) == 4
     comparison_top = at.dataframe[0].value
@@ -80,6 +89,8 @@ def check(output_id, config=None, country=None, carrier=None):
     assert cmp_metrics.coverage.eq(1).all()
     assert not at.dataframe[2].value.official_daily_R05.any()
     filtered('app.py')
+    if bundle.get('product_runs'):
+        assert list(next(w for w in at.sidebar.selectbox if w.label == 'Bộ kết quả').options) == [bundle['daily_run']]
     result = {'status': 'verified', 'pages': pages, 'scenario_filters': scenario_rows,
         'configured_weekly_run': bundle['weekly_run'], 'configured_daily_run': bundle['daily_run'],
         'weekly_summary_sha256': sha256(wdir / 'summary.json'), 'delivery_config_sha256': sha256(path),

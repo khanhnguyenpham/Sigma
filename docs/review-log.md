@@ -749,3 +749,31 @@ E49 bổ sung refresh: CLI defaultV12 tạo sigma_delivery_job_20261005T16015607
 Commit mã043cf8595803f6331ebec4ca1eac14aa63af849e đã push codex/sigma-local-pipeline. Kiểm đúnghead, hai workflow hoàn tấtsuccess: [push CI](https://github.com/khanhnguyenpham/Sigma/actions/runs/37338362331), [PR CI](https://github.com/khanhnguyenpham/Sigma/actions/runs/37338369564). Windows sạch cài dependencies/pipcheck,192tests, dailyfake/audit, fullsyntheticproduct/compare/verifiers và6-pageAppTest/scenariofilters pass; không có suppliedCSV trên CI. Artifact PR1 vẫnattached/draft, khôngmerge. Health local8503 trả200/ok. Các chỉnh docs/TXT ghi E50 về sau không đổi implementation đã kiểm ởcommit này.
 
 Cập nhật mô tả PR bằng nội dung đã chuẩn bị bị automated approval review từ chối: reviewer xem đây là external messaging vàcông bố riêng aggregate private-derived metadata, không coi quyềnpushcode là quyềnupdatePRbody. Đã hỏi người dùng quyền riêng; chưa nhận trả lời/chưa sửa PRbody, khôngworkaround. Việc đọc CI/commitcode/kiểm vàbàn giao vẫn hoàn tất trong phạm vi đã cho phép.
+
+
+### CHG-028 — Hoàn thiện tối đa sản phẩm phục vụ M2–M3, 06/10/2026
+
+Nguồn: người dùng yêu cầu tinh chỉnh sản phẩm cuối để đem báo cáo M2–M3. Tiếp tục T09–T12/T14, giữ R05 ngày và metric tuần riêng; chưa tạo lại Word/slide. Không nâng giả định/đạt kỹ thuật thành nghiệm thu. Bản V12 vẫn là mặc định cho tới khi có kiểm tra đủ bộ phụ thuộc. Không đăng lại nội dung PR đang chờ người dùng cho phép.
+
+### E51 — Đăng ký ngân sách booster trước chạy V13, 06/10/2026
+
+E46 đã đăng ký giả thuyết 300 cây nhưng hoãn khi tổ chức mã. Nay `sigma/forecasting/boosting.py` kiểm số nguyên1–2000 và override chỉ cho booster; pooled/local dùng đúng override, mặc định cũ giữ nguyên. 28 ca kiểm booster/local/weekly đạt, gồm số cây thực23 và future mutation. Cấu hình `configs/experiments/weekly-boost.json`: giữ52 ứng viên V10, thêm2 parent300cây +4 head causalhistory56/prior0 hoặc4 (58 tổng), learning rate/split/source/top10/metric giữ nguyên. Dự kiến run mới `sigma_weekly_boost_v13`, authenticate cache validationV10, khóa selection mới trước fresh test; test đã xem, không là kiểm định độc lập. Đây là đăng ký trước fit, chưa có kết quả V13.
+
+
+### E52 — Quy tắc chọn bản tích hợp trước kết quả testV13, 06/10/2026
+
+Đã đọc selection validation khóaV13: top10 mean14,978399%,10/10; TrueMoveH chọn annual300, LG U+ giữ calblendmacro75. Chưa đọc summary/metric testV13. Quy tắc tích hợp: nếu generic verifier/source/conservation/cutoff/cache và tests đạt, dùng selectionV13 từ validation cho bộ sản phẩm mới, bất kể test có cải thiện hay không; không chọn V12/V13 bằng test. Không ghi đè bộ báo cáoV12 đã khóa. Tạo policy/snapshot/customer/comparison/QA mới tương ứng trước khi đổi mặc định; giữ R05 mở.
+
+
+### E53 — V13 đã chạy và đối soát độc lập, 06/10/2026
+
+Run sigma_weekly_boost_v13 complete,58 ứng viên; cache394680 validationpairs từV10,6 ứng viên mới fitvalidation, fresh test/future. SelectionSHA1b24d9ed4d33ea5a407d634c83b0cdac2df62d41aebdf8250dfb3797c5f93848 khóa trước test; summarySHAd2e0a1fedede62c7fa02f154100223423aad71d404e6bd52378005c4ac057d2f. Validation10/10mean14,978399%; test9/10mean16,173459%,LG U+21,192259%,coverage100%. Generic sigma_weekly_boost_verification_v13 kiểm447810pairs, nhãnquantityUTC/toptrain/metric/cutoff/grid/fullcoverage/phân bổH14/actualNaN/source và59 tệp sealedv11 đạt. Calibration replay chi tiết đang chạy, chưa nhận hoàn tất. CustomerV6/verificationV6 kiểm80105groups/118296quantity/1885knownnext7/966route-days; futureH14qty2926,629101; summarySHA1a5e42cd1887d22a730415e58e2ca6ce8831e894991ac92e36d040a8fbd1c5bd. PolicyV4 còn đang chuẩn bịH14; chưa đổi mặc định. Lệnh verify-delivery gọi sớm khi run chưa complete đã được chạy lại đúng sau khicomplete, đạt; lỗi CLI flag ban đầu không là lỗi artifact.214tests toàn bộ đạt. app.py thêm3 dòng khóa menu run bằng SIGMA_LOCKED_RUN_ID; src/run.py/CSV và59 artifactv11 nguyên, không đổi dự báo ngày.
+
+
+### E54 — Bộ trình diễn M2–M3 và bản tích hợpV13, 06/10/2026
+
+Đã hoàn tất calibration replay42136factors/136620oldvalidationpairs; policyV4 kiểm13kịch bản/1100320ledger/267908events(163098sale+104810receipts),93originsH14/59892forecasts,chronology/cutoff/integerquantity/parentprediction/raw59sealed đạt. Basefill85,020040%,shortage2392; partial42,265782%,late72,457415%,none7,690381%; early33,728636%,TP2061/FP845/FN806,precision70,922230%,recall71,886990%,2867events/5520windows/1099alreadyemptyexcluded. StockV7 kiểm920items/5520replay, đúngpolicyV4,stricttrigger/quantity/nodoubledebit. CustomerV6/compareV3 đối soát; checkpointV3 kiểmsource/parents/protocolhash/top10/comparison vàexportHTML/CSV/configđãkhóa. AppTest sigma_m2m3_v13_ui_qa:6trang/4kịch bản/SKU+product_type, lựa chọn run ngày chỉV11,khôngexception; bộ demo phầnmềm sinhV4 vàQAđãkiểm riêng.214tests toàn bộ đạt,21tests liênquanjob/bundle/release đạt sau bổsung last_attempttimestamp. app.py chỉ3dòngkhóa run,src/run.pynguyên;59artifactV11+rawnguyên. Bundlemặc định được chuyểnV13 theoquy tắcE52 saukiểm,khôngđổi nghiệmthu.
+
+Windows task SIGMA-Customer-Delivery-Refresh đã cài07:00+07,pythonwẩn,IgnoreNew/StartWhenAvailable/30minmax; Start-ScheduledTask chạy thật LastTaskResult0/Ready,NextRunTime06/10/202607:00. Sandbox đọcSchedulerbịAccessDenied đã đọc lại bằng escalationthànhcông; không làauto-review rejection. CLIrefreshskipped_unchanged giữlastgoodV12 trước chuyểnmặcđịnh; jobcode nayghi last_attempt ngay cảskip. Source/run thật giữlocal,scheduledjobkhôngupload. Server8504bộV12 kiểm200/ok trước chuyểnlauncher; bảnV13 cần khởiđộng lại riêng. Không làm lạiWord/slide,khôngcậpnhậtPRbody đangchờcho phép.
+
+Hashsummary: sigma_weekly_boost_v13: d2e0a1fedede62c7fa02f154100223423aad71d404e6bd52378005c4ac057d2f; sigma_weekly_policy_v4: 084c782c4972cdb45c4e55825be36547e4e98a537c3258341e99c9fad68e8d96; sigma_weekly_inventory_v7: 14c383ffb2f52925a58210ed359076fa89bbebd968134e4e183b2e79ed04c0f6; sigma_delivery_v6: 1a5e42cd1887d22a730415e58e2ca6ce8831e894991ac92e36d040a8fbd1c5bd; sigma_day_week_comparison_v3: 5d0192bd452d67b26bb0ab8f9dd033590a974f328510905c1a94eceaeff97925; sigma_m2m3_checkpoint_v3: 259eca998d44956a011f40b6272cc5390f51fbf641c6813184305cac48a180db.

@@ -4,15 +4,16 @@ import os
 import pandas as pd
 import streamlit as st
 
-from sigma.delivery.customer import validate_delivery, delivery_settings
+from sigma.delivery.customer import validate_delivery
 from src.common import ROOT, ROUTE
+from sigma.ui.bundle import folders_for, settings_for_ui
 
 st.set_page_config(page_title='SIGMA · Giao hàng D+7', page_icon='📦', layout='wide')
 st.title('SIGMA · Giao đến khách sau đúng 7 ngày')
 st.caption('Ngày đặt D → ngày giao D+7 · Ngày lịch UTC, gồm cuối tuần · Không trễ giao trong giả định')
 folders = []
-bundle = delivery_settings()
-for p in (ROOT / 'outputs').glob('*'):
+bundle = settings_for_ui()
+for p in folders_for(bundle, 'delivery'):
     if p.is_dir() and (p / 'summary.json').is_file():
         try:
             info = validate_delivery(p)

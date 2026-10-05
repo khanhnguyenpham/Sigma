@@ -27,6 +27,7 @@ from sigma.forecasting.local import WeeklyLocal
 from sigma.forecasting.reuse import validation_cache
 from sigma.forecasting.combine import calibrated_blend_values
 from sigma.provenance import implementation_hashes
+from sigma.forecasting.boosting import estimator_count, validate_budgets
 
 FEATURES = ['route_index', 'block', 'origin_weekday', 'start_month', 'year_sin',
             'year_cos', 'elapsed_days', 'sum7', 'sum14', 'sum28', 'sum90',
@@ -131,7 +132,7 @@ def fit(prepared, cutoff, spec, cfg, settings):
         model = DummyRegressor(strategy='constant', constant=0.).fit(x, y)
     else:
         model = LGBMRegressor(objective=spec['objective'], num_leaves=spec['leaves'],
-            n_estimators=settings['n_estimators'], learning_rate=settings['learning_rate'],
+            n_estimators=estimator_count(spec, settings), learning_rate=settings['learning_rate'],
             min_child_samples=settings['min_child_samples'], reg_lambda=settings['reg_lambda'],
             n_jobs=cfg['lightgbm_threads'], random_state=cfg['seed'], deterministic=True,
             force_col_wise=True, verbosity=-1)
@@ -316,6 +317,7 @@ def run_weekly(run_id, weekly_config='config.weekly.json', reuse_validation_from
     if not settings_path.is_relative_to(ROOT):
         raise ValueError('Configuration must be local')
     settings = json.loads(settings_path.read_text(encoding='utf-8'))
+    validate_budgets(settings)
     if settings['blocks'] != [1, 2] or settings['daily_acceptance_replaced']:
         raise ValueError('Weekly protocol must retain daily acceptance and two weekly blocks')
     cfg = read_config(settings['base_config'])

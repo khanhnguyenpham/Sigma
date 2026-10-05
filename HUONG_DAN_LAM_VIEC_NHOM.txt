@@ -1,3 +1,6 @@
+CẬP NHẬT06/10/2026 — BỘ DÙNG BÁO CÁO M2–M3
+Mở .\start_m2m3.ps1, http://127.0.0.1:8504. Bộ V13 khóa dựbáo/policyV4/stockV7/customerV6/comparisonV3; có214tests và6trang đốisoát. Hướngdẫn bướcdemo:docs/m2m3-demo.md. JobWindows07:00đãcài. Tuần9/10(mean16,17%,LG U+21,19%),ngàyR05vẫn0/10; cảnhbáosớm33,73% — chưa nghiệmthu100%. Word/slidecũ chưa cậpnhật. Dữliệu vàrun thật giữlocal; khôngupload. Các cậpnhật05/10bên dưới là lịch sử.
+
 CẬP NHẬT HIỆN HÀNH 05/10/2026 — CHG-027: SẢN PHẨM VÀ MÃ ĐÃ TỔ CHỨC
 
 1. Máy hiện tại: mở PowerShell tại project, chạy .\start_product.ps1;

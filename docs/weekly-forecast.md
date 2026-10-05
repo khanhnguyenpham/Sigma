@@ -1,8 +1,8 @@
 # Dự báo trực tiếp tổng quantity 7 ngày
 
-Cấu hình sản phẩm: [configs/weekly.json](../configs/weekly.json), 48 ứng viên V9 giữ nguyên sau refactor; code tại [forecasting/weekly](../sigma/forecasting/weekly.py). Run mới `sigma_weekly_refactored_v12` đã tính lại selection/test/future, kiểm parity V9 trong1e-8; 364.320 validation pairs dùng cache xác thực, không nhận đã fit lại.
+Cấu hình sản phẩm: [configs/weekly.json](../configs/weekly.json),58 ứng viênV13; code tại [forecasting/weekly](../sigma/forecasting/weekly.py). Run `sigma_weekly_boost_v13` giữ52 ứng viênV10 và thêm2 booster300cây+4 hiệu chỉnh causal. Cache394.680 validationpairs được authenticate,6 ứng viên mới fitvalidation; khóa selection trước fresh test/future. Generic kiểm447.810pairs và calibration replay42.136factors đạt. V12 trước đó giữ nguyên artifact, cấu hình gốc lưu ở [weekly-organized-v12](../configs/experiments/weekly-organized-v12.json).
 
-**Test hồi cứu 9/10≤20%, mean16,19%, LG U+21,19%; coverage100%. R05 ngày vẫn0/10**, chưa xác nhận mentor thay bằng metric tuần. Các lần V1–V10 có version riêng, không sửa run cũ. [Hướng dẫn cũ](history/weekly-forecast-before-code-organization.md) giữ làm lịch sử.
+**Test hồi cứu 9/10≤20%, mean16,17%, LG U+21,19%; coverage100%. R05 ngày vẫn0/10**, chưa xác nhận mentor thay bằng metric tuần. Các lần V1–V13 có version riêng, không sửa run cũ. [Hướng dẫn cũ](history/weekly-forecast-before-code-organization.md) giữ làm lịch sử.
 
 ## Dùng và kiểm
 
@@ -29,7 +29,7 @@ Mở sản phẩm cổng8503, trang “Dự báo tổng7 ngày”. Để xem run
 
 Forecast tương lai:46 tuyến×2 khối=92 tổng,644 phần ngày, actual thiếu. Policy có đủH14 tại93 origins, kể cả tail chưa có actual; cùng model đã khóa và refit neo split, không dùng dữ liệu sau origin. Stock snapshot lấy đúng policy của cùng forecast/source/config.
 
-Cấu hình nghiên cứu ở [configs/experiments](../configs/experiments); V10 có52 ứng viên, top10 test giốngV9 nhưng một số tuyến khác thay selection validation. V10 giữ riêng, không trộn với sổpolicyV9. Đề xuất boosting E46 chưa triển khai/chưa chạy, không có kết quả để nhận đạt.
+Cấu hình nghiên cứu ở [configs/experiments](../configs/experiments); V10 có52 ứng viên, top10 test giốngV9 nhưng một số tuyến khác thay selection validation. V10 giữ riêng, không trộn với sổpolicyV9. Boosting E46 đã triển khai theo CHG-028/E51–E53: mặc định150cây, override300cây được kiểm trước fit, không đổi learning rate/split/metric. Bản tích hợpV13 được chọn theo validation trước xem kết quả testV13, không chọn phiên bản bằng test.
 
 Cache validation phải được authenticate hash/artifacts/source/base protocol/spec/settings. Lệnh --reuse-validation-from tính lại selection rồi fit test/future mới, không cache test. Bỏ tùy chọn này để huấn luyện validation đầy đủ.
 

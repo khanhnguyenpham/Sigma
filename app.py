@@ -16,6 +16,9 @@ st.caption("Quantity theo ngày UTC · Dữ liệu snapshot hồi cứu · Tồn
 
 run_root = ROOT / "outputs"
 folders = sorted([p for p in run_root.glob("*") if p.is_dir() and (p / "manifest.json").is_file()], key=lambda p: p.name, reverse=True)
+locked_run = os.environ.get('SIGMA_LOCKED_RUN_ID')
+if locked_run:
+    folders = [p for p in folders if p.name == locked_run]
 if not folders:
     st.info("Chưa có bộ kết quả. Chạy pipeline local theo README để tạo run; demo dùng dữ liệu giả.")
     st.stop()
