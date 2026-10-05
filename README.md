@@ -4,7 +4,15 @@ Sản phẩm Streamlit chạy local trên Windows. Menu gồm tổng quan, dự 
 
 **Chưa nghiệm thu toàn bài:** tuần đạt 9/10 top 10, LG U+ 21,19%; R05 ngày vẫn 0/10. Test đã từng được xem, là đánh giá hồi cứu. Giữ nguyên nguồn, target, split, top 10 và metric. [Bảng so sánh](docs/day-week-comparison.md) chấm các phương án trên cùng cửa sổ, giữ riêng tiêu chí ngày.
 
-## Mở trên máy hiện tại
+## Bản dùng báo cáo M2–M3
+
+```powershell
+.\start_m2m3.ps1
+```
+
+Mở `http://127.0.0.1:8504`, bộ runV13 đã khóa, bảng tình trạngHTML và bộ lọc SKU/loại. [Hướng dẫn demo8–10phút](docs/m2m3-demo.md). Thiếu/sai hash dừng, không đổi sang run khác. Clone mới dùng cấu hình demo được tự sinh/khóa.
+
+## Mở sản phẩm trên máy hiện tại
 
 ```powershell
 .\start_product.ps1
@@ -47,7 +55,7 @@ Nguồn riêng tư `data/sigma_sim_data_orders.csv` không có trong clone; gi�
 .\.venv\Scripts\python.exe -m sigma compare --weekly-run week_new --daily-run day_new --policy-run policy_new --output-id comparison_new
 ```
 
-Để mở bộ run mới, tạo bản sao config.delivery.json với đúng weekly_run/daily_run, rồi truyền `-DeliveryConfig` cho launcher sau đối soát. Weekly config sản phẩm có 48 ứng viên V9; chọn từng tuyến bằng validation rồi khóa trước test. Cache `--reuse-validation-from` phải cùng nguồn/protocol/ứng viên, có hash nguyên; luôn tính lại selection và test/future, không gọi cache là fit mới.
+Để mở bộ run mới, tạo bản sao config.delivery.json với đúng weekly_run/daily_run, rồi truyền `-DeliveryConfig` cho launcher sau đối soát. Weekly config sản phẩm có 58 ứng viên V13; chọn từng tuyến bằng validation rồi khóa trước test. Cache `--reuse-validation-from` phải cùng nguồn/protocol/ứng viên, có hash nguyên; luôn tính lại selection và test/future, không gọi cache là fit mới.
 
 CLI `python -m sigma --help` liệt kê lệnh; `python -m sigma weekly --help` xem tham số. 29 lệnh/import cũ nằm trong legacy/, ví dụ `python legacy/weekly_forecast.py --help`; implementation nằm trong sigma/. Pipeline ngày vẫn dùng src/, run.py và app.py; đợt tổ chức mã giữ nguyên byte ba phần này và sealed v11.
 
@@ -58,24 +66,24 @@ CLI `python -m sigma --help` liệt kê lệnh; `python -m sigma weekly --help` 
 | Target | Quantity success/ngày đặt UTC/tuyến; A08 thực nghiệm, không lọc activation |
 | Split | Train 01/01/2024–30/06/2025; validation 01/07–30/09/2025; test 01/10–31/12/2025; top 10 từ train |
 | Dự báo | H14, hai tổng 7 ngày; h1–7 chính/h8–14 riêng; refit 7 ngày; nhãn chỉ tới cutoff |
-| Tuần | 9/10 ≤20%, mean 16,19%, LG U+ 21,19%; coverage100%, MAPE/MAE/WAPE/bias/zero báo kèm |
+| Tuần | 9/10 ≤20%, mean 16,17%, LG U+ 21,19%; coverage100%, MAPE/MAE/WAPE/bias/zero báo kèm |
 | Ngày R05 | 0/10 ≤20%, MAPE41,89–58,13%; chưa xác nhận mentor đổi sang metric tuần |
 | Giao khách | Đặt D → lịch D+7 ngày lịch UTC, cuối tuần/không trễ theo người dùng; chưa có actual giao |
 | Tồn | Tuyến×SKU×product_type, giả định riêng đối tác; closing_on_hand<ROP; IP chỉ tính Q |
 | Giao dịch | Nhập đầu ngày UTC, bán theo timestamp/ID; đối soát sổ ngày; trừ tồn một lần khi đặt |
 | 13 kịch bản | Cơ sở, bán sụt một ngày, giảm/tăng nhiều ngày, nhập50%, nhập trễ3 ngày, không nhập, 6 biến thể độ nhạy |
-| So sánh policy | Base fill83,52%→84,97%; shortage2631→2400; early≥7 ngày33,10%→33,80%, cùng2867 sự kiện |
+| So sánh policy | Base fill83,52%→85,02%; shortage2631→2392; early≥7 ngày33,10%→33,73%, cùng2867 sự kiện |
 
 Tồn/nhập/mapping/lead time nhà cung cấp là mô phỏng, tách thời gian giao khách7 ngày. Chưa actual khác số0. Snapshot trạng thái cuối không tái dựng thông tin có tại origin vận hành thật. Không khẳng định dự đoán mọi cú sốc hoặc cảnh báo đạt mọi ca.
 
 ## Kiểm tra và cập nhật
 
-192 tests đã qua: fixture giả, leakage, metric, quantity/chronology, cache/tamper, alias và provenance. Verifier toàn run và AppTest lọc bảng/kịch bản được lưu riêng; số tests không thay nghiệm thu accuracy.
+214 tests đã qua: fixture giả, leakage, metric, quantity/chronology, cache/tamper, alias và provenance. Verifier toàn run và AppTest lọc bảng/kịch bản được lưu riêng; số tests không thay nghiệm thu accuracy.
 
 ```powershell
 .\.venv\Scripts\python.exe -m sigma refresh --delivery-config config.delivery.json
 ```
 
-Job cập nhật lịch D+7 từ forecast đã kiểm; skip input không đổi, chống chạy trùng, giữ last-good khi lỗi. Đổi raw cần pipeline mới. [Hướng dẫn giao/job](docs/customer-delivery.md) có script lịch Windows; không nhận đã cài khi chưa có bằng chứng.
+Job cập nhật lịch D+7 từ forecast đã kiểm; skip input không đổi, chống chạy trùng, giữ last-good khi lỗi. Đổi raw cần pipeline mới. [Hướng dẫn giao/job](docs/customer-delivery.md) có lịch Windows07:00 đã cài và chạy thử mã0; pythonwẩn/IgnoreNew/StartWhenAvailable. Job chỉ refreshD+7, không tự huấn luyện toàn bộ với CSV mới; ghi last_attempt ngay cả khi skipped_unchanged.
 
 Đọc [TASK](TASK.md), [requirements](docs/requirements.md), [PLAN](PLAN.md), [development](docs/development.md), [review-log](docs/review-log.md#evidence). [README lịch sử](docs/history/README-before-code-organization.md) giữ số liệu trước CHG-027. Word/slide M2 lịch sử giữ local, không làm lại trong đợt này.

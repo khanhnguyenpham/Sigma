@@ -9,10 +9,15 @@ def test_refresh_skips_unchanged_inputs_after_one_success(tmp_path, monkeypatch)
     calls = []
     worker = lambda run_id: calls.append(run_id)
     first = job.refresh(worker=worker, get_fingerprint=lambda: 'A', validator=lambda p: {})
+    state = tmp_path / 'outputs/jobs/customer_delivery/state.json'
+    sealed_state = state.read_bytes()
     second = job.refresh(worker=worker, get_fingerprint=lambda: 'A', validator=lambda p: {})
     assert first['status'] == 'complete' and second['status'] == 'skipped_unchanged'
     assert first['last_good_run'] == second['last_good_run'] and len(calls) == 1
     assert not (tmp_path / 'outputs/jobs/customer_delivery/refresh.lock').exists()
+    attempt = json.loads((state.parent / 'last_attempt.json').read_text())
+    assert attempt['status'] == 'skipped_unchanged' and attempt['checked_at_utc']
+    assert state.read_bytes() == sealed_state
 
 
 def test_refresh_failure_retains_state_and_never_logs_private_exception(tmp_path, monkeypatch):

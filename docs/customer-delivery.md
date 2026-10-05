@@ -26,15 +26,15 @@ Nguồn/order snapshot do người dùng mô tả là giả định, chưa xác 
 Policy theo forecast tuần chạy13 kịch bản trong01/10–31/12/2025,93 origins×H14,59.892 forecast rows/1.100.320 ledger rows; có sổ giao dịch timestamp/ID và nhập đầu ngày. CustomerD+7 không trừ tồn lần thứ hai. SKU shares/SS/ROP/Q/IP/ETA và replay được đối soát độc lập.
 
 ```powershell
-.\.venv\Scripts\python.exe -m sigma policy --weekly-run sigma_weekly_refactored_v12 --run-id policy_new
+.\.venv\Scripts\python.exe -m sigma policy --weekly-run sigma_weekly_boost_v13 --run-id policy_new
 .\.venv\Scripts\python.exe -m sigma verify-weekly-policy --run-id policy_new --output-id policy_verified
-.\.venv\Scripts\python.exe -m sigma stock --weekly-run sigma_weekly_refactored_v12 --stock-policy-run policy_new --run-id stock_new
+.\.venv\Scripts\python.exe -m sigma stock --weekly-run sigma_weekly_boost_v13 --stock-policy-run policy_new --run-id stock_new
 .\.venv\Scripts\python.exe -m sigma verify-weekly-inventory --run-id stock_new --output-id stock_verified
 ```
 
 Snapshot lấy closing/pending từ đúng policy của forecast/source/config, không lẫn sổ ngày baseline. Nếu bỏ --stock-policy-run, chế độ legacy lấy sổ ngày và ghi rõ provenance. Chỉ khuyến nghị, chưa gửi/áp dụng đơn đặt thật. Policy mô phỏng và snapshot/replay là các evidence riêng.
 
-Base fill84,97%; nhập50%42,29%; trễ nhập3 ngày72,43%; không nhập7,69%. Replay sớm≥7 ngày33,80%, precision71,09%, recall72,13%, cùng5.520 cửa sổ/2.867 sự kiện/1.099 đã cạn loại trước. Giữ ca cạn trước7 ngày trong mẫu số; không nhận mọi cảnh báo đều đạt. [So sánh](day-week-comparison.md) giữ tiêu chí ngày/tuần tách biệt.
+Base fill85,02%; nhập50%42,27%; trễ nhập3 ngày72,46%; không nhập7,69%. Replay sớm≥7 ngày33,73%, precision70,92%, recall71,89%, cùng5.520 cửa sổ/2.867 sự kiện/1.099 đã cạn loại trước. Giữ ca cạn trước7 ngày trong mẫu số; không nhận mọi cảnh báo đều đạt. [So sánh](day-week-comparison.md) giữ tiêu chí ngày/tuần tách biệt.
 
 ## Refresh và lịch nền
 
@@ -51,3 +51,6 @@ Script Windows [install_refresh_task.ps1](../install_refresh_task.ps1) dùng pyt
 ```
 
 Lịch chỉ refreshD+7 từ dự báo cha đã kiểm, không tự huấn luyện toàn pipeline. [README](../README.md) có demo6 trang trên máy clone. R05 ngày0/10 và tuần9/10 còn mở; không nhận hoàn thành toàn bài. CHG-027 cho phép làm ngay so sánh/tổ chức mã, thay thứ tự hoãn củaCHG-025. [Hướng dẫn cũ](history/customer-delivery-before-code-organization.md) giữ lịch sử; Word/slide chưa làm lại.
+
+
+**Cập nhật06/10/2026 — E54:** lịchWindows07:00 đã cài với pythonwẩn/IgnoreNew/StartWhenAvailable, lần chạy thử mã0. Job chỉ cập nhật lịchD+7 từ cha đã kiểm, ghi thời điểm last_attempt cả khi skip; CSV mới cần pipeline mới. Bộ báo cáo [M2–M3](m2m3-demo.md) khóa customerV6/policyV4/stockV7, không tự đổi run khi job chạy. Các đoạn chưa cài lịch phía trên thuộc lịch sử chuẩn bị05/10.
