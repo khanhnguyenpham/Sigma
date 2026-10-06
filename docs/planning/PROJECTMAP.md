@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-036/E64 — 06/10/2026:** theo yêu cầu người dùng, nhánh báo cáo đổi thành `m2-forecast-report`, bỏ tiền tố codex. Email author/committer ba commit M2 trên nhánh mới được đổi sang `chaoskid1415@gmail.com`; cấu hình Git chỉ áp dụng repo này. Nội dung ba commit giữ nguyên, cập nhật tên nhánh trong hướng dẫn và metadata báo cáo; kết quả9/10/LG U+ chưa đạt không đổi. Nhánh GitHub cũ được thay bằng nhánh mới sau khi xác nhận push. [Báo cáo M2](../../M2/reports/published_m2_20261007/README.md).
+
 **CHG-035/E63 — 06/10/2026:** đã xuất bản nhánh GitHub `codex/m2-report-20261007` theo yêu cầu người dùng với [báo cáo M2 tổng hợp](../../M2/reports/published_m2_20261007/README.md), HTML offline, biểu đồ, CSV metric/lựa chọn và hash đối soát. Remote head commit báo cáo `88ddbba` đã kiểm khớp local. Giữ kết quả9/10 tổng7,15,89%, LG U+20,69% hoãn tối ưu; ngày0/10, test hồi cứu. Raw, train từng ngày và artifact forecast giữ local, không refit hoặc đổi nghiệm thu.
 
 **CHG-034/E62 — 06/10/2026:** tạo nhánh local `codex/m2-report-20261007` để báo cáo M2 ngày07/10. Clean root33→6 tệp, chuyển39 tệp vào data/configs, src/sigma, scripts, legacy và docs/planning/archive. Đóng gói dữ liệu train/validation/test top10 và báo cáo HTML/Streamlit đọc run đã khóa9/10 tổng7,15,89%, LG U+20,69% để tối ưu sau. Không refit raw hoặc đổi lựa chọn; ngày0/10/R05/R07/T14 còn mở. [Kịch bản trình bày](../../M2/reports/presentation-guide.md).

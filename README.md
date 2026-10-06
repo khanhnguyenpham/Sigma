@@ -39,7 +39,7 @@ Mở `http://127.0.0.1:8503`. Bộ run chọn trong [config.delivery.json](data/
 
 ## Cài và chạy demo trên máy mới
 
-Áp dụng cho checkout của nhánh báo cáo được cung cấp hợp lệ. Nhánh GitHub dành cho báo cáo là `codex/m2-report-20261007`; không gửi kèm raw/artifact trong gói mã.
+Áp dụng cho checkout của nhánh báo cáo được cung cấp hợp lệ. Nhánh GitHub dành cho báo cáo là `m2-forecast-report`; không gửi kèm raw/artifact trong gói mã.
 
 ```powershell
 python -m venv .venv
@@ -53,7 +53,7 @@ python -m venv .venv
 
 Đã kiểm môi trường Python 3.14.7/Windows 64-bit, phụ thuộc được khóa. Demo tự sinh ba tuyến riêng, tạo pipeline ngày/tuần, D+7, policy 13 kịch bản, snapshot đúng policy, so sánh và đối soát độc lập. Demo 3/3 không chứng minh top 10 của nguồn bài đạt. Dùng prefix mới, không ghi đè run.
 
-GitHub có mã/config/fixture giả/notebook không output/tài liệu và bộ báo cáo M2 tổng hợp được cho phép trong `M2/reports/published_m2_20261007`. Chỉ CSV metric/lựa chọn tổng hợp của bộ này được chia sẻ; raw, train, outputs, run riêng tư, môi trường và job state giữ local. Nhánh báo cáo `codex/m2-report-20261007`; nhánh sản phẩm `codex/sigma-local-pipeline`; [PR1](https://github.com/khanhnguyenpham/Sigma/pull/1) còn draft, chưa merge.
+GitHub có mã/config/fixture giả/notebook không output/tài liệu và bộ báo cáo M2 tổng hợp được cho phép trong `M2/reports/published_m2_20261007`. Chỉ CSV metric/lựa chọn tổng hợp của bộ này được chia sẻ; raw, train, outputs, run riêng tư, môi trường và job state giữ local. Nhánh báo cáo `m2-forecast-report`; nhánh sản phẩm `codex/sigma-local-pipeline`; [PR1](https://github.com/khanhnguyenpham/Sigma/pull/1) còn draft, chưa merge.
 
 ## Pipeline với CSV được cung cấp
 

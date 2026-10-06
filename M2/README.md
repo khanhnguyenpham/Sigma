@@ -1,6 +1,6 @@
 # M2 — dự báo nhu cầu
 
-**Bản báo cáo ngày 07/10/2026:** nhánh `codex/m2-report-20261007`, kết quả đã khóa **9/10 tổng7, MAPE15,89%**. LG U+20,69% chưa đạt và để tối ưu sau; ngày0/10, R05 còn mở. [Kịch bản trình bày](reports/presentation-guide.md).
+**Bản báo cáo ngày 07/10/2026:** nhánh `m2-forecast-report`, kết quả đã khóa **9/10 tổng7, MAPE15,89%**. LG U+20,69% chưa đạt và để tối ưu sau; ngày0/10, R05 còn mở. [Kịch bản trình bày](reports/presentation-guide.md).
 
 ```powershell
 .\scripts\start_m2.ps1
