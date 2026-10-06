@@ -1,0 +1,10 @@
+family,target,mean_mape_pct,routes_le20,routes,minimum_coverage
+LightGBM,daily,46.743066017841535,0,10,1.0
+LightGBM,direct_7d,16.11177106645537,8,10,1.0
+LightGBM,sum_daily,32.284797754999445,1,10,1.0
+Prophet,daily,55.47170389160565,0,10,1.0
+Prophet,direct_7d,16.508666948204347,8,10,1.0
+Prophet,sum_daily,16.880777587793343,9,10,1.0
+SARIMA,daily,54.63420211211642,0,10,1.0
+SARIMA,direct_7d,17.124071511052012,7,10,1.0
+SARIMA,sum_daily,20.665893671403992,5,10,1.0

@@ -1,0 +1,21 @@
+destination_country,carrier,family,target,model,selection_split,selection_cutoff,validation_mape_positive_pct,validation_mae
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-09-30,10.228777988489677,8.306933249518895
+South Korea,LG U+,LightGBM,direct_7d,lgbm_cal_ratio7_56_p4,validation,2025-09-30,11.632703292573392,6.70909218974842
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-09-30,12.623206019865684,7.317563315861009
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-09-30,13.822049919146037,12.859707789488299
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-09-30,15.31402740434531,9.230741216674456
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-09-30,16.21200193264039,9.132319442559016
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-09-30,17.83893615884148,16.044912524658898
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-09-30,18.88712068308584,9.20946385108512
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-09-30,20.16850012551752,11.394332206877918
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-09-30,20.327491563098757,8.582616561521371
+South Korea,LG U+,LightGBM,daily,lgbm_annual_ratio7,validation,2025-09-30,36.54853793739743,2.9921005047222047
+Thailand,TrueMove H,LightGBM,daily,lgbm_annual_ratio7_n300,validation,2025-09-30,37.696741901076905,4.352696072061656
+Thailand,dtac,LightGBM,daily,lgbm_annual_ratio7_n300,validation,2025-09-30,38.41733259991702,4.350305261286248
+Japan,au (KDDI),LightGBM,daily,lgbm_poisson,validation,2025-09-30,39.969310895672216,3.1180310116779073
+South Korea,SKT,LightGBM,daily,lgbm_annual_ratio7,validation,2025-09-30,44.042512925051284,3.5727476358766204
+Thailand,AIS,LightGBM,daily,lgbm_annual_l1_15_min50,validation,2025-09-30,44.930861805333755,5.505983868521155
+China,China Mobile,LightGBM,daily,lgbm_annual_ratio7,validation,2025-09-30,45.66556322762487,2.9483378396257995
+South Korea,KT,LightGBM,daily,lgbm_annual_ratio7,validation,2025-09-30,46.896092576499306,3.382839116505971
+Japan,NTT Docomo,LightGBM,daily,lgbm_annual_ratio7_n300,validation,2025-09-30,49.325623054444705,3.7942274014261477
+Japan,SoftBank,LightGBM,daily,lgbm_weighted_l1,validation,2025-09-30,49.902064979133506,3.954473010070939

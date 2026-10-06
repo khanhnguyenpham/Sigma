@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-035/E63 — 06/10/2026:** theo yêu cầu người dùng, chuẩn bị xuất bản nhánh GitHub `codex/m2-report-20261007` với [báo cáo M2 tổng hợp](../../M2/reports/published_m2_20261007/README.md), HTML offline, biểu đồ, CSV metric/lựa chọn và hash đối soát. Giữ kết quả9/10 tổng7,15,89%, LG U+20,69% hoãn tối ưu; ngày0/10, test hồi cứu. Raw, train từng ngày và artifact forecast giữ local, không refit hoặc đổi nghiệm thu.
+
 **CHG-034/E62 — 06/10/2026:** tạo nhánh local `codex/m2-report-20261007` để báo cáo M2 ngày07/10. Clean root33→6 tệp, chuyển39 tệp vào data/configs, src/sigma, scripts, legacy và docs/planning/archive. Đóng gói dữ liệu train/validation/test top10 và báo cáo HTML/Streamlit đọc run đã khóa9/10 tổng7,15,89%, LG U+20,69% để tối ưu sau. Không refit raw hoặc đổi lựa chọn; ngày0/10/R05/R07/T14 còn mở. [Kịch bản trình bày](../../M2/reports/presentation-guide.md).
 
 **CHG-033/E61 — đã triển khai và đối soát 06/10/2026:** 12 biến thể đối chứng +14 mới,26 biến thể/50 cấu hình ngày–tổng7, tối đa3 worker. Run `m2_improved_models_20261006_fixed` complete, lựa chọn khóa theo validation: LightGBM9 tuyến/Prophet au(KDDI) cho tổng7, test hồi cứu 9/10, MAPE 15.89%, LG U+20,69%; ngày0/10,46.74%. 40 kiểm tra liên quan và verifier 401,600 dòng/9,160 nhóm metric đạt. Raw và583 tệp lịch sử nguyên; R05/R07/T14 còn mở, sản phẩm V13 giữ hiện hành. [Báo cáo cải tiến](../../M2/reports/m2_improved_models_20261006_handoff.md).

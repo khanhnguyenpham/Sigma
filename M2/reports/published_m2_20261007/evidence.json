@@ -1,0 +1,35 @@
+{
+  "report_date": "2026-10-07",
+  "results_frozen_date": "2026-10-06",
+  "branch": "codex/m2-report-20261007",
+  "run_id": "m2_improved_models_20261006_fixed",
+  "run_manifest_sha256": "6407c68e9f520da51924fb021a275a947ada9cca15fbde06f35287218f3561dc",
+  "selection_sha256": "98eb1ea7fa468f082424e429702dd8f6e85126b665540d17759ae5b19d32b48f",
+  "verification_status": "verified",
+  "forecast_rows_checked": 401600,
+  "metric_groups_checked": 9160,
+  "direct_7d_routes_pass": 9,
+  "direct_7d_mean_mape_pct": 15.887576512782127,
+  "daily_routes_pass": 0,
+  "deferred_route": [
+    "South Korea",
+    "LG U+"
+  ],
+  "test_limit": "retrospective",
+  "retrained_for_publication": false,
+  "raw_data_published": false,
+  "files": {
+    "before_after_routes.csv": "8f639db0f46cc1a328630f024ba09204c677573cd9aeb6ea7fbbe85e08c08e1f",
+    "comparison.png": "e185b0b42eb9f0851e76c7e3781791c9584747bf6550b9a75fed30574a2f4109",
+    "index.html": "fca1a7c131e41bd827aaa0cf67b0aa4f3e9af2d5d6276038f45db547fa19e2f9",
+    "overall_selected_models.csv": "98eb1ea7fa468f082424e429702dd8f6e85126b665540d17759ae5b19d32b48f",
+    "overall_test_metrics.csv": "d4e8251b490e6508bc358eedea2829445e985175561c15086666202d12e87e42",
+    "README.md": "0b4a39df181935701d973207cb21c15179572433586bbc8d4b044bbd47305f4f",
+    "route_comparison.csv": "5dda24eca1e1d97f17ff1ac9b57321089bd78e332c21df779eb97e0a04627c94",
+    "selected_daily_routes.csv": "31b53eb63d8ed2d60a7eb372673119d980a0396989b627d3e6ca2efde2bb9b32",
+    "selected_weekly_routes.csv": "5441ccd83f36641515f480f4c8298bb3f343911bb0042158235077c0541eb376",
+    "summary.csv": "76476c67bee645d3158cadd6765d4db04a81d54c804fb9b7fb85d8479c15c5b8",
+    "validation_monthly_mix.csv": "01d26066d363ba626448e8c418a36648995539367f2987daa38054ef6e390e02",
+    "validation_monthly_selected.csv": "7658195dd65c517690a43dd21e1e25ba8995f0027f772de49bbbabde504ee81f"
+  }
+}

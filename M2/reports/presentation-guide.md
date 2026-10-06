@@ -2,6 +2,10 @@
 
 Nhánh làm việc: `codex/m2-report-20261007`. Dùng kết quả đã khóa **9/10 tuyến tổng 7 đạt ≤20%, MAPE trung bình 15,89%**, độ phủ100%. **LG U+20,69% chưa đạt, hoãn tối ưu** theo quyết định người dùng. Ngày0/10, R05 còn mở; test là hồi cứu.
 
+## Đọc báo cáo từ GitHub
+
+[Báo cáo M2 và bảng kết quả](published_m2_20261007/README.md) đọc được ngay trên GitHub, không cần dữ liệu gốc hoặc train lại. [Bản HTML offline](published_m2_20261007/index.html) tải về và mở bằng trình duyệt. Đây là bản tổng hợp được người dùng yêu cầu xuất bản; raw và artifact run vẫn giữ local.
+
 ## Mở báo cáo trên máy hiện tại
 
 Từ thư mục gốc repo:
@@ -20,7 +24,7 @@ Lệnh tạo bộ này lần đầu:
 .venv\Scripts\python.exe -m M2.presentation
 ```
 
-Lệnh từ chối ghi đè bộ đã có. Clone mới chỉ có mã/cấu hình/hướng dẫn; cần người có quyền cung cấp raw và bộ run local đã khóa để mở cùng báo cáo. Không train lại trước buổi trình bày chỉ để tạo bản giống.
+Lệnh từ chối ghi đè bộ đã có. Clone mới có mã/cấu hình/hướng dẫn và báo cáo tổng hợp offline; cần người có quyền cung cấp raw và bộ run local đã khóa để mở cùng báo cáo. Không train lại trước buổi trình bày chỉ để tạo bản giống.
 
 ## Trình bày 7–10 phút
 
@@ -52,6 +56,6 @@ Lệnh từ chối ghi đè bộ đã có. Clone mới chỉ có mã/cấu hình
 - `data/training/m2_report_20261007`: daily_sales/top_routes/audit và ba bảng split top10. Train kết thúc30/06/2025, validation07–09/2025, test10–12/2025; không dùng validation/test làm nhãn train trước cutoff.
 - `M2/artifacts/m2_improved_models_20261006_fixed`: dự báo, metric, fit logs và khóa lựa chọn theo từng họ/mục tiêu; manifest SHA `6407c68e9f520da51924fb021a275a947ada9cca15fbde06f35287218f3561dc`.
 - `M2/reports/m2_report_20261007`: HTML, bảng mô hình ngày/tổng7, metric tháng và checkpoint.
-- [Báo cáo cải tiến và so sánh hai phương pháp](m2_improved_models_20261006_handoff.md).
+- [Báo cáo cải tiến và so sánh hai phương pháp](published_m2_20261007/README.md).
 
 Snapshot source theo SHA phục vụ kiểm run lịch sử; đợt clean không đổi forecast/selection/metric/raw. Sản phẩm46 tuyến/tồn/cảnh báo V13 vẫn có launcher riêng trong scripts. Báo cáo này là M2 nghiên cứu top10.
