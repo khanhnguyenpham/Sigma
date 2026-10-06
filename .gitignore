@@ -12,6 +12,23 @@ M2/reports/*
 !M2/reports/model-families.md
 !M2/reports/presentation-guide.md
 
+# Aggregate M2 report explicitly approved for GitHub publication.
+!M2/reports/published_m2_20261007/
+M2/reports/published_m2_20261007/*
+!M2/reports/published_m2_20261007/before_after_routes.csv
+!M2/reports/published_m2_20261007/comparison.png
+!M2/reports/published_m2_20261007/evidence.json
+!M2/reports/published_m2_20261007/index.html
+!M2/reports/published_m2_20261007/overall_selected_models.csv
+!M2/reports/published_m2_20261007/overall_test_metrics.csv
+!M2/reports/published_m2_20261007/README.md
+!M2/reports/published_m2_20261007/route_comparison.csv
+!M2/reports/published_m2_20261007/selected_daily_routes.csv
+!M2/reports/published_m2_20261007/selected_weekly_routes.csv
+!M2/reports/published_m2_20261007/summary.csv
+!M2/reports/published_m2_20261007/validation_monthly_mix.csv
+!M2/reports/published_m2_20261007/validation_monthly_selected.csv
+
 # Local environments, caches and build artifacts.
 .venv/
 .venv*/
