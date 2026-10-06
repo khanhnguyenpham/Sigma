@@ -4,9 +4,9 @@
 
 **Tiến độ tiếp 05/10/2026 — CHG-026/E40–E41:** V6 validation 10/10 nhưng test tuần hồi cứu còn 9/10 (LG U+ 21,36%); V7 đang chạy, chưa nhận đạt. Chính sách tồn liên tục từ tuần V5 đã chạy đủ 13 kịch bản/93 origins H14 và đối soát độc lập 1.100.320 dòng ledger, base fill 85,04%; early replay 33,73% giữ nguyên mẫu số. 160 tests pass; năm trang AppTest không exception. Sản phẩm hiện vẫn chọn V5 trong config.delivery.json tới khi run mới hoàn tất/kiểm lại. R05 ngày/R07/T14 còn mở; không làm Word/slide hoặc nhận bản so sánh chính thức/đợt tổ chức lại code đã xong. Đoạn E37–E39 bên dưới là lịch sử trước E41.
 
-**Cập nhật 05/10/2026 — CHG-024/025, E37–E39:** đã áp dụng **khách đặt D → giao D+7 ngày lịch UTC**, không trễ giao, gồm cuối tuần; không đổi lead time nhập kho. Người dùng mô tả snapshot order là giả định; đây là nguồn thuật lại, vẫn giữ dữ liệu/outputs private và raw nguyên. [Sản phẩm chung và lịch giao](../../docs/customer-delivery.md) mở bằng `start_product.ps1` tại cổng 8503. Run tuần hiện hành `sigma_weekly_calibrated_v5`: test hồi cứu **9/10**, mean **15,97%**, LG U+ **21,36%**; chọn validation rồi khóa trước test. 920 khuyến nghị tồn từ phân bổ tuần đã đối soát, replay cùng 5.520 cửa sổ báo sớm **33,73%**; chưa chạy lại toàn bộ chính sách liên tục bằng tuần. 150 tests đạt, AppTest năm trang/không exception; job refresh/skip chạy thật, script đăng ký lịch nền được chuẩn bị nhưng chưa cài. R05 ngày **0/10**, R07/T14 vẫn mở. **Sau khi đủ điều kiện nghiệm thu mới làm bản so sánh chính thức ngày/tổng 7 ngày và tổ chức lại code**, đúng thứ tự người dùng yêu cầu; chưa làm lại Word/slide. Những cập nhật E36/v1 bên dưới là lịch sử.
+**Cập nhật 05/10/2026 — CHG-024/025, E37–E39:** đã áp dụng **khách đặt D → giao D+7 ngày lịch UTC**, không trễ giao, gồm cuối tuần; không đổi lead time nhập kho. Người dùng mô tả snapshot order là giả định; đây là nguồn thuật lại, vẫn giữ dữ liệu/outputs private và raw nguyên. [Sản phẩm chung và lịch giao](../customer-delivery.md) mở bằng `start_product.ps1` tại cổng 8503. Run tuần hiện hành `sigma_weekly_calibrated_v5`: test hồi cứu **9/10**, mean **15,97%**, LG U+ **21,36%**; chọn validation rồi khóa trước test. 920 khuyến nghị tồn từ phân bổ tuần đã đối soát, replay cùng 5.520 cửa sổ báo sớm **33,73%**; chưa chạy lại toàn bộ chính sách liên tục bằng tuần. 150 tests đạt, AppTest năm trang/không exception; job refresh/skip chạy thật, script đăng ký lịch nền được chuẩn bị nhưng chưa cài. R05 ngày **0/10**, R07/T14 vẫn mở. **Sau khi đủ điều kiện nghiệm thu mới làm bản so sánh chính thức ngày/tổng 7 ngày và tổ chức lại code**, đúng thứ tự người dùng yêu cầu; chưa làm lại Word/slide. Những cập nhật E36/v1 bên dưới là lịch sử.
 
-**Phương án tổng 7 ngày đã chạy (CHG-023/E36):** [hướng dẫn và kết quả tuần](../../docs/weekly-forecast.md). Test hồi cứu tuần h1–7: 9/10 top 10 đạt 20%, mean 17,19%; AIS còn 22,14%. Chạy `.\start_weekly_dashboard.ps1 -RunId sigma_weekly_v1` để xem tại cổng 8502. MAPE tuần chưa thay tiêu chí ngày; run ngày v11 và R05/R07 giữ trạng thái bên dưới. [Ảnh kickoff nhận lại](../../docs/kickoff-checklist.md) đã đọc trực tiếp tại E35.
+**Phương án tổng 7 ngày đã chạy (CHG-023/E36):** [hướng dẫn và kết quả tuần](../weekly-forecast.md). Test hồi cứu tuần h1–7: 9/10 top 10 đạt 20%, mean 17,19%; AIS còn 22,14%. Chạy `.\start_weekly_dashboard.ps1 -RunId sigma_weekly_v1` để xem tại cổng 8502. MAPE tuần chưa thay tiêu chí ngày; run ngày v11 và R05/R07 giữ trạng thái bên dưới. [Ảnh kickoff nhận lại](../kickoff-checklist.md) đã đọc trực tiếp tại E35.
 
 Ứng dụng Streamlit chạy local trên Windows, tích hợp audit dữ liệu, EDA, dự báo 46 tuyến, phân bổ SKU, mô phỏng nhập hàng và cảnh báo. Mã, cấu hình, tests và notebook đã được triển khai; đã có bản nháp Word/slide lịch sử ở local; CHG-012 yêu cầu chỉ tập trung project, chưa làm tiếp tài liệu báo cáo.
 
@@ -22,7 +22,7 @@ Mở PowerShell trong thư mục project, chạy:
 .\start_product.ps1
 ```
 
-Mở địa chỉ `http://127.0.0.1:8503` để dùng menu sản phẩm chung. Xem [lịch giao và job local](../../docs/customer-delivery.md). Launcher cũ `start_dashboard.ps1` vẫn mở riêng phần ngày/tồn tại cổng 8501. Launcher chọn run thật hoàn tất mới nhất; chọn `sigma_scaled_v11` để xem run hiện hành và `demo_scaled_v11_verify` để xem demo giả. Các run v1–v10 giữ làm lịch sử. Dashboard có sáu tab: bán & dự báo, đánh giá, tồn & đặt hàng, cảnh báo, kịch bản, audit & giới hạn. Chạy pipeline trước khi mở dashboard trên máy mới.
+Mở địa chỉ `http://127.0.0.1:8503` để dùng menu sản phẩm chung. Xem [lịch giao và job local](../customer-delivery.md). Launcher cũ `start_dashboard.ps1` vẫn mở riêng phần ngày/tồn tại cổng 8501. Launcher chọn run thật hoàn tất mới nhất; chọn `sigma_scaled_v11` để xem run hiện hành và `demo_scaled_v11_verify` để xem demo giả. Các run v1–v10 giữ làm lịch sử. Dashboard có sáu tab: bán & dự báo, đánh giá, tồn & đặt hàng, cảnh báo, kịch bản, audit & giới hạn. Chạy pipeline trước khi mở dashboard trên máy mới.
 
 ## Cài trên máy Windows mới
 
@@ -52,7 +52,7 @@ Demo sinh toàn bộ dữ liệu giả, chỉ chạy ba baseline và mô phỏng
 
 ## Chạy snapshot order local
 
-Đặt bản CSV được phép sử dụng tại `data/sigma_sim_data_orders.csv`, giữ nguyên byte. Clone GitHub không tải dữ liệu này. Đọc [data/README](../../data/README.md) và [data-contract](../../docs/data-contract.md) trước khi đổi nguồn.
+Đặt bản CSV được phép sử dụng tại `data/sigma_sim_data_orders.csv`, giữ nguyên byte. Clone GitHub không tải dữ liệu này. Đọc [data/README](../../data/README.md) và [data-contract](../data-contract.md) trước khi đổi nguồn.
 
 ```powershell
 .\.venv\Scripts\python.exe run.py --run-id sigma_local
@@ -85,7 +85,7 @@ Có thể chạy từng stage:
 
 `run.py` điều phối; `src/data.py` audit/chuỗi; `src/models.py` forecast; `src/calendar_models.py` hồi quy mùa vụ; `src/evaluation.py` metric/chọn; `src/inventory.py` tồn/cảnh báo; `src/reporting.py` EDA/demo; `src/common.py` manifest; `app.py` dashboard; `config.json` cấu hình tập trung; `tests/` ca dữ liệu giả và phép tính độc lập.
 
-Đọc [TASK](../../TASK.md) để xem tiến độ, [PLAN](../../PLAN.md) để xem phương pháp, [requirements](../../docs/requirements.md) để xem nghiệm thu, [development](../../docs/development.md) để kiểm tra/bàn giao, [PROJECTMAP](../../PROJECTMAP.md) để phân biệt hiện trạng và lịch sử. Quy trình Git solo/nhóm ở [hướng dẫn TXT](../../HUONG_DAN_LAM_VIEC_NHOM.txt).
+Đọc [TASK](../planning/TASK.md) để xem tiến độ, [PLAN](../planning/PLAN.md) để xem phương pháp, [requirements](../requirements.md) để xem nghiệm thu, [development](../development.md) để kiểm tra/bàn giao, [PROJECTMAP](../planning/PROJECTMAP.md) để phân biệt hiện trạng và lịch sử. Quy trình Git solo/nhóm ở [hướng dẫn TXT](../archive/HUONG_DAN_LAM_VIEC_NHOM.txt).
 
 GitHub chỉ nhận mã, cấu hình, khóa môi trường, tests với fixture giả, notebook không output và tài liệu. Không đưa CSV thật, `outputs/`, môi trường, token hoặc file đăng nhập vào commit. GitHub Actions chạy tests, pipeline demo giả và AppTest trên Windows sạch; không có dữ liệu thật trên CI. Một lần chạy CI không thay diễn tập giao diện trên máy Windows thứ hai.
 

@@ -14,7 +14,7 @@
 
 | Khi làm | Đọc |
 |---|---|
-| Bắt đầu phiên hoặc xác định tiến độ | [TASK](TASK.md), [PROJECTMAP](PROJECTMAP.md); xem phần task liên quan trong [PLAN](PLAN.md) |
+| Bắt đầu phiên hoặc xác định tiến độ | [TASK](docs/planning/TASK.md), [PROJECTMAP](docs/planning/PROJECTMAP.md); xem phần task liên quan trong [PLAN](docs/planning/PLAN.md) |
 | Nghiệp vụ, nghiệm thu, thay đổi yêu cầu | [requirements](docs/requirements.md), [quyết định](docs/review-log.md#decisions), [quy trình thay đổi](docs/review-log.md#change-process) |
 | Dữ liệu, target, schema | [data-contract](docs/data-contract.md), PLAN mục 3–5, R01 |
 | Mô hình, backtest, metric | PLAN mục 5, [development](docs/development.md#checks), R03–R05 |

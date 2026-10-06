@@ -42,7 +42,7 @@ def test_adaptive_mixture_phase_dispatch_preserves_component_units(tmp_path, mon
     import json
     import sigma.forecasting.weekly as weekly_forecast
     from src.common import ROOT
-    settings = json.loads((ROOT / 'config.weekly.json').read_text())
+    settings = json.loads((ROOT / 'data/configs/config.weekly.json').read_text())
     settings['models'] = {'a': {'kind': 'lgbm', 'units': 'raw', 'value': 7.},
         'b': {'kind': 'linear_week', 'units': 'raw', 'value': 21.},
         'mix': {'kind': 'adaptive_mix', 'components': ['a', 'b'], 'history_days': 28, 'prior_weeks': 0}}

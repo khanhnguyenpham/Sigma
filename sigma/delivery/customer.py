@@ -14,14 +14,14 @@ from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 
-from src.common import ROOT, ITEM, ROUTE, read_config, sha256, write_csv, write_json, validate_run
+from src.common import ROOT, ITEM, ROUTE, config_path, read_config, sha256, write_csv, write_json, validate_run
 from src.data import audit_orders
 from sigma.verification.weekly import validate_weekly
 from sigma.provenance import implementation_hashes
 
 
 def delivery_config_path(path=None):
-    path = (ROOT / (path if path is not None else os.environ.get('SIGMA_DELIVERY_CONFIG', 'config.delivery.json'))).resolve()
+    path = config_path(path if path is not None else os.environ.get('SIGMA_DELIVERY_CONFIG', 'data/configs/config.delivery.json'), root=ROOT)
     if not path.is_relative_to(ROOT):
         raise ValueError('Delivery config must be local')
     return path

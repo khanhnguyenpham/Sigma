@@ -4,12 +4,12 @@ import json
 import pytest
 
 import sigma.delivery.customer as delivery
-import refresh_delivery_job as job
+from sigma.jobs import refresh as job
 from src.common import ROOT
 
 
 def test_environment_selects_local_bundle_and_explicit_argument_wins(tmp_path, monkeypatch):
-    settings = json.loads((ROOT / 'config.delivery.json').read_text())
+    settings = json.loads((ROOT / 'data/configs/config.delivery.json').read_text())
     (tmp_path / 'custom.json').write_text(json.dumps({**settings, 'weekly_run': 'fake_demo'}))
     (tmp_path / 'explicit.json').write_text(json.dumps({**settings, 'weekly_run': 'fake_other'}))
     monkeypatch.setattr(delivery, 'ROOT', tmp_path)
@@ -45,7 +45,7 @@ def test_explicit_default_bundle_shares_cli_and_scheduled_job_state(tmp_path, mo
     monkeypatch.delenv('SIGMA_DELIVERY_CONFIG', raising=False)
     calls = []
     first = job.refresh(worker=lambda name: calls.append(name), get_fingerprint=lambda: 'same', validator=lambda path: {})
-    monkeypatch.setenv('SIGMA_DELIVERY_CONFIG', 'config.delivery.json')
+    monkeypatch.setenv('SIGMA_DELIVERY_CONFIG', 'data/configs/config.delivery.json')
     scheduled = job.refresh(worker=lambda name: calls.append(name), get_fingerprint=lambda: 'same', validator=lambda path: {})
     assert scheduled['status'] == 'skipped_unchanged' and scheduled['last_good_run'] == first['last_good_run']
     assert len(calls) == 1
