@@ -1,0 +1,24 @@
+{
+  "version": "m2-three-families-v2",
+  "base_config": "data/configs/config.json",
+  "artifact_root": "M2/artifacts",
+  "training_window_days": 365,
+  "minimum_history_days": 90,
+  "refit_days": 7,
+  "workers": 3,
+  "sarima_maxiter": 200,
+  "n_estimators": 150,
+  "learning_rate": 0.03,
+  "min_child_samples": 100,
+  "reg_lambda": 10.0,
+  "models": {
+    "LightGBM": "M2/models/LightGBM/variants.json",
+    "SARIMA": "M2/models/SARIMA/variants.json",
+    "Prophet": "M2/models/Prophet/variants.json"
+  },
+  "selection": "validation block1 positive MAPE, then MAE, then lexical model id; full phase coverage; no baseline fallback",
+  "daily_acceptance_replaced": false,
+  "scope": "Top 10 routes by train quantity; retrospective research, not a production dashboard replacement",
+  "reference_run": "m2_three_models_20261006",
+  "improvement_protocol": "12 original variants +12 new daily/direct variants +2 direct-only calibrations; validation selection unchanged; monthly stability diagnostic only"
+}

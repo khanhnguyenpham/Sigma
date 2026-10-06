@@ -197,7 +197,7 @@ def choose_inner(primary):
     return primary.sort_values(['mape_positive_pct', 'mae', 'model']).drop_duplicates(ROUTE)
 
 
-def run_campaign(output_id, config_path='config.json'):
+def run_campaign(output_id, config_path='data/configs/config.json'):
     cfg = read_config(config_path)
     if (cfg['train_end'] != '2025-06-30' or cfg['validation_start'] != '2025-07-01'
             or cfg['validation_end'] != '2025-09-30' or cfg['horizon'] != 14):
@@ -286,6 +286,6 @@ def run_campaign(output_id, config_path='config.json'):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output-id', required=True)
-    parser.add_argument('--config', default='config.json')
+    parser.add_argument('--config', default='data/configs/config.json')
     args = parser.parse_args()
     run_campaign(args.output_id, args.config)

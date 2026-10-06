@@ -1,0 +1,63 @@
+{
+  "lgbm_poisson": {
+    "objective": "poisson",
+    "leaves": 7
+  },
+  "lgbm_weighted_l1": {
+    "objective": "regression_l1",
+    "leaves": 7
+  },
+  "lgbm_annual_l1": {
+    "objective": "regression_l1",
+    "leaves": 7,
+    "annual_features": true
+  },
+  "lgbm_annual_l1_15": {
+    "objective": "regression_l1",
+    "leaves": 15,
+    "annual_features": true
+  },
+  "lgbm_annual_ratio7": {
+    "objective": "regression_l1",
+    "leaves": 7,
+    "annual_features": true,
+    "units": "ratio"
+  },
+  "lgbm_annual_ratio7_n300": {
+    "objective": "regression_l1",
+    "leaves": 7,
+    "annual_features": true,
+    "units": "ratio",
+    "n_estimators": 300
+  },
+  "lgbm_annual_l1_15_min50": {
+    "objective": "regression_l1",
+    "leaves": 15,
+    "annual_features": true,
+    "min_child_samples": 50
+  },
+  "lgbm_annual_l1_15_window180": {
+    "objective": "regression_l1",
+    "leaves": 15,
+    "annual_features": true,
+    "training_window_days": 180
+  },
+  "lgbm_cal_ratio7_56_p4": {
+    "kind": "calibrated",
+    "parent": "lgbm_annual_ratio7",
+    "history_days": 56,
+    "prior_weeks": 4,
+    "targets": [
+      "direct_7d"
+    ]
+  },
+  "lgbm_cal_ratio7_n300_56_p4": {
+    "kind": "calibrated",
+    "parent": "lgbm_annual_ratio7_n300",
+    "history_days": 56,
+    "prior_weeks": 4,
+    "targets": [
+      "direct_7d"
+    ]
+  }
+}
