@@ -867,3 +867,11 @@ Hashsummary: sigma_weekly_boost_v13: d2e0a1fedede62c7fa02f154100223423aad71d404e
 - Kết quả9/10,15,887577%; LG U+20,688009% giữ chưa đạt/hoãn tối ưu; ngày0/10, test hồi cứu. Cập nhật README/guide và TASK/PLAN/PROJECTMAP để đọc báo cáo từ clone mà không cần raw. Kiểm tệp/hash/link và remote head riêng cho lần xuất bản; không nhận CI remote đạt trước khi xác minh.
 - Kiểm trước push đạt:13 tệp báo cáo,41 liên kết, hash từng tệp/biểu đồ nhúng khớp,10 tuyến đủ độ phủ và đúng một tuyến LG U+ chưa đạt. Các CSV chỉ metric/lựa chọn tổng hợp, không có bản ghi order/customer hoặc forecast từng origin; raw/train/artifact và script xuất bản được Git ignore. Không chạy lại mô hình cho lần xuất bản tài liệu.
 - Đã push nhánh mới lên origin GitHub thành công; `git ls-remote --heads` xác nhận commit báo cáo `88ddbbae66e61fdee409a7b11f91b459bf212db1` khớp HEAD local. [Nhánh M2](https://github.com/khanhnguyenpham/Sigma/tree/codex/m2-report-20261007) và [báo cáo đọc trực tiếp](https://github.com/khanhnguyenpham/Sigma/blob/codex/m2-report-20261007/M2/reports/published_m2_20261007/README.md). Cập nhật nhật ký xuất bản sau commit báo cáo; CI của nhánh mới chưa được xác minh.
+
+
+### CHG-036 / E64 — Tên nhánh và email người dùng, 06/10/2026
+
+- Người dùng yêu cầu bỏ tiền tố codex, dùng tên m2-forecast và email chaoskid1415@gmail.com. Chọn m2-forecast-report; đặt user.email/user.name trong Git config local của repo, không đổi global.
+- Tạo nhánh mới từ bộ M2, sửa author/committer của riêng ba commit M2 trên nhánh mới; git diff với nhánh cũ xác nhận nội dung toàn cây giữ nguyên trước khi cập nhật tên trong hướng dẫn. Ba commit lịch sử nguồn bài trước M2 giữ nguyên danh tính. Nhánh cũ local vẫn giữ làm đối chiếu.
+- Cập nhật README gốc/M2, presentation-guide, README báo cáo và evidence.json; chỉ đổi tên nhánh và hash README, các CSV/biểu đồ/HTML và run seal không đổi. Không fit lại hoặc thêm dữ liệu riêng tư.
+- [Nhánh báo cáo](https://github.com/khanhnguyenpham/Sigma/tree/m2-forecast-report), [báo cáo M2](https://github.com/khanhnguyenpham/Sigma/blob/m2-forecast-report/M2/reports/published_m2_20261007/README.md). Push nhánh mới và xác nhận remote head trước khi bỏ tên nhánh GitHub cũ. CI mới chưa xác minh.

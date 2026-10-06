@@ -1,6 +1,6 @@
 # M2 — báo cáo ngày 07/10/2026
 
-Nhánh: `codex/m2-report-20261007`. Kết quả khóa ngày 06/10; giữ LG U+ chưa đạt để tối ưu sau theo yêu cầu người dùng.
+Nhánh: `m2-forecast-report`. Kết quả khóa ngày 06/10; giữ LG U+ chưa đạt để tối ưu sau theo yêu cầu người dùng.
 
 **Lựa chọn theo validation: tổng 7 đạt 9/10 tuyến, MAPE trung bình test 15.89%; ngày 0/10, 46.74%. Độ phủ 100%.**
 
