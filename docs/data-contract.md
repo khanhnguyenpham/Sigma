@@ -10,7 +10,7 @@
 
 **Triển khai 05/10/2026:** Audit/chuỗi/forecast/metric/phân bổ/tồn đã có trong src và CLI. Tên đầu ra thực cùng version/hash ghi trong manifest mỗi run; `forecast_qty` là giá trị dự báo, `target_date` là ngày được dự báo. CHG-016 thêm xử lý giao dịch UTC và event ledger, đã kiểm run v7; không chỉ dùng phép tương đương tổng ngày để nhận R06 đủ bằng chứng. Các mô tả “dự kiến/chưa có” ngày 02/10 bên dưới giữ làm lịch sử thiết kế. Không nâng giả định thành dữ liệu thật.
 
-**Bản tài liệu:** 1.0 — 02/10/2026 (Asia/Saigon), diễn giải [PLAN 2.0](../PLAN.md), [requirements 2.0](requirements.md) và [review-log 2.0](review-log.md). Schema nguồn đã khảo sát chỉ đọc; schema processed/run bên dưới **dự kiến, chưa triển khai**. Không có từ điển dữ liệu doanh nghiệp để xác nhận toàn bộ ý nghĩa tên cột.
+**Bản tài liệu:** 1.0 — 02/10/2026 (Asia/Saigon), diễn giải [PLAN 2.0](planning/PLAN.md), [requirements 2.0](requirements.md) và [review-log 2.0](review-log.md). Schema nguồn đã khảo sát chỉ đọc; schema processed/run bên dưới **dự kiến, chưa triển khai**. Không có từ điển dữ liệu doanh nghiệp để xác nhận toàn bộ ý nghĩa tên cột.
 
 <a id="source-check"></a>
 ## 1. Nguồn và phạm vi kiểm chứng
@@ -43,7 +43,7 @@ Nguồn hiện có: [data/sigma_sim_data_orders.csv](../data/sigma_sim_data_orde
 
 Chuyển LF thành CRLF **chỉ trong bộ nhớ** từ tệp hiện tại tạo đúng kích thước/hash lịch sử trên. Khác biệt byte phù hợp hoàn toàn với biểu diễn xuống dòng; không xác định ai hoặc công cụ nào đã chuyển. Không ghi đè CSV, không tuyên bố hash byte hiện tại giống E02. Dùng hash hiện tại làm mốc bảo toàn cho lượt này.
 
-Số tổng quantity, duplicate, thứ hạng top 10, quan hệ SKU và các kết quả E03–E09 khác vẫn là **ghi nhận lịch sử nếu không nằm trong bảng kiểm tra trực tiếp trên**. T03–T05 phải tái sinh bằng mã và lưu bằng chứng. Ảnh/PDF thiếu và giới hạn Git tại [PROJECTMAP](../PROJECTMAP.md#source-gaps).
+Số tổng quantity, duplicate, thứ hạng top 10, quan hệ SKU và các kết quả E03–E09 khác vẫn là **ghi nhận lịch sử nếu không nằm trong bảng kiểm tra trực tiếp trên**. T03–T05 phải tái sinh bằng mã và lưu bằng chứng. Ảnh/PDF thiếu và giới hạn Git tại [PROJECTMAP](planning/PROJECTMAP.md#source-gaps).
 
 ## 2. Schema CSV: 20 cột theo đúng thứ tự
 
