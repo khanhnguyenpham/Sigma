@@ -10,8 +10,9 @@ Chọn LightGBM cho 9 tuyến và Prophet cho au (KDDI) bằng validation. Dự 
 
 Mở `http://127.0.0.1:8505`; chỉ đọc bộ kết quả đã khóa, không train khi báo cáo.
 [Bắt đầu từ M2](M2/README.md) · [Kịch bản trình bày](M2/reports/presentation-guide.md) · [Bản đồ thư mục](docs/code-map.md).
-Báo cáo HTML offline local: `M2/reports/m2_report_20261007/index.html`.
-Dữ liệu và kết quả local không được đưa lên Git; nhánh có mã/cấu hình và hướng dẫn tái lập.
+[Đọc báo cáo M2 trên GitHub](M2/reports/published_m2_20261007/README.md): dữ liệu tổng hợp, mô hình từng tuyến, hai phương pháp, kết quả và biểu đồ.
+[Bản HTML offline](M2/reports/published_m2_20261007/index.html) có biểu đồ nhúng; tải về mở bằng trình duyệt.
+Dữ liệu gốc và artifact train/forecast giữ local; báo cáo tổng hợp được đưa lên Git theo yêu cầu người dùng.
 
 
 Sản phẩm Streamlit chạy local trên Windows. Menu gồm tổng quan, dự báo tổng 7 ngày, giao khách D+7, tồn từ dự báo tuần, so sánh ngày/tuần và phần dự báo ngày/tồn/cảnh báo. Mã được gom theo chức năng; bắt đầu từ [bản đồ mã](docs/code-map.md).
@@ -38,7 +39,7 @@ Mở `http://127.0.0.1:8503`. Bộ run chọn trong [config.delivery.json](data/
 
 ## Cài và chạy demo trên máy mới
 
-Áp dụng cho checkout của nhánh báo cáo được cung cấp hợp lệ. Nhánh mới hiện ở local, chưa push; không gửi kèm raw/artifact trong gói mã.
+Áp dụng cho checkout của nhánh báo cáo được cung cấp hợp lệ. Nhánh GitHub dành cho báo cáo là `codex/m2-report-20261007`; không gửi kèm raw/artifact trong gói mã.
 
 ```powershell
 python -m venv .venv
@@ -52,7 +53,7 @@ python -m venv .venv
 
 Đã kiểm môi trường Python 3.14.7/Windows 64-bit, phụ thuộc được khóa. Demo tự sinh ba tuyến riêng, tạo pipeline ngày/tuần, D+7, policy 13 kịch bản, snapshot đúng policy, so sánh và đối soát độc lập. Demo 3/3 không chứng minh top 10 của nguồn bài đạt. Dùng prefix mới, không ghi đè run.
 
-GitHub chỉ có mã/config/fixture giả/notebook không output/tài liệu. CSV, outputs, reports, môi trường và job state không upload. Nhánh báo cáo `codex/m2-report-20261007` (local); nhánh sản phẩm `codex/sigma-local-pipeline`; [PR1](https://github.com/khanhnguyenpham/Sigma/pull/1) còn draft, chưa merge.
+GitHub có mã/config/fixture giả/notebook không output/tài liệu và bộ báo cáo M2 tổng hợp được cho phép trong `M2/reports/published_m2_20261007`. Chỉ CSV metric/lựa chọn tổng hợp của bộ này được chia sẻ; raw, train, outputs, run riêng tư, môi trường và job state giữ local. Nhánh báo cáo `codex/m2-report-20261007`; nhánh sản phẩm `codex/sigma-local-pipeline`; [PR1](https://github.com/khanhnguyenpham/Sigma/pull/1) còn draft, chưa merge.
 
 ## Pipeline với CSV được cung cấp
 
