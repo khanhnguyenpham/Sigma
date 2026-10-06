@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-import verify_release
+from sigma.verification import daily_release as verify_release
 from src.common import sha256, seal_manifest, write_csv
 from src.evaluation import metric_table
 

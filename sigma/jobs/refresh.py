@@ -15,13 +15,13 @@ from pathlib import Path
 from uuid import uuid4
 
 from sigma.delivery.customer import execute, delivery_settings, delivery_config_path, validate_delivery
-from src.common import ROOT, read_config, sha256, write_json
+from src.common import ROOT, config_path, read_config, sha256, write_json
 
 
 def fingerprint():
     settings = delivery_settings()
     cfg = read_config(settings['base_config'])
-    paths = [delivery_config_path(), ROOT / settings['base_config'], ROOT / cfg['source'],
+    paths = [delivery_config_path(), config_path(settings['base_config'], root=ROOT), ROOT / cfg['source'],
         ROOT / cfg['output_root'] / settings['weekly_run'] / 'summary.json',
         ROOT / cfg['output_root'] / settings['daily_run'] / 'manifest.json',
         ROOT / 'sigma/delivery/customer.py', ROOT / 'sigma/jobs/refresh.py', ROOT / 'sigma/provenance.py']
@@ -38,7 +38,7 @@ def fingerprint():
 def refresh(job_folder=None, worker=execute, get_fingerprint=fingerprint, validator=validate_delivery):
     namespace = 'customer_delivery'
     if (os.environ.get('SIGMA_DELIVERY_CONFIG')
-            and delivery_config_path() != (ROOT / 'config.delivery.json').resolve()):
+            and delivery_config_path() != config_path('data/configs/config.delivery.json', root=ROOT)):
         relative = delivery_config_path().relative_to(ROOT).as_posix()
         namespace += '_' + hashlib.sha256(relative.encode()).hexdigest()[:12]
     folder = Path(job_folder) if job_folder else ROOT / 'outputs' / 'jobs' / namespace

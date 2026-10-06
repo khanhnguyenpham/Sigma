@@ -12,7 +12,7 @@ from src.common import sha256
 
 
 def settings():
-    value = json.loads((ROOT / 'config.weekly.json').read_text())
+    value = json.loads((ROOT / 'data/configs/config.weekly.json').read_text())
     value['n_estimators'] = 10
     value['min_child_samples'] = 5
     return value
