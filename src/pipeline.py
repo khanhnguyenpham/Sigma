@@ -39,7 +39,7 @@ def read_predictions(path):
     return pd.read_csv(path, parse_dates=["as_of_date", "target_date", "forecast_date"])
 
 
-def execute(config="config.json", stage="all", run_id=None, demo=False, baseline_only=False, resume=False, validation_cache_run=None):
+def execute(config="data/configs/config.json", stage="all", run_id=None, demo=False, baseline_only=False, resume=False, validation_cache_run=None):
     cfg = read_config(config)
     run_id = run_id or ("demo_" if demo else "sigma_") + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%f")
     if not re.fullmatch(r"[A-Za-z0-9_-]+", run_id):
@@ -298,7 +298,7 @@ def execute(config="config.json", stage="all", run_id=None, demo=False, baseline
 
 def main():
     parser = argparse.ArgumentParser(description="SIGMA local sales forecasting and simulated inventory")
-    parser.add_argument("--config", default="config.json")
+    parser.add_argument("--config", default="data/configs/config.json")
     parser.add_argument("--stage", choices=STAGES + ["all"], default="all")
     parser.add_argument("--run-id")
     parser.add_argument("--demo", action="store_true", help="Generate only synthetic orders for an independent demonstration")

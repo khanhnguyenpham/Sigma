@@ -5,7 +5,7 @@ import json
 import re
 
 from src.common import ROOT, read_config, sha256, validate_run, write_json
-from run import execute as execute_daily
+from src.pipeline import execute as execute_daily
 from sigma.forecasting.weekly import run_weekly
 from sigma.delivery.customer import execute as execute_delivery
 from sigma.inventory.snapshot import execute as execute_stock
@@ -25,7 +25,7 @@ def create_demo(prefix):
     setup = ROOT / 'outputs' / (prefix + '_bundle')
     setup.mkdir(exist_ok=False)
     base_path = setup / 'base.json'
-    cfg = copy.deepcopy(read_config('config.original.json'))
+    cfg = copy.deepcopy(read_config('data/configs/config.original.json'))
     cfg['source'] = 'outputs/' + names['daily'] + '/synthetic_orders.csv'
     write_json(base_path, cfg)
     execute_daily(config=str(base_path), run_id=names['daily'], demo=True, baseline_only=True)
@@ -33,7 +33,7 @@ def create_demo(prefix):
     if daily['source_kind'] != 'generated_synthetic':
         raise ValueError('Demo requires a generated synthetic parent')
     write_json(base_path, daily['config'])
-    settings = json.loads((ROOT / 'config.weekly.json').read_text(encoding='utf-8'))
+    settings = json.loads((ROOT / 'data/configs/config.weekly.json').read_text(encoding='utf-8'))
     settings.update(weekly_version='generated-synthetic-five-method-demo-v1',
         base_config=base_path.relative_to(ROOT).as_posix(), n_estimators=20, min_child_samples=20)
     settings['models'] = {
@@ -47,7 +47,7 @@ def create_demo(prefix):
     weekly_path = setup / 'weekly.json'
     write_json(weekly_path, settings)
     run_weekly(names['weekly'], weekly_path.relative_to(ROOT).as_posix())
-    bundle = json.loads((ROOT / 'config.delivery.json').read_text(encoding='utf-8'))
+    bundle = json.loads((ROOT / 'data/configs/config.delivery.json').read_text(encoding='utf-8'))
     for name in ['product_runs', 'product_summary_hashes', 'release_checkpoint']:
         bundle.pop(name, None)
     bundle.update(base_config=base_path.relative_to(ROOT).as_posix(), weekly_run=names['weekly'],
