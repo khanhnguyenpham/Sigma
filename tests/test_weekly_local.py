@@ -11,7 +11,7 @@ from sigma.forecasting.local import WeeklyLocal
 
 
 def fixture(estimator):
-    settings = json.loads((ROOT / 'config.weekly.json').read_text())
+    settings = json.loads((ROOT / 'data/configs/config.weekly.json').read_text())
     spec = {'kind': 'local_week', 'estimator': estimator, 'objective': 'regression_l1',
         'units': 'ratio', 'annual_features': True, 'leaves': 7, 'harmonics': 2, 'alpha': .01}
     settings['models'] = {'local': spec}

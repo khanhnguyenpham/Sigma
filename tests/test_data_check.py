@@ -13,7 +13,7 @@ from src.data import SOURCE_COLUMNS
 @pytest.mark.parametrize('invalid_covariate',[False,True])
 def test_independent_canonical_feature_check_preserves_quantity_privacy_and_existing_output(tmp_path,monkeypatch,capsys,cfg,order_rows,invalid_covariate):
     import src.common as common
-    entrypoint=common.ROOT/'check_data.py'
+    entrypoint=common.ROOT/'sigma/verification/data_check.py'
     if invalid_covariate:order_rows[0]['validity_days']='unknown'
     source=tmp_path/'synthetic.csv';pd.DataFrame(order_rows,columns=SOURCE_COLUMNS).to_csv(source,index=False)
     before=sha256(source);cfg['source']=source.name

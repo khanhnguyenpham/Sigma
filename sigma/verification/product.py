@@ -29,13 +29,13 @@ def check(output_id, config=None, country=None, carrier=None):
         carrier = sorted(forecast.loc[forecast.destination_country.eq(country), 'carrier'].unique())[0]
     if not ((forecast.destination_country == country) & (forecast.carrier == carrier)).any():
         raise ValueError('QA route not present in bundle')
-    at = AppTest.from_file(str(ROOT / 'sigma_product.py'), default_timeout=90).run()
+    at = AppTest.from_file(str(ROOT / 'sigma/ui/product.py'), default_timeout=90).run()
     assert not at.exception
     assert bundle['weekly_run'] in set(at.dataframe[0].value['Bằng chứng'])
     pages = [{'page': 'overview', 'tables': len(at.dataframe), 'exceptions': 0}]
 
     def filtered(page, chosen_country=country, chosen_carrier=carrier):
-        at.switch_page(page).run()
+        at.switch_page(str(ROOT / page)).run()
         assert not at.exception
         next(w for w in at.sidebar.selectbox if w.label == 'Điểm đến').select(chosen_country).run()
         next(w for w in at.sidebar.selectbox if w.label == 'Nhà mạng').select(chosen_carrier).run()
@@ -88,7 +88,7 @@ def check(output_id, config=None, country=None, carrier=None):
     assert at.dataframe[-1].value.sku.eq(chosen_sku).all() and at.dataframe[-1].value.product_type.eq(chosen_type).all()
     assert at.dataframe[2].value.sku.eq(chosen_sku).all() and at.dataframe[2].value.product_type.eq(chosen_type).all()
     assert len(at.dataframe[-1].value) == 92
-    at.switch_page('sigma/ui/comparison.py').run()
+    at.switch_page(str(ROOT / 'sigma/ui/comparison.py')).run()
     assert not at.exception and len(at.dataframe) == 4
     comparison_top = at.dataframe[0].value
     chosen = comparison_top.loc[comparison_top.destination_country.eq(country) & comparison_top.carrier.eq(carrier)]
@@ -99,13 +99,13 @@ def check(output_id, config=None, country=None, carrier=None):
     assert {'direct_weekly', 'sum_daily_model', 'naive', 'ma7', 'ma28'} == set(cmp_metrics.method)
     assert cmp_metrics.coverage.eq(1).all()
     assert not at.dataframe[2].value.official_daily_R05.any()
-    filtered('app.py')
+    filtered('sigma/ui/daily.py')
     if bundle.get('product_runs'):
         assert list(next(w for w in at.sidebar.selectbox if w.label == 'Bộ kết quả').options) == [bundle['daily_run']]
     result = {'status': 'verified', 'pages': pages, 'scenario_filters': scenario_rows,
         'configured_weekly_run': bundle['weekly_run'], 'configured_daily_run': bundle['daily_run'],
         'weekly_summary_sha256': sha256(wdir / 'summary.json'), 'delivery_config_sha256': sha256(path),
-        'product_entrypoint_sha256': sha256(ROOT / 'sigma_product.py'),
+        'product_entrypoint_sha256': sha256(ROOT / 'sigma/ui/product.py'),
         'implementation_modules_sha256': implementation_hashes('ui', 'verification', 'analysis'),
         'source_kind': bundle['source_description'], 'project_fully_accepted': False,
         'weekly_test_passed': weekly['top10_test_weekly_passed']}

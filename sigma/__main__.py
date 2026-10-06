@@ -4,6 +4,11 @@ import runpy
 import sys
 
 COMMANDS = {
+    'daily': 'src.pipeline',
+    'check-data': 'sigma.verification.data_check',
+    'verify-daily': 'sigma.verification.daily_release',
+    'model-families': 'M2.models.families',
+    'verify-model-families': 'M2.models.verify',
     'weekly': 'sigma.forecasting.weekly',
     'stock': 'sigma.inventory.snapshot',
     'policy': 'sigma.inventory.policy',
@@ -31,7 +36,7 @@ def main():
     args = parser.parse_args(sys.argv[1:2])
     sys.argv = ['python -m sigma ' + args.command, *sys.argv[2:]]
     if args.command == 'weekly' and not any(arg == '--config' or arg.startswith('--config=') for arg in sys.argv[1:]):
-        sys.argv.extend(['--config', 'configs/weekly.json'])
+        sys.argv.extend(['--config', 'data/configs/weekly.json'])
     runpy.run_module(COMMANDS[args.command], run_name='__main__')
 
 

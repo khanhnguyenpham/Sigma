@@ -1,5 +1,11 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**CHG-034/E62 — 06/10/2026:** người dùng chốt dùng kết quả M2 tổng7 hiện tại9/10 cho báo cáo ngày07/10, giữ LG U+20,69% chưa đạt và tối ưu sau. Không đổi ngưỡng/bỏ tuyến hoặc nhận R05 ngày đạt. Nhánh báo cáo có dữ liệu/split, mô hình từng tuyến, phương pháp và metric; sản phẩm V13 riêng. [Guide](../M2/reports/presentation-guide.md).
+
+**CHG-033/E61 — 06/10/2026:** ưu tiên cải tiến tổng7 theo người dùng, 26 biến thể/50 cấu hình đã chạy và đối soát; lựa chọn validation đạt9/10 test hồi cứu, 15,89%, LG U+20,69%; ngày0/10. Giữ tiêu chí R05 ngày, R07 và trạng thái T14; chưa phải xác nhận mentor thay tiêu chí bằng metric tuần. [Báo cáo cải tiến](../M2/reports/m2_improved_models_20261006_handoff.md).
+
+**CHG-030 — 06/10/2026:** theo yêu cầu người dùng, pool nghiên cứu M2 chính gồm LightGBM/SARIMA/Prophet và các biến thể, cho cả ngày và trực tiếp tổng7; lưu ba thư mục riêng. [Protocol](model-families.md) giữ target/top10/split/ngưỡng và chọn validation. Đây là ưu tiên mô hình của người dùng, chưa phải xác nhận mentor thay R05 bằng metric tuần; sản phẩm V13 có phạm vi riêng.
+
 **Hiện hành CHG-028/E53–E55 — 06/10/2026:** sản phẩm mặc định dùng V13 với 58 ứng viên chọn bằng validation, cùng policy V4, stock V7, customer V6 và comparison V3. Bộ báo cáo đã khóa tại sigma_m2m3_checkpoint_v3; mở start_m2m3.ps1 ở cổng 8504. **214 tests và CI Windows của commit 183ed10 đạt**; đã đối soát 447.810 cặp dự báo, 42.136 hệ số hiệu chỉnh, 1.100.320 dòng sổ, 267.908 giao dịch/nhập và 920 mặt hàng. AppTest sáu trang, bốn kịch bản và bộ lọc SKU/loại đạt. Job Windows 07:00 đã cài, chạy thử mã 0. Tuần đạt 9/10, MAPE trung bình 16,17%, LG U+ 21,19%; R05 ngày vẫn 0/10, tỷ lệ báo sớm 33,73% trên 2.867 sự kiện. **Chưa nghiệm thu toàn bài.** Dữ liệu gốc và 59 artifact v11 nguyên; src/ và run.py không đổi, app.py chỉ thêm khóa bộ run. Word/slide chưa làm lại; các cập nhật cũ bên dưới là lịch sử.
 
 **Lịch sử CHG-027/E43–E49 — 05/10/2026:** sản phẩm mặc định dùng sigma_weekly_refactored_v12; đã hoàn tất bản so sánh ngày/tổng7 ngày và tổ chức mã sigma/ +29 entry points legacy/ +configs/experiments. 192 tests đạt; parity364.320 validation cache/7.590 fresh test/92 future/644 daily rows ở1e-8, cùng46 lựa chọn; raw/59 v11 files nguyên. Full policyV3 kiểm13 kịch bản/1.100.320 ledger/267.812 events; snapshotV6 kiểm920 items từ đúng policy; customerV5 kiểmD+7; AppTest6 trang và4 bộ lọc scenario đạt. Tuần9/10, mean16,19%, LG U+21,19%; R05 ngày0/10, early≥7 ngày33,80% cùng2867 events; chưa nghiệm thu toàn bài. CHG-027 thay thứ tự hoãn CHG-025; Word/slide không làm lại. Các cập nhật bên dưới E37–E41 là lịch sử.
@@ -12,7 +18,7 @@
 
 **Phiên bản:** 2.0 — 02/10/2026; bổ sung phạm vi/ca thực tế ngày 04/10/2026 (CHG-007). **Trạng thái lịch sử 02–04/10:** Khảo sát đã thực hiện; lúc đó chưa triển khai. CHG-008 đã chốt lựa chọn local/Git, CHG-011 yêu cầu thêm Word/slide M2. Trạng thái hiện hành ở đầu tài liệu. Giới hạn chỉ ba Markdown là lịch sử, không áp dụng cho yêu cầu mới.
 
-[Kế hoạch hiện hành](../PLAN.md) · [Nhật ký và thay đổi](review-log.md)
+[Kế hoạch hiện hành](planning/PLAN.md) · [Nhật ký và thay đổi](review-log.md)
 
 ## 1. Nguồn và thứ tự áp dụng
 
@@ -69,7 +75,7 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 - **Nội dung:** Audit toàn bộ order; target A08; tách dòng/đơn/quantity; kiểm tra order timestamp, trạng thái, duplicate, giá trị và tổng hợp.
 - **Tiêu chí:** Hash nguồn không đổi; quantity bảo toàn; success chưa active vẫn tính tại ngày đặt; activation thiếu/sai không loại sales hợp lệ. Trùng ID giống nội dung chỉ dedup processed có log; trùng ID mâu thuẫn cách ly/chặn phần ảnh hưởng, khác ID không tự xóa. Quantity nguyên dương; audit activation riêng. Không xóa ngày 0/đỉnh để hạ sai số.
 - **Sản phẩm dự kiến:** data_audit.json, processed/daily_sales.csv, bảng lỗi/đối soát và manifest.
-- **Nhiệm vụ:** [T01](../PLAN.md#t01), [T03](../PLAN.md#t03), [T12](../PLAN.md#t12), [T13](../PLAN.md#t13), [T14](../PLAN.md#t14).
+- **Nhiệm vụ:** [T01](planning/PLAN.md#t01), [T03](planning/PLAN.md#t03), [T12](planning/PLAN.md#t12), [T13](planning/PLAN.md#t13), [T14](planning/PLAN.md#t14).
 
 <a id="r02"></a>
 ### R02 — Phân tích số bán và mùa vụ
@@ -78,7 +84,7 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 - **Nội dung:** EDA số bán theo tuần/tháng/lễ/Tết, độ thưa và giả thuyết mùa du lịch trên 731 ngày.
 - **Tiêu chí:** Nguồn lịch công khai, quốc gia/ngày truy cập; hình có đơn vị/mẫu số/bộ lọc/phạm vi; hệ số tái tính được. Không dùng cờ tương lai làm feature; không mặc định mùa hè chung mọi tuyến hoặc kết luận nhân quả. Các hình activation cũ cần tính lại/đổi phạm vi rõ.
 - **Sản phẩm dự kiến:** holidays.csv, bảng/hình EDA của run, phần phân tích báo cáo.
-- **Nhiệm vụ:** [T04](../PLAN.md#t04), [T13](../PLAN.md#t13), [T14](../PLAN.md#t14).
+- **Nhiệm vụ:** [T04](planning/PLAN.md#t04), [T13](planning/PLAN.md#t13), [T14](planning/PLAN.md#t14).
 
 <a id="r03"></a>
 ### R03 — Baseline ngoài mẫu cho số bán
@@ -87,7 +93,7 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 - **Nội dung:** Naive, MA7, seasonal naive 7 cho 46 tuyến; lưu từng origin/horizon và chấm cùng cặp hợp lệ.
 - **Tiêu chí:** Split thời gian, không shuffle; tính tay được; không dùng actual tương lai/trung gian horizon; refit 7 ngày/cập nhật actual theo protocol. Ngày 0/thiếu nhãn/nhiều origin cùng target xử lý đúng; công khai giới hạn snapshot trạng thái.
 - **Sản phẩm dự kiến:** predictions.csv, metrics.csv, protocol và ca chống rò rỉ.
-- **Nhiệm vụ:** [T05](../PLAN.md#t05), [T06](../PLAN.md#t06), [T12](../PLAN.md#t12), [T13](../PLAN.md#t13), [T14](../PLAN.md#t14).
+- **Nhiệm vụ:** [T05](planning/PLAN.md#t05), [T06](planning/PLAN.md#t06), [T12](planning/PLAN.md#t12), [T13](planning/PLAN.md#t13), [T14](planning/PLAN.md#t14).
 
 <a id="r04"></a>
 ### R04 — Dự báo số bán và chọn mô hình theo tuyến
@@ -96,7 +102,7 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 - **Nội dung:** Forecast 46 tuyến; top 10 train; 6 SARIMA, 4 LightGBM khi còn top 10 chưa đạt validation sau SARIMA; chọn từng tuyến bằng validation.
 - **Tiêu chí:** Đủ forecast/as_of_date/target_date/horizon/model và 14 ngày ở lượt forecast. Feature lag/rolling số bán tại origin/lịch biết trước; nhãn train nhiều horizon≤cutoff. Top 10 không nhìn test; không chọn lại bằng test; forecast âm chặn 0 có thống kê, không làm tròn trước chấm. Các tuyến ngoài top 10 chọn baseline MAE tốt nhất.
 - **Sản phẩm dự kiến:** top_routes.csv, selected_models.csv, predictions/metrics ứng viên, log hội tụ, config/manifest.
-- **Nhiệm vụ:** [T04](../PLAN.md#t04), [T05](../PLAN.md#t05), [T06](../PLAN.md#t06), [T07](../PLAN.md#t07), [T08](../PLAN.md#t08), [T09](../PLAN.md#t09), [T12](../PLAN.md#t12), [T13](../PLAN.md#t13), [T14](../PLAN.md#t14).
+- **Nhiệm vụ:** [T04](planning/PLAN.md#t04), [T05](planning/PLAN.md#t05), [T06](planning/PLAN.md#t06), [T07](planning/PLAN.md#t07), [T08](planning/PLAN.md#t08), [T09](planning/PLAN.md#t09), [T12](planning/PLAN.md#t12), [T13](planning/PLAN.md#t13), [T14](planning/PLAN.md#t14).
 
 <a id="r05"></a>
 ### R05 — Độ chính xác từng tuyến top 10
@@ -105,7 +111,7 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 - **Nội dung:** Cả 10 tuyến phải đạt MAPE ngày dương≤20% trên test chính h1–7; kèm số mẫu/độ phủ, MAE/WAPE/bias mọi ngày. h8–14 riêng.
 - **Tiêu chí:** Metric truy về predictions; actual 0 vẫn trong MAE/WAPE/bias; MAPE toàn 0 và WAPE mẫu số 0 không xác định, không trả 0%. Không nhãn không chấm. Không đổi định nghĩa sales, top 10, bộ lọc ngày hoặc mô hình bằng metric test để đạt.
 - **Sản phẩm dự kiến:** metrics test theo tuyến/horizon, bảng top 10 đạt/chưa đạt và giới hạn.
-- **Nhiệm vụ:** [T05](../PLAN.md#t05), [T07](../PLAN.md#t07), [T08](../PLAN.md#t08), [T09](../PLAN.md#t09), [T12](../PLAN.md#t12), [T13](../PLAN.md#t13), [T14](../PLAN.md#t14).
+- **Nhiệm vụ:** [T05](planning/PLAN.md#t05), [T07](planning/PLAN.md#t07), [T08](planning/PLAN.md#t08), [T09](planning/PLAN.md#t09), [T12](planning/PLAN.md#t12), [T13](planning/PLAN.md#t13), [T14](planning/PLAN.md#t14).
 - **Giới hạn:** MAPE MA7 45,8%–72,5% cũ thuộc activation, cần tính lại; không dự báo trước khả năng đạt ngưỡng của sales. Không đạt vẫn công bố đúng.
 
 <a id="r06"></a>
@@ -115,7 +121,7 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 - **Nội dung:** Phân bổ sales forecast theo 30/90 ngày; giả định tồn/ETA/L/R/b/MOQ; tính SS/ROP/S/IP/Q và ledger. Mỗi partner cấu hình riêng; proxy carrier/Vina→Vinaphone có nhãn giả định.
 - **Tiêu chí:** Trigger closing_on_hand < ROP; bằng ngưỡng không kích hoạt; IP dùng lượng đặt, MOQ chỉ Q>0. Thiếu cấu hình không gán 0/ngưỡng chung. Phân bổ bảo toàn; ETA có hiệu lực đầu ngày; giao dịch order_datetime/order_id; closing=opening+receipts−fulfilled; sales=fulfilled+shortage; không sửa sales lịch sử. H đủ L+R. Hai đối tác có thể khác cảnh báo cùng tồn. Tồn 0 khác còn tồn thấp và khác shortage.
 - **Sản phẩm dự kiến:** partner_map/config, inventory.csv/receipts.csv giả định, inventory_ledger.csv, inventory_recommendations.csv, simulation_metrics.csv.
-- **Nhiệm vụ:** [T06](../PLAN.md#t06), [T10](../PLAN.md#t10), [T12](../PLAN.md#t12), [T13](../PLAN.md#t13), [T14](../PLAN.md#t14).
+- **Nhiệm vụ:** [T06](planning/PLAN.md#t06), [T10](planning/PLAN.md#t10), [T12](planning/PLAN.md#t12), [T13](planning/PLAN.md#t13), [T14](planning/PLAN.md#t14).
 - **Giới hạn:** Chỉ kiểm chứng quy tắc/kịch bản; độ nhạy tồn đầu {3,7,14} ngày, L {1,3,7}, hệ số safety {0,5;1;1,5}, ghi kết luận đảo chiều. Không đòi thêm dữ liệu nội bộ hoặc khẳng định tồn đúng doanh nghiệp.
 
 <a id="r07"></a>
@@ -125,7 +131,7 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 - **Nội dung:** Tách cảnh báo dưới ngưỡng với ngày cạn dự kiến; 1–6 ngày khẩn/muộn, 7–14 sớm, không bịa ngày ngoài horizon.
 - **Tiêu chí:** Ca cạn ngày 10 có báo trước≥7; ngày 3 không tính đạt. Replay đợt 14 ngày không chồng lấn từ origin 30/09/2025, đủ nhãn, không đặt mới; event đầu tiên/mặt hàng/đợt duy nhất. Có precision/recall, tỷ lệ báo sớm, số muộn, sai số ngày cạn/mẫu số. Lượt đánh giá chính sách có nhập mới tách riêng, không gọi cảnh báo được ngăn cạn là sai.
 - **Sản phẩm dự kiến:** alerts.csv, event ledger, simulation_metrics.csv, ca tính tay và độ nhạy.
-- **Nhiệm vụ:** [T06](../PLAN.md#t06), [T10](../PLAN.md#t10), [T12](../PLAN.md#t12), [T13](../PLAN.md#t13), [T14](../PLAN.md#t14).
+- **Nhiệm vụ:** [T06](planning/PLAN.md#t06), [T10](planning/PLAN.md#t10), [T12](planning/PLAN.md#t12), [T13](planning/PLAN.md#t13), [T14](planning/PLAN.md#t14).
 - **Giới hạn:** Ca chuẩn chỉ chứng minh cơ chế, phải công khai replay. Không có ngưỡng precision/recall chính thức; không tự thêm để tuyên bố đạt. Không coi cạn trong 7 ngày là báo trước 7 ngày, không bảo đảm mọi tình huống.
 
 <a id="r08"></a>
@@ -135,7 +141,7 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 - **Nội dung:** Streamlit đọc một run hoàn tất, xem sales actual/forecast/metric, tồn/khuyến nghị/cảnh báo mô phỏng và giả định theo đối tác.
 - **Tiêu chí:** Màn hình khớp CSV; manifest và các phiên bản nhất quán, không trộn run/hết hiệu lực; luôn có as_of_date/thời điểm chạy. Phân biệt 0/thiếu/chưa actual, thật/dẫn xuất/giả định/mô phỏng; thiếu gói báo rõ. Demo không cần train lại, export theo quyền dữ liệu.
 - **Sản phẩm dự kiến:** app.py, requirements-demo, gói riêng tư/gói giả, demo-script/hướng dẫn cập nhật local.
-- **Nhiệm vụ:** [T06](../PLAN.md#t06), [T11](../PLAN.md#t11), [T12](../PLAN.md#t12), [T13](../PLAN.md#t13), [T14](../PLAN.md#t14).
+- **Nhiệm vụ:** [T06](planning/PLAN.md#t06), [T11](planning/PLAN.md#t11), [T12](planning/PLAN.md#t12), [T13](planning/PLAN.md#t13), [T14](planning/PLAN.md#t14).
 - **Mặc định:** Replay 31/10/2025; latest cutoff 31/12/2025 dự báo 01–14/01/2026, **không có actual order tháng 01**; activation tháng 01 không dùng chấm. Không gọi là giám sát hiện thời.
 
 <a id="r09"></a>
@@ -145,7 +151,7 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 - **Nội dung:** Nguồn bảo toàn; input/config/assumption/target/mã/run có phiên bản; chỉ xử lý dữ liệu thật trong dự án local, không phụ thuộc doanh nghiệp cấp thêm dữ liệu.
 - **Tiêu chí:** Môi trường local sạch và máy demo chạy theo README; cùng input/config/seed tái lập, số nguyên tuyệt đối và số thực theo dung sai đã ghi. Manifest hash/Python/thư viện/cutoff/seed; báo cáo truy về run. Thay A08 tính lại chuỗi/top 10/mô hình/tồn, thay A12 tính lại tồn/cảnh báo, giữ forecast nếu độc lập. Kết quả cũ mất hiệu lực phải đánh dấu. Không upload thật/tìm kiếm ngoài chứa dữ liệu riêng tư; allowlist gói chia sẻ không raw/ID/notebook output/lịch sử Git chứa CSV.
 - **Sản phẩm dự kiến:** Ba Markdown; README mới, notebook local, mã/config/phụ thuộc, tests/checks, manifest, báo cáo/slide, biên bản nghiệm thu và gói phù hợp quyền.
-- **Nhiệm vụ:** [T01](../PLAN.md#t01), [T02](../PLAN.md#t02), [T03](../PLAN.md#t03), [T06](../PLAN.md#t06), [T09](../PLAN.md#t09), [T10](../PLAN.md#t10), [T11](../PLAN.md#t11), [T12](../PLAN.md#t12), [T13](../PLAN.md#t13), [T14](../PLAN.md#t14).
+- **Nhiệm vụ:** [T01](planning/PLAN.md#t01), [T02](planning/PLAN.md#t02), [T03](planning/PLAN.md#t03), [T06](planning/PLAN.md#t06), [T09](planning/PLAN.md#t09), [T10](planning/PLAN.md#t10), [T11](planning/PLAN.md#t11), [T12](planning/PLAN.md#t12), [T13](planning/PLAN.md#t13), [T14](planning/PLAN.md#t14).
 - **Giới hạn lịch sử 02/10:** CSV từng được ghi là tracked trong kho cũ; không viết lại lịch sử. **Workspace hiện tại đã kiểm tra:** Git root đúng project, CSV/outputs bị ignore và không nằm trong đối tượng lịch sử local; chỉ push allowlist theo CHG-008. Colab dữ liệu thật bị thay bằng local; Colab nếu cần chỉ minh họa giả.
 
 ## 4. Quyết định, đề xuất và phần chưa kiểm chứng

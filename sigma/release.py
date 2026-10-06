@@ -153,7 +153,7 @@ def execute(config, output_id, delivery_run, policy_run, stock_run, comparison_r
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--delivery-config', default='config.delivery.json')
+    parser.add_argument('--delivery-config', default='data/configs/config.delivery.json')
     parser.add_argument('--output-id', required=True)
     for role in ['delivery', 'policy', 'stock', 'comparison']:
         parser.add_argument('--' + role + '-run', required=True)

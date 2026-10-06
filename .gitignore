@@ -1,8 +1,16 @@
 # Private source data and local experiment outputs stay on this computer.
 data/**
 !data/README.md
+!data/configs/
+!data/configs/**/
+!data/configs/**/*.json
 outputs/
 reports/
+M2/artifacts/
+!M2/reports/
+M2/reports/*
+!M2/reports/model-families.md
+!M2/reports/presentation-guide.md
 
 # Local environments, caches and build artifacts.
 .venv/

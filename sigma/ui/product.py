@@ -100,10 +100,10 @@ else:
     os.environ.pop('SIGMA_LOCKED_RUN_ID', None)
 page = st.navigation([
     st.Page(overview, title='Tổng quan', icon='🏠', default=True),
-    st.Page('sigma/ui/weekly.py', title='Dự báo tổng 7 ngày', icon='📊'),
-    st.Page('sigma/ui/delivery.py', title='Giao khách D+7', icon='📦'),
-    st.Page('sigma/ui/inventory.py', title='Tồn từ dự báo tuần', icon='📋'),
-    st.Page('sigma/ui/comparison.py', title='So sánh ngày và tuần', icon='⚖️'),
-    st.Page('app.py', title='Tồn, cảnh báo và dự báo ngày', icon='📈'),
+    st.Page(ROOT / 'sigma/ui/weekly.py', title='Dự báo tổng 7 ngày', icon='📊'),
+    st.Page(ROOT / 'sigma/ui/delivery.py', title='Giao khách D+7', icon='📦'),
+    st.Page(ROOT / 'sigma/ui/inventory.py', title='Tồn từ dự báo tuần', icon='📋'),
+    st.Page(ROOT / 'sigma/ui/comparison.py', title='So sánh ngày và tuần', icon='⚖️'),
+    st.Page(ROOT / 'sigma/ui/daily.py', title='Tồn, cảnh báo và dự báo ngày', icon='📈'),
 ], position='sidebar')
 page.run()

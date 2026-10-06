@@ -30,10 +30,23 @@ def sha256(path):
     return digest.hexdigest()
 
 
-def read_config(path="config.json"):
+def config_path(path="data/configs/config.json", root=None):
+    """Resolve current inputs and the recorded paths in historical bundles."""
+    root = ROOT if root is None else Path(root)
     path = Path(path)
     if not path.is_absolute():
-        path = ROOT / path
+        path = root / path
+    if not path.exists():
+        relative = path.relative_to(root) if path.is_relative_to(root) else None
+        if relative is not None and len(relative.parts) == 1 and relative.name.startswith('config') and relative.suffix == '.json':
+            path = root / 'data/configs' / relative.name
+        elif relative is not None and relative.parts[0] == 'configs':
+            path = root / 'data' / relative
+    return path.resolve()
+
+
+def read_config(path="data/configs/config.json"):
+    path = config_path(path)
     cfg = json.loads(path.read_text(encoding="utf-8"))
     for key in ["horizon", "refit_days", "top_n"]:
         if not isinstance(cfg[key], int) or cfg[key] < 1:
@@ -83,7 +96,7 @@ def write_csv(path, frame):
 
 
 def code_hash():
-    paths = [ROOT / "run.py", ROOT / "app.py"] + sorted((ROOT / "src").glob("*.py"))
+    paths = sorted({ROOT / "sigma/ui/daily.py", *(ROOT / "src").glob("*.py")})
     digest = hashlib.sha256()
     for path in paths:
         if path.is_file():

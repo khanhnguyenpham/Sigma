@@ -1,12 +1,22 @@
 # Kế hoạch dự án SIGMA
 
-**CHG-029/E56–E57 — 06/10/2026:** T09 thêm nghiên cứu mùa vụ validation-only: đối soát 45.540 cặp/1.104 nhóm metric/12 kiểm future-mutation; không cải thiện top 10 nên không tích hợp/chấm test. T11 thêm giải thích từng ca replay theo bộ lọc mặt hàng; AppTest mới sáu trang/bốn kịch bản/SKU–loại đạt. 225 tests local đạt, CI bổ sung chưa xác minh. Run/config sản phẩm giữ V13; R05/R07/T14 còn mở. [Chẩn đoán](docs/model-diagnostics.md) bổ sung bằng chứng cho bảo vệ, không thay target/top10/split/ngưỡng, không làm Word/slide mới.
+**CHG-034/E62 — 06/10/2026:** tạo nhánh local `codex/m2-report-20261007` để báo cáo M2 ngày07/10. Clean root33→6 tệp, chuyển39 tệp vào data/configs, src/sigma, scripts, legacy và docs/planning/archive. Đóng gói dữ liệu train/validation/test top10 và báo cáo HTML/Streamlit đọc run đã khóa9/10 tổng7,15,89%, LG U+20,69% để tối ưu sau. Không refit raw hoặc đổi lựa chọn; ngày0/10/R05/R07/T14 còn mở. [Kịch bản trình bày](../../M2/reports/presentation-guide.md).
+
+**CHG-033/E61 — đã triển khai và đối soát 06/10/2026:** 12 biến thể đối chứng +14 mới,26 biến thể/50 cấu hình ngày–tổng7, tối đa3 worker. Run `m2_improved_models_20261006_fixed` complete, lựa chọn khóa theo validation: LightGBM9 tuyến/Prophet au(KDDI) cho tổng7, test hồi cứu 9/10, MAPE 15.89%, LG U+20,69%; ngày0/10,46.74%. 40 kiểm tra liên quan và verifier 401,600 dòng/9,160 nhóm metric đạt. Raw và583 tệp lịch sử nguyên; R05/R07/T14 còn mở, sản phẩm V13 giữ hiện hành. [Báo cáo cải tiến](../../M2/reports/m2_improved_models_20261006_handoff.md).
+
+**CHG-032/E60 — 06/10/2026:** [M2/models](../../M2/models/README.md) có ba thư mục LightGBM/SARIMA/Prophet, mỗi thư mục giữ implementation, biến thể và hướng dẫn. Registry và runner dùng cùng giao diện để thêm họ mới. 24 so sánh trước/sau trên fixture khớp,15 kiểm tra đạt; verifier độc lập221.280 dòng/2.040 metric đạt,583 tệp và raw nguyên. Đây là tổ chức mã, không mở thử nghiệm hoặc thay nghiệm thu.
+
+**CHG-031/E59 — 06/10/2026:** tổ chức phần M2 tại [M2](../../M2/README.md): run vào artifacts, implementation/cấu hình/tests vào models, notebook vào notebooks, báo cáo vào reports. Bảo toàn583 tệp đầu ra và309 artifact của run ba họ; nguồn lịch sử được giữ đúng hash trong snapshot để verifier tiếp tục đối soát. CLI/import cũ có tương thích. Không đổi thuật toán, kết quả R05, split/selection hoặc run sản phẩm.
+
+**CHG-030/E58 — 06/10/2026:** triển khai và chạy đủ LightGBM/SARIMA/Prophet,4 biến thể/họ cho ngày/trực tiếp tổng7, lưu riêng từng họ. T07–T09/T12 có [protocol và kết quả](../model-families.md); run `m2_three_models_20261006` complete, verifier221.280 dòng/2.040 nhóm metric đạt,45 kiểm tra liên quan đạt. Test ngày cả ba0/10; tổng7 LightGBM16,83%8/10, SARIMA16,92%8/10, Prophet26,43%3/10. Lựa chọn từ validation đều LightGBM, khóa trước test hồi cứu. Không thay R05 ngày, sản phẩm46 tuyến V13, tồn/cảnh báo hoặc Word/slide; R05/R07/T14 vẫn mở.
+
+**CHG-029/E56–E57 — 06/10/2026:** T09 thêm nghiên cứu mùa vụ validation-only: đối soát 45.540 cặp/1.104 nhóm metric/12 kiểm future-mutation; không cải thiện top 10 nên không tích hợp/chấm test. T11 thêm giải thích từng ca replay theo bộ lọc mặt hàng; AppTest mới sáu trang/bốn kịch bản/SKU–loại đạt. 225 tests local đạt, CI bổ sung chưa xác minh. Run/config sản phẩm giữ V13; R05/R07/T14 còn mở. [Chẩn đoán](../model-diagnostics.md) bổ sung bằng chứng cho bảo vệ, không thay target/top10/split/ngưỡng, không làm Word/slide mới.
 
 **Hiện hành CHG-028/E53–E55 — 06/10/2026:** sản phẩm mặc định dùng V13 với 58 ứng viên chọn bằng validation, cùng policy V4, stock V7, customer V6 và comparison V3. Bộ báo cáo đã khóa tại sigma_m2m3_checkpoint_v3; mở start_m2m3.ps1 ở cổng 8504. **214 tests và CI Windows của commit 183ed10 đạt**; đã đối soát 447.810 cặp dự báo, 42.136 hệ số hiệu chỉnh, 1.100.320 dòng sổ, 267.908 giao dịch/nhập và 920 mặt hàng. AppTest sáu trang, bốn kịch bản và bộ lọc SKU/loại đạt. Job Windows 07:00 đã cài, chạy thử mã 0. Tuần đạt 9/10, MAPE trung bình 16,17%, LG U+ 21,19%; R05 ngày vẫn 0/10, tỷ lệ báo sớm 33,73% trên 2.867 sự kiện. **Chưa nghiệm thu toàn bài.** Dữ liệu gốc và 59 artifact v11 nguyên; src/ và run.py không đổi, app.py chỉ thêm khóa bộ run. Word/slide chưa làm lại; các cập nhật cũ bên dưới là lịch sử.
 
 **Lịch sử CHG-027/E43–E49 — 05/10/2026:** sản phẩm mặc định dùng sigma_weekly_refactored_v12; đã hoàn tất bản so sánh ngày/tổng7 ngày và tổ chức mã sigma/ +29 entry points legacy/ +configs/experiments. 192 tests đạt; parity364.320 validation cache/7.590 fresh test/92 future/644 daily rows ở1e-8, cùng46 lựa chọn; raw/59 v11 files nguyên. Full policyV3 kiểm13 kịch bản/1.100.320 ledger/267.812 events; snapshotV6 kiểm920 items từ đúng policy; customerV5 kiểmD+7; AppTest6 trang và4 bộ lọc scenario đạt. Tuần9/10, mean16,19%, LG U+21,19%; R05 ngày0/10, early≥7 ngày33,80% cùng2867 events; chưa nghiệm thu toàn bài. CHG-027 thay thứ tự hoãn CHG-025; Word/slide không làm lại. Các cập nhật bên dưới E37–E41 là lịch sử.
 
-**Cập nhật 05/10/2026 — CHG-024/025, E37–E39:** đã áp dụng **khách đặt D → giao D+7 ngày lịch UTC**, không trễ giao, gồm cuối tuần; không đổi lead time nhập kho. Người dùng mô tả snapshot order là giả định; đây là nguồn thuật lại, vẫn giữ dữ liệu/outputs private và raw nguyên. [Sản phẩm chung và lịch giao](docs/customer-delivery.md) mở bằng `start_product.ps1` tại cổng 8503. Run tuần hiện hành `sigma_weekly_calibrated_v5`: test hồi cứu **9/10**, mean **15,97%**, LG U+ **21,36%**; chọn validation rồi khóa trước test. 920 khuyến nghị tồn từ phân bổ tuần đã đối soát, replay cùng 5.520 cửa sổ báo sớm **33,73%**; chưa chạy lại toàn bộ chính sách liên tục bằng tuần. 150 tests đạt, AppTest năm trang/không exception; job refresh/skip chạy thật, script đăng ký lịch nền được chuẩn bị nhưng chưa cài. R05 ngày **0/10**, R07/T14 vẫn mở. **Sau khi đủ điều kiện nghiệm thu mới làm bản so sánh chính thức ngày/tổng 7 ngày và tổ chức lại code**, đúng thứ tự người dùng yêu cầu; chưa làm lại Word/slide. Những cập nhật E36/v1 bên dưới là lịch sử.
+**Cập nhật 05/10/2026 — CHG-024/025, E37–E39:** đã áp dụng **khách đặt D → giao D+7 ngày lịch UTC**, không trễ giao, gồm cuối tuần; không đổi lead time nhập kho. Người dùng mô tả snapshot order là giả định; đây là nguồn thuật lại, vẫn giữ dữ liệu/outputs private và raw nguyên. [Sản phẩm chung và lịch giao](../customer-delivery.md) mở bằng `start_product.ps1` tại cổng 8503. Run tuần hiện hành `sigma_weekly_calibrated_v5`: test hồi cứu **9/10**, mean **15,97%**, LG U+ **21,36%**; chọn validation rồi khóa trước test. 920 khuyến nghị tồn từ phân bổ tuần đã đối soát, replay cùng 5.520 cửa sổ báo sớm **33,73%**; chưa chạy lại toàn bộ chính sách liên tục bằng tuần. 150 tests đạt, AppTest năm trang/không exception; job refresh/skip chạy thật, script đăng ký lịch nền được chuẩn bị nhưng chưa cài. R05 ngày **0/10**, R07/T14 vẫn mở. **Sau khi đủ điều kiện nghiệm thu mới làm bản so sánh chính thức ngày/tổng 7 ngày và tổ chức lại code**, đúng thứ tự người dùng yêu cầu; chưa làm lại Word/slide. Những cập nhật E36/v1 bên dưới là lịch sử.
 
 **Phiên bản:** 2.0 — 02/10/2026 (Asia/Saigon).
 
@@ -16,9 +26,9 @@
 
 ## 1. Cách sử dụng và thay đổi chính
 
-**Bổ sung CHG-023/E35–E36 ngày05/10/2026:** đã đối chiếu trực tiếp [ảnh kickoff mới nhận](docs/kickoff-checklist.md). Theo yêu cầu người dùng, T09/T11/T12 thêm [mô hình dự báo trực tiếp tổng quantity 7 ngày](docs/weekly-forecast.md) và dashboard riêng; giữ train/validation/test/top10/sales, lựa chọn validation rồi khóa trước test. Test tổng tuần9/10 đạt20%, mean17,19%, AIS22,14%; 125tests và verification75.900pairs đạt. Đây là phương án mở rộng đã được phép thực hiện, chưa phải xác nhận mentor thay R05 ngày. R05/R07/T14 vẫn mở; T10 chưa tự chuyển chính sách tồn sang forecast tuần. Nội dung thiết kế theo ngày bên dưới và các mô tả nguồn cũ giữ lịch sử/phạm vi rõ.
+**Bổ sung CHG-023/E35–E36 ngày05/10/2026:** đã đối chiếu trực tiếp [ảnh kickoff mới nhận](../kickoff-checklist.md). Theo yêu cầu người dùng, T09/T11/T12 thêm [mô hình dự báo trực tiếp tổng quantity 7 ngày](../weekly-forecast.md) và dashboard riêng; giữ train/validation/test/top10/sales, lựa chọn validation rồi khóa trước test. Test tổng tuần9/10 đạt20%, mean17,19%, AIS22,14%; 125tests và verification75.900pairs đạt. Đây là phương án mở rộng đã được phép thực hiện, chưa phải xác nhận mentor thay R05 ngày. R05/R07/T14 vẫn mở; T10 chưa tự chuyển chính sách tồn sang forecast tuần. Nội dung thiết kế theo ngày bên dưới và các mô tả nguồn cũ giữ lịch sử/phạm vi rõ.
 
-Tài liệu này giữ phương án hiện hành và T01–T14. [Yêu cầu](docs/requirements.md) giữ R01–R09, nguồn và tiêu chí. [Nhật ký](docs/review-log.md) giữ bằng chứng, quyết định cũ và CHG-003. Đường dẫn trong dấu mã là sản phẩm dự kiến, không có nghĩa đã tồn tại.
+Tài liệu này giữ phương án hiện hành và T01–T14. [Yêu cầu](../requirements.md) giữ R01–R09, nguồn và tiêu chí. [Nhật ký](../review-log.md) giữ bằng chứng, quyết định cũ và CHG-003. Đường dẫn trong dấu mã là sản phẩm dự kiến, không có nghĩa đã tồn tại.
 
 Phiên bản 2.0 áp dụng xác nhận mentor **do người dùng thuật lại**: M01 về số lượng bán không phụ thuộc active/top 10 theo số bán; M02 về ngưỡng nhập riêng theo đối tác; U04 về chỉ order thực, phần còn lại giả định và bảo mật. Hai ảnh mentor được nhắc đến chưa có tệp để đọc trực tiếp. Thông tin thuật lại đủ để cập nhật; không yêu cầu cung cấp thêm dữ liệu doanh nghiệp. Bộ lọc trạng thái và các con số tồn kho bên dưới vẫn là **đề xuất**, không phải số mentor xác nhận.
 
@@ -42,7 +52,7 @@ EOL, chuyển nhu cầu sang SKU/nhà mạng khác, FIFO theo lô, tối ưu chi
 
 ## 3. Đầu vào, phân loại và bảo mật
 
-Đã khảo sát toàn bộ CSV 100.000 dòng/20 cột, đọc ảnh và phần chữ 45 trang PDF, xem sơ đồ trang 12–13. [Sổ bằng chứng](docs/review-log.md#evidence) ghi số liệu, giới hạn, hash. Ba đầu vào gốc giữ nguyên; 26 tệp Git đang bị xóa không tự khôi phục.
+Đã khảo sát toàn bộ CSV 100.000 dòng/20 cột, đọc ảnh và phần chữ 45 trang PDF, xem sơ đồ trang 12–13. [Sổ bằng chứng](../review-log.md#evidence) ghi số liệu, giới hạn, hash. Ba đầu vào gốc giữ nguyên; 26 tệp Git đang bị xóa không tự khôi phục.
 
 | Loại | Nội dung | Cách ghi nhận |
 |---|---|---|
@@ -392,6 +402,11 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t09"></a>
 ### T09 — Khóa và đánh giá M2
 
+- **Báo cáo ngày07/10 — CHG-034/E62:** dùng kết quả9/10 đã khóa; giữ LG U+20,69% trong bảng và hoãn tối ưu. Có HTML offline, dashboard M2, bảng dữ liệu/split và guide7–10 phút. Đây là mốc trình bày trước deadline17/10; không thay R05 hoặc sản phẩm46 tuyến.
+- **Cải tiến CHG-033/E61:** triển khai26 biến thể/50 cấu hình đã chạy và đối soát; 40 kiểm tra liên quan đạt. Lựa chọn theo validation tổng7 có9/10 tuyến test hồi cứu, MAPE15,89%, LG U+20,69%; ngày0/10. Báo cáo riêng tháng7/8/9 cho thấy tháng9 yếu hơn. R05 vẫn mở; không thay sản phẩm V13 hoặc chọn lại theo test.
+
+- **Tổ chức mã CHG-031/032:** pool nghiên cứu ba họ, artifacts, notebooks và reports tập trung trong M2; từng họ có module/cấu hình/hướng dẫn riêng. E60 kiểm parity24 trường hợp/15 tests và đối soát221.280 dòng/2.040 nhóm metric. Lựa chọn đã khóa và kết quả hồi cứu giữ nguyên; không kế thừa nghiệm thu từ việc tách thư mục.
+
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
 - **Trạng thái:** V13: validation 10/10; test hồi cứu 9/10, MAPE trung bình 16,17%, LG U+ 21,19%. Đối soát 447.810 cặp/42.136 hệ số đạt. Ngày v11 vẫn 0/10; R05 còn mở.
@@ -510,7 +525,7 @@ Hoàn thành đòi hỏi từng yêu cầu bắt buộc có bằng chứng, tái
 
 ## 9. Quản lý thay đổi và bước tiếp theo
 
-Ghi nguồn/ngày/mã → xác định R/A/T/đầu ra ảnh hưởng → sửa kế hoạch/config/tăng phiên bản → đánh dấu kết quả cũ cần tính lại → kiểm tra liên quan trước hoàn thành. [Nhật ký](docs/review-log.md#change-process) giữ ma trận/quy trình; không xóa mã T01–T14 hoặc lịch sử.
+Ghi nguồn/ngày/mã → xác định R/A/T/đầu ra ảnh hưởng → sửa kế hoạch/config/tăng phiên bản → đánh dấu kết quả cũ cần tính lại → kiểm tra liên quan trước hoàn thành. [Nhật ký](../review-log.md#change-process) giữ ma trận/quy trình; không xóa mã T01–T14 hoặc lịch sử.
 
 **Hiện tại:** chỉ cập nhật/kiểm tra ba Markdown. Không có câu hỏi nghiệp vụ bắt buộc để hoàn tất bước này; phần ngoài order đã có giả định cơ sở. A08–A17 chờ nhóm xem xét, không yêu cầu xin dữ liệu doanh nghiệp. R05/R07 chưa có bằng chứng nghiệm thu; quỹ giờ chưa biết.
 

@@ -9,7 +9,7 @@ from sigma.forecasting.weekly import prepare, fit, predict_batch
 
 
 def config():
-    settings = json.loads((ROOT / 'config.weekly.json').read_text())
+    settings = json.loads((ROOT / 'data/configs/config.weekly.json').read_text())
     spec = {'kind': 'linear_week', 'objective': 'regression_l1', 'units': 'ratio', 'harmonics': 2, 'alpha': .01}
     settings['models'] = {'linear': spec}
     cfg = {'seed': 42, 'lightgbm_threads': 1}

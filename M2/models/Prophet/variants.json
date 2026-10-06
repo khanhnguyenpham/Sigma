@@ -1,0 +1,50 @@
+{
+  "prophet_additive": {
+    "seasonality_mode": "additive",
+    "changepoint_prior_scale": 0.05,
+    "weekly_seasonality": true
+  },
+  "prophet_multiplicative": {
+    "seasonality_mode": "multiplicative",
+    "changepoint_prior_scale": 0.05,
+    "weekly_seasonality": true
+  },
+  "prophet_smooth": {
+    "seasonality_mode": "additive",
+    "changepoint_prior_scale": 0.01,
+    "weekly_seasonality": true
+  },
+  "prophet_no_weekly": {
+    "seasonality_mode": "additive",
+    "changepoint_prior_scale": 0.05,
+    "weekly_seasonality": false
+  },
+  "prophet_no_annual_weekly_w365": {
+    "seasonality_mode": "additive",
+    "changepoint_prior_scale": 0.01,
+    "weekly_seasonality": true,
+    "yearly_seasonality": false,
+    "training_window_days": 365
+  },
+  "prophet_no_annual_no_weekly_w365": {
+    "seasonality_mode": "additive",
+    "changepoint_prior_scale": 0.01,
+    "weekly_seasonality": false,
+    "yearly_seasonality": false,
+    "training_window_days": 365
+  },
+  "prophet_annual3_weekly_w540": {
+    "seasonality_mode": "additive",
+    "changepoint_prior_scale": 0.01,
+    "weekly_seasonality": true,
+    "yearly_seasonality": 3,
+    "training_window_days": 540
+  },
+  "prophet_annual3_no_weekly_w540": {
+    "seasonality_mode": "additive",
+    "changepoint_prior_scale": 0.01,
+    "weekly_seasonality": false,
+    "yearly_seasonality": 3,
+    "training_window_days": 540
+  }
+}

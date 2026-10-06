@@ -1,0 +1,111 @@
+{
+  "sarima_100_100_7": {
+    "order": [
+      1,
+      0,
+      0
+    ],
+    "seasonal_order": [
+      1,
+      0,
+      0,
+      7
+    ]
+  },
+  "sarima_111_011_7": {
+    "order": [
+      1,
+      1,
+      1
+    ],
+    "seasonal_order": [
+      0,
+      1,
+      1,
+      7
+    ]
+  },
+  "sarima_log_100_100_7": {
+    "order": [
+      1,
+      0,
+      0
+    ],
+    "seasonal_order": [
+      1,
+      0,
+      0,
+      7
+    ],
+    "log1p": true
+  },
+  "sarimax_annual_100_100_7": {
+    "order": [
+      1,
+      0,
+      0
+    ],
+    "seasonal_order": [
+      1,
+      0,
+      0,
+      7
+    ],
+    "annual_features": true
+  },
+  "arima_101": {
+    "order": [
+      1,
+      0,
+      1
+    ],
+    "seasonal_order": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "arima_111": {
+    "order": [
+      1,
+      1,
+      1
+    ],
+    "seasonal_order": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "sarima_100_100_7_window180": {
+    "order": [
+      1,
+      0,
+      0
+    ],
+    "seasonal_order": [
+      1,
+      0,
+      0,
+      7
+    ],
+    "training_window_days": 180
+  },
+  "sarimax_annual_100_100_7_window540": {
+    "order": [
+      1,
+      0,
+      0
+    ],
+    "seasonal_order": [
+      1,
+      0,
+      0,
+      7
+    ],
+    "annual_features": true,
+    "training_window_days": 540
+  }
+}

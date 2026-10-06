@@ -72,7 +72,7 @@ def test_duplicate_horizon_or_negative_allocation_is_not_silently_accepted(cfg):
 
 
 def test_demo_sources_are_isolated_and_failed_resume_never_overwrites_or_restores(cfg,tmp_path,monkeypatch):
-    import run
+    from src import pipeline as run
     monkeypatch.setattr(run,'ROOT',tmp_path)
     cfg.update(observation_start='2024-01-01',observation_end='2024-01-24',
         train_end='2024-01-10',validation_start='2024-01-11',validation_end='2024-01-20',
@@ -94,7 +94,7 @@ def test_demo_sources_are_isolated_and_failed_resume_never_overwrites_or_restore
 
 
 def test_missing_manifest_or_nonempty_run_folder_cannot_be_overwritten(cfg,tmp_path,monkeypatch):
-    import run
+    from src import pipeline as run
     monkeypatch.setattr(run,'ROOT',tmp_path)
     config=tmp_path/'config.json';config.write_text(json.dumps(cfg),encoding='utf-8')
     folder=tmp_path/'outputs'/'orphan';folder.mkdir(parents=True);marker=folder/'marker.txt';marker.write_text('preserve')

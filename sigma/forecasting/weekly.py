@@ -310,10 +310,11 @@ def allocate_daily(total, group, origin, block, history_days=90):
     return dates, allocated
 
 
-def run_weekly(run_id, weekly_config='config.weekly.json', reuse_validation_from=None):
+def run_weekly(run_id, weekly_config='data/configs/config.weekly.json', reuse_validation_from=None):
     if not re.fullmatch(r'[A-Za-z0-9_-]+', run_id):
         raise ValueError('Invalid run id')
-    settings_path = (ROOT / weekly_config).resolve()
+    from src.common import config_path
+    settings_path = config_path(weekly_config)
     if not settings_path.is_relative_to(ROOT):
         raise ValueError('Configuration must be local')
     settings = json.loads(settings_path.read_text(encoding='utf-8'))
@@ -485,7 +486,7 @@ def run_weekly(run_id, weekly_config='config.weekly.json', reuse_validation_from
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run-id', required=True)
-    parser.add_argument('--config', default='config.weekly.json')
+    parser.add_argument('--config', default='data/configs/config.weekly.json')
     parser.add_argument('--reuse-validation-from', help='Verified immutable validation parent; test is recomputed')
     args = parser.parse_args()
     run_weekly(args.run_id, args.config, args.reuse_validation_from)

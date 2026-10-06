@@ -1,7 +1,7 @@
 """Refresh isolation and failure handling; no model runs or real input data."""
 import json
 
-import refresh_delivery_job as job
+from sigma.jobs import refresh as job
 
 
 def test_refresh_skips_unchanged_inputs_after_one_success(tmp_path, monkeypatch):

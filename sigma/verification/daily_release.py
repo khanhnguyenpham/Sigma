@@ -157,7 +157,7 @@ def verify(folder):
         'audited_daily_top_selection_actuals_verified':True,
         'validation_prediction_labels_and_metrics_verified':True,
         'code_files_sha256':{path.relative_to(ROOT).as_posix():sha256(path)
-                            for path in [ROOT/'run.py',ROOT/'app.py']+sorted((ROOT/'src').glob('*.py'))},
+                            for path in [ROOT/'sigma/ui/daily.py']+sorted((ROOT/'src').glob('*.py'))},
         'checks_passed':True,'product_fully_accepted':False,
         'acceptance_limit':'Technical invariants verified; R05 and external academic acceptance evaluated separately',
         'top10_accuracy_passed':int(acceptance.accuracy_passed.sum()),

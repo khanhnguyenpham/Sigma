@@ -35,7 +35,7 @@ def test_notebook_has_no_outputs():
 def test_dashboard_rejects_complete_label_with_missing_schema_artifacts(tmp_path, monkeypatch):
     import src.common as common
     from streamlit.testing.v1 import AppTest
-    app_path = common.ROOT / "app.py"
+    app_path = common.ROOT / "sigma/ui/daily.py"
     folder = tmp_path / "outputs" / "synthetic_incomplete_package"
     folder.mkdir(parents=True)
     seal_manifest(folder, {"status": "complete", "schema_version": "1", "config": {}})
@@ -46,7 +46,7 @@ def test_dashboard_rejects_complete_label_with_missing_schema_artifacts(tmp_path
 
 
 def test_cli_blocking_quality_message_has_category_without_identifiers(tmp_path, monkeypatch, capsys, cfg, order_rows):
-    import run
+    from src import pipeline as run
     import sys
     from src.data import SOURCE_COLUMNS
     from src.common import sha256

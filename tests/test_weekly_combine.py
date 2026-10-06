@@ -23,7 +23,7 @@ def test_calibrated_combination_preserves_quantity_and_convex_weights():
 
 def test_calibrated_combination_phase_uses_only_completed_teacher_labels(tmp_path, monkeypatch):
     import sigma.forecasting.weekly as weekly_forecast
-    settings = json.loads((ROOT / 'config.weekly.json').read_text())
+    settings = json.loads((ROOT / 'data/configs/config.weekly.json').read_text())
     settings['models'] = {'a': {'kind': 'lgbm', 'units': 'raw', 'value': 7.},
         'b': {'kind': 'linear_week', 'units': 'raw', 'value': 21.},
         'mix': {'kind': 'calibrated_blend', 'components': ['a', 'b'], 'parent': 'a',

@@ -1,5 +1,7 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+**CHG-034/E62 — 06/10/2026:** nhánh M2 local `codex/m2-report-20261007`, launcher hiện ở scripts, cấu hình ở data/configs, planning ở docs/planning. Full suite262 tests đạt; M2 AppTest3 tab và kiểm độc lập401.600 dòng/9.160 metric đạt. Kết quả9/10 giữ nguyên, LG U+ hoãn tối ưu; [guide báo cáo](../M2/reports/presentation-guide.md). Các cập nhật bên dưới là lịch sử.
+
 **Hiện hành CHG-028/E53–E55 — 06/10/2026:** sản phẩm mặc định dùng V13 với 58 ứng viên chọn bằng validation, cùng policy V4, stock V7, customer V6 và comparison V3. Bộ báo cáo đã khóa tại sigma_m2m3_checkpoint_v3; mở start_m2m3.ps1 ở cổng 8504. **214 tests và CI Windows của commit 183ed10 đạt**; đã đối soát 447.810 cặp dự báo, 42.136 hệ số hiệu chỉnh, 1.100.320 dòng sổ, 267.908 giao dịch/nhập và 920 mặt hàng. AppTest sáu trang, bốn kịch bản và bộ lọc SKU/loại đạt. Job Windows 07:00 đã cài, chạy thử mã 0. Tuần đạt 9/10, MAPE trung bình 16,17%, LG U+ 21,19%; R05 ngày vẫn 0/10, tỷ lệ báo sớm 33,73% trên 2.867 sự kiện. **Chưa nghiệm thu toàn bài.** Dữ liệu gốc và 59 artifact v11 nguyên; src/ và run.py không đổi, app.py chỉ thêm khóa bộ run. Word/slide chưa làm lại; các cập nhật cũ bên dưới là lịch sử.
 
 **Lịch sử CHG-027/E43–E49 — 05/10/2026:** sản phẩm mặc định dùng sigma_weekly_refactored_v12; đã hoàn tất bản so sánh ngày/tổng7 ngày và tổ chức mã sigma/ +29 entry points legacy/ +configs/experiments. 192 tests đạt; parity364.320 validation cache/7.590 fresh test/92 future/644 daily rows ở1e-8, cùng46 lựa chọn; raw/59 v11 files nguyên. Full policyV3 kiểm13 kịch bản/1.100.320 ledger/267.812 events; snapshotV6 kiểm920 items từ đúng policy; customerV5 kiểmD+7; AppTest6 trang và4 bộ lọc scenario đạt. Tuần9/10, mean16,19%, LG U+21,19%; R05 ngày0/10, early≥7 ngày33,80% cùng2867 events; chưa nghiệm thu toàn bài. CHG-027 thay thứ tự hoãn CHG-025; Word/slide không làm lại. Các cập nhật bên dưới E37–E41 là lịch sử.
@@ -10,11 +12,11 @@
 
 **Cập nhật 05/10/2026:** Mã và quy trình chạy đã triển khai; lệnh thật tại README. Python 3.14.7, phiên bản khóa trong requirements.txt; config chứa seed 42 và dung sai số thực 1e-8. Kiểm tra release và báo cáo M2 ghi ở E13–E15/TASK. Phần ghi “chưa có/dự kiến” ngày 02/10 dưới đây là bối cảnh lịch sử và checklist thiết kế, không phải hiện trạng triển khai. Git root hiện nằm trong project; không sửa cấu hình Git toàn cục.
 
-**Bản hướng dẫn:** 1.0 — 02/10/2026 (Asia/Saigon), dựa trên [PLAN 2.0](../PLAN.md), [requirements](requirements.md), [review-log](review-log.md). **Hiện trạng:** tài liệu và CSV; chưa có mã, config, phụ thuộc được khóa, tests hoặc run. Quy trình kỹ thuật dưới đây là **dự kiến, chưa triển khai**. Lượt tạo tài liệu không cài đặt, huấn luyện, mô phỏng hay nghiệm thu kỹ thuật.
+**Bản hướng dẫn:** 1.0 — 02/10/2026 (Asia/Saigon), dựa trên [PLAN 2.0](planning/PLAN.md), [requirements](requirements.md), [review-log](review-log.md). **Hiện trạng:** tài liệu và CSV; chưa có mã, config, phụ thuộc được khóa, tests hoặc run. Quy trình kỹ thuật dưới đây là **dự kiến, chưa triển khai**. Lượt tạo tài liệu không cài đặt, huấn luyện, mô phỏng hay nghiệm thu kỹ thuật.
 
 ## 1. Bắt đầu và trình tự task
 
-Đọc [AGENTS](../AGENTS.md), [TASK](../TASK.md) và phần [PROJECTMAP](../PROJECTMAP.md) liên quan; kiểm tra tệp thực tế và phạm vi yêu cầu mới trước khi hành động. Với task đang làm, đọc mục Txx trong PLAN, Rxx liên quan và quyết định/giả định có ảnh hưởng. Không cần đọc lại mọi nguồn cho sửa lỗi chính tả hoặc nhãn đơn giản.
+Đọc [AGENTS](../AGENTS.md), [TASK](planning/TASK.md) và phần [PROJECTMAP](planning/PROJECTMAP.md) liên quan; kiểm tra tệp thực tế và phạm vi yêu cầu mới trước khi hành động. Với task đang làm, đọc mục Txx trong PLAN, Rxx liên quan và quyết định/giả định có ảnh hưởng. Không cần đọc lại mọi nguồn cho sửa lỗi chính tả hoặc nhãn đơn giản.
 
 | Giai đoạn | Trình tự theo PLAN | Điều kiện / mục đích |
 |---|---|---|

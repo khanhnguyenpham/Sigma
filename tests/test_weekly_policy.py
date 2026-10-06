@@ -11,9 +11,9 @@ from sigma.inventory.policy import full_policy_forecast, scenarios
 
 
 def fixture():
-    cfg = json.loads((ROOT / 'config.json').read_text())
+    cfg = json.loads((ROOT / 'data/configs/config.json').read_text())
     cfg.update(test_start='2025-07-01', test_end='2025-07-14', forecast_origin='2025-07-14')
-    settings = json.loads((ROOT / 'config.weekly.json').read_text())
+    settings = json.loads((ROOT / 'data/configs/config.weekly.json').read_text())
     settings['models'] = {'base': {'kind': 'mean', 'window': 28}}
     data = pd.DataFrame({'date': pd.date_range('2024-01-01', '2025-07-14'),
         'destination_country': 'Fake', 'carrier': 'A', 'sales_qty': 3., 'order_count': 1})

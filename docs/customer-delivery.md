@@ -6,7 +6,7 @@ CHG-024: mentor được người dùng thuật lại và người dùng xác nh
 .\start_product.ps1
 ```
 
-Sản phẩm ở http://127.0.0.1:8503 có6 trang: tổng quan, tuần, giaoD+7, tồn tuần, so sánh ngày/tuần, ngày/tồn/cảnh báo. [config.delivery.json](../config.delivery.json) chọn cặp forecast/daily; không tự trộn run hoặc chọn kết quả nghiên cứu tốt hơn. Bundle mới chỉ dùng sau kiểm source/protocol/cha/artifacts/UI.
+Sản phẩm ở http://127.0.0.1:8503 có6 trang: tổng quan, tuần, giaoD+7, tồn tuần, so sánh ngày/tuần, ngày/tồn/cảnh báo. [config.delivery.json](../data/configs/config.delivery.json) chọn cặp forecast/daily; không tự trộn run hoặc chọn kết quả nghiên cứu tốt hơn. Bundle mới chỉ dùng sau kiểm source/protocol/cha/artifacts/UI.
 
 ## Lịch đã biết và lượng dự báo
 
@@ -44,7 +44,7 @@ Base fill85,02%; nhập50%42,27%; trễ nhập3 ngày72,46%; không nhập7,69%.
 
 [jobs/refresh](../sigma/jobs/refresh.py) kiểm fingerprint nguồn/config/cha/implementation thật, skip khi không đổi, khóa chống chạy trùng, lỗi chỉ ghi loại lỗi và giữ last-good. Bundle demo có namespace job riêng. Đổi raw cần forecast/cha mới; job không tự thay split hoặc học tương lai. Nếu worker bị dừng đột ngột và còn lock, kiểm không còn worker trước xử lý khóa; không tự cướp lock.
 
-Script Windows [install_refresh_task.ps1](../install_refresh_task.ps1) dùng pythonw và cwd của project, chạy daily07:00 theo timezoneWindows, StartWhenAvailable/IgnoreNew. Script đã parse-check; **chưa cài lịch nền** khi chưa có bằng chứng đăng ký. Có thể cài theo hướng dẫn:
+Script Windows [install_refresh_task.ps1](../scripts/install_refresh_task.ps1) dùng pythonw và cwd của project, chạy daily07:00 theo timezoneWindows, StartWhenAvailable/IgnoreNew. Script đã parse-check; **chưa cài lịch nền** khi chưa có bằng chứng đăng ký. Có thể cài theo hướng dẫn:
 
 ```powershell
 .\install_refresh_task.ps1 -At '07:00'

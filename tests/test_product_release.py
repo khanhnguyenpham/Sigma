@@ -99,6 +99,6 @@ def test_bad_product_config_stops_with_helpful_message_without_artifact_fallback
     monkeypatch.setattr(customer, 'ROOT', tmp_path)
     path = tmp_path / 'bad.json'; path.write_text('{"customer_delivery_days": 6}')
     monkeypatch.setenv('SIGMA_DELIVERY_CONFIG', str(path))
-    at = AppTest.from_file(str(ROOT / 'sigma_product.py')).run()
+    at = AppTest.from_file(str(ROOT / 'sigma/ui/product.py')).run()
     assert not at.exception and len(at.error) == 1
     assert 'D+7' in at.error[0].value and not at.dataframe

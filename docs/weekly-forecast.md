@@ -1,6 +1,6 @@
 # Dự báo trực tiếp tổng quantity 7 ngày
 
-Cấu hình sản phẩm: [configs/weekly.json](../configs/weekly.json),58 ứng viênV13; code tại [forecasting/weekly](../sigma/forecasting/weekly.py). Run `sigma_weekly_boost_v13` giữ52 ứng viênV10 và thêm2 booster300cây+4 hiệu chỉnh causal. Cache394.680 validationpairs được authenticate,6 ứng viên mới fitvalidation; khóa selection trước fresh test/future. Generic kiểm447.810pairs và calibration replay42.136factors đạt. V12 trước đó giữ nguyên artifact, cấu hình gốc lưu ở [weekly-organized-v12](../configs/experiments/weekly-organized-v12.json).
+Cấu hình sản phẩm: [configs/weekly.json](../data/configs/weekly.json),58 ứng viênV13; code tại [forecasting/weekly](../sigma/forecasting/weekly.py). Run `sigma_weekly_boost_v13` giữ52 ứng viênV10 và thêm2 booster300cây+4 hiệu chỉnh causal. Cache394.680 validationpairs được authenticate,6 ứng viên mới fitvalidation; khóa selection trước fresh test/future. Generic kiểm447.810pairs và calibration replay42.136factors đạt. V12 trước đó giữ nguyên artifact, cấu hình gốc lưu ở [weekly-organized-v12](../data/configs/experiments/weekly-organized-v12.json).
 
 **Test hồi cứu 9/10≤20%, mean16,17%, LG U+21,19%; coverage100%. R05 ngày vẫn0/10**, chưa xác nhận mentor thay bằng metric tuần. Các lần V1–V13 có version riêng, không sửa run cũ. [Hướng dẫn cũ](history/weekly-forecast-before-code-organization.md) giữ làm lịch sử.
 
