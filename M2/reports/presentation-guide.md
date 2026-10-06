@@ -1,6 +1,6 @@
 # Báo cáo M2 ngày 07/10/2026
 
-Nhánh làm việc: `codex/m2-report-20261007`. Dùng kết quả đã khóa **9/10 tuyến tổng 7 đạt ≤20%, MAPE trung bình 15,89%**, độ phủ100%. **LG U+20,69% chưa đạt, hoãn tối ưu** theo quyết định người dùng. Ngày0/10, R05 còn mở; test là hồi cứu.
+Nhánh làm việc: `m2-forecast-report`. Dùng kết quả đã khóa **9/10 tuyến tổng 7 đạt ≤20%, MAPE trung bình 15,89%**, độ phủ100%. **LG U+20,69% chưa đạt, hoãn tối ưu** theo quyết định người dùng. Ngày0/10, R05 còn mở; test là hồi cứu.
 
 ## Đọc báo cáo từ GitHub
 
