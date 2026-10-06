@@ -1,7 +1,7 @@
 {
   "report_date": "2026-10-07",
   "results_frozen_date": "2026-10-06",
-  "branch": "codex/m2-report-20261007",
+  "branch": "m2-forecast-report",
   "run_id": "m2_improved_models_20261006_fixed",
   "run_manifest_sha256": "6407c68e9f520da51924fb021a275a947ada9cca15fbde06f35287218f3561dc",
   "selection_sha256": "98eb1ea7fa468f082424e429702dd8f6e85126b665540d17759ae5b19d32b48f",
@@ -24,7 +24,7 @@
     "index.html": "fca1a7c131e41bd827aaa0cf67b0aa4f3e9af2d5d6276038f45db547fa19e2f9",
     "overall_selected_models.csv": "98eb1ea7fa468f082424e429702dd8f6e85126b665540d17759ae5b19d32b48f",
     "overall_test_metrics.csv": "d4e8251b490e6508bc358eedea2829445e985175561c15086666202d12e87e42",
-    "README.md": "0b4a39df181935701d973207cb21c15179572433586bbc8d4b044bbd47305f4f",
+    "README.md": "a45ed58fb53093983ab2f12f4e6413d49f5fa944124ec531cada06e6af96b4cd",
     "route_comparison.csv": "5dda24eca1e1d97f17ff1ac9b57321089bd78e332c21df779eb97e0a04627c94",
     "selected_daily_routes.csv": "31b53eb63d8ed2d60a7eb372673119d980a0396989b627d3e6ca2efde2bb9b32",
     "selected_weekly_routes.csv": "5441ccd83f36641515f480f4c8298bb3f343911bb0042158235077c0541eb376",
