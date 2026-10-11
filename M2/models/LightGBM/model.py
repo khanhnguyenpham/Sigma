@@ -76,11 +76,16 @@ def weekly_fit(prepared, cutoff, spec, cfg, settings):
     return fit(prepared, cutoff, spec, cfg, effective_settings(settings, spec))
 
 
-def phase(daily, groups, cfg, settings, target, split, choices=None):
+def phase(daily, groups, cfg, settings, target, split, choices=None, calendar_reference=None):
     from sigma.forecasting.weekly import prepare, predict_batch
     models = active_variants(settings, 'LightGBM', target)
     week = {**settings, 'blocks': [1, 2], 'models': {name: {'kind': 'lgbm', 'units': 'raw', **spec} for name, spec in models.items()}}
     prepared = prepare_daily(groups) if target == 'daily' else prepare(daily, week)
+    if calendar_reference is not None:
+        if target != 'direct_7d':
+            raise ValueError('Calendar experiment supports direct seven-day totals only')
+        from M2.models.calendar_reference import attach_features
+        attach_features(prepared, calendar_reference)
     start = pd.Timestamp(cfg[f'{split}_start']) if split != 'future' else daily.date.max() + pd.Timedelta(days=1)
     end = pd.Timestamp(cfg[f'{split}_end']) if split != 'future' else daily.date.max()
     origins = pd.date_range(start-pd.Timedelta(days=1), end-pd.Timedelta(days=1)) if split != 'future' else [end]

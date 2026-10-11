@@ -1,0 +1,35 @@
+{
+  "version": "m2-composition-v1",
+  "base_config": "data/configs/config.json",
+  "model_config": "data/configs/m2-reproduce.json",
+  "reference_run": "m2_reproduce_20261009_full",
+  "previous_experiment": "m2_focus_20261011",
+  "protected_experiment": "m2_adaptive_20261011",
+  "rerun_of": "m2_composition_20261011",
+  "repair": "Metadata-only repair: keep quantity actual blank wherever count component's split window is incomplete. The preceding failed run stopped before selection/test; retain all 26 model settings and require forecast parity against its invalidated outputs.",
+  "focus_route": ["South Korea", "LG U+"],
+  "numeric_tolerance": 1e-8,
+  "historical_folds": [["2024-10-01", "2024-10-28"], ["2025-04-01", "2025-04-28"]],
+  "quantity_parents": {
+    "composition_control56": {"scale_days": 56, "feature_group": "none"},
+    "composition_large56": {"scale_days": 56, "feature_group": "large"},
+    "composition_dispersion56": {"scale_days": 56, "feature_group": "dispersion"},
+    "composition_both56": {"scale_days": 56, "feature_group": "both"}
+  },
+  "count_parents": {
+    "count28": {"scale_days": 28},
+    "count56": {"scale_days": 56},
+    "count90": {"scale_days": 90}
+  },
+  "heads": {
+    "raw": {"kind": "identity"},
+    "mul56p4": {"kind": "multiply", "history_days": 56, "prior_weeks": 4}
+  },
+  "basket_windows": [28, 56, 90],
+  "large_order_quantity_min": 3,
+  "basket_forecast": "Trailing sum(quantity)/sum(distinct order_count), known at origin, separately forecast as a constant average for each 7-day block. Count forecast is learned independently; multiply forecasts, then evaluate true quantity labels. Zero past orders use a neutral basket of 1; no actual future order count or basket is used.",
+  "features": "Rolling past-only 28/56-day large-order shares and large-quantity shares, 7/28-day large-order growth, and 28/56-day coefficient of variation of quantity per order. Audit confirms unique order IDs in this snapshot; block if duplicate IDs rather than treating line-level distribution as orders.",
+  "selection": "26 candidates before fit:8 quantity feature/head variants plus18 count/head/basket combinations. Validation h1-7 daily-origin positive MAPE, MAE, ID; full coverage both blocks. Historical folds diagnostic only.",
+  "test_policy": "Must beat validation10.77582022385683 by1e-8. Hash-lock one selection before one retrospective test. No test-based tuning or replacement. Stop after this bounded composition run.",
+  "scope": "Remaining two hypotheses proposed to user: count times basket and large-order dispersion features. Same source, success UTC quantity target, train top10/splits/H14, baseline LightGBM settings and refit7. Preserve other nine selections/forecasts/metrics and prior research/dashboard/reports. Local only; test viewed previously is retrospective, not daily R05 acceptance."
+}
