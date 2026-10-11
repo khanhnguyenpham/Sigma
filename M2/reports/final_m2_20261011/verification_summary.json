@@ -1,0 +1,45 @@
+{
+  "status": "verified",
+  "run_id": "m2_final_20261011_local",
+  "run_manifest_sha256": "7be713a8389d487bb4d9f7aa70df45896c98d933549d722bd0136052a18e0976",
+  "verified_at_utc": "2026-10-11T11:28:49.852930+00:00",
+  "checks": {
+    "fresh_raw_rows": 100000,
+    "sales_quantity": 118296,
+    "train_top10_exact": true,
+    "validation_pairs": 1840,
+    "validation_heads": 28,
+    "validation_metrics": 40,
+    "validation_other_nine_parity": {
+      "pairs": 1656,
+      "max_forecast_difference": 0.0
+    },
+    "validation_focus_parity": {
+      "pairs": 184,
+      "max_forecast_difference": 0.0
+    },
+    "test_pairs": 1840,
+    "test_heads": 28,
+    "test_metrics": 40,
+    "test_other_nine_parity": {
+      "pairs": 1656,
+      "max_forecast_difference": 0.0
+    },
+    "test_focus_parity": {
+      "pairs": 184,
+      "max_forecast_difference": 0.0
+    },
+    "future_pairs": 20,
+    "future_heads": 2,
+    "protected_files_unchanged": 771
+  },
+  "result": {
+    "routes": 10,
+    "routes_below_20_pct": 10,
+    "mean_mape_positive_pct": 15.745365636274759,
+    "minimum_coverage": 1.0,
+    "goal_achieved": true,
+    "independent_test": false,
+    "daily_R05_acceptance_replaced": false
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "version": "m2-refinement-v1",
+  "base_config": "data/configs/config.json",
+  "model_config": "data/configs/m2-reproduce.json",
+  "reference_run": "m2_reproduce_20261009_full",
+  "previous_experiment": "m2_focus_20261011",
+  "historical_folds": [["2024-10-01", "2024-10-28"], ["2025-04-01", "2025-04-28"]],
+  "parents": {
+    "tune35": {"scale_days": 35},
+    "tune42": {"scale_days": 42},
+    "tune49": {"scale_days": 49},
+    "tune56": {"scale_days": 56},
+    "tune63": {"scale_days": 63},
+    "tune70": {"scale_days": 70},
+    "tune77": {"scale_days": 77},
+    "tune84": {"scale_days": 84},
+    "tune56_w270": {"scale_days": 56, "training_window_days": 270},
+    "tune56_w540": {"scale_days": 56, "training_window_days": 540},
+    "tune56_leaf5": {"scale_days": 56, "leaves": 5},
+    "tune56_n100": {"scale_days": 56, "n_estimators": 100}
+  },
+  "heads": {"raw": {"kind": "identity"}, "mul56p4": {"kind": "multiply", "history_days": 56, "prior_weeks": 4}},
+  "residual_heads": {}, "residual_parents": [], "blend_parents": [], "blend_weights": [],
+  "selection": "validation block1 daily-origin positive MAPE, then MAE, then ID; full coverage both blocks; historical folds diagnostic",
+  "test_policy": "24 preregistered candidates; must beat prior validation winner 10.77582022385683. One selection locked before one retrospective test. No test-based tuning. Stop after this bounded refinement.",
+  "reason": "Refine around 56-day normalization because it won validation among 28/56/90; nearby windows and a small fixed training/complexity grid, not a grid fitted to test errors.",
+  "scope": "Third sequential retrospective experiment. Preserve nine original routes and all earlier outputs; no independent holdout or daily R05 claim."
+}

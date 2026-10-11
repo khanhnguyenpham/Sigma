@@ -1,0 +1,22 @@
+{
+  "version": "m2-retrospective-test-sweep-v1",
+  "base_config": "data/configs/config.json",
+  "model_config": "data/configs/m2-reproduce.json",
+  "reference_run": "m2_reproduce_20261009_full",
+  "locked_run": "m2_composition_20261011_fixed",
+  "daily_run": "m2_focus_20261011",
+  "workers": 3,
+  "numeric_tolerance": 1e-8,
+  "pools": {
+    "calendar": {"config": "data/configs/m2-calendar.json", "run": "m2_calendar_20261011", "count": 10},
+    "focus": {"config": "data/configs/m2-focus.json", "run": "m2_focus_20261011", "count": 35},
+    "hierarchy": {"config": "data/configs/m2-hierarchy.json", "run": "m2_hierarchy_20261011", "count": 44},
+    "refinement": {"config": "data/configs/m2-refinement.json", "run": "m2_refinement_20261011", "count": 24},
+    "adaptive": {"config": "data/configs/m2-adaptive.json", "run": "m2_adaptive_20261011", "count": 21},
+    "composition": {"config": "data/configs/m2-composition.json", "run": "m2_composition_20261011_fixed", "count": 26}
+  },
+  "authorization": "CHG-041: User explicitly requests test scoring of all registered candidates without requiring improvement over the validation winner.",
+  "test_policy": "Score the finite 160-entry pool once, including repeated controls. Report every candidate with validation and retrospective test metrics. Test rankings are exploratory, not independent evaluation or official model selection. Do not retune during this sweep.",
+  "other_routes": "Keep all existing selections, predictions, metrics, sealed runs, published reports and dashboard byte-identical. No deployment or production selection change.",
+  "scope": "South Korea / LG U+; success UTC order quantity A08 experimental; train top10 and original splits/H14/rolling refits unchanged. Final-status snapshot and repeatedly viewed test remain retrospective."
+}

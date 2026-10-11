@@ -92,6 +92,7 @@ def prepare(daily, settings):
 
 def inputs(table, spec, indices):
     names = FEATURES + (ANNUAL_FEATURES if spec.get('annual_features', False) else [])
+    names += spec.get('calendar_feature_columns', [])
     if spec.get('macro_features', False):
         names += MACRO_FEATURES
     x = table['x'].iloc[indices][names].copy()

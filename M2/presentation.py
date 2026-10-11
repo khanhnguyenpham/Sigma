@@ -3,6 +3,7 @@ import argparse
 import base64
 import html
 import json
+import re
 import shutil
 
 import pandas as pd
@@ -15,14 +16,19 @@ MANIFEST_SHA = '6407c68e9f520da51924fb021a275a947ada9cca15fbde06f35287218f3561dc
 REPORT_ID = 'm2_report_20261007'
 
 
-def load_checkpoint(root=ROOT):
-    folder = root / 'M2/artifacts' / RUN_ID
-    review = root / 'M2/reports' / REVIEW_ID
+def load_checkpoint(root=ROOT, *, run_id=None):
+    frozen = run_id in (None, RUN_ID)
+    run_id = run_id or RUN_ID
+    if not re.fullmatch(r'[A-Za-z0-9_-]+', run_id):
+        raise ValueError('Invalid M2 run id')
+    folder = root / 'M2/artifacts' / run_id
+    review = root / 'M2/reports' / (REVIEW_ID if frozen else run_id + '_review')
     manifest = validate_run(folder)
-    if sha256(folder / 'manifest.json') != MANIFEST_SHA:
+    manifest_sha = sha256(folder / 'manifest.json')
+    if frozen and manifest_sha != MANIFEST_SHA:
         raise ValueError('Frozen M2 run differs from the approved checkpoint')
     verified = json.loads((review / 'summary.json').read_text(encoding='utf-8'))
-    if verified['status'] != 'verified' or verified['run_manifest_sha256'] != MANIFEST_SHA:
+    if verified['status'] != 'verified' or verified['run_manifest_sha256'] != manifest_sha:
         raise ValueError('Independent verification differs from M2 checkpoint')
     for name, digest in verified['files'].items():
         if sha256(review / name) != digest:
@@ -33,18 +39,19 @@ def load_checkpoint(root=ROOT):
     selected = choices.merge(metrics, on=ROUTE + ['family', 'target', 'model'], validate='one_to_one')
     weekly = selected.loc[selected.target.eq('direct_7d')].sort_values(ROUTE)
     day = selected.loc[selected.target.eq('daily')].sort_values(ROUTE)
-    if (len(weekly) != 10 or len(day) != 10 or int(weekly.passes_20_pct.sum()) != 9
-            or day.passes_20_pct.any() or not selected.coverage.eq(1).all()):
+    if len(weekly) != 10 or len(day) != 10 or not selected.coverage.eq(1).all():
+        raise ValueError('M2 coverage or acceptance requires ten complete routes per target')
+    if frozen and (int(weekly.passes_20_pct.sum()) != 9 or day.passes_20_pct.any()):
         raise ValueError('M2 coverage or acceptance differs from the approved 9/10 result')
     deferred = weekly.loc[~weekly.passes_20_pct]
-    if list(deferred[ROUTE].itertuples(index=False, name=None)) != [('South Korea', 'LG U+')]:
+    if frozen and list(deferred[ROUTE].itertuples(index=False, name=None)) != [('South Korea', 'LG U+')]:
         raise ValueError('Deferred M2 route differs from the approved checkpoint')
     monthly = pd.read_csv(review / 'validation_monthly_selected.csv')
     monthly = monthly.loc[monthly.block.eq(1) & monthly.cadence.eq('daily_origins')]
     mixed = monthly.merge(choices[ROUTE + ['family', 'target', 'model']], on=ROUTE + ['family', 'target', 'model'], validate='many_to_one')
     monthly_summary = mixed.groupby(['target', 'month']).agg(
         mean_mape_pct=('mape_positive_pct', 'mean'), routes_le20=('passes_20_pct', 'sum')).reset_index()
-    return {'manifest': manifest, 'verified': verified, 'choices': choices, 'weekly': weekly,
+    return {'run_id': run_id, 'frozen': frozen, 'manifest': manifest, 'verified': verified, 'choices': choices, 'weekly': weekly,
             'daily': day, 'monthly': monthly_summary,
             'summary': pd.read_csv(folder / 'summary.csv'),
             'audit': json.loads((folder / 'data_audit.json').read_text(encoding='utf-8')),

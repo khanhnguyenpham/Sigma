@@ -1,0 +1,160 @@
+{
+  "status": "complete",
+  "run_id": "m2_final_20261011_local",
+  "run_manifest_sha256": "7be713a8389d487bb4d9f7aa70df45896c98d933549d722bd0136052a18e0976",
+  "result": {
+    "routes": 10,
+    "routes_below_20_pct": 10,
+    "mean_mape_positive_pct": 15.745365636274759,
+    "minimum_coverage": 1.0,
+    "goal_achieved": true,
+    "independent_test": false,
+    "daily_R05_acceptance_replaced": false
+  },
+  "config": {
+    "config_version": "1.9.0",
+    "target_definition_version": "sales-success-utc-v1",
+    "assumption_version": "A08-A17-experiment-v1",
+    "source": "data/sigma_sim_data_orders.csv",
+    "output_root": "outputs",
+    "observation_start": "2024-01-01",
+    "observation_end": "2025-12-31",
+    "train_end": "2025-06-30",
+    "validation_start": "2025-07-01",
+    "validation_end": "2025-09-30",
+    "test_start": "2025-10-01",
+    "test_end": "2025-12-31",
+    "demo_origin": "2025-10-31",
+    "forecast_origin": "2025-12-31",
+    "sales_statuses": [
+      "success"
+    ],
+    "known_statuses": [
+      "success",
+      "refunded",
+      "failed",
+      "timeout",
+      "pending"
+    ],
+    "horizon": 14,
+    "refit_days": 7,
+    "seed": 42,
+    "top_n": 10,
+    "mape_limit_pct": 20.0,
+    "numeric_tolerance": 1e-08,
+    "sarima_maxiter": 100,
+    "sarima_workers": 3,
+    "lightgbm_threads": 4,
+    "inventory": {
+      "initial_cover_days": 7,
+      "initial_window_days": 28,
+      "allocation_window_days": 30,
+      "allocation_fallback_days": 90,
+      "partner_map": {},
+      "partners": {},
+      "initial_receipts": [],
+      "assumption_status": "user-approved-experiment-not-mentor-confirmed"
+    },
+    "anomalies": {
+      "history_days": 28,
+      "minimum_history_days": 14,
+      "robust_z_threshold": 4.0,
+      "relative_change_threshold": 0.5
+    },
+    "stress_scenarios": [
+      {
+        "name": "base",
+        "demand_multiplier": 1.0,
+        "receipt_fraction": 1.0,
+        "receipt_delay_days": 0
+      },
+      {
+        "name": "one_day_drop",
+        "demand_multiplier": 0.0,
+        "demand_start": "2025-11-15",
+        "demand_days": 1,
+        "receipt_fraction": 1.0,
+        "receipt_delay_days": 0
+      },
+      {
+        "name": "demand_drop",
+        "demand_multiplier": 0.3,
+        "demand_start": "2025-11-15",
+        "demand_days": 7,
+        "receipt_fraction": 1.0,
+        "receipt_delay_days": 0
+      },
+      {
+        "name": "demand_surge",
+        "demand_multiplier": 2.0,
+        "demand_start": "2025-11-15",
+        "demand_days": 3,
+        "receipt_fraction": 1.0,
+        "receipt_delay_days": 0
+      },
+      {
+        "name": "partial_receipt",
+        "demand_multiplier": 1.0,
+        "receipt_fraction": 0.5,
+        "receipt_delay_days": 0
+      },
+      {
+        "name": "late_receipt",
+        "demand_multiplier": 1.0,
+        "receipt_fraction": 1.0,
+        "receipt_delay_days": 3
+      },
+      {
+        "name": "no_receipt",
+        "demand_multiplier": 1.0,
+        "receipt_fraction": 0.0,
+        "receipt_delay_days": 0
+      }
+    ],
+    "evaluation_protocol": "follow_up_tuning_test_previously_seen_not_independent",
+    "tuning": {
+      "enabled": true,
+      "robust_windows": [
+        28,
+        90,
+        180,
+        0
+      ],
+      "weekday_prior_strength": 20,
+      "additional_lgbm_objective": "positive-day inverse-label weighted L1, 4 fixed leaf/min-child combinations",
+      "selection": "unchanged validation rule; test never used to rank candidates",
+      "reason": "User requested further tuning after original test failure; reused test is disclosed, no new independent holdout available",
+      "calendar_enabled": true,
+      "calendar_windows": [
+        365,
+        0
+      ],
+      "calendar_harmonics": [
+        1,
+        2
+      ],
+      "calendar_losses": "weighted LAD alpha 0.001/0.01, Poisson alpha 0.1; 12 fixed candidates",
+      "context_enabled": true,
+      "distribution_enabled": true,
+      "count_enabled": true,
+      "cohort_enabled": true,
+      "countmonth_enabled": true,
+      "hiercount_enabled": true,
+      "monthlad_enabled": true
+    }
+  },
+  "selection_limit": "All test metrics are retrospective; LG U+ was selected using this test. No independent holdout or daily R05 acceptance claim.",
+  "files": {
+    "before_after_routes.csv": "d63e13fcef311925dc3ea0b3554e42e8c0cc2a09c13e8539b3cb2ce55071733a",
+    "index.html": "3538ffaa1ee2ce4497f3498bed652c5a5226b9666ec871fa7423d5eba30cbaaa",
+    "model_configurations.json": "adc56e4a05afb0f7dbaee5a7335cf272c01d8b4e3db27b5f3b1a6ea3ab204462",
+    "model_configurations.md": "6112dd5295da68331571e9667e207d2e82d76546e38d3762fe1b50968fead9c6",
+    "README.md": "254d37e62ac0789062c64795b352039ce86f3666ca391c0ef0e8f272f93f410a",
+    "route_comparison.png": "17d41556f2520ddd091fee2eb63bf9736beb41426c0cb7e3135bbf11d36bb1b2",
+    "selected_models.csv": "0118be20985a0a3580a7aafc5d69c7725631db85f11990078e4ad122b2dc5a42",
+    "test_metrics.csv": "7afdffa26d2a9970af761e6489a1a627d94e04efbedc53ff9bf23cae7b3bc9c6",
+    "validation_metrics.csv": "954b83d3bf06f8979a1713bf13e791607bbf428c99b8444b86ef61be38d55fdc",
+    "validation_monthly_metrics.csv": "ab5b9626d8072eb8518ae0ab0c286d016976ce57d576402f388e69b32d8222fd",
+    "verification_summary.json": "f36dd0e7908e6c72c9923c32c737a7e340f38b1de7f5e9b3bd4395d51fad58a7"
+  }
+}
