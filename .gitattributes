@@ -1,0 +1,2 @@
+# Preserve byte hashes of the approved, sealed final report on every platform.
+M2/reports/final_m2_20261011/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
