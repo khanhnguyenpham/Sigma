@@ -15,7 +15,6 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 ROUTE = ["destination_country", "carrier"]
 ITEM = ROUTE + ["sku", "product_type"]
-BASELINES = ["naive", "ma7", "seasonal_naive7"]
 
 
 class DataQualityError(ValueError):
@@ -96,7 +95,8 @@ def write_csv(path, frame):
 
 
 def code_hash():
-    paths = sorted({ROOT / "sigma/ui/daily.py", *(ROOT / "src").glob("*.py")})
+    paths = sorted({*(ROOT / "src").glob("*.py"),
+                    *(p for p in (ROOT / "M2").rglob("*.py") if "tests" not in p.parts)})
     digest = hashlib.sha256()
     for path in paths:
         if path.is_file():
@@ -111,7 +111,7 @@ def new_manifest(cfg, source, run_id):
     except (OSError, subprocess.CalledProcessError):
         revision = None
     packages = {}
-    for name in ["numpy", "pandas", "statsmodels", "lightgbm", "matplotlib", "streamlit", "holidays"]:
+    for name in ["numpy", "pandas", "lightgbm", "prophet", "matplotlib", "streamlit"]:
         try:
             packages[name] = importlib.metadata.version(name)
         except importlib.metadata.PackageNotFoundError:
