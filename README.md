@@ -1,6 +1,6 @@
 # SIGMA — bộ code M2 final
 
-Nhánh `cleanup/m2-final` chuẩn bị báo cáo thứ Sáu 16/10/2026. Điểm bắt đầu để tìm và giải thích code: [M2_CODE_MAP.md](M2_CODE_MAP.md). Có 10 lựa chọn theo tuyến, 7 cấu hình: LightGBM pooled top 10 cho 9 tuyến và Prophet riêng au (KDDI).
+Nhánh `M2-final-cleanup` chuẩn bị báo cáo thứ Sáu 16/10/2026. Điểm bắt đầu để tìm và giải thích code: [M2_CODE_MAP.md](M2_CODE_MAP.md). Có 10 lựa chọn theo tuyến, 7 cấu hình: LightGBM pooled top 10 cho 9 tuyến và Prophet riêng au (KDDI).
 
 [Báo cáo final đã khóa](M2/reports/final_m2_20261011/README.md) · [HTML offline](M2/reports/final_m2_20261011/index.html) · [Tham số 10 tuyến](M2/reports/final_m2_20261011/model_configurations.md) · [Tài liệu học](M2/reports/mentor_prep_20261014/README.md).
 
@@ -25,6 +25,6 @@ Lệnh fit/refit, forecast và export sang run mới tại [bản đồ code](M2
 
 Tổng D+1…D+7 có 10/10 tuyến dưới 20%, mean 15,745366%, coverage 100%; h8–14 có 8/10. Chín tuyến giữ lựa chọn validation; LG U+ được chọn sau test-sweep nên test hồi cứu. Metric tổng 7 không thay nghiệm thu R05 theo ngày. R05/R07/T14 còn mở; M01/M02 là xác nhận mentor do người dùng thuật lại, A08–A17 vẫn là đề xuất/giả định.
 
-Các luồng M1/M3, SARIMA, sweep, notebook thử nghiệm và CLI cũ đã bỏ khỏi nhánh cleanup. Dữ liệu nguồn, run, forecast, manifest, Word/PDF và tài liệu nghiên cứu được bảo toàn. [Cách so sánh và khôi phục từng file](M2_CODE_MAP.md#khôi-phục-code-cũ) từ `backup/m2-before-cleanup`; hướng dẫn cũ còn trong tài liệu lịch sử chỉ áp dụng cho nhánh backup. Không merge/push/deploy.
+Các luồng M1/M3, SARIMA, sweep, notebook thử nghiệm và CLI cũ đã bỏ khỏi nhánh cleanup. Dữ liệu nguồn, run, forecast, manifest, Word/PDF và tài liệu nghiên cứu được bảo toàn. [Cách so sánh và khôi phục từng file](M2_CODE_MAP.md#khôi-phục-code-cũ) từ `backup/m2-before-cleanup`; hướng dẫn cũ còn trong tài liệu lịch sử chỉ áp dụng cho nhánh backup. Người dùng cho phép push nhánh M2-final-cleanup ngày14/10/2026; không merge/deploy.
 
 [AGENTS](AGENTS.md) · [Tiến độ](docs/planning/TASK.md) · [PLAN](docs/planning/PLAN.md) · [Yêu cầu](docs/requirements.md) · [Hợp đồng dữ liệu](docs/data-contract.md) · [Nhật ký bằng chứng](docs/review-log.md).
