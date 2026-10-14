@@ -1,6 +1,6 @@
 # M2 final
 
-Bộ code hiện tại ở nhánh `cleanup/m2-final`: [bản đồ code và lệnh chạy](../M2_CODE_MAP.md), [model implementation](models/README.md).
+Bộ code hiện tại ở nhánh `M2-final-cleanup`: [bản đồ code và lệnh chạy](../M2_CODE_MAP.md), [model implementation](models/README.md).
 
 - [Báo cáo final 11/10](reports/final_m2_20261011/README.md), [HTML offline](reports/final_m2_20261011/index.html), [cấu hình](reports/final_m2_20261011/model_configurations.md).
 - [Tài liệu học cho 16/10](reports/mentor_prep_20261014/README.md), [Word](reports/mentor_prep_20261014/SIGMA_M2_Tai_lieu_hoc_va_bao_cao.docx).

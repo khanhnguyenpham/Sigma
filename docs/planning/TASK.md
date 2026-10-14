@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**CHG-046/E74 — 14/10/2026:** theo yêu cầu mới, đổi tên nhánh `cleanup/m2-final` thành `M2-final-cleanup` và cho phép push nhánh này lên GitHub. Commit dọn `7cea158` giữ nguyên; chỉ cập nhật tên/lệnh trong tài liệu. Nhánh gốc/backup, raw/run/báo cáo và nghiệm thu không đổi.
+
 **CHG-045/E73 — 14/10/2026:** dọn toàn bộ code cho M2 final trên `cleanup/m2-final`, bảo toàn checkpoint `5271d0b` ở `backup/m2-before-cleanup`. Giữ10 lựa chọn/7 cấu hình, LightGBM pooled top10 và Prophet au(KDDI); bỏ implementation/sweep/entrypoint/test M1–M3 và biến thể không được chọn, giữ nguyên raw/run/báo cáo. [M2_CODE_MAP](../../M2_CODE_MAP.md) ghi luồng, tham số, lệnh và cách lấy code cũ. 32 tests/parity300forecast giả chênh0; hash960tệp giữ nguyên. Kiểm tra và giới hạn tại E73; không đổi model/metric/nghiệm thu, R05/R07/T14 mở.
 
 **CHG-044/E72 — 14/10/2026:** T13 đã chuyển bộ học M2 thành [một file Word 20 trang](../../M2/reports/mentor_prep_20261014/SIGMA_M2_Tai_lieu_hoc_va_bao_cao.docx), gồm mục lục, bảng model, nội dung học và phụ lục ôn tập. Đã xuất bằng Word và kiểm ảnh toàn bộ trang; không đổi model/metric/nghiệm thu.

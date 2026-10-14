@@ -1,6 +1,6 @@
 # Bản đồ code M2 final — chuẩn bị báo cáo 16/10/2026
 
-Bản dọn trên `cleanup/m2-final` chỉ chạy bộ final đã chốt: **10 lựa chọn theo tuyến, 7 cấu hình khác nhau**. LightGBM học **pooled trên toàn bộ top 10 train**, kể cả khi chỉ xuất kết quả cho một tuyến; Prophet học riêng au (KDDI). Không tìm lại model hoặc thay feature, loss, cửa sổ, lịch refit và metric.
+Bản dọn trên `M2-final-cleanup` chỉ chạy bộ final đã chốt: **10 lựa chọn theo tuyến, 7 cấu hình khác nhau**. LightGBM học **pooled trên toàn bộ top 10 train**, kể cả khi chỉ xuất kết quả cho một tuyến; Prophet học riêng au (KDDI). Không tìm lại model hoặc thay feature, loss, cửa sổ, lịch refit và metric.
 
 Chín tuyến giữ lựa chọn validation; LG U+ chọn sau test-sweep. Kết quả tổng D+1…D+7 là 10/10 dưới 20%, mean 15,745366%, coverage 100% trên test hồi cứu. H8–14 có 8/10; R05 ngày/R07/T14 còn mở. Nguồn là snapshot trạng thái cuối, A08 vẫn là phương án thực nghiệm, không phải xác nhận mentor hoặc quy tắc kế toán.
 
@@ -120,11 +120,11 @@ Code hiện hữu fit model trong bộ nhớ rồi lưu forecast, cấu hình, l
 
 ## Khôi phục code cũ
 
-Nhánh gốc `M2-final-report` ở `b1415289614a9793c6ff4a6ee1e350fc0a49014c`. Nhánh `backup/m2-before-cleanup` ở checkpoint `5271d0b9d0411506f1a22ada9c2fe337be00ec84` đã lưu bốn tài liệu người dùng đang sửa. Nhánh cleanup bắt đầu từ checkpoint này; không merge/push/deploy hoặc xóa backup.
+Nhánh gốc `M2-final-report` ở `b1415289614a9793c6ff4a6ee1e350fc0a49014c`. Nhánh `backup/m2-before-cleanup` ở checkpoint `5271d0b9d0411506f1a22ada9c2fe337be00ec84` đã lưu bốn tài liệu người dùng đang sửa. Nhánh cleanup bắt đầu từ checkpoint này; người dùng cho phép push nhánh M2-final-cleanup ngày14/10/2026; không merge/deploy hoặc xóa backup.
 
 ```powershell
-git diff --stat backup/m2-before-cleanup..cleanup/m2-final
-git diff backup/m2-before-cleanup..cleanup/m2-final -- M2/final_report.py
+git diff --stat backup/m2-before-cleanup..M2-final-cleanup
+git diff backup/m2-before-cleanup..M2-final-cleanup -- M2/final_report.py
 git show backup/m2-before-cleanup:src/models.py
 # Lấy từng file; lưu chỉnh sửa hiện tại của file đó trước nếu có.
 git restore --source=backup/m2-before-cleanup -- src/models.py
