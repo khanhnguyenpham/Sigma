@@ -1,5 +1,7 @@
 # Lịch sử trước CHG-027 — không dùng làm hướng dẫn hiện hành
 
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../../M2_CODE_MAP.md) và [khôi phục code cũ](../../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+
 # Quy tắc giao khách D+7 và giao diện sản phẩm
 
 CHG-024 ngày 05/10/2026: người dùng thuật lại mentor giao đến khách mặc định 7 ngày trong mọi trường hợp, không trễ; sau đó xác nhận rõ **từ ngày khách đặt đến ngày khách nhận**, không phải hàng nhập từ đối tác về kho. Áp dụng 7 ngày lịch UTC, bao gồm cuối tuần. Ngày đặt 05/10 có lịch giao 12/10.

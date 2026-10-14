@@ -1,16 +1,18 @@
 # Lịch giao khách D+7, tồn tuần và job local
 
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+
 CHG-024: mentor được người dùng thuật lại và người dùng xác nhận **khách đặt D → lịch khách nhận D+7 ngày lịch UTC**, gồm cuối tuần, không trễ. Đây là giả định cho lịch giao khách; không đổi lead time nhà cung cấp nhập về kho. Actual giao chưa được cung cấp.
 
 ```powershell
 .\start_product.ps1
 ```
 
-Sản phẩm ở http://127.0.0.1:8503 có6 trang: tổng quan, tuần, giaoD+7, tồn tuần, so sánh ngày/tuần, ngày/tồn/cảnh báo. [config.delivery.json](../data/configs/config.delivery.json) chọn cặp forecast/daily; không tự trộn run hoặc chọn kết quả nghiên cứu tốt hơn. Bundle mới chỉ dùng sau kiểm source/protocol/cha/artifacts/UI.
+Sản phẩm ở http://127.0.0.1:8503 có6 trang: tổng quan, tuần, giaoD+7, tồn tuần, so sánh ngày/tuần, ngày/tồn/cảnh báo. [config.delivery.json](../M2_CODE_MAP.md#khôi-phục-code-cũ) chọn cặp forecast/daily; không tự trộn run hoặc chọn kết quả nghiên cứu tốt hơn. Bundle mới chỉ dùng sau kiểm source/protocol/cha/artifacts/UI.
 
 ## Lịch đã biết và lượng dự báo
 
-[delivery/customer](../sigma/delivery/customer.py) gộp success quantity theo ngàyUTC×tuyến×SKU×product_type, không export order/customer ID. Lịch delivery_date=order_date+7 và customer_delay_days=0, có nhãn is_assumed_delivery.
+[delivery/customer](../M2_CODE_MAP.md#khôi-phục-code-cũ) gộp success quantity theo ngàyUTC×tuyến×SKU×product_type, không export order/customer ID. Lịch delivery_date=order_date+7 và customer_delay_days=0, có nhãn is_assumed_delivery.
 
 Sau chốt D, các ngày giao D+1…D+7 thuộc đơn đã đặt D−6…D: quantity cam kết đã biết theo giả định, không phải đoán đơn chưa đặt. Forecast bán D+1…D+14 chuyển sang giao D+8…D+21; phân biệt trong CSV/biểu đồ. Tổng quantity được bảo toàn; actual_delivered_qty để thiếu.
 
@@ -42,9 +44,9 @@ Base fill85,02%; nhập50%42,27%; trễ nhập3 ngày72,46%; không nhập7,69%.
 .\.venv\Scripts\python.exe -m sigma refresh --delivery-config config.delivery.json
 ```
 
-[jobs/refresh](../sigma/jobs/refresh.py) kiểm fingerprint nguồn/config/cha/implementation thật, skip khi không đổi, khóa chống chạy trùng, lỗi chỉ ghi loại lỗi và giữ last-good. Bundle demo có namespace job riêng. Đổi raw cần forecast/cha mới; job không tự thay split hoặc học tương lai. Nếu worker bị dừng đột ngột và còn lock, kiểm không còn worker trước xử lý khóa; không tự cướp lock.
+[jobs/refresh](../M2_CODE_MAP.md#khôi-phục-code-cũ) kiểm fingerprint nguồn/config/cha/implementation thật, skip khi không đổi, khóa chống chạy trùng, lỗi chỉ ghi loại lỗi và giữ last-good. Bundle demo có namespace job riêng. Đổi raw cần forecast/cha mới; job không tự thay split hoặc học tương lai. Nếu worker bị dừng đột ngột và còn lock, kiểm không còn worker trước xử lý khóa; không tự cướp lock.
 
-Script Windows [install_refresh_task.ps1](../scripts/install_refresh_task.ps1) dùng pythonw và cwd của project, chạy daily07:00 theo timezoneWindows, StartWhenAvailable/IgnoreNew. Script đã parse-check; **chưa cài lịch nền** khi chưa có bằng chứng đăng ký. Có thể cài theo hướng dẫn:
+Script Windows [install_refresh_task.ps1](../M2_CODE_MAP.md#khôi-phục-code-cũ) dùng pythonw và cwd của project, chạy daily07:00 theo timezoneWindows, StartWhenAvailable/IgnoreNew. Script đã parse-check; **chưa cài lịch nền** khi chưa có bằng chứng đăng ký. Có thể cài theo hướng dẫn:
 
 ```powershell
 .\install_refresh_task.ps1 -At '07:00'
