@@ -1,5 +1,7 @@
 # Lịch sử trước CHG-027 — không dùng làm hướng dẫn hiện hành
 
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../../M2_CODE_MAP.md) và [khôi phục code cũ](../../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+
 # Dự báo tổng quantity bán trong 7 ngày
 
 **Hiện hành E38 ngày 05/10/2026:** `sigma_weekly_calibrated_v5`, 30 ứng viên đăng ký trước fit, validation 9/10 và test hồi cứu 9/10; mean test **15,97%**, LG U+ **21,36%** còn chưa đạt. `config.weekly-calibrated.json` là cấu hình đang dùng trong sản phẩm chung. V1/E36 bên dưới giữ lịch sử, AIS không còn là tuyến test chưa đạt của V5. [Sản phẩm, D+7 và job](../customer-delivery.md); R05 ngày chưa đổi.
