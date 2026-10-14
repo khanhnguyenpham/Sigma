@@ -1,5 +1,7 @@
 # Lịch sử README trước CHG-027 — không dùng làm hướng dẫn hiện hành
 
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../../M2_CODE_MAP.md) và [khôi phục code cũ](../../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+
 # SIGMA — Dự báo bán và mô phỏng tồn kho
 
 **Tiến độ tiếp 05/10/2026 — CHG-026/E40–E41:** V6 validation 10/10 nhưng test tuần hồi cứu còn 9/10 (LG U+ 21,36%); V7 đang chạy, chưa nhận đạt. Chính sách tồn liên tục từ tuần V5 đã chạy đủ 13 kịch bản/93 origins H14 và đối soát độc lập 1.100.320 dòng ledger, base fill 85,04%; early replay 33,73% giữ nguyên mẫu số. 160 tests pass; năm trang AppTest không exception. Sản phẩm hiện vẫn chọn V5 trong config.delivery.json tới khi run mới hoàn tất/kiểm lại. R05 ngày/R07/T14 còn mở; không làm Word/slide hoặc nhận bản so sánh chính thức/đợt tổ chức lại code đã xong. Đoạn E37–E39 bên dưới là lịch sử trước E41.
@@ -68,7 +70,7 @@ Có thể chạy từng stage:
 .\.venv\Scripts\python.exe run.py --run-id sigma_steps --resume
 ```
 
-`--resume` chỉ chấp nhận cùng input/config/mã/mode, bỏ qua stage đã hoàn tất. Stage thất bại sẽ chạy lại; không ghi đè run khác. Nếu đổi cấu hình hoặc mã, tạo run-id mới. Dashboard từ chối run chưa hoàn tất hoặc artifact sai hash. Notebook [run_local](../../notebooks/run_local.ipynb) gọi cùng API với CLI và không chứa output riêng tư.
+`--resume` chỉ chấp nhận cùng input/config/mã/mode, bỏ qua stage đã hoàn tất. Stage thất bại sẽ chạy lại; không ghi đè run khác. Nếu đổi cấu hình hoặc mã, tạo run-id mới. Dashboard từ chối run chưa hoàn tất hoặc artifact sai hash. Notebook [run_local](../../M2_CODE_MAP.md#khôi-phục-code-cũ) gọi cùng API với CLI và không chứa output riêng tư.
 
 ## Quy ước và giới hạn
 
@@ -203,7 +205,7 @@ R05 vẫn 0/10: test MAPE 41,89–58,13%, mean route MAPE 47.589594%, coverage 1
 
 ## Campaign nghiên cứu E32 — chọn trong train trước khi chấm validation
 
-[validation_campaign.py](../../sigma/experiments/validation.py) chạy riêng khỏi production. Mười tuyến xếp hạng bằng quantity đến 30/04/2025 cho giai đoạn chọn cấu hình; script xác minh chúng khớp top10 train cuối kỳ, không đổi lại danh sách hồi cứu. Tháng 5–6 chỉ là phần tuning nằm trong train; split chính tháng 7–9 và tháng 10–12 giữ nguyên. Lịch sử global/country/route kết thúc origin; đặc trưng cùng kỳ năm trước căn ngày lịch, kể cả năm nhuận. Mọi nhãn fit ≤ cutoff, refit 7 ngày, H14.
+[validation_campaign.py](../../M2_CODE_MAP.md#khôi-phục-code-cũ) chạy riêng khỏi production. Mười tuyến xếp hạng bằng quantity đến 30/04/2025 cho giai đoạn chọn cấu hình; script xác minh chúng khớp top10 train cuối kỳ, không đổi lại danh sách hồi cứu. Tháng 5–6 chỉ là phần tuning nằm trong train; split chính tháng 7–9 và tháng 10–12 giữ nguyên. Lịch sử global/country/route kết thúc origin; đặc trưng cùng kỳ năm trước căn ngày lịch, kể cả năm nhuận. Mọi nhãn fit ≤ cutoff, refit 7 ngày, H14.
 
 ```powershell
 & .venv/Scripts/python.exe validation_campaign.py --output-id sigma_ablation_campaign_v1
@@ -215,7 +217,7 @@ Kết quả đã đối soát: 102.480 pairs trong train và 154.560 pairs valid
 
 ## Hiệu chỉnh/kết hợp E34 — nghiên cứu chưa tích hợp
 
-[calibrate_campaign.py](../../sigma/experiments/calibration.py) kiểm tra phối hợp không âm, affine weighted-LAD và affine có regularization trên dự báo causal đã lưu của E32. Học head trên nhãn tháng 5, chọn trên origins/target tháng 6 nằm trong train, khóa theo tuyến trước khi chấm validation. Sau đó head refit mỗi 7 ngày bằng các nhãn OOF đã qua cutoff; không đổi target, top10, split chính hoặc metric. Không cần train lại 12 base models nhưng cần output E32 local có hash khớp; clone mới chưa có cache phải chạy workflow E32 trước.
+[calibrate_campaign.py](../../M2_CODE_MAP.md#khôi-phục-code-cũ) kiểm tra phối hợp không âm, affine weighted-LAD và affine có regularization trên dự báo causal đã lưu của E32. Học head trên nhãn tháng 5, chọn trên origins/target tháng 6 nằm trong train, khóa theo tuyến trước khi chấm validation. Sau đó head refit mỗi 7 ngày bằng các nhãn OOF đã qua cutoff; không đổi target, top10, split chính hoặc metric. Không cần train lại 12 base models nhưng cần output E32 local có hash khớp; clone mới chưa có cache phải chạy workflow E32 trước.
 
 ```powershell
 & .venv/Scripts/python.exe calibrate_campaign.py --output-id sigma_calibration_campaign_v2

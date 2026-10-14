@@ -1,5 +1,7 @@
 # Demo sản phẩm SIGMA cho M2–M3
 
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+
 Đây là hướng dẫn trình diễn phần mềm, không phải biên bản đạt toàn bộ yêu cầu. Bản nguồn bài đang dùng V13: tuần9/10, ngày R05 0/10; cảnh báo sớm≥7 ngày33,73% trên2867 sự kiện mô phỏng. Test đã xem, đánh giá hồi cứu. Không nói “đã đạt100%”. Word/slide cũ chưa được cập nhật.
 
 ## Mở bộ demo đã khóa trên máy hiện tại

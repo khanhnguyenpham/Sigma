@@ -1,7 +1,9 @@
 # SARIMA / SARIMAX
 
-- [model.py](model.py): fit, cập nhật state và dự báo riêng từng tuyến.
-- [variants.json](variants.json): order, seasonal_order và tùy chọn biến thể.
+Tài liệu nghiên cứu lịch sử: SARIMA không được chọn trong bộ final. Implementation/variants đã bỏ khỏi nhánh cleanup; xem `git show backup/m2-before-cleanup:M2/models/SARIMA/model.py`. [Bản đồ code](../../../M2_CODE_MAP.md).
+
+- [model.py](../../../M2_CODE_MAP.md#khôi-phục-code-cũ): fit, cập nhật state và dự báo riêng từng tuyến.
+- [variants.json](../../../M2_CODE_MAP.md#khôi-phục-code-cũ): order, seasonal_order và tùy chọn biến thể.
 
 | Biến thể | (p,d,q) | (P,D,Q,s) | Biến đổi / biến ngoại sinh |
 |---|---|---|---|

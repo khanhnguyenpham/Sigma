@@ -1,2 +1,0 @@
-# Uses the same verified lock to prevent demo/training drift.
--r requirements.txt

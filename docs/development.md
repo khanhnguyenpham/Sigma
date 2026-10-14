@@ -1,5 +1,7 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+
 **CHG-042/E70 — 11/10/2026:** M2 final fit mới/verify đạt tổng7 test10/10<20%, mean15,745366%; chín tuyến parity0. Full suite291 đạt+1 skip trước xuất báo cáo, sau đó4 final tests (gồm AppTest đã skip) đều đạt; pip check/notebook2 code cells/12 public hashes/privacy đạt. [Bộ final](../M2/reports/final_m2_20261011/README.md), [cấu hình10 tuyến](../M2/reports/final_m2_20261011/model_configurations.md). Raw/771 tệp protected nguyên; hai run sandbox lỗi giữ failed. Đã push nhánh M2-final-report, CI Windows của commit mã0cbeaf0 đạt. Test hồi cứu/LG U+ test-selected, h8–14/R05 ngày/R07/T14 còn mở.
 
 **CHG-034/E62 — 06/10/2026:** nhánh M2 local `codex/m2-report-20261007`, launcher hiện ở scripts, cấu hình ở data/configs, planning ở docs/planning. Full suite262 tests đạt; M2 AppTest3 tab và kiểm độc lập401.600 dòng/9.160 metric đạt. Kết quả9/10 giữ nguyên, LG U+ hoãn tối ưu; [guide báo cáo](../M2/reports/presentation-guide.md). Các cập nhật bên dưới là lịch sử.
