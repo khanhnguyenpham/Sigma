@@ -5,6 +5,7 @@ Nhánh `M2-final-report`, ngày 11/10/2026. Chạy lại mới 10 cấu hình c�
 - [Báo cáo kết quả 10 tuyến](reports/final_m2_20261011/README.md), [HTML offline](reports/final_m2_20261011/index.html).
 - [Cấu hình 10 mô hình](reports/final_m2_20261011/model_configurations.md): lịch sử học, mốc chuẩn hóa, loss, feature, refit và hiệu chỉnh.
 - [JSON đầy đủ](reports/final_m2_20261011/model_configurations.json), [metric test](reports/final_m2_20261011/test_metrics.csv), [trước/sau](reports/final_m2_20261011/before_after_routes.csv).
+- [Nắm M2 trong 4 giờ](reports/mentor_prep_20261014/README.md): dữ liệu thực sự dùng để học, model từng tuyến, ví dụ cửa sổ/refit, thử nghiệm không được chọn và luyện phản biện cho buổi báo cáo.
 
 ```powershell
 .\scripts\start_m2.ps1

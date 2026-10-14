@@ -515,6 +515,10 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t13"></a>
 ### T13 — Báo cáo, slide và bảo vệ
 
+- **CHG-044/E72 — 14/10/2026:** [Word học M2 20 trang](../../M2/reports/mentor_prep_20261014/SIGMA_M2_Tai_lieu_hoc_va_bao_cao.docx) gồm nội dung học và ôn tập đã render/kiểm toàn bộ trang; T13 bổ sung định dạng theo yêu cầu, bảo vệ/nghiệm thu còn mở.
+
+- **CHG-043/E71 — 14/10/2026:** bổ sung [tài liệu học M2 trong 4 giờ](../../M2/reports/mentor_prep_20261014/README.md), ôn tập10 phút, bảng cửa sổ và bằng chứng kiểm lại nguồn/metric/log cho buổi báo cáo16/10. Không refit hoặc đổi lựa chọn/tiêu chí; T13 hoàn thành thêm phần chuẩn bị, bảo vệ/nghiệm thu vẫn mở. Chín tuyến giữ validation; LG U+ test-selected; h1–7 10/10 và h8–14 8/10 hồi cứu.
+
 - **CHG-042/E70:** Báo cáo final M2 dạng Markdown/HTML, cấu hình10 tuyến JSON/Markdown và bảng metric; Word/slide cũ giữ lịch sử, chưa nghiệm thu toàn bài.
 
 - **Phân công đề xuất 04/10/2026:** Cường phụ trách; Nguyên review. Các tác giả cung cấp phần phương pháp/kết quả truy về run.
