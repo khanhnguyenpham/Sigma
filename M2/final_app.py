@@ -13,7 +13,7 @@ st.title('SIGMA · Báo cáo final M2')
 try:
     bundle = load_report()
 except (OSError, ValueError, KeyError) as exc:
-    st.error(f'Bộ báo cáo thiếu hoặc không khớp hash: {type(exc).__name__}. Kiểm tra checkout nhánh M2-final-report.')
+    st.error(f'Bộ báo cáo thiếu hoặc không khớp hash: {type(exc).__name__}. Xem README.md và M2_CODE_MAP.md.')
     st.stop()
 
 routes = bundle['routes'].sort_values(['destination_country', 'carrier'])
