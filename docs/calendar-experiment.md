@@ -1,5 +1,7 @@
 # Thử nghiệm lịch lễ M2
 
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+
 Ngày11/10/2026, CHG-038/E66; nhánh local `codex/m2-calendar-forecast`. Nghiên cứu T04/T08–T09/T12, ưu tiên tổng quantity7 ngày của South Korea/LG U+. Target A08 success/ngày đặt UTC, top10 train, split và R05 ngày giữ nguyên. Các thay đổi chưa commit trước lượt này được giữ.
 
 ## Dữ liệu và CSV
@@ -15,7 +17,7 @@ Raw được audit lại đủ100.000 dòng,93.104 dòng success,118.296 quantit
 
 ## Nguồn và giả thuyết
 
-Nguồn công khai được tra cứu riêng, không gửi bản ghi order/customer ra ngoài. Nguồn/ngày có sẵn được khóa trong [config](../data/configs/m2-calendar.json); dùng `holidays==0.105` đã cài.
+Nguồn công khai được tra cứu riêng, không gửi bản ghi order/customer ra ngoài. Nguồn/ngày có sẵn được khóa trong [config](../M2_CODE_MAP.md#khôi-phục-code-cũ); dùng `holidays==0.105` đã cài.
 
 - Lịch nghỉ Việt Nam2024/2025 và kỳ nghỉ đầu2026: Báo Chính phủ; nghỉ hoán đổi29/04/2024 chỉ có sẵn từ nguồn12/04/2024. Lịch công chức gồm cuối tuần, không chứng minh mọi khách nghỉ cùng lịch.
 - Hàn Quốc01/10/2024,27/01/2025,03/06/2025: Korea.net có nguồn ghi ngày công bố. Dùng ngày bài đăng bảo thủ, không tự suy ngày thông tin có sẵn sớm hơn. Ví dụ27/01 chỉ vào feature từ15/01/2025.

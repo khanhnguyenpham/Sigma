@@ -1,12 +1,14 @@
 # LG U+ — hiệu chỉnh và cập nhật mô hình
 
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+
 CHG-040/E68,11/10/2026; tiếp tục theo yêu cầu người dùng trên nhánh local `codex/m2-calendar-forecast`. T08–T09/T12 mở thêm một lượt hữu hạn sau [ba lượt trước](focus-experiment.md). Chín tuyến khác và dashboard/bộ báo cáo đã khóa được bảo toàn; không push/upload. Target A08 success theo ngày đặt UTC, top10 train, split/H14 và R05 ngày giữ nguyên.
 
 Lượt `m2_adaptive_20261011` đã hoàn tất21 cấu hình: **không cải thiện validation**, tốt nhất vẫn đối chứng10,77582022385683%. Không chấm test mới; mốc test nghiên cứu giữ20,520981%, mục tiêu<20% chưa đạt. Theo phạm vi đã nêu, tiếp tục hai giả thuyết còn lại ở [lượt cơ cấu đơn](composition-experiment.md), không mở thêm grid cho lượt này.
 
 ## Đăng ký trước fit
 
-[Config](../data/configs/m2-adaptive.json) khóa21 ứng viên trước fit:
+[Config](../M2_CODE_MAP.md#khôi-phục-code-cũ) khóa21 ứng viên trước fit:
 
 - Bảy bản trên mô hình chuẩn hóa56 ngày: raw, đầu nhân56p4, đầu cộng28p2/56p2/84p4, affine56p4/84p4. Mã residual cũ được tái dùng; prior về0 và clip±25% scale ở cutoff. Các bản cộng/affine này chưa chạy trên chính mô hình56 ngày ở lượt trước.
 - Sáu bản tăng trọng số dữ liệu gần: half-life28/56/112 ngày, mỗi bản raw/nhân56p4. Tuổi tính theo ngày cuối nhãn đã hoàn tất; trọng số inverse-target hiện hành nhân với `2^(-age/half_life)`, chuẩn hóa tổng bằng tổng trọng số đối chứng. Nhãn0 vẫn trọng số0 như mô hình cha.
@@ -19,7 +21,7 @@ Hai fold01–28/10/2024 và01–28/04/2025 chỉ chẩn đoán, top10 tính từ
 
 ## Mã và lệnh
 
-[Module](../M2/models/adaptive_experiment.py) riêng tái dùng feature, hiệu chỉnh, metric và cơ chế bảo toàn của lượt trước; không sửa module/config/run cũ. [Bốn tests](../M2/models/tests/test_adaptive_experiment.py) đã đạt trước run: trọng số và population/tổng weight, parity estimator thật, sửa order tương lai không đổi forecast/head, kiểm cadence refit và selected-only khớp chạy chung.
+[Module](../M2_CODE_MAP.md#khôi-phục-code-cũ) riêng tái dùng feature, hiệu chỉnh, metric và cơ chế bảo toàn của lượt trước; không sửa module/config/run cũ. [Bốn tests](../M2_CODE_MAP.md#khôi-phục-code-cũ) đã đạt trước run: trọng số và population/tổng weight, parity estimator thật, sửa order tương lai không đổi forecast/head, kiểm cadence refit và selected-only khớp chạy chung.
 
 ```powershell
 .venv\Scripts\python.exe -B -m M2.models.adaptive_experiment --run-id ten_run_moi
