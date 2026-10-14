@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from src.common import DataQualityError, sha256
-from src.data import audit_orders, daily_sales, observed_anomalies, route_top
+from src.data import audit_orders, daily_sales, route_top
 
 
 def test_success_without_activation_quantity_and_hash(cfg, order_rows, write_orders):
@@ -60,16 +60,9 @@ def test_explicit_missing_day_not_zero(cfg, order_rows, write_orders):
     assert daily.loc[daily.date.eq("2024-03-02"), "sales_qty"].item() == 0
 
 
-def test_top_train_and_anomaly_history_only(cfg):
+def test_top_uses_train_only(cfg):
     days = pd.date_range("2024-01-01", "2025-12-31")
     a = pd.DataFrame({"date": days, "destination_country": "A", "carrier": "C", "sales_qty": 10., "gross_revenue_vnd": 100.})
     b = a.copy(); b["destination_country"] = "B"; b["sales_qty"] = 1.
     b.loc[b.date.gt(cfg["train_end"]), "sales_qty"] = 10000
     assert route_top(pd.concat([a, b]), cfg).destination_country.iloc[0] == "A"
-    shock = pd.Timestamp("2024-02-01")
-    a.loc[a.date.eq(shock), "sales_qty"] = 0
-    first = observed_anomalies(a, cfg)
-    a.loc[a.date.gt(shock), "sales_qty"] = 9999
-    second = observed_anomalies(a, cfg)
-    pd.testing.assert_frame_equal(first[first.date.le(shock)].reset_index(drop=True), second[second.date.le(shock)].reset_index(drop=True))
-    assert first.loc[first.date.eq(shock), "kind"].iloc[0] == "drop"

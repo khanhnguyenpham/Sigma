@@ -1,11 +1,8 @@
-"""Per-route Prophet variants for daily quantity or end-dated rolling totals."""
+"""Final Prophet for au (KDDI), fitted on end-dated rolling seven-day totals."""
 import logging
 import os
 import pandas as pd
 from src.common import ROOT
-
-ROUTE_MODEL = True
-
 
 def fit(history, spec, cfg, settings, parameters=None):
     os.environ.setdefault('MPLCONFIGDIR', str(ROOT / '.cache' / 'matplotlib'))

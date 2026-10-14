@@ -141,29 +141,3 @@ def route_top(daily, cfg):
     ranked = ranked.sort_values(["train_quantity"] + ROUTE, ascending=[False, True, True], kind="stable")
     ranked["rank"] = np.arange(1, len(ranked) + 1)
     return ranked.head(cfg["top_n"]).reset_index(drop=True)
-
-
-def observed_anomalies(daily, cfg):
-    """After-observation diagnostics; history excludes the day being flagged."""
-    params = cfg["anomalies"]
-    frames = []
-    for _, group in daily.groupby(ROUTE, sort=True):
-        group = group.sort_values("date").copy()
-        for column in ["sales_qty", "gross_revenue_vnd"]:
-            series = group[column].astype(float)
-            history = series.shift(1)
-            median = history.rolling(params["history_days"], min_periods=params["minimum_history_days"]).median()
-            mad = history.rolling(params["history_days"], min_periods=params["minimum_history_days"]).apply(lambda x: np.median(np.abs(x - np.median(x))), raw=True)
-            delta = series - median
-            robust_z = delta.abs() / (1.4826 * mad).clip(lower=1.0)
-            relative = delta / median.replace(0, np.nan)
-            flag = median.notna() & series.notna() & ((robust_z >= params["robust_z_threshold"]) | (relative.abs() >= params["relative_change_threshold"]))
-            selected = group.loc[flag, ["date"] + ROUTE].copy()
-            selected["indicator"] = column
-            selected["observed_value"] = series[flag]
-            selected["past_median"] = median[flag]
-            selected["relative_change"] = relative[flag]
-            selected["kind"] = np.where(delta[flag] < 0, "drop", "surge")
-            selected["timing"] = "after_observation_not_advance_prediction"
-            frames.append(selected)
-    return pd.concat(frames, ignore_index=True)

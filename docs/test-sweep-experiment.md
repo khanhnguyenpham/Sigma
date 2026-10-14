@@ -1,5 +1,7 @@
 # Chấm toàn bộ cấu hình LG U+ trên test — CHG-041/E69
 
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+
 Ngày11/10/2026, người dùng yêu cầu chấm test toàn bộ cấu hình, không cần thắng MAPE validation thấp nhất. Phạm vi mới cho phép so sánh hồi cứu tất cả ứng viên của sáu lượt trước; protocol và lựa chọn validation cũ giữ nguyên theo lịch sử. Bảng xếp hạng test phục vụ khám phá, không là đánh giá độc lập hoặc thay lựa chọn chính thức.
 
 **Đã hoàn tất local:** chấm đủ160 lượt cấu hình, có17 lượt MAPE test h1–7<20%, coverage100%. Tốt nhất `tune56_w540_mul56p4` đạt **19,26589984972207%**, so với20,688009% đối chứng ban đầu và20,446740% lựa chọn validation mới nhất. Đây là ứng viên được nhận diện bằng test; lựa chọn chính thức, chín tuyến và dashboard/bộ báo cáo khóa giữ nguyên.
@@ -35,7 +37,7 @@ Danh sách model lấy từ bảng validation đã seal và đối chiếu confi
 
 Daily và moment cơ cấu đơn tái dùng từ hai run đã seal, kiểm lại raw SHA và quantity/count/top10. Không nhận audit raw mới. Lịch model đi qua provider biết thông tin tại origin; forecast/teacher chỉ dùng nhãn đã hoàn tất tại origin. Ba worker local, không thêm thư viện, không push/upload.
 
-Mã [retrospective_sweep.py](../M2/models/retrospective_sweep.py), config [m2-test-sweep.json](../data/configs/m2-test-sweep.json), tests [test_retrospective_sweep.py](../M2/models/tests/test_retrospective_sweep.py). Lệnh:
+Mã [retrospective_sweep.py](../M2_CODE_MAP.md#khôi-phục-code-cũ), config [m2-test-sweep.json](../M2_CODE_MAP.md#khôi-phục-code-cũ), tests [test_retrospective_sweep.py](../M2_CODE_MAP.md#khôi-phục-code-cũ). Lệnh:
 
 ```powershell
 .venv/Scripts/python.exe -B -m M2.models.retrospective_sweep --run-id NEW_UNIQUE_RUN_ID

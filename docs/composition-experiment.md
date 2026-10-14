@@ -1,5 +1,7 @@
 # LG U+ — dự báo số đơn và cơ cấu quantity
 
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+
 **Cập nhật CHG-041/E69:** [chấm toàn bộ160 lượt trên test](test-sweep-experiment.md) theo yêu cầu mới đã tìm được ứng viên19,265900%/coverage100%. Đây là xếp hạng bằng test hồi cứu, không thay lựa chọn validation20,446740% hoặc các kết quả lịch sử E68 bên dưới; chín tuyến/dashboard nguyên.
 
 CHG-040/E68,11/10/2026; hai giả thuyết còn lại sau [lượt hiệu chỉnh/cập nhật](adaptive-experiment.md), theo phạm vi đã đề xuất và người dùng cho phép bắt đầu. Nhánh local `codex/m2-calendar-forecast`, target quantity success/ngày đặt UTC, top10 train, split/H14/R05 ngày giữ nguyên. Không sửa chín tuyến/dashboard/báo cáo khóa hoặc run trước; không push/upload.
@@ -8,7 +10,7 @@ CHG-040/E68,11/10/2026; hai giả thuyết còn lại sau [lượt hiệu chỉn
 
 Run đầu `m2_composition_20261011` bị guard nhãn chặn trước selection/test và đã seal `failed`/`invalidated` với19 artifact: phép nhân count×basket điền quantity actual từ snapshot vượt cuối validation. Đã sửa để giữ actual trống khi cửa sổ của count component chưa hoàn tất split, thêm regression test cho snapshot còn order sau split. Không thay tham số/feature/candidate/tiêu chí; run sửa phải đối chiếu toàn bộ forecast với run vô hiệu hóa trong1e-8. Giữ run lỗi để truy lịch sử, không dùng metric của nó làm kết quả hoặc cache.
 
-[Config](../data/configs/m2-composition.json) đăng ký26 cấu hình trước fit:
+[Config](../M2_CODE_MAP.md#khôi-phục-code-cũ) đăng ký26 cấu hình trước fit:
 
 - Tám bản dự báo quantity: đối chứng56 ngày, feature đơn lớn, feature độ phân tán quantity/đơn, hoặc cả hai; mỗi bản raw/nhân56p4.
 - Mười tám bản dự báo số đơn × lượng trung bình/đơn: count model chuẩn hóa28/56/90 ngày × raw/nhân56p4 × basket trailing28/56/90 ngày. Basket là dự báo trung bình lịch sử cố định cho từng block; không dùng số đơn hoặc basket thực của cửa sổ tương lai. Nhãn teacher/head count là order_count, nhãn/metric cuối luôn quantity thật.
@@ -17,7 +19,7 @@ Run đầu `m2_composition_20261011` bị guard nhãn chặn trước selection/
 
 Hai fold01–28/10/2024 và01–28/04/2025 chẩn đoán, population tính từ quá khứ. Chọn MAPE validation chính h1–7 origin mỗi ngày, MAE rồi ID, đủ coverage cả hai block. Phải thắng10,77582022385683% với dung sai1e-8 mới khóa một lựa chọn và chấm test hồi cứu một lần. Dừng sau lượt26 này; không thử ứng viên khác bằng test để tìm số dưới20%.
 
-[Module riêng](../M2/models/composition_experiment.py) và [tests](../M2/models/tests/test_composition_experiment.py) tái dùng estimator/calibration/metric và bảo toàn cũ, không thêm phụ thuộc. Không sửa mã hoặc config đã seal của lượt trước.
+[Module riêng](../M2_CODE_MAP.md#khôi-phục-code-cũ) và [tests](../M2_CODE_MAP.md#khôi-phục-code-cũ) tái dùng estimator/calibration/metric và bảo toàn cũ, không thêm phụ thuộc. Không sửa mã hoặc config đã seal của lượt trước.
 
 ```powershell
 .venv\Scripts\python.exe -B -m M2.models.composition_experiment --run-id ten_run_moi

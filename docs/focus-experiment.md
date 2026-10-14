@@ -1,5 +1,7 @@
 # Thử nghiệm riêng LG U+
 
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+
 **Cập nhật tiếp CHG-040/E68:** người dùng cho phép thêm năm giả thuyết ở hai lượt21+26 cấu hình. [Kết quả mới](composition-experiment.md): validation10,616717%, test hồi cứu20,446740%, vẫn chưa<20%; chín tuyến/dashboard/báo cáo khóa nguyên. Phần bên dưới giữ bằng chứng ba lượt E67, không là trạng thái nghiên cứu mới nhất.
 
 CHG-039/E67,11/10/2026; local trên `codex/m2-calendar-forecast`, sau thử nghiệm lịch không cải thiện. Người dùng cho phép tiếp tục tìm MAPE tổng quantity7 ngày South Korea/LG U+<20%, giữ nguyên chín tuyến đã đạt. A08 success/ngày đặt UTC, top10 train, split/H14 và R05 ngày giữ nguyên; test đã xem là hồi cứu.
@@ -8,7 +10,7 @@ CHG-039/E67,11/10/2026; local trên `codex/m2-calendar-forecast`, sau thử nghi
 
 ## Đăng ký trước fit
 
-[Config](../data/configs/m2-focus.json) khóa35 ứng viên:10 mô hình cha × raw/hiệu chỉnh nhân56 ngày prior4;9 đầu sửa residual trên ba cha;6 blend cố định với đối chứng. Mười cha gồm đối chứng, chuẩn hóa28/56 ngày, tỷ lệ quantity/order/basket gần đây, pooled Hàn Quốc, riêng LG U+ và cửa sổ học180 ngày. Chỉ mô hình LG U+ được phép thay trong đầu ra; không thay tham số hoặc output của chín tuyến khác.
+[Config](../M2_CODE_MAP.md#khôi-phục-code-cũ) khóa35 ứng viên:10 mô hình cha × raw/hiệu chỉnh nhân56 ngày prior4;9 đầu sửa residual trên ba cha;6 blend cố định với đối chứng. Mười cha gồm đối chứng, chuẩn hóa28/56 ngày, tỷ lệ quantity/order/basket gần đây, pooled Hàn Quốc, riêng LG U+ và cửa sổ học180 ngày. Chỉ mô hình LG U+ được phép thay trong đầu ra; không thay tham số hoặc output của chín tuyến khác.
 
 Đặc trưng gần đây tính tại origin; label tổng7 phải kết thúc≤cutoff. Các teacher dùng8 hoặc4 tuần không chồng đã quan sát xong. Đầu residual fit weighted ridge cho residual/scale, trọng số tỷ lệ nghịch bình phương actual/scale, prior về0; head affine dùng mức dự báo, không dùng mức actual tương lai. Correction clip±25% scale tại cutoff và forecast≥0. Blend trọng số25%/50% đã khóa. Mã nghiên cứu riêng, không sửa estimator mặc định hoặc dashboard.
 
@@ -29,9 +31,9 @@ Năm tests mới đã đạt: chuẩn hóa/feature causal, parity hai đối ch�
 
 Lượt1 `m2_focus_20261011` hoàn tất: chọn chuẩn hóa56 ngày/đầu nhân56p4 bằng validation10,775820% so với đối chứng11,632703%. Test hồi cứu20,520981% so với20,688009%, vẫn9/10 và chưa đạt<20%. Giữ nguyên run và kết quả này; không chọn ứng viên khác trong35 bằng test.
 
-Lượt2 đăng ký riêng trước fit theo [m2-hierarchy.json](../data/configs/m2-hierarchy.json):44 ứng viên gồm36 phân rã country forecast×tỷ trọng LG U+28/56/90 ngày,6 blend50% với ứng viên đã khóa lượt1 và hai đối chứng. Sáu country parents giữ họ LightGBM, thử scale28/56/90, leaf minimum100/30 và bỏ annual ở một cấu hình. Nhãn country là tổng quốc gia trong teacher logs; nhãn/metric đầu ra vẫn LG U+. Tỷ trọng chỉ tính tới origin, không dùng sale quốc gia thực của cửa sổ tương lai. Phải thắng validation10,775820% của lượt1 trước khi khóa/chấm một lựa chọn test. Lượt2 hoàn tất nhưng không thắng validation, không chấm test mới. Hai tests phân bổ/causal/nhãn/future/blend align đã đạt.
+Lượt2 đăng ký riêng trước fit theo [m2-hierarchy.json](../M2_CODE_MAP.md#khôi-phục-code-cũ):44 ứng viên gồm36 phân rã country forecast×tỷ trọng LG U+28/56/90 ngày,6 blend50% với ứng viên đã khóa lượt1 và hai đối chứng. Sáu country parents giữ họ LightGBM, thử scale28/56/90, leaf minimum100/30 và bỏ annual ở một cấu hình. Nhãn country là tổng quốc gia trong teacher logs; nhãn/metric đầu ra vẫn LG U+. Tỷ trọng chỉ tính tới origin, không dùng sale quốc gia thực của cửa sổ tương lai. Phải thắng validation10,775820% của lượt1 trước khi khóa/chấm một lựa chọn test. Lượt2 hoàn tất nhưng không thắng validation, không chấm test mới. Hai tests phân bổ/causal/nhãn/future/blend align đã đạt.
 
-Lượt3 [m2-refinement.json](../data/configs/m2-refinement.json) đăng ký24 cấu hình trước fit: chuẩn hóa35/42/49/56/63/70/77/84 ngày, thêm training270/540 ngày, leaves5 và100 cây ở scale56, mỗi cha raw/hiệu chỉnh56p4. Khoảng tìm chọn quanh56 do thắng **validation** lượt1; không chọn cửa sổ từ lỗi test. Giữ cùng tiêu chí, phải thắng10,775820% trước khi khóa/chấm một lựa chọn. Lượt3 hoàn tất nhưng không thắng validation, không chấm thêm test. Đã dừng sau lượt tinh chỉnh hữu hạn này.
+Lượt3 [m2-refinement.json](../M2_CODE_MAP.md#khôi-phục-code-cũ) đăng ký24 cấu hình trước fit: chuẩn hóa35/42/49/56/63/70/77/84 ngày, thêm training270/540 ngày, leaves5 và100 cây ở scale56, mỗi cha raw/hiệu chỉnh56p4. Khoảng tìm chọn quanh56 do thắng **validation** lượt1; không chọn cửa sổ từ lỗi test. Giữ cùng tiêu chí, phải thắng10,775820% trước khi khóa/chấm một lựa chọn. Lượt3 hoàn tất nhưng không thắng validation, không chấm thêm test. Đã dừng sau lượt tinh chỉnh hữu hạn này.
 
 Đây là nghiên cứu tuần tự có test đã xem nhiều lần, không phải bằng chứng holdout độc lập. Mọi lượt được giữ, kể cả không đạt; không chọn mô hình theo test để báo cáo thành công.
 

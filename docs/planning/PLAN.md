@@ -432,6 +432,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t09"></a>
 ### T09 — Khóa và đánh giá M2
 
+- **CHG-045/E73:** dọn toàn bộ code cho M2 final trên `cleanup/m2-final`, bảo toàn checkpoint `5271d0b` ở `backup/m2-before-cleanup`. Giữ10 lựa chọn/7 cấu hình, LightGBM pooled top10 và Prophet au(KDDI); bỏ implementation/sweep/entrypoint/test M1–M3 và biến thể không được chọn, giữ nguyên raw/run/báo cáo. [M2_CODE_MAP](../../M2_CODE_MAP.md) ghi luồng, tham số, lệnh và cách lấy code cũ. Kiểm tra và giới hạn tại E73; không đổi model/metric/nghiệm thu, R05/R07/T14 mở.
+
 - **CHG-042/E70:** Khóa10 lựa chọn trước rerun; tổng7 test10/10<20%, coverage100%. Chín tuyến parity1e-8; LG U+ test-selected, không thay R05 ngày.
 
 - **CHG-041/E69:** bảng nghiên cứu xếp hạng bằng test nhận diện `tune56_w540_mul56p4`19,265900%, MAE10,529504/WAPE19,266752%/coverage100%; h8–14 còn20,255792%. Không thay lựa chọn validation E68 hoặc chín tuyến/dashboard/báo cáo khóa. Test dùng để so sánh nên không là đánh giá độc lập/nghiệm thu R05 ngày.
@@ -492,6 +494,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t12"></a>
 ### T12 — Kiểm thử, tái lập và bảo mật gói
 
+- **CHG-045/E73:** dọn toàn bộ code cho M2 final trên `cleanup/m2-final`, bảo toàn checkpoint `5271d0b` ở `backup/m2-before-cleanup`. Giữ10 lựa chọn/7 cấu hình, LightGBM pooled top10 và Prophet au(KDDI); bỏ implementation/sweep/entrypoint/test M1–M3 và biến thể không được chọn, giữ nguyên raw/run/báo cáo. [M2_CODE_MAP](../../M2_CODE_MAP.md) ghi luồng, tham số, lệnh và cách lấy code cũ. Kiểm tra và giới hạn tại E73; không đổi model/metric/nghiệm thu, R05/R07/T14 mở.
+
 - **CHG-042/E70:** Run m2_final_20261011_local fit mới validation/test/future, audit raw và verifier độc lập; hash/cặp/nhãn/cutoff/metric/heads/parity kiểm lại.
 
 - **CHG-041/E69:**25 tests/pip check đạt; run sweep sửa complete43 artifact, receipt kiểm29.440 dự báo/640 metric/2.116 head/349 weighted fits/60 nhóm phân bổ và toàn bộ điểm validation nguồn. Raw/757 protected files và1.656 forecast chín tuyến nguyên; ba đối chứng184 cặp mỗi bản lệch0. Run đầu35 artifact giữ failed do đường dẫn baseline, sửa chỉ tổng hợp lại, forecast/metadata khớp chính xác. Không refit/full suite/CI remote; [hash/receipt/giới hạn](../test-sweep-experiment.md).
@@ -514,6 +518,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t13"></a>
 ### T13 — Báo cáo, slide và bảo vệ
+
+- **CHG-045/E73:** dọn toàn bộ code cho M2 final trên `cleanup/m2-final`, bảo toàn checkpoint `5271d0b` ở `backup/m2-before-cleanup`. Giữ10 lựa chọn/7 cấu hình, LightGBM pooled top10 và Prophet au(KDDI); bỏ implementation/sweep/entrypoint/test M1–M3 và biến thể không được chọn, giữ nguyên raw/run/báo cáo. [M2_CODE_MAP](../../M2_CODE_MAP.md) ghi luồng, tham số, lệnh và cách lấy code cũ. Kiểm tra và giới hạn tại E73; không đổi model/metric/nghiệm thu, R05/R07/T14 mở.
 
 - **CHG-044/E72 — 14/10/2026:** [Word học M2 20 trang](../../M2/reports/mentor_prep_20261014/SIGMA_M2_Tai_lieu_hoc_va_bao_cao.docx) gồm nội dung học và ôn tập đã render/kiểm toàn bộ trang; T13 bổ sung định dạng theo yêu cầu, bảo vệ/nghiệm thu còn mở.
 

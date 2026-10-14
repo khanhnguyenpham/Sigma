@@ -13,13 +13,12 @@ import pandas as pd
 
 from src.common import ROOT, ROUTE, read_config, sha256, write_csv, write_json, new_manifest, seal_manifest, validate_run
 from src.data import audit_orders, daily_sales, route_top
-from sigma.forecasting.weekly import checked_series
+from M2.models.weekly import checked_series
 from M2.models.registry import load_settings, implementation_hashes
 from M2.models.LightGBM.model import phase as lgbm_phase
 from M2.models.families import ts_job, metrics, monthly_metrics
-from M2.models.focus_experiment import FOCUS, phase as focus_phase, verify_heads, load_predictions
-from M2.models.calendar_experiment import reconcile_labels
-from M2.models.verify import reconcile_metrics
+from M2.models.focus import FOCUS, phase as focus_phase, verify_heads, load_predictions
+from M2.models.verify import reconcile_labels, reconcile_metrics
 
 CONFIG = 'data/configs/m2-final.json'
 REPORT = ROOT/'M2/reports/final_m2_20261011'
@@ -30,8 +29,7 @@ def focus_experiment(exp):
     route = next(r for r in exp['routes'] if (r['destination_country'], r['carrier']) == FOCUS)
     parent, head = route['model'].rsplit('_', 1)
     return {'parents': {parent: {'scale_days': route['scale_days'], 'training_window_days': route['training_window_days']}},
-        'heads': {head: {'kind': 'multiply', 'history_days': route['head_history_days'], 'prior_weeks': route['head_prior_weeks']}},
-        'residual_heads': {}, 'residual_parents': [], 'blend_parents': [], 'blend_weights': []}
+        'heads': {head: {'kind': 'multiply', 'history_days': route['head_history_days'], 'prior_weeks': route['head_prior_weeks']}}}
 
 
 def configurations(exp, settings):
@@ -185,11 +183,18 @@ def read_log(path):
     return frame
 
 
-def verify_run(run_id):
+def verify_run(run_id, *, artifacts_only=False):
+    if not re.fullmatch(r'[A-Za-z0-9_-]+', run_id):
+        raise ValueError('Invalid run ID')
     out = ROOT/'M2/artifacts'/run_id; manifest = validate_run(out)
     cfg, exp = manifest['config'], manifest['experiment']
-    assert sha256(ROOT/CONFIG) == manifest['config_sha256'] and sha256(__file__) == manifest['runner_sha256']
-    for name, digest in manifest['implementation_modules_sha256'].items(): assert sha256(ROOT/name) == digest
+    recorded_code = manifest['implementation_modules_sha256']
+    current_code_matches = (sha256(ROOT/CONFIG) == manifest['config_sha256']
+        and sha256(__file__) == manifest['runner_sha256']
+        and all((ROOT/name).is_file() and sha256(ROOT/name) == digest for name, digest in recorded_code.items()))
+    if not artifacts_only and not current_code_matches:
+        raise ValueError('Recorded code differs; use verify-artifacts for historical evidence or restore the backup branch')
+    assert sha256(ROOT/cfg['source']) == manifest['source_sha256'], 'Raw source changed'
     sales, audit = audit_orders(ROOT/cfg['source'], cfg)
     daily = daily_sales(sales, cfg); top = route_top(daily, cfg)
     pd.testing.assert_frame_equal(daily, pd.read_csv(out/'daily_sales.csv', parse_dates=['date'], float_precision='round_trip'))
@@ -200,7 +205,8 @@ def verify_run(run_id):
     pd.testing.assert_frame_equal(selection, expected)
     lock = json.loads((out/'selection_lock.json').read_text(encoding='utf-8'))
     assert lock['selection_sha256'] == sha256(out/'selected_models.csv')
-    checks = {'fresh_raw_rows': audit['rows_raw'], 'sales_quantity': audit['sales_quantity'], 'train_top10_exact': True}
+    checks = {'fresh_raw_rows': audit['rows_raw'], 'sales_quantity': audit['sales_quantity'], 'train_top10_exact': True,
+        'current_code_matches_recorded_run': current_code_matches}
     for split in ['validation', 'test', 'future']:
         pred = load_predictions(out/f'{split}_predictions.csv')
         checks[split+'_pairs'] = check_pairs(pred, daily, cfg, exp, split)
@@ -240,11 +246,15 @@ def verify_run(run_id):
             checks[split+'_focus_parity'] = parity(pred.loc[pred.carrier.eq(FOCUS[1])], previous, exp['numeric_tolerance'])
     for name, digest in manifest['protected_before'].items(): assert sha256(ROOT/name) == digest
     checks['protected_files_unchanged'] = len(manifest['protected_before'])
-    receipt = {'status': 'verified', 'run_id': run_id, 'run_manifest_sha256': sha256(out/'manifest.json'),
+    receipt = {'status': 'artifacts_verified' if artifacts_only else 'verified',
+        'verification_scope': 'raw, labels, metrics, causal logs and artifact hashes; no model refit' if artifacts_only else 'current code and run artifacts',
+        'run_id': run_id, 'run_manifest_sha256': sha256(out/'manifest.json'),
         'verified_at_utc': datetime.now(timezone.utc).isoformat(), 'checks': checks, 'result': manifest['result']}
-    path = out.with_name(run_id+'_review.json')
-    if path.exists(): raise FileExistsError('Never overwrite an existing verification receipt')
-    write_json(path, receipt); print(json.dumps(receipt), flush=True)
+    if not artifacts_only:
+        path = out.with_name(run_id+'_review.json')
+        if path.exists(): raise FileExistsError('Never overwrite an existing verification receipt')
+        write_json(path, receipt)
+    print(json.dumps(receipt), flush=True)
     return receipt
 
 
@@ -253,11 +263,14 @@ def markdown_table(frame):
         '| '+' | '.join(str(value) for value in row)+' |\n' for row in frame.itertuples(index=False, name=None))
 
 
-def export_report(run_id):
+def export_report(run_id, report_id=None):
+    if not re.fullmatch(r'[A-Za-z0-9_-]+', run_id): raise ValueError('Invalid run ID')
     folder = ROOT/'M2/artifacts'/run_id; manifest = validate_run(folder)
     receipt_path = folder.with_name(run_id+'_review.json'); receipt = json.loads(receipt_path.read_text(encoding='utf-8'))
     assert receipt['status'] == 'verified' and receipt['run_manifest_sha256'] == sha256(folder/'manifest.json')
-    out = ROOT/'M2/reports'/manifest['experiment']['report_id']; out.mkdir(exist_ok=False)
+    report_id = report_id or manifest['experiment']['report_id']
+    if not re.fullmatch(r'[A-Za-z0-9_-]+', report_id): raise ValueError('Invalid report ID')
+    out = ROOT/'M2/reports'/report_id; out.mkdir(parents=True, exist_ok=False)
     configs = configurations(manifest['experiment'], manifest['settings'])
     write_json(out/'model_configurations.json', configs.to_dict(orient='records'))
     for name in ['selected_models.csv', 'test_metrics.csv', 'validation_metrics.csv', 'validation_monthly_metrics.csv']:
@@ -349,8 +362,10 @@ def load_report(folder=REPORT):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run-id', required=True)
-    parser.add_argument('--stage', choices=['run', 'verify', 'export', 'all'], default='all')
+    parser.add_argument('--stage', choices=['run', 'verify', 'verify-artifacts', 'export', 'all'], default='all')
+    parser.add_argument('--report-id', help='New report directory; existing reports are never overwritten')
     args = parser.parse_args()
     if args.stage in ['run', 'all']: run(args.run_id)
     if args.stage in ['verify', 'all']: verify_run(args.run_id)
-    if args.stage in ['export', 'all']: export_report(args.run_id)
+    if args.stage == 'verify-artifacts': verify_run(args.run_id, artifacts_only=True)
+    if args.stage in ['export', 'all']: export_report(args.run_id, args.report_id)

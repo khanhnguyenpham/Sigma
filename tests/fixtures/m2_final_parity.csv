@@ -1,0 +1,301 @@
+destination_country,carrier,family,target,model,split,as_of_date,target_date,window_start,horizon_day,block,forecast_qty,actual_qty
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-06-30,2025-07-07,2025-07-01,7,1,122.09856975823905,135.0
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-06-30,2025-07-14,2025-07-08,14,2,122.09856975823905,140.0
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-01,2025-07-08,2025-07-02,7,1,122.19067702530089,136.0
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-01,2025-07-15,2025-07-09,14,2,122.19067702530089,140.0
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-02,2025-07-09,2025-07-03,7,1,122.19067702530089,137.0
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-02,2025-07-16,2025-07-10,14,2,122.19067702530089,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-03,2025-07-10,2025-07-04,7,1,122.19067702530089,138.0
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-03,2025-07-17,2025-07-11,14,2,122.19067702530089,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-04,2025-07-11,2025-07-05,7,1,122.19067702530089,139.0
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-04,2025-07-18,2025-07-12,14,2,122.19067702530089,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-05,2025-07-12,2025-07-06,7,1,122.09856975823905,140.0
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-05,2025-07-19,2025-07-13,14,2,122.09856975823905,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-06,2025-07-13,2025-07-07,7,1,122.09856975823905,140.0
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-06,2025-07-20,2025-07-14,14,2,122.09856975823905,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-07,2025-07-14,2025-07-08,7,1,120.98453174681487,140.0
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-07,2025-07-21,2025-07-15,14,2,120.99134328562789,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-08,2025-07-15,2025-07-09,7,1,120.98453174681487,140.0
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-08,2025-07-22,2025-07-16,14,2,120.99134328562789,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-09,2025-07-16,2025-07-10,7,1,120.98453174681487,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-09,2025-07-23,2025-07-17,14,2,120.99134328562789,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-10,2025-07-17,2025-07-11,7,1,120.98453174681487,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-10,2025-07-24,2025-07-18,14,2,120.99134328562789,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-11,2025-07-18,2025-07-12,7,1,120.98453174681487,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-11,2025-07-25,2025-07-19,14,2,120.99134328562789,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-12,2025-07-19,2025-07-13,7,1,120.98453174681487,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-12,2025-07-26,2025-07-20,14,2,120.99134328562789,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-13,2025-07-20,2025-07-14,7,1,120.98453174681487,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-13,2025-07-27,2025-07-21,14,2,120.99134328562789,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-14,2025-07-21,2025-07-15,7,1,121.99284728309566,
+China,China Mobile,LightGBM,direct_7d,lgbm_annual_l1_15,validation,2025-07-14,2025-07-28,2025-07-22,14,2,122.00990491856741,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-06-30,2025-07-07,2025-07-01,7,1,109.67295122267316,98.0
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-06-30,2025-07-14,2025-07-08,14,2,110.91202184398858,119.0
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-01,2025-07-08,2025-07-02,7,1,109.67924358933226,99.0
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-01,2025-07-15,2025-07-09,14,2,110.91831421064768,119.0
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-02,2025-07-09,2025-07-03,7,1,105.82217230412488,100.0
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-02,2025-07-16,2025-07-10,14,2,107.0612429254403,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-03,2025-07-10,2025-07-04,7,1,110.88064537682625,117.0
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-03,2025-07-17,2025-07-11,14,2,111.80673859989899,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-04,2025-07-11,2025-07-05,7,1,113.49526089434045,118.0
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-04,2025-07-18,2025-07-12,14,2,114.42644263577199,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-05,2025-07-12,2025-07-06,7,1,113.50383322513797,119.0
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-05,2025-07-19,2025-07-13,14,2,114.4914351424793,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-06,2025-07-13,2025-07-07,7,1,113.89329590946845,119.0
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-06,2025-07-20,2025-07-14,14,2,114.8687169047904,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-07,2025-07-14,2025-07-08,7,1,113.9272991280955,119.0
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-07,2025-07-21,2025-07-15,14,2,113.95346662662975,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-08,2025-07-15,2025-07-09,7,1,117.032055038701,119.0
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-08,2025-07-22,2025-07-16,14,2,116.80462595995382,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-09,2025-07-16,2025-07-10,7,1,117.032055038701,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-09,2025-07-23,2025-07-17,14,2,116.80462595995382,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-10,2025-07-17,2025-07-11,7,1,117.32986734143479,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-10,2025-07-24,2025-07-18,14,2,116.59623204068241,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-11,2025-07-18,2025-07-12,7,1,117.32986734143479,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-11,2025-07-25,2025-07-19,14,2,116.59623204068241,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-12,2025-07-19,2025-07-13,7,1,117.32986734143479,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-12,2025-07-26,2025-07-20,14,2,116.80462595995382,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-13,2025-07-20,2025-07-14,7,1,117.32986734143479,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-13,2025-07-27,2025-07-21,14,2,116.59623204068241,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-14,2025-07-21,2025-07-15,7,1,118.78003121933658,
+Thailand,TrueMove H,LightGBM,direct_7d,lgbm_annual_l1_15_min50,validation,2025-07-14,2025-07-28,2025-07-22,14,2,117.62425735117266,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-06-30,2025-07-07,2025-07-01,7,1,108.12167532494982,105.0
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-06-30,2025-07-14,2025-07-08,14,2,113.76589821286943,126.0
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-06-30,2025-07-07,2025-07-01,7,1,84.44240664789373,76.0
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-06-30,2025-07-14,2025-07-08,14,2,87.17371302392179,98.0
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-06-30,2025-07-07,2025-07-01,7,1,65.40142738036896,72.0
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-06-30,2025-07-14,2025-07-08,14,2,67.01479805552908,67.0
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-01,2025-07-08,2025-07-02,7,1,107.96360270020574,106.0
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-01,2025-07-15,2025-07-09,14,2,113.5995738002775,126.0
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-01,2025-07-08,2025-07-02,7,1,84.68671011894254,77.0
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-01,2025-07-15,2025-07-09,14,2,87.16826723738536,98.0
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-01,2025-07-08,2025-07-02,7,1,65.7969363796152,73.0
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-01,2025-07-15,2025-07-09,14,2,66.83656720963671,67.0
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-02,2025-07-09,2025-07-03,7,1,119.12094623792878,123.0
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-02,2025-07-16,2025-07-10,14,2,121.3943918376125,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-02,2025-07-09,2025-07-03,7,1,84.50663361689243,78.0
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-02,2025-07-16,2025-07-10,14,2,87.03299453968451,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-02,2025-07-09,2025-07-03,7,1,65.91520655206021,64.0
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-02,2025-07-16,2025-07-10,14,2,66.6855829086062,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-03,2025-07-10,2025-07-04,7,1,118.94420892897043,124.0
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-03,2025-07-17,2025-07-11,14,2,121.21428146396619,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-03,2025-07-10,2025-07-04,7,1,84.78428350530277,79.0
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-03,2025-07-17,2025-07-11,14,2,86.86082244366138,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-03,2025-07-10,2025-07-04,7,1,66.33429877201503,65.0
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-03,2025-07-17,2025-07-11,14,2,66.5072792109896,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-04,2025-07-11,2025-07-05,7,1,119.12094623792878,125.0
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-04,2025-07-18,2025-07-12,14,2,121.3943918376125,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-04,2025-07-11,2025-07-05,7,1,85.14552189602911,80.0
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-04,2025-07-18,2025-07-12,14,2,87.03299453968451,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-04,2025-07-11,2025-07-05,7,1,66.51213871510355,66.0
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-04,2025-07-18,2025-07-12,14,2,66.6855829086062,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-05,2025-07-12,2025-07-06,7,1,121.07125119735605,126.0
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-05,2025-07-19,2025-07-13,14,2,121.57450221125882,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-05,2025-07-12,2025-07-06,7,1,85.31396011936448,81.0
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-05,2025-07-19,2025-07-13,14,2,87.20516663570761,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-05,2025-07-12,2025-07-06,7,1,66.68997865819206,67.0
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-05,2025-07-19,2025-07-13,14,2,66.86388660622279,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-06,2025-07-13,2025-07-07,7,1,121.95805820403469,126.0
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-06,2025-07-20,2025-07-14,14,2,122.49112526663797,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-06,2025-07-13,2025-07-07,7,1,92.49641317275936,98.0
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-06,2025-07-20,2025-07-14,14,2,92.8721894330321,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-06,2025-07-13,2025-07-07,7,1,67.79433696724102,67.0
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-06,2025-07-20,2025-07-14,14,2,67.91919645470821,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-07,2025-07-14,2025-07-08,7,1,123.66529739815039,126.0
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-07,2025-07-21,2025-07-15,14,2,123.12202343752233,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-07,2025-07-14,2025-07-08,7,1,93.02003286595988,98.0
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-07,2025-07-21,2025-07-15,14,2,93.14843208827115,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-07,2025-07-14,2025-07-08,7,1,68.28638428427807,67.0
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-07,2025-07-21,2025-07-15,14,2,68.81622655750087,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-08,2025-07-15,2025-07-09,7,1,123.58876225417146,126.0
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-08,2025-07-22,2025-07-16,14,2,123.09713586589146,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-08,2025-07-15,2025-07-09,7,1,93.27338085315377,98.0
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-08,2025-07-22,2025-07-16,14,2,93.40216183727568,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-08,2025-07-15,2025-07-09,7,1,68.24115963503372,67.0
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-08,2025-07-22,2025-07-16,14,2,68.72141072920691,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-09,2025-07-16,2025-07-10,7,1,123.82668320401362,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-09,2025-07-23,2025-07-17,14,2,123.29970776031269,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-09,2025-07-16,2025-07-10,7,1,93.57017388120592,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-09,2025-07-23,2025-07-17,14,2,93.60130265084126,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-09,2025-07-16,2025-07-10,7,1,70.27847839771509,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-09,2025-07-23,2025-07-17,14,2,70.30175597027981,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-10,2025-07-17,2025-07-11,7,1,124.13856376397615,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-10,2025-07-24,2025-07-18,14,2,123.53892761673754,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-10,2025-07-17,2025-07-11,7,1,93.71044367694844,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-10,2025-07-24,2025-07-18,14,2,93.74166445279943,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-10,2025-07-17,2025-07-11,7,1,70.55625894474163,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-10,2025-07-24,2025-07-18,14,2,70.57962852352203,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-11,2025-07-18,2025-07-12,7,1,124.36176346461006,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-11,2025-07-25,2025-07-19,14,2,124.15601955564168,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-11,2025-07-18,2025-07-12,7,1,93.98660412000429,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-11,2025-07-25,2025-07-19,14,2,94.01791690207094,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-11,2025-07-18,2025-07-12,7,1,70.83403949176817,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-11,2025-07-25,2025-07-19,14,2,70.85750107676424,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-12,2025-07-19,2025-07-13,7,1,124.82926918165998,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-12,2025-07-26,2025-07-20,14,2,124.56976882711824,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-12,2025-07-19,2025-07-13,7,1,94.26276456306013,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-12,2025-07-26,2025-07-20,14,2,94.29416935134246,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-12,2025-07-19,2025-07-13,7,1,71.11182003879472,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-12,2025-07-26,2025-07-20,14,2,71.13537363000646,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-13,2025-07-20,2025-07-14,7,1,125.79589883926506,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-13,2025-07-27,2025-07-21,14,2,125.50360755183671,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-13,2025-07-20,2025-07-14,7,1,95.10932701498,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-13,2025-07-27,2025-07-21,14,2,95.10932701498,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-13,2025-07-20,2025-07-14,7,1,72.03370642177097,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-13,2025-07-27,2025-07-21,14,2,72.05756670036827,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-14,2025-07-21,2025-07-15,7,1,125.86361811802183,
+Japan,NTT Docomo,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-14,2025-07-28,2025-07-22,14,2,126.6313916680743,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-14,2025-07-21,2025-07-15,7,1,95.56549380205655,
+Thailand,AIS,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-14,2025-07-28,2025-07-22,14,2,95.39079614108837,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-14,2025-07-21,2025-07-15,7,1,72.08263061787218,
+Thailand,dtac,LightGBM,direct_7d,lgbm_annual_ratio7,validation,2025-07-14,2025-07-28,2025-07-22,14,2,72.09166076949256,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-06-30,2025-07-07,2025-07-01,7,1,100.28654643379342,91.0
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-06-30,2025-07-14,2025-07-08,14,2,101.0504126497784,112.0
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-01,2025-07-08,2025-07-02,7,1,100.28654643379342,92.0
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-01,2025-07-15,2025-07-09,14,2,101.0504126497784,112.0
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-02,2025-07-09,2025-07-03,7,1,100.28654643379342,93.0
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-02,2025-07-16,2025-07-10,14,2,101.0504126497784,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-03,2025-07-10,2025-07-04,7,1,100.28654643379342,94.0
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-03,2025-07-17,2025-07-11,14,2,101.0504126497784,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-04,2025-07-11,2025-07-05,7,1,102.8389735719935,111.0
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-04,2025-07-18,2025-07-12,14,2,102.8389735719935,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-05,2025-07-12,2025-07-06,7,1,102.8389735719935,112.0
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-05,2025-07-19,2025-07-13,14,2,102.8389735719935,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-06,2025-07-13,2025-07-07,7,1,102.8389735719935,112.0
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-06,2025-07-20,2025-07-14,14,2,102.8389735719935,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-07,2025-07-14,2025-07-08,7,1,101.7101953242647,112.0
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-07,2025-07-21,2025-07-15,14,2,101.7101953242647,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-08,2025-07-15,2025-07-09,7,1,101.94968358857777,112.0
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-08,2025-07-22,2025-07-16,14,2,101.94968358857777,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-09,2025-07-16,2025-07-10,7,1,101.94968358857777,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-09,2025-07-23,2025-07-17,14,2,101.94968358857777,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-10,2025-07-17,2025-07-11,7,1,101.94968358857777,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-10,2025-07-24,2025-07-18,14,2,101.94968358857777,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-11,2025-07-18,2025-07-12,7,1,103.35098609035349,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-11,2025-07-25,2025-07-19,14,2,103.35098609035349,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-12,2025-07-19,2025-07-13,7,1,103.35098609035349,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-12,2025-07-26,2025-07-20,14,2,103.35098609035349,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-13,2025-07-20,2025-07-14,7,1,103.35098609035349,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-13,2025-07-27,2025-07-21,14,2,103.35098609035349,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-14,2025-07-21,2025-07-15,7,1,103.98277034973354,
+South Korea,SKT,LightGBM,direct_7d,lgbm_poisson,validation,2025-07-14,2025-07-28,2025-07-22,14,2,103.98277034973354,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-06-30,2025-07-07,2025-07-01,7,1,112.90419411409351,112.0
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-06-30,2025-07-14,2025-07-08,14,2,115.09463357187616,133.0
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-06-30,2025-07-07,2025-07-01,7,1,80.31881852881727,76.0
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-06-30,2025-07-14,2025-07-08,14,2,83.84372646452651,91.0
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-01,2025-07-08,2025-07-02,7,1,120.38329286793268,129.0
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-01,2025-07-15,2025-07-09,14,2,120.38329286793268,133.0
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-01,2025-07-08,2025-07-02,7,1,80.10511528740344,77.0
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-01,2025-07-15,2025-07-09,14,2,83.63002322311267,91.0
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-02,2025-07-09,2025-07-03,7,1,120.38329286793268,130.0
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-02,2025-07-16,2025-07-10,14,2,120.38329286793268,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-02,2025-07-09,2025-07-03,7,1,79.78992552558185,78.0
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-02,2025-07-16,2025-07-10,14,2,83.31483346129109,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-03,2025-07-10,2025-07-04,7,1,120.38329286793268,131.0
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-03,2025-07-17,2025-07-11,14,2,120.38329286793268,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-03,2025-07-10,2025-07-04,7,1,79.78992552558185,79.0
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-03,2025-07-17,2025-07-11,14,2,83.31483346129109,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-04,2025-07-11,2025-07-05,7,1,120.38329286793268,132.0
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-04,2025-07-18,2025-07-12,14,2,120.38329286793268,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-04,2025-07-11,2025-07-05,7,1,79.78992552558185,80.0
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-04,2025-07-18,2025-07-12,14,2,83.31483346129109,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-05,2025-07-12,2025-07-06,7,1,120.38329286793268,133.0
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-05,2025-07-19,2025-07-13,14,2,120.38329286793268,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-05,2025-07-12,2025-07-06,7,1,80.10511528740344,81.0
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-05,2025-07-19,2025-07-13,14,2,83.63002322311267,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-06,2025-07-13,2025-07-07,7,1,120.38329286793268,133.0
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-06,2025-07-20,2025-07-14,14,2,120.38329286793268,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-06,2025-07-13,2025-07-07,7,1,80.98378779608318,81.0
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-06,2025-07-20,2025-07-14,14,2,84.5086957317924,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-07,2025-07-14,2025-07-08,7,1,118.45364724781687,133.0
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-07,2025-07-21,2025-07-15,14,2,118.36964748555631,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-07,2025-07-14,2025-07-08,7,1,83.55058014356128,91.0
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-07,2025-07-21,2025-07-15,14,2,84.02704233746326,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-08,2025-07-15,2025-07-09,7,1,118.45364724781687,133.0
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-08,2025-07-22,2025-07-16,14,2,118.36964748555631,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-08,2025-07-15,2025-07-09,7,1,83.45283257238479,91.0
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-08,2025-07-22,2025-07-16,14,2,83.92929476628676,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-09,2025-07-16,2025-07-10,7,1,118.45364724781687,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-09,2025-07-23,2025-07-17,14,2,118.36964748555631,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-09,2025-07-16,2025-07-10,7,1,85.40247118240389,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-09,2025-07-23,2025-07-17,14,2,85.87893337630585,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-10,2025-07-17,2025-07-11,7,1,119.63232712853244,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-10,2025-07-24,2025-07-18,14,2,119.55122485649638,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-10,2025-07-17,2025-07-11,7,1,86.12997118240388,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-10,2025-07-24,2025-07-18,14,2,86.60643337630584,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-11,2025-07-18,2025-07-12,7,1,119.63232712853244,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-11,2025-07-25,2025-07-19,14,2,119.55122485649638,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-11,2025-07-18,2025-07-12,7,1,86.12997118240388,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-11,2025-07-25,2025-07-19,14,2,86.60643337630584,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-12,2025-07-19,2025-07-13,7,1,119.63232712853244,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-12,2025-07-26,2025-07-20,14,2,119.55122485649638,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-12,2025-07-19,2025-07-13,7,1,86.04510057499202,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-12,2025-07-26,2025-07-20,14,2,86.52156276889399,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-13,2025-07-20,2025-07-14,7,1,119.63232712853244,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-13,2025-07-27,2025-07-21,14,2,119.55122485649638,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-13,2025-07-20,2025-07-14,7,1,86.8179627010377,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-13,2025-07-27,2025-07-21,14,2,87.21526410761389,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-14,2025-07-21,2025-07-15,7,1,119.7692848737142,
+Japan,SoftBank,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-14,2025-07-28,2025-07-22,14,2,119.7692848737142,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-14,2025-07-21,2025-07-15,7,1,87.12058602220735,
+South Korea,KT,LightGBM,direct_7d,lgbm_weighted_l1,validation,2025-07-14,2025-07-28,2025-07-22,14,2,87.2634047771724,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-06-30,2025-07-07,2025-07-01,7,1,72.66318894541547,79.0
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-06-30,2025-07-14,2025-07-08,14,2,76.10695021530438,74.0
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-01,2025-07-08,2025-07-02,7,1,72.16095633175695,70.0
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-01,2025-07-15,2025-07-09,14,2,75.53981244030604,84.0
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-02,2025-07-09,2025-07-03,7,1,72.28161625562139,71.0
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-02,2025-07-16,2025-07-10,14,2,75.96332956505739,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-03,2025-07-10,2025-07-04,7,1,72.54256071863806,72.0
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-03,2025-07-17,2025-07-11,14,2,76.33192822705475,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-04,2025-07-11,2025-07-05,7,1,72.80350518165474,73.0
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-04,2025-07-18,2025-07-12,14,2,77.49465926531161,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-05,2025-07-12,2025-07-06,7,1,73.06444964467144,74.0
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-05,2025-07-19,2025-07-13,14,2,77.77241790067116,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-06,2025-07-13,2025-07-07,7,1,74.17072054839684,74.0
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-06,2025-07-20,2025-07-14,14,2,78.9062203542519,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-07,2025-07-14,2025-07-08,7,1,73.58976136622901,74.0
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-07,2025-07-21,2025-07-15,14,2,77.96664959350622,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-08,2025-07-15,2025-07-09,7,1,81.78975671665431,84.0
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-08,2025-07-22,2025-07-16,14,2,83.96571281016597,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-09,2025-07-16,2025-07-10,7,1,82.18729951518188,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-09,2025-07-23,2025-07-17,14,2,84.61874391277541,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-10,2025-07-17,2025-07-11,7,1,82.62602175458676,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-10,2025-07-24,2025-07-18,14,2,85.07044539273684,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-11,2025-07-18,2025-07-12,7,1,83.96978806182415,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-11,2025-07-25,2025-07-19,14,2,85.52214687269827,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-12,2025-07-19,2025-07-13,7,1,84.41329046355914,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-12,2025-07-26,2025-07-20,14,2,85.97384835265972,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-13,2025-07-20,2025-07-14,7,1,85.0180933872523,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-13,2025-07-27,2025-07-21,14,2,85.29129630537358,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-14,2025-07-21,2025-07-15,7,1,85.35288794479168,
+South Korea,LG U+,LightGBM,direct_7d,tune56_w540_mul56p4,validation,2025-07-14,2025-07-28,2025-07-22,14,2,83.83735424480334,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-06-30,2025-07-07,2025-07-01,7,1,99.2577126387273,84.0
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-06-30,2025-07-14,2025-07-08,14,2,100.68936489750259,105.0
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-01,2025-07-08,2025-07-02,7,1,99.52478284547989,85.0
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-01,2025-07-15,2025-07-09,14,2,100.78403814868315,105.0
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-02,2025-07-09,2025-07-03,7,1,99.78454651343459,86.0
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-02,2025-07-16,2025-07-10,14,2,100.86815842689158,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-03,2025-07-10,2025-07-04,7,1,100.0193564437962,87.0
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-03,2025-07-17,2025-07-11,14,2,100.92453969542704,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-04,2025-07-11,2025-07-05,7,1,100.22868235967694,88.0
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-04,2025-07-18,2025-07-12,14,2,100.95312027842257,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-05,2025-07-12,2025-07-06,7,1,100.4120638734428,105.0
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-05,2025-07-19,2025-07-13,14,2,100.95391458405798,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-06,2025-07-13,2025-07-07,7,1,100.5691106912803,105.0
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-06,2025-07-20,2025-07-14,14,2,100.92701204845412,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-07,2025-07-14,2025-07-08,7,1,99.85321652148026,105.0
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-07,2025-07-21,2025-07-15,14,2,100.0398912954823,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-08,2025-07-15,2025-07-09,7,1,100.14477458943183,105.0
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-08,2025-07-22,2025-07-16,14,2,100.15120239561367,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-09,2025-07-16,2025-07-10,7,1,100.22329492530682,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-09,2025-07-23,2025-07-17,14,2,100.04951570374821,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-10,2025-07-17,2025-07-11,7,1,100.27535222144928,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-10,2025-07-24,2025-07-18,14,2,99.92188251597678,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-11,2025-07-18,2025-07-12,7,1,100.30089877915854,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-11,2025-07-25,2025-07-19,14,2,99.76873040310674,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-12,2025-07-19,2025-07-13,7,1,100.09216533378108,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-12,2025-07-26,2025-07-20,14,2,99.38276277062002,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-13,2025-07-20,2025-07-14,7,1,100.07782453092359,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-13,2025-07-27,2025-07-21,14,2,99.19312107663,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-14,2025-07-21,2025-07-15,7,1,99.64771177288071,
+Japan,au (KDDI),Prophet,direct_7d,prophet_annual3_weekly_w540,validation,2025-07-14,2025-07-28,2025-07-22,14,2,98.63030048028345,

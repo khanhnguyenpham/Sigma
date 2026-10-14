@@ -1,5 +1,7 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+
 **CHG-034/E62 — 06/10/2026:** người dùng chốt dùng kết quả M2 tổng7 hiện tại9/10 cho báo cáo ngày07/10, giữ LG U+20,69% chưa đạt và tối ưu sau. Không đổi ngưỡng/bỏ tuyến hoặc nhận R05 ngày đạt. Nhánh báo cáo có dữ liệu/split, mô hình từng tuyến, phương pháp và metric; sản phẩm V13 riêng. [Guide](../M2/reports/presentation-guide.md).
 
 **CHG-033/E61 — 06/10/2026:** ưu tiên cải tiến tổng7 theo người dùng, 26 biến thể/50 cấu hình đã chạy và đối soát; lựa chọn validation đạt9/10 test hồi cứu, 15,89%, LG U+20,69%; ngày0/10. Giữ tiêu chí R05 ngày, R07 và trạng thái T14; chưa phải xác nhận mentor thay tiêu chí bằng metric tuần. [Báo cáo cải tiến](../M2/reports/m2_improved_models_20261006_handoff.md).
