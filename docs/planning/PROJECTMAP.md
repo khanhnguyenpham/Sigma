@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-050/E78 — đã chuẩn bị và kiểm tra bản trình diễn mentor 16/10/2026:** dashboard mới 7 màn hình, bộ lọc ngay đầu trang, KPI nghiệp vụ, ví dụ SKU, biểu đồ tồn/thiếu theo tuyến và phiếu đề xuất nhập. 340 tests đạt; AppTest 24 ca qua 13 kịch bản/bộ lọc/mốc actual; demo tự sinh 1 test UI đạt. Timeline đối soát đúng 13 kịch bản; tải CSV thật 150 mặt hàng/Q240 khớp màn hình, không ID đơn/khách. Giữ nguyên raw/241 tệp protected và toàn bộ hash hai run hiện hành; job skipped_unchanged. [Kịch bản demo 5–7 phút](../mentor-demo.md). Mô hình/policy và các tiêu chí chưa đạt không đổi; không push/upload hoặc làm Word/slide.
+
 **CHG-049/E77 — cải tiến và kiểm tra bổ sung hoàn tất local 16/10/2026:** 332 tests đạt; AppTest 7 tab/11 ca lọc đạt. Giao diện thêm hướng xử lý tồn, so sánh 13 kịch bản, giải thích 1.550/2.867 ca cạn trước ngày 7 và cache theo parent/receipt. Hai thử nghiệm đã chọn validation/khóa trước test và đối soát: hiệu chỉnh tổng30 7/10, lịch sử học ngắn 8/10; giữ riêng nghiên cứu, không đổi sản phẩm mặc định 9/10/11,786316%. Đối soát độc lập 39.100 hệ số/228 fit; 241 tệp nguồn/lịch sử và hai summary bàn giao nguyên hash. Job vẫn skipped_unchanged đúng M3 v2. R05 ngày/R07/T14 còn mở; chưa push/upload. [Kết quả và bằng chứng](../aggregate-refinement.md).
 
 **CHG-048/E76 — đã bàn giao sản phẩm local 16/10/2026, còn tiêu chí chưa đạt:** tổng 30 ngày mới đạt 9/10, MAPE trung bình 11,786316%, China Mobile 20,333443%; coverage 100%. M3 đã chạy 13 kịch bản/920 mặt hàng và đối soát 1.100.320 ledger/khuyến nghị, 266.123 sự kiện, 8.280 cửa sổ cảnh báo. Dashboard 7 tab/11 ca lọc đã kiểm; 310 tests đạt; demo tự sinh và UI đạt. Task SigmaM3Refresh lúc 07:00 đã cài/chạy thử trả 0. Dùng `sigma_m3_30d_20261016_precision_v2`; R05 ngày/R07/T14 chưa nghiệm thu toàn bài. [Mở sản phẩm và xem bằng chứng](../30day-m3.md). Bộ M2 final của Khang giữ riêng, raw và 241 tệp protected nguyên hash; chưa push/upload.
@@ -202,3 +204,8 @@ Các sai khác trên không tự xác nhận hoặc bác bỏ nghiệp vụ đã
 - `sigma/demo 30.py`: tự sinh dữ liệu3 tuyến, forecast/policy/check/UI; máy clone không cần raw riêng tư.
 - `outputs/sigma_aggregate_30d_20261016`, `outputs/sigma_m3_30d_20261016_precision_v2`, receipts `_verification.json`: có thật local, ignored. `reports/M3_2026-10-16` có ảnh/CSV/README local.
 - [Hướng dẫn/kết quả/giới hạn](../30day-m3.md). Chưa push code mới, không nhận mọi điều kiện đã đạt.
+
+
+## Giao diện trình diễn mentor — E78
+
+Entry `sigma/ui/product30.py` chỉ nạp/kiểm nguồn; `product30_pages.py` chia 7 màn hình, `product30_charts.py` giữ biểu đồ, `product30_support.py` giữ tổng hợp/format có kiểm thử và `product30.css` giữ giao diện. [Kịch bản trình diễn](../mentor-demo.md). Bằng chứng local `.tools/m3_20261016/mentor_tests.xml`, `mentor_ui_check.json`, `mentor_timeline_check.json`, `mentor_export_check.json`; ảnh trong reports/M3_2026-10-16/mentor_*.png. Không tạo run mô hình/policy mới cho thay đổi UI.

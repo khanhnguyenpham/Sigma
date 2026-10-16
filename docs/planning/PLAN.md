@@ -1,5 +1,7 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-050/E78 — đã chuẩn bị và kiểm tra bản trình diễn mentor 16/10/2026:** dashboard mới 7 màn hình, bộ lọc ngay đầu trang, KPI nghiệp vụ, ví dụ SKU, biểu đồ tồn/thiếu theo tuyến và phiếu đề xuất nhập. 340 tests đạt; AppTest 24 ca qua 13 kịch bản/bộ lọc/mốc actual; demo tự sinh 1 test UI đạt. Timeline đối soát đúng 13 kịch bản; tải CSV thật 150 mặt hàng/Q240 khớp màn hình, không ID đơn/khách. Giữ nguyên raw/241 tệp protected và toàn bộ hash hai run hiện hành; job skipped_unchanged. [Kịch bản demo 5–7 phút](../mentor-demo.md). Mô hình/policy và các tiêu chí chưa đạt không đổi; không push/upload hoặc làm Word/slide.
+
 **CHG-049/E77 — cải tiến và kiểm tra bổ sung hoàn tất local 16/10/2026:** 332 tests đạt; AppTest 7 tab/11 ca lọc đạt. Giao diện thêm hướng xử lý tồn, so sánh 13 kịch bản, giải thích 1.550/2.867 ca cạn trước ngày 7 và cache theo parent/receipt. Hai thử nghiệm đã chọn validation/khóa trước test và đối soát: hiệu chỉnh tổng30 7/10, lịch sử học ngắn 8/10; giữ riêng nghiên cứu, không đổi sản phẩm mặc định 9/10/11,786316%. Đối soát độc lập 39.100 hệ số/228 fit; 241 tệp nguồn/lịch sử và hai summary bàn giao nguyên hash. Job vẫn skipped_unchanged đúng M3 v2. R05 ngày/R07/T14 còn mở; chưa push/upload. [Kết quả và bằng chứng](../aggregate-refinement.md).
 
 **CHG-048/E76 — đã bàn giao sản phẩm local 16/10/2026, còn tiêu chí chưa đạt:** tổng 30 ngày mới đạt 9/10, MAPE trung bình 11,786316%, China Mobile 20,333443%; coverage 100%. M3 đã chạy 13 kịch bản/920 mặt hàng và đối soát 1.100.320 ledger/khuyến nghị, 266.123 sự kiện, 8.280 cửa sổ cảnh báo. Dashboard 7 tab/11 ca lọc đã kiểm; 310 tests đạt; demo tự sinh và UI đạt. Task SigmaM3Refresh lúc 07:00 đã cài/chạy thử trả 0. Dùng `sigma_m3_30d_20261016_precision_v2`; R05 ngày/R07/T14 chưa nghiệm thu toàn bài. [Mở sản phẩm và xem bằng chứng](../30day-m3.md). Bộ M2 final của Khang giữ riêng, raw và 241 tệp protected nguyên hash; chưa push/upload.
@@ -493,7 +495,9 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t11"></a>
 ### T11 — Dashboard và cập nhật cục bộ
 
-- **Trạng thái hiện hành CHG-048/E76:** M3 7 tab/11 ca lọc đã kiểm AppTest và browser tại 8507. Task07:00 đã cài/chạy thử0, last-good/skip/lock đã kiểm; snapshot2025 và tồn giả định có nhãn. E77: thêm hướng xử lý/so sánh/giải thích và kiểm cache bằng chứng; 11 ca UI đạt.
+- **Trạng thái hiện hành CHG-050/E78:** Đã chuẩn bị giao diện trình diễn mentor 7 màn hình, KPI, lọc nhanh, SKU/công thức/CSV, timeline theo tuyến và giải thích giới hạn; AppTest24ca/13kịch bản, browser và export đạt. Xem docs/mentor-demo.
+
+- **Trạng thái trước CHG-050/E78:** M3 7 tab/11 ca lọc đã kiểm AppTest và browser tại 8507. Task07:00 đã cài/chạy thử0, last-good/skip/lock đã kiểm; snapshot2025 và tồn giả định có nhãn. E77: thêm hướng xử lý/so sánh/giải thích và kiểm cache bằng chứng; 11 ca UI đạt.
 
 - **CHG-042/E70:** Launcher M2 mặc định đọc final aggregates; -RunId mở lịch sử. Bộ tồn/M3 không đổi.
 
@@ -512,7 +516,9 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t12"></a>
 ### T12 — Kiểm thử, tái lập và bảo mật gói
 
-- **Trạng thái hiện hành CHG-048/E76:** 310 tests đạt; forecast1160 nhóm metric/8556 allocation, M3 1,1 triệu dòng/266 nghìn sự kiện/8280 replay kiểm độc lập. Demo 3 tuyến và UI đạt; CI mới chưa chạy remote. E77: kiểm cuối 332 tests đạt; 39.100 hệ số/228 fit mới đối soát.
+- **Trạng thái hiện hành CHG-050/E78:** 340 tests native đạt/0fail/0error/0skip; timeline tổng hợp chunk đối soát13kịch bản, số nguyên khớp tuyệt đối; CSV tải thật150/Q240; demo UI đạt, raw/241protected và tất cả hash bundle nguồn/M3 v2 nguyên. CI remote mới chưa chạy.
+
+- **Trạng thái trước CHG-050/E78:** 310 tests đạt; forecast1160 nhóm metric/8556 allocation, M3 1,1 triệu dòng/266 nghìn sự kiện/8280 replay kiểm độc lập. Demo 3 tuyến và UI đạt; CI mới chưa chạy remote. E77: kiểm cuối 332 tests đạt; 39.100 hệ số/228 fit mới đối soát.
 
 - **CHG-042/E70:** Run m2_final_20261011_local fit mới validation/test/future, audit raw và verifier độc lập; hash/cặp/nhãn/cutoff/metric/heads/parity kiểm lại.
 

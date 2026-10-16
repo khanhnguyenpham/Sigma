@@ -1,5 +1,7 @@
 # Tổng 30 ngày và sản phẩm M3
 
+**CHG-050/E78 — giao diện trình diễn mentor:** [hướng dẫn 5–7 phút](mentor-demo.md) đi kèm 7 màn hình mới. Timeline kịch bản được tổng hợp từ ledger đã đối soát, bộ lọc quốc gia/nhà mạng có hiệu lực lên chỉ số mô phỏng. Mô hình, policy và các run sealed giữ nguyên; đổi cách trình bày không làm các tiêu chí còn thiếu thành đạt.
+
 **Cập nhật CHG-049/E77:** giao diện đã có hướng xử lý tồn, so sánh 13 kịch bản và giải thích cơ hội cảnh báo. Hai thử nghiệm mô hình đã chạy/đối soát, nhưng chưa cải thiện ổn định nên không đổi bộ dự báo mặc định. [Protocol, kết quả và giới hạn](aggregate-refinement.md). Số liệu nguồn bài dưới đây giữ nguyên.
 
 ## Đã làm và cách mở

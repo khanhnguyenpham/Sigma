@@ -1,5 +1,7 @@
 # SIGMA — Tổng 30 ngày và sản phẩm M3
 
+**Trình diễn mentor:** mở dashboard tại `http://127.0.0.1:8507/` và dùng [kịch bản demo 5–7 phút](docs/mentor-demo.md). Giao diện đã tổ chức theo nhu cầu → kho hàng → kịch bản → cảnh báo/giao khách → kiểm chứng; có minh họa từng SKU và xuất phiếu đề xuất nhập.
+
 [Cập nhật sau bàn giao](docs/aggregate-refinement.md): thêm hướng xử lý tồn, so sánh kịch bản và giải thích cảnh báo; các thử nghiệm hiệu chỉnh/học ngắn giữ riêng, kết quả mặc định vẫn 9/10 tổng 30.
 
 Đã kiểm tra phần Khang trên GitHub, hợp nhất `M2-final-report` vào nhánh local `codex/30day-m3`, giữ lại luồng M3. Mở sản phẩm:
