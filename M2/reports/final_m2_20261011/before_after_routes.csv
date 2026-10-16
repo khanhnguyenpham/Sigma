@@ -1,0 +1,11 @@
+destination_country,carrier,model_before,model,mape_positive_pct_before,mape_positive_pct
+China,China Mobile,lgbm_annual_l1_15,lgbm_annual_l1_15,19.72517279605811,19.72517279605811
+Japan,NTT Docomo,lgbm_annual_ratio7,lgbm_annual_ratio7,17.002365932873804,17.002365932873804
+Japan,SoftBank,lgbm_weighted_l1,lgbm_weighted_l1,15.362331524020112,15.362331524020112
+Japan,au (KDDI),prophet_annual3_weekly_w540,prophet_annual3_weekly_w540,17.872841189609936,17.872841189609936
+South Korea,KT,lgbm_weighted_l1,lgbm_weighted_l1,13.692475493642203,13.692475493642203
+South Korea,LG U+,lgbm_cal_ratio7_56_p4,tune56_w540_mul56p4,20.688008614795773,19.26589984972207
+South Korea,SKT,lgbm_poisson,lgbm_poisson,13.879323075151595,13.879323075151595
+Thailand,AIS,lgbm_annual_ratio7,lgbm_annual_ratio7,12.667359729033208,12.667359729033208
+Thailand,TrueMove H,lgbm_annual_l1_15_min50,lgbm_annual_l1_15_min50,16.45517294401905,16.45517294401905
+Thailand,dtac,lgbm_annual_ratio7,lgbm_annual_ratio7,11.530713828617488,11.530713828617488

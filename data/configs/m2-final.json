@@ -1,0 +1,112 @@
+{
+  "version": "m2-final-v1",
+  "base_config": "data/configs/config.json",
+  "model_config": "data/configs/m2-reproduce.json",
+  "report_id": "final_m2_20261011",
+  "source_sha256": "6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b",
+  "numeric_tolerance": 1e-08,
+  "routes": [
+    {
+      "destination_country": "Thailand",
+      "carrier": "dtac",
+      "family": "LightGBM",
+      "model": "lgbm_annual_ratio7",
+      "selection_basis": "original_validation_locked",
+      "validation_mape_positive_pct": 10.228777988489677,
+      "validation_mae": 8.306933249518895
+    },
+    {
+      "destination_country": "South Korea",
+      "carrier": "LG U+",
+      "family": "LightGBM",
+      "model": "tune56_w540_mul56p4",
+      "selection_basis": "retrospective_test_sweep_user_approved",
+      "validation_mape_positive_pct": 11.336558417751442,
+      "validation_mae": 6.407460295094685,
+      "scale_days": 56,
+      "training_window_days": 540,
+      "head_history_days": 56,
+      "head_prior_weeks": 4
+    },
+    {
+      "destination_country": "South Korea",
+      "carrier": "KT",
+      "family": "LightGBM",
+      "model": "lgbm_weighted_l1",
+      "selection_basis": "original_validation_locked",
+      "validation_mape_positive_pct": 12.623206019865684,
+      "validation_mae": 7.317563315861009
+    },
+    {
+      "destination_country": "Thailand",
+      "carrier": "AIS",
+      "family": "LightGBM",
+      "model": "lgbm_annual_ratio7",
+      "selection_basis": "original_validation_locked",
+      "validation_mape_positive_pct": 13.822049919146037,
+      "validation_mae": 12.859707789488299
+    },
+    {
+      "destination_country": "Japan",
+      "carrier": "au (KDDI)",
+      "family": "Prophet",
+      "model": "prophet_annual3_weekly_w540",
+      "selection_basis": "original_validation_locked",
+      "validation_mape_positive_pct": 15.31402740434531,
+      "validation_mae": 9.230741216674456
+    },
+    {
+      "destination_country": "South Korea",
+      "carrier": "SKT",
+      "family": "LightGBM",
+      "model": "lgbm_poisson",
+      "selection_basis": "original_validation_locked",
+      "validation_mape_positive_pct": 16.212001932640394,
+      "validation_mae": 9.132319442559016
+    },
+    {
+      "destination_country": "Thailand",
+      "carrier": "TrueMove H",
+      "family": "LightGBM",
+      "model": "lgbm_annual_l1_15_min50",
+      "selection_basis": "original_validation_locked",
+      "validation_mape_positive_pct": 17.83893615884148,
+      "validation_mae": 16.044912524658898
+    },
+    {
+      "destination_country": "Japan",
+      "carrier": "NTT Docomo",
+      "family": "LightGBM",
+      "model": "lgbm_annual_ratio7",
+      "selection_basis": "original_validation_locked",
+      "validation_mape_positive_pct": 18.887120683085847,
+      "validation_mae": 9.209463851085122
+    },
+    {
+      "destination_country": "Japan",
+      "carrier": "SoftBank",
+      "family": "LightGBM",
+      "model": "lgbm_weighted_l1",
+      "selection_basis": "original_validation_locked",
+      "validation_mape_positive_pct": 20.16850012551752,
+      "validation_mae": 11.394332206877918
+    },
+    {
+      "destination_country": "China",
+      "carrier": "China Mobile",
+      "family": "LightGBM",
+      "model": "lgbm_annual_l1_15",
+      "selection_basis": "original_validation_locked",
+      "validation_mape_positive_pct": 20.327491563098757,
+      "validation_mae": 8.582616561521371
+    }
+  ],
+  "reference_run": "m2_reproduce_20261009_full",
+  "sweep_run": "m2_test_sweep_20261011_fixed",
+  "refinement_run": "m2_refinement_20261011",
+  "reference_manifest_sha256": "744241997537e441a7b55fb59bb75d75320c47f9c78652348f23615c93a5d411",
+  "sweep_manifest_sha256": "8b6167a5ace0b163fa0c0249e2d091e344be51e5d4a09a5f35cd121545fba0a0",
+  "policy": "CHG-042: user requests final 10-route weekly bundle, fresh rerun, report cleanup and GitHub push. Keep nine original choices; adopt LG U+ test-sweep winner without reranking other routes. Freeze before replay; no new tuning.",
+  "evaluation_limit": "All test metrics are retrospective; LG U+ was selected using this test. No independent holdout or daily R05 acceptance claim.",
+  "publication": "Code, configuration and aggregate route metrics only; raw, daily series and per-origin predictions remain local."
+}

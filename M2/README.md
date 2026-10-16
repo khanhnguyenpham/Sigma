@@ -1,49 +1,28 @@
-# M2 — dự báo nhu cầu
+# M2 — bộ báo cáo final
 
-**Bản báo cáo ngày 07/10/2026:** nhánh `m2-forecast-report`, kết quả đã khóa **9/10 tổng7, MAPE15,89%**. LG U+20,69% chưa đạt và để tối ưu sau; ngày0/10, R05 còn mở. [Kịch bản trình bày](reports/presentation-guide.md).
+Nhánh `M2-final-report`, ngày 11/10/2026. Chạy lại mới 10 cấu hình cố định từ CSV gốc: **10/10 tuyến có MAPE tổng D+1…D+7 test <20%, trung bình 15.745366%, coverage100%**. LG U+ đạt19,265900%; chín tuyến còn lại tái lập dự báo cũ trong dung sai1e-8.
+
+- [Báo cáo kết quả 10 tuyến](reports/final_m2_20261011/README.md), [HTML offline](reports/final_m2_20261011/index.html).
+- [Cấu hình 10 mô hình](reports/final_m2_20261011/model_configurations.md): lịch sử học, mốc chuẩn hóa, loss, feature, refit và hiệu chỉnh.
+- [JSON đầy đủ](reports/final_m2_20261011/model_configurations.json), [metric test](reports/final_m2_20261011/test_metrics.csv), [trước/sau](reports/final_m2_20261011/before_after_routes.csv).
 
 ```powershell
 .\scripts\start_m2.ps1
 ```
 
-Chạy từ gốc repo, mở `http://127.0.0.1:8505`. Bản offline local: `M2/reports/m2_report_20261007/index.html`. Hai bản chỉ đọc dữ liệu đã khóa, không train khi trình bày. Raw/cấu hình đầu vào/bảng split nằm trong data; mã mô hình vẫn ở M2/models.
+Mở http://127.0.0.1:8505. Giao diện chỉ đọc bộ bảng tổng hợp đã kiểm hash; clone không cần CSV riêng tư để xem báo cáo. [Notebook final](notebooks/final_report.ipynb) dùng cùng bộ này.
 
-```text
-M2/
-├── artifacts/    # Các run, CSV dự báo/metric, lựa chọn, logs và snapshot nguồn
-├── models/       # Mã, cấu hình và hướng dẫn riêng từng mô hình
-│   ├── LightGBM/
-│   ├── SARIMA/
-│   └── Prophet/
-├── notebooks/    # Notebook xem kết quả và so sánh mô hình
-└── reports/      # Báo cáo, biểu đồ, bảng tổng hợp và hướng dẫn
-```
-
-- [Báo cáo cải tiến và lựa chọn từng tuyến](reports/m2_improved_models_20261006_handoff.md).
-- [Đối soát độc lập, biểu đồ và bảng tháng](reports/m2_improved_models_20261006_fixed_review/M2_three_models.md).
-- [Đối chứng 12 biến thể cũ](reports/m2_three_models_20261006_modular/M2_three_models.md).
-- [Protocol và hướng dẫn chạy](reports/model-families.md).
-- [Cấu trúc mã và cách thêm mô hình/biến thể](models/README.md).
-- [Cấu hình](models/model_families.json), [pipeline](models/families.py), [verifier](models/verify.py).
-- [Notebook so sánh](notebooks/model_comparison.ipynb).
-- [LightGBM](artifacts/m2_improved_models_20261006_fixed/LightGBM), [SARIMA](artifacts/m2_improved_models_20261006_fixed/SARIMA), [Prophet](artifacts/m2_improved_models_20261006_fixed/Prophet).
-
-Chạy từ thư mục gốc dự án, cùng cấp với `M2`:
+## Tái chạy và kiểm tra
 
 ```powershell
-.venv\Scripts\python.exe -m sigma model-families --run-id ten_run_moi
-.venv\Scripts\python.exe -m sigma verify-model-families --run-id m2_improved_models_20261006_fixed --output-id ten_bao_cao_moi
-.venv\Scripts\python.exe -m pytest M2/models/tests
+.venv/Scripts/python.exe -B -m M2.final_report --run-id NEW_UNIQUE_RUN_ID
+.venv/Scripts/python.exe -B -m pytest M2/models/tests
 ```
 
-Run mới được ghi vào `M2/artifacts/<run-id>`, báo cáo đối soát vào `M2/reports/<output-id>`. Mỗi họ có `daily` và `direct_7d`. Tên run/báo cáo phải mới để bảo toàn kết quả đã khóa.
+Cấu hình khóa tại [m2-final.json](../data/configs/m2-final.json). Runner fit mới validation/test/future; audit raw, top10 train, đủ nhãn/cặp, cutoff, metric, hiệu chỉnh và parity chín tuyến. Run, chuỗi ngày và forecast từng origin giữ local trong `M2/artifacts/<run-id>`. Khi xuất báo cáo lần mới, đổi `report_id` trong bản cấu hình trước run; không ghi đè bộ đã seal.
 
-Các bộ run M2 cũ được chuyển nguyên bộ, kể cả đầu ra mô phỏng đi kèm trong cùng manifest. CSV, metric, lựa chọn và manifest giữ nguyên byte. `artifacts/relocation_before.json` và `artifacts/relocation_checked.json` ghi bằng chứng chuyển tệp; `artifacts/source_snapshots` giữ đúng mã nguồn lúc run lịch sử được chạy để kiểm hash.
+## Phạm vi kết quả
 
-Đường dẫn cũ trong `outputs` là junction/hardlink tương thích, dữ liệu chính nằm trong M2. Hai entry point cũ ở `sigma` chuyển tới implementation trong `M2/models`. Dữ liệu gốc, xử lý chung ở `src`, pipeline sản phẩm và tồn kho dùng chung ở `sigma` vẫn là phụ thuộc của M2. Kết quả cũ trong báo cáo lịch sử có thể dùng đường dẫn tương thích.
+Chín tuyến giữ lựa chọn validation; LG U+ dùng `tune56_w540_mul56p4` từ test-sweep theo yêu cầu người dùng. Đây là test hồi cứu, rerun xác minh tái lập, chưa có holdout độc lập. H8–14 LG U+ còn20,255792%. MAPE tổng7 không thay nghiệm thu R05 theo ngày; R05/R07/T14 vẫn mở. Tồn/M3 chưa đổi.
 
-M2 chưa đạt R05 ngày; các kết quả test là hồi cứu. Việc tổ chức thư mục không thay target, split, mô hình chọn hoặc kết quả.
-
-Pool cải tiến v2 đã đối soát:26 biến thể/50 cấu hình; tổng7 lựa chọn theo validation đạt9/10 test hồi cứu,15,89%, LG U+20,69%; ngày0/10. Notebook đọc run sửa đã seal, báo cả lựa chọn phối hợp và độ ổn định tháng. Lượt đầu có lỗi metadata actual của calibration được giữ nguyên để truy vết, không dùng để bàn giao. Chi tiết tại báo cáo cải tiến.
-
-`presentation.py` đóng gói các bảng/HTML từ run đã seal; `report_app.py` là giao diện báo cáo. `data/training/m2_report_20261007` có daily_sales/top10/audit cùng train/validation/test riêng; `data/configs` giữ cấu hình và các bản lịch sử. Không đổi file/selection/metric trong run nguồn.
+Bộ final chỉ có cấu hình và bảng tổng hợp phục vụ báo cáo. Các bản thử nghiệm, run lỗi và báo cáo cũ giữ trong [lịch sử M2](HISTORY.md) để truy vết. Mở lịch sử local bằng `.\scripts\start_m2.ps1 -RunId m2_reproduce_20261009_full`; published07/10 giữ nguyên byte.

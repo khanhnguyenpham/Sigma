@@ -1,4 +1,29 @@
+# SIGMA — M2 final
+
+Nhánh `M2-final-report` · 11/10/2026. **10/10 tuyến đạt MAPE tổng quantity7 ngày test <20%, trung bình 15.745366%, coverage100%.** LG U+19,265900%; chín tuyến còn lại giữ cấu hình và tái lập dự báo cũ. Bộ gồm9 cấu hình LightGBM và1 Prophet.
+
+```powershell
+python -m venv .venv
+.venv/Scripts/python.exe -m pip install -r requirements.txt
+.\scripts\start_m2.ps1
+```
+
+Mở http://127.0.0.1:8505. Dashboard đọc bảng tổng hợp đã kiểm hash, không cần raw để xem.
+
+[Báo cáo final](M2/reports/final_m2_20261011/README.md) · [Cấu hình 10 mô hình](M2/reports/final_m2_20261011/model_configurations.md) · [HTML offline](M2/reports/final_m2_20261011/index.html) · [Lệnh tái chạy](M2/README.md).
+
+Test hồi cứu: LG U+ được chọn qua test-sweep; chín tuyến giữ lựa chọn validation. Lượt mới kiểm tái lập trên cùng test. H8–14 LG U+ còn20,255792%; R05 theo ngày/R07/T14 vẫn mở. Bộ tồn/M3 giữ phạm vi riêng.
+
+GitHub chỉ có mã, cấu hình, tài liệu và bảng tổng hợp được cho phép. Raw, chuỗi ngày, dự báo từng origin, draft Word/PDF và scratch giữ local. Báo cáo cũ và lịch sử thử nghiệm vẫn được bảo toàn.
+
+<details>
+<summary>Lịch sử và sản phẩm M2–M3 trước bộ final</summary>
+
+Các số liệu và lệnh dưới đây ghi theo từng thời điểm. Launcher M2 mặc định nay mở final; muốn xem run cũ phải truyền `-RunId`.
+
 # SIGMA — Báo cáo M2 ngày 07/10/2026
+
+**Tái hiện local09/10/2026:** đã chạy lại26 biến thể/50 cấu hình từ CSV gốc;20 lựa chọn và90 kết quả từng họ/tuyến khớp báo cáo cũ. Tổng7:9/10,15,89%; ngày:0/10,46,74%; LG U+20,69% chưa đạt. [Báo cáo mới](M2/reports/m2_reproduce_20261009_full_review/README.md), [CSV đầu vào từng biến thể](data/training/m2_reproduce_20261009_full/README.md). Mở bằng `.\scripts\start_m2.ps1 -RunId m2_reproduce_20261009_full`. Raw/Word/báo cáo published giữ nguyên; run mới và CSV chỉ local, không push. Báo cáo07/10 bên dưới là bộ lịch sử đã xuất bản.
 
 Nhánh này tập trung **M2: dữ liệu, ba họ mô hình, phương pháp dự báo và kết quả từng tuyến**.
 Kết quả đã khóa: **tổng 7 đạt 9/10 tuyến, MAPE trung bình 15,89%**; LG U+ **20,69%**, để tối ưu sau.
@@ -104,3 +129,6 @@ Tồn/nhập/mapping/lead time nhà cung cấp là mô phỏng, tách thời gia
 Job cập nhật lịch D+7 từ forecast đã kiểm; skip input không đổi, chống chạy trùng, giữ last-good khi lỗi. Đổi raw cần pipeline mới. [Hướng dẫn giao/job](docs/customer-delivery.md) có lịch Windows07:00 đã cài và chạy thử mã0; pythonwẩn/IgnoreNew/StartWhenAvailable. Job chỉ refreshD+7, không tự huấn luyện toàn bộ với CSV mới; ghi last_attempt ngay cả khi skipped_unchanged.
 
 Đọc [TASK](docs/planning/TASK.md), [requirements](docs/requirements.md), [PLAN](docs/planning/PLAN.md), [development](docs/development.md), [review-log](docs/review-log.md#evidence). [README lịch sử](docs/history/README-before-code-organization.md) giữ số liệu trước CHG-027. Word/slide M2 lịch sử giữ local, không làm lại trong đợt này.
+
+
+</details>

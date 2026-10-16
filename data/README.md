@@ -1,5 +1,11 @@
 # Dữ liệu cục bộ
 
+Bộ M2 final dùng [m2-final.json](configs/m2-final.json); [tham số từng tuyến](../M2/reports/final_m2_20261011/model_configurations.md) công khai lịch sử học và mốc chuẩn hóa. Audit mới giữ raw SHA/118.296 quantity/46 tuyến; không đưa raw/daily/per-origin CSV lên GitHub.
+
+**Lịch thử nghiệm ngày11/10/2026:** [calendar_features.csv](reference/calendar_features.csv),2.980 dòng ngày×điểm đến, phải đi cùng [catalog có ngày công bố](reference/calendar_features.events.json). CSV không chứa quantity; mô hình tính lại cờ lễ/khoảng cách theo thông tin có tại từng origin. [Protocol/kết quả](../docs/calendar-experiment.md); đầu ra vẫn local, không tích hợp dashboard.
+
+**Tái hiện ngày09/10/2026:** CSV gốc đã được người dùng đưa lại, khớp SHA-256 nguồn báo cáo cũ. [Bảng xử lý](processed/m2_reproduce_20261009_full/manifest.json) gồm audit, chuỗi731 ngày×46 tuyến và top10 theo train. [Bộ dữ liệu học](training/m2_reproduce_20261009_full/manifest.json) có ba bảng split và [mục lục50 cấu hình](training/m2_reproduce_20261009_full/input_catalog.json). Mỗi biến thể có CSV đầu vào tại lần fit đầu30/06/2025 và JSON ghi cột/cấu hình; các lần refit tiếp dùng lịch sử tại cutoff tương ứng. Các thư mục này chỉ ở local, bị Git ignore; không phải bản phục hồi nguyên byte của run cũ.
+
 **Nguồn cập nhật CHG-024 ngày 05/10/2026:** người dùng mô tả CSV order được cung cấp là dữ liệu giả định. Không nhận đã kiểm chứng cơ chế sinh; vẫn coi snapshot là riêng tư, giữ byte/hash và không push. Tồn/nhập/mapping tiếp tục có nhãn mô phỏng. Các mô tả “order thực” ở lịch sử trước đó phản ánh thông tin người dùng cung cấp tại thời điểm cũ.
 
 CSV nguồn `sigma_sim_data_orders.csv` là dữ liệu riêng tư, không được đưa vào Git hoặc GitHub. Tệp được giữ nguyên trên máy; `.gitignore` loại dữ liệu trong thư mục này khỏi các commit thông thường.

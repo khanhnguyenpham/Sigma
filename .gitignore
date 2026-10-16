@@ -29,6 +29,27 @@ M2/reports/published_m2_20261007/*
 !M2/reports/published_m2_20261007/validation_monthly_mix.csv
 !M2/reports/published_m2_20261007/validation_monthly_selected.csv
 
+# Final M2: reviewed aggregates only; no per-origin forecasts or daily sales.
+!M2/reports/final_m2_20261011/
+M2/reports/final_m2_20261011/*
+!M2/reports/final_m2_20261011/README.md
+!M2/reports/final_m2_20261011/index.html
+!M2/reports/final_m2_20261011/model_configurations.md
+!M2/reports/final_m2_20261011/model_configurations.json
+!M2/reports/final_m2_20261011/selected_models.csv
+!M2/reports/final_m2_20261011/test_metrics.csv
+!M2/reports/final_m2_20261011/validation_metrics.csv
+!M2/reports/final_m2_20261011/validation_monthly_metrics.csv
+!M2/reports/final_m2_20261011/before_after_routes.csv
+!M2/reports/final_m2_20261011/route_comparison.png
+!M2/reports/final_m2_20261011/verification_summary.json
+!M2/reports/final_m2_20261011/report_manifest.json
+
+# Local preparation, test scratch space and private report drafts.
+tmp/
+docs/*.docx
+docs/Bài Báo Cáo M2.pdf
+
 # Local environments, caches and build artifacts.
 .venv/
 .venv*/

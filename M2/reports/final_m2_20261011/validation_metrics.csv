@@ -1,0 +1,41 @@
+family,target,split,model,destination_country,carrier,block,cadence,mape_positive_pct,mae,wape_pct,bias,n_expected,n_labeled_pairs,n_scored_pairs,n_positive_pairs,n_zero_pairs,coverage,positive_share,unique_target_days,passes_20_pct
+LightGBM,direct_7d,validation,lgbm_annual_l1_15,China,China Mobile,1,daily_origins,20.327491563098757,8.582616561521371,20.355902490094813,-3.502518177902386,86,86,86,86,0,1.0,1.0,86,False
+LightGBM,direct_7d,validation,lgbm_annual_l1_15,China,China Mobile,1,nonoverlapping_7d,20.232453161909433,7.996905186452372,19.14544519776811,-2.993358351940873,13,13,13,13,0,1.0,1.0,13,False
+LightGBM,direct_7d,validation,lgbm_annual_l1_15,China,China Mobile,2,daily_origins,20.15062187783645,8.901866138692489,21.29117241770229,-3.703347910578677,79,79,79,79,0,1.0,1.0,79,False
+LightGBM,direct_7d,validation,lgbm_annual_l1_15,China,China Mobile,2,nonoverlapping_7d,19.28554239621987,7.963807921934578,19.18989860707127,-3.082536546133319,12,12,12,12,0,1.0,1.0,12,True
+LightGBM,direct_7d,validation,lgbm_annual_l1_15_min50,Thailand,TrueMove H,1,daily_origins,17.83893615884148,16.044912524658898,18.04921487404402,-9.946722699072652,86,86,86,86,0,1.0,1.0,86,True
+LightGBM,direct_7d,validation,lgbm_annual_l1_15_min50,Thailand,TrueMove H,1,nonoverlapping_7d,19.38724051457647,17.188620932431224,19.114805142994516,-11.859483115197882,13,13,13,13,0,1.0,1.0,13,True
+LightGBM,direct_7d,validation,lgbm_annual_l1_15_min50,Thailand,TrueMove H,2,daily_origins,17.540193245921675,14.82327298643935,17.289806081923945,-8.225521346020122,79,79,79,79,0,1.0,1.0,79,True
+LightGBM,direct_7d,validation,lgbm_annual_l1_15_min50,Thailand,TrueMove H,2,nonoverlapping_7d,16.833827644032816,14.413528558077116,16.72749929370652,-9.199182487564775,12,12,12,12,0,1.0,1.0,12,True
+LightGBM,direct_7d,validation,lgbm_annual_ratio7,Japan,NTT Docomo,1,daily_origins,18.887120683085847,9.209463851085122,15.581622883992138,-1.4432612893770795,86,86,86,86,0,1.0,1.0,86,True
+LightGBM,direct_7d,validation,lgbm_annual_ratio7,Japan,NTT Docomo,1,nonoverlapping_7d,20.80653752770077,10.303822277513023,17.83617704496262,-0.41391094772740133,13,13,13,13,0,1.0,1.0,13,False
+LightGBM,direct_7d,validation,lgbm_annual_ratio7,Japan,NTT Docomo,2,daily_origins,20.00553693406545,9.23594649306701,15.868633600528353,-1.3812589848882961,79,79,79,79,0,1.0,1.0,79,False
+LightGBM,direct_7d,validation,lgbm_annual_ratio7,Japan,NTT Docomo,2,nonoverlapping_7d,22.028139272015082,10.24899345957427,17.721602523759547,-0.9269765451862307,12,12,12,12,0,1.0,1.0,12,False
+LightGBM,direct_7d,validation,lgbm_annual_ratio7,Thailand,AIS,1,daily_origins,13.822049919146037,12.859707789488299,13.781119874093378,-7.415758298449552,86,86,86,86,0,1.0,1.0,86,True
+LightGBM,direct_7d,validation,lgbm_annual_ratio7,Thailand,AIS,1,nonoverlapping_7d,13.559020889041776,11.803087259108057,12.744197206678137,-7.038588948898944,13,13,13,13,0,1.0,1.0,13,True
+LightGBM,direct_7d,validation,lgbm_annual_ratio7,Thailand,AIS,2,daily_origins,17.116224754985492,15.681467008170191,16.877873210428408,-9.628166676326376,79,79,79,79,0,1.0,1.0,79,True
+LightGBM,direct_7d,validation,lgbm_annual_ratio7,Thailand,AIS,2,nonoverlapping_7d,16.070990915492864,13.98071924868799,15.168953976876661,-9.261187642350299,12,12,12,12,0,1.0,1.0,12,True
+LightGBM,direct_7d,validation,lgbm_annual_ratio7,Thailand,dtac,1,daily_origins,10.228777988489677,8.306933249518895,9.28752287387708,-0.20838078316491704,86,86,86,86,0,1.0,1.0,86,True
+LightGBM,direct_7d,validation,lgbm_annual_ratio7,Thailand,dtac,1,nonoverlapping_7d,10.852048966073102,8.523462782796887,9.677293989201708,0.19090518596895123,13,13,13,13,0,1.0,1.0,13,True
+LightGBM,direct_7d,validation,lgbm_annual_ratio7,Thailand,dtac,2,daily_origins,11.17229415839246,8.848384314048124,10.006045817489289,-1.0707200631914877,79,79,79,79,0,1.0,1.0,79,True
+LightGBM,direct_7d,validation,lgbm_annual_ratio7,Thailand,dtac,2,nonoverlapping_7d,11.86710473311063,8.856080765955719,10.10199326915101,-0.49674799022031024,12,12,12,12,0,1.0,1.0,12,True
+LightGBM,direct_7d,validation,lgbm_poisson,South Korea,SKT,1,daily_origins,16.212001932640394,9.132319442559016,16.04780286187322,-5.9967916125638085,86,86,86,86,0,1.0,1.0,86,True
+LightGBM,direct_7d,validation,lgbm_poisson,South Korea,SKT,1,nonoverlapping_7d,11.932980484287341,7.250846502138036,12.842098709508784,-5.520571156010339,13,13,13,13,0,1.0,1.0,13,True
+LightGBM,direct_7d,validation,lgbm_poisson,South Korea,SKT,2,daily_origins,16.06869544012428,9.214589751847974,16.256198981598704,-6.530551967641915,79,79,79,79,0,1.0,1.0,79,True
+LightGBM,direct_7d,validation,lgbm_poisson,South Korea,SKT,2,nonoverlapping_7d,14.533926463952481,8.822147709512878,15.522840544597441,-6.91352685292707,12,12,12,12,0,1.0,1.0,12,True
+LightGBM,direct_7d,validation,lgbm_weighted_l1,Japan,SoftBank,1,daily_origins,20.16850012551752,11.394332206877918,19.346743727374154,-2.8874757122216574,86,86,86,86,0,1.0,1.0,86,False
+LightGBM,direct_7d,validation,lgbm_weighted_l1,Japan,SoftBank,1,nonoverlapping_7d,19.355687150921725,10.347860957067358,17.700288479194164,-2.548794529148152,13,13,13,13,0,1.0,1.0,13,True
+LightGBM,direct_7d,validation,lgbm_weighted_l1,Japan,SoftBank,2,daily_origins,21.26579940502536,12.130876690835114,20.631630970419245,-3.6518760697192296,79,79,79,79,0,1.0,1.0,79,False
+LightGBM,direct_7d,validation,lgbm_weighted_l1,Japan,SoftBank,2,nonoverlapping_7d,18.437776536219765,10.439353414904081,17.718845965890946,-3.930335282735568,12,12,12,12,0,1.0,1.0,12,True
+LightGBM,direct_7d,validation,lgbm_weighted_l1,South Korea,KT,1,daily_origins,12.623206019865684,7.317563315861009,13.327201295299593,-4.665809444642454,86,86,86,86,0,1.0,1.0,86,True
+LightGBM,direct_7d,validation,lgbm_weighted_l1,South Korea,KT,1,nonoverlapping_7d,12.387387432713655,6.865061355348488,12.623167980131592,-4.1505969223400445,13,13,13,13,0,1.0,1.0,13,True
+LightGBM,direct_7d,validation,lgbm_weighted_l1,South Korea,KT,2,daily_origins,13.671741374157811,8.234245440736252,14.844942716069465,-6.175696922977944,79,79,79,79,0,1.0,1.0,79,True
+LightGBM,direct_7d,validation,lgbm_weighted_l1,South Korea,KT,2,nonoverlapping_7d,12.195839027810662,7.181131048495359,13.176387244945614,-5.3383940427235075,12,12,12,12,0,1.0,1.0,12,True
+LightGBM,direct_7d,validation,tune56_w540_mul56p4,South Korea,LG U+,1,daily_origins,11.336558417751442,6.407460295094685,11.25953382464534,-1.9979573546823814,86,86,86,86,0,1.0,1.0,86,True
+LightGBM,direct_7d,validation,tune56_w540_mul56p4,South Korea,LG U+,1,nonoverlapping_7d,11.18165508966449,5.96867490479844,10.614606533841275,-1.6706115942059152,13,13,13,13,0,1.0,1.0,13,True
+LightGBM,direct_7d,validation,tune56_w540_mul56p4,South Korea,LG U+,2,daily_origins,12.00706549307416,6.541414393441386,11.752825496517385,-1.2859019246265233,79,79,79,79,0,1.0,1.0,79,True
+LightGBM,direct_7d,validation,tune56_w540_mul56p4,South Korea,LG U+,2,nonoverlapping_7d,13.00494127089249,6.783372384615457,12.113164972527601,-1.908839783563235,12,12,12,12,0,1.0,1.0,12,True
+Prophet,direct_7d,validation,prophet_annual3_weekly_w540,Japan,au (KDDI),1,daily_origins,15.31402740434531,9.230741216674456,14.342253742258414,-0.8547217377835346,86,86,86,86,0,1.0,1.0,86,True
+Prophet,direct_7d,validation,prophet_annual3_weekly_w540,Japan,au (KDDI),1,nonoverlapping_7d,16.408528853825594,9.04342908186724,14.18149313199929,-0.5826250800504706,13,13,13,13,0,1.0,1.0,13,True
+Prophet,direct_7d,validation,prophet_annual3_weekly_w540,Japan,au (KDDI),2,daily_origins,14.501770334055436,9.061561055648664,13.819755277919777,-2.149392279470326,79,79,79,79,0,1.0,1.0,79,True
+Prophet,direct_7d,validation,prophet_annual3_weekly_w540,Japan,au (KDDI),2,nonoverlapping_7d,15.635526873813987,8.709920683779163,13.451614955643496,-1.5450110945520368,12,12,12,12,0,1.0,1.0,12,True

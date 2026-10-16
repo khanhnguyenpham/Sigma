@@ -1,0 +1,11 @@
+destination_country,carrier,family,model,selection_basis,validation_mape_positive_pct,validation_mae,scale_days,training_window_days,head_history_days,head_prior_weeks,target
+Thailand,dtac,LightGBM,lgbm_annual_ratio7,original_validation_locked,10.228777988489677,8.306933249518895,,,,,direct_7d
+South Korea,LG U+,LightGBM,tune56_w540_mul56p4,retrospective_test_sweep_user_approved,11.336558417751442,6.407460295094685,56.0,540.0,56.0,4.0,direct_7d
+South Korea,KT,LightGBM,lgbm_weighted_l1,original_validation_locked,12.623206019865684,7.317563315861009,,,,,direct_7d
+Thailand,AIS,LightGBM,lgbm_annual_ratio7,original_validation_locked,13.822049919146037,12.859707789488299,,,,,direct_7d
+Japan,au (KDDI),Prophet,prophet_annual3_weekly_w540,original_validation_locked,15.31402740434531,9.230741216674456,,,,,direct_7d
+South Korea,SKT,LightGBM,lgbm_poisson,original_validation_locked,16.212001932640394,9.132319442559016,,,,,direct_7d
+Thailand,TrueMove H,LightGBM,lgbm_annual_l1_15_min50,original_validation_locked,17.83893615884148,16.044912524658898,,,,,direct_7d
+Japan,NTT Docomo,LightGBM,lgbm_annual_ratio7,original_validation_locked,18.887120683085847,9.209463851085122,,,,,direct_7d
+Japan,SoftBank,LightGBM,lgbm_weighted_l1,original_validation_locked,20.16850012551752,11.394332206877918,,,,,direct_7d
+China,China Mobile,LightGBM,lgbm_annual_l1_15,original_validation_locked,20.327491563098757,8.582616561521371,,,,,direct_7d

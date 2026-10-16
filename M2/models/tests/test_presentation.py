@@ -55,3 +55,37 @@ def test_report_requires_the_approved_deferred_route_and_complete_coverage(tmp_p
     write_csv(folder/'overall_test_metrics.csv', metrics); seal()
     with pytest.raises(ValueError, match='Deferred M2 route'):
         presentation.load_checkpoint(tmp_path)
+
+
+def test_reproduced_report_uses_verified_results_without_imposing_old_scores(tmp_path):
+    run_id = 'm2_fresh_synthetic'
+    folder = tmp_path / 'M2/artifacts' / run_id
+    review = tmp_path / 'M2/reports' / (run_id + '_review')
+    folder.mkdir(parents=True); review.mkdir(parents=True)
+    choices = pd.DataFrame([{'destination_country': 'Fake', 'carrier': f'Carrier{i}',
+                            'family': 'LightGBM', 'model': 'fake', 'target': target,
+                            'validation_mape_positive_pct': 12.}
+                           for target in ('daily', 'direct_7d') for i in range(10)])
+    metrics = choices.drop(columns='validation_mape_positive_pct').copy()
+    metrics['block'] = 1; metrics['cadence'] = 'daily_origins'; metrics['coverage'] = 1.
+    metrics['mape_positive_pct'] = [18.]*10 + [24.]*10
+    metrics['passes_20_pct'] = metrics.mape_positive_pct.le(20)
+    write_csv(folder/'overall_selected_models.csv', choices)
+    write_csv(folder/'overall_test_metrics.csv', metrics)
+    write_csv(folder/'summary.csv', pd.DataFrame({'synthetic': [True]}))
+    write_json(folder/'data_audit.json', {'synthetic': True})
+    monthly = metrics.copy(); monthly['month'] = '2025-07'
+    write_csv(review/'validation_monthly_selected.csv', monthly)
+    seal_manifest(folder, {'status': 'complete'})
+    write_json(review/'summary.json', {'status': 'verified',
+               'run_manifest_sha256': sha256(folder/'manifest.json'),
+               'files': {'validation_monthly_selected.csv': sha256(review/'validation_monthly_selected.csv')}})
+    result = presentation.load_checkpoint(tmp_path, run_id=run_id)
+    assert not result['frozen'] and result['run_id'] == run_id
+    assert result['daily'].passes_20_pct.sum() == 10
+    assert result['weekly'].passes_20_pct.sum() == 0
+    with pytest.raises(ValueError, match='Invalid M2 run id'):
+        presentation.load_checkpoint(tmp_path, run_id='../escape')
+    write_csv(review/'validation_monthly_selected.csv', monthly.iloc[:1])
+    with pytest.raises(ValueError, match='Verified M2 report changed'):
+        presentation.load_checkpoint(tmp_path, run_id=run_id)

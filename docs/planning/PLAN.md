@@ -1,5 +1,17 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-042/E70 — 11/10/2026:** bộ [M2 final](../../M2/reports/final_m2_20261011/README.md) trên nhánh `M2-final-report` đã fit mới và kiểm độc lập10 lựa chọn cố định: tổng7 test10/10<20%, mean15.745366%, coverage100%; LG U+19,265900%. Chín tuyến cũ tái lập forecast validation/test trong1e-8. Chín lựa chọn validation giữ nguyên; LG U+ chọn từ test-sweep theo yêu cầu mới, nên test hồi cứu. H8–14 LG U+20,255792%; R05 ngày/R07/T14 mở. Có bảng cấu hình/metric/HTML và dashboard final; raw, run cũ, published07/10 và tồn/M3 giữ nguyên. Mã/cấu hình/bảng tổng hợp đã push GitHub; CI Windows của commit mã0cbeaf0 đạt toàn bộ checks; raw/daily/per-origin/draft giữ local.
+
+**CHG-041/E69 — hoàn tất 11/10/2026:** T08–T09/T12 [chấm toàn bộ160 lượt cấu hình trên test](../test-sweep-experiment.md) theo yêu cầu mới, bỏ điều kiện phải thắng validation cho bảng nghiên cứu riêng. Có17 lượt<20%; tốt nhất `tune56_w540_mul56p4` test19,265900%, coverage100%, validation11,336558%. Xếp hạng test chỉ khám phá hồi cứu; lựa chọn cũ/chín tuyến/dashboard/báo cáo khóa giữ nguyên.25 tests/pip check đạt,29.440 dự báo/640 metric/2.116 head/349 weighted fits/60 nhóm phân bổ kiểm độc lập, raw/757 tệp protected nguyên. Run sửa sau lỗi tên tệp baseline dùng forecast có sẵn khớp chính xác, không refit. H8–14 còn20,255792%; R05 ngày/R07/T14 mở.
+
+**CHG-040/E68 — nghiên cứu hoàn tất 11/10/2026:** T04/T08–T09/T12 chạy [21 cấu hình hiệu chỉnh/cập nhật](../adaptive-experiment.md) và [26 cấu hình cơ cấu đơn](../composition-experiment.md), gồm đối chứng. Lựa chọn cơ cấu đơn thắng validation10,616717% so với10,775820%; một test khóa trước đạt20,446740% so với20,520981% trước, **vẫn chưa<20%**,9/10.29 tests đạt;604 nhóm metric kiểm độc lập, raw/630 tệp protected nguyên, chín tuyến có1.656 forecast/metric nguyên chính xác. Run đầu cơ cấu đơn lỗi biên nhãn giữ `failed`/`invalidated`; run sửa giữ nguyên toàn bộ forecast và không đổi cấu hình. Dashboard/báo cáo khóa giữ nguyên, R05/R07/T14 mở; không push/upload.
+
+**CHG-039/E67 — nghiên cứu hoàn tất 11/10/2026:** T08–T09/T12 đã chạy35/44/24 cấu hình gồm đối chứng, đăng ký riêng trước từng lượt. [Kết quả](../focus-experiment.md): LG U+ validation11,632703→10,775820%, một test hồi cứu20,688009→20,520981%, **chưa đạt<20%**. Lượt hierarchy/refinement không thắng validation nên không chấm thêm test.42 tests liên quan đạt; kiểm độc lập412 metric validation/42 nhóm phân bổ, chín tuyến giữ nguyên1.656 forecast/metric. Raw/562 tệp protected nguyên; dashboard/báo cáo/nghiệm thu giữ nguyên, R05/R07/T14 mở.
+
+**CHG-038/E66 — 11/10/2026:** bổ sung T04/T08–T09/T12 theo [thử nghiệm lịch lễ](../calendar-experiment.md), nhánh local mới `codex/m2-calendar-forecast`. Lịch2.980 dòng,1.768 đỉnh chỉ train;10 ứng viên giữ tham số/seed/refit, lọc ngày công bố tại từng origin. Run `m2_calendar_20261011` complete,20 artifact seal; LG U+ validation đối chứng11,632703% vẫn tốt nhất nên không chấm test mới, chưa đạt mục tiêu test<20%.35 tests liên quan và kiểm18.400 nhãn/400 metric/1.400 cặp hiệu chỉnh đạt; raw/498 tệp bảo vệ nguyên. Giữ nghiệm thu R05 ngày/R07/T14, chín lựa chọn khác và dashboard/báo cáo đã khóa; không push/upload.
+
+**CHG-037/E65 — tái hiện local hoàn tất 09/10/2026:** run `m2_reproduce_20261009_full` fit mới26 biến thể/50 cấu hình,475 artifact; verifier đạt401.600 dòng/9.160 nhóm metric.20 lựa chọn và90 kết quả họ×tuyến×mục tiêu khớp published, chênh MAPE test0. Tổng7 đạt9/10,15,89%; LG U+20,69%; ngày0/10,46,74%. Đã tạo CSV xử lý46 tuyến, ba bảng split và561.200 dòng đầu vào/300 cặp hiệu chỉnh. Raw/báo cáo published/ba Word cũ nguyên hash; nhánh trong ảnh đã nằm trong HEAD, không merge/push. [Báo cáo và bằng chứng](../../M2/reports/m2_reproduce_20261009_full_review/README.md) chỉ local; T07–T09/T12 có bằng chứng tái chạy, R05/R07/T14 giữ mở.
+
 **CHG-040/E68 — 06/10/2026:** theo phản hồi người dùng, phạm vi 4 người làm lại Canva tập trung M2. Du 1–11; Tuấn Anh 12–18 +35; Hiếu 19–21 +32–33; Cường 22–24 +31 +34 +37–38, tạo mẫu/ghép/kiểm cuối. Bỏ trang nguồn 25–30/36 về M3; sửa mục lục 2/kết luận 31/hỏi đáp 37 để đúng M2. [TXT phân công](../../reports/M2_2026-10-07/PHAN_CONG_4_NGUOI_CANVA.txt) đã sửa; PPTX/PDF gốc E65 giữ nguyên, chưa có bản Canva mới. Các phân công M3 trước đây ở E66/E67 hết áp dụng trong công việc này.
 
 **CHG-039/E67 — 06/10/2026:** người dùng yêu cầu phân công dễ hiểu, chỉ gồm Du, Tuấn Anh, Hiếu, Cường; không giao việc cho người dùng. Đã viết lại [TXT phân công](../../reports/M2_2026-10-07/PHAN_CONG_4_NGUOI_CANVA.txt) bằng ngôn ngữ đơn giản. Phần slide của bốn người giữ nguyên; Cường tạo Canva chung, chia sẻ cho ba người còn lại, ghép/kiểm bản cuối và xuất file. Vai trò Nguyên review trong CHG-038/E66 không còn áp dụng. Chưa có bản Canva hoặc xác nhận thành viên hoàn thành.
@@ -347,6 +359,10 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t04"></a>
 ### T04 — Chuỗi số bán, lịch và EDA
 
+- **CHG-040/E68:** audit mới và CSV moment33.626 dòng theo ngày/tuyến cho phân phối quantity/đơn, không xuất ID; quantity/order_count/moment đối soát độc lập từ raw, top10 train nguyên. [Bảng và nguồn](../composition-experiment.md).
+
+- **Bổ sung CHG-038/E66:** audit raw/chuỗi46 tuyến bảo toàn118.296 quantity; lịch745 ngày×4 điểm đến và1.768 đỉnh train hoàn tất. Catalog giữ ngày công bố/nguồn/chưa xác minh; bảng đỉnh chỉ phân tích, không là feature. [Chi tiết](../calendar-experiment.md).
+
 - **Phân công đề xuất 04/10/2026:** Du phụ trách; Cường review.
 
 - **Trạng thái:** Đã triển khai chuỗi sales, lịch và EDA; giới hạn nguồn lịch được ghi.
@@ -401,6 +417,16 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t08"></a>
 ### T08 — LightGBM có điều kiện
 
+- **CHG-042/E70:** Bộ final tái dùng cấu hình đã nghiên cứu, không tìm thêm ứng viên; LightGBM pooled top10, LG U+ scale56/học540.
+
+- **CHG-041/E69:** chạy đủ160 lượt cấu hình đã đăng ký của sáu pool trên test theo yêu cầu mới, không lọc validation.17 lượt h1–7<20%; cửa sổ học540/scale56 đạt19,265900%. Không đổi code/params của phase cũ hoặc feature/cutoff; [CSV và phạm vi hồi cứu](../test-sweep-experiment.md).
+
+- **CHG-040/E68:**47 cấu hình gồm đối chứng ở hai lượt đã hoàn tất, feature cơ cấu đơn/CV thắng validation10,616717%. Teacher/head/age weights/cadence dùng dữ liệu đã hoàn tất; mã/config cũ và estimator mặc định nguyên. [Kết quả và protocol](../composition-experiment.md).
+
+- **CHG-039/E67:** ba lượt bám nhu cầu/hiệu chỉnh/pool/blend, phân rã country/share và tinh chỉnh đã hoàn tất. Scale56/đầu56p4 thắng validation10,775820%; toàn bộ head/feature dùng lịch sử tại origin.42 tests liên quan đạt; [bảng cấu hình/kết quả](../focus-experiment.md).
+
+- **Bổ sung CHG-038/E66:**10 ứng viên lịch giữ nguyên seed/tham số/refit đã chạy pooled top10; toàn bộ feature lễ/khoảng cách tính theo origin. Không ứng viên lịch nào thắng MAPE validation LG U+ của đầu hiệu chỉnh hiện tại11,632703%.
+
 - **Phân công đề xuất 04/10/2026:** Tuấn Anh phụ trách khi kích hoạt; Nguyên review cả kết quả hoặc biên bản không kích hoạt.
 
 - **Trạng thái:** Hoàn thành; điều kiện kích hoạt, 4 cấu hình Poisson đã chạy.
@@ -413,6 +439,16 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t09"></a>
 ### T09 — Khóa và đánh giá M2
+
+- **CHG-042/E70:** Khóa10 lựa chọn trước rerun; tổng7 test10/10<20%, coverage100%. Chín tuyến parity1e-8; LG U+ test-selected, không thay R05 ngày.
+
+- **CHG-041/E69:** bảng nghiên cứu xếp hạng bằng test nhận diện `tune56_w540_mul56p4`19,265900%, MAE10,529504/WAPE19,266752%/coverage100%; h8–14 còn20,255792%. Không thay lựa chọn validation E68 hoặc chín tuyến/dashboard/báo cáo khóa. Test dùng để so sánh nên không là đánh giá độc lập/nghiệm thu R05 ngày.
+
+- **CHG-040/E68:** khóa `composition_both56_mul56p4` trước một test hồi cứu20,446740%, vẫn chưa<20%; chín tuyến forecast/metric nguyên. MAE/WAPE/bias/block2 không cải thiện đồng đều. Không thay dashboard/bộ báo cáo khóa hoặc nghiệm thu R05/R07/T14.
+
+- **CHG-039/E67:** lựa chọn khóa từ validation được chấm test hồi cứu20,520981%, còn thiếu mục tiêu<20%; block2/MAE/WAPE kém hơn đối chứng. Hai lượt tiếp không thắng validation, không chấm lại. Chín tuyến forecast/metric nguyên, không thay dashboard hoặc bộ dự báo khóa; R05/R07/T14 mở.
+
+- **Bổ sung CHG-038/E66:** giữ lựa chọn LG U+ hiện tại và chín tuyến khác vì lịch không cải thiện validation; không chấm test mới. Mốc test hồi cứu20,688009% chưa đạt mục tiêu<20%; không đổi dashboard/checkpoint hoặc R05 ngày.
 
 - **Báo cáo ngày07/10 — CHG-034/E62:** dùng kết quả9/10 đã khóa; giữ LG U+20,69% trong bảng và hoãn tối ưu. Có HTML offline, dashboard M2, bảng dữ liệu/split và guide7–10 phút. Đây là mốc trình bày trước deadline17/10; không thay R05 hoặc sản phẩm46 tuyến.
 - **Cải tiến CHG-033/E61:** triển khai26 biến thể/50 cấu hình đã chạy và đối soát; 40 kiểm tra liên quan đạt. Lựa chọn theo validation tổng7 có9/10 tuyến test hồi cứu, MAPE15,89%, LG U+20,69%; ngày0/10. Báo cáo riêng tháng7/8/9 cho thấy tháng9 yếu hơn. R05 vẫn mở; không thay sản phẩm V13 hoặc chọn lại theo test.
@@ -447,6 +483,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t11"></a>
 ### T11 — Dashboard và cập nhật cục bộ
 
+- **CHG-042/E70:** Launcher M2 mặc định đọc final aggregates; -RunId mở lịch sử. Bộ tồn/M3 không đổi.
+
 - **Phân công đề xuất 04/10/2026:** Cường phụ trách; Hiếu review.
 
 - **Trạng thái:** Bộ M2–M3 khóaV13, sáu trang/SKU+loại/4kịch bản kiểm qua AppTest. JobWindows07:00 đã cài/chạy thử trả0; refresh giữ last-good. Có launcher8504 và hướng dẫn demo.
@@ -462,6 +500,16 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t12"></a>
 ### T12 — Kiểm thử, tái lập và bảo mật gói
 
+- **CHG-042/E70:** Run m2_final_20261011_local fit mới validation/test/future, audit raw và verifier độc lập; hash/cặp/nhãn/cutoff/metric/heads/parity kiểm lại.
+
+- **CHG-041/E69:**25 tests/pip check đạt; run sweep sửa complete43 artifact, receipt kiểm29.440 dự báo/640 metric/2.116 head/349 weighted fits/60 nhóm phân bổ và toàn bộ điểm validation nguồn. Raw/757 protected files và1.656 forecast chín tuyến nguyên; ba đối chứng184 cặp mỗi bản lệch0. Run đầu35 artifact giữ failed do đường dẫn baseline, sửa chỉ tổng hợp lại, forecast/metadata khớp chính xác. Không refit/full suite/CI remote; [hash/receipt/giới hạn](../test-sweep-experiment.md).
+
+- **CHG-040/E68:**29 tests liên quan/pip check đạt; hai run15/38 artifact complete,604 metric/733 weighted fits/1.528 head kiểm độc lập. Raw/630 protected files và1.656 forecast chín tuyến nguyên. Run lỗi19 artifact giữ invalidated; regression biên nhãn và7.696 forecast parity0 ở run sửa. Full suite/CI remote không chạy lại; [receipt và giới hạn](../composition-experiment.md).
+
+- **CHG-039/E67:**42 tests liên quan/pip check đạt, ba run25/16/15 artifact seal;412 nhóm metric validation và42 nhóm country allocation được kiểm độc lập.1.656 forecast của chín tuyến khớp chính xác; raw/562 protected files nguyên. Full suite/CI không chạy lại; test đã xem nhiều lần, outputs local.
+
+- **Bổ sung CHG-038/E66:**35 tests liên quan đạt; seal20 artifact, kiểm18.400 nhãn/400 metric/1.400 cặp hiệu chỉnh, đối chứng3.680 cặp lệch≤1,42e-14. Raw/498 tệp được bảo vệ nguyên; receipt độc lập đạt. Full suite/CI remote không chạy lại, outputs giữ local.
+
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Du review. Mỗi tác giả cung cấp kiểm thử/bằng chứng cho module của mình.
 
 - **Trạng thái:** 214 tests đạt; generic447810pairs/calibration42136factors, fullpolicy/stock/customer và6trang kiểm độc lập; raw/59sealedv11 nguyên. CI Windows push/PR của commit 183ed10 đều đạt tại E55; CI 043cf85 giữ làm lịch sử.
@@ -474,6 +522,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t13"></a>
 ### T13 — Báo cáo, slide và bảo vệ
+
+- **CHG-042/E70:** Báo cáo final M2 dạng Markdown/HTML, cấu hình10 tuyến JSON/Markdown và bảng metric; Word/slide cũ giữ lịch sử, chưa nghiệm thu toàn bài.
 
 - **Phân công Canva hiện hành theo CHG-040 (06/10/2026):** chỉ báo cáo M2, bốn người: Du 1–11; Tuấn Anh 12–18 +35; Hiếu 19–21 +32–33; Cường 22–24 +31 +34 +37–38, mẫu/chia sẻ/ghép/kiểm/xuất cuối. Bỏ nguồn 25–30/36, sửa 2/31/37 cho đúng M2. Review chéo Du ↔ Tuấn Anh, Hiếu ↔ Cường. Không giao việc cho người dùng. PPTX/PDF E65 nguyên; chưa có bản Canva hoặc xác nhận thành viên hoàn thành.
 
