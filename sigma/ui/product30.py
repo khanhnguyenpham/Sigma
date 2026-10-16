@@ -10,6 +10,8 @@ import streamlit as st
 from src.common import ROOT, ROUTE, ITEM, sha256
 from sigma.jobs.product30 import settings
 from sigma.inventory.product30 import validate_product
+from sigma.analysis.alert_diagnostics import explain_events
+from sigma.ui.product30_support import evidence_stamps, recommendation_action
 
 st.set_page_config(page_title='SIGMA · M3',layout='wide',initial_sidebar_state='expanded')
 st.markdown('<style>.block-container{padding-top:1.5rem}h1,h2,h3{color:#14324a}div[data-testid="stMetric"]{background:#f0f5f8;padding:12px;border-radius:6px}div[data-testid="stMetricValue"]{font-size:1.8rem}[data-testid="stAppDeployButton"]{display:none}</style>',unsafe_allow_html=True)
@@ -67,7 +69,7 @@ try:
     state=json.loads((state_dir/'state.json').read_text()) if (state_dir/'state.json').is_file() else {}
     run_id=state.get('last_good_run',cfg['product_run'])
     folder=ROOT/'outputs'/run_id
-    stamps=tuple((p.name,p.stat().st_size,p.stat().st_mtime_ns) for p in folder.iterdir() if p.is_file())
+    stamps=evidence_stamps(ROOT,run_id,cfg['aggregate_run'])
     bundle=load_bundle(run_id,sha256(folder/'summary.json'),stamps)
     if bundle['summary']['aggregate_run']!=cfg['aggregate_run']:raise ValueError('Bộ tồn kho không khớp cấu hình dự báo.')
     source=ROOT/bundle['protocol']['config']['source']
@@ -105,6 +107,7 @@ st.info('Demo ba tuyến do phần mềm tự sinh; không chứng minh độ ch
 tabs=st.tabs(['Tổng quan','Dự báo 7 / 30 ngày','Tồn và đặt hàng','Cảnh báo','Lịch giao khách','Biến động bán','Cập nhật & nguồn'])
 
 with tabs[0]:
+    st.caption('Các chỉ số tổng quan dưới đây áp dụng cho toàn bộ bộ kết quả; bộ lọc chi tiết dùng ở từng tab.')
     top=bundle['top'].loc[bundle['top'].window_days.eq(30)]
     cols=st.columns(2)+st.columns(2)
     cols[0].metric('Tuyến tổng 30 đạt ≤20%',f"{int(top.passes_20_pct.sum())}/{len(top)}")
@@ -118,6 +121,7 @@ with tabs[0]:
     st.warning('Kết quả test là hồi cứu. Tổng 30 và tổng 7 được chấm riêng; chưa thay tiêu chí dự báo ngày R05 hoặc xác nhận mọi sự kiện đều báo trước 7 ngày.')
 
 with tabs[1]:
+    st.caption('Dự báo tổng theo tuyến quốc gia–nhà mạng; bộ lọc SKU/loại chỉ dùng cho tồn kho và cảnh báo.')
     window=st.radio('Tổng lượng bán dự báo',[30,7],format_func=lambda x:f'{x} ngày',horizontal=True)
     if window==7:
         st.caption('Đây là đối chứng 7 ngày trong thử nghiệm mới chạy cùng tổng30. Bộ final M2 của Khang ngày11/10 được giữ riêng, không bị thay thế bằng bảng này.')
@@ -139,17 +143,29 @@ with tabs[1]:
 with tabs[2]:
     part=filtered(rec,country,carrier,sku,ptype)
     part=part.loc[part.scenario_id.eq(scenario)]
+    part['suggested_action']=part.apply(recommendation_action,axis=1)
     cols=st.columns(2)+st.columns(1)
     cols[0].metric('Tồn hiện có · mô phỏng',f'{part.on_hand.sum():,.0f}')
     cols[1].metric('Mặt hàng dưới điểm đặt lại',int(part.needs_replenishment.sum()))
     cols[2].metric('Lượng đề xuất đặt',f'{part.Q.sum():,.0f}')
     st.caption('Cảnh báo khi tồn hiện có < ROP. Hàng đang về chỉ dùng tính lượng đặt Q; không cộng vào tồn trước ETA. Q trong bảng là quyết định của mô phỏng, chưa gửi đơn nhập thực.')
-    columns=ITEM+['partner_id','on_hand','SS','ROP','S','IP','Q','eta','status','expected_depletion_date','depletion_state']
-    st.dataframe(part[columns].rename(columns=LABELS),hide_index=True,width='stretch')
+    columns=ITEM+['partner_id','on_hand','SS','ROP','S','IP','Q','eta','status','expected_depletion_date','depletion_state','suggested_action']
+    st.dataframe(part[columns].rename(columns={**LABELS,'suggested_action':'Hướng xử lý đề xuất'}),hide_index=True,width='stretch')
     st.subheader('Phân bổ nhu cầu theo mặt hàng')
     detail=filtered(bundle['item_forecast'],country,carrier,sku,ptype)
     st.line_chart(detail.groupby('target_date').forecast_qty.sum().rename('Quantity phân bổ'))
     st.dataframe(bundle['metrics'].loc[lambda x:x.scenario_id.eq(scenario)],hide_index=True,width='stretch')
+    st.caption('Chỉ số chính sách lịch sử ở trên áp dụng toàn bộ mặt hàng của kịch bản; không phải chỉ số riêng của SKU đang lọc.')
+    with st.expander('So sánh tác động của 13 kịch bản mô phỏng'):
+        sensitivity=bundle['metrics'].loc[lambda x:x.evaluation.eq('continuous_replenishment_policy'),
+            ['scenario_id','demand','shortage','fill_rate','mean_closing_on_hand']].copy()
+        sensitivity['scenario_id']=sensitivity.scenario_id.map(lambda x:scenario_names.get(x,x))
+        sensitivity['fill_rate']=sensitivity.fill_rate*100
+        sensitivity=sensitivity.rename(columns={'scenario_id':'Kịch bản','demand':'Nhu cầu mô phỏng',
+            'shortage':'Lượng thiếu','fill_rate':'Tỷ lệ đáp ứng (%)','mean_closing_on_hand':'Tồn cuối ngày bình quân'})
+        st.dataframe(sensitivity,hide_index=True,width='stretch')
+        st.bar_chart(sensitivity.set_index('Kịch bản')['Tỷ lệ đáp ứng (%)'])
+        st.caption('Thay một giả định mỗi lượt. Tồn đầu cao hơn có thể tăng đáp ứng nhưng cũng tăng lượng tồn; đây chưa phải tối ưu chi phí vì không có chi phí lưu kho/thiếu hàng được xác nhận.')
     download('Tải khuyến nghị đang xem',part,'sigma_stock_recommendations.csv')
 
 with tabs[3]:
@@ -161,6 +177,12 @@ with tabs[3]:
     cols[2].metric('Báo muộn',int(alerts.late.sum()))
     cols[3].metric('Bỏ sót sự kiện',fn)
     st.caption('Replay không đặt hàng mới, chấm sự kiện cạn đầu tiên trong các đợt H14 không chồng lấn. Chính sách có nhập hàng được đánh giá riêng ở tab Tồn.')
+    explanation,opportunity=explain_events(alerts)
+    with st.expander('Vì sao chưa phải sự kiện nào cũng được báo trước 7 ngày?'):
+        st.write(f"Trong {opportunity['actual_events']:,} sự kiện cạn, có {opportunity['events_before_day7']:,} ca xảy ra trước ngày thứ 7 của đợt. Một cảnh báo chỉ phát ở đầu đợt không thể cho các ca này đủ 7 ngày chuẩn bị.")
+        st.write(f"Có {opportunity['events_with_7day_opportunity']:,} ca có đủ thời gian; đã phát hiện {opportunity['detected_with_7day_opportunity']:,}, còn bỏ sót {opportunity['missed_with_7day_opportunity']:,} ca. Các ca bỏ sót vẫn cần cải thiện.")
+        st.caption('Đây là giải thích sau replay, không phải feature dự báo. Không loại ca cạn sớm để tăng tỷ lệ chính; mẫu số R07 vẫn giữ nguyên.')
+        st.dataframe(explanation.diagnostic_group.value_counts().rename_axis('Nhóm').reset_index(name='Số cửa sổ'),hide_index=True,width='stretch')
     active=filtered(rec,country,carrier,sku,ptype).loc[lambda x:x.scenario_id.eq(scenario)]
     active=active.loc[active.depletion_state.ne('no_depletion_within_horizon')]
     st.subheader('Cảnh báo tại mốc mới nhất · nhìn trước 30 ngày')
@@ -171,6 +193,7 @@ with tabs[3]:
     download('Tải bảng cảnh báo',alerts.drop(columns='event_id'),'sigma_alerts.csv')
 
 with tabs[4]:
+    st.caption('Lịch giao được tổng hợp theo tuyến; không phải lịch giao theo SKU đã được xác nhận.')
     part=filtered(bundle['delivery'],country,carrier)
     st.write('Khách đặt D → lịch giao D+7 ngày lịch, gồm cuối tuần. Thời gian này được giữ riêng với lead time nhập kho.')
     st.line_chart(part.groupby('delivery_date')[['known_commitment_qty','forecast_from_future_orders_qty']].sum())

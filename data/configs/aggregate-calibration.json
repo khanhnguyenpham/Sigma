@@ -1,0 +1,26 @@
+{
+  "version": "causal-aggregate-bias-v1",
+  "parent_run": "sigma_aggregate_30d_20261016",
+  "lookback_days": [
+    28,
+    56,
+    84
+  ],
+  "shrinkages": [
+    0.5,
+    1.0
+  ],
+  "estimators": [
+    "sum_ratio",
+    "mape_median"
+  ],
+  "minimum_completed_windows": 14,
+  "factor_bounds": [
+    0.75,
+    1.25
+  ],
+  "top10_only": true,
+  "selection": "validation positive MAPE, MAE, lexical candidate; identity always eligible",
+  "test_independent": false,
+  "numeric_tolerance": 1e-08
+}

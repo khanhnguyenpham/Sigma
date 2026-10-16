@@ -1,5 +1,7 @@
 # Tổng 30 ngày và sản phẩm M3
 
+**Cập nhật CHG-049/E77:** giao diện đã có hướng xử lý tồn, so sánh 13 kịch bản và giải thích cơ hội cảnh báo. Hai thử nghiệm mô hình đã chạy/đối soát, nhưng chưa cải thiện ổn định nên không đổi bộ dự báo mặc định. [Protocol, kết quả và giới hạn](aggregate-refinement.md). Số liệu nguồn bài dưới đây giữ nguyên.
+
 ## Đã làm và cách mở
 
 Ngày 16/10/2026, người dùng thuật lại mentor yêu cầu chạy tổng 30 và giao hoàn thiện M3. Nhánh local `codex/30day-m3` đã hợp nhất phần Khang tại `origin/M2-final-report` (b141528); nhánh `M2-final-cleanup` (261c631) được đọc đối chiếu, không dùng làm base vì đã bỏ M3. [Bộ final M2 Khang](../M2/reports/final_m2_20261011/README.md) đã kiểm hash qua loader; không nhận đã refit lại private run của Khang trên máy này.

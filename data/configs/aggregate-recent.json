@@ -1,0 +1,109 @@
+{
+  "version": "aggregate-recent-training-v1",
+  "parent_run": "sigma_aggregate_30d_20261016",
+  "windows": [
+    30
+  ],
+  "workers": 3,
+  "models": {
+    "recent_w180_plain7": {
+      "training_window_days": 180,
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 7,
+      "annual": false
+    },
+    "recent_w180_annual7": {
+      "training_window_days": 180,
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 7,
+      "annual": true
+    },
+    "recent_w180_plain15": {
+      "training_window_days": 180,
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 15,
+      "annual": false
+    },
+    "recent_w180_annual15": {
+      "training_window_days": 180,
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 15,
+      "annual": true
+    },
+    "recent_w270_plain7": {
+      "training_window_days": 270,
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 7,
+      "annual": false
+    },
+    "recent_w270_annual7": {
+      "training_window_days": 270,
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 7,
+      "annual": true
+    },
+    "recent_w270_plain15": {
+      "training_window_days": 270,
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 15,
+      "annual": false
+    },
+    "recent_w270_annual15": {
+      "training_window_days": 270,
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 15,
+      "annual": true
+    },
+    "recent_w365_plain7": {
+      "training_window_days": 365,
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 7,
+      "annual": false
+    },
+    "recent_w365_annual7": {
+      "training_window_days": 365,
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 7,
+      "annual": true
+    },
+    "recent_w365_plain15": {
+      "training_window_days": 365,
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 15,
+      "annual": false
+    },
+    "recent_w365_annual15": {
+      "training_window_days": 365,
+      "kind": "lgbm",
+      "objective": "regression_l1",
+      "units": "ratio",
+      "leaves": 15,
+      "annual": true
+    }
+  },
+  "selection": "validation complete-window MAPE, MAE, lexical ID; unchanged parent champion always eligible",
+  "test_independent": false,
+  "numeric_tolerance": 1e-08
+}

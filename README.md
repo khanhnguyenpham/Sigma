@@ -1,5 +1,7 @@
 # SIGMA — Tổng 30 ngày và sản phẩm M3
 
+[Cập nhật sau bàn giao](docs/aggregate-refinement.md): thêm hướng xử lý tồn, so sánh kịch bản và giải thích cảnh báo; các thử nghiệm hiệu chỉnh/học ngắn giữ riêng, kết quả mặc định vẫn 9/10 tổng 30.
+
 Đã kiểm tra phần Khang trên GitHub, hợp nhất `M2-final-report` vào nhánh local `codex/30day-m3`, giữ lại luồng M3. Mở sản phẩm:
 
 ```powershell

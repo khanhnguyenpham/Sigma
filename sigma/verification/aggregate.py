@@ -16,6 +16,16 @@ def read_predictions(path):
     return pd.read_csv(path, parse_dates=['as_of_date','window_start','target_date','fit_cutoff'], float_precision='round_trip')
 
 
+def read_fit_log(path):
+    logs = pd.read_csv(path)
+    # Inherited and newly fitted rows may serialize midnight differently.
+    # pandas can leave a mixed parse_dates column as strings; never rely on
+    # lexical ordering to establish that a training label was available.
+    for column in ['fit_cutoff', 'max_label_end']:
+        logs[column] = pd.to_datetime(logs[column], format='mixed', errors='raise')
+    return logs
+
+
 def independently_score(part, expected):
     valid = part.actual_qty.notna() & np.isfinite(part.forecast_qty)
     a = part.loc[valid,'actual_qty'].to_numpy(float)
@@ -111,7 +121,7 @@ def execute(run_id, output=None):
             execution=json.loads((out/f'{split}_{window}d_execution.json').read_text())
             assert lock['created_at_utc']<=execution['started_at_utc']
             assert execution['selection_sha256']==lock['selection_sha256']
-    logs=pd.read_csv(out/'fit_log.csv',parse_dates=['fit_cutoff','max_label_end'])
+    logs=read_fit_log(out/'fit_log.csv')
     fits=logs.loc[logs.status.eq('ok')]
     assert fits.max_label_end.le(fits.fit_cutoff).all()
     allocation=pd.read_csv(out/'daily_allocation.csv',parse_dates=['as_of_date','target_date'],float_precision='round_trip')
