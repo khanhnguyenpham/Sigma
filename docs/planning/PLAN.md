@@ -1,5 +1,13 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-040/E68 — 06/10/2026:** theo phản hồi người dùng, phạm vi 4 người làm lại Canva tập trung M2. Du 1–11; Tuấn Anh 12–18 +35; Hiếu 19–21 +32–33; Cường 22–24 +31 +34 +37–38, tạo mẫu/ghép/kiểm cuối. Bỏ trang nguồn 25–30/36 về M3; sửa mục lục 2/kết luận 31/hỏi đáp 37 để đúng M2. [TXT phân công](../../reports/M2_2026-10-07/PHAN_CONG_4_NGUOI_CANVA.txt) đã sửa; PPTX/PDF gốc E65 giữ nguyên, chưa có bản Canva mới. Các phân công M3 trước đây ở E66/E67 hết áp dụng trong công việc này.
+
+**CHG-039/E67 — 06/10/2026:** người dùng yêu cầu phân công dễ hiểu, chỉ gồm Du, Tuấn Anh, Hiếu, Cường; không giao việc cho người dùng. Đã viết lại [TXT phân công](../../reports/M2_2026-10-07/PHAN_CONG_4_NGUOI_CANVA.txt) bằng ngôn ngữ đơn giản. Phần slide của bốn người giữ nguyên; Cường tạo Canva chung, chia sẻ cho ba người còn lại, ghép/kiểm bản cuối và xuất file. Vai trò Nguyên review trong CHG-038/E66 không còn áp dụng. Chưa có bản Canva hoặc xác nhận thành viên hoàn thành.
+
+**CHG-038/E66 — 06/10/2026:** người dùng giao Du, Tuấn Anh, Hiếu, Cường lấy tài liệu và làm lại slide M2 trên Canva. [Phân công 4 người](../../reports/M2_2026-10-07/PHAN_CONG_4_NGUOI_CANVA.txt): Du slide 1–11; Tuấn Anh 12–18 +35; Hiếu 19–24 +32–34; Cường 25–31 +36–38, mẫu chung/ghép cuối; Nguyên review số liệu. Phân công đủ 38 slide không trùng, có nguồn/bàn giao/review chéo; chưa có bản Canva hoặc xác nhận thành viên hoàn thành. PPTX/PDF nguồn vẫn local, cần gửi riêng; số liệu và tiêu chí giữ nguyên.
+
+**CHG-037/E65 — 06/10/2026:** theo yêu cầu người dùng, đã fetch/switch sang `m2-forecast-report` tại commit nguồn `36b300c` và tạo bộ slide local báo cáo sáng 07/10. [PowerPoint M2](../../reports/M2_2026-10-07/SIGMA_M2_Du_lieu_Ngay_Tong7_M3_2026-10-07.pptx) có 38 slide (31 chính + 7 phụ lục), ghi chú từng trang, dữ liệu → ngày → tổng 7 → so sánh → M3 dự kiến; có PDF dự phòng và hướng dẫn trình bày. Đã kiểm 12 hash công bố, thống kê raw/top10/split và baseline cùng cặp; render/import PPTX cuối và xem từng slide. Giữ ngày 0/10, tổng 7 9/10 (15,89%), LG U+ 20,69% chưa đạt; test hồi cứu, R05/R07/T14 không đổi. Không refit, làm Word, push hoặc upload bộ slide.
+
 **CHG-036/E64 — 06/10/2026:** theo yêu cầu người dùng, nhánh báo cáo đổi thành `m2-forecast-report`, bỏ tiền tố codex. Email author/committer ba commit M2 trên nhánh mới được đổi sang `chaoskid1415@gmail.com`; cấu hình Git chỉ áp dụng repo này. Nội dung ba commit giữ nguyên, cập nhật tên nhánh trong hướng dẫn và metadata báo cáo; kết quả9/10/LG U+ chưa đạt không đổi. Nhánh GitHub cũ được thay bằng nhánh mới sau khi xác nhận push. [Báo cáo M2](../../M2/reports/published_m2_20261007/README.md).
 
 **CHG-035/E63 — 06/10/2026:** đã xuất bản nhánh GitHub `codex/m2-report-20261007` theo yêu cầu người dùng với [báo cáo M2 tổng hợp](../../M2/reports/published_m2_20261007/README.md), HTML offline, biểu đồ, CSV metric/lựa chọn và hash đối soát. Remote head commit báo cáo `88ddbba` đã kiểm khớp local. Giữ kết quả9/10 tổng7,15,89%, LG U+20,69% hoãn tối ưu; ngày0/10, test hồi cứu. Raw, train từng ngày và artifact forecast giữ local, không refit hoặc đổi nghiệm thu.
@@ -467,9 +475,11 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t13"></a>
 ### T13 — Báo cáo, slide và bảo vệ
 
+- **Phân công Canva hiện hành theo CHG-040 (06/10/2026):** chỉ báo cáo M2, bốn người: Du 1–11; Tuấn Anh 12–18 +35; Hiếu 19–21 +32–33; Cường 22–24 +31 +34 +37–38, mẫu/chia sẻ/ghép/kiểm/xuất cuối. Bỏ nguồn 25–30/36, sửa 2/31/37 cho đúng M2. Review chéo Du ↔ Tuấn Anh, Hiếu ↔ Cường. Không giao việc cho người dùng. PPTX/PDF E65 nguyên; chưa có bản Canva hoặc xác nhận thành viên hoàn thành.
+
 - **Phân công đề xuất 04/10/2026:** Cường phụ trách; Nguyên review. Các tác giả cung cấp phần phương pháp/kết quả truy về run.
 
-- **Trạng thái:** Theo yêu cầu mới CHG-022, đã tạo Word báo cáo tiến độ chi tiết 18 trang và slide M2 24 trang gửi mentor; đã kiểm tại E33. Báo cáo cuối/bảo vệ và nghiệm thu toàn bài còn mở; bản cũ giữ lịch sử, tài liệu mới private local.
+- **Trạng thái:** CHG-037/E65 đã tạo PowerPoint 38 slide có ghi chú, PDF dự phòng và TXT hướng dẫn từ nhánh m2-forecast-report cho báo cáo 07/10; đã kiểm hash/số liệu, import/render và rà từng slide. Bộ Word 18 trang/slide 24 trang CHG-022/E33 giữ làm lịch sử, chưa làm lại Word. Báo cáo cuối/bảo vệ và nghiệm thu toàn bài còn mở; tài liệu mới private local.
 - **Mục tiêu/yêu cầu:** R01–R09.
 - **Đầu vào/công việc/đầu ra:** Run kiểm tra/review-log → viết sales/phương pháp/kết quả/giả định/độ nhạy/giới hạn → report.md/pdf, slides, demo-script.
 - **Phụ thuộc:** T09–T12.

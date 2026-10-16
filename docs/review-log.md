@@ -875,3 +875,35 @@ Hashsummary: sigma_weekly_boost_v13: d2e0a1fedede62c7fa02f154100223423aad71d404e
 - Tạo nhánh mới từ bộ M2, sửa author/committer của riêng ba commit M2 trên nhánh mới; git diff với nhánh cũ xác nhận nội dung toàn cây giữ nguyên trước khi cập nhật tên trong hướng dẫn. Ba commit lịch sử nguồn bài trước M2 giữ nguyên danh tính. Nhánh cũ local vẫn giữ làm đối chiếu.
 - Cập nhật README gốc/M2, presentation-guide, README báo cáo và evidence.json; chỉ đổi tên nhánh và hash README, các CSV/biểu đồ/HTML và run seal không đổi. Không fit lại hoặc thêm dữ liệu riêng tư.
 - [Nhánh báo cáo](https://github.com/khanhnguyenpham/Sigma/tree/m2-forecast-report), [báo cáo M2](https://github.com/khanhnguyenpham/Sigma/blob/m2-forecast-report/M2/reports/published_m2_20261007/README.md). Push nhánh mới và xác nhận remote head trước khi bỏ tên nhánh GitHub cũ. CI mới chưa xác minh.
+
+
+### CHG-037 / E65 — Slide M2 từ nhánh báo cáo, 06/10/2026
+
+- Phạm vi T13: người dùng yêu cầu kéo nhánh `m2-forecast-report` trong ảnh rồi làm slide báo cáo sáng 07/10 theo thứ tự dữ liệu/model → dự báo ngày → tổng 7 → kết quả hai phương pháp → luồng M3 dự kiến. Fetch và switch từ nhánh codex/sigma-local-pipeline sạch sang nhánh theo dõi origin, HEAD nguồn `36b300c8eaff7f590655bff2f97587df7d4b015a`. Không sửa model/config, refit nguồn thật, làm Word hoặc push/upload slide.
+- Đối chiếu trực tiếp 12 hash trong evidence công bố, selected daily/weekly với overall selection/metric; raw SHA `6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b` nguyên. Đọc raw không in ID, xác nhận 100.000 dòng/20 cột, 93.104 success/118.296 quantity, 46 tuyến/731 ngày; top10 train và split 40.549/8.637/7.765 quantity. Baseline tính lại trên cùng cặp: ngày naive/MA7/seasonal 72,40/57,00/69,02%; tổng 7 40,37/19,18/19,18%; MA7/seasonal cùng tổng đạt 7/10. Chỉ đối chứng, không dùng chọn lại model đã khóa.
+- Bộ local `reports/M2_2026-10-07`: PPTX 38 slide (31 chính/7 phụ lục), Notes tiếng Việt đầy đủ, 25 bảng native và 5 chart native có workbook snapshot; PDF dự phòng 38 trang; TXT hướng dẫn thời lượng/slide ưu tiên/giới hạn. Nội dung phân biệt MAPE ngày 0/10, mean 46,74%; tổng 7 chọn validation LightGBM9 + Prophet au(KDDI), test hồi cứu 9/10, mean 15,89%, LG U+20,688... chưa đạt; validation tổng 7 đạt 8/10. Đối chứng cộng forecast ngày và dự báo tổng trực tiếp cùng 86 cửa sổ. M3 mới là thiết kế cho lựa chọn M2 mới, không lấy chất lượng policy V13 làm bằng chứng cho run này.
+- Kiểm gói/layout/font/import bằng Artifact Tool finalizer đạt, 0 finding/0 warning; Arial design, không nhận đã mở native PowerPoint hay kiểm font native. Import chính PPTX cuối rồi render đủ 38 PNG 1280×720 và xem riêng từng slide; kiểm tên feature, dấu thập phân và công thức WAPE. PDF render đủ 38 trang qua Poppler; 38 ảnh embedded khớp pixel nguồn slide, xem trực tiếp bìa/bảng ngày/luồng M3/trang nguồn. Receipt private `.tools/m2_slides_20261007/validation_v4.json` và `delivery_check.json`; bộ output và builder đều ignored.
+- PPTX SHA `0f8dca871d36a45ce0c3a49f0a48b23c9aec42b61b2bf26905d3c22d3567784a`; PDF SHA `01d3a3afae435aca4bb36b30dbb5d31d00894fc064ee3be4b431ccca21a1609a`. Full replay 401.600 dự báo/9.160 nhóm metric là E61/E62 ghi trên nhánh, không chạy lại phiên này vì private artifacts mới không có trong checkout. Không tuyên bố 262 tests vừa chạy, CI mới đạt hoặc nghiệm thu R05/R07/T14.
+- TASK/PLAN/T13 đã đồng bộ; criteria và sealed run không đổi. Bước tiếp: nhóm rà Notes/diễn tập theo thời lượng mentor, xác nhận vai trò target tuần; tiếp tục model/độ ổn định và tích hợp M3 bằng run mới ở phạm vi riêng. Không tự bảo đảm điểm mentor.
+
+
+### CHG-038 / E66 — Phân công 4 người soạn lại Canva, 06/10/2026
+
+- Người dùng yêu cầu giao Hiếu, Tuấn Anh, Cường, Du kéo tài liệu và làm lại slide trên Canva. Đã tạo TXT local phân chia dựa trên 38 slide E65; kiểm tồn tại PPTX/PDF/guide và nguồn công bố trên nhánh hiện hành m2-forecast-report. Không gửi tin nhắn cho thành viên, tạo Canva hoặc upload file; tin nhắn trong TXT là bản để người dùng gửi.
+- Du 1–11 (11); Tuấn Anh 12–18 +35 (8); Hiếu 19–24 +32–34 (9); Cường 25–31 +36–38 (10), tạo mẫu và ghép; Nguyên review cuối. Kiểm danh sách đủ 1–38, mỗi slide đúng một người, không trùng/thiếu; nguồn/phần đọc/bàn giao, review chéo và mốc tương đối 3 giờ đều trong TXT. Đây là phân công T13, không nhận các thành viên đã làm hoặc khôi phục phân công phát triển phần mềm cũ.
+- Hướng dẫn clone nhánh báo cáo và đọc published README/HTML/CSV; PPTX/PDF/guide E65 private ignored chưa có trên remote, người dùng cần gửi riêng. Phân biệt dữ liệu tổng hợp dùng Canva với raw/order ID/run riêng tư. Giữ A08 đề xuất, test hồi cứu, ngày 0/10–46,74%, tổng 7 9/10–15,89%, LG U+20,69% chưa đạt và M3 dự kiến; không thay model/metric/run hoặc nghiệm thu.
+- TASK/PLAN/T13 đồng bộ; TXT và link/nguồn mới được kiểm. Bước tiếp: người dùng gửi tài liệu và link Canva chung, thành viên thực hiện rồi review; chưa có sản phẩm Canva để kiểm bố cục hoặc nhận hoàn thành.
+
+
+### CHG-039 / E67 — Đơn giản hóa, chỉ giao đúng 4 người, 06/10/2026
+
+- Người dùng phản hồi phân công khó hiểu và không muốn có vai trò cho mình. CHG-039 thay phần vai trò Nguyên review/điều phối của CHG-038; không áp dụng vai trò đó nữa. Chỉ Du, Tuấn Anh, Hiếu, Cường làm slide; phần trang giữ nguyên, Cường phụ trách Canva chung, chia sẻ/ghép/kiểm và xuất cuối. Review chéo giữa bốn người.
+- Viết lại TXT bằng lời đơn giản: mỗi người làm phần gì/trang nào, lấy tài liệu ở đâu, cách kiểm và tin nhắn ngắn. TASK/PLAN/T13 đồng bộ, giữ E66 làm lịch sử và số liệu/slide gốc nguyên. Kiểm TXT không có tên Nguyên, link mới có đích và Markdown diff sạch. Chưa tạo Canva/gửi tin nhắn hoặc nhận thành viên đã làm.
+- Bước tiếp: bốn thành viên thực hiện phần được giao và kiểm chéo, Cường bàn giao Canva/PPTX/PDF để rà sản phẩm thực tế.
+
+
+### CHG-040 / E68 — Phạm vi Canva tập trung M2, 06/10/2026
+
+- Người dùng hỏi vì sao báo cáo M2 có M3; đã giải thích phần M3 dự kiến đến từ yêu cầu tạo deck ban đầu. Điều chỉnh công việc làm lại Canva hiện tại để chỉ tập trung M2, thay phân công Cường làm M3 ở E66/E67. Không thay tiêu chí R05, model hoặc kết quả, không sửa PPTX/PDF gốc E65.
+- Du 1–11; Tuấn Anh 12–18 +35; Hiếu 19–21 +32–33; Cường 22–24 +31 +34 +37–38, tạo mẫu/ghép/kiểm/xuất. Bỏ 25–30/36; hướng dẫn sửa 2/31/37 để bỏ nội dung M3. Kiểm phân chia đủ 31 trang nguồn còn lại, mỗi trang đúng một người, không trùng/thiếu. Đây là số trang nguồn trước khi dựng lại, không tuyên bố Canva đã có 31 trang hoàn chỉnh.
+- Viết lại TXT dễ hiểu, đồng bộ TASK/PLAN/T13; link đến TXT có thật, diff check sạch. Chỉ giao đúng bốn thành viên, chưa gửi tin nhắn hoặc tạo Canva. Bước tiếp: bốn người làm lại bản M2 theo phạm vi mới; Cường ghép và bàn giao để kiểm sản phẩm thực tế.
