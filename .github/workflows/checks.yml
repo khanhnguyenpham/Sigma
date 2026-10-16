@@ -11,6 +11,16 @@ jobs:
       - run: python -m pip install -r requirements.txt
       - run: python -m pip check
       - run: python -m pytest
+      - name: Build and independently verify generated 7/30-day M3 product
+        run: python -m sigma demo30 --prefix ci_m3
+      - name: Smoke test generated M3 interface without private orders
+        run: >-
+          python -c "import os; from pathlib import Path;
+          os.environ['SIGMA_M3_CONFIG']='outputs/ci_m3_bundle/product30.json';
+          from streamlit.testing.v1 import AppTest;
+          at=AppTest.from_file(str(Path('sigma/ui/product30.py').resolve()), default_timeout=90).run();
+          assert not at.exception; assert len(at.tabs)==7;
+          print('Generated M3 interface checked; no private source needed')"
       - run: python -m sigma daily --config data/configs/config.original.json --demo --baseline-only --run-id ci_demo
       - run: python -m sigma check-data --run-id ci_demo --output-id ci_data_quality
       - name: Build and reconcile the complete synthetic product

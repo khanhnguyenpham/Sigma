@@ -1,0 +1,9 @@
+{
+  "version": "m3-aggregate30-product-v1",
+  "aggregate_run": "sigma_aggregate_30d_20261016",
+  "product_run": "sigma_m3_30d_20261016_precision_v2",
+  "window_days": 30,
+  "port": 8507,
+  "stock_source": "explicit_simulation_not_company_stock",
+  "customer_delivery_days": 7
+}

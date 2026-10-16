@@ -1,4 +1,27 @@
-# SIGMA — M2 final
+# SIGMA — Tổng 30 ngày và sản phẩm M3
+
+Đã kiểm tra phần Khang trên GitHub, hợp nhất `M2-final-report` vào nhánh local `codex/30day-m3`, giữ lại luồng M3. Mở sản phẩm:
+
+```powershell
+.\scripts\start_m3.ps1
+```
+
+Địa chỉ `http://127.0.0.1:8507`. Có 7 phần: tổng quan, dự báo 7/30, tồn/đặt hàng, cảnh báo, lịch giao D+7, biến động quantity/doanh thu, cập nhật/nguồn. [Hướng dẫn và kết quả](docs/30day-m3.md).
+
+**Kết quả nguồn bài:** tổng 30 đạt **9/10**, MAPE trung bình **11,79%**, China Mobile **20,33%** chưa đạt; coverage 100%. M3 chạy 13 kịch bản/920 mặt hàng, đáp ứng cơ sở85,97%, báo trước≥7 ngày 1053/2867 sự kiện (36,73%). Đây là sản phẩm dùng snapshot lịch sử và tồn giả định; còn tiêu chí chưa đạt, không nghiệm thu toàn bài. Bộ final 7 của Khang giữ riêng, không bị thay bằng đối chứng7 mới.
+
+Trên máy clone mới không có CSV riêng tư, chạy demo tự sinh:
+
+```powershell
+.\.venv\Scripts\python.exe -m sigma demo 30 --prefix demo_m3_team
+.\scripts\start_m3.ps1 -Config outputs/demo_m3_team_bundle/product30.json
+```
+
+Demo ở cổng 8508 dùng 3 tuyến riêng; không chứng minh chất lượng nguồn bài. Mỗi lần tạo demo chọn prefix mới. Code/config/tests/tài liệu mới đang local; raw/run/ảnh/báo cáo riêng vẫn ignored, chưa push.
+
+---
+
+## SIGMA — M2 final
 
 Nhánh `M2-final-report` · 11/10/2026. **10/10 tuyến đạt MAPE tổng quantity7 ngày test <20%, trung bình 15.745366%, coverage100%.** LG U+19,265900%; chín tuyến còn lại giữ cấu hình và tái lập dự báo cũ. Bộ gồm9 cấu hình LightGBM và1 Prophet.
 
@@ -21,7 +44,7 @@ GitHub chỉ có mã, cấu hình, tài liệu và bảng tổng hợp được 
 
 Các số liệu và lệnh dưới đây ghi theo từng thời điểm. Launcher M2 mặc định nay mở final; muốn xem run cũ phải truyền `-RunId`.
 
-# SIGMA — Báo cáo M2 ngày 07/10/2026
+## SIGMA — Báo cáo M2 ngày 07/10/2026
 
 **Tái hiện local09/10/2026:** đã chạy lại26 biến thể/50 cấu hình từ CSV gốc;20 lựa chọn và90 kết quả từng họ/tuyến khớp báo cáo cũ. Tổng7:9/10,15,89%; ngày:0/10,46,74%; LG U+20,69% chưa đạt. [Báo cáo mới](M2/reports/m2_reproduce_20261009_full_review/README.md), [CSV đầu vào từng biến thể](data/training/m2_reproduce_20261009_full/README.md). Mở bằng `.\scripts\start_m2.ps1 -RunId m2_reproduce_20261009_full`. Raw/Word/báo cáo published giữ nguyên; run mới và CSV chỉ local, không push. Báo cáo07/10 bên dưới là bộ lịch sử đã xuất bản.
 

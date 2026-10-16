@@ -35,7 +35,8 @@ def fingerprint():
     return digest.hexdigest()
 
 
-def refresh(job_folder=None, worker=execute, get_fingerprint=fingerprint, validator=validate_delivery):
+def refresh(job_folder=None, worker=execute, get_fingerprint=fingerprint, validator=validate_delivery,
+            initial_run=None, run_prefix='sigma_delivery_job_'):
     namespace = 'customer_delivery'
     if (os.environ.get('SIGMA_DELIVERY_CONFIG')
             and delivery_config_path() != config_path('data/configs/config.delivery.json', root=ROOT)):
@@ -61,12 +62,26 @@ def refresh(job_folder=None, worker=execute, get_fingerprint=fingerprint, valida
             if previous.get('last_good_run') and not re.fullmatch(r'[A-Za-z0-9_-]+', previous['last_good_run']):
                 raise ValueError('Invalid cached run id')
         current = get_fingerprint()
+        if not previous and initial_run:
+            if not re.fullmatch(r'[A-Za-z0-9_-]+', initial_run):
+                raise ValueError('Invalid initial run id')
+            validator(ROOT / 'outputs' / initial_run)
+            if get_fingerprint() != current:
+                raise ValueError('Inputs changed during initial adoption')
+            state = {'fingerprint': current, 'last_good_run': initial_run,
+                'updated_at_utc': datetime.now(timezone.utc).isoformat()}
+            write_json(state_path, state)
+            result = {'status': 'adopted_existing', 'last_good_run': initial_run}
+            write_json(folder / 'last_attempt.json', {**result, 'checked_at_utc': datetime.now(timezone.utc).isoformat()})
+            return result
         if previous.get('fingerprint') == current and previous.get('last_good_run'):
             validator(ROOT / 'outputs' / previous['last_good_run'])
             result = {'status': 'skipped_unchanged', 'last_good_run': previous['last_good_run']}
             write_json(folder / 'last_attempt.json', {**result, 'checked_at_utc': datetime.now(timezone.utc).isoformat()})
             return result
-        run_id = 'sigma_delivery_job_' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%f')
+        if not re.fullmatch(r'[A-Za-z0-9_-]+', run_prefix):
+            raise ValueError('Invalid job run prefix')
+        run_id = run_prefix + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%f')
         worker(run_id)
         if get_fingerprint() != current:
             raise ValueError('Inputs changed during refresh')

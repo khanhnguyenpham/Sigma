@@ -1,5 +1,7 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**CHG-047 — 16/10/2026:** theo lời người dùng thuật lại mentor, bổ sung tổng quantity của **30 ngày liên tiếp D+1…D+30**, chạy riêng cùng đối chứng tổng 7; không mặc định tổng tháng lịch. Giữ target A08, top10 theo train, ba split và ngưỡng/metric gốc; chưa có xác nhận thay R05 ngày bằng MAPE tổng30. M3 dùng phân bổ ngày từ tổng30 với nhãn phân bổ, tồn/nhập/lead time/mapping vẫn mô phỏng; thời gian giao khách D+7 không đổi lead time nhập kho. Protocol tại [30day-m3](30day-m3.md).
+
 **CHG-034/E62 — 06/10/2026:** người dùng chốt dùng kết quả M2 tổng7 hiện tại9/10 cho báo cáo ngày07/10, giữ LG U+20,69% chưa đạt và tối ưu sau. Không đổi ngưỡng/bỏ tuyến hoặc nhận R05 ngày đạt. Nhánh báo cáo có dữ liệu/split, mô hình từng tuyến, phương pháp và metric; sản phẩm V13 riêng. [Guide](../M2/reports/presentation-guide.md).
 
 **CHG-033/E61 — 06/10/2026:** ưu tiên cải tiến tổng7 theo người dùng, 26 biến thể/50 cấu hình đã chạy và đối soát; lựa chọn validation đạt9/10 test hồi cứu, 15,89%, LG U+20,69%; ngày0/10. Giữ tiêu chí R05 ngày, R07 và trạng thái T14; chưa phải xác nhận mentor thay tiêu chí bằng metric tuần. [Báo cáo cải tiến](../M2/reports/m2_improved_models_20261006_handoff.md).

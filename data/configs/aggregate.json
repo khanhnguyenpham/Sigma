@@ -1,0 +1,28 @@
+{
+  "version": "quantity-aggregate-7-30-v1",
+  "base_config": "data/configs/config.json",
+  "windows": [7, 30],
+  "minimum_history_days": 90,
+  "training_window_days": 540,
+  "refit_days": 7,
+  "workers": 3,
+  "models": {
+    "last7_mean": {"kind": "mean", "history_days": 7},
+    "last28_mean": {"kind": "mean", "history_days": 28},
+    "last90_mean": {"kind": "mean", "history_days": 90},
+    "past_totals_lad180": {"kind": "weighted_median", "history_days": 180},
+    "lgbm_ratio7": {"kind": "lgbm", "objective": "regression_l1", "units": "ratio", "leaves": 7, "annual": false},
+    "lgbm_annual_ratio7": {"kind": "lgbm", "objective": "regression_l1", "units": "ratio", "leaves": 7, "annual": true},
+    "lgbm_annual_ratio15": {"kind": "lgbm", "objective": "regression_l1", "units": "ratio", "leaves": 15, "annual": true},
+    "lgbm_poisson7": {"kind": "lgbm", "objective": "poisson", "units": "raw", "leaves": 7, "annual": true},
+    "prophet_annual3": {"kind": "prophet", "yearly_seasonality": 3, "weekly_seasonality": true, "seasonality_mode": "additive", "changepoint_prior_scale": 0.01},
+    "sarima_log_weekly": {"kind": "sarima", "order": [1, 0, 0], "seasonal_order": [1, 0, 0, 7], "maxiter": 150}
+  },
+  "lightgbm": {"trees": 150, "learning_rate": 0.03, "min_child_samples": 100, "reg_lambda": 10.0, "threads": 2},
+  "selection": "validation complete-window positive MAPE, MAE, lexical model id; no test ranking",
+  "non_top10_models": ["last7_mean", "last28_mean", "last90_mean", "past_totals_lad180"],
+  "numeric_tolerance": 1e-8,
+  "test_independent": false,
+  "daily_R05_acceptance_replaced": false,
+  "mentor_source": "User retells mentor request on 2026-10-16: rerun totals over 30 days; rolling 30-day interpretation, not calendar months. No confirmed replacement of daily R05."
+}

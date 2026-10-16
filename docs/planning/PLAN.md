@@ -1,5 +1,9 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-048/E76 — đã bàn giao sản phẩm local 16/10/2026, còn tiêu chí chưa đạt:** tổng 30 ngày mới đạt 9/10, MAPE trung bình 11,786316%, China Mobile 20,333443%; coverage 100%. M3 đã chạy 13 kịch bản/920 mặt hàng và đối soát 1.100.320 ledger/khuyến nghị, 266.123 sự kiện, 8.280 cửa sổ cảnh báo. Dashboard 7 tab/11 ca lọc đã kiểm; 310 tests đạt; demo tự sinh và UI đạt. Task SigmaM3Refresh lúc 07:00 đã cài/chạy thử trả 0. Dùng `sigma_m3_30d_20261016_precision_v2`; R05 ngày/R07/T14 chưa nghiệm thu toàn bài. [Mở sản phẩm và xem bằng chứng](../30day-m3.md). Bộ M2 final của Khang giữ riêng, raw và 241 tệp protected nguyên hash; chưa push/upload.
+
+**CHG-047/E75 — đang triển khai 16/10/2026:** người dùng thuật lại mentor yêu cầu chạy tổng 30 ngày và giao hoàn thiện sản phẩm M3. Đã fetch hai nhánh của Khang, hợp nhất `M2-final-report` (b141528) vào nhánh local `codex/30day-m3`, giữ mã M3 và lịch sử slide local. `M2-final-cleanup` (261c631) chỉ dùng đối chiếu vì đã bỏ M3. Thêm thử nghiệm tổng liên tiếp 7/30 ngày, chọn validation rồi khóa test; 8 tests mới đạt, chưa có kết quả nguồn thật mới. R05 ngày/R07/T14 chưa đóng; không push/upload hoặc làm báo cáo mới.
+
 **CHG-042/E70 — 11/10/2026:** bộ [M2 final](../../M2/reports/final_m2_20261011/README.md) trên nhánh `M2-final-report` đã fit mới và kiểm độc lập10 lựa chọn cố định: tổng7 test10/10<20%, mean15.745366%, coverage100%; LG U+19,265900%. Chín tuyến cũ tái lập forecast validation/test trong1e-8. Chín lựa chọn validation giữ nguyên; LG U+ chọn từ test-sweep theo yêu cầu mới, nên test hồi cứu. H8–14 LG U+20,255792%; R05 ngày/R07/T14 mở. Có bảng cấu hình/metric/HTML và dashboard final; raw, run cũ, published07/10 và tồn/M3 giữ nguyên. Mã/cấu hình/bảng tổng hợp đã push GitHub; CI Windows của commit mã0cbeaf0 đạt toàn bộ checks; raw/daily/per-origin/draft giữ local.
 
 **CHG-041/E69 — hoàn tất 11/10/2026:** T08–T09/T12 [chấm toàn bộ160 lượt cấu hình trên test](../test-sweep-experiment.md) theo yêu cầu mới, bỏ điều kiện phải thắng validation cho bảng nghiên cứu riêng. Có17 lượt<20%; tốt nhất `tune56_w540_mul56p4` test19,265900%, coverage100%, validation11,336558%. Xếp hạng test chỉ khám phá hồi cứu; lựa chọn cũ/chín tuyến/dashboard/báo cáo khóa giữ nguyên.25 tests/pip check đạt,29.440 dự báo/640 metric/2.116 head/349 weighted fits/60 nhóm phân bổ kiểm độc lập, raw/757 tệp protected nguyên. Run sửa sau lỗi tên tệp baseline dùng forecast có sẵn khớp chính xác, không refit. H8–14 còn20,255792%; R05 ngày/R07/T14 mở.
@@ -440,6 +444,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t09"></a>
 ### T09 — Khóa và đánh giá M2
 
+- **Trạng thái hiện hành CHG-048/E76:** Tổng 30 mới:9/10, MAPE 11,786316%, China Mobile20,333443%; chọn validation/coverage 100%. Đối chứng7 mới 9/10; final 7 Khang10/10 hồi cứu giữ riêng. R05 ngày chưa nghiệm thu.
+
 - **CHG-042/E70:** Khóa10 lựa chọn trước rerun; tổng7 test10/10<20%, coverage100%. Chín tuyến parity1e-8; LG U+ test-selected, không thay R05 ngày.
 
 - **CHG-041/E69:** bảng nghiên cứu xếp hạng bằng test nhận diện `tune56_w540_mul56p4`19,265900%, MAE10,529504/WAPE19,266752%/coverage100%; h8–14 còn20,255792%. Không thay lựa chọn validation E68 hoặc chín tuyến/dashboard/báo cáo khóa. Test dùng để so sánh nên không là đánh giá độc lập/nghiệm thu R05 ngày.
@@ -457,7 +463,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Tuấn Anh review.
 
-- **Trạng thái:** V13: validation 10/10; test hồi cứu 9/10, MAPE trung bình 16,17%, LG U+ 21,19%. Đối soát 447.810 cặp/42.136 hệ số đạt. Ngày v11 vẫn 0/10; R05 còn mở.
+- **Trạng thái lịch sử trước CHG-048:** V13: validation 10/10; test hồi cứu 9/10, MAPE trung bình 16,17%, LG U+ 21,19%. Đối soát 447.810 cặp/42.136 hệ số đạt. Ngày v11 vẫn 0/10; R05 còn mở.
 - **Mục tiêu/yêu cầu:** R04, R05, R09.
 - **Đầu vào/công việc/đầu ra:** T07/T08/MVP → khóa, test cuối, forecast → selected_models, test metrics, đạt/chưa đạt.
 - **Phụ thuộc:** T06, T07, T08 hoặc biên bản không kích hoạt T08.
@@ -470,9 +476,11 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t10"></a>
 ### T10 — Đối tác, sổ tồn và cảnh báo
 
+- **Trạng thái hiện hành CHG-048/E76:** M3 tổng 30 đã triển khai/đối soát13 kịch bản,920 items,1.100.320 ledger/rec và 266.123 events. Basefill 85,97%; early1053/2867=36,73%; R07 chưa đạt mọi ca.
+
 - **Phân công đề xuất 04/10/2026:** Hiếu phụ trách; Khang review.
 
-- **Trạng thái:** PolicyV4 từV13 đối soát13kịch bản/93originsH14/1100320ledger/267908events; basefill85,02%. StockV7 từ đúngpolicy kiểm920items; early33,73% cùng2867events, chưa bảo đảm mọi ca R07.
+- **Trạng thái lịch sử trước CHG-048:** PolicyV4 từV13 đối soát13kịch bản/93originsH14/1100320ledger/267908events; basefill85,02%. StockV7 từ đúngpolicy kiểm920items; early33,73% cùng2867events, chưa bảo đảm mọi ca R07.
 - **Mục tiêu/yêu cầu:** R06, R07.
 - **Đầu vào/công việc/đầu ra:** Sales/forecast/A09–A16 → mapping/tham số riêng/ledger/ETA/strict threshold/replay/độ nhạy → recommendations, alerts, simulation_metrics.
 - **Phụ thuộc:** T06 để phát triển; kết quả cuối nhận T09.
@@ -483,11 +491,13 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t11"></a>
 ### T11 — Dashboard và cập nhật cục bộ
 
+- **Trạng thái hiện hành CHG-048/E76:** M3 7 tab/11 ca lọc đã kiểm AppTest và browser tại 8507. Task07:00 đã cài/chạy thử0, last-good/skip/lock đã kiểm; snapshot2025 và tồn giả định có nhãn.
+
 - **CHG-042/E70:** Launcher M2 mặc định đọc final aggregates; -RunId mở lịch sử. Bộ tồn/M3 không đổi.
 
 - **Phân công đề xuất 04/10/2026:** Cường phụ trách; Hiếu review.
 
-- **Trạng thái:** Bộ M2–M3 khóaV13, sáu trang/SKU+loại/4kịch bản kiểm qua AppTest. JobWindows07:00 đã cài/chạy thử trả0; refresh giữ last-good. Có launcher8504 và hướng dẫn demo.
+- **Trạng thái lịch sử trước CHG-048:** Bộ M2–M3 khóaV13, sáu trang/SKU+loại/4kịch bản kiểm qua AppTest. JobWindows07:00 đã cài/chạy thử trả0; refresh giữ last-good. Có launcher8504 và hướng dẫn demo.
 - **Mục tiêu/yêu cầu:** R08, R09.
 - **Đầu vào/công việc/đầu ra:** T09/T10 → bộ lọc, actual/forecast, metric, bảng giả định, tồn/cảnh báo, export kiểm soát → app.py/hướng dẫn.
 - **Phụ thuộc:** T06, T09, T10.
@@ -499,6 +509,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t12"></a>
 ### T12 — Kiểm thử, tái lập và bảo mật gói
+
+- **Trạng thái hiện hành CHG-048/E76:** 310 tests đạt; forecast1160 nhóm metric/8556 allocation, M3 1,1 triệu dòng/266 nghìn sự kiện/8280 replay kiểm độc lập. Demo 3 tuyến và UI đạt; CI mới chưa chạy remote.
 
 - **CHG-042/E70:** Run m2_final_20261011_local fit mới validation/test/future, audit raw và verifier độc lập; hash/cặp/nhãn/cutoff/metric/heads/parity kiểm lại.
 
@@ -512,7 +524,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **Phân công đề xuất 04/10/2026:** Khang phụ trách; Du review. Mỗi tác giả cung cấp kiểm thử/bằng chứng cho module của mình.
 
-- **Trạng thái:** 214 tests đạt; generic447810pairs/calibration42136factors, fullpolicy/stock/customer và6trang kiểm độc lập; raw/59sealedv11 nguyên. CI Windows push/PR của commit 183ed10 đều đạt tại E55; CI 043cf85 giữ làm lịch sử.
+- **Trạng thái lịch sử trước CHG-048:** 214 tests đạt; generic447810pairs/calibration42136factors, fullpolicy/stock/customer và6trang kiểm độc lập; raw/59sealedv11 nguyên. CI Windows push/PR của commit 183ed10 đều đạt tại E55; CI 043cf85 giữ làm lịch sử.
 - **Mục tiêu/yêu cầu:** R01, R03–R09.
 - **Đầu vào/công việc/đầu ra:** Pipeline → ca mục 8/môi trường local sạch/kiểm tra gói → tests, checks, run tái lập.
 - **Phụ thuộc:** T09, T10, T11.
@@ -540,9 +552,11 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t14"></a>
 ### T14 — Nghiệm thu và đóng gói
 
+- **Trạng thái hiện hành CHG-048/E76:** Đã bàn giao sản phẩm M3 local và demo clone mới, còn điều kiện chưa đạt: China Mobile tổng 30>20%, R05 ngày/R07 và mentor review. Không nhận nghiệm thu toàn bài.
+
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Khang review.
 
-- **Trạng thái:** Đã đóng gói bộ trình diễn M2–M3 có hash/config/run cố định và HTML tình trạng; chưa nghiệm thu toàn bài: R05/R07, mentor review và xác nhận metric tuần còn mở.
+- **Trạng thái lịch sử trước CHG-048:** Đã đóng gói bộ trình diễn M2–M3 có hash/config/run cố định và HTML tình trạng; chưa nghiệm thu toàn bài: R05/R07, mentor review và xác nhận metric tuần còn mở.
 - **Mục tiêu/yêu cầu:** R01–R09.
 - **Đầu vào/công việc/đầu ra:** Sản phẩm/kiểm tra/báo cáo → ma trận/diễn tập máy khác/gói phù hợp quyền → biên bản, gói riêng tư hoặc giả, giới hạn.
 - **Phụ thuộc:** T12, T13.

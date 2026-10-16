@@ -1,5 +1,9 @@
 # Bản đồ project SIGMA
 
+**CHG-048/E76 — đã bàn giao sản phẩm local 16/10/2026, còn tiêu chí chưa đạt:** tổng 30 ngày mới đạt 9/10, MAPE trung bình 11,786316%, China Mobile 20,333443%; coverage 100%. M3 đã chạy 13 kịch bản/920 mặt hàng và đối soát 1.100.320 ledger/khuyến nghị, 266.123 sự kiện, 8.280 cửa sổ cảnh báo. Dashboard 7 tab/11 ca lọc đã kiểm; 310 tests đạt; demo tự sinh và UI đạt. Task SigmaM3Refresh lúc 07:00 đã cài/chạy thử trả 0. Dùng `sigma_m3_30d_20261016_precision_v2`; R05 ngày/R07/T14 chưa nghiệm thu toàn bài. [Mở sản phẩm và xem bằng chứng](../30day-m3.md). Bộ M2 final của Khang giữ riêng, raw và 241 tệp protected nguyên hash; chưa push/upload.
+
+**CHG-047/E75 — đang triển khai 16/10/2026:** người dùng thuật lại mentor yêu cầu chạy tổng 30 ngày và giao hoàn thiện sản phẩm M3. Đã fetch hai nhánh của Khang, hợp nhất `M2-final-report` (b141528) vào nhánh local `codex/30day-m3`, giữ mã M3 và lịch sử slide local. `M2-final-cleanup` (261c631) chỉ dùng đối chiếu vì đã bỏ M3. Thêm thử nghiệm tổng liên tiếp 7/30 ngày, chọn validation rồi khóa test; 8 tests mới đạt, chưa có kết quả nguồn thật mới. R05 ngày/R07/T14 chưa đóng; không push/upload hoặc làm báo cáo mới.
+
 **CHG-042/E70 — 11/10/2026:** bộ [M2 final](../../M2/reports/final_m2_20261011/README.md) trên nhánh `M2-final-report` đã fit mới và kiểm độc lập10 lựa chọn cố định: tổng7 test10/10<20%, mean15.745366%, coverage100%; LG U+19,265900%. Chín tuyến cũ tái lập forecast validation/test trong1e-8. Chín lựa chọn validation giữ nguyên; LG U+ chọn từ test-sweep theo yêu cầu mới, nên test hồi cứu. H8–14 LG U+20,255792%; R05 ngày/R07/T14 mở. Có bảng cấu hình/metric/HTML và dashboard final; raw, run cũ, published07/10 và tồn/M3 giữ nguyên. Mã/cấu hình/bảng tổng hợp đã push GitHub; CI Windows của commit mã0cbeaf0 đạt toàn bộ checks; raw/daily/per-origin/draft giữ local.
 
 **CHG-041/E69 — hoàn tất 11/10/2026:** [so sánh test toàn bộ160 lượt](../test-sweep-experiment.md) qua `M2/models/retrospective_sweep.py`, config `data/configs/m2-test-sweep.json`, tests `test_retrospective_sweep.py`. Run `M2/artifacts/m2_test_sweep_20261011_fixed` complete43 artifact và receipt `_review.json`; run đầu giữ failed35 artifact do đường dẫn baseline, forecast tái dùng khớp chính xác.17 lượt<20%, tốt nhất19,265900%/coverage100%;25 tests/đối soát640 metric đạt, raw/757 tệp và chín tuyến nguyên. Không lọc validation; xếp hạng test chỉ hồi cứu khám phá, lựa chọn cũ và sản phẩm khóa giữ nguyên.
@@ -185,3 +189,14 @@ Các sai khác trên không tự xác nhận hoặc bác bỏ nghiệp vụ đã
 **Cập nhật CHG-020/E27:** Có src/hierarchical_models.py, tests/test_hierarchical_models.py và tests/test_release_verification.py. Config 1.8.0/catalog 59; v10 đã kiểm 100 tests/nguồn và metric validation/top/selection/actual/ledger/events/AppTest. R05 vẫn 0/10, không chọn bằng test; Word/slide chưa làm tiếp.
 
 **Cập nhật CHG-021/E31:** Có check_data.py, src/monthly_lad.py và tests chuẩn hóa/scaler. Config 1.9.0, v11 kiểm 107 tests/59 sealed hashes/nguồn/validation/ledger/events/AppTest. Chuẩn hóa độc lập và scaler causal được kiểm; test vẫn 0/10, không chọn lại bằng test; Word/slide chưa làm tiếp.
+
+## Mã và kết quả mới cho tổng 30/M3 — E76
+
+- `sigma/forecasting/aggregate.py` và `data/configs/aggregate.json`: đăng ký pool, label7/30, lựa chọn validation và khóa/test/future, phân bổ ngày.
+- `sigma/inventory/product30.py`: sổ giao dịch,13 kịch bản, khuyến nghị SKU/loại, replay H14/H30, lịch khách D+7 và tín hiệu quantity/doanh thu.
+- `sigma/verification/aggregate.py`, `product30.py`: đối soát raw/metric/lựa chọn/threshold/pending/event/đơn vị và lineage.
+- `sigma/ui/product30.py`, `scripts/start_m3.ps1`, `data/configs/product30.json`: giao diện7 tab, đọc đúng run đã kiểm; default local8507.
+- `sigma/jobs/product30.py`, `scripts/install_m3_task.ps1`: job07:00, dùng run đã đối soát, skip/lock/last-good; không tự fit khi raw đổi.
+- `sigma/demo 30.py`: tự sinh dữ liệu3 tuyến, forecast/policy/check/UI; máy clone không cần raw riêng tư.
+- `outputs/sigma_aggregate_30d_20261016`, `outputs/sigma_m3_30d_20261016_precision_v2`, receipts `_verification.json`: có thật local, ignored. `reports/M3_2026-10-16` có ảnh/CSV/README local.
+- [Hướng dẫn/kết quả/giới hạn](../30day-m3.md). Chưa push code mới, không nhận mọi điều kiện đã đạt.

@@ -55,7 +55,7 @@ def commitments(sales):
     return result
 
 
-def projection(sales, allocation, origin):
+def projection(sales, allocation, origin, horizon=14):
     origin = pd.Timestamp(origin)
     if origin.tzinfo is not None or origin != origin.normalize():
         raise ValueError('Origin must be a UTC date with no time component')
@@ -67,10 +67,12 @@ def projection(sales, allocation, origin):
             or not np.isfinite(forecast.forecast_qty).all() or forecast.forecast_qty.lt(0).any()):
         raise ValueError('Invalid or stale daily allocation')
     keys = forecast[ROUTE].drop_duplicates().sort_values(ROUTE)
-    expected_dates = pd.date_range(origin + pd.Timedelta(days=1), periods=14)
+    if type(horizon) is not int or horizon < 1:
+        raise ValueError('Invalid customer projection horizon')
+    expected_dates = pd.date_range(origin + pd.Timedelta(days=1), periods=horizon)
     for _, group in forecast.groupby(ROUTE):
         if group.target_date.sort_values().tolist() != expected_dates.tolist():
-            raise ValueError('Incomplete H14 daily allocation')
+            raise ValueError(f'Incomplete H{horizon} daily allocation')
     dates = pd.to_datetime(sales.order_datetime, utc=True).dt.tz_convert(None).dt.normalize()
     # Unknown future orders cannot enter the first week of commitments.
     observed = commitments(sales.loc[dates.le(origin)])
@@ -78,7 +80,7 @@ def projection(sales, allocation, origin):
     if not set(map(tuple, backlog[ROUTE].to_numpy())).issubset(set(map(tuple, keys.to_numpy()))):
         raise ValueError('Known backlog route missing from forecast')
     known = backlog.groupby(ROUTE + ['delivery_date'], as_index=False).commitment_qty.sum()
-    grid = keys.merge(pd.DataFrame({'delivery_date': pd.date_range(origin + pd.Timedelta(days=1), periods=21)}), how='cross')
+    grid = keys.merge(pd.DataFrame({'delivery_date': pd.date_range(origin + pd.Timedelta(days=1), periods=horizon+7)}), how='cross')
     result = grid.merge(known, on=ROUTE + ['delivery_date'], how='left', validate='one_to_one')
     result['known_commitment_qty'] = result.commitment_qty.fillna(0).astype('int64')
     result = result.drop(columns='commitment_qty')
