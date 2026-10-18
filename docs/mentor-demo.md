@@ -1,6 +1,6 @@
 # Trình diễn dashboard M3 cho mentor — 5–7 phút
 
-**Cập nhật 18/10/2026 (E85):** dùng [SIGMA công khai](https://sigma-demand-inventory.streamlit.app/) hoặc cấu hình local mặc định `product30-focus.json`. Tổng 30 đã đạt 10/10 trên test hồi cứu; số bên dưới đã cập nhật theo release 78d06a6. Ảnh16/10 ở cuối chỉ là lịch sử.
+**Cập nhật 18/10/2026 (E87):** dùng [SIGMA công khai](https://sigma-demand-inventory.streamlit.app/) hoặc cấu hình local mặc định `product30-focus.json`. Tổng 30 đã đạt 10/10 trên test hồi cứu; source cloud61a44de, bảng số liệu nguyên từ E85. Có thêm thử phương án nhập hàng và baseline cùng mẫu. Ảnh16/10 ở cuối chỉ là lịch sử.
 
 ## Chuẩn bị
 
@@ -53,6 +53,12 @@ Mở **Toàn bộ mặt hàng và phiếu đề xuất nhập** → **Xuất phi
 **Nói:** “Hàng đang về dùng để tránh đặt trùng, nhưng không tăng tồn trước ETA. Quy tắc kích hoạt dùng tồn hiện có < ROP.”
 
 ## 4. Kịch bản — khoảng 90 giây
+
+**Thử phương án nhìn tới (tùy chọn, thêm1–2phút):** tại Kho hàng, mở **Thử phương án nhập hàng và biến động nhu cầu**. Giữ StarHub/D10G-10D/eSIM/Singapore, đổi nhu cầu thành2lần và tỷ lệ nhận50%, rồi bấm **Tính và so sánh phương án**. Ca đã kiểm cho kết quả thiếu dự kiến5,09đơn vị, lượng dự kiến đặt70, ngày thiếu đầu01/01/2026. Đây là mô phỏng tất định theo forecast; không phải actual hoặc hiệu quả đã đo ở kho thật.
+
+Đọc cả bảng so sánh và biểu đồ tồn. Thử lead time nhập khác hoặc trễ nhập để thấy tác động; thời gian giao khách D+7 không bị đổi. Nếu có hàng đã đặt, ETA ở form là giả định vì gói tổng hợp chỉ có lượng pending. Lượng nhận từng lô làm tròn xuống theo tỷ lệ. Các quyết định cuối horizon không đủ L+R để tính được để trống, không kéo dài forecast bằng0. **Khôi phục giả định cơ sở** phải đưa cả ô nhập và kết quả về trạng thái ban đầu. Đổi SKU cũng nạp bộ giả định cơ sở của SKU mới. CSV/JSON chỉ là xuất phân tích; không gửi đơn nhập thật.
+
+Tại **Kiểm chứng → So sánh công bằng**, tổng30 có MAPE trung bình11,62% cho mô hình đã khóa,18,29% choMA7,17,40% choMA28 và37,87% choNaive; mỗi phương pháp cùng10tuyến/63origin đủ nhãn, coverage100%. Không dùng bảng test này chọn lại mô hình. Tổng7 là target riêng; không suy tổng30 đã giải quyết tiêu chí ngày.
 
 Mở **Kịch bản**. Ở bộ chọn đầu trang, đổi từ cơ sở sang **Đối tác chỉ giao 50%**. Giữ quốc gia/nhà mạng = tất cả để đối chiếu các số sau:
 

@@ -1,5 +1,7 @@
 # SIGMA — Tổng 30 ngày và sản phẩm M3
 
+**Chức năng để trình diễn sản phẩm:** tại **Kho hàng → Thử phương án nhập hàng**, chọn SKU rồi đổi tồn đầu, nhu cầu, lead time, tỷ lệ nhận hoặc trễ nhập để so sánh tồn/thiếu và lượng dự kiến đặt. Có sổ 30 ngày và nút xuất CSV/JSON. Tại **Kiểm chứng**, xem baseline Naive/MA7/MA28 cùng mẫu và ma trận R01–R09; kết quả what-if tách khỏi benchmark. [Cách sử dụng và ví dụ](docs/mentor-demo.md).
+
 **Tổng30 đã đạt10/10 tuyến MAPE≤20%:** [Mở SIGMA công khai](https://sigma-demand-inventory.streamlit.app/) · ChinaMobile18,68%, trung bình11,62%, coverage100%. Chọn tổ hợp bằng validation, khóa trước test hồi cứu; chín tuyến còn lại giữ nguyên. Repo GitHub Private. [Protocol và bằng chứng](docs/aggregate-refinement.md), [bản triển khai](docs/portable-hosting.md). Tổng7 đối chứng vẫn9/10; bản online đọc release đã tính, chưa huấn luyện/cập nhật nguồn trên cloud.
 
 **Demo tự sinh cũ:** [Site minh họa](https://sigma-demand-inventory.cuddly-grebe-5666.chatgpt.site) dùng hoàn toàn dữ liệu tự sinh 10 tuyến/13 kịch bản, giữ riêng với app nguồn bài phía trên. [Phạm vi](docs/share-web.md).

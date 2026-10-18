@@ -1,5 +1,9 @@
 # Triển khai SIGMA bằng địa chỉ trung tính
 
+**CHG-055/E87 — sản phẩm đã cập nhật và kiểm cloud, 18/10/2026:** [SIGMA Public](https://sigma-demand-inventory.streamlit.app/), source `61a44de2095966bf3b53f77990f0fbe18e9b4ddf`; repo vẫn Private. Bổ sung thử phương án nhập hàng theo SKU, sổ dự kiến30ngày, xuất CSV/JSON và so sánh baseline cùng mẫu. 373 tests đạt;7tab cloud đã mở và kiểm không exception, Public checkbox=1. [Ảnh bàn giao](../reports/portable_20261018/product-cloud-final.png), [kiểm browser](../reports/portable_20261018/product-cloud-final-qa.json), [kiểm bảo toàn](../reports/portable_20261018/product-integrity-final.json).
+
+Gói mới33tệp allowlist; vẫn đúng11bảng tổng hợp đã duyệt,12Gitblob release nguyên byte và manifestSHA `92f8581a588a747258cc74f8b38963c9d7818da9a39fbf84e8c4d7499b88276b`. Không đổi mô hình/benchmark: tổng30 vẫn10/10, MAPE11,621356%; tổng7 đối chứng9/10. What-if là mô phỏng tất định trên forecast cố định, không ghi đơn hoặc thay điểm mô hình. Chưa có huấn luyện/nhập nguồn/job nền trên cloud; R05ngày/R07/T14 còn mở. Chưa kiểm bằng phiên ẩn danh/máy khác và chưa thu được file tải từ cloud; đã kiểm nội dung sinh CSV/JSON và nút giao diện. Các mục E80–E85 bên dưới là lịch sử.
+
 **CHG-054/E85 — đã triển khai10/10 tổng30 ngày18/10/2026:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/), appPublic/repoPrivate. Cloud hiện10/10≤20%, MAPE11,621356%, ChinaMobile18,683841%, coverage100%; 7tab kiểm trực tiếp không exception. Source `78d06a61704150140af623099499067ce0aadec4`; manifest mới `92f8581a588a747258cc74f8b38963c9d7818da9a39fbf84e8c4d7499b88276b`, đã cập nhật pin trên Streamlit. Chỉ30file allowlist đã duyệt, 12Gitblob release khớp byte; không raw/ID/run đầy đủ.
 
 Forecast mới `sigma_aggregate_focus_20261018`, M3 `sigma_m3_focus_20261018` đều đã verifier độc lập. 357tests đạt (290core+67M2), 16tests sau đổi default đạt; AppTest gói13kịch bản/tổng7/China/futureactual và giao diện local default7tab đạt. [QA gói](../reports/portable_20261018/focus-release-qa.json), [ảnh cloud](../reports/portable_20261018/focus-cloud-overview.png), [Public](../reports/portable_20261018/focus-cloud-public.png). Tổng7 đối chứng vẫn9/10; R05ngày/R07/T14 mở. Test đã từng xem nên kết quả hồi cứu; tồn/nhập mô phỏng. Cloud vẫn phục vụ kết quả tính sẵn, chưa có job train/nhận nguồn mới. Các mục E80–E84 sau đây là lịch sử.
@@ -10,7 +14,7 @@ Forecast mới `sigma_aggregate_focus_20261018`, M3 `sigma_m3_focus_20261018` đ
 
 [Receipt Public/cloud](../reports/portable_20261018/cloud-public-deployment.json), [bảng10tuyến tổng30](../reports/portable_20261018/cloud-top10-thirty.png). Cloud cả hai cửa sổ hiển thị đủ10/10, không error log; kiểm12Gitblob release nguyên byte. Hai summary cha nguyên SHA. Chưa kiểm bằng phiên trình duyệt ẩn danh/máy bạn bè; trạng thái Public được xác nhận qua chính checkbox sharing của nền tảng.
 
-Các mục E80–E82 bên dưới là lịch sử trước khi chuyển app sang Public; hướng dẫn Invite chỉ cần nếu chủ tài khoản đổi lại Private. E83 là bản trước cải thiện mô hình; trạng thái hiện hành là E85.
+Các mục E80–E82 bên dưới là lịch sử trước khi chuyển app sang Public; hướng dẫn Invite chỉ cần nếu chủ tài khoản đổi lại Private. E83 là bản trước cải thiện mô hình; trạng thái hiện hành là E87.
 
 **E82 — đã chạy online ngày18/10/2026:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/). Ứng dụng Python dùng kết quả nguồn bài đã chạy trên Streamlit, không phải bộ tự sinh của Site cũ. Repo và app đều **Private**; hộp Share đã kiểm checkbox “Make this app public” đang tắt. Muốn cho thành viên xem, chủ tài khoản dùng **Share → nhập email → Invite**; không có lời mời nào được agent tự gửi.
 

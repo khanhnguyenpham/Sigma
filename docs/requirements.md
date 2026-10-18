@@ -1,5 +1,7 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**Trạng thái kỹ thuật18/10/2026 — E87:** sản phẩm tổng30 đã đạt10/10 trên test hồi cứu và có webPublic, xem [bản hiện hành](30day-m3.md). Người dùng chỉ yêu cầu hoàn thiện sản phẩm trước; đã triển khai thử phương án nhập và đối chiếu baseline cùng mẫu,373tests/7tab cloud đạt. Giữ nguyên toàn bộ R01–R09; không tự đổi R05ngày thành tổng30 hoặc xác nhận R07/T14. Các trạng thái tiến độ trước E85 bên dưới là lịch sử, không dùng để suy chưa có code/run hiện tại.
+
 **CHG-047 — 16/10/2026:** theo lời người dùng thuật lại mentor, bổ sung tổng quantity của **30 ngày liên tiếp D+1…D+30**, chạy riêng cùng đối chứng tổng 7; không mặc định tổng tháng lịch. Giữ target A08, top10 theo train, ba split và ngưỡng/metric gốc; chưa có xác nhận thay R05 ngày bằng MAPE tổng30. M3 dùng phân bổ ngày từ tổng30 với nhãn phân bổ, tồn/nhập/lead time/mapping vẫn mô phỏng; thời gian giao khách D+7 không đổi lead time nhập kho. Protocol tại [30day-m3](30day-m3.md).
 
 **CHG-034/E62 — 06/10/2026:** người dùng chốt dùng kết quả M2 tổng7 hiện tại9/10 cho báo cáo ngày07/10, giữ LG U+20,69% chưa đạt và tối ưu sau. Không đổi ngưỡng/bỏ tuyến hoặc nhận R05 ngày đạt. Nhánh báo cáo có dữ liệu/split, mô hình từng tuyến, phương pháp và metric; sản phẩm V13 riêng. [Guide](../M2/reports/presentation-guide.md).
@@ -184,7 +186,7 @@ Không có câu hỏi cần trả lời để cập nhật tài liệu. Trạng 
 
 ## 5. Nghiệm thu và phiên bản
 
-Chưa có run, tests pipeline, dashboard, báo cáo sửa hoặc slide. Không yêu cầu R01–R09 nào được đánh dấu hoàn thành toàn bộ. Chương trình chạy, phương pháp đúng, metric đạt và vận hành thật được chứng minh là các kết luận cần bằng chứng khác nhau.
+Lịch sử02/10: lúc đó chưa có run/tests/dashboard/báo cáo sửa/slide. Hiện đã có sản phẩm và các bằng chứng kỹ thuật nêu ở đầu tài liệu, nhưng R01–R09 không tự được mentor nghiệm thu toàn bộ. Chương trình chạy, phương pháp đúng, metric đạt và vận hành thật được chứng minh là các kết luận cần bằng chứng khác nhau.
 
 Chỉ gọi toàn dự án hoàn thành khi đủ bằng chứng bắt buộc; nếu sản phẩm bàn giao còn tiêu chí chưa đạt, ghi **“đã bàn giao sản phẩm; còn tiêu chí chưa đạt”**. Phản hồi mới ghi [quy trình thay đổi](review-log.md#change-process), cập nhật PLAN/tiêu chí/config và đánh dấu đầu ra cần tính lại. Không sửa tiêu chí để vượt kiểm tra.
 

@@ -32,16 +32,16 @@ def load_bundle(run_id, summary_digest, stamps):
     return {'summary':summary,'verification':verification,
         'protocol':json.loads((folder/'protocol.json').read_text(encoding='utf-8')),
         'scenario_configs':json.loads((folder/'scenario_configs.json').read_text(encoding='utf-8')),
-        'metrics':pd.read_csv(folder/'simulation_metrics.csv'),
-        'recommendations':pd.read_csv(folder/'recommendations_latest.csv'),
-        'item_forecast':pd.read_csv(folder/'item_forecast_latest.csv',parse_dates=['target_date']),
+        'metrics':pd.read_csv(folder/'simulation_metrics.csv',float_precision='round_trip'),
+        'recommendations':pd.read_csv(folder/'recommendations_latest.csv',float_precision='round_trip'),
+        'item_forecast':pd.read_csv(folder/'item_forecast_latest.csv',parse_dates=['target_date'],float_precision='round_trip'),
         'alerts':pd.read_csv(folder/'alerts_14d.csv',parse_dates=['as_of_date','actual_depletion_date','predicted_depletion_date']),
         'delivery':pd.read_csv(folder/'delivery_projection.csv',parse_dates=['delivery_date']),
         'signals':pd.read_csv(folder/'business_signals.csv',parse_dates=['date']),
-        'forecasts':pd.read_csv(parent/'daily_allocation.csv',parse_dates=['as_of_date','target_date']),
-        'top':pd.read_csv(parent/'top10_results.csv'),
-        'daily':pd.read_csv(parent/'daily_sales.csv',parse_dates=['date']),
-        'selections':pd.read_csv(parent/'selected_models.csv'),
+        'forecasts':pd.read_csv(parent/'daily_allocation.csv',parse_dates=['as_of_date','target_date'],float_precision='round_trip'),
+        'top':pd.read_csv(parent/'top10_results.csv',float_precision='round_trip'),
+        'daily':pd.read_csv(parent/'daily_sales.csv',parse_dates=['date'],float_precision='round_trip'),
+        'selections':pd.read_csv(parent/'selected_models.csv',float_precision='round_trip'),
         'timeline':ledger_timeline(folder/'inventory_ledger.csv')}
 
 

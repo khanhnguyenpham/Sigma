@@ -86,4 +86,4 @@ Demo dùng 3 tuyến và 6 mặt hàng, 13 kịch bản; không đọc raw bài,
 
 ## Giới hạn và bước tiếp
 
-Đã bàn giao sản phẩm chạy local, còn tiêu chí chưa đạt: China Mobile tổng 30 >20%, R05 ngày chưa nghiệm thu, R07 chưa bao phủ mọi sự kiện. Cần tiếp tục nghiên cứu bằng train/validation và giữ test hồi cứu; không ép dữ liệu hoặc chọn bằng test để nhận đạt. Tồn/lead time/mapping vẫn giả định vì chỉ được cung cấp order. Raw/run/ảnh/báo cáo giữ local; code mới ở nhánh codex/30day-m3 chưa push.
+Tổng30 hiện hành đã đạt10/10 trên benchmark hồi cứu và được đưa lên appPublic; R05ngày chưa nghiệm thu, R07 chưa bao phủ mọi sự kiện. Nghiên cứu tiếp vẫn dùng train/validation, không ép dữ liệu hoặc chọn bằng test để nhận đạt. Tồn/lead time/mapping là giả định vì chỉ được cung cấp order. Raw và run đầy đủ giữ local; chỉ mã và11bảng tổng hợp đã được phép đưa vào repo hostingPrivate. Repo Sigma gốc chưa push lượt này. Thử phương án nhìn tới phục vụ phân tích quyết định, không thay điểm benchmark hoặc đặt đơn nhập thật.

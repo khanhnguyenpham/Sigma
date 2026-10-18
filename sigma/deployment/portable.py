@@ -27,6 +27,7 @@ TABLES = {
 FORBIDDEN = {'order_id','customer_id','event_id','order_datetime','activation_datetime','email','phone','token'}
 SOURCE_CODE = ['src/__init__.py','src/common.py','sigma/__init__.py','sigma/ui/__init__.py',
     'sigma/ui/product30_pages.py','sigma/ui/product30_charts.py','sigma/ui/product30_support.py',
+    'sigma/ui/product30_planner.py','sigma/analysis/planning.py','sigma/analysis/benchmark.py',
     'sigma/ui/product30.css','sigma/analysis/__init__.py','sigma/analysis/alert_diagnostics.py',
     'sigma/deployment/__init__.py','sigma/deployment/runtime.py','sigma/deployment/app.py']
 

@@ -1,5 +1,7 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-055/E87 — sản phẩm đã cập nhật và kiểm cloud, 18/10/2026:** người dùng chọn chỉ hoàn thiện sản phẩm, chưa làm Word/slide. Có thử phương án nhập hàng theo SKU, sổ dự kiến 30 ngày, CSV/JSON, baseline cùng mẫu và ma trận R01–R09. 373 tests đạt; đối soát 920 mặt hàng/80 dòng baseline, kiểm browser cloud đủ7tab và khôi phục ô nhập đúng. Source hosting61a44de, appPublic/repoPrivate; 11 bảng và manifest nguyên, tổng30 vẫn10/10/11,621356%. R05 ngày/R07/T14 còn mở; không có train/nhập nguồn/job nền trên cloud. [Cách dùng](../mentor-demo.md), [triển khai và bằng chứng](../portable-hosting.md).
+
 **CHG-054/E85 — tổng 30 đã đạt 10/10 và lên web, 18/10/2026:** [SIGMA Public](https://sigma-demand-inventory.streamlit.app/), source 78d06a6; repo Private. China Mobile 18,683841%, trung bình 11,621356%, coverage 100%; tổ hợp chọn validation rồi khóa test hồi cứu. M3 mới đã đối soát đầy đủ; 357 tests, 16 checks sau promotion và AppTest/cloud 7 tab đạt. [Protocol/kết quả](../aggregate-refinement.md), [triển khai](../portable-hosting.md). Tổng 7 đối chứng giữ 9/10; raw/run cũ nguyên. R05 ngày/R07/T14 còn mở, chưa có train/job nguồn mới trên cloud. Các mục trước E85 bên dưới là lịch sử.
 
 **CHG-053/E83 — app đã Public18/10/2026:** [SIGMA](https://sigma-demand-inventory.streamlit.app/), Share public checkbox=1; GitHub vẫn Private. Source cloud f2725a0 thêm bảng đủ10/10 tuyến tổng7/30; 93origin mỗi cửa sổ đều đủ, 22tests/AppTest3ca đạt. Chỉ UI đổi, không refit/đổi metric: tổng30 vẫn9/10 đạt20%, ChinaMobile20,333443%. [Bằng chứng và giới hạn](../portable-hosting.md). R05/R07/T14 mở, chưa train/cập nhật cloud. E80–E82 bên dưới là lịch sử trước chuyển Public.
@@ -495,7 +497,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t10"></a>
 ### T10 — Đối tác, sổ tồn và cảnh báo
 
-- **Trạng thái hiện hành CHG-048/E76:** M3 tổng 30 đã triển khai/đối soát13 kịch bản,920 items,1.100.320 ledger/rec và 266.123 events. Basefill 85,97%; early1053/2867=36,73%; R07 chưa đạt mọi ca.
+- **Lịch sử CHG-048/E76:** M3 tổng 30 đã triển khai/đối soát13 kịch bản,920 items,1.100.320 ledger/rec và 266.123 events. Basefill 85,97%; early1053/2867=36,73%; R07 chưa đạt mọi ca.
 
 - **Phân công đề xuất 04/10/2026:** Hiếu phụ trách; Khang review.
 
@@ -516,7 +518,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **CHG-052/E80:** bổ sung gói triển khai Python từ kết quả nguồn bài, URL trung tính theo yêu cầu mới; AppTest portable đạt, chưa deploy và chưa có job huấn luyện/cập nhật cloud. Chờ kết nối GitHub/phê duyệt payload; không nâng nghiệm thu.
 
-- **Trạng thái hiện hành CHG-050/E78:** Đã chuẩn bị giao diện trình diễn mentor 7 màn hình, KPI, lọc nhanh, SKU/công thức/CSV, timeline theo tuyến và giải thích giới hạn; AppTest24ca/13kịch bản, browser và export đạt. Xem docs/mentor-demo.
+- **Lịch sử CHG-050/E78:** Đã chuẩn bị giao diện trình diễn mentor 7 màn hình, KPI, lọc nhanh, SKU/công thức/CSV, timeline theo tuyến và giải thích giới hạn; AppTest24ca/13kịch bản, browser và export đạt. Xem docs/mentor-demo.
 
 - **Trạng thái trước CHG-050/E78:** M3 7 tab/11 ca lọc đã kiểm AppTest và browser tại 8507. Task07:00 đã cài/chạy thử0, last-good/skip/lock đã kiểm; snapshot2025 và tồn giả định có nhãn. E77: thêm hướng xử lý/so sánh/giải thích và kiểm cache bằng chứng; 11 ca UI đạt.
 
@@ -537,7 +539,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t12"></a>
 ### T12 — Kiểm thử, tái lập và bảo mật gói
 
-- **Trạng thái hiện hành CHG-050/E78:** 340 tests native đạt/0fail/0error/0skip; timeline tổng hợp chunk đối soát13kịch bản, số nguyên khớp tuyệt đối; CSV tải thật150/Q240; demo UI đạt, raw/241protected và tất cả hash bundle nguồn/M3 v2 nguyên. CI remote mới chưa chạy.
+- **Lịch sử CHG-050/E78:** 340 tests native đạt/0fail/0error/0skip; timeline tổng hợp chunk đối soát13kịch bản, số nguyên khớp tuyệt đối; CSV tải thật150/Q240; demo UI đạt, raw/241protected và tất cả hash bundle nguồn/M3 v2 nguyên. CI remote mới chưa chạy.
 
 - **Trạng thái trước CHG-050/E78:** 310 tests đạt; forecast1160 nhóm metric/8556 allocation, M3 1,1 triệu dòng/266 nghìn sự kiện/8280 replay kiểm độc lập. Demo 3 tuyến và UI đạt; CI mới chưa chạy remote. E77: kiểm cuối 332 tests đạt; 39.100 hệ số/228 fit mới đối soát.
 
@@ -581,7 +583,9 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t14"></a>
 ### T14 — Nghiệm thu và đóng gói
 
-- **Trạng thái hiện hành CHG-048/E76:** Đã bàn giao sản phẩm M3 local và demo clone mới, còn điều kiện chưa đạt: China Mobile tổng 30>20%, R05 ngày/R07 và mentor review. Không nhận nghiệm thu toàn bài.
+- **Hiện hành E87:** sản phẩm Public đã kiểm7tab/373tests và bàn giao tính năng what-if/baseline. Tổng30 đạt10/10 hồi cứu; R05 ngày/R07, review mentor và kiểm máy thứ hai chưa đóng. Không nhận nghiệm thu toàn bài.
+
+- **Lịch sử CHG-048/E76:** Đã bàn giao sản phẩm M3 local và demo clone mới, còn điều kiện chưa đạt: China Mobile tổng 30>20%, R05 ngày/R07 và mentor review. Không nhận nghiệm thu toàn bài.
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Khang review.
 

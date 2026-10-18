@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-055/E87 — sản phẩm đã cập nhật và kiểm cloud, 18/10/2026:** người dùng chọn chỉ hoàn thiện sản phẩm, chưa làm Word/slide. Có thử phương án nhập hàng theo SKU, sổ dự kiến 30 ngày, CSV/JSON, baseline cùng mẫu và ma trận R01–R09. 373 tests đạt; đối soát 920 mặt hàng/80 dòng baseline, kiểm browser cloud đủ7tab và khôi phục ô nhập đúng. Source hosting61a44de, appPublic/repoPrivate; 11 bảng và manifest nguyên, tổng30 vẫn10/10/11,621356%. R05 ngày/R07/T14 còn mở; không có train/nhập nguồn/job nền trên cloud. [Cách dùng](../mentor-demo.md), [triển khai và bằng chứng](../portable-hosting.md).
+
 **CHG-054/E85 — tổng 30 đã đạt 10/10 và lên web, 18/10/2026:** [SIGMA Public](https://sigma-demand-inventory.streamlit.app/), source 78d06a6; repo Private. China Mobile 18,683841%, trung bình 11,621356%, coverage 100%; tổ hợp chọn validation rồi khóa test hồi cứu. M3 mới đã đối soát đầy đủ; 357 tests, 16 checks sau promotion và AppTest/cloud 7 tab đạt. [Protocol/kết quả](../aggregate-refinement.md), [triển khai](../portable-hosting.md). Tổng 7 đối chứng giữ 9/10; raw/run cũ nguyên. R05 ngày/R07/T14 còn mở, chưa có train/job nguồn mới trên cloud. Các mục trước E85 bên dưới là lịch sử.
 
 **CHG-053/E83 — app đã Public18/10/2026:** [SIGMA](https://sigma-demand-inventory.streamlit.app/), Share public checkbox=1; GitHub vẫn Private. Source cloud f2725a0 thêm bảng đủ10/10 tuyến tổng7/30; 93origin mỗi cửa sổ đều đủ, 22tests/AppTest3ca đạt. Chỉ UI đổi, không refit/đổi metric: tổng30 vẫn9/10 đạt20%, ChinaMobile20,333443%. [Bằng chứng và giới hạn](../portable-hosting.md). R05/R07/T14 mở, chưa train/cập nhật cloud. E80–E82 bên dưới là lịch sử trước chuyển Public.
@@ -221,3 +223,10 @@ Các sai khác trên không tự xác nhận hoặc bác bỏ nghiệp vụ đã
 ## Giao diện trình diễn mentor — E78
 
 Entry `sigma/ui/product30.py` chỉ nạp/kiểm nguồn; `product30_pages.py` chia 7 màn hình, `product30_charts.py` giữ biểu đồ, `product30_support.py` giữ tổng hợp/format có kiểm thử và `product30.css` giữ giao diện. [Kịch bản trình diễn](../mentor-demo.md). Bằng chứng local `.tools/m3_20261016/mentor_tests.xml`, `mentor_ui_check.json`, `mentor_timeline_check.json`, `mentor_export_check.json`; ảnh trong reports/M3_2026-10-16/mentor_*.png. Không tạo run mô hình/policy mới cho thay đổi UI.
+
+### Bổ sung sản phẩm E86–E87
+
+- `sigma/analysis/planning.py`: mô phỏng nhìn tới tất định từ forecast cố định, đối soát sổ, nhận thiếu/trễ, IP và giới hạn horizon; không raw/training/ghi đơn.
+- `sigma/ui/product30_planner.py`: form giả định theo SKU, bảng so sánh/đường tồn/sổ/lịch lô mới và CSV/JSON. Widget được tạo định danh mới khi khôi phục hoặc đổi SKU để không giữ bộ đệm cũ trên browser.
+- `sigma/analysis/benchmark.py`: tính Naive/MA7/MA28 từ lịch sử tới origin và chấm đúng mẫu của forecast đã khóa; tái chấm mô hình phải khớp metric release trước hiển thị.
+- `tests/test_planning.py`, `test_benchmark.py`, `test_planner_ui.py`: bất biến tồn, partial/late/pending, zero/missing, causal baseline và hồi quy widget phía client. `product30.py` nạp số thực round-trip cho phép tính ceil giống cloud.

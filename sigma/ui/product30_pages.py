@@ -7,7 +7,9 @@ import streamlit as st
 
 from src.common import ROOT, ROUTE, ITEM
 from sigma.analysis.alert_diagnostics import explain_events
+from sigma.analysis.benchmark import compare as benchmark_comparison
 from sigma.ui import product30_charts as charts
+from sigma.ui.product30_planner import render_planner
 from sigma.ui.product30_support import (number, filter_frame, ranked_recommendations,
     demand_chart_data, complete_actual, timeline_metrics, scenario_comparison,
     recommendation_action, item_parameters, route_forecast_status)
@@ -119,6 +121,8 @@ def overview(bundle,context,stock):
         queue(stock,3)
         st.caption('Xem từng mặt hàng và xuất phiếu đề xuất tại tab Kho hàng.')
     st.markdown('<div class="sigma-flow"><div>1. Dự báo nhu cầu<span>Tổng 30 ngày theo quốc gia–nhà mạng, có sai số kiểm chứng.</span></div><div>2. Tính mức bổ sung<span>Phân bổ SKU, so tồn với điểm đặt lại và lượng đang về.</span></div><div>3. Theo dõi rủi ro<span>Ngày cạn dự kiến, biến động bán và kịch bản đối tác.</span></div></div>',unsafe_allow_html=True)
+    st.caption('Tại Kho hàng → Thử phương án nhập hàng, bạn có thể đổi nhu cầu, tồn đầu và điều kiện nhập '
+        'để xem tác động dự kiến; các thử nghiệm này không thay kết quả kiểm chứng mô hình.')
     note=('Dữ liệu demo do phần mềm tự sinh, tồn kho mô phỏng; kết quả không chứng minh chất lượng nguồn bài.' if bundle['demo'] else
         f"Ứng dụng dùng dữ liệu nguồn bài 2024–2025 và tồn kho mô phỏng. Tổng 30 đạt {int(top.passes_20_pct.sum())}/{len(top)} tuyến theo ngưỡng 20%.")
     st.markdown(f'<div class="sigma-note">{escape(note)} Tiêu chí dự báo ngày và cảnh báo sớm chưa được nghiệm thu toàn bộ. Chi tiết ở tab Kiểm chứng.</div>',unsafe_allow_html=True)
@@ -188,6 +192,8 @@ def inventory(bundle,context,stock):
     ranked=ranked_recommendations(stock)
     st.dataframe(compact_stock(ranked.head(15)),hide_index=True,width='stretch')
     st.caption('Hiển thị 15 mặt hàng ưu tiên đầu. Thứ tự chỉ phục vụ đọc; lượng đặt giữ nguyên từ policy đã đối soát.')
+    with st.expander('Thử phương án nhập hàng và biến động nhu cầu'):
+        render_planner(bundle,context)
     choices=list(ranked[ITEM].itertuples(index=False,name=None))
     if choices:
         key=pick('Mặt hàng minh họa',choices,'m3_focus',format_func=lambda x:f'{x[1]} · {x[2]} · {TYPES.get(x[3],x[3])} · {x[0]}')
@@ -306,6 +312,44 @@ def evidence(bundle,run_id,state_dir):
         ['Cảnh báo trước ít nhất 7 ngày',f"{number(bundle['summary']['early_event_rate']*100,2)}% sự kiện",'Chưa bảo đảm mọi trường hợp'],
         ['Dự báo từng ngày theo R05','Còn mở','Tổng 30 không tự thay tiêu chí gốc'],
     ],columns=['Hạng mục','Kết quả hiện tại','Giới hạn']),hide_index=True,width='stretch')
+    with st.expander('Đối chiếu yêu cầu và phạm vi sản phẩm'):
+        routes=bundle['daily'][ROUTE].drop_duplicates().shape[0]
+        matrix=pd.DataFrame([
+            ['R01','Chuẩn hóa số bán','Đã đối soát quantity','Snapshot trạng thái; success/ngày đặt UTC là A08 đề xuất'],
+            ['R02','Phân tích chuỗi và mùa vụ','Có chuỗi ngày để phân tích','Chưa kết luận nguyên nhân từ tương quan'],
+            ['R03','Split, nhãn và lựa chọn','Đã đối soát trong run','Test đã từng được xem, nên là đánh giá hồi cứu'],
+            ['R04','Mô hình theo tuyến',f'Có dự báo {routes} tuyến','Chọn bằng validation; không dùng test chọn lại'],
+            ['R05','MAPE theo từng ngày','Còn mở','Không dùng tổng 30 để nhận tiêu chí ngày đã đạt'],
+            ['Bổ sung','MAPE tổng 30',f'{int(top.passes_20_pct.sum())}/{len(top)} tuyến ≤20%',limits],
+            ['R06','Tồn và ngưỡng đối tác','Đã triển khai và đối soát','Kho, nhập và mapping đối tác là mô phỏng'],
+            ['R07','Cảnh báo trước ≥7 ngày',f"{number(bundle['summary']['early_event_rate']*100,2)}% sự kiện",'Chưa bảo đảm mọi trường hợp'],
+            ['R08','Dashboard và xuất kết quả','Đọc release đã kiểm','Thử phương án là dự kiến, không gửi đơn nhập thật'],
+            ['R09','Tái lập và bàn giao','Có manifest/receipt và gói mã','Chưa thay biên bản nghiệm thu của mentor'],
+        ],columns=['Mã','Yêu cầu','Bằng chứng kỹ thuật','Giới hạn'])
+        st.dataframe(matrix,hide_index=True,width='stretch')
+        st.caption('Ma trận này ghi phạm vi và bằng chứng kỹ thuật, không tự xác nhận nghiệm thu toàn bộ bài. '
+            'Mô phỏng nhìn tới, replay cảnh báo lịch sử và đánh giá sai số dự báo là ba phép đánh giá riêng.')
+        export('Xuất ma trận phạm vi sản phẩm',matrix,'sigma_pham_vi_san_pham.csv')
+    with st.expander('So sánh công bằng với Naive, MA7 và MA28'):
+        try:
+            comparison=benchmark_comparison(bundle['daily'],bundle['forecasts'],bundle['top'])
+        except (ValueError,AssertionError):
+            st.error('Chưa thể đối soát baseline trên cùng tập origin. Không hiển thị phép so sánh thiếu mẫu.')
+        else:
+            summary=comparison.groupby(['window_days','method'],as_index=False).agg(
+                tuyen_dat=('passes_20_pct','sum'),so_tuyen=('carrier','size'),
+                MAPE=('mape_positive_pct','mean'),MAE=('mae','mean'),coverage=('coverage','min'))
+            st.dataframe(summary.rename(columns={'window_days':'Tổng số ngày','method':'Phương pháp',
+                'tuyen_dat':'Tuyến ≤20%','so_tuyen':'Số tuyến','MAPE':'MAPE TB (%)',
+                'MAE':'MAE TB (đơn vị)','coverage':'Độ phủ tối thiểu'}),hide_index=True,width='stretch',
+                column_config={'MAPE TB (%)':st.column_config.NumberColumn(format='%.2f'),
+                    'MAE TB (đơn vị)':st.column_config.NumberColumn(format='%.2f'),
+                    'Độ phủ tối thiểu':st.column_config.NumberColumn(format='percent')})
+            st.caption('Phạm vi toàn bộ top 10, không phụ thuộc bộ lọc đầu trang. '
+                'Baseline lấy giá trị cuối / trung bình 7 hoặc 28 ngày đến origin, nhân cửa sổ dự báo. '
+                'Cùng tuyến và cùng origin đủ nhãn với mô hình đã khóa; chấm lại mô hình phải khớp metric release. '
+                'Đây là so sánh tổng 7/30, không thay tiêu chí ngày R05; không dùng kết quả test chọn lại mô hình.')
+            export('Xuất so sánh baseline cùng mẫu',comparison,'sigma_so_sanh_baseline.csv')
     with st.expander('Dữ liệu đầu vào và phương pháp'):
         receipt=bundle['verification'][bundle['summary']['aggregate_run']]
         st.write(f"Nguồn bài đã audit: **{number(receipt['raw_rows'])} dòng**, **{number(receipt['sales_quantity'])} quantity hợp lệ theo định nghĩa cơ sở**. Top tuyến xếp theo quantity train.")
@@ -327,7 +371,8 @@ def evidence(bundle,run_id,state_dir):
         if bundle.get('hosted_release'):
             st.write('Bản triển khai đọc bộ kết quả đã kiểm tra; không có job huấn luyện hoặc đồng bộ nguồn tự động trên host này. Cập nhật bằng một release mới đã đối soát. Job local 07:00 không chạy trên host.')
         else:
-            st.write('Job local 07:00 giờ Việt Nam. Nguồn đổi cần bộ dự báo mới đã đối soát; không tự kéo dài split hoặc train khi mở dashboard.')
+            st.write('Có CLI job local nhận bộ dự báo đã đối soát; lịch chạy cần kiểm trên máy cài đặt. '
+                'Nguồn đổi cần bộ dự báo mới, không tự kéo dài split hoặc train khi mở dashboard.')
         st.code(f"Forecast: {bundle['summary']['aggregate_run']}\nM3: {run_id}\nSource SHA256: {bundle['summary']['source_sha256']}",'text')
         st.caption('Hai thử nghiệm hiệu chỉnh/học ngắn giữ riêng vì không cải thiện ổn định. Bộ final M2 của Khang cũng được giữ riêng, không trộn với pool 7/30 mới.')
     st.info('Khi báo cáo: trình bày đây là sản phẩm M3 dùng snapshot lịch sử và tồn mô phỏng; giải thích các phần còn thiếu thay vì nhận đã đạt 100%.')
