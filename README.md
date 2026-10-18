@@ -1,5 +1,7 @@
 # SIGMA — Tổng 30 ngày và sản phẩm M3
 
+**Dành cho thành viên nhóm:** mở [Hướng dẫn đọc tổng30 và M3](docs/team-30day.md) trước — có bảng10tuyến, sơ đồ file cần đọc, cách clone nhánh `codex/30day-m3` và chạy không cần CSV riêng tư.
+
 **Chức năng để trình diễn sản phẩm:** tại **Kho hàng → Thử phương án nhập hàng**, chọn SKU rồi đổi tồn đầu, nhu cầu, lead time, tỷ lệ nhận hoặc trễ nhập để so sánh tồn/thiếu và lượng dự kiến đặt. Có sổ 30 ngày và nút xuất CSV/JSON. Tại **Kiểm chứng**, xem baseline Naive/MA7/MA28 cùng mẫu và ma trận R01–R09; kết quả what-if tách khỏi benchmark. [Cách sử dụng và ví dụ](docs/mentor-demo.md).
 
 **Tổng30 đã đạt10/10 tuyến MAPE≤20%:** [Mở SIGMA công khai](https://sigma-demand-inventory.streamlit.app/) · ChinaMobile18,68%, trung bình11,62%, coverage100%. Chọn tổ hợp bằng validation, khóa trước test hồi cứu; chín tuyến còn lại giữ nguyên. Repo GitHub Private. [Protocol và bằng chứng](docs/aggregate-refinement.md), [bản triển khai](docs/portable-hosting.md). Tổng7 đối chứng vẫn9/10; bản online đọc release đã tính, chưa huấn luyện/cập nhật nguồn trên cloud.
@@ -23,11 +25,11 @@
 Trên máy clone mới không có CSV riêng tư, chạy demo tự sinh:
 
 ```powershell
-.\.venv\Scripts\python.exe -m sigma demo 30 --prefix demo_m3_team
+.\.venv\Scripts\python.exe -m sigma demo30 --prefix demo_m3_team
 .\scripts\start_m3.ps1 -Config outputs/demo_m3_team_bundle/product30.json
 ```
 
-Demo ở cổng 8508 dùng 3 tuyến riêng; không chứng minh chất lượng nguồn bài. Mỗi lần tạo demo chọn prefix mới. Code/config/tests/tài liệu mới đang local; raw/run/ảnh/báo cáo riêng vẫn ignored, chưa push.
+Demo ở cổng 8508 dùng 3 tuyến riêng; không chứng minh chất lượng nguồn bài. Mỗi lần tạo demo chọn prefix mới. Nhóm dùng nhánh `codex/30day-m3` để đọc code/config/tests/tài liệu mới; raw/run/ảnh/báo cáo riêng vẫn ignored và giữ local.
 
 ---
 

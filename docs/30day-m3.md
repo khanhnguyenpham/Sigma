@@ -78,7 +78,7 @@ Lịch sử16/10: đã cài TaskWindows SigmaM3Refresh07:00 và chạy thử tr�
 # Trên máy mới, tạo task khi muốn bật lịch (tên đã có thì script từ chối ghi đè):
 .\scripts\install_m3_task.ps1 -TaskName SigmaM3Refresh -At '07:00'
 # Kiểm toàn bộ bằng dữ liệu tự sinh, chọn prefix mới mỗi lần:
-.\.venv\Scripts\python.exe -m sigma demo 30 --prefix demo_m3_team
+.\.venv\Scripts\python.exe -m sigma demo30 --prefix demo_m3_team
 .\scripts\start_m3.ps1 -Config outputs/demo_m3_team_bundle/product30.json
 ```
 
