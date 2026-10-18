@@ -301,7 +301,10 @@ def evidence(bundle,run_id,state_dir):
         names={'complete':'Đã cập nhật','adopted_existing':'Đã nhận bộ đã đối soát','skipped_unchanged':'Đầu vào không đổi',
             'skipped_running':'Đã có lượt khác chạy','failed':'Lỗi cập nhật · giữ last-good','not_run':'Chưa chạy job'}
         st.write('Cập nhật gần nhất:',names.get(last.get('status'),last.get('status')))
-        st.write('Job local 07:00 giờ Việt Nam. Nguồn đổi cần bộ dự báo mới đã đối soát; không tự kéo dài split hoặc train khi mở dashboard.')
+        if bundle.get('hosted_release'):
+            st.write('Bản triển khai đọc bộ kết quả đã kiểm tra; không có job huấn luyện hoặc đồng bộ nguồn tự động trên host này. Cập nhật bằng một release mới đã đối soát. Job local 07:00 không chạy trên host.')
+        else:
+            st.write('Job local 07:00 giờ Việt Nam. Nguồn đổi cần bộ dự báo mới đã đối soát; không tự kéo dài split hoặc train khi mở dashboard.')
         st.code(f"Forecast: {bundle['summary']['aggregate_run']}\nM3: {run_id}\nSource SHA256: {bundle['summary']['source_sha256']}",'text')
         st.caption('Hai thử nghiệm hiệu chỉnh/học ngắn giữ riêng vì không cải thiện ổn định. Bộ final M2 của Khang cũng được giữ riêng, không trộn với pool 7/30 mới.')
     st.info('Khi báo cáo: trình bày đây là sản phẩm M3 dùng snapshot lịch sử và tồn mô phỏng; giải thích các phần còn thiếu thay vì nhận đã đạt 100%.')
