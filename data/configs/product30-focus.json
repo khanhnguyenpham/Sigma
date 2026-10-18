@@ -1,0 +1,9 @@
+{
+  "version": "m3-aggregate30-focus-v2",
+  "aggregate_run": "sigma_aggregate_focus_20261018",
+  "product_run": "sigma_m3_focus_20261018",
+  "window_days": 30,
+  "port": 8507,
+  "stock_source": "explicit_simulation_not_company_stock",
+  "customer_delivery_days": 7
+}

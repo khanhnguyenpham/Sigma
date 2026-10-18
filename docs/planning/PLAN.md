@@ -1,5 +1,7 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-054/E85 — tổng 30 đã đạt 10/10 và lên web, 18/10/2026:** [SIGMA Public](https://sigma-demand-inventory.streamlit.app/), source 78d06a6; repo Private. China Mobile 18,683841%, trung bình 11,621356%, coverage 100%; tổ hợp chọn validation rồi khóa test hồi cứu. M3 mới đã đối soát đầy đủ; 357 tests, 16 checks sau promotion và AppTest/cloud 7 tab đạt. [Protocol/kết quả](../aggregate-refinement.md), [triển khai](../portable-hosting.md). Tổng 7 đối chứng giữ 9/10; raw/run cũ nguyên. R05 ngày/R07/T14 còn mở, chưa có train/job nguồn mới trên cloud. Các mục trước E85 bên dưới là lịch sử.
+
 **CHG-053/E83 — app đã Public18/10/2026:** [SIGMA](https://sigma-demand-inventory.streamlit.app/), Share public checkbox=1; GitHub vẫn Private. Source cloud f2725a0 thêm bảng đủ10/10 tuyến tổng7/30; 93origin mỗi cửa sổ đều đủ, 22tests/AppTest3ca đạt. Chỉ UI đổi, không refit/đổi metric: tổng30 vẫn9/10 đạt20%, ChinaMobile20,333443%. [Bằng chứng và giới hạn](../portable-hosting.md). R05/R07/T14 mở, chưa train/cập nhật cloud. E80–E82 bên dưới là lịch sử trước chuyển Public.
 
 **CHG-052/E82 — bản nguồn bài đã chạy online18/10/2026:** [SIGMA trên Streamlit](https://sigma-demand-inventory.streamlit.app/), app/repo Private, main ae35eed; OAuth bổ sung được người dùng xác nhận rồi cấp. 7tab cloud qua kiểm, Japan/giao50% khớp release; không console error. CSV cloud chưa có receipt file mới. [Cách mở/cấp quyền và giới hạn](../portable-hosting.md). Không raw/ID; data/metric nguyên. Chưa có train/job cập nhật cloud, R05/R07/T14 còn mở; không nhận hoàn tất toàn project.
@@ -435,6 +437,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t08"></a>
 ### T08 — LightGBM có điều kiện
 
+- **CHG-054/E84–E85:** đăng ký 48 ứng viên focus tổng 30; tổ hợp 75% lgbm_ratio7 +25% lgbm_annual_ratio7 thắng validation China Mobile 10,972012%, khóa trước test. Chỉ dùng lịch sử/nhãn hoàn tất; audit độc lập 4.416 forecast ứng viên, 93 fresh component forecast đạt. Không đổi chín tuyến còn lại/tổng 7 hoặc R05 ngày.
 - **CHG-042/E70:** Bộ final tái dùng cấu hình đã nghiên cứu, không tìm thêm ứng viên; LightGBM pooled top10, LG U+ scale56/học540.
 
 - **CHG-041/E69:** chạy đủ160 lượt cấu hình đã đăng ký của sáu pool trên test theo yêu cầu mới, không lọc validation.17 lượt h1–7<20%; cửa sổ học540/scale56 đạt19,265900%. Không đổi code/params của phase cũ hoặc feature/cutoff; [CSV và phạm vi hồi cứu](../test-sweep-experiment.md).
@@ -458,7 +461,9 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t09"></a>
 ### T09 — Khóa và đánh giá M2
 
-- **Trạng thái hiện hành CHG-048/E76:** Tổng 30 mới:9/10, MAPE 11,786316%, China Mobile20,333443%; chọn validation/coverage 100%. Đối chứng7 mới 9/10; final 7 Khang10/10 hồi cứu giữ riêng. R05 ngày chưa nghiệm thu. E77: hai lượt cải tiến validation đã khóa/chấm test nhưng không ổn định; giữ riêng nghiên cứu, không sửa mặc định.
+- **CHG-054/E85 hiện hành tổng 30:** `sigma_aggregate_focus_20261018` đạt10/10≤20%, mean11,621356%, ChinaMobile18,683841%, coverage100%, 63 cửa sổ/tuyến. Verifier raw/nhãn/92lựa chọn/metric/phân bổ đạt; 8.463 control forecast nguyên. Test hồi cứu; tổng7 đối chứng9/10, final7Khang giữ riêng. R05ngày chưa nghiệm thu.
+
+- **Lịch sử CHG-048/E76:** Tổng 30 mới:9/10, MAPE 11,786316%, China Mobile20,333443%; chọn validation/coverage 100%. Đối chứng7 mới 9/10; final 7 Khang10/10 hồi cứu giữ riêng. R05 ngày chưa nghiệm thu. E77: hai lượt cải tiến validation đã khóa/chấm test nhưng không ổn định; giữ riêng nghiên cứu, không sửa mặc định.
 
 - **CHG-042/E70:** Khóa10 lựa chọn trước rerun; tổng7 test10/10<20%, coverage100%. Chín tuyến parity1e-8; LG U+ test-selected, không thay R05 ngày.
 
@@ -505,6 +510,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t11"></a>
 ### T11 — Dashboard và cập nhật cục bộ
 
+- **CHG-054/E85:** M3 `sigma_m3_focus_20261018` theo đúng forecast mới đã kiểm 13 kịch bản/920 mặt hàng/1.100.320ledger/266.111events/8.280alert windows. Config mặc định product30-focus; job namespace mới adopted_existing rồi skipped_unchanged. Gói30file allowlist lên hosting source78d06a6, manifest pin mới, appPublic/cloud7tab đạt10/10 tổng30. Không có train/cập nhật nguồn cloud; R07/T14 mở.
 - **CHG-053/E83:** theo yêu cầu người dùng bật app Public, repo vẫn Private. Cloud f2725a0 có bảng dự báo10/10 tuyến tổng7/30, kiểm93origin/cửa sổ, 22tests và AppTest3ca đạt. Public không đổi metric: tổng30 vẫn9/10; không có huấn luyện cloud. Xem portable-hosting; R05/R07/T14 còn mở.
 - **CHG-052/E82:** đã triển khai app Python nguồn bài trên Streamlit; app/repo Private. 7tab cloud và lọcJapan/giao50% khớp release. Chưa job train/cập nhật cloud; chưa thu receipt download cloud. Xem portable-hosting; R05/R07/T14 vẫn mở.
 

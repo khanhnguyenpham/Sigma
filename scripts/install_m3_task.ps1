@@ -1,4 +1,4 @@
-param([string]$Config = 'data/configs/product30.json', [string]$TaskName = 'SigmaM3Refresh', [string]$At = '07:00')
+param([string]$Config = 'data/configs/product30-focus.json', [string]$TaskName = 'SigmaM3Refresh', [string]$At = '07:00')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $pythonWindowless = Join-Path $projectRoot '.venv/Scripts/pythonw.exe'

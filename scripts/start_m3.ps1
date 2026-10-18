@@ -1,4 +1,4 @@
-param([string]$Config = 'data/configs/product30.json')
+param([string]$Config = 'data/configs/product30-focus.json')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 Set-Location -LiteralPath $projectRoot

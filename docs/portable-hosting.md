@@ -1,12 +1,16 @@
 # Triển khai SIGMA bằng địa chỉ trung tính
 
+**CHG-054/E85 — đã triển khai10/10 tổng30 ngày18/10/2026:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/), appPublic/repoPrivate. Cloud hiện10/10≤20%, MAPE11,621356%, ChinaMobile18,683841%, coverage100%; 7tab kiểm trực tiếp không exception. Source `78d06a61704150140af623099499067ce0aadec4`; manifest mới `92f8581a588a747258cc74f8b38963c9d7818da9a39fbf84e8c4d7499b88276b`, đã cập nhật pin trên Streamlit. Chỉ30file allowlist đã duyệt, 12Gitblob release khớp byte; không raw/ID/run đầy đủ.
+
+Forecast mới `sigma_aggregate_focus_20261018`, M3 `sigma_m3_focus_20261018` đều đã verifier độc lập. 357tests đạt (290core+67M2), 16tests sau đổi default đạt; AppTest gói13kịch bản/tổng7/China/futureactual và giao diện local default7tab đạt. [QA gói](../reports/portable_20261018/focus-release-qa.json), [ảnh cloud](../reports/portable_20261018/focus-cloud-overview.png), [Public](../reports/portable_20261018/focus-cloud-public.png). Tổng7 đối chứng vẫn9/10; R05ngày/R07/T14 mở. Test đã từng xem nên kết quả hồi cứu; tồn/nhập mô phỏng. Cloud vẫn phục vụ kết quả tính sẵn, chưa có job train/nhận nguồn mới. Các mục E80–E84 sau đây là lịch sử.
+
 **CHG-053/E83 — app Public ngày18/10/2026:** theo yêu cầu mới “public cho mọi người cùng coi”, đã bật Share → Make this app public, kiểm checkbox =1. [Mọi người mở SIGMA tại đây](https://sigma-demand-inventory.streamlit.app/); repo GitHub vẫn Private, không cấp thêm OAuth hoặc gửi email. [Ảnh xác nhận quyền xem](../reports/portable_20261018/cloud-public-sharing.png).
 
 Đã thêm bảng theo từng tuyến ngay tab **Dự báo** và nhãn riêng ở Tổng quan: **10/10 có đủ dự báo**, khác với **9/10 đạt MAPE≤20%**. Kiểm đủ10 tuyến ở93origin cho từng cửa sổ7/30, cùng46 tuyến có trong release. 22tests liên quan đạt, AppTest tổng30/tổng7/lọcJapan qua; 241tệp protected nguyên. Source cloud `f2725a04c8ec44d5c6e12686db19b03238cdbf48`; chỉ sửa2fileUI, manifest/các bảng/metric không đổi. [Receipt kiểm local](../reports/portable_20261018/public-routes-local.json). ChinaMobile tổng30 vẫn20,333443%; chưa có huấn luyện cloud hoặc kết quả mô hình mới. R05/R07/T14 giữ mở.
 
 [Receipt Public/cloud](../reports/portable_20261018/cloud-public-deployment.json), [bảng10tuyến tổng30](../reports/portable_20261018/cloud-top10-thirty.png). Cloud cả hai cửa sổ hiển thị đủ10/10, không error log; kiểm12Gitblob release nguyên byte. Hai summary cha nguyên SHA. Chưa kiểm bằng phiên trình duyệt ẩn danh/máy bạn bè; trạng thái Public được xác nhận qua chính checkbox sharing của nền tảng.
 
-Các mục E80–E82 bên dưới là lịch sử trước khi chuyển app sang Public; hướng dẫn Invite chỉ cần nếu chủ tài khoản đổi lại Private. Trạng thái hiện hành là E83.
+Các mục E80–E82 bên dưới là lịch sử trước khi chuyển app sang Public; hướng dẫn Invite chỉ cần nếu chủ tài khoản đổi lại Private. E83 là bản trước cải thiện mô hình; trạng thái hiện hành là E85.
 
 **E82 — đã chạy online ngày18/10/2026:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/). Ứng dụng Python dùng kết quả nguồn bài đã chạy trên Streamlit, không phải bộ tự sinh của Site cũ. Repo và app đều **Private**; hộp Share đã kiểm checkbox “Make this app public” đang tắt. Muốn cho thành viên xem, chủ tài khoản dùng **Share → nhập email → Invite**; không có lời mời nào được agent tự gửi.
 

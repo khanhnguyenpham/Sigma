@@ -1,14 +1,22 @@
 # Cải tiến sau bàn giao M3 — CHG-049/E77
 
+**CHG-054/E84–E85 kết quả18/10/2026:** `sigma_aggregate_focus_20261018` đã chấm test sau khóa validation: **tổng30 đạt10/10**, MAPE trung bình **11,621356%**, coverage100%, 63cửa sổ đủ nhãn/tuyến. ChinaMobile dùng `mix_lgbm_annual_ratio7_w25`: validation10,972012% so với11,720299% cũ; test **18,683841%** so với20,333443% cũ. Tổ hợp75%champion LightGBM ratio +25%LightGBM annual ratio, không chọn trọng số từ test. Chín tuyến30 khác và toàn bộ tổng7 giữ nguyên (7vẫn9/10/15,485424%). M3 đã chạy/đối soát lại và [webPublic](https://sigma-demand-inventory.streamlit.app/) đã dùng bộ mới; chưa nhận hoàn tất toàn bài hoặc tiêu chí R05ngày/R07.
+
+Verifier độc lập: raw100.000dòng/118.296quantity, top10train, 92lựa chọn, 12.880validation/8.464test/92future, 8.556nhóm phân bổ và1.048cutoff hợp lệ. Summary SHA `a8e90ec29ea154c34ac9d54fcf0a224767fe37a2435ab1ba0d57453359878c38`; receipt `outputs/sigma_aggregate_focus_20261018_verification.json`. [Audit bổ sung](../reports/portable_20261018/focus-independent-audit.json) tái tính2.208mixture, 2.208harmonic bằng NumPy normal equations, freshfit93forecast component test/future; 8.463control forecast khớp chính xác và241tệp protected nguyên. Không sửa sealed run cũ. Vì focus được chọn sau biết test cũ, đây là cải thiện trên benchmark hồi cứu, chưa có đánh giá dữ liệu mới độc lập.
+
+**CHG-054/E84 đăng ký18/10/2026:** người dùng làm rõ mục tiêu cả10tuyến đạtMAPE≤20%, không chỉ đủforecast. Nghiên cứu mới giữ target/split/top10/ngưỡng và tổng7 nguyên, chỉ cho phép thay champion tổng30 của ChinaMobile; route focus do đã xem test cũ nên toàn bộ kết quả là hồi cứu. [Cấu hình đăng ký](../data/configs/aggregate-focus.json): 24mixture champion+8mô hình ×trọngsố0,1/0,25/0,5; 24Ridge mùa vụ Fourier1/2/3 ×daily-sum/end-total ×alpha1/10 ×raw/log-smear. Lịch sử540ngày, refit7ngày, chỉ fit nhãn đã kết thúc tại cutoff. Không có trend/lịch sự kiện suy từ test; Fourier dùng lịch biết trước. Champion cũ luôn đủ điều kiện, xếp validation MAPE/MAE/modelid; khóa lựa chọn trước một lần test. Chín tuyến còn lại và toàn bộ tổng7 giữ đúng forecast/metric cũ. Protocol được ghi trước đọc/fit validation; 13tests causal/tổng/mixture đã đạt. Chưa có kết quả mới tại lúc đăng ký; web vẫn9/10.
+
 Ngày 16/10/2026, người dùng cho phép tiếp tục hoàn thiện sản phẩm và muốn hạn chế việc phải chấp thuận từng lệnh. Phiên có xét duyệt tự động theo môi trường; không thay cấu hình quyền của ứng dụng. Các thử nghiệm dưới đây chạy local, không làm Word/slide hoặc push/upload dữ liệu.
 
-## Hai thử nghiệm đã chạy
+M3 mới `sigma_m3_focus_20261018`, summary SHA `cb3d72a3e4c4f454c3384da39f0d15a887e2068997ea3760a18b88a21bf5f902`:13kịch bản/920mặt hàng, 1.100.320ledger và khuyến nghị, 85.560ngưỡngSKU, 266.111sự kiện và8.280cửa sổ cảnh báo đã đối soát. Fillcơ sở85,978206%, early1053/2867=36,728287%. 357tests đạt,16checks sau promotion đạt; AppTest13kịch bản+7đối chứng/China/futureactual và7tabcloud đạt. Joblocal dùng config mới adopted_existing rồi skipped_unchanged, giữ job/run cũ. Cloud source78d06a6; [chi tiết triển khai](portable-hosting.md). Chỉ gói mã+11bảng tổng hợp đã được phép đưa lên repo hostingPrivate/appPublic; raw và run đầy đủ giữ local.
+
+## Hai thử nghiệm16/10 — lịch sử trước tổ hợp mới
 
 Giữ nguyên raw, target A08, top 10 train, train/validation/test, ngưỡng 20% và công thức metric. Test đã được xem từ trước nên là hồi cứu. Mỗi lượt đăng ký cấu hình trước validation, khóa lựa chọn trước khi chấm test; không thay lựa chọn bằng điểm test.
 
 | Bộ kết quả | Tổng 7 đạt ≤20% | MAPE trung bình tổng 7 | Tổng 30 đạt ≤20% | MAPE trung bình tổng 30 |
 |---|---|---|---|---|
-| Sản phẩm đang dùng | 9/10 | 15,485424% | 9/10 | 11,786316% |
+| Mốc bàn giao16/10 | 9/10 | 15,485424% | 9/10 | 11,786316% |
 | Hiệu chỉnh nhân quả | 8/10 | 16,332325% | 7/10 | 14,527343% |
 | Rút ngắn lịch sử học | 9/10 | 15,485424% | 8/10 | 12,552199% |
 

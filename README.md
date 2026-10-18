@@ -1,12 +1,12 @@
 # SIGMA — Tổng 30 ngày và sản phẩm M3
 
-**Bản nguồn bài đã công khai:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/) · app Public, repo GitHub Private. Tab Dự báo có bảng đủ **10/10 tuyến chủ lực** cho cả tổng7/30; số tuyến đạt MAPE≤20% hiện vẫn **9/10**. [Phạm vi, bằng chứng và giới hạn](docs/portable-hosting.md). Bản online đọc release đã tính, chưa huấn luyện/cập nhật nguồn trên cloud.
+**Tổng30 đã đạt10/10 tuyến MAPE≤20%:** [Mở SIGMA công khai](https://sigma-demand-inventory.streamlit.app/) · ChinaMobile18,68%, trung bình11,62%, coverage100%. Chọn tổ hợp bằng validation, khóa trước test hồi cứu; chín tuyến còn lại giữ nguyên. Repo GitHub Private. [Protocol và bằng chứng](docs/aggregate-refinement.md), [bản triển khai](docs/portable-hosting.md). Tổng7 đối chứng vẫn9/10; bản online đọc release đã tính, chưa huấn luyện/cập nhật nguồn trên cloud.
 
 **Demo tự sinh cũ:** [Site minh họa](https://sigma-demand-inventory.cuddly-grebe-5666.chatgpt.site) dùng hoàn toàn dữ liệu tự sinh 10 tuyến/13 kịch bản, giữ riêng với app nguồn bài phía trên. [Phạm vi](docs/share-web.md).
 
 **Trình diễn mentor:** mở dashboard tại `http://127.0.0.1:8507/` và dùng [kịch bản demo 5–7 phút](docs/mentor-demo.md). Giao diện đã tổ chức theo nhu cầu → kho hàng → kịch bản → cảnh báo/giao khách → kiểm chứng; có minh họa từng SKU và xuất phiếu đề xuất nhập.
 
-[Cập nhật sau bàn giao](docs/aggregate-refinement.md): thêm hướng xử lý tồn, so sánh kịch bản và giải thích cảnh báo; các thử nghiệm hiệu chỉnh/học ngắn giữ riêng, kết quả mặc định vẫn 9/10 tổng 30.
+[Cập nhật sau bàn giao](docs/aggregate-refinement.md): tổ hợp mới thắng validation đưa tổng30 lên10/10. Các thử nghiệm hiệu chỉnh/học ngắn trước đó giữ riêng; M3 đã chạy lại theo forecast mới và đối soát đầy đủ.
 
 Đã kiểm tra phần Khang trên GitHub, hợp nhất `M2-final-report` vào nhánh local `codex/30day-m3`, giữ lại luồng M3. Mở sản phẩm:
 
@@ -16,7 +16,7 @@
 
 Địa chỉ `http://127.0.0.1:8507`. Có 7 phần: tổng quan, dự báo 7/30, tồn/đặt hàng, cảnh báo, lịch giao D+7, biến động quantity/doanh thu, cập nhật/nguồn. [Hướng dẫn và kết quả](docs/30day-m3.md).
 
-**Kết quả nguồn bài:** tổng 30 đạt **9/10**, MAPE trung bình **11,79%**, China Mobile **20,33%** chưa đạt; coverage 100%. M3 chạy 13 kịch bản/920 mặt hàng, đáp ứng cơ sở85,97%, báo trước≥7 ngày 1053/2867 sự kiện (36,73%). Đây là sản phẩm dùng snapshot lịch sử và tồn giả định; còn tiêu chí chưa đạt, không nghiệm thu toàn bài. Bộ final 7 của Khang giữ riêng, không bị thay bằng đối chứng7 mới.
+**Kết quả nguồn bài18/10:** tổng30 đạt **10/10**, MAPE trung bình **11,62%**, ChinaMobile **18,68%**; coverage100%. M3 chạy13kịch bản/920mặt hàng, đáp ứng cơ sở85,98%, báo trước≥7ngày1053/2867sự kiện (36,73%). Đây là benchmark hồi cứu/snapshot lịch sử và tồn giả định; R05ngày/R07/T14 còn mở. Bộ final7 của Khang giữ riêng, không bị thay bằng đối chứng7 mới. Cấu hình mặc định mới `data/configs/product30-focus.json`; cấu hình cũ giữ để tái lập lịch sử.
 
 Trên máy clone mới không có CSV riêng tư, chạy demo tự sinh:
 

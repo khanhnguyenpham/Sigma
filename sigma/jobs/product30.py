@@ -15,7 +15,7 @@ class SourceChangedError(ValueError):
     """A new observed snapshot requires its own validated forecast parent."""
 
 
-def settings(path='data/configs/product30.json'):
+def settings(path='data/configs/product30-focus.json'):
     path=Path(path)
     if not path.is_absolute():path=ROOT/path
     path=path.resolve()
@@ -46,7 +46,7 @@ def current_fingerprint(path):
     return digest.hexdigest()
 
 
-def execute_refresh(config='data/configs/product30.json'):
+def execute_refresh(config='data/configs/product30-focus.json'):
     path,cfg=settings(config)
     def worker(run_id):
         execute(run_id,cfg['aggregate_run'],cfg['window_days'])
@@ -75,5 +75,5 @@ def execute_refresh(config='data/configs/product30.json'):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--config',default='data/configs/product30.json')
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--config',default='data/configs/product30-focus.json')
     a=p.parse_args();result=execute_refresh(a.config);print(json.dumps(result));raise SystemExit(result['status']=='failed')

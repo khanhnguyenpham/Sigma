@@ -59,6 +59,8 @@ def reset_filters():
 
 
 def family(name):
+    if name.startswith('mix_'):return 'Tổ hợp LightGBM'
+    if name.startswith('harmonic'):return 'Hồi quy mùa vụ'
     if 'lgbm' in name:return 'LightGBM'
     if 'prophet' in name:return 'Prophet'
     if 'sarima' in name:return 'SARIMA'
@@ -160,6 +162,7 @@ def forecasts(bundle,context):
             'mape_positive_pct','coverage','passes_20_pct']].rename(columns={**LABELS,
                 'forecast_total':f'Dự báo tổng {window} ngày','forecast_days':'Ngày có dự báo',
                 'forecast_complete':'Dự báo đủ kỳ','coverage':'Độ phủ test','mape_positive_pct':'MAPE test (%)'})
+        shown['Mô hình']=status.model.map(family)
         st.dataframe(shown,hide_index=True,width='stretch',column_config={
             f'Dự báo tổng {window} ngày':st.column_config.NumberColumn(format='%.1f'),
             'MAPE test (%)':st.column_config.NumberColumn(format='%.2f'),
@@ -310,6 +313,10 @@ def evidence(bundle,run_id,state_dir):
         selected=bundle['selections'].loc[lambda x:x.window_days.eq(30)].copy()
         selected['Mô hình']=selected.model.map(family)
         st.dataframe(selected[ROUTE+['Mô hình','validation_mape_positive_pct']].rename(columns={**LABELS,'validation_mape_positive_pct':'MAPE validation (%)'}),hide_index=True,width='stretch')
+        if selected.model.eq('mix_lgbm_annual_ratio7_w25').any():
+            st.caption('China Mobile: tổ hợp 75% LightGBM theo lịch sử gần và 25% LightGBM có mùa vụ năm. '
+                'Chọn bằng validation (MAPE 10,97%), khóa trước test; chín tuyến tổng 30 còn lại giữ nguyên. '
+                'MAPE test là kết quả hồi cứu, chưa phải kiểm định trên dữ liệu mới độc lập.')
         st.caption('Bộ lọc success/ngày đặt UTC là A08 đề xuất, chưa phải quy tắc kế toán mentor xác nhận. Không dùng activation loại sale hợp lệ. Test đã xem nên không gọi là holdout độc lập.')
     with st.expander('Cập nhật định kỳ và truy vết kỹ thuật'):
         path=state_dir/'last_attempt.json'

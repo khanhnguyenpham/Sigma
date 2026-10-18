@@ -1,5 +1,7 @@
 # Tổng 30 ngày và sản phẩm M3
 
+**CHG-054/E85 — bản hiện hành18/10/2026:** [Web SIGMA công khai](https://sigma-demand-inventory.streamlit.app/) đã dùng forecast `sigma_aggregate_focus_20261018` và M3 `sigma_m3_focus_20261018`. **Tổng30 đạt10/10≤20%, mean11,621356%, ChinaMobile18,683841%, coverage100%**. Tổ hợp được chọn validation rồi khóa trước test hồi cứu; chín tuyến khác/tổng7 nguyên. M3 mới đã đối soát13kịch bản/920mặt hàng/266.111sự kiện; 357tests và AppTest/cloud đạt. [Protocol và hashes](aggregate-refinement.md), [triển khai](portable-hosting.md). Cấu hình mặc định [product30-focus.json](../data/configs/product30-focus.json); phần E76–E78 và hashes16/10 bên dưới giữ lịch sử.
+
 **CHG-050/E78 — giao diện trình diễn mentor:** [hướng dẫn 5–7 phút](mentor-demo.md) đi kèm 7 màn hình mới. Timeline kịch bản được tổng hợp từ ledger đã đối soát, bộ lọc quốc gia/nhà mạng có hiệu lực lên chỉ số mô phỏng. Mô hình, policy và các run sealed giữ nguyên; đổi cách trình bày không làm các tiêu chí còn thiếu thành đạt.
 
 **Cập nhật CHG-049/E77:** giao diện đã có hướng xử lý tồn, so sánh 13 kịch bản và giải thích cơ hội cảnh báo. Hai thử nghiệm mô hình đã chạy/đối soát, nhưng chưa cải thiện ổn định nên không đổi bộ dự báo mặc định. [Protocol, kết quả và giới hạn](aggregate-refinement.md). Số liệu nguồn bài dưới đây giữ nguyên.
@@ -19,9 +21,9 @@ Mở **http://127.0.0.1:8507**. Màn hình đọc kết quả đã đối soát,
 | Phương án mới | Đạt ≤20% | MAPE trung bình top 10 | Cửa sổ đủ nhãn/tuyến | Không chồng lấn | Coverage |
 |---|---|---|---|---|---|
 | Tổng 7 | 9/10 | 15,485424% | 86 | 13 | 100% |
-| Tổng 30 | 9/10 | 11,786316% | 63 | 3 | 100% |
+| Tổng 30 hiện hành18/10 | 10/10 | 11,621356% | 63 | 3 | 100% |
 
-Tổng 30 còn China Mobile 20,333443%; tuyến này dùng lgbm_ratio7, validation 11,720299%. Lựa chọn từ validation, không đổi bằng test. Giá trị MAPE làm tròn không đổi kết luận chưa đạt. MAPE của hai target có mẫu số khác nhau; không suy chênh MAPE là mức cải thiện dự báo ngày. Bộ final 7 của Khang 10/10 (LG U+ test-selected) được giữ riêng; bảng 7 ở đây là đối chứng từ pool mới cùng tổng 30.
+Tổng30 hiện hành dùng tổ hợp75%lgbm_ratio7 +25%lgbm_annual_ratio7 cho ChinaMobile, validation10,972012%, test18,683841%; chín tuyến khác nguyên. Lựa chọn từ validation, không đổi bằng test; test đã từng được xem. MAPE của hai target có mẫu số khác nhau; không suy chênh MAPE là mức cải thiện dự báo ngày. Bộ final7 của Khang10/10 (LG U+ test-selected) được giữ riêng; bảng7 ở đây là đối chứng từ pool mới cùng tổng30.
 
 [Mẫu CSV kết quả 30 local](../reports/M3_2026-10-16/ket_qua_30_ngay.csv) · [So sánh 7/30 local](../reports/M3_2026-10-16/so_sanh_7_30.csv). Các file reports/outputs chỉ hiện trên máy tạo run.
 
@@ -44,11 +46,11 @@ Tổng 30 còn China Mobile 20,333443%; tuyến này dùng lgbm_ratio7, validati
 6. Quan sát sụt quantity và sụt doanh thu riêng, so 28 ngày trước; số tiền lỗi giữ thiếu. Không tuyên bố biết trước cú sốc không có tín hiệu.
 7. Giao diện 7 tab, lọc route/SKU/loại/scenario, CSV tải về; kiểm receipt/hash/nguồn trước mở. Job chống chạy trùng, skip khi input không đổi, giữ last-good khi lỗi, từ chối nguồn thay đổi khi chưa có forecast mới đã đối soát.
 
-Cơ sở đáp ứng **85,971944%**, vẫn có thiếu hụt; nhận 50% chỉ đáp ứng 46,4867%, trễ 3 ngày 74,1796%, không nhận 7,6904%. Các con số là mô phỏng, không phải hiệu quả kho doanh nghiệp. Cảnh báo H14: TP 2254/FP 1011/FN 613; báo trước ≥ 7 ngày 1053/2867 = 36,728287%. R07 chưa bảo đảm mọi ca, R05/T14 còn mở.
+Cơ sở hiện hành đáp ứng **85,978206%**, vẫn có thiếu hụt; nhận50% đáp ứng46,480461%, trễ3ngày74,173347%, không nhận7,6904%. Các con số là mô phỏng, không phải hiệu quả kho doanh nghiệp. Báo trước≥7ngày1053/2867=36,728287%. R07 chưa bảo đảm mọi ca, R05ngày/T14 còn mở; metric cảnh báo đầy đủ truy đúng release.
 
 ## Kiểm tra và tái lập
 
-Run nguồn bài:
+Run nguồn bài16/10 (lịch sử, nguyên hashes):
 
 - Forecast `sigma_aggregate_30d_20261016`, summary SHA `8d47a36e71c1d37fd7f55dd3bbd20ea8d2e3132b7912a1d3f27b303b23168d16`.
 - Product `sigma_m3_30d_20261016_precision_v2`, summary SHA `7086d711dfc7239adb972d2caa4bb2aac68857c338f2f42add543c385c7557ef`.
@@ -65,11 +67,11 @@ Các lệnh đã dùng (run tồn tại thì chọn ID mới khi tạo lại):
 .\.venv\Scripts\python.exe -m sigma verify-m3 --run-id m3_new
 ```
 
-Cấu hình [product30.json](../data/configs/product30.json) trỏ đúng aggregate_run/product_run, không trộn bộ cha. Receipt và summary phải khớp. Không sửa manifest/run cũ hoặc tự đổi split để nhận đạt.
+Cấu hình hiện hành [product30-focus.json](../data/configs/product30-focus.json) trỏ đúng hai run18/10; [product30.json](../data/configs/product30.json) giữ bộ16/10 để tái lập. Receipt và summary phải khớp. Không sửa manifest/run cũ hoặc tự đổi split để nhận đạt.
 
 ## Job và máy clone mới
 
-Task Windows **SigmaM3Refresh**, 07:00 mỗi ngày theo SE Asia Standard Time; chạy thử 16/10 trả 0, lần kế 17/10/2026 lúc 07:00. Job nhận bộ v2 đã kiểm, lượt sau skip_unchanged. Job chỉ cập nhật từ bộ dự báo đã đối soát; không tự train/sửa split khi nguồn CSV đổi, không gửi đơn nhập thật. Đầu vào mới cần pipeline/đối soát riêng; sản phẩm hiện tại là snapshot lịch sử đã nêu.
+Lịch sử16/10: đã cài TaskWindows SigmaM3Refresh07:00 và chạy thử trả0 với config cũ; lượt18/10 chưa xác nhận lại lịch đang hoạt động. Config/job mặc định mới dùng namespace riêng: đã adopted_existing bộ18/10 rồi skipped_unchanged. Không ghi đè state/job cũ. Job chỉ cập nhật từ forecast đã đối soát; không tự train/sửa split khi CSV đổi, không gửi đơn nhập thật. Cloud không có job này.
 
 ```powershell
 .\.venv\Scripts\python.exe -m sigma refresh-m3

@@ -13,6 +13,7 @@ COMMANDS = {
     'aggregate': 'sigma.forecasting.aggregate',
     'aggregate-calibration': 'sigma.experiments.aggregate_calibration',
     'aggregate-recent': 'sigma.experiments.aggregate_recent',
+    'aggregate-focus': 'sigma.experiments.aggregate_focus',
     'verify-aggregate': 'sigma.verification.aggregate',
     'm3': 'sigma.inventory.product30',
     'verify-m3': 'sigma.verification.product30',

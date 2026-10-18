@@ -46,7 +46,7 @@ def load_bundle(run_id, summary_digest, stamps):
 
 
 try:
-    config,cfg=settings(os.environ.get('SIGMA_M3_CONFIG','data/configs/product30.json'))
+    config,cfg=settings(os.environ.get('SIGMA_M3_CONFIG','data/configs/product30-focus.json'))
     namespace=hashlib.sha256(config.relative_to(ROOT).as_posix().encode()).hexdigest()[:12]
     state_dir=ROOT/'outputs/jobs'/('m3_'+namespace)
     state=json.loads((state_dir/'state.json').read_text()) if (state_dir/'state.json').is_file() else {}

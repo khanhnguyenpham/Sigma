@@ -1,0 +1,15 @@
+{
+  "version": "aggregate30-focus-mixture-harmonic-v1",
+  "parent_run": "sigma_aggregate_30d_20261016",
+  "route": ["China", "China Mobile"],
+  "window_days": 30,
+  "ensemble_components": ["last7_mean", "last28_mean", "last90_mean", "past_totals_lad180", "lgbm_annual_ratio7", "lgbm_annual_ratio15", "lgbm_poisson7", "prophet_annual3"],
+  "ensemble_weights": [0.1, 0.25, 0.5],
+  "annual_harmonics": [1, 2, 3],
+  "ridge_alphas": [1, 10],
+  "training_days": 540,
+  "selection": "validation MAPE then MAE then model id; old champion eligible; other routes/window7 unchanged",
+  "test_independent": false,
+  "focus_reason": "known prior retrospective test misses 20%; not an independent route selection",
+  "daily_R05_acceptance_replaced": false
+}

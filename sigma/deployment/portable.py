@@ -37,7 +37,7 @@ def safe_columns(frame, columns):
     return frame.loc[:,columns].copy()
 
 
-def execute(destination, config='data/configs/product30.json'):
+def execute(destination, config='data/configs/product30-focus.json'):
     target=Path(destination).resolve()
     if not target.is_relative_to(ROOT/'outputs') or target.exists():
         raise ValueError('Choose a fresh local package directory inside outputs')
@@ -106,5 +106,5 @@ def execute(destination, config='data/configs/product30.json'):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--destination',required=True)
-    parser.add_argument('--config',default='data/configs/product30.json')
+    parser.add_argument('--config',default='data/configs/product30-focus.json')
     args=parser.parse_args();print(execute(args.destination,args.config))
