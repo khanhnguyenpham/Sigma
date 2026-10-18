@@ -10,7 +10,7 @@ from sigma.analysis.alert_diagnostics import explain_events
 from sigma.ui import product30_charts as charts
 from sigma.ui.product30_support import (number, filter_frame, ranked_recommendations,
     demand_chart_data, complete_actual, timeline_metrics, scenario_comparison,
-    recommendation_action, item_parameters)
+    recommendation_action, item_parameters, route_forecast_status)
 
 SCENARIOS={'base':'Cơ sở · nhận đủ, đúng hạn','one_day_drop':'Một ngày không bán được',
     'demand_drop':'Lượng bán còn 30% trong 7 ngày','demand_surge':'Lượng bán gấp đôi trong 3 ngày',
@@ -95,6 +95,7 @@ def overview(bundle,context,stock):
     selected=filter_frame(bundle['forecasts'],country,carrier)
     selected=selected.loc[selected.window_days.eq(30)&selected.as_of_date.eq(origin)]
     top=bundle['top'].loc[bundle['top'].window_days.eq(30)]
+    status=route_forecast_status(bundle['forecasts'],bundle['top'],30,origin)
     urgent=stock.depletion_state.isin(['already_empty','urgent']).sum()
     future_period=f'{day(origin+pd.Timedelta(days=1))}–{day(origin+pd.Timedelta(days=30))}'
     section('01 / Bức tranh chung','Dự báo để quyết định bổ sung hàng',
@@ -103,6 +104,8 @@ def overview(bundle,context,stock):
         ('Tuyến đạt MAPE ≤20%',f'{int(top.passes_20_pct.sum())}/{len(top)}',f'Top {len(top)} train · MAPE TB {number(top.mape_positive_pct.mean(),2)}%','amber' if not top.passes_20_pct.all() else 'teal'),
         ('Lượng đề xuất bổ sung',number(stock.Q.sum()),f'{int(stock.Q.gt(0).sum())} mặt hàng có đề xuất đặt','teal'),
         ('Mặt hàng cần ưu tiên',number(urgent),'Đã hết hoặc dự kiến cạn trong 1–6 ngày','amber')])
+    st.caption(f'Đã có dự báo đủ 30 ngày: {int(status.forecast_complete.sum())}/{len(status)} tuyến chủ lực. '
+        'Số tuyến có dự báo và số tuyến đạt ngưỡng sai số là hai chỉ số riêng.')
     left,right=st.columns([1.6,1],gap='large')
     with left:
         st.subheader('Nhu cầu đã quan sát và kỳ dự báo')
@@ -148,6 +151,19 @@ def forecasts(bundle,context):
     st.caption(f'{day(start)}–{day(end)} · Chênh lệch tổng chỉ mô tả cửa sổ đang xem, không thay MAPE theo từng tuyến. Đường ngày là phân bổ; dữ liệu chưa có để trống.')
     top=filter_frame(bundle['top'],country,carrier).loc[lambda x:x.window_days.eq(window)]
     if len(top):
+        status=route_forecast_status(frame,top,window,origin)
+        st.subheader(f'Dự báo cho {len(status)} tuyến chủ lực đang xem')
+        st.caption(f'{int(status.forecast_complete.sum())}/{len(status)} tuyến có đủ {window} ngày dự báo · '
+            f'{int(status.passes_20_pct.sum())}/{len(status)} tuyến đạt MAPE test ≤20%. '
+            'Top 10 được cố định từ train; bộ lọc đầu trang thu hẹp danh sách.')
+        shown=status[ROUTE+['model','forecast_total','forecast_days','forecast_complete',
+            'mape_positive_pct','coverage','passes_20_pct']].rename(columns={**LABELS,
+                'forecast_total':f'Dự báo tổng {window} ngày','forecast_days':'Ngày có dự báo',
+                'forecast_complete':'Dự báo đủ kỳ','coverage':'Độ phủ test','mape_positive_pct':'MAPE test (%)'})
+        st.dataframe(shown,hide_index=True,width='stretch',column_config={
+            f'Dự báo tổng {window} ngày':st.column_config.NumberColumn(format='%.1f'),
+            'MAPE test (%)':st.column_config.NumberColumn(format='%.2f'),
+            'Độ phủ test':st.column_config.NumberColumn(format='percent')})
         st.subheader('Sai số trên các tuyến chủ lực')
         st.altair_chart(charts.route_error(top,height=max(110,len(top)*29)),width='stretch')
     st.caption(f'Test hồi cứu quý IV/2025 · {window} ngày liên tiếp · ngưỡng 20% cho từng tuyến. Hai cửa sổ có mẫu số khác nhau; không dùng chênh lệch MAPE để kết luận dự báo ngày tốt hơn.')

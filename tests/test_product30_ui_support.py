@@ -1,6 +1,23 @@
 import pytest
+import pandas as pd
 
-from sigma.ui.product30_support import evidence_stamps, recommendation_action
+from sigma.ui.product30_support import evidence_stamps, recommendation_action, route_forecast_status
+
+
+def test_route_coverage_never_confuses_missing_forecast_with_zero_or_passed_metric():
+    top=pd.DataFrame({'destination_country':['Synthetic']*3,'carrier':['A','B','C'],
+        'window_days':[7]*3,'passes_20_pct':[True,False,True]})
+    frame=pd.DataFrame([{'destination_country':'Synthetic','carrier':carrier,'window_days':7,
+        'as_of_date':pd.Timestamp('2025-12-31'),'target_date':date,'forecast_qty':0.}
+        for carrier,days in [('A',7),('B',6)] for date in pd.date_range('2026-01-01',periods=days)])
+    result=route_forecast_status(frame,top,7,'2025-12-31').set_index('carrier')
+    assert len(result)==3 and result.forecast_complete.to_dict()=={'A':True,'B':False,'C':False}
+    assert result.loc['A','forecast_total']==0 and result.loc[['B','C'],'forecast_total'].isna().all()
+    assert result.forecast_days.to_dict()=={'A':7,'B':6,'C':0}
+    with pytest.raises(ValueError,match='Duplicate forecast day'):
+        route_forecast_status(pd.concat([frame,frame.iloc[[0]]]),top,7,'2025-12-31')
+    frame.loc[0,'forecast_qty']=float('inf')
+    assert not route_forecast_status(frame,top,7,'2025-12-31').forecast_complete.any()
 
 
 def test_cache_evidence_includes_parent_files_and_both_receipts(tmp_path):

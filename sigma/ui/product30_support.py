@@ -99,6 +99,31 @@ def filter_frame(frame, country='Tất cả', carrier='Tất cả', sku='Tất c
     return result
 
 
+def route_forecast_status(forecasts, top, window, origin):
+    """Keep every train-defined top route, including absent/incomplete forecasts."""
+    expected=top.loc[top.window_days.eq(window)].copy()
+    if expected.duplicated(ROUTE).any():
+        raise ValueError('Duplicate top route')
+    origin=pd.Timestamp(origin)
+    part=forecasts.loc[forecasts.window_days.eq(window)&forecasts.as_of_date.eq(origin)]
+    part=part.merge(expected[ROUTE],on=ROUTE,validate='many_to_one')
+    if part.duplicated(ROUTE+['target_date']).any():
+        raise ValueError('Duplicate forecast day')
+    dates=pd.date_range(origin+pd.Timedelta(days=1),periods=window)
+    records=[]
+    for key,group in part.groupby(ROUTE):
+        available=group.target_date.isin(dates)&group.forecast_qty.notna()&group.forecast_qty.ge(0)&group.forecast_qty.lt(float('inf'))
+        count=int(available.sum())
+        complete=count==window and len(group)==window
+        records.append(dict(zip(ROUTE,key))|{'forecast_days':count,
+            'forecast_complete':complete,'forecast_total':float(group.forecast_qty.sum()) if complete else float('nan')})
+    totals=pd.DataFrame(records,columns=ROUTE+['forecast_days','forecast_complete','forecast_total'])
+    result=expected.merge(totals,on=ROUTE,how='left',validate='one_to_one')
+    result['forecast_days']=result.forecast_days.fillna(0).astype(int)
+    result['forecast_complete']=result.forecast_complete.fillna(False).astype(bool)
+    return result
+
+
 def ledger_timeline(path, chunksize=100_000):
     keys=['scenario_id','date']+ROUTE
     values=['scenario_demand','fulfilled','shortage','closing']

@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-053/E83 — app đã Public18/10/2026:** [SIGMA](https://sigma-demand-inventory.streamlit.app/), Share public checkbox=1; GitHub vẫn Private. Source cloud f2725a0 thêm bảng đủ10/10 tuyến tổng7/30; 93origin mỗi cửa sổ đều đủ, 22tests/AppTest3ca đạt. Chỉ UI đổi, không refit/đổi metric: tổng30 vẫn9/10 đạt20%, ChinaMobile20,333443%. [Bằng chứng và giới hạn](../portable-hosting.md). R05/R07/T14 mở, chưa train/cập nhật cloud. E80–E82 bên dưới là lịch sử trước chuyển Public.
+
 **CHG-052/E82 — bản nguồn bài đã chạy online18/10/2026:** [SIGMA trên Streamlit](https://sigma-demand-inventory.streamlit.app/), app/repo Private, main ae35eed; OAuth bổ sung được người dùng xác nhận rồi cấp. 7tab cloud qua kiểm, Japan/giao50% khớp release; không console error. CSV cloud chưa có receipt file mới. [Cách mở/cấp quyền và giới hạn](../portable-hosting.md). Không raw/ID; data/metric nguyên. Chưa có train/job cập nhật cloud, R05/R07/T14 còn mở; không nhận hoàn tất toàn project.
 
 **CHG-052/E81 — đã push gói nguồn bài vào repo Private, 18/10/2026:** sau xác nhận người dùng, tạo khanhnguyenpham/Sigma-M3-App và push main a70ad2b; 30tệp gồm29tệp đã duyệt + .gitattributes bảo toàn byte, hash Git blob khớp manifest. Streamlit mới có public access; đang chờ xác nhận OAuth bổ sung đọc/ghi mọi repo public/private trên màn hình GitHub. Chưa Authorize bổ sung/chưa build/chưa URL mới. [Bằng chứng và giới hạn](../portable-hosting.md). Không đổi repo public, không raw/ID; R05/R07/T14 giữ mở.

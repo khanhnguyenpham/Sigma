@@ -1,8 +1,8 @@
 # SIGMA — Tổng 30 ngày và sản phẩm M3
 
-**Bản dùng kết quả nguồn bài đã online:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/) · app/repo Private; dùng Share để cấp quyền xem. [Phạm vi, bằng chứng và giới hạn](docs/portable-hosting.md). Bản online đọc release đã tính, chưa huấn luyện/cập nhật nguồn trên cloud; kết quả tổng30 vẫn9/10.
+**Bản nguồn bài đã công khai:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/) · app Public, repo GitHub Private. Tab Dự báo có bảng đủ **10/10 tuyến chủ lực** cho cả tổng7/30; số tuyến đạt MAPE≤20% hiện vẫn **9/10**. [Phạm vi, bằng chứng và giới hạn](docs/portable-hosting.md). Bản online đọc release đã tính, chưa huấn luyện/cập nhật nguồn trên cloud.
 
-**Xem từ máy khác:** [Dashboard SIGMA online](https://sigma-demand-inventory.cuddly-grebe-5666.chatgpt.site) đã bật public, dùng hoàn toàn dữ liệu tự sinh 10 tuyến/13 kịch bản. [Phạm vi và cách trình diễn](docs/share-web.md); kết quả nguồn bài vẫn được giữ riêng local.
+**Demo tự sinh cũ:** [Site minh họa](https://sigma-demand-inventory.cuddly-grebe-5666.chatgpt.site) dùng hoàn toàn dữ liệu tự sinh 10 tuyến/13 kịch bản, giữ riêng với app nguồn bài phía trên. [Phạm vi](docs/share-web.md).
 
 **Trình diễn mentor:** mở dashboard tại `http://127.0.0.1:8507/` và dùng [kịch bản demo 5–7 phút](docs/mentor-demo.md). Giao diện đã tổ chức theo nhu cầu → kho hàng → kịch bản → cảnh báo/giao khách → kiểm chứng; có minh họa từng SKU và xuất phiếu đề xuất nhập.
 
