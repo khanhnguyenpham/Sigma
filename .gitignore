@@ -82,3 +82,6 @@ dist/
 *.pfx
 Thumbs.db
 .DS_Store
+
+# Sites owns this isolated publishing checkout; never stage it as a nested repo.
+sites/sigma-demand-inventory/

@@ -1,5 +1,7 @@
 # SIGMA — Tổng 30 ngày và sản phẩm M3
 
+**Xem từ máy khác:** [Dashboard SIGMA online](https://sigma-demand-inventory.cuddly-grebe-5666.chatgpt.site) đã bật public, dùng hoàn toàn dữ liệu tự sinh 10 tuyến/13 kịch bản. [Phạm vi và cách trình diễn](docs/share-web.md); kết quả nguồn bài vẫn được giữ riêng local.
+
 **Trình diễn mentor:** mở dashboard tại `http://127.0.0.1:8507/` và dùng [kịch bản demo 5–7 phút](docs/mentor-demo.md). Giao diện đã tổ chức theo nhu cầu → kho hàng → kịch bản → cảnh báo/giao khách → kiểm chứng; có minh họa từng SKU và xuất phiếu đề xuất nhập.
 
 [Cập nhật sau bàn giao](docs/aggregate-refinement.md): thêm hướng xử lý tồn, so sánh kịch bản và giải thích cảnh báo; các thử nghiệm hiệu chỉnh/học ngắn giữ riêng, kết quả mặc định vẫn 9/10 tổng 30.
