@@ -95,6 +95,8 @@ def execute(destination, config='data/configs/product30.json'):
     (target/'.streamlit').mkdir()
     (target/'.streamlit/config.toml').write_text('[browser]\ngatherUsageStats = false\n[theme]\nprimaryColor = "#087f8c"\nbase = "light"\n')
     (target/'.gitignore').write_text('.venv/\n__pycache__/\n.streamlit/secrets.toml\n.env\n*.log\n')
+    # CSV hashes must survive Git checkout on a different operating system.
+    (target/'.gitattributes').write_text('release/** -text\n')
     write_json(target/'package-review.json',{'kind':metadata['kind'],'publication_performed':False,
         'contains_private_aggregates':True,'raw_orders_included':False,'manifest_sha256':sha256(data/'manifest.json'),
         'files':{p.relative_to(target).as_posix():sha256(p) for p in target.rglob('*') if p.is_file()}})

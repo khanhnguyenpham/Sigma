@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**CHG-052/E81 — đã push gói nguồn bài vào repo Private, 18/10/2026:** sau xác nhận người dùng, tạo khanhnguyenpham/Sigma-M3-App và push main a70ad2b; 30tệp gồm29tệp đã duyệt + .gitattributes bảo toàn byte, hash Git blob khớp manifest. Streamlit mới có public access; đang chờ xác nhận OAuth bổ sung đọc/ghi mọi repo public/private trên màn hình GitHub. Chưa Authorize bổ sung/chưa build/chưa URL mới. [Bằng chứng và giới hạn](../portable-hosting.md). Không đổi repo public, không raw/ID; R05/R07/T14 giữ mở.
+
 **CHG-052/E80 — chuẩn bị bản Python dùng kết quả nguồn bài, 18/10/2026:** người dùng yêu cầu bản hoàn chỉnh và URL trung tính; chưa có tên miền/hosting, đã đăng nhập Streamlit. Gói portable local29tệp/31,5MB từ hai run nguồn bài, không raw/ID; 351 tests, AppTest7tab/13kịch bản/bộ lọc đạt. Chưa deploy; Connect to GitHub bị auto-review chặn, đang xin xác nhận kết nối và payload. [Phạm vi và bước còn thiếu](../portable-hosting.md). R05/R07/T14 và hai run nguyên, chưa nhận hoàn thành sản phẩm.
 
 **CHG-051/E79 — đã xuất bản web demo 18/10/2026:** [Dashboard công khai](https://sigma-demand-inventory.cuddly-grebe-5666.chatgpt.site), Sites version 1/deployment succeeded sau xác nhận rõ của người dùng. Dùng hoàn toàn dữ liệu tự sinh 10 tuyến/20 SKU/13 kịch bản; 344 tests và kiểm browser đạt, gói dữ liệu 1,4 MB. Raw/241 tệp protected và hai summary nguồn bài nguyên; kết quả/nghiệm thu nguồn bài không đổi. [Phạm vi, cách dùng và bằng chứng](../share-web.md). Chỉ gói demo đã lên Sites; chưa push repo SIGMA lên GitHub.

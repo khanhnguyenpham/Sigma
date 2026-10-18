@@ -1,6 +1,10 @@
 # Triển khai SIGMA bằng địa chỉ trung tính
 
-Ngày 18/10/2026, người dùng yêu cầu bản dùng kết quả nguồn bài và không muốn URL mang tên nền tảng ChatGPT. Chưa có tên miền/hosting. Đã đăng nhập Streamlit; giao diện yêu cầu kết nối GitHub trước khi tạo app. Bước Connect to GitHub bị auto-review chặn vì chưa có chấp thuận rõ phạm vi quyền; đang chờ xác nhận. Chưa upload mã/bảng nguồn bài hoặc triển khai lên dịch vụ mới.
+**Lịch sử chuẩn bị E80:** ngày 18/10/2026, người dùng yêu cầu bản dùng kết quả nguồn bài và không muốn URL mang tên nền tảng ChatGPT. Chưa có tên miền/hosting. Đã đăng nhập Streamlit; giao diện yêu cầu kết nối GitHub trước khi tạo app. Bước Connect to GitHub bị auto-review chặn vì chưa có chấp thuận rõ phạm vi quyền; đang chờ xác nhận. Chưa upload mã/bảng nguồn bài hoặc triển khai lên dịch vụ mới.
+
+**Cập nhật E81 cùng ngày:** người dùng đã xác nhận kết nối và đưa gói vào repo riêng tư. Đã tạo [khanhnguyenpham/Sigma-M3-App](https://github.com/khanhnguyenpham/Sigma-M3-App), kiểm nhãn Private trong browser và push nhánh `main`, commit `a70ad2bf1b86d0e346d4e46d1ffd8a43f663fb23`. Có30tệp:29tệp đã duyệt và `.gitattributes` giữ nguyên byte release qua Git Windows/Linux. Mọi Git blob dữ liệu và manifest khớp hash được duyệt. Gói bổ sung cấu hình Git nằm local ở `outputs/hosting/sigma_source_20261018_git2/`; gói cũ giữ nguyên.
+
+Kết nối ban đầu chỉ đọc public repo. Linked accounts của Streamlit xác nhận chưa có private access; GitHub hiển thị yêu cầu quyền **đọc và ghi toàn bộ repo public/private**, không giới hạn riêng Sigma-M3-App. Chưa bấm Authorize cho phạm vi bổ sung này; đã gửi câu hỏi xác nhận cụ thể. Form chưa khởi động build nên chưa có URL mới. Không đổi repo sang Public để giải quyết lỗi truy cập. Connector GitHub trả404 với repo mới do scope riêng của connector; browser xác minh repo và Git push/remote SHA thành công bằng kết nối Git sẵn có được người dùng cho phép.
 
 ## Gói đã chuẩn bị và kiểm tra local
 
@@ -40,6 +44,8 @@ python -m streamlit run streamlit_app.py
 [Streamlit Community Cloud](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy) cho chọn repo/nhánh/entrypoint và subdomain trên `streamlit.app`. `sigma-inventory.streamlit.app` chỉ là **ví dụ tên**, chưa đặt và chưa xác minh còn trống. Tên miền riêng cũng có thể gắn vào Site hiện tại sau khi người dùng có hostname và cấu hình DNS; không tự mua hoặc đăng ký một tên miền.
 
 Sau khi có xác nhận kết nối và payload: kiểm màn hình GitHub/phạm vi OAuth, dùng repo riêng tư cho gói, chỉ gửi allowlist đã duyệt, cấu hình quyền xem app theo yêu cầu rồi deploy đúng source. Không cấp thêm quyền không được phép. Quyền private của repo không tự làm app private; cần kiểm quyền xem riêng. Chưa chốt audience cho bản nguồn bài.
+
+Theo [tài liệu chia sẻ Streamlit](https://docs.streamlit.io/deploy/streamlit-community-cloud/share-your-app), app mới từ repo private mặc định private; cần kiểm lại thực tế sau khi deploy. [Quyền private repository](https://docs.streamlit.io/deploy/streamlit-community-cloud/status) của dịch vụ dùng OAuth `repo`, rộng hơn một repo. Luồng hiện tại đang dừng đúng màn hình quyền này, chưa có xác nhận phạm vi bổ sung.
 
 Lần triển khai cloud đầu cần kiểm Python/dependencies trên Linux, bộ nhớ/tốc độ, load tất cả bảng, 13 kịch bản, tải CSV, URL và audience. Chỉ nhận có URL mới khi deployment thực thành công. Không dùng URL chuyển hướng/rút gọn để giả là đã thay nền tảng.
 

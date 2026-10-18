@@ -1,6 +1,6 @@
 # SIGMA — Tổng 30 ngày và sản phẩm M3
 
-**Đang chuẩn bị bản từ nguồn bài/URL trung tính:** [gói Python portable](docs/portable-hosting.md) đã kiểm local; chưa triển khai Streamlit, đang chờ kết nối GitHub và quyền đưa bảng tổng hợp lên host.
+**Đang chuẩn bị bản từ nguồn bài/URL trung tính:** [gói Python portable](docs/portable-hosting.md) đã kiểm local; đã push gói được duyệt vào repo Private, chưa triển khai Streamlit; đang chờ xác nhận OAuth private mở rộng.
 
 **Xem từ máy khác:** [Dashboard SIGMA online](https://sigma-demand-inventory.cuddly-grebe-5666.chatgpt.site) đã bật public, dùng hoàn toàn dữ liệu tự sinh 10 tuyến/13 kịch bản. [Phạm vi và cách trình diễn](docs/share-web.md); kết quả nguồn bài vẫn được giữ riêng local.
 
