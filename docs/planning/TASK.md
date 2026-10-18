@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**CHG-052/E82 — bản nguồn bài đã chạy online18/10/2026:** [SIGMA trên Streamlit](https://sigma-demand-inventory.streamlit.app/), app/repo Private, main ae35eed; OAuth bổ sung được người dùng xác nhận rồi cấp. 7tab cloud qua kiểm, Japan/giao50% khớp release; không console error. CSV cloud chưa có receipt file mới. [Cách mở/cấp quyền và giới hạn](../portable-hosting.md). Không raw/ID; data/metric nguyên. Chưa có train/job cập nhật cloud, R05/R07/T14 còn mở; không nhận hoàn tất toàn project.
+
 **CHG-052/E81 — đã push gói nguồn bài vào repo Private, 18/10/2026:** sau xác nhận người dùng, tạo khanhnguyenpham/Sigma-M3-App và push main a70ad2b; 30tệp gồm29tệp đã duyệt + .gitattributes bảo toàn byte, hash Git blob khớp manifest. Streamlit mới có public access; đang chờ xác nhận OAuth bổ sung đọc/ghi mọi repo public/private trên màn hình GitHub. Chưa Authorize bổ sung/chưa build/chưa URL mới. [Bằng chứng và giới hạn](../portable-hosting.md). Không đổi repo public, không raw/ID; R05/R07/T14 giữ mở.
 
 **CHG-052/E80 — chuẩn bị bản Python dùng kết quả nguồn bài, 18/10/2026:** người dùng yêu cầu bản hoàn chỉnh và URL trung tính; chưa có tên miền/hosting, đã đăng nhập Streamlit. Gói portable local29tệp/31,5MB từ hai run nguồn bài, không raw/ID; 351 tests, AppTest7tab/13kịch bản/bộ lọc đạt. Chưa deploy; Connect to GitHub bị auto-review chặn, đang xin xác nhận kết nối và payload. [Phạm vi và bước còn thiếu](../portable-hosting.md). R05/R07/T14 và hai run nguyên, chưa nhận hoàn thành sản phẩm.

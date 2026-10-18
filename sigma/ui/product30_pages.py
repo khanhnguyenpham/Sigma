@@ -115,7 +115,7 @@ def overview(bundle,context,stock):
         st.caption('Xem từng mặt hàng và xuất phiếu đề xuất tại tab Kho hàng.')
     st.markdown('<div class="sigma-flow"><div>1. Dự báo nhu cầu<span>Tổng 30 ngày theo quốc gia–nhà mạng, có sai số kiểm chứng.</span></div><div>2. Tính mức bổ sung<span>Phân bổ SKU, so tồn với điểm đặt lại và lượng đang về.</span></div><div>3. Theo dõi rủi ro<span>Ngày cạn dự kiến, biến động bán và kịch bản đối tác.</span></div></div>',unsafe_allow_html=True)
     note=('Dữ liệu demo do phần mềm tự sinh, tồn kho mô phỏng; kết quả không chứng minh chất lượng nguồn bài.' if bundle['demo'] else
-        f"Bản trình diễn dùng dữ liệu lịch sử 2024–2025 và tồn kho mô phỏng. Tổng 30 đạt {int(top.passes_20_pct.sum())}/{len(top)} tuyến theo ngưỡng 20%.")
+        f"Ứng dụng dùng dữ liệu nguồn bài 2024–2025 và tồn kho mô phỏng. Tổng 30 đạt {int(top.passes_20_pct.sum())}/{len(top)} tuyến theo ngưỡng 20%.")
     st.markdown(f'<div class="sigma-note">{escape(note)} Tiêu chí dự báo ngày và cảnh báo sớm chưa được nghiệm thu toàn bộ. Chi tiết ở tab Kiểm chứng.</div>',unsafe_allow_html=True)
 
 
