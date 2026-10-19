@@ -1,5 +1,7 @@
 # Hợp đồng dữ liệu SIGMA
 
+**E94 — gói public được người dùng yêu cầu xuất bản:** 11 bảng tổng hợp nén và mảng185×920×14 float64; khoảng6,6MB, chỉ source-derived quantity/forecast/metric/danh mục và tồn/nhập/cảnh báo giả định. Loại raw/ID đơn/khách/event/source_sequence/env/DB; item_key là ordinal mới. Runtime kiểm hash/schema, CSV mang source/phiên bản/null/scope. [Hợp đồng gói Streamlit](../M3/streamlit/README.md).
+
 **M05/E93, 20/10/2026:** R05 hiện chấm tổng quantity D+1…D+30; chỉ cửa sổ trọn split có actual mới vào metric. Null không phải0. Top10 train/success-orderUTC A08 vẫn như cũ. H14 giữ cho vận hành tồn. [Hợp đồng benchmark/API tổng30](../M3/MONTHLY.md). Những quy định R05 ngày trước M05 là lịch sử.
 
 **CHG-048/E76 — 19/10/2026:** hợp đồng [M3 mới](../M3/docs/02-data-model.md) đặc tả 13 bảng PostgreSQL, nguồn order local, warehouse=route, item=route×sku×product_type, policy phiên bản, hai khối forecast7 và ledger mô phỏng. Chưa có DB/migration/run mới. Lead time nhập kho M3=7 ngày UTC; nguồn/profile cũ bên dưới giữ lịch sử, không dùng làm bằng chứng nghiệm thu profile mới.

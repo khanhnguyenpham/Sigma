@@ -1,5 +1,7 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**CHG-062/E94 — R08 online:** theo yêu cầu mới của người dùng, thêm Streamlit public cho các kết quả dẫn xuất M3 và mô phỏng riêng từng phiên. FastAPI/React/PG local vẫn là stack vận hành/huấn luyện; không mở DB/raw lên Internet hoặc tự thêm auth/quản trị cloud. [Phạm vi đã triển khai](../M3/streamlit/README.md). Đây là bổ sung cách trình bày/chia sẻ, không đổi target, nghiệm thu M05/R05 hoặc metric tồn/cảnh báo.
+
 **Hiện hành CHG-061/M05 — 20/10/2026:** mentor do người dùng thuật lại đã chốt R05 chấm **tổng 30 ngày thay từng ngày**. E93 kiểm lại 10/10≤20%, mean11,621356%, coverage100%, 63 cửa sổ/tuyến; test hồi cứu. [Tiêu chí, kết quả và tích hợp M3](../M3/MONTHLY.md). Các mốc trước M05 còn ghi R05 ngày là lịch sử; target A08, raw/top10/split và các tiêu chí tồn/cảnh báo không đổi.
 
 **E92 — 20/10/2026:** nghiên cứu ngày panel validation45,971604%,0/10; không đổi R05 thành tuần hoặc tự thêm ngưỡng100% cho R07. [Ma trận cổng/bằng chứng](../M3/ACCEPTANCE.md) giữ R05/R07/T14 mở. Không nhận nghiên cứu validation là đã cải thiện test/serving.

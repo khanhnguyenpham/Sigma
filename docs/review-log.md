@@ -1102,3 +1102,14 @@ CLI prepare-monthly đối soát 33.626 route-day PostgreSQL với run nguồn, 
 Các flag lịch sử `daily_R05_acceptance_replaced=false` trong sealed summary/receipt giữ nguyên; acceptance overlay M05 riêng. Đây là tái dùng kết quả fit thật đã kiểm lại, không nhận vừa fit mới. Tất cả test hồi cứu vì hướng focus đã chọn sau khi xem test cũ. T14 cần mentor rà target A08, mô phỏng/R07 và giới hạn holdout. Xem [kết quả/API/cách chạy](../M3/MONTHLY.md).
 
 Kiểm E93 local: 97 Python (65 M3 +32 M2), 0 fail/error/skip; 11 FE, TypeScript/build, Ruff và pip check đạt. Kiểm API thật 10 metric/63 cửa sổ, 46-route filter, nonoverlapping3, actual tương lai null, CSV context và snapshot cùng source. Trình duyệt đã hiển thị 10/10/11,62%/100%; đổi top10/46 và origin31/12, actual01–30/01 null. 17 Markdown/112 link M3/69 bảng không lỗi. Lần chạy tests đầu lỗi quyền thư mục temp cũ; chuyển basetemp riêng trong project. Một test fixture sửa số giá trị unpack trước lượt toàn bộ đạt; không sửa metric vì lỗi này. CI commit mới phải xem riêng, không suy từ CI E92.
+
+
+## CHG-062 / E94 — đưa M3 lên Streamlit công khai, 20/10/2026
+
+Người dùng yêu cầu “hãy đưa lên streamlit công khai đi”. Kế thừa quyền dùng repo riêng tư và công khai aggregate đã cho trước đó; không thêm OAuth hoặc đổi repo public. T11/T12 thêm source `M3/streamlit`, builder local, runtime allowlist và UI7màn hình. Không triển khai PostgreSQL/FastAPI/worker/raw lên Community Cloud; bản Streamlit đọc dữ liệu đã kiểm và mô phỏng riêng phiên.
+
+Gói24tệp/6.620.188byte, 11bảng nén+NPZfloat64: sourceSHA giữ nguyên, manifestSHA `004df66221186936ae46cd3dec3a9a14097f51d1dcfd8c3c7fd68924e20341fb`. DB đối soát 17.020 nhóm allocation trong1e-8, ledger balance/IP/sales, ETA7 và alert metrics tính lại khớp. 87.400ledger/3.246lô/8.941alertrows/10scenario summaries; source order/customer IDs trong payload=0, không credential patterns. Bốn module chia sẻ với backend giữ byte nguyên. Clone repo deploy mới, giữ checkout cloud cũ có thay đổi .gitattributes.
+
+106 tests Python đạt, không fail/error/skip; gồm9tests public mới. AppTest7màn hình,3chế độ forecast và submit what-if đạt. Lượt AppTest đầu bị kẹt trong sandbox; chỉ dừng đúng tiến trình test do agent tạo và chạy lại có chẩn đoán/timeout với quyền local phù hợp, đạt trong vài giây. Không sửa dữ liệu/metric vì lỗi môi trường.
+
+Đã push `Sigma-M3-App/main` commit `779b6c44f56aefbbba1c907a57a3acc4144563ef`, remoteSHA khớp. App ngủ do không hoạt động; đã wake, cloud hiện đúng `m3-public-20261020-v1`,10/10/11,62%/100%, fill90,41%/early34,39% theo profile mới. Share→Make this app public checkbox=1. Không gửi lời mời/email. Link [ứng dụng](https://sigma-demand-inventory.streamlit.app/); [source/phạm vi](../M3/streamlit/README.md). Raw/run/DB/env và ảnh/receipt kiểm giữ local. R05 test hồi cứu; R07/T14 tiếp tục cần mentor review.
