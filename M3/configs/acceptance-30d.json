@@ -1,0 +1,17 @@
+{
+  "version": "r05-sales-30d-v1",
+  "decision": "M05",
+  "decision_source": "Mentor confirmation reported by user on 2026-10-20",
+  "window_days": 30,
+  "top_routes": 10,
+  "ranking_end": "2025-06-30",
+  "validation_start": "2025-07-01",
+  "validation_end": "2025-09-30",
+  "test_start": "2025-10-01",
+  "test_end": "2025-12-31",
+  "cadence": "daily_origins",
+  "mape_positive_max_pct": 20,
+  "minimum_coverage": 1,
+  "replaces_daily_acceptance": true,
+  "operational_inventory_horizon_days": 14
+}
