@@ -1,5 +1,7 @@
 # SIGMA — bộ code M2 final
 
+**E94 — [SIGMA công khai trên Streamlit](https://sigma-demand-inventory.streamlit.app/):** đã cập nhật tổng30 M05 và profile M3 L7/R1/H14, có7màn hình/kết quả/CSV/what-if riêng từng phiên. [Source và phạm vi online](M3/streamlit/README.md). Huấn luyện/import raw/worker/DB bền vững giữ local; không gọi bản Streamlit là đã cloud hóa toàn bộ stack FastAPI/PostgreSQL.
+
 **Cập nhật M05/E93, 20/10/2026:** R05 chấm tổng 30 ngày theo mentor được người dùng thuật lại. Đã kiểm lại **10/10 tuyến ≤20%, MAPE trung bình11,62%**, coverage100%, test hồi cứu. M3 FastAPI/React có tab tổng30, baseline và CSV. [Đọc kết quả/cách chạy](M3/MONTHLY.md); tồn/cảnh báo vẫn dùng H14.
 
 **M3 đã triển khai trên nhánh `codex/m3-implementation`:** [hướng dẫn chạy, bản đồ source và kết quả kiểm](M3/IMPLEMENTATION.md). FastAPI/React/PostgreSQL local46tuyến, riêng với sản phẩm tổng30/Streamlit ở nhánh khác. R05/R07/T14 còn mở.

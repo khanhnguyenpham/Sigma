@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**CHG-062/E94 — 20/10/2026:** theo yêu cầu người dùng đã đưa [SIGMA lên Streamlit công khai](https://sigma-demand-inventory.streamlit.app/), release `m3-public-20261020-v1`, repo triển khai riêng tư `Sigma-M3-App` commit `779b6c44f56aefbbba1c907a57a3acc4144563ef`. Giao diện Streamlit7màn hình đọc aggregate M3 L7/R1/H14 và benchmark30 M05; có what-if riêng từng phiên/CSV. Huấn luyện/import raw/worker/DB bền vững vẫn local. [Phạm vi, gói và cách chạy](../../M3/streamlit/README.md). R05 vẫn10/10 hồi cứu; R07/T14 không tự nâng nghiệm thu.
+
 **CHG-061/E93/M05 — 20/10/2026, hiện hành:** mentor do người dùng thuật lại đã chốt **R05 tổng 30 ngày thay ngày**. Verifier nguồn và đối soát DB M3 xác nhận 10/10≤20%, mean11,621356%, coverage100%, 63 cửa sổ/tuyến; test hồi cứu. API/React tích hợp benchmark tổng 30 chỉ đọc, tách forecast H14 dùng tồn. Xem [kết quả và cách chạy](../../M3/MONTHLY.md). Các mốc trước M05 bên dưới giữ lịch sử; không dùng số ngày ở E92 làm cổng R05 hiện tại. T14 vẫn cần mentor nghiệm thu, R07 chưa có ngưỡng tỷ lệ tổng chính thức.
 
 **CHG-060/E92 — 20/10/2026:** tiếp tục tối ưu R05 bằng số đơn/mùa vụ năm/tín hiệu thị trường, tách nghiên cứu khỏi serving.168 lần fit/35.910 dự báo, validation45,971604%,0/10≤20%; cải thiện9/10tuyến so v1 nhưng chưa đạt.89Python đạt; nghiên cứu v1 sau refactor giữ95.760predictions/metric/selection giống byte. R07 không có ngưỡng100% sự kiện chính thức;331ca bỏ sót có tồn≤2 (311ca tồn1). [Cổng nghiệm thu/bằng chứng](../../M3/ACCEPTANCE.md); R05/R07/T14 giữ mở.
