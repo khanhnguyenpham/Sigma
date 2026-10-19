@@ -1,5 +1,7 @@
 # SIGMA — bộ code M2 final
 
+**M3 đã triển khai trên nhánh `codex/m3-implementation`:** [hướng dẫn chạy, bản đồ source và kết quả kiểm](M3/IMPLEMENTATION.md). FastAPI/React/PostgreSQL local46tuyến, riêng với sản phẩm tổng30/Streamlit ở nhánh khác. R05/R07/T14 còn mở.
+
 **M3 — thiết kế ngày 19/10/2026:** đọc [bộ tài liệu M3](M3/README.md) cho nghiệp vụ, 13 bảng PostgreSQL, BE/API, FE, source dự kiến và kiểm thử. Nhánh `M3-design-plan` chỉ bổ sung/cập nhật Markdown; chưa có ứng dụng hoặc lệnh M3 chạy được. Hướng dẫn M2 bên dưới vẫn là đường chạy có thật.
 
 Nhánh `M2-final-cleanup` chuẩn bị báo cáo thứ Sáu 16/10/2026. Điểm bắt đầu để tìm và giải thích code: [M2_CODE_MAP.md](M2_CODE_MAP.md). Có 10 lựa chọn theo tuyến, 7 cấu hình: LightGBM pooled top 10 cho 9 tuyến và Prophet riêng au (KDDI).

@@ -1,5 +1,7 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-058/E90 — implementation M3, 19/10/2026:** đã chạy forecast46/H14, giữ final10, chọn36 bằng validation, phân bổ2.382.800 dòng, policy/alert replay và snapshotL7; có API kết quả/export, worker verify/heartbeat và React6màn hình.78 tests Python +7 tests FE, build/DB/đối soát thực; xem [bằng chứng, giới hạn và cách chạy](../../M3/IMPLEMENTATION.md). Phần mềm đã triển khai không đồng nghĩa đạt toàn bộ chỉ tiêu: fixed10 tổng7 đạt10/10 hồi cứu, new36 chỉ2/36; ngày phân bổ top10 là0/10, early cơ sở34,3913%. R05/R07/T14 vẫn mở. Người dùng cho phép push code/config/tests/docs; raw/run/DB/env giữ local. Các mốc E76/E89 dưới đây là lịch sử.
+
 **CHG-057/E89 — bắt đầu implementation M3, 19/10/2026:** nhánh `codex/m3-implementation` lấy nền `M3-design-plan`20a3c45, checkout riêng tại `outputs/workspaces/m3-implementation` trong workspace gốc. Đã có Python3.12/backend lock, migration13bảng PostgreSQL18, API nền/queue, worker import, catalog/policy version, seed và các hàm tính L7/R1/H14. Source import thật đã đối soát100.000dòng/118.296quantity/46tuyến/920item/672.520dailyrows;35tests M3 và32tests M2 đạt. Chưa ML36/adapterfinal10/replay tích hợp/React/E2E; R05/R07/T14 còn mở. [Cách chạy và phạm vi thực có](../../M3/README.md#implementation-e89). Không dùng mốc nền để nhận hoàn thành toàn bộ M3.
 
 **CHG-048/E76 — 19/10/2026:** [bộ đặc tả M3](../../M3/README.md) đã cụ thể hóa R04–R09/T08–T14: ML bổ sung36 tuyến, 46 kho giả định, ROP/MOQ theo supplier×item, lead time nhập 7, FastAPI/React/PostgreSQL. Đây là thiết kế tài liệu, chưa viết code hoặc chạy model mới. Mục6 và trạng thái triển khai cũ cần đọc cùng [profile mới](#m3-design-v1); không nâng R05/R07/T14.
@@ -630,10 +632,10 @@ M04 là góp ý mentor do người dùng thuật lại về supplier×item/L7/kh
 | Task hiện hữu | Phần bổ sung và trạng thái | Điều kiện hoàn tất về sau |
 |---|---|---|
 | T01 | Đặc tả và nguồn/requirementsM3 đã cập nhật. | Không nâng yêu cầu đã viết thành app đã đạt. |
-| T08–T09 | Thiết kế5LightGBM+1Prophet cho 36, giữfinal10; chưa fit. | Selection validation/hash, full46/H14, allocation causal/parityfinal10. |
-| T10 | E89: có catalog/policy version/seed920, hàm threshold/fulfillment/receipt/projection đã test; ledger/replay đầy đủ chưa tích hợp. | Strict<, ETA7, balance/idempotency, mẫu số R07 và độ nhạy mới. |
-| T11 | E89: PostgreSQL13bảng/migration, API nền và worker source_import chạy thật; chưa API kết quả đầy đủ/React. | Worker/API/FE tương thích, snapshot run, null actual, export đúng. |
-| T12 | E89:35tests M3 (có PostgreSQL thật) và32hồi quy M2 đạt; fullML/replay/FE/E2E chưa chạy. | Unit/DB/FE/E2E/full local với bằng chứng theo06. |
+| T08–T09 | E90: ML36 đã fit/chọn validation/khóa/test, final10 được giữ;46 tuyến/185 origins/2khối đã đối soát. | Selection validation/hash, full46/H14, allocation causal/parityfinal10. |
+| T10 | E90: policy/alert replay riêng, ledger giao dịch và snapshotL7 chạy thật; early34,3913%, R07 mở. | Strict<, ETA7, balance/idempotency, mẫu số R07 và độ nhạy mới. |
+| T11 | E90: API kết quả/export/config/worker và React6màn hình đã build/kiểm thực. | Worker/API/FE tương thích, snapshot run, null actual, export đúng. |
+| T12 | E90:46tests M3 +32M2 +7FE, fullML/replay và API/export/UI đã kiểm. | Unit/DB/FE/E2E/full local với bằng chứng theo06. |
 | T13–T14 | Thiết kế lịch/bàn giao đến 07/11; chưa nghiệm thu. | Demo/run/hash/báo cáo; R05/R07 và mentor review vẫn mở. |
 
 Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigger closing<ROP, IP chỉQ, MOQ chỉQ>0. Một kho/tuyến, city giả định; mọi nhập/tồn mô phỏng. Policy replay và no-new-order alert replay tách; không dùng bằng chứng V13/L3 cũ để đóng profile mới. Không tạo task system mới, không thêm customer/payment/invoice/giao khách/user.

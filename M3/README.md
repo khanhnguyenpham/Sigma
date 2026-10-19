@@ -1,6 +1,6 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
-**Ngày:** 19/10/2026 (Asia/Saigon). **Trạng thái hiện hành E89:** đã triển khai và kiểm mốc nền backend/database/import; ML36, replay tích hợp và frontend chưa triển khai. Phần thiết kế bên dưới giữ nguyên phạm vi đích. **Mốc mục tiêu:** 07/11/2026. **Truy vết:** CHG-048/E76; R04–R09; T08–T14.
+**Ngày:** 19/10/2026 (Asia/Saigon). **Trạng thái hiện hành E90:** đã triển khai ứng dụng local46tuyến: forecast, allocation, replay tồn/cảnh báo, API và React. [Cách chạy/bằng chứng/giới hạn](IMPLEMENTATION.md). R05/R07/T14 còn mở; không gọi toàn bộ chỉ tiêu đã đạt. Phần thiết kế bên dưới giữ nguyên phạm vi đích. **Mốc mục tiêu:** 07/11/2026. **Truy vết:** CHG-048/E76; R04–R09; T08–T14.
 
 ## 1. Kết quả cần xây
 
@@ -58,7 +58,9 @@ Bộ `M3-design-plan` ban đầu chỉ có Markdown. Implementation E89 ở nhá
 
 
 <a id="implementation-e89"></a>
-## 5. Mốc nền implementation E89 — đã kiểm thực chạy
+## 5. Lịch sử mốc nền implementation E89 — đã kiểm thực chạy
+
+**Mục5 chỉ mô tả checkpoint879365e tại E89. Hướng dẫn và trạng thái hiện hành dùng [IMPLEMENTATION](IMPLEMENTATION.md); các câu “chưa triển khai” bên dưới đã được thay trong phạm vi E90.**
 
 Checkout riêng giữ nguyên nhánh tổng30 đang chạy: `outputs/workspaces/m3-implementation` bên trong workspace gốc. Nền nhánh là `20a3c45` (`M3-design-plan`), không hợp nhất implementation tổng30/Streamlit cũ vào profile mới. Chưa push/deploy implementation mới.
 

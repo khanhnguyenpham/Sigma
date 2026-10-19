@@ -70,6 +70,7 @@ node_modules/
 build/
 dist/
 *.log
+*.tsbuildinfo
 
 # Credentials and machine-specific files.
 .env
