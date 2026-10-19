@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { MonthlyForecast } from "../components/MonthlyForecast";
 import {
   ResponsiveContainer,
   BarChart,
@@ -28,6 +29,7 @@ import {
   fmt,
 } from "../api/client";
 export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
+  const [mode, setMode] = useState<"monthly" | "operational">("monthly");
   const [daily, setDaily] = useState(false),
     [block, setBlock] = useState("1"),
     [page, setPage] = useState(1);
@@ -59,12 +61,12 @@ export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
     },
   );
   const route = useResource<Page>(
-    ready
+    ready && mode === "operational"
       ? `/runs/${id}/forecasts/${daily ? "items" : "routes"}?${q}${daily ? "&aggregate=route_day" : ""}`
       : null,
   );
   const metrics = useResource<Page>(
-    ready
+    ready && mode === "operational"
       ? `/runs/${id}/metrics?${resultQuery({ ...ctx, itemId: "", supplierId: "", productType: "" }, { block, cadence: "daily_origins", granularity: daily ? "allocated_daily" : "weekly", page_size: 100 })}`
       : null,
   );
@@ -76,11 +78,27 @@ export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
         <span className="eyebrow">01 / NHU CẦU</span>
         <h1>Dự báo theo tuyến</h1>
         <p>
-          Chọn một origin để xem hai tổng tuần hoặc phân bổ xuống ngày. Actual
-          thiếu luôn để trống.
+          Tổng 30 ngày là tiêu chí chính R05 theo M05. Tổng tuần và ngày phân bổ
+          phục vụ vận hành tồn kho H14.
         </p>
       </div>
-      {!ready ? (
+      <div className="segments" aria-label="Phạm vi dự báo">
+        <button
+          className={mode === "monthly" ? "active" : ""}
+          onClick={() => setMode("monthly")}
+        >
+          Tổng 30 · R05
+        </button>
+        <button
+          className={mode === "operational" ? "active" : ""}
+          onClick={() => setMode("operational")}
+        >
+          Vận hành · Tổng 7 / ngày
+        </button>
+      </div>
+      {mode === "monthly" ? (
+        <MonthlyForecast run={run} ctx={ctx} />
+      ) : !ready ? (
         <div className="notice">
           Chọn một lượt dự báo hoặc mô phỏng đã hoàn tất để xem kết quả.
         </div>
@@ -176,15 +194,13 @@ export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
                     <div className="chart">
                       <ResponsiveContainer width="100%" height={260}>
                         <BarChart
-                          data={rows
-                            .slice(0, 12)
-                            .map((r) => ({
-                              ...r,
-                              route_label:
-                                String(r.destination_country) +
-                                " / " +
-                                String(r.carrier),
-                            }))}
+                          data={rows.slice(0, 12).map((r) => ({
+                            ...r,
+                            route_label:
+                              String(r.destination_country) +
+                              " / " +
+                              String(r.carrier),
+                          }))}
                         >
                           <CartesianGrid
                             strokeDasharray="3 3"
@@ -278,8 +294,9 @@ export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
               ]}
             />
             <p className="caption">
-              MAPE chỉ trên actual dương. Ngày phân bổ là dự báo dẫn xuất; tổng
-              tuần đạt ngưỡng không đồng nghĩa R05 ngày đã đạt.
+              MAPE chỉ trên actual dương. Ngày phân bổ là dự báo dẫn xuất. Theo
+              M05, R05 chấm tổng 30 ngày ở tab riêng; các bảng này là chẩn đoán
+              vận hành H14.
             </p>
           </Panel>
         </>
