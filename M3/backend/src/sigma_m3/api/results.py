@@ -22,6 +22,7 @@ from sigma_m3.services.runs import required_run, source_data_id
 from sigma_m3.services.forecast import clean_json
 from sigma_m3.errors import DomainError
 from src.evaluation import score
+from sigma_m3.services.alerts import opportunity_breakdown
 
 router = APIRouter(prefix="/api/v1/runs")
 _ALLOCATED_METRICS = {}
@@ -42,6 +43,10 @@ class Filters(DTO):
     granularity: Literal["weekly", "allocated_daily", "alert", "policy"] | None = None
     cadence: Literal["daily_origins", "nonoverlapping_7d"] | None = None
     aggregate: Literal["route_day"] | None = None
+
+
+class WholeRun(DTO):
+    """Diagnostic denominators must not silently change with table filters."""
 
 
 def context(row):
@@ -342,6 +347,47 @@ def replenishments(
 @router.get("/{key}/alerts")
 def alerts(key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]):
     return result_response(request, key, "alerts", filters)
+
+
+@router.get("/{key}/alert-opportunities")
+def alert_opportunities(
+    key: uuid.UUID, request: Request, filters: Annotated[WholeRun, Query()]
+):
+    with request.app.state.sessions() as session:
+        run = required_run(session, key, "alert_replay", complete=True)
+        cases = (
+            session.execute(
+                select(
+                    Alert.as_of_date,
+                    Alert.actual_depletion_date,
+                    Alert.predicted_depletion_date,
+                    Alert.is_evaluable,
+                ).where(Alert.run_id == key, Alert.alert_type == "depletion")
+            )
+            .mappings()
+            .all()
+        )
+        try:
+            diagnostic = opportunity_breakdown(cases)
+        except ValueError:
+            raise DomainError(
+                "verification_failed", "Invalid replay event window", 409
+            ) from None
+        official = run.result_summary.get("alert_metrics", {})
+        if any(
+            official.get(k) != diagnostic[v]
+            for k, v in [
+                ("early_numerator", "observed_early_numerator"),
+                ("event_denominator", "event_denominator"),
+                ("excluded_count", "excluded_count"),
+            ]
+        ):
+            raise DomainError(
+                "verification_failed",
+                "Replay diagnostic differs from verified summary",
+                409,
+            )
+        return dict(context=context(run), diagnostic=diagnostic)
 
 
 def allocated_metrics(session, run):
