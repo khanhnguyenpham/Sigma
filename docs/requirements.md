@@ -207,7 +207,7 @@ Nguồn U07 cập nhật thông tin “chỉ order thực” của U04/DEC17: hi
 <a id="m3-design-v1"></a>
 ## Bổ sung yêu cầu M3 — phiên bản 2.1 theo CHG-048
 
-Áp dụng profile M3 mới từ 19/10/2026; mục 2.0 và các run cũ giữ lịch sử. **Trạng thái: đặc tả đã viết, ứng dụng chưa triển khai/chưa nghiệm thu.**
+Áp dụng profile M3 mới từ 19/10/2026; mục 2.0 và các run cũ giữ lịch sử. **Trạng thái E90: ứng dụng local đã triển khai/kiểm thực, chưa nghiệm thu toàn bài.** Xem [ma trận triển khai và kết quả](../M3/IMPLEMENTATION.md). R05 ngày/R07 và T14 còn mở. Quyền chỉMD ở U09 là lịch sử; yêu cầu mới cho phép code và push source.
 
 | Mã nguồn mới | Nội dung và thẩm quyền |
 |---|---|
@@ -222,3 +222,7 @@ Nguồn U07 cập nhật thông tin “chỉ order thực” của U04/DEC17: hi
 - **R09:**13 bảng tối thiểu, snapshot bất biến, worker riêng, CLI dùng chung service; dữ liệu thật/private chỉ local, Git chỉ Markdown lượt này. Không thêm customer/payment/invoice/user hoặc đặt hàng thật.
 
 Nghiệm thu dự kiến và lịch tại [06](../M3/docs/06-testing-delivery.md); chưa có kết quả ứng dụng để nghiệm thu. Các seed số giả và city chỉ là đề xuất kỹ thuật để demo, không phải số mentor hoặc điều khoản ký kết thực.
+
+### Cập nhật E90 — trạng thái triển khai, không thay tiêu chí
+
+Forecast46/ML36, phân bổ, policy/alert replay riêng, API/worker/React6màn hình và version/export đã thực thi. Fixed10 tổng7 H1–7 đạt10/10 hồi cứu; new36 chỉ2/36; ngày phân bổ top10 là0/10. Policy cơ sở fill90,4121%; early986/2867=34,3913%. Bằng chứng/giới hạn tại [M3/IMPLEMENTATION](../M3/IMPLEMENTATION.md). R05/R07/T14 giữ mở, không thay metric/split/top10 để nâng nghiệm thu. Các giới hạn auth/cloud/multiuser ngoài scope vẫn giữ.
