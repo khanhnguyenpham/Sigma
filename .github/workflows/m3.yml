@@ -1,0 +1,52 @@
+name: M3 synthetic integration
+on: [push, pull_request]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: ci-only-admin
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 12
+    env:
+      M3_TEST_DATABASE_URL: postgresql+psycopg://sigma_m3_app:ci-only-app@127.0.0.1:5432/sigma_m3_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: M3/backend/requirements.txt
+      - run: python -m pip install -r M3/backend/requirements.txt
+      - run: python -m pip install --no-deps -e M3/backend
+      - name: Create isolated CI app role and test database
+        run: |
+          python - <<'PY'
+          import psycopg
+          with psycopg.connect('host=127.0.0.1 user=postgres password=ci-only-admin dbname=postgres',autocommit=True) as c:
+              c.execute("CREATE ROLE sigma_m3_app LOGIN PASSWORD 'ci-only-app'")
+              c.execute('CREATE DATABASE sigma_m3_test OWNER sigma_m3_app')
+          PY
+      - run: python -m pip check
+      - run: python -B -m pytest M3/backend/tests --junitxml=m3-tests.xml
+      - run: python -B -m pytest tests M2/models/tests
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: M3/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: M3/frontend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build

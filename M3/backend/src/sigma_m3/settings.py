@@ -1,4 +1,5 @@
 """Local configuration; HTTP never resolves arbitrary filesystem paths."""
+
 from dataclasses import dataclass
 import os
 from pathlib import Path
@@ -20,8 +21,12 @@ class Settings:
         origin = os.environ.get("M3_FRONTEND_ORIGIN", "http://127.0.0.1:5173")
         if origin not in {"http://127.0.0.1:5173", "http://localhost:5173"}:
             raise ValueError("M3 v1 accepts a local frontend only")
-        return cls(url, Path(os.environ.get("M3_SOURCE_ROOT", project)).resolve(),
-                   Path(os.environ.get("M3_OUTPUT_ROOT", project / "outputs/m3")).resolve(), origin)
+        return cls(
+            url,
+            Path(os.environ.get("M3_SOURCE_ROOT", project)).resolve(),
+            Path(os.environ.get("M3_OUTPUT_ROOT", project / "outputs/m3")).resolve(),
+            origin,
+        )
 
     def order_source(self, key):
         if key != "orders_snapshot":
