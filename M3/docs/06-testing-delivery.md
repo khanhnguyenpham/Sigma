@@ -1,5 +1,7 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
+**E91 kiểm trực tiếp:**86tests Python (54M3+32M2),9FE/build đạt. Ca mới kiểm ranh6/7/14ngày, mẫu số/không sự kiện/null, chặn filter/summary lệch/run sai kind/failed, mutation tương lai không đổi feature/nhãn fit nghiên cứu và stale UI khi đổi run. Đây là số kiểm phần mềm, không đóng R05/R07/T14.
+
 **Hiện hành E90:** ứng dụng đã có code và fullrun local theo profile này. Xem [implementation, số kiểm thực và giới hạn](../IMPLEMENTATION.md). Nội dung E76/E89 có chữ “dự kiến/chưa triển khai” bên dưới là lịch sử thiết kế/checkpoint; không dùng làm trạng thái hiện hành hoặc bằng chứng chạy. R05/R07/T14 vẫn mở.
 
 **Cập nhật implementation E89:** E89:35tests M3 đã thực chạy, gồm PostgreSQL/API/concurrency, và32tests M2 hồi quy đạt; ML36/fullreplay/FE/E2E chưa chạy. Các ca còn lại bên dưới giữ vai trò testplan. [Phạm vi thực](../README.md#implementation-e89). Các nhãn “chưa có/dự kiến” bên dưới là trạng thái đặc tả ban đầu, chỉ được thay thế trong phần đã liệt kê.

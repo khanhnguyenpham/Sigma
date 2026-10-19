@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AlertOpportunity } from "../components/AlertOpportunity";
 import {
   ResponsiveContainer,
   LineChart,
@@ -101,6 +102,7 @@ export function Alerts({ run, ctx }: { run?: Run; ctx: Context }) {
           </p>
         </>
       )}
+      <AlertOpportunity run={run} />
       {!ready ? (
         <div className="notice">
           Chọn một lượt tồn kho đã hoàn tất. Chỉ alert replay có confusion

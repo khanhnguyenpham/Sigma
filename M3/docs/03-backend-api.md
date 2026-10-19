@@ -59,6 +59,7 @@ ID trên là ID giả trong ví dụ, không phải bản ghi nguồn. Thiếu p
 | GET `/runs/{id}/inventory` | Tồn ngày, SS/ROP/S/IP/Q, config_status. |
 | GET `/runs/{id}/replenishments` | Lô mô phỏng, ordered/received, quantity/ETA/supplier. |
 | GET `/runs/{id}/alerts` | BelowROP/depletion, giải thích, đánh giá nếu alert replay. |
+| GET `/runs/{id}/alert-opportunities` | E91: chẩn đoán toàn alert_replay complete; phân bố ngày cạn, caD+1…6, trần thời gian và ca đủ7ngày nhưng bỏ sót. Không nhận query filter; actual chỉ dùng giải thích sau replay; đối soát mẫu số với summary đã khóa. |
 | GET `/runs/{id}/metrics` | Chọn granularity=weekly/allocated_daily/alert/policy, block/cadence. |
 | GET `/runs/{id}/exports/{dataset}` | CSV theo dataset allowlist và filter hiện tại; download response. |
 

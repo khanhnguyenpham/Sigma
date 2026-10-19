@@ -1,5 +1,7 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+**E91 đã triển khai:** services/alerts.py tính chẩn đoán hậu kiểm, api/results.py phục vụ GET alert-opportunities; FE AlertOpportunity dùng context theo run. M3/research/daily_validation.py riêng ngoài worker/adapter/selection phục vụ; outputs private, không thêm bảng DB. [Protocol nghiên cứu](../research/README.md).
+
 **Hiện hành E90:** ứng dụng đã có code và fullrun local theo profile này. Xem [implementation, số kiểm thực và giới hạn](../IMPLEMENTATION.md). Nội dung E76/E89 có chữ “dự kiến/chưa triển khai” bên dưới là lịch sử thiết kế/checkpoint; không dùng làm trạng thái hiện hành hoặc bằng chứng chạy. R05/R07/T14 vẫn mở.
 
 **Cập nhật implementation E89:** E89: backend/settings/models/migration/services nền/workerimport/CLI source+seed/scripts đã có; phần forecastadapter/fullreplay/frontend vẫn dự kiến. Hạn chế chỉMarkdown của CHG048 thuộc lượt tài liệu cũ, đã được yêu cầu implementation thay thế. [Phạm vi thực](../README.md#implementation-e89). Các nhãn “chưa có/dự kiến” bên dưới là trạng thái đặc tả ban đầu, chỉ được thay thế trong phần đã liệt kê.

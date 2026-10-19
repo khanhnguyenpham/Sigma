@@ -625,6 +625,8 @@ Ghi nguồn/ngày/mã → xác định R/A/T/đầu ra ảnh hưởng → sửa 
 <a id="m3-design-v1"></a>
 ## Profile M3 mới theo CHG-048 — 19/10/2026
 
+**E91 — T08–T12:** chẩn đoán cơ hội cảnh báo và nghiên cứu ngày validation riêng; không đổi final10/ML36/stock profile.86Python+9FE/build đạt. Validation ngày0/10; alert cơ sở còn331ca đủ7ngày chưa phát hiện,1550ca cạn trướcD+7. R05/R07/T14 mở; [bằng chứng](../../M3/IMPLEMENTATION.md).
+
 Thiết kế chi tiết mở rộng của PLAN nằm trong [bộ M3](../../M3/README.md): [nghiệp vụ/công thức](../../M3/docs/01-functional-spec.md), [13 bảng](../../M3/docs/02-data-model.md), [API](../../M3/docs/03-backend-api.md), [FE](../../M3/docs/04-frontend-spec.md), [source](../../M3/docs/05-source-architecture.md), [kiểm thử/lịch](../../M3/docs/06-testing-delivery.md). Đây là tài liệu thiết kế, không là implementation được khôi phục.
 
 M04 là góp ý mentor do người dùng thuật lại về supplier×item/L7/kho; U09 là lựa chọn trong phiên về stack46/ML36/ROPfloor/MOQ/một supplier và chỉ MD; S03 là ảnh M3 đã xem. Giữ mã cũ và lịch sử, không đổi M03 customerD+7 thành supplier lead time. A11L3 cũ mất hiệu lực cho profile mới; A12/A13 chuyển policy item có cấu hình, không xác nhận số ví dụ.
