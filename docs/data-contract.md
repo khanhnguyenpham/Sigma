@@ -1,5 +1,7 @@
 # Hợp đồng dữ liệu SIGMA
 
+**CHG-048/E76 — 19/10/2026:** hợp đồng [M3 mới](../M3/docs/02-data-model.md) đặc tả 13 bảng PostgreSQL, nguồn order local, warehouse=route, item=route×sku×product_type, policy phiên bản, hai khối forecast7 và ledger mô phỏng. Chưa có DB/migration/run mới. Lead time nhập kho M3=7 ngày UTC; nguồn/profile cũ bên dưới giữ lịch sử, không dùng làm bằng chứng nghiệm thu profile mới.
+
 **CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
 
 **Hiện hành CHG-028/E53–E55 — 06/10/2026:** sản phẩm mặc định dùng V13 với 58 ứng viên chọn bằng validation, cùng policy V4, stock V7, customer V6 và comparison V3. Bộ báo cáo đã khóa tại sigma_m2m3_checkpoint_v3; mở start_m2m3.ps1 ở cổng 8504. **214 tests và CI Windows của commit 183ed10 đạt**; đã đối soát 447.810 cặp dự báo, 42.136 hệ số hiệu chỉnh, 1.100.320 dòng sổ, 267.908 giao dịch/nhập và 920 mặt hàng. AppTest sáu trang, bốn kịch bản và bộ lọc SKU/loại đạt. Job Windows 07:00 đã cài, chạy thử mã 0. Tuần đạt 9/10, MAPE trung bình 16,17%, LG U+ 21,19%; R05 ngày vẫn 0/10, tỷ lệ báo sớm 33,73% trên 2.867 sự kiện. **Chưa nghiệm thu toàn bài.** Dữ liệu gốc và 59 artifact v11 nguyên; src/ và run.py không đổi, app.py chỉ thêm khóa bộ run. Word/slide chưa làm lại; các cập nhật cũ bên dưới là lịch sử.
@@ -192,3 +194,21 @@ Mỗi event có event_type, event_datetime, historical_quantity, scenario_quanti
 `weekly_item_recommendations.csv`: ITEM, origin, partner, on_hand/SS/ROP/S/IP/Q, pending_quantity, eta_if_ordered, depletion_state/date, is_simulated=true, decision_applied=false. Stock/pending là snapshot mô phỏng base v11; vector tuần phân bổ weekday lịch sử rồi item share causal. Strict on_hand<ROP, IP chỉ lượng đặt. Chưa chạy lại lịch sử policy liên tục bằng tuần, không gửi đơn thật. Replay tuần dùng cùng 5.520 cửa sổ, initial stock/actual path/mẫu số của v11; không chọn bỏ ca dưới 7 ngày.
 
 Các protocol/summary có kind, hash nguồn/cha/mã, không được lẫn family. Job giữ last_good_run local, skip khi fingerprint không đổi sau khi kiểm hash run; lỗi không thay run tốt hoặc log nội dung chứa định danh.
+
+<a id="m3-design-v1"></a>
+## Hợp đồng M3 mới — CHG-048, thiết kế chưa thực thi
+
+Nguồn chuẩn schema mới: [13 bảng/ERD](../M3/docs/02-data-model.md), [API](../M3/docs/03-backend-api.md), [nghiệp vụ](../M3/docs/01-functional-spec.md). Giữ20 cột CSV/raw nguyên, không copy order/customer ID vào DB/public docs.
+
+| Lớp dữ liệu | Khóa/hợp đồng mới | Phân loại và kiểm |
+|---|---|---|
+| Catalog | warehouse UNIQUE(destination_country, carrier); item UNIQUE(warehouse_id, sku, product_type), first_seen_date | 46/920 là kiểm đếm hiện tại; không dùng item tương lai ở origin cũ; city/supplier mô phỏng. |
+| Policy | supplier_item_policies theo item/version/[effective_from, effective_to) | Một supplier/item/ngày; floor≥0, MOQ≥1, safety≥0; L7/R1 ở profile; không fallback khi thiếu. |
+| Nguồn dẫn xuất | daily_sales theo source_import_run, item, date, actual_available | Thiếu nguồn≠0; order_count khác quantity; chỉ aggregate không ID nguồn. |
+| Forecast tuyến | route_forecasts theo run, warehouse, as_of, block | Tổng7 riêngD+1…7/D+8…14; target_date là cuối khối; actual chỉ đủ 7 nhãn. |
+| Forecast item | item_forecasts theo run, item, as_of, target_date | NgàyD+1…14, weekday90/item30–90; bảo toàn1e-8; actual thiếu null. |
+| Tồn/lô nhập | inventory_events, daily, replenishment_orders theo run/window/item | Quantity nguyên, balance/sales bảo toàn, ETA7, receipt một lần, is_simulated=true. |
+| Cảnh báo | alerts theo run/window/item/as_of/type | Depletion và belowROP riêng; ngày ngoài H null; replay độc lập có actual mô phỏng/mẫu số. |
+| Truy vết | scenarios, runs cùng config/policy/catalog snapshot/hash | Parent/source/target tương thích; complete gate; run cũ bất biến. |
+
+Không tạo bảng route/customer/invoice riêng; metric trong runs.result_summary, khuyến nghị trong inventory_daily. Giao diện/source/CLI mới chỉ là đặc tả; các schema E37/E39 và ledgerL3 trước đây giữ lịch sử và phải kiểm lại nếu chuyển sang M3L7.

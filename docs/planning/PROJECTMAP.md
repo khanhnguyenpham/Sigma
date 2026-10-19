@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-048/E76 — 19/10/2026:** điểm bắt đầu M3 mới là [M3/README](../../M3/README.md). Thư mục M3 hiện chỉ có 7 Markdown; backend/frontend/migrations/config/tests trong cây source là **dự kiến**, chưa tồn tại. Code M2 final vẫn là implementation hiện hành; không khôi phục code M3 cũ. Profile46 kho/L7/supplier-item cần bằng chứng mới trước nghiệm thu.
+
 **CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../../M2_CODE_MAP.md) và [khôi phục code cũ](../../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
 
 **CHG-042/E70 — 11/10/2026:** bộ [M2 final](../../M2/reports/final_m2_20261011/README.md) trên nhánh `M2-final-report` đã fit mới và kiểm độc lập10 lựa chọn cố định: tổng7 test10/10<20%, mean15.745366%, coverage100%; LG U+19,265900%. Chín tuyến cũ tái lập forecast validation/test trong1e-8. Chín lựa chọn validation giữ nguyên; LG U+ chọn từ test-sweep theo yêu cầu mới, nên test hồi cứu. H8–14 LG U+20,255792%; R05 ngày/R07/T14 mở. Có bảng cấu hình/metric/HTML và dashboard final; raw, run cũ, published07/10 và tồn/M3 giữ nguyên. Mã/cấu hình/bảng tổng hợp đã push GitHub; CI Windows của commit mã0cbeaf0 đạt toàn bộ checks; raw/daily/per-origin/draft giữ local.
@@ -187,3 +189,10 @@ Các sai khác trên không tự xác nhận hoặc bác bỏ nghiệp vụ đã
 **Cập nhật CHG-020/E27:** Có src/hierarchical_models.py, tests/test_hierarchical_models.py và tests/test_release_verification.py. Config 1.8.0/catalog 59; v10 đã kiểm 100 tests/nguồn và metric validation/top/selection/actual/ledger/events/AppTest. R05 vẫn 0/10, không chọn bằng test; Word/slide chưa làm tiếp.
 
 **Cập nhật CHG-021/E31:** Có check_data.py, src/monthly_lad.py và tests chuẩn hóa/scaler. Config 1.9.0, v11 kiểm 107 tests/59 sealed hashes/nguồn/validation/ledger/events/AppTest. Chuẩn hóa độc lập và scaler causal được kiểm; test vẫn 0/10, không chọn lại bằng test; Word/slide chưa làm tiếp.
+
+<a id="m3-design-v1"></a>
+## Bản đồ M3 mới — đặc tả, chưa có source
+
+Thực có: `M3/README.md`, sáu file `M3/docs/01…06`. Dự kiến: `M3/backend/src/sigma_m3`, migrations/tests,`M3/frontend/src`, configs/scripts; cây chi tiết tại [05](../../M3/docs/05-source-architecture.md). Những đường này không phải file đã triển khai hoặc lệnh đã chạy.
+
+Nguồn M2 dùng lại qua adapter: src/data/evaluation/common, weekly và spec LightGBM/Prophet, final10/focus/calibration. Không khôi phục source M3 từ backup. Source data/private artifacts vẫn tại workspace local, không copy vào nhánh docs. Graph dữ liệu: source import→forecast46→allocation→policy hoặc alert replay→API/FE; mọi kết quả có parent/hash/config snapshot.

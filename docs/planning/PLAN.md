@@ -1,5 +1,7 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-048/E76 — 19/10/2026:** [bộ đặc tả M3](../../M3/README.md) đã cụ thể hóa R04–R09/T08–T14: ML bổ sung36 tuyến, 46 kho giả định, ROP/MOQ theo supplier×item, lead time nhập 7, FastAPI/React/PostgreSQL. Đây là thiết kế tài liệu, chưa viết code hoặc chạy model mới. Mục6 và trạng thái triển khai cũ cần đọc cùng [profile mới](#m3-design-v1); không nâng R05/R07/T14.
+
 **CHG-042/E70 — 11/10/2026:** bộ [M2 final](../../M2/reports/final_m2_20261011/README.md) trên nhánh `M2-final-report` đã fit mới và kiểm độc lập10 lựa chọn cố định: tổng7 test10/10<20%, mean15.745366%, coverage100%; LG U+19,265900%. Chín tuyến cũ tái lập forecast validation/test trong1e-8. Chín lựa chọn validation giữ nguyên; LG U+ chọn từ test-sweep theo yêu cầu mới, nên test hồi cứu. H8–14 LG U+20,255792%; R05 ngày/R07/T14 mở. Có bảng cấu hình/metric/HTML và dashboard final; raw, run cũ, published07/10 và tồn/M3 giữ nguyên. Mã/cấu hình/bảng tổng hợp đã push GitHub; CI Windows của commit mã0cbeaf0 đạt toàn bộ checks; raw/daily/per-origin/draft giữ local.
 
 **CHG-041/E69 — hoàn tất 11/10/2026:** T08–T09/T12 [chấm toàn bộ160 lượt cấu hình trên test](../test-sweep-experiment.md) theo yêu cầu mới, bỏ điều kiện phải thắng validation cho bảng nghiên cứu riêng. Có17 lượt<20%; tốt nhất `tune56_w540_mul56p4` test19,265900%, coverage100%, validation11,336558%. Xếp hạng test chỉ khám phá hồi cứu; lựa chọn cũ/chín tuyến/dashboard/báo cáo khóa giữ nguyên.25 tests/pip check đạt,29.440 dự báo/640 metric/2.116 head/349 weighted fits/60 nhóm phân bổ kiểm độc lập, raw/757 tệp protected nguyên. Run sửa sau lỗi tên tệp baseline dùng forecast có sẵn khớp chính xác, không refit. H8–14 còn20,255792%; R05 ngày/R07/T14 mở.
@@ -409,6 +411,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t08"></a>
 ### T08 — LightGBM có điều kiện
 
+- **CHG-048/E76:** ML36 mới chỉ đặc tả, chưa fit; final10 giữ nguyên.
+
 - **CHG-042/E70:** Bộ final tái dùng cấu hình đã nghiên cứu, không tìm thêm ứng viên; LightGBM pooled top10, LG U+ scale56/học540.
 
 - **CHG-041/E69:** chạy đủ160 lượt cấu hình đã đăng ký của sáu pool trên test theo yêu cầu mới, không lọc validation.17 lượt h1–7<20%; cửa sổ học540/scale56 đạt19,265900%. Không đổi code/params của phase cũ hoặc feature/cutoff; [CSV và phạm vi hồi cứu](../test-sweep-experiment.md).
@@ -431,6 +435,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t09"></a>
 ### T09 — Khóa và đánh giá M2
+
+- **CHG-048/E76:** Forecast46 M3 cần run mới và lock validation; không nâng R05 ngày.
 
 - **CHG-045/E73:** dọn toàn bộ code cho M2 final trên `cleanup/m2-final`, bảo toàn checkpoint `5271d0b` ở `backup/m2-before-cleanup`. Giữ10 lựa chọn/7 cấu hình, LightGBM pooled top10 và Prophet au(KDDI); bỏ implementation/sweep/entrypoint/test M1–M3 và biến thể không được chọn, giữ nguyên raw/run/báo cáo. [M2_CODE_MAP](../../M2_CODE_MAP.md) ghi luồng, tham số, lệnh và cách lấy code cũ. Kiểm tra và giới hạn tại E73; không đổi model/metric/nghiệm thu, R05/R07/T14 mở.
 
@@ -464,6 +470,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 <a id="t10"></a>
 ### T10 — Đối tác, sổ tồn và cảnh báo
 
+- **CHG-048/E76:** Profile L7/supplier-item/46 kho mới chưa triển khai; bằng chứng tồn cũ cần kiểm lại.
+
 - **Phân công đề xuất 04/10/2026:** Hiếu phụ trách; Khang review.
 
 - **Trạng thái:** PolicyV4 từV13 đối soát13kịch bản/93originsH14/1100320ledger/267908events; basefill85,02%. StockV7 từ đúngpolicy kiểm920items; early33,73% cùng2867events, chưa bảo đảm mọi ca R07.
@@ -476,6 +484,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t11"></a>
 ### T11 — Dashboard và cập nhật cục bộ
+
+- **CHG-048/E76:** FastAPI/React/PG mới chỉ đặc tả; UI cũ không chứng minh profile mới.
 
 - **CHG-042/E70:** Launcher M2 mặc định đọc final aggregates; -RunId mở lịch sử. Bộ tồn/M3 không đổi.
 
@@ -493,6 +503,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t12"></a>
 ### T12 — Kiểm thử, tái lập và bảo mật gói
+
+- **CHG-048/E76:** Lượt này kiểm Markdown; tests BE/FE/DB mới chưa chạy.
 
 - **CHG-045/E73:** dọn toàn bộ code cho M2 final trên `cleanup/m2-final`, bảo toàn checkpoint `5271d0b` ở `backup/m2-before-cleanup`. Giữ10 lựa chọn/7 cấu hình, LightGBM pooled top10 và Prophet au(KDDI); bỏ implementation/sweep/entrypoint/test M1–M3 và biến thể không được chọn, giữ nguyên raw/run/báo cáo. [M2_CODE_MAP](../../M2_CODE_MAP.md) ghi luồng, tham số, lệnh và cách lấy code cũ. Kiểm tra và giới hạn tại E73; không đổi model/metric/nghiệm thu, R05/R07/T14 mở.
 
@@ -541,6 +553,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t14"></a>
 ### T14 — Nghiệm thu và đóng gói
+
+- **CHG-048/E76:** Bộ đặc tả không đóng R05/R07 hoặc nghiệm thu ứng dụng.
 
 - **Phân công đề xuất 04/10/2026:** Nguyên phụ trách; Khang review.
 
@@ -603,3 +617,21 @@ Ghi nguồn/ngày/mã → xác định R/A/T/đầu ra ảnh hưởng → sửa 
 |---|---|---|
 | 1.0 | 02/10/2026 | Activation, Colab, chính sách tồn chung; chỉ lập tài liệu. Quyết định/bằng chứng lịch sử giữ ở review-log |
 | 2.0 | 02/10/2026 | CHG-003: sales, top 10 theo train, ngưỡng đối tác/strict <, A08–A17, chỉ order thực và xử lý cục bộ/bảo mật; giữ mã task/mốc, chưa triển khai |
+
+<a id="m3-design-v1"></a>
+## Profile M3 mới theo CHG-048 — 19/10/2026
+
+Thiết kế chi tiết mở rộng của PLAN nằm trong [bộ M3](../../M3/README.md): [nghiệp vụ/công thức](../../M3/docs/01-functional-spec.md), [13 bảng](../../M3/docs/02-data-model.md), [API](../../M3/docs/03-backend-api.md), [FE](../../M3/docs/04-frontend-spec.md), [source](../../M3/docs/05-source-architecture.md), [kiểm thử/lịch](../../M3/docs/06-testing-delivery.md). Đây là tài liệu thiết kế, không là implementation được khôi phục.
+
+M04 là góp ý mentor do người dùng thuật lại về supplier×item/L7/kho; U09 là lựa chọn trong phiên về stack46/ML36/ROPfloor/MOQ/một supplier và chỉ MD; S03 là ảnh M3 đã xem. Giữ mã cũ và lịch sử, không đổi M03 customerD+7 thành supplier lead time. A11L3 cũ mất hiệu lực cho profile mới; A12/A13 chuyển policy item có cấu hình, không xác nhận số ví dụ.
+
+| Task hiện hữu | Phần bổ sung và trạng thái | Điều kiện hoàn tất về sau |
+|---|---|---|
+| T01 | Đặc tả và nguồn/requirementsM3 đã cập nhật. | Không nâng yêu cầu đã viết thành app đã đạt. |
+| T08–T09 | Thiết kế5LightGBM+1Prophet cho 36, giữfinal10; chưa fit. | Selection validation/hash, full46/H14, allocation causal/parityfinal10. |
+| T10 | Thiết kế46 kho/920catalog, L7, policy floor/MOQ/safety, ledger/replay; chưa code. | Strict<, ETA7, balance/idempotency, mẫu số R07 và độ nhạy mới. |
+| T11 | Thiết kế FastAPI/React/PostgreSQL, sáu trang; chưa code/DB. | Worker/API/FE tương thích, snapshot run, null actual, export đúng. |
+| T12 | Kiểm tài liệu lượt này; tests ứng dụng chỉ đặc tả. | Unit/DB/FE/E2E/full local với bằng chứng theo06. |
+| T13–T14 | Thiết kế lịch/bàn giao đến 07/11; chưa nghiệm thu. | Demo/run/hash/báo cáo; R05/R07 và mentor review vẫn mở. |
+
+Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigger closing<ROP, IP chỉQ, MOQ chỉQ>0. Một kho/tuyến, city giả định; mọi nhập/tồn mô phỏng. Policy replay và no-new-order alert replay tách; không dùng bằng chứng V13/L3 cũ để đóng profile mới. Không tạo task system mới, không thêm customer/payment/invoice/giao khách/user.
