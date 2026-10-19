@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**CHG-057/E89 — bắt đầu implementation M3, 19/10/2026:** nhánh `codex/m3-implementation` lấy nền `M3-design-plan`20a3c45, checkout riêng tại `outputs/workspaces/m3-implementation` trong workspace gốc. Đã có Python3.12/backend lock, migration13bảng PostgreSQL18, API nền/queue, worker import, catalog/policy version, seed và các hàm tính L7/R1/H14. Source import thật đã đối soát100.000dòng/118.296quantity/46tuyến/920item/672.520dailyrows;35tests M3 và32tests M2 đạt. Chưa ML36/adapterfinal10/replay tích hợp/React/E2E; R05/R07/T14 còn mở. [Cách chạy và phạm vi thực có](../../M3/README.md#implementation-e89). Không dùng mốc nền để nhận hoàn thành toàn bộ M3.
+
 **CHG-048/E76 — 19/10/2026:** đã có [7 Markdown thiết kế M3](../../M3/README.md), gồm nghiệp vụ, 13 bảng, API, 6 màn hình, source dự kiến và test plan. T08–T09 phần ML36, T10 profileL7/ROP/MOQ mới và T11 BE/FE riêng đều **chưa triển khai**; kết quả tồn/UI V13 là lịch sử cần kiểm lại với profile mới. Đồng bộ tại [PLAN](PLAN.md#m3-design-v1); R05/R07/T14 mở. Lượt này chỉ Markdown và Git nhánh mới, không code.
 
 **CHG-046/E74 — 14/10/2026:** theo yêu cầu mới, đổi tên nhánh `cleanup/m2-final` thành `M2-final-cleanup` và cho phép push nhánh này lên GitHub. Commit dọn `7cea158` giữ nguyên; chỉ cập nhật tên/lệnh trong tài liệu. Nhánh gốc/backup, raw/run/báo cáo và nghiệm thu không đổi.

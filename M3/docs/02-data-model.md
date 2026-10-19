@@ -1,5 +1,7 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
+**Cập nhật implementation E89:** E89:13bảng đã có SQLAlchemy/Alembic0001_m3 và migrate/test thật PostgreSQL18. Phần mô tả này giữ hợp đồng dữ liệu; không chứng minh mọi service đã có. [Phạm vi thực](../README.md#implementation-e89). Các nhãn “chưa có/dự kiến” bên dưới là trạng thái đặc tả ban đầu, chỉ được thay thế trong phần đã liệt kê.
+
 **Trạng thái:** schema dự kiến, chưa có migration/DB. Quy tắc tính tại [01](01-functional-spec.md); API tại [03](03-backend-api.md). Đúng **13 bảng nghiệp vụ**; bảng version nội bộ của Alembic không phải bảng nghiệp vụ bổ sung.
 
 ## 1. Quy ước chung

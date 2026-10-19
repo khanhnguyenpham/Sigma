@@ -1,5 +1,7 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+**Cập nhật implementation E89:** E89: đã có hàm tính thuần và seed/cấu hình policy được test; fullforecast/replay vẫn là đích thiết kế. [Phạm vi thực](../README.md#implementation-e89). Các nhãn “chưa có/dự kiến” bên dưới là trạng thái đặc tả ban đầu, chỉ được thay thế trong phần đã liệt kê.
+
 **Phiên bản:** `m3-design-v1`, 19/10/2026. **Trạng thái:** thiết kế chưa thực thi. Nguồn và hiện trạng tại [README](../README.md); từ điển dữ liệu tại [02](02-data-model.md).
 
 ## 1. Chức năng bắt buộc và truy vết

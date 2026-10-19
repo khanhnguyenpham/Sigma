@@ -1,5 +1,7 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+**Cập nhật implementation E89:** E89: backend/settings/models/migration/services nền/workerimport/CLI source+seed/scripts đã có; phần forecastadapter/fullreplay/frontend vẫn dự kiến. Hạn chế chỉMarkdown của CHG048 thuộc lượt tài liệu cũ, đã được yêu cầu implementation thay thế. [Phạm vi thực](../README.md#implementation-e89). Các nhãn “chưa có/dự kiến” bên dưới là trạng thái đặc tả ban đầu, chỉ được thay thế trong phần đã liệt kê.
+
 **Trạng thái:** cây dự kiến để implement sau bộ tài liệu. Lượt CHG-048 chỉ tạo/sửa Markdown. Không tạo folder rỗng, scaffold, migration, package.json hay sửa requirements trong lượt này.
 
 ## 1. Stack và cấu trúc
