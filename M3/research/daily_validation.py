@@ -160,11 +160,25 @@ def fit_rows(frame, cutoff):
 
 
 def evaluate(daily):
-    frame = examples(daily)
-    start = pd.Timestamp(PROTOCOL["train_end"])
+    return evaluate_frame(examples(daily), FEATURES, PROTOCOL)
+
+
+def evaluate_frame(frame, features, protocol):
+    """Shared validation evaluator; serving models never call this function."""
+    if {"actual_qty", "forecast_qty"} & set(features):
+        raise ValueError("Target values cannot be model features")
+    end = pd.Timestamp(protocol["validation_end"])
+    if (
+        frame.target_date.gt(end).any()
+        or not np.isfinite(frame.actual_qty).all()
+        or frame.actual_qty.lt(0).any()
+        or ((frame.target_date - frame.as_of_date).dt.days != frame.horizon).any()
+    ):
+        raise ValueError("Invalid labels or targets beyond the validation boundary")
+    start = pd.Timestamp(protocol["train_end"])
     validation = frame.loc[frame.as_of_date.ge(start)].copy()
     output, fit_log = [], []
-    for model in PROTOCOL["candidates"]:
+    for model in protocol["candidates"]:
         forecasts = validation[
             ROUTE + ["as_of_date", "target_date", "horizon", "actual_qty"]
         ].copy()
@@ -173,35 +187,64 @@ def evaluate(daily):
             forecasts["forecast_qty"] = validation[model].to_numpy()
         else:
             forecasts["forecast_qty"] = np.nan
-            for cutoff in pd.date_range(start, PROTOCOL["validation_end"], freq="7D"):
-                mask = validation.as_of_date.ge(cutoff) & validation.as_of_date.lt(
-                    cutoff + pd.Timedelta(days=7)
+            for cutoff in pd.date_range(
+                start, protocol["validation_end"], freq=f"{protocol['refit_days']}D"
+            ):
+                fold_mask = validation.as_of_date.ge(cutoff) & validation.as_of_date.lt(
+                    cutoff + pd.Timedelta(days=protocol["refit_days"])
                 )
-                if not mask.any():
-                    continue
-                train = fit_rows(frame, cutoff)
-                estimator = LGBMRegressor(
-                    **PROTOCOL["lgbm"],
-                    objective="poisson" if model == "lgbm_poisson" else "regression_l1",
+                scopes = (
+                    sorted(validation.route_id.unique())
+                    if model in protocol.get("route_specific", [])
+                    else [None]
                 )
-                weights = (
-                    None
-                    if model == "lgbm_poisson"
-                    else 1 / np.maximum(train.actual_qty.to_numpy(), 1)
-                )
-                estimator.fit(train[FEATURES], train.actual_qty, sample_weight=weights)
-                predicted = estimator.predict(validation.loc[mask, FEATURES])
-                forecasts.loc[mask, "forecast_qty"] = np.maximum(0, predicted)
-                fit_log.append(
-                    dict(
-                        model=model,
-                        fit_cutoff=cutoff.date().isoformat(),
-                        max_label_end=train.target_date.max().date().isoformat(),
-                        training_pairs=len(train),
-                        predicted_pairs=int(mask.sum()),
-                        negative_clipped=int((predicted < 0).sum()),
+                for route_id in scopes:
+                    mask = (
+                        fold_mask
+                        if route_id is None
+                        else fold_mask & validation.route_id.eq(route_id)
                     )
-                )
+                    if not mask.any():
+                        continue
+                    train = fit_rows(frame, cutoff)
+                    if route_id is not None:
+                        train = train.loc[train.route_id.eq(route_id)]
+                    objective = protocol.get("objectives", {}).get(
+                        model, "poisson" if model == "lgbm_poisson" else "regression_l1"
+                    )
+                    parameters = protocol.get("parameters", {}).get(
+                        model, protocol["lgbm"]
+                    )
+                    estimator = LGBMRegressor(**parameters, objective=objective)
+                    weights = (
+                        None
+                        if objective == "poisson"
+                        else 1 / np.maximum(train.actual_qty.to_numpy(), 1)
+                    )
+                    fit_options = (
+                        {"categorical_feature": protocol["categorical_features"]}
+                        if protocol.get("categorical_features")
+                        else {}
+                    )
+                    estimator.fit(
+                        train[features],
+                        train.actual_qty,
+                        sample_weight=weights,
+                        **fit_options,
+                    )
+                    predicted = estimator.predict(validation.loc[mask, features])
+                    forecasts.loc[mask, "forecast_qty"] = np.maximum(0, predicted)
+                    fit_log.append(
+                        dict(
+                            model=model,
+                            route_id=None if route_id is None else int(route_id),
+                            fit_cutoff=cutoff.date().isoformat(),
+                            max_label_end=train.target_date.max().date().isoformat(),
+                            training_pairs=len(train),
+                            predicted_pairs=int(mask.sum()),
+                            negative_clipped=int((predicted < 0).sum()),
+                        )
+                    )
         output.append(forecasts)
     predictions = pd.concat(output, ignore_index=True)
     records = []

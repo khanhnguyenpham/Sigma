@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**CHG-060/E92 — 20/10/2026:** tiếp tục tối ưu R05 bằng số đơn/mùa vụ năm/tín hiệu thị trường, tách nghiên cứu khỏi serving.168 lần fit/35.910 dự báo, validation45,971604%,0/10≤20%; cải thiện9/10tuyến so v1 nhưng chưa đạt.89Python đạt; nghiên cứu v1 sau refactor giữ95.760predictions/metric/selection giống byte. R07 không có ngưỡng100% sự kiện chính thức;331ca bỏ sót có tồn≤2 (311ca tồn1). [Cổng nghiệm thu/bằng chứng](../../M3/ACCEPTANCE.md); R05/R07/T14 giữ mở.
+
 **CHG-059/E91 — tiếp tục hoàn thiện:** API/React có chẩn đoán cơ hội cảnh báo, không đổi mẫu số hoặc run khóa. Cơ sở1550/2867ca cạnD+1…6; trần tại các origin này45,9365%, thực34,3913%, bỏ sót331ca còn đủ7ngày. Nghiên cứu ngày validation8phương pháp/28fits giữ riêng: mean49,451918%,0/10≤20%, chưa thay model phục vụ.86tests Python+9FE/build đạt; R05/R07/T14 mở. [Hướng dẫn/bằng chứng](../../M3/IMPLEMENTATION.md).
 
 **CHG-058/E90 — implementation M3, 19/10/2026:** đã chạy forecast46/H14, giữ final10, chọn36 bằng validation, phân bổ2.382.800 dòng, policy/alert replay và snapshotL7; có API kết quả/export, worker verify/heartbeat và React6màn hình.78 tests Python +7 tests FE, build/DB/đối soát thực; xem [bằng chứng, giới hạn và cách chạy](../../M3/IMPLEMENTATION.md). Phần mềm đã triển khai không đồng nghĩa đạt toàn bộ chỉ tiêu: fixed10 tổng7 đạt10/10 hồi cứu, new36 chỉ2/36; ngày phân bổ top10 là0/10, early cơ sở34,3913%. R05/R07/T14 vẫn mở. Người dùng cho phép push code/config/tests/docs; raw/run/DB/env giữ local. Các mốc E76/E89 dưới đây là lịch sử.

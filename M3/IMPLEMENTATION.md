@@ -1,5 +1,7 @@
 # M3 — ứng dụng đã triển khai và cách chạy
 
+**E92,20/10/2026:** nghiên cứu ngày panel đạt45,971604% validation/0trên10,168fits; serving giữ nguyên.89Python đạt,9FE thuộc E91 không đổi. [Đối chiếu tiêu chí và cổng còn mở](ACCEPTANCE.md). CI E91 cd57235 đã xác nhận cả haiworkflow success; CI của commit mới phải xem riêng.
+
 Ngày kiểm: 19/10/2026. Nhánh: `codex/m3-implementation`, nền `M3-design-plan` tại `20a3c45`. Phạm vi là **ứng dụng local FastAPI + React/TypeScript + PostgreSQL18**, 46 kho giả định, 920 mặt hàng, L7/R1/H14. Đây là implementation mới, riêng với Streamlit/tổng30 của nhánh khác. Không cần thay M2 final để chạy M3.
 
 ## Phần mềm và kết quả nghiên cứu
@@ -155,3 +157,15 @@ Cơ sở:1.550/2.867 sự kiện cạn ởD+1…D+6; chỉ1.317ca có khoảng c
 Run nghiên cứu cuối: outputs/research/daily-validation-v1-560a112e-2452-4b7a-a0c7-1e16d0475351. SelectionSHA0608d7dcda479cfea1e051f610edbfa833130db0ed43635b28c2bade72057180. Lượt trước7811fb30 được giữ; bản cuối bổ sung runtime/input/requirements hashes và clipping log, predictions/metrics/selection giống byte. Đối soát độc lập160nhóm metric/28cutoff/hashes/10selection đạt; receipt outputs/e91-verification.json ngoài run đã khóa.
 
 86tests Python (54M3+32M2),9FE và TypeScript/build đạt. Hai test research kiểm future mutation/nhãn fit/thiếu lịch/zero; ca API kiểm mẫu số/boundary6–7–14, null, sai summary/filter/kind/status; FE kiểm context cũ và snapshot không có metric giả. Launcher restart riêng API/worker, giữ PostgreSQL. Snapshot mới309cc381-70cf-4e6a-9c1e-5b1220c49950 complete/verify:920threshold/920events/1lot/1714alerts, backendSHA1acba62a5213d419b67e4fca56ddaa1f0052bd4c2cbc86bd899c6a3d293e4f0f. Dùng lại forecast cha đã khóa; không refit toàn forecast/replay. Run E90 giữ codeSHA lịch sử, không sửa thành SHA mới. R05/R07/T14 còn mở; CI của commit E91 phải kiểm riêng sau push.
+
+## E92 — Dự báo ngày với số đơn và tín hiệu thị trường
+
+Nghiên cứu daily-panel-validation-v2 nằm ngoài worker/adapter/profile đang phục vụ.3ứng viên: LightGBM pooled Poisson/weightedL1 và weightedL1 riêng tuyến,350cây/leaves15/minchild60/lr0,04/lambda10/seed42. Feature chỉ dùng đến origin: số đơn, units/order, số0, country/global demand, weekday56/182/365 và lag364/365/366 của target; lịch tương lai biết trước, annual chưa có giữ NaN feature. SQL đầu vào≤30/09/2025; không truy test.
+
+Run outputs/research/daily-panel-validation-v2-5f80050a-6413-4113-9627-522c0395bc6d complete:168fits/35.910forecast/60nhóm metric; H1–7 validation mean45,971604%,0/10≤20%.9/10tuyến thấp hơn v1 mean49,451918%, nhưng còn bias âm. Chưa chấm test/thay model app hoặc tính lại tồn. SelectionSHA95e5a80b8b9ba5a2731c29f63d25c9a09d4fafde98f382119e2350bb3baf8b96; manifestSHA18be7e6a58d33f1bb987f1a20cc3400d52a9b66a06a5120c22a8a413a594c23a. Receipt độc lập outputs/e92-research-verification.json kiểm60nhóm,10winner,168cutoff/scope/paircount và toàn hash.
+
+Tách evaluate_frame dùng chung; lượt v1-6aea9e7c sau refactor tái lập byte-exact95.760predictions/metrics/selection với v1 E91. Sau khi bắt đầu fit bổ sung guard từ chối target làm feature, nhãn test/âm/thiếu và horizon lệch. Lượt fit dùng bản trước guard; source đúng hash đã được lưu receipt riêng outputs/e92-source-archive, không sửa run/manifest cũ. Guard mới kiểm bằng tests; dữ liệu đã fit cũng được đối soát hợp lệ, không nhận model đã chạy lại bằng source sau guard.
+
+89Python/0fail/error/skip đạt. FE/app/DB không sửa trong E92,9FE/build và CI2workflow success của cd57235 là bằng chứng E91. BackendSHA giữ1acba62a5213d419b67e4fca56ddaa1f0052bd4c2cbc86bd899c6a3d293e4f0f. Không rerun toàn forecast/replay để sửa nghiên cứu/docs.
+
+Phân tích331ca đủ thời gian nhưng bỏ sót: tất cả tồn đầu≤2,311ca tồn1, tổngforecast14 thấp hơn tồn trong331ca, không cóforecast0 hoặc receipt đầu kỳ; median forecast14/tồn0,580714. Actual phát sinh một vài đơn có thể làm cạn trong khi point projection chưa chạm0. Đây là mô tả sau replay; chưa dùng để chọn ngưỡng theo test hoặc đổi R07. R07 không có chỉ tiêu100% tổng sự kiện trong nguồn; không tự nhận đạt hay tự thêm yêu cầu này. [Bảng cổng nghiệm thu](ACCEPTANCE.md) và T14 giữ mở.
