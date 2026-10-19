@@ -1,5 +1,7 @@
 # SIGMA — bộ code M2 final
 
+**Cập nhật M05/E93, 20/10/2026:** R05 chấm tổng 30 ngày theo mentor được người dùng thuật lại. Đã kiểm lại **10/10 tuyến ≤20%, MAPE trung bình11,62%**, coverage100%, test hồi cứu. M3 FastAPI/React có tab tổng30, baseline và CSV. [Đọc kết quả/cách chạy](M3/MONTHLY.md); tồn/cảnh báo vẫn dùng H14.
+
 **M3 đã triển khai trên nhánh `codex/m3-implementation`:** [hướng dẫn chạy, bản đồ source và kết quả kiểm](M3/IMPLEMENTATION.md). FastAPI/React/PostgreSQL local46tuyến, riêng với sản phẩm tổng30/Streamlit ở nhánh khác. R05/R07/T14 còn mở.
 
 **M3 — thiết kế ngày 19/10/2026:** đọc [bộ tài liệu M3](M3/README.md) cho nghiệp vụ, 13 bảng PostgreSQL, BE/API, FE, source dự kiến và kiểm thử. Nhánh `M3-design-plan` chỉ bổ sung/cập nhật Markdown; chưa có ứng dụng hoặc lệnh M3 chạy được. Hướng dẫn M2 bên dưới vẫn là đường chạy có thật.

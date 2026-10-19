@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-061/E93/M05 — 20/10/2026, hiện hành:** mentor do người dùng thuật lại đã chốt **R05 tổng 30 ngày thay ngày**. Verifier nguồn và đối soát DB M3 xác nhận 10/10≤20%, mean11,621356%, coverage100%, 63 cửa sổ/tuyến; test hồi cứu. API/React tích hợp benchmark tổng 30 chỉ đọc, tách forecast H14 dùng tồn. Xem [kết quả và cách chạy](../../M3/MONTHLY.md). Các mốc trước M05 bên dưới giữ lịch sử; không dùng số ngày ở E92 làm cổng R05 hiện tại. T14 vẫn cần mentor nghiệm thu, R07 chưa có ngưỡng tỷ lệ tổng chính thức.
+
 **E92 — 20/10/2026:** [M3/ACCEPTANCE](../../M3/ACCEPTANCE.md) phân biệt cổng kỹ thuật/độ chính xác/nghiệm thu. daily_panel.py nghiên cứu counts/annual/market dùng evaluate_frame chung với v1; không đổi app/DB/adapter/model serving.89Python đạt; nghiên cứu validation45,971604%,0/10≤20%.
 
 **E91 hiện hành:** Cảnh báo có phân tích thời điểm cạn; M3/research/daily_validation.py là nghiên cứu validation riêng, không thay adapter/final10/forecast phục vụ.86Python+9FE/build đạt; xem [phạm vi/giới hạn](../../M3/IMPLEMENTATION.md). E90 bên dưới giữ mốc trước bổ sung.

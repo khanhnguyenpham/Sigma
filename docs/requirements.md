@@ -1,5 +1,7 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**Hiện hành CHG-061/M05 — 20/10/2026:** mentor do người dùng thuật lại đã chốt R05 chấm **tổng 30 ngày thay từng ngày**. E93 kiểm lại 10/10≤20%, mean11,621356%, coverage100%, 63 cửa sổ/tuyến; test hồi cứu. [Tiêu chí, kết quả và tích hợp M3](../M3/MONTHLY.md). Các mốc trước M05 còn ghi R05 ngày là lịch sử; target A08, raw/top10/split và các tiêu chí tồn/cảnh báo không đổi.
+
 **E92 — 20/10/2026:** nghiên cứu ngày panel validation45,971604%,0/10; không đổi R05 thành tuần hoặc tự thêm ngưỡng100% cho R07. [Ma trận cổng/bằng chứng](../M3/ACCEPTANCE.md) giữ R05/R07/T14 mở. Không nhận nghiên cứu validation là đã cải thiện test/serving.
 
 **E91 — hiện trạng bổ sung:** API/React giải thích mẫu số và giới hạn thời gian của alert replay; nghiên cứu ngày validation vẫn0/10≤20%. Không đổi nghiệm thu/giả định/run cũ; R05/R07/T14 mở. [Bằng chứng](../M3/IMPLEMENTATION.md).
@@ -115,10 +117,10 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 - **Nhiệm vụ:** [T04](planning/PLAN.md#t04), [T05](planning/PLAN.md#t05), [T06](planning/PLAN.md#t06), [T07](planning/PLAN.md#t07), [T08](planning/PLAN.md#t08), [T09](planning/PLAN.md#t09), [T12](planning/PLAN.md#t12), [T13](planning/PLAN.md#t13), [T14](planning/PLAN.md#t14).
 
 <a id="r05"></a>
-### R05 — Độ chính xác từng tuyến top 10
+### R05 — Độ chính xác tổng 30 ngày từng tuyến top 10
 
-- **Nguồn:** S01 ghi MAPE≤20% top 10; U02 chọn ngày dương/từng tuyến, chưa phải mentor xác nhận riêng; M01 yêu cầu xếp theo số bán. **Trạng thái:** Chưa nghiệm thu.
-- **Nội dung:** Cả 10 tuyến phải đạt MAPE ngày dương≤20% trên test chính h1–7; kèm số mẫu/độ phủ, MAE/WAPE/bias mọi ngày. h8–14 riêng.
+- **Nguồn hiện hành:** M05, 20/10/2026: người dùng thuật lại mentor đã chốt tổng 30 ngày thay từng ngày; S01 giữ MAPE≤20% từng tuyến top 10; M01 xếp theo quantity train. **Trạng thái:** E93 đạt ngưỡng số học trên test hồi cứu; chưa ký nghiệm thu độc lập.
+- **Nội dung:** Cả 10 tuyến phải đạt MAPE tổng quantity D+1…D+30 ≤20% trên cửa sổ có actual dương; kèm số mẫu/độ phủ, MAE/WAPE/bias trên tất cả cửa sổ đủ nhãn. Origin hằng ngày; chỉ cửa sổ nằm trọn split tham gia metric. Với test 01/10–31/12/2025 có 63 cửa sổ/tuyến. Ngày và tổng 7 là chẩn đoán, không còn là điều kiện R05 theo M05.
 - **Tiêu chí:** Metric truy về predictions; actual 0 vẫn trong MAE/WAPE/bias; MAPE toàn 0 và WAPE mẫu số 0 không xác định, không trả 0%. Không nhãn không chấm. Không đổi định nghĩa sales, top 10, bộ lọc ngày hoặc mô hình bằng metric test để đạt.
 - **Sản phẩm dự kiến:** metrics test theo tuyến/horizon, bảng top 10 đạt/chưa đạt và giới hạn.
 - **Nhiệm vụ:** [T05](planning/PLAN.md#t05), [T07](planning/PLAN.md#t07), [T08](planning/PLAN.md#t08), [T09](planning/PLAN.md#t09), [T12](planning/PLAN.md#t12), [T13](planning/PLAN.md#t13), [T14](planning/PLAN.md#t14).

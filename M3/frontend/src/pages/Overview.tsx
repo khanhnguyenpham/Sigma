@@ -97,7 +97,7 @@ export function Overview({
         <div>
           <b>01</b>
           <strong>Dự báo</strong>
-          <p>Tổng 7 ngày và phân bổ ngày, theo từng tuyến.</p>
+          <p>Tổng 30 ngày cho R05; tổng 7 và phân bổ ngày cho tồn H14.</p>
         </div>
         <div>
           <b>02</b>
@@ -136,9 +136,9 @@ export function Overview({
       </Panel>
       <div className="notice subtle">
         <strong>Đọc đúng kết quả.</strong> Đây là snapshot lịch sử 2024–2025. Dự
-        báo tương lai sau 31/12/2025 chưa có actual. Kết quả tổng tuần không
-        thay tiêu chí ngày R05; test M2 đã dùng hồi cứu, LG U+ được chọn sau
-        test-sweep.
+        báo tương lai sau 31/12/2025 chưa có actual. Theo M05, R05 chấm tổng 30
+        ngày; xem bảng từng tuyến trong Dự báo. Test đã được dùng hồi cứu; không
+        gọi là holdout độc lập.
       </div>
     </>
   );

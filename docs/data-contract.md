@@ -1,5 +1,7 @@
 # Hợp đồng dữ liệu SIGMA
 
+**M05/E93, 20/10/2026:** R05 hiện chấm tổng quantity D+1…D+30; chỉ cửa sổ trọn split có actual mới vào metric. Null không phải0. Top10 train/success-orderUTC A08 vẫn như cũ. H14 giữ cho vận hành tồn. [Hợp đồng benchmark/API tổng30](../M3/MONTHLY.md). Những quy định R05 ngày trước M05 là lịch sử.
+
 **CHG-048/E76 — 19/10/2026:** hợp đồng [M3 mới](../M3/docs/02-data-model.md) đặc tả 13 bảng PostgreSQL, nguồn order local, warehouse=route, item=route×sku×product_type, policy phiên bản, hai khối forecast7 và ledger mô phỏng. Chưa có DB/migration/run mới. Lead time nhập kho M3=7 ngày UTC; nguồn/profile cũ bên dưới giữ lịch sử, không dùng làm bằng chứng nghiệm thu profile mới.
 
 **CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
