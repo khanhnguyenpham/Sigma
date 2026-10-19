@@ -133,7 +133,7 @@ Seed chỉ tạo giả định rõ ràng: cover3/7/14 và safety×0,5/1/1,5, kh�
 .\.venv-m3\Scripts\python.exe -m alembic -c M3/backend/alembic.ini check
 ```
 
-Test DB phải đúng tên `sigma_m3_test`; fixture TRUNCATE chỉ database này, không dùng DB ứng dụng. Thiếu env thì tests PostgreSQL sẽ skip, không được báo là đã kiểm DB. CI mới chỉ fixture giả; lần push phải xem kết quả GitHub riêng, không suy CI từ tests local.
+Test DB phải đúng tên `sigma_m3_test`; fixture TRUNCATE chỉ database này, không dùng DB ứng dụng. Thiếu env thì tests PostgreSQL sẽ skip, không được báo là đã kiểm DB. CI chỉ dùng fixture giả; lần push phải xem kết quả GitHub riêng, không suy CI từ tests local. Workflow M3 tách Linux/PostgreSQL (46 tests M3), Windows/Python3.12 với toàn bộ dependency M3 (32 tests hồi quy M2, gồm golden300forecast ở ngưỡng1e-8), và frontend (7 tests/build). Golden được ghi trên Windows: lần CI đầu trên Linux có30giá trị Prophet lệch tối đa7,8783e-6; đây là giới hạn parity giữa hai nền tảng, chưa chứng minh Linux tái lập golden ở1e-8. Giữ nguyên fixture/ngưỡng/model M2; không bỏ test hoặc dùng CI xanh để nhận parity Linux.
 
 Artifacts full/DB/env/raw giữ local. Complete chỉ sau verify; source-hash dedup giữ request identity nhưng tái dùng canonical daily dataset. Run đầu E89/E90 đã khóa không sửa manifest để thêm trường; phiên bản worker sau bổ sung runtime/seed/full config vào manifest của **run mới**. Receipt kiểm lại run cũ nằm ngoài thư mục đã khóa.
 
