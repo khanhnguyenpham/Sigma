@@ -1,5 +1,7 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**CHG-048/E76 — 19/10/2026, profile M3 mới:** đã đặc tả [M3](../M3/README.md) theo phản hồi mentor do người dùng thuật lại và lựa chọn trong phiên: 46 tuyến/46 kho giả định, supplier×item có ROP floor/MOQ/safety riêng, nhập kho7 ngày UTC, FastAPI/React/PostgreSQL. Chỉ hoàn tất tài liệu; BE/FE/DB/ML36 chưa triển khai. Phần Streamlit/L3/stress lead time cũ bên dưới là lịch sử khi áp dụng cho M3 mới. R05/R07/T14 chưa đóng.
+
 **CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
 
 **CHG-034/E62 — 06/10/2026:** người dùng chốt dùng kết quả M2 tổng7 hiện tại9/10 cho báo cáo ngày07/10, giữ LG U+20,69% chưa đạt và tối ưu sau. Không đổi ngưỡng/bỏ tuyến hoặc nhận R05 ngày đạt. Nhánh báo cáo có dữ liệu/split, mô hình từng tuyến, phương pháp và metric; sản phẩm V13 riêng. [Guide](../M2/reports/presentation-guide.md).
@@ -199,3 +201,22 @@ Chỉ gọi toàn dự án hoàn thành khi đủ bằng chứng bắt buộc; n
 Giao khách D+7 theo ngày lịch UTC, gồm cuối tuần, delay khách bằng 0. Run lịch giao phải cùng nguồn/target/split/origin với hai cha tuần và ngày/tồn; lượng cam kết đã biết chỉ dùng đơn đặt ≤origin, lượng từ đơn chưa đặt lấy forecast và có nhãn riêng. Quantity theo item và tuyến phải bảo toàn, không xuất order/customer ID, actual giao thiếu giữ NaN. Thời gian nhập hàng kho và kịch bản nhận ít/trễ/không về không đổi từ xác nhận customer delivery này. Tồn khả dụng mô phỏng đã trừ khi nhận đặt hàng, không trừ lần hai vào D+7. E37/E39 kiểm các điều kiện này, chưa nhận R05/R07 đạt.
 
 Nguồn U07 cập nhật thông tin “chỉ order thực” của U04/DEC17: hiện là **snapshot được người dùng mô tả giả định**, chưa độc lập xác minh cách sinh. Quy tắc bảo mật/bảo toàn và các bằng chứng lịch sử không bị xóa. Vẫn chưa có xác nhận mentor thay metric ngày bằng tổng tuần; câu hỏi đang chờ không làm mất quyền tiếp tục các phần kỹ thuật độc lập.
+
+<a id="m3-design-v1"></a>
+## Bổ sung yêu cầu M3 — phiên bản 2.1 theo CHG-048
+
+Áp dụng profile M3 mới từ 19/10/2026; mục 2.0 và các run cũ giữ lịch sử. **Trạng thái: đặc tả đã viết, ứng dụng chưa triển khai/chưa nghiệm thu.**
+
+| Mã nguồn mới | Nội dung và thẩm quyền |
+|---|---|
+| M04 | Người dùng thuật lại mentor ngày 19/10: ngưỡng nhập riêng theo supplier×product_type×sku, linh hoạt ký kết; nhập kho7 ngày/sản phẩm; một kho giả định mỗi tuyến tại thành phố minh họa. Không có số ROP/MOQ doanh nghiệp. |
+| U09 | Người dùng chọn BE/FE riêng, cho phép MySQL hoặc PostgreSQL (thiết kế chọn PostgreSQL), 46 tuyến, mở rộng ML36, ROP=max(forecast-derived, floor), cảROP/MOQ, một supplier/item. Yêu cầu7MD/đồng bộ tài liệu, nhánh mới không codex/, commit/push; sau đó nhắc lại chỉ MD, không code. |
+| S03 | Phần ảnh M3 đính kèm trong phiên đã xem: đến 07/11, SS/ROP, cảnh báo trước≥7, dashboard forecast/sai số. Không gán đây là ảnh mentor M01/M02/M03 cũ. |
+
+- **R04/R05:** thêm thiết kế ML36 (5 LightGBM gốc+1Prophet), giữ final10 và selection validation; mọi test hồi cứu ghi rõ. Không thay R05 ngày bằng tổng7. Chi tiết [nghiệp vụ](../M3/docs/01-functional-spec.md#3-target-mô-hình-và-thời-gian).
+- **R06:** kho1–1 tuyến, city giả định; policy riêng từng supplier×item có version/effective interval, floor/MOQ/safety. L7/R1/H14; ROP=max(ROP_forecast, floor), S=ROP+ceil(f8), strict closing<ROP; IP chỉ lượng đặt. Không thiếu config→ngưỡng chung0. A11 L3 cũ được thay **chỉ cho profile M3 mới**; A12 số 4/2 và A13MOQ1 là đề xuất lịch sử, nay cấu hình từng item. Không nâng toàn A08–A17 thành mentor xác nhận.
+- **R07:** giữ replay14/no-new-order, first event, mẫu số và ngưỡng≥7 ngày; chính sách liên tục là đánh giá khác. Độ nhạy profile mới giữL7, thay cover3/7/14 và safety0,5/1/1,5. Không dùng kết quả replayL3 cũ đóng R07 mới.
+- **R08:** FastAPI+React/TypeScript+PostgreSQL local thay thiết kế Streamlit cho M3 mới; sáu màn hình/run context/null actual/version phải đúng. Customer deliveryD+7 củaM03 không phải nguồn xác nhận supplierL7; M04 là nguồn mới.
+- **R09:**13 bảng tối thiểu, snapshot bất biến, worker riêng, CLI dùng chung service; dữ liệu thật/private chỉ local, Git chỉ Markdown lượt này. Không thêm customer/payment/invoice/user hoặc đặt hàng thật.
+
+Nghiệm thu dự kiến và lịch tại [06](../M3/docs/06-testing-delivery.md); chưa có kết quả ứng dụng để nghiệm thu. Các seed số giả và city chỉ là đề xuất kỹ thuật để demo, không phải số mentor hoặc điều khoản ký kết thực.

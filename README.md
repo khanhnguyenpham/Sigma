@@ -1,5 +1,7 @@
 # SIGMA — bộ code M2 final
 
+**M3 — thiết kế ngày 19/10/2026:** đọc [bộ tài liệu M3](M3/README.md) cho nghiệp vụ, 13 bảng PostgreSQL, BE/API, FE, source dự kiến và kiểm thử. Nhánh `M3-design-plan` chỉ bổ sung/cập nhật Markdown; chưa có ứng dụng hoặc lệnh M3 chạy được. Hướng dẫn M2 bên dưới vẫn là đường chạy có thật.
+
 Nhánh `M2-final-cleanup` chuẩn bị báo cáo thứ Sáu 16/10/2026. Điểm bắt đầu để tìm và giải thích code: [M2_CODE_MAP.md](M2_CODE_MAP.md). Có 10 lựa chọn theo tuyến, 7 cấu hình: LightGBM pooled top 10 cho 9 tuyến và Prophet riêng au (KDDI).
 
 [Báo cáo final đã khóa](M2/reports/final_m2_20261011/README.md) · [HTML offline](M2/reports/final_m2_20261011/index.html) · [Tham số 10 tuyến](M2/reports/final_m2_20261011/model_configurations.md) · [Tài liệu học](M2/reports/mentor_prep_20261014/README.md).
