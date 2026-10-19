@@ -16,7 +16,7 @@ Ngày kiểm: 19/10/2026. Nhánh: `codex/m3-implementation`, nền `M3-design-pl
 | Alert replay cơ sở | 6 cửa sổ14 ngày không chồng, không đặt mới;82.800 ledger. TP2098/FP852/FN769/TN702; loại1099 ca đã cạn tại origin; early986/2867=34,3913%;8 ngày cuối ngoài cửa sổ đủ nhãn. |
 | Snapshot | 31/10 và31/12 có920 dòng khởi tạo; không thêm actual tương lai vào ledger. Projection14 ngày dùng forecast và lô đã biết. |
 | API/React | Sáu màn hình, bộ lọc/URL, bảng/biểu đồ, giải thích ROP/IP/MOQ, config có version, tạo job nền, tải CSV cùng context. API/CLI dùng cùng services. |
-| Kiểm phần mềm |78 ca Python:46 M3 +32 M2;7 ca Vitest/RTL. npm ci, TypeScript, production build, pip check, Alembic check đạt. Kết quả chi tiết private trong outputs, không đưa source orders vào CI. |
+| Kiểm phần mềm |E91:86 ca Python:54 M3 +32 M2;9 ca Vitest/RTL và production build đạt. Nền E90 đã kiểm npm ci/pip check/Alembic check. Kết quả chi tiết private trong outputs, không đưa source orders vào CI. |
 
 | Metric test, daily origins | Số tuyến MAPE≤20% | MAPE trung bình tuyến | Coverage |
 |---|---:|---:|---:|
@@ -133,7 +133,7 @@ Seed chỉ tạo giả định rõ ràng: cover3/7/14 và safety×0,5/1/1,5, kh�
 .\.venv-m3\Scripts\python.exe -m alembic -c M3/backend/alembic.ini check
 ```
 
-Test DB phải đúng tên `sigma_m3_test`; fixture TRUNCATE chỉ database này, không dùng DB ứng dụng. Thiếu env thì tests PostgreSQL sẽ skip, không được báo là đã kiểm DB. CI chỉ dùng fixture giả; lần push phải xem kết quả GitHub riêng, không suy CI từ tests local. Workflow M3 tách Linux/PostgreSQL (46 tests M3), Windows/Python3.12 với toàn bộ dependency M3 (32 tests hồi quy M2, gồm golden300forecast ở ngưỡng1e-8), và frontend (7 tests/build). Golden được ghi trên Windows: lần CI đầu trên Linux có30giá trị Prophet lệch tối đa7,8783e-6; đây là giới hạn parity giữa hai nền tảng, chưa chứng minh Linux tái lập golden ở1e-8. Giữ nguyên fixture/ngưỡng/model M2; không bỏ test hoặc dùng CI xanh để nhận parity Linux.
+Test DB phải đúng tên `sigma_m3_test`; fixture TRUNCATE chỉ database này, không dùng DB ứng dụng. Thiếu env thì tests PostgreSQL sẽ skip, không được báo là đã kiểm DB. CI chỉ dùng fixture giả; lần push phải xem kết quả GitHub riêng, không suy CI từ tests local. Workflow M3 tách Linux/PostgreSQL (54 tests M3), Windows/Python3.12 với toàn bộ dependency M3 (32 tests hồi quy M2, gồm golden300forecast ở ngưỡng1e-8), và frontend (9 tests/build). Golden được ghi trên Windows: lần CI đầu trên Linux có30giá trị Prophet lệch tối đa7,8783e-6; đây là giới hạn parity giữa hai nền tảng, chưa chứng minh Linux tái lập golden ở1e-8. Giữ nguyên fixture/ngưỡng/model M2; không bỏ test hoặc dùng CI xanh để nhận parity Linux.
 
 Artifacts full/DB/env/raw giữ local. Complete chỉ sau verify; source-hash dedup giữ request identity nhưng tái dùng canonical daily dataset. Run đầu E89/E90 đã khóa không sửa manifest để thêm trường; phiên bản worker sau bổ sung runtime/seed/full config vào manifest của **run mới**. Receipt kiểm lại run cũ nằm ngoài thư mục đã khóa.
 
@@ -143,3 +143,15 @@ Artifacts full/DB/env/raw giữ local. Complete chỉ sau verify; source-hash de
 Từ React tạo scenario `e2e_receipt_policy` v2 rồi run `950e6844-d611-48cf-b0ef-4e845ba0811a`, theo dõi queued→running→complete qua worker nền. Đã kiểm 920threshold/920events/1lô/1714alerts, CSV tải trực tiếp từ trình duyệt khớp1dòng đang lọc. Japan/NTT Docomo, D10G-10D eSIM: closing7, floor20/ROP20, pending20, IP27, S21, MOQ10, Q0; ETA04/11 từ ordered28/10. Cảnh báo dướiROP không tự đặt thêm khi pending đủ. Run và scenario v1 trước đó giữ nguyên.
 
 Form ngày đã được kiểm lại bằng thao tác nhập và state updates riêng cho từng trường; ngày đặt và ETA được giữ sau đổi quantity. Nút thêm lô/override chờ catalog đã tải.7tests FE gồm chống render dữ liệu run cũ khi đổi context, abort response cũ, gửi lặp/retry cùng key và lưu ngày/quantity. Dữ liệu thực được kiểm riêng, không gọi7tests này là full browser E2E tự động. Launcher stop/start đã chạy, giữ PostgreSQL và các ứng dụng khác; web vẫn tại8000.
+
+## E91 — Chẩn đoán và thử nghiệm bổ sung
+
+Màn Cảnh báo có phân tích **toàn lượt alert replay** qua GET /runs/{id}/alert-opportunities. Run complete/đúng kind, snapshot/hash và summary phải khớp; query filter bị từ chối để mẫu số không đổi. Actual chỉ dùng giải thích sau replay, không làm feature. Không cập nhật manifest/summary của run đã khóa.
+
+Cơ sở:1.550/2.867 sự kiện cạn ởD+1…D+6; chỉ1.317ca có khoảng cách từ origin≥7. Do đó trần báo sớm tại chính các origin/tồn đầu này là45,936519%, so thực986/2867=34,391350%; còn331ca đủ thời gian nhưng không có cảnh báo. Trần này không áp cho mọi hệ thống/kịch bản, không xóa ca cạn sớm hoặc thay R07 bằng tỷ lệ có điều kiện. Không có sự kiện thì các tỷ lệ null. UI hiển thị phân bố14ngày và giữ mẫu số khi lọc bảng; đã kiểm trực tiếp chọnJapan/NTTDocomo:40dòng tại origin, mẫu số toàn lượt vẫn2867. Ảnh local outputs/m3-alert-opportunities.png.
+
+[Nghiên cứu ngày validation](research/README.md) dùng8phương pháp/28fits,95.760forecast/160nhóm metric/6.390ngày-tuyến đầu vào≤30/09/2025; không đọc test. Best theo từng tuyến H1–7 mean49,451918%,0/10≤20%; phân bổ M3 cùng623cặp/tuyến mean51,905954%.7/10tuyến có MAPE thấp hơn, nhưng loss giảm kèm bias âm; chưa chọn để phục vụ hoặc dùng vào tồn. Không nhận là đã cải thiện test/sản phẩm. Cần bằng chứng tiếp trước thay profile.
+
+Run nghiên cứu cuối: outputs/research/daily-validation-v1-560a112e-2452-4b7a-a0c7-1e16d0475351. SelectionSHA0608d7dcda479cfea1e051f610edbfa833130db0ed43635b28c2bade72057180. Lượt trước7811fb30 được giữ; bản cuối bổ sung runtime/input/requirements hashes và clipping log, predictions/metrics/selection giống byte. Đối soát độc lập160nhóm metric/28cutoff/hashes/10selection đạt; receipt outputs/e91-verification.json ngoài run đã khóa.
+
+86tests Python (54M3+32M2),9FE và TypeScript/build đạt. Hai test research kiểm future mutation/nhãn fit/thiếu lịch/zero; ca API kiểm mẫu số/boundary6–7–14, null, sai summary/filter/kind/status; FE kiểm context cũ và snapshot không có metric giả. Launcher restart riêng API/worker, giữ PostgreSQL. Snapshot mới309cc381-70cf-4e6a-9c1e-5b1220c49950 complete/verify:920threshold/920events/1lot/1714alerts, backendSHA1acba62a5213d419b67e4fca56ddaa1f0052bd4c2cbc86bd899c6a3d293e4f0f. Dùng lại forecast cha đã khóa; không refit toàn forecast/replay. Run E90 giữ codeSHA lịch sử, không sửa thành SHA mới. R05/R07/T14 còn mở; CI của commit E91 phải kiểm riêng sau push.

@@ -1,5 +1,7 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**E91 — hiện trạng bổ sung:** API/React giải thích mẫu số và giới hạn thời gian của alert replay; nghiên cứu ngày validation vẫn0/10≤20%. Không đổi nghiệm thu/giả định/run cũ; R05/R07/T14 mở. [Bằng chứng](../M3/IMPLEMENTATION.md).
+
 **E89 — trạng thái kỹ thuật:** mốc nền M3 đã có backend/PostgreSQL/import và35tests; chưa ML36/replay/React. Giữ nguyên các tiêu chí R01–R09, R05/R07/T14 mở. [Phần đã kiểm](../M3/README.md#implementation-e89).
 
 **CHG-048/E76 — 19/10/2026, profile M3 mới:** đã đặc tả [M3](../M3/README.md) theo phản hồi mentor do người dùng thuật lại và lựa chọn trong phiên: 46 tuyến/46 kho giả định, supplier×item có ROP floor/MOQ/safety riêng, nhập kho7 ngày UTC, FastAPI/React/PostgreSQL. Chỉ hoàn tất tài liệu; BE/FE/DB/ML36 chưa triển khai. Phần Streamlit/L3/stress lead time cũ bên dưới là lịch sử khi áp dụng cho M3 mới. R05/R07/T14 chưa đóng.
