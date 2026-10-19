@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**E92 — 20/10/2026:** [M3/ACCEPTANCE](../../M3/ACCEPTANCE.md) phân biệt cổng kỹ thuật/độ chính xác/nghiệm thu. daily_panel.py nghiên cứu counts/annual/market dùng evaluate_frame chung với v1; không đổi app/DB/adapter/model serving.89Python đạt; nghiên cứu validation45,971604%,0/10≤20%.
+
 **E91 hiện hành:** Cảnh báo có phân tích thời điểm cạn; M3/research/daily_validation.py là nghiên cứu validation riêng, không thay adapter/final10/forecast phục vụ.86Python+9FE/build đạt; xem [phạm vi/giới hạn](../../M3/IMPLEMENTATION.md). E90 bên dưới giữ mốc trước bổ sung.
 
 **CHG-058/E90 — implementation M3, 19/10/2026:** đã chạy forecast46/H14, giữ final10, chọn36 bằng validation, phân bổ2.382.800 dòng, policy/alert replay và snapshotL7; có API kết quả/export, worker verify/heartbeat và React6màn hình.78 tests Python +7 tests FE, build/DB/đối soát thực; xem [bằng chứng, giới hạn và cách chạy](../../M3/IMPLEMENTATION.md). Phần mềm đã triển khai không đồng nghĩa đạt toàn bộ chỉ tiêu: fixed10 tổng7 đạt10/10 hồi cứu, new36 chỉ2/36; ngày phân bổ top10 là0/10, early cơ sở34,3913%. R05/R07/T14 vẫn mở. Người dùng cho phép push code/config/tests/docs; raw/run/DB/env giữ local. Các mốc E76/E89 dưới đây là lịch sử.

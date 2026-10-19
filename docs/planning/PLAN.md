@@ -625,6 +625,8 @@ Ghi nguồn/ngày/mã → xác định R/A/T/đầu ra ảnh hưởng → sửa 
 <a id="m3-design-v1"></a>
 ## Profile M3 mới theo CHG-048 — 19/10/2026
 
+**E92 — T08–T12,20/10/2026:** nghiên cứu panel ngày168fits/35.910forecast, validation45,971604%/0trên10; không thay phục vụ hoặc mở test.89Python đạt. Phân biệt R07 đo cảnh báo với ngưỡng100% không có trong nguồn; [cổng còn mở](../../M3/ACCEPTANCE.md). R05/R07/T14 không tự đóng.
+
 **E91 — T08–T12:** chẩn đoán cơ hội cảnh báo và nghiên cứu ngày validation riêng; không đổi final10/ML36/stock profile.86Python+9FE/build đạt. Validation ngày0/10; alert cơ sở còn331ca đủ7ngày chưa phát hiện,1550ca cạn trướcD+7. R05/R07/T14 mở; [bằng chứng](../../M3/IMPLEMENTATION.md).
 
 Thiết kế chi tiết mở rộng của PLAN nằm trong [bộ M3](../../M3/README.md): [nghiệp vụ/công thức](../../M3/docs/01-functional-spec.md), [13 bảng](../../M3/docs/02-data-model.md), [API](../../M3/docs/03-backend-api.md), [FE](../../M3/docs/04-frontend-spec.md), [source](../../M3/docs/05-source-architecture.md), [kiểm thử/lịch](../../M3/docs/06-testing-delivery.md). Đây là tài liệu thiết kế, không là implementation được khôi phục.

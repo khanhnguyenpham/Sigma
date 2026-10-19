@@ -1,5 +1,7 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**E92 — 20/10/2026:** nghiên cứu ngày panel validation45,971604%,0/10; không đổi R05 thành tuần hoặc tự thêm ngưỡng100% cho R07. [Ma trận cổng/bằng chứng](../M3/ACCEPTANCE.md) giữ R05/R07/T14 mở. Không nhận nghiên cứu validation là đã cải thiện test/serving.
+
 **E91 — hiện trạng bổ sung:** API/React giải thích mẫu số và giới hạn thời gian của alert replay; nghiên cứu ngày validation vẫn0/10≤20%. Không đổi nghiệm thu/giả định/run cũ; R05/R07/T14 mở. [Bằng chứng](../M3/IMPLEMENTATION.md).
 
 **E89 — trạng thái kỹ thuật:** mốc nền M3 đã có backend/PostgreSQL/import và35tests; chưa ML36/replay/React. Giữ nguyên các tiêu chí R01–R09, R05/R07/T14 mở. [Phần đã kiểm](../M3/README.md#implementation-e89).
