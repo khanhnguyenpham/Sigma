@@ -1,6 +1,6 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
-**Ngày:** 19/10/2026 (Asia/Saigon). **Trạng thái:** đặc tả để triển khai; chưa có BE, FE, database hoặc run M3 mới. **Mốc mục tiêu:** 07/11/2026. **Truy vết:** CHG-048/E76; R04–R09; T08–T14.
+**Ngày:** 19/10/2026 (Asia/Saigon). **Trạng thái hiện hành E89:** đã triển khai và kiểm mốc nền backend/database/import; ML36, replay tích hợp và frontend chưa triển khai. Phần thiết kế bên dưới giữ nguyên phạm vi đích. **Mốc mục tiêu:** 07/11/2026. **Truy vết:** CHG-048/E76; R04–R09; T08–T14.
 
 ## 1. Kết quả cần xây
 
@@ -54,4 +54,49 @@ Không thiết kế customer, payment, invoice, giao khách, tài khoản/phân 
 
 Thứ tự: T08–T09 bổ sung forecast36 → T10 catalog/chính sách/tồn → T11 API/FE → T12 kiểm tích hợp → T13–T14 demo/nghiệm thu. Lịch tại [06](docs/06-testing-delivery.md#8-lịch-triển-khai-dự-kiến). Viết xong tài liệu chỉ hoàn tất đặc tả CHG-048, không đóng R05/R07/T14.
 
-Các cây source, endpoint, CLI, bảng và test trong bộ này đều **dự kiến phải xây**. Không chạy lệnh M3 trước khi có implementation. Lượt tài liệu chỉ commit Markdown trên `M3-design-plan`, không kèm raw, artifact riêng tư, DB hoặc ảnh clipboard.
+Bộ `M3-design-plan` ban đầu chỉ có Markdown. Implementation E89 ở nhánh `codex/m3-implementation` mới có các phần ghi rõ dưới đây; các endpoint/CLI/source còn lại trong đặc tả chưa tự trở thành đã chạy. Không kèm raw, artifact riêng tư, DB hoặc ảnh clipboard vào Git.
+
+
+<a id="implementation-e89"></a>
+## 5. Mốc nền implementation E89 — đã kiểm thực chạy
+
+Checkout riêng giữ nguyên nhánh tổng30 đang chạy: `outputs/workspaces/m3-implementation` bên trong workspace gốc. Nền nhánh là `20a3c45` (`M3-design-plan`), không hợp nhất implementation tổng30/Streamlit cũ vào profile mới. Chưa push/deploy implementation mới.
+
+| Thành phần | Đã có | Chưa có / giới hạn |
+|---|---|---|
+| Môi trường | Python3.12.14 riêng,83pin M2 nguyên và15dependency backend bổ sung được khóa; pipcheck đạt. | Chưa cài/khóa FE. |
+| Database | PostgreSQL18.6 local127.0.0.1:55432, role app không superuser; Alembic0001_m3 đúng13bảng nghiệp vụ + bảng version. | Không là database doanh nghiệp hoặc service toàn máy. |
+| API | Health; danh sách kho/item/supplier/policy; tạo policy có khóa/version; enqueue/status/summary run. | Chưa đủ endpoints kết quả/export/snapshot catalog và chưa React. |
+| Worker/CLI | PostgreSQL single-worker lock, claimqueue, restart→failed/interrupted; source_import và seed-simulation chạy thật. | Chỉ source_import được worker thực thi; kind khác báo failed/stage_not_implemented, không giả complete. Heartbeat hiện ở mốc đầu/cuối, chưa chu kỳ30s cho job dài. |
+| Nghiệp vụ | Hàm L7/R1/H14,strictROP/MOQ/pending/fulfillment, nhận receipt một lần, projection và metric replay, phân bổ causal; kiểm ca tính tay và DB concurrency. | Chưa tạo ledger/policy_replay/alert_replay thực đầy đủ hoặc fit ML36. |
+| Nguồn thật local | Import100.000dòng →118.296quantity/46kho/920item/672.520dailyrows; seed920policy và5scenario từ lịch sử tới30/09/2025. | Tồn/nhập/supplier/policy là giả định; không là xác nhận hợp đồng. Idempotency hiện bảo đảm cùng requestkey; dedup sourcehash giữa các key khác chưa có. |
+
+Lượt nguồn `96e77f53-fa7c-46be-987f-50e308920dba` complete; độc lập tính lại quantity/catalog/920policy, hash raw và manifest đạt. Cùng requestkey không tạo thêm run/daily; seed lần2 tái dùng920policy, không ghi đè. Bằng chứng private: `outputs/m3-foundation-verification.json`, `outputs/m3-foundation-tests.xml` (35đạt), `outputs/m2-regression-tests.xml` (32đạt). Lượt này không refit M2, không đánh giá mô hình mới. Warning Starlette về httpx TestClient đã ghi nhận; kiểm vẫn đạt, không đổi pin M2 để tắt warning.
+
+### Cài và chạy phần đã có
+
+Cần Python3.12 và PostgreSQL18 local; tạo database app và database riêng `sigma_m3_test`, role không superuser. Tạo `.venv-m3` bằng Python3.12 đã cài, rồi từ root checkout:
+
+```powershell
+.\.venv-m3\Scripts\python.exe -m pip install -r M3/backend/requirements.txt
+.\.venv-m3\Scripts\python.exe -m pip install --no-deps -e M3/backend
+# Copy M3/configs/.env.example thành M3/.env, điền kết nối local và source root.
+. ./M3/scripts/load_env.ps1
+.\.venv-m3\Scripts\python.exe -m alembic -c M3/backend/alembic.ini upgrade head
+.\.venv-m3\Scripts\python.exe -m pip check
+.\.venv-m3\Scripts\python.exe -B -m pytest M3/backend/tests
+. ./M3/scripts/start_api.ps1
+```
+
+API hiện chạy tại `http://127.0.0.1:8000/api/v1/health`; OpenAPI tại `http://127.0.0.1:8000/docs`. Đây là tài liệu API/backend nền, chưa là giao diện sản phẩm6màn hình. PostgreSQL bootstrap portable trên máy này nằm trong outputs ignored, không cần cài service; credentials chỉ có trong M3/.env ignored, không gửi qua HTTP/Git.
+
+CLI thật đã kiểm:
+
+```powershell
+. ./M3/scripts/load_env.ps1
+.\.venv-m3\Scripts\python.exe -m sigma_m3.cli import-orders --as-of-date 2025-12-31 --request-key SOURCE_KEY_MOI --wait
+.\.venv-m3\Scripts\python.exe -m sigma_m3.cli status --run-id <UUID_VUA_TAO>
+.\.venv-m3\Scripts\python.exe -m sigma_m3.cli seed-simulation --source-run <UUID_NGUON_COMPLETE> --as-of-date 2025-09-30
+```
+
+Không chạy `forecast/simulate/verify` trong cây CLI đích ở05 vì chưa implement. Tiếp theo theo PLAN: T08–T09 adapter/parityfinal10 +validation/lock/test36 +allocation46; T10 tích hợp ledger/replay; T11APIkết quả/FE; T12E2E/fullrun. Mốc nền không đóng R05/R07/T14.

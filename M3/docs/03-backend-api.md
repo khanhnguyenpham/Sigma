@@ -1,5 +1,7 @@
 # M3 — backend, API và worker
 
+**Cập nhật implementation E89:** E89: đã có API nền và worker source_import; endpoint kết quả/export/catalogsnapshot, job forecast/replay và heartbeat30s chưa triển khai. Xem bảng phạm vi thực ở README. [Phạm vi thực](../README.md#implementation-e89). Các nhãn “chưa có/dự kiến” bên dưới là trạng thái đặc tả ban đầu, chỉ được thay thế trong phần đã liệt kê.
+
 **Trạng thái:** hợp đồng dự kiến, chưa có endpoint chạy. FastAPI + SQLAlchemy + Alembic + PostgreSQL; Python tái sử dụng M2. Nghiệp vụ tại [01](01-functional-spec.md), schema tại [02](02-data-model.md), FE tại [04](04-frontend-spec.md).
 
 ## 1. Ranh giới API và dữ liệu

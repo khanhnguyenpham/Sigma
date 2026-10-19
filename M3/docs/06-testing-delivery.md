@@ -1,5 +1,7 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
+**Cập nhật implementation E89:** E89:35tests M3 đã thực chạy, gồm PostgreSQL/API/concurrency, và32tests M2 hồi quy đạt; ML36/fullreplay/FE/E2E chưa chạy. Các ca còn lại bên dưới giữ vai trò testplan. [Phạm vi thực](../README.md#implementation-e89). Các nhãn “chưa có/dự kiến” bên dưới là trạng thái đặc tả ban đầu, chỉ được thay thế trong phần đã liệt kê.
+
 **Trạng thái:** test plan/lịch dự kiến, chưa có tests ứng dụng hoặc run ML M3 mới. CHG-048 chỉ chạy kiểm Markdown, đặc tả và bảo toàn file. Bằng chứng thực ở [review-log E76](../../docs/review-log.md#e76).
 
 ## 1. Cổng hoàn thành

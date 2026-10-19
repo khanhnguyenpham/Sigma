@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-057/E89 — bắt đầu implementation M3, 19/10/2026:** nhánh `codex/m3-implementation` lấy nền `M3-design-plan`20a3c45, checkout riêng tại `outputs/workspaces/m3-implementation` trong workspace gốc. Đã có Python3.12/backend lock, migration13bảng PostgreSQL18, API nền/queue, worker import, catalog/policy version, seed và các hàm tính L7/R1/H14. Source import thật đã đối soát100.000dòng/118.296quantity/46tuyến/920item/672.520dailyrows;35tests M3 và32tests M2 đạt. Chưa ML36/adapterfinal10/replay tích hợp/React/E2E; R05/R07/T14 còn mở. [Cách chạy và phạm vi thực có](../../M3/README.md#implementation-e89). Không dùng mốc nền để nhận hoàn thành toàn bộ M3.
+
 **CHG-048/E76 — 19/10/2026:** điểm bắt đầu M3 mới là [M3/README](../../M3/README.md). Thư mục M3 hiện chỉ có 7 Markdown; backend/frontend/migrations/config/tests trong cây source là **dự kiến**, chưa tồn tại. Code M2 final vẫn là implementation hiện hành; không khôi phục code M3 cũ. Profile46 kho/L7/supplier-item cần bằng chứng mới trước nghiệm thu.
 
 **CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../../M2_CODE_MAP.md) và [khôi phục code cũ](../../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
