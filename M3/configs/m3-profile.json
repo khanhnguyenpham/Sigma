@@ -1,0 +1,20 @@
+{
+  "version": "m3-design-v1",
+  "target_version": "sales-success-utc-v1",
+  "target_status": "A08-proposed-not-mentor-confirmed",
+  "assumption_version": "m3-l7-r1-h14-v1",
+  "source_key": "orders_snapshot",
+  "lead_time_days": 7,
+  "review_days": 1,
+  "horizon_days": 14,
+  "seed": 42,
+  "sales_statuses": ["success"],
+  "observation_start": "2024-01-01",
+  "observation_end": "2025-12-31",
+  "training_end": "2025-06-30",
+  "validation_start": "2025-07-01",
+  "validation_end": "2025-09-30",
+  "test_start": "2025-10-01",
+  "test_end": "2025-12-31",
+  "is_simulated": true
+}
