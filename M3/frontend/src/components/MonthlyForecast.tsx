@@ -112,7 +112,7 @@ export function MonthlyForecast({ run, ctx }: { run?: Run; ctx: Context }) {
         title="Dự báo tổng 30 ngày"
         note={`Origin ${ctx.origin || "tất cả"} · mỗi cửa sổ có đúng 30 ngày UTC`}
         action={
-          <label>
+          <label className="monthly-toggle">
             <input
               type="checkbox"
               checked={topOnly}
@@ -152,7 +152,7 @@ export function MonthlyForecast({ run, ctx }: { run?: Run; ctx: Context }) {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="route_label" tick={{ fontSize: 10 }} />
                   <YAxis />
-                  <Tooltip />
+                <Tooltip formatter={(value) => fmt(value, 2)} />
                   <Legend />
                   <Bar
                     dataKey="forecast_qty"
