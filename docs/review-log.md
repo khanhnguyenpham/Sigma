@@ -241,6 +241,8 @@ Các mục “có căn cứ” chỉ xác nhận phần đã kiểm, không duy�
 <a id="decisions"></a>
 ## 4. Sổ quyết định
 
+**M05 — 20/10/2026 (CHG-061):** người dùng trả lời “Đã chốt chấm tổng 30 ngày” cho câu hỏi mentor có chốt MAPE≤20% trên tổng30 thay từng ngày hay không. Ghi nhận là **mentor do người dùng thuật lại**, không phải biên bản mentor được đọc trực tiếp. R05 áp dụng tổng quantity D+1…D+30 cho từng top10 train, actual dương trong MAPE; coverage/MAE/WAPE/bias và split giữ nguyên. Ngày/7ngày còn chẩn đoán và tồn H14. Không đổi A08 hoặc biến kết quả hồi cứu thành holdout độc lập. [Phạm vi hiện hành](../M3/MONTHLY.md).
+
 Mọi quyết định dưới đây được ghi ngày **02/10/2026**. “Bạn xác nhận” là quyết định của người dùng, không tự đổi thành “mentor xác nhận”. **DEC01–DEC13 giữ nội dung lịch sử 1.0; không phải toàn bộ quy tắc hiện hành.** Bảng trạng thái và quyết định 2.0 sau đó áp dụng khi có mâu thuẫn.
 
 | Mã | Quyết định, nguồn | Lý do và phần ảnh hưởng |
@@ -1087,3 +1089,16 @@ Ngày20/10/2026 Asia/Saigon, người dùng yêu cầu chạy để đạt mọi
 **R07:** phân tích331FN đủ7ngày:331tồn≤2,311tồn1;331forecast14<tồn,0forecast0,0receiptsinitial; median expected14/stock0,580714. Đây là diễn giải sau replay, không feature hoặc rule tune bằng test. R07 có yêu cầu đo/ca chuẩn/mẫu số nhưng chưa có ngưỡng precision/recall/earlyrate tổng chính thức; không tự thêm100%. Giữ trạng thái chưa nghiệm thu, không coi34,3913% tự đạt hoặc tự fail ngưỡng không tồn tại. M3/ACCEPTANCE phân biệt phần mềm/correctness, kết quảR05 và mentor nghiệm thu; M1/M2 lịch sử chưa tự nâng.
 
 **Kiểm và bàn giao:**89Python=57M3+32M2,0fail/error/skip; tests mới gồm cross-route futuremutation/annualmissing/calendar/count guards và chống target/test leakage. FE/app/DB không đổi;9FE/build là E91, không nhận đã rerun không cần thiết. Raw hash/source/M2/config/requirements giữ, run thật local. TASK/PLAN/PROJECTMAP/requirements/README/IMPLEMENTATION/ACCEPTANCE đồng bộ; R05/R07/T14 mở. Không kết luận mọi mô hình đều bất khả đạt20% chỉ từ nghiên cứu này; không hứa ép metric. Cần nghiên cứu nhu cầu thưa/uncertainty, protocol và evidence trước đổi profile. Commit/push/CI mới phải kiểm riêng trước báo đạt.
+
+
+## CHG-061 / E93 — R05 tổng 30 và tích hợp M3, 20/10/2026
+
+M05 thay tiêu chí ngày theo xác nhận mentor được người dùng thuật lại. Không chỉnh raw, target/top10/split, prediction hoặc sealed run. T08–T12 nối kết quả tổng30 thật sang read model riêng của M3; không thay DB13bảng, M2 final, forecast H14 hay policy/alert đã khóa.
+
+Verifier gốc chạy lại thành công lúc 2026-10-19T18:43:57.970403+00:00, receipt private `sigma_aggregate_focus_20261018_e93_20261020_verification.json`. SummarySHA `a8e90ec29ea154c34ac9d54fcf0a224767fe37a2435ab1ba0d57453359878c38`; sourceSHA `6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b`; selectionSHA `f7cac3993d32e2d8c40e8fb28a8479ada7a059f9b126c6e0222865e02902e465`. Kiểm 1.048 fit cutoff, 92 lựa chọn khóa trước test, train top10, 8.556 nhóm allocation.
+
+CLI prepare-monthly đối soát 33.626 route-day PostgreSQL với run nguồn, kiểm 8.510 tổng30/cutoff/actual, tính lại metric khớp1e-9, baseline cùng mẫu. Gói private `42dd7812e3b92ebddf781e9eaa0b0e2458e8f4dc764abce3db1c3888573940c0`: 184 dòng metric, 10/10 đạt≤20%, mean11,621356%, 63 cửa sổ/tuyến, coverage100%. Naive0/10/37,871734%; MA7 5/10/18,287797%; MA28 7/10/17,403218%.
+
+Các flag lịch sử `daily_R05_acceptance_replaced=false` trong sealed summary/receipt giữ nguyên; acceptance overlay M05 riêng. Đây là tái dùng kết quả fit thật đã kiểm lại, không nhận vừa fit mới. Tất cả test hồi cứu vì hướng focus đã chọn sau khi xem test cũ. T14 cần mentor rà target A08, mô phỏng/R07 và giới hạn holdout. Xem [kết quả/API/cách chạy](../M3/MONTHLY.md).
+
+Kiểm E93 local: 97 Python (65 M3 +32 M2), 0 fail/error/skip; 11 FE, TypeScript/build, Ruff và pip check đạt. Kiểm API thật 10 metric/63 cửa sổ, 46-route filter, nonoverlapping3, actual tương lai null, CSV context và snapshot cùng source. Trình duyệt đã hiển thị 10/10/11,62%/100%; đổi top10/46 và origin31/12, actual01–30/01 null. 17 Markdown/112 link M3/69 bảng không lỗi. Lần chạy tests đầu lỗi quyền thư mục temp cũ; chuyển basetemp riêng trong project. Một test fixture sửa số giá trị unpack trước lượt toàn bộ đạt; không sửa metric vì lỗi này. CI commit mới phải xem riêng, không suy từ CI E92.

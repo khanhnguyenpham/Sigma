@@ -5,10 +5,10 @@
 ## Mục tiêu và ràng buộc
 
 - Dự báo tổng `quantity` bán theo ngày UTC và tuyến `(destination_country, carrier)`. `success` theo `order_datetime` là **A08 đề xuất**, không phải quy tắc kế toán hoặc bộ lọc mentor xác nhận. Không dùng activation làm target hay điều kiện loại sale hợp lệ.
-- Top 10 theo quantity bán **train**; train 01/01/2024–30/06/2025, validation 01/07/2025–30/09/2025, test 01/10/2025–31/12/2025. Horizon 14 ngày, đánh giá chính h1–7; h8–14 riêng. Không dùng tương lai để tạo feature, phân bổ, xếp hạng hoặc chọn mô hình.
-- Giữ MAPE ngày dương ≤20% cho **từng tuyến top 10**, kèm độ phủ, MAE, WAPE và bias. Không đổi tiêu chí/bộ lọc để làm đẹp kết quả; kết quả activation cũ không chứng minh chất lượng sales forecast.
+- Top 10 theo quantity bán **train**; train 01/01/2024–30/06/2025, validation 01/07/2025–30/09/2025, test 01/10/2025–31/12/2025. M05 (20/10/2026, mentor do người dùng thuật lại): R05 chấm tổng D+1…D+30. Horizon 14 ngày/h1–7/h8–14 giữ cho vận hành tồn và chẩn đoán. Không dùng tương lai để tạo feature, phân bổ, xếp hạng hoặc chọn mô hình.
+- Theo M05, giữ MAPE tổng 30 ngày có actual dương ≤20% cho **từng tuyến top 10**, kèm độ phủ, MAE, WAPE và bias. Không đổi tiêu chí/bộ lọc để làm đẹp kết quả; kết quả activation cũ không chứng minh chất lượng sales forecast.
 - Tồn mô phỏng theo tuyến × `sku` × `product_type`; ngưỡng riêng đối tác. Trigger `closing_on_hand < ROP`; IP chỉ tính lượng đặt. Chỉ order là dữ liệu thực được cung cấp; tồn, nhập, lead time và mapping đối tác có nhãn giả định/mô phỏng. Không xin thêm dữ liệu doanh nghiệp đã xác định không cung cấp.
-- M01/M02 là xác nhận mentor **do người dùng thuật lại**; A08–A17 vẫn đề xuất. Không tự nâng trạng thái xác nhận hoặc nhận đã đọc nguồn thiếu.
+- M01–M05 là xác nhận mentor **do người dùng thuật lại**; A08–A17 vẫn đề xuất. Không tự nâng trạng thái xác nhận hoặc nhận đã đọc nguồn thiếu.
 
 ## Đọc đúng tài liệu cho công việc
 

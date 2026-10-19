@@ -1,5 +1,9 @@
 # M3 — ứng dụng đã triển khai và cách chạy
 
+**E93/M05 — 20/10/2026, áp dụng hiện tại:** R05 chấm tổng 30 ngày thay từng ngày theo mentor được người dùng thuật lại. [Kết quả và tích hợp tổng 30](MONTHLY.md): 10/10≤20%, mean11,621356%, coverage100%, 63 cửa sổ/tuyến, test hồi cứu. API/React có tab riêng và CSV; luồng tồn H14 giữ nguyên. Các mô tả R05 ngày/E92 bên dưới là lịch sử trước M05.
+
+Kiểm E93: 97 Python (65 M3 +32 M2), 11 frontend, TypeScript/build, Ruff và pip check đạt; API và trình duyệt đã kiểm tab tổng30/46 tuyến/null/CSV. Run/source thật và gói benchmark giữ local. Không fit lại H14 hoặc đổi các replay tồn chỉ để tích hợp benchmark.
+
 **E92,20/10/2026:** nghiên cứu ngày panel đạt45,971604% validation/0trên10,168fits; serving giữ nguyên.89Python đạt,9FE thuộc E91 không đổi. [Đối chiếu tiêu chí và cổng còn mở](ACCEPTANCE.md). CI E91 cd57235 đã xác nhận cả haiworkflow success; CI của commit mới phải xem riêng.
 
 Ngày kiểm: 19/10/2026. Nhánh: `codex/m3-implementation`, nền `M3-design-plan` tại `20a3c45`. Phạm vi là **ứng dụng local FastAPI + React/TypeScript + PostgreSQL18**, 46 kho giả định, 920 mặt hàng, L7/R1/H14. Đây là implementation mới, riêng với Streamlit/tổng30 của nhánh khác. Không cần thay M2 final để chạy M3.
