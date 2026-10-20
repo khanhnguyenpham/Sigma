@@ -11,6 +11,8 @@ import {
 } from "./api/client";
 import { useResource, State, badge } from "./components/common";
 import { Icon } from "./components/Icon";
+import { HelpDialog } from "./components/HelpDialog";
+import { PageBoundary } from "./components/PageBoundary";
 import { RunDialog } from "./components/RunDialog";
 const Overview = lazy(() =>
   import("./pages/Overview").then((m) => ({ default: m.Overview })),
@@ -43,6 +45,7 @@ function readPurchasingView(): PurchasingView {
 export default function App() {
   const [ctx, setCtx] = useState<Context>(readContext);
   const [page, setPage] = useState(location.hash.slice(1) || "overview");
+  const [help, setHelp] = useState(false);
   const [dialog, setDialog] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [purchasingView, setPurchasingView] =
@@ -136,6 +139,19 @@ export default function App() {
         origin: run.kind === "forecast" ? "2025-10-31" : run.as_of_date,
       }));
   }, [run?.id, ctx.origin]);
+  useEffect(() => {
+    if (!navOpen) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setNavOpen(false);
+        document
+          .querySelector<HTMLButtonElement>('[aria-label="Mở menu"]')
+          ?.focus();
+      }
+    };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [navOpen]);
   function selectRun(id: string) {
     const r = runs.find((r) => r.id === id);
     setCtx((c) => ({
@@ -150,6 +166,16 @@ export default function App() {
     }));
   }
   function navigate(id: string, view: PurchasingView = "recommendations") {
+    if (id !== page)
+      history.pushState(
+        null,
+        "",
+        "?" +
+          contextUrl(ctx) +
+          (id === "replenishment" ? "&view=" + view : "") +
+          "#" +
+          id,
+      );
     if (id === "replenishment") setPurchasingView(view);
     setPage(id);
     setNavOpen(false);
@@ -199,6 +225,16 @@ export default function App() {
   const selectedTitle = PAGES.find((p) => p[0] === page)?.[2] ?? "Tổng quan";
   return (
     <div className={"shell " + (navOpen ? "nav-open" : "")}>
+      <a
+        className="skip-link"
+        href="#workspace-content"
+        onClick={(e) => {
+          e.preventDefault();
+          document.getElementById("workspace-content")?.focus();
+        }}
+      >
+        Bỏ qua menu, tới nội dung
+      </a>
       {navOpen && (
         <button
           className="nav-scrim"
@@ -206,7 +242,7 @@ export default function App() {
           onClick={() => setNavOpen(false)}
         />
       )}
-      <aside className="sidebar">
+      <aside className="sidebar" id="primary-navigation">
         <a
           className="brand"
           href="#overview"
@@ -270,6 +306,8 @@ export default function App() {
             <button
               className="icon-button mobile-menu"
               aria-label="Mở menu"
+              aria-expanded={navOpen}
+              aria-controls="primary-navigation"
               onClick={() => setNavOpen(true)}
             >
               <Icon name="menu" />
@@ -279,6 +317,22 @@ export default function App() {
             <strong>{selectedTitle}</strong>
           </div>
           <div className="top-status">
+            <button
+              className="icon-button"
+              aria-label="Làm mới dữ liệu"
+              title="Làm mới dữ liệu trong phiên"
+              onClick={() => window.dispatchEvent(new Event("sigma:refresh"))}
+            >
+              <Icon name="refresh" size={17} />
+            </button>
+            <button
+              className="icon-button help-trigger"
+              aria-label="Hướng dẫn sử dụng"
+              title="Hướng dẫn sử dụng"
+              onClick={() => setHelp(true)}
+            >
+              <Icon name="info" size={17} />
+            </button>
             {busyRun && (
               <button
                 className="task-indicator"
@@ -301,7 +355,7 @@ export default function App() {
             </button>
           </div>
         </header>
-        <div className="workspace">
+        <div className="workspace" id="workspace-content" tabIndex={-1}>
           {page !== "configuration" && (
             <>
               <section
@@ -475,19 +529,25 @@ export default function App() {
             error={runsResource.error}
           />
           {ctx.runId &&
-          runsResource.data &&
           !run &&
-          !selectedResource.loading ? (
+          (runsResource.loading || selectedResource.loading) ? (
+            <State loading />
+          ) : ctx.runId && runsResource.data && !run ? (
             <div className="notice error" role="alert">
               Không tìm thấy phương án trong liên kết. Hãy chọn lại phương án;
               dữ liệu không được tự đổi sang kế hoạch khác.
             </div>
           ) : (
-            <Suspense fallback={<State loading />}>{node}</Suspense>
+            <PageBoundary key={page}>
+              <Suspense fallback={<State loading />}>{node}</Suspense>
+            </PageBoundary>
           )}
           <footer>
             <span>
-              SIGMA · Quản lý nhu cầu & tồn kho
+              <button className="text-button" onClick={() => setHelp(true)}>
+                Hướng dẫn sử dụng
+              </button>{" "}
+              · SIGMA · Quản lý nhu cầu & tồn kho
               {CLOUD ? " · Cấu hình và phương án riêng phiên" : ""}
             </span>
             <span>
@@ -497,6 +557,7 @@ export default function App() {
           </footer>
         </div>
       </main>
+      {help && <HelpDialog onClose={() => setHelp(false)} />}
       {dialog && (
         <RunDialog
           runs={runs}

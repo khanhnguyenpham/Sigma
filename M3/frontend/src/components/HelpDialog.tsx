@@ -1,0 +1,92 @@
+import { CLOUD } from "../api/cloud";
+import { useDialogFocus } from "./common";
+export function HelpDialog({ onClose }: { onClose: () => void }) {
+  useDialogFocus(true, onClose);
+  return (
+    <div className="modal-shade">
+      <section
+        className="modal help-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="help-title"
+      >
+        <button className="close" aria-label="Đóng hướng dẫn" onClick={onClose}>
+          ×
+        </button>
+        <span className="eyebrow">TRỢ GIÚP</span>
+        <h2 id="help-title">Sử dụng SIGMA</h2>
+        <p className="caption">
+          Quản lý nhu cầu và tồn kho SIM/gói data theo quốc gia, nhà mạng và mặt
+          hàng.
+        </p>
+        <h3>Bắt đầu một kế hoạch</h3>
+        <ol>
+          <li>
+            Chọn phương án, ngày kế hoạch và kho ở thanh bộ lọc. Ngày nghiệp vụ
+            theo UTC.
+          </li>
+          <li>
+            Xem Dự báo nhu cầu: tổng 30 dùng lập nhu cầu dài hơn; dự báo hai
+            khối 7 ngày được phân bổ thành 14 ngày để tính tồn.
+          </li>
+          <li>
+            Mở Tồn kho và chọn một mặt hàng để xem ngưỡng nhập, hàng đang về và
+            lượng cần đặt.
+          </li>
+          <li>
+            Trong Nhập hàng, rà Cần bổ sung, Đang về và Lịch sử. Đề xuất chưa
+            phải đơn gửi nhà cung cấp.
+          </li>
+          <li>
+            Mở Cảnh báo để xem thời điểm cạn dự kiến và đường tồn 14 ngày.
+          </li>
+        </ol>
+        <h3>Đọc các chỉ số tồn</h3>
+        <dl className="help-glossary">
+          <dt>Tồn hiện có</dt>
+          <dd>
+            Số lượng đóng sổ tại ngày chọn. Hàng đang về chưa được cộng vào đây.
+          </dd>
+          <dt>Ngưỡng nhập (ROP)</dt>
+          <dd>
+            Cảnh báo khi tồn hiện có nhỏ hơn ngưỡng. Ngưỡng xét nhu cầu và mức
+            tối thiểu cấu hình theo đối tác.
+          </dd>
+          <dt>Vị thế tồn (IP)</dt>
+          <dd>
+            Tồn hiện có cộng hàng đã đặt, dùng tính lượng cần đặt. IP đủ có thể
+            làm lượng đề xuất bằng 0 dù tồn dưới ngưỡng.
+          </dd>
+          <dt>Lượng đặt tối thiểu (MOQ)</dt>
+          <dd>
+            Chỉ áp dụng khi thực sự cần đặt. Ngày nhận dự kiến bằng ngày đặt
+            cộng 7 ngày.
+          </dd>
+        </dl>
+        <h3>Thử thay đổi</h3>
+        <p>
+          Tạo kịch bản trong Cấu hình, khai báo rõ lô đang về, rồi bấm Tạo
+          phương án. Lưu cấu hình không sửa kết quả của phương án cũ.
+        </p>
+        {CLOUD && (
+          <div className="notice">
+            Bản trực tuyến dùng dữ liệu đã công bố. Phương án mới lấy số tồn tại
+            ngày chọn; danh sách lô trống nghĩa không có lô đầu kỳ. Cấu hình và
+            phương án mới riêng phiên, có thể mất khi máy chủ ngủ hoặc phiên bị
+            reset.
+          </div>
+        )}
+        <h3>Tải dữ liệu và xử lý lỗi</h3>
+        <p>
+          CSV chứa toàn bộ kết quả theo bộ lọc. Trực tuyến: bấm Xuất CSV rồi Tải
+          CSV. Khi đổi bộ lọc, hãy xuất lại. Nếu mất kết nối, bấm Làm mới dữ
+          liệu; thao tác này không xóa cấu hình trong phiên. Chưa có actual được
+          hiển thị trống, không phải 0.
+        </p>
+        <button className="primary" onClick={onClose}>
+          Đã hiểu
+        </button>
+      </section>
+    </div>
+  );
+}

@@ -24,6 +24,7 @@ export function RunDialog({
     [error, setError] = useState<Error>();
   const sending = useRef(false),
     retry = useRef<{ body: string; key: string } | undefined>(undefined);
+  const [forecastId, setForecastId] = useState("");
   const scenarios = useResource<Page>("/scenarios?page_size=100");
   const sources = runs.filter(
     (r) => r.kind === "source_import" && r.status === "complete",
@@ -31,9 +32,35 @@ export function RunDialog({
   const forecasts = runs.filter(
     (r) => r.kind === "forecast" && r.status === "complete",
   );
+  const selectedForecast =
+    forecasts.find((r) => r.id === forecastId) ??
+    forecasts.find((r) => Number(r.result_summary.origins) > 1) ??
+    forecasts[0];
+  const availableDates = Array.isArray(
+    selectedForecast?.result_summary.stock_projection_origins,
+  )
+    ? (
+        selectedForecast!.result_summary.stock_projection_origins as unknown[]
+      ).filter(
+        (d): d is string =>
+          typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d),
+      )
+    : [];
+  const needsScenario = [
+    "stock_projection",
+    "policy_replay",
+    "alert_replay",
+  ].includes(kind);
+  const unavailable =
+    needsScenario &&
+    (scenarios.loading ||
+      !!scenarios.error ||
+      !scenarios.data?.items.length ||
+      !selectedForecast ||
+      (CLOUD && !availableDates.length));
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (sending.current) return;
+    if (sending.current || unavailable) return;
     const form = new FormData(e.currentTarget);
     const forecast = forecasts.find(
       (r) => r.id === String(form.get("forecast_run_id")),
@@ -139,10 +166,8 @@ export function RunDialog({
                 <select
                   name="forecast_run_id"
                   required
-                  defaultValue={
-                    forecasts.find((r) => Number(r.result_summary.origins) > 1)
-                      ?.id ?? forecasts[0]?.id
-                  }
+                  value={selectedForecast?.id ?? ""}
+                  onChange={(e) => setForecastId(e.target.value)}
                 >
                   {forecasts.map((r) => (
                     <option key={r.id} value={r.id}>
@@ -168,19 +193,41 @@ export function RunDialog({
           )}
           <label>
             Mốc chốt UTC
-            <input
-              key={kind}
-              name="as_of_date"
-              type="date"
-              required
-              defaultValue={
-                kind === "stock_projection"
-                  ? "2025-10-31"
-                  : kind.endsWith("replay")
-                    ? "2025-09-30"
-                    : "2025-12-31"
-              }
-            />
+            {CLOUD ? (
+              <select
+                key={selectedForecast?.id}
+                name="as_of_date"
+                required
+                defaultValue={
+                  availableDates.includes("2025-10-31")
+                    ? "2025-10-31"
+                    : availableDates.at(-1)
+                }
+              >
+                {!availableDates.length && (
+                  <option value="">Chưa có ngày đủ dữ liệu</option>
+                )}
+                {availableDates.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                key={kind}
+                name="as_of_date"
+                type="date"
+                required
+                defaultValue={
+                  kind === "stock_projection"
+                    ? "2025-10-31"
+                    : kind.endsWith("replay")
+                      ? "2025-09-30"
+                      : "2025-12-31"
+                }
+              />
+            )}
           </label>
           {kind.endsWith("replay") && (
             <div className="form-grid">
@@ -204,6 +251,12 @@ export function RunDialog({
               </label>
             </div>
           )}
+          {CLOUD && !availableDates.length && (
+            <div role="alert" className="notice">
+              Chưa có ngày đồng thời đủ tồn và dự báo. Hãy làm mới danh sách
+              phương án.
+            </div>
+          )}
           {CLOUD && (
             <div className="notice subtle">
               Phương án trực tuyến dùng dự báo đã công bố và số tồn tại mốc dữ
@@ -221,7 +274,7 @@ export function RunDialog({
               {errorLabel(error)}
             </div>
           )}
-          <button className="primary" disabled={busy}>
+          <button className="primary" disabled={busy || !!unavailable}>
             {busy ? "Đang gửi yêu cầu…" : "Bắt đầu lượt chạy"}
           </button>
         </form>
