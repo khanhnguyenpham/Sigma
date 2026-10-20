@@ -1127,3 +1127,10 @@ Người dùng yêu cầu làm lại FE bằng React, tập trung chức năng M
 Browser tạo kịch bản management_ui_20261020v1 và phương án0c3460ff-6219-408d-b4a6-8a744f06e21d từ forecast7f7c53cb/scenario7. Worker complete/verified920threshold/920events/1lot/1714alerts. Đối soát API/CSV case item341:closing7/ROP20/pending20/IP27/Q0, ETA04/11. Tổng quan theo bộ lọc46tuyến/920item:1314tồn,793Q>0/5866đơn vị,1lô20,200urgentitems. Tất cả là mô phỏng cụ thể, không gọi KPI doanh nghiệp. Console error ở lượt cuối trống; ảnh/receipts ởoutputs private.
 
 TASK/PLAN/PROJECTMAP/README/IMPLEMENTATION và đặc tả FE/API đồng bộ. M05 vẫn10/10 hồi cứu, R07/T14 chưa nâng nghiệm thu. React mới chưa thay ứng dụng Streamlit E94; source/docs được phép push nhưng raw/run/DB/env không vào Git. SHAremote và CI kiểm sau commit, không suy đạt từ test local. Hướng dẫn cho nhóm tại [IMPLEMENTATION](../M3/IMPLEMENTATION.md#react-management-e95).
+
+
+## CHG-064 / E96 — Làm rõ ngữ cảnh bài M3 trên web quản lý
+
+Ngày20/10/2026, người dùng hỏi đã giống web quản lý chưa và yêu cầu “giống bài tập hơn”. Đã hỏi làm rõ; trong khi chưa có trả lời, chọn hướng bám đề M3/dễ trình diễn, giữ giao diện quản lý. Chỉ sửa nhãn/ngữ cảnh SIM/gói data, lối đi bốn bước ở Tổng quan và diễn giải tiếng Việt thuật ngữ nhập/cấu hình. Không thêm login/PO/khách hàng/quy trình doanh nghiệp hoặc trang báo cáo; không đổi target/model/policy/API/DB/run/metric/nghiệm thu.
+
+17React và TypeScript/Vite build đã chạy đạt. Browser thực bấm Xem dự báo và Kế hoạch nhập giữ run0c3460ff/origin31/10; bốn bước là điều hướng, không giả làm trạng thái hoàn tất. Viewport390/1440 không tràn trang, số liệu mô phỏng giữ nguyên; ảnh lưuoutputs local. Không chạy lại109Python hoặc refit vì chỉ thay nhãn/điều hướng;109Python và hai CI success f563d7d thuộc E95. TASK/PLAN/PROJECTMAP/IMPLEMENTATION/FE spec đồng bộ; CI commit mới kiểm riêng khi push. Bản Streamlit không đổi.

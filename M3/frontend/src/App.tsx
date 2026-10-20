@@ -197,7 +197,7 @@ export default function App() {
             <strong>
               sigma<span>.</span>
             </strong>
-            <small>Inventory workspace</small>
+            <small>Kho SIM & gói data</small>
           </div>
         </a>
         <div className="nav-label">QUẢN LÝ KHO</div>
@@ -232,7 +232,7 @@ export default function App() {
             <Icon name="box" />
           </div>
           <div>
-            <strong>SIGMA Workspace</strong>
+            <strong>SIGMA · SIM & Data</strong>
             <span>
               <i className="live-dot" /> Môi trường mô phỏng
             </span>
@@ -249,7 +249,7 @@ export default function App() {
             >
               <Icon name="menu" />
             </button>
-            <span className="breadcrumb-root">Quản lý kho</span>
+            <span className="breadcrumb-root">Kho SIM/data</span>
             <Icon name="chevron" size={14} />
             <strong>{selectedTitle}</strong>
           </div>
@@ -340,7 +340,7 @@ export default function App() {
                   </select>
                 </label>
                 <label>
-                  Ngày làm việc · UTC
+                  Ngày kế hoạch · UTC
                   <input
                     aria-label="Ngày xem / origin UTC"
                     type="date"

@@ -62,7 +62,10 @@ export function Inventory({
       <div className="page-heading">
         <div>
           <h1>Tồn kho</h1>
-          <p>Theo dõi số lượng và mức tồn của từng mặt hàng.</p>
+          <p>
+            Theo dõi từng mã SIM/gói data, so tồn hiện có với ngưỡng nhập và
+            lượng hàng đang về.
+          </p>
         </div>
         {ready && (
           <ExportButton url={`/runs/${run.id}/exports/inventory_daily?${q}`} />

@@ -1,5 +1,8 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-064/E96 — 20/10/2026:** bổ sung ngữ cảnh bài M3 cho React: nhãn kho SIM/gói data, lối đi bốn bước dự báo → tồn → kế hoạch nhập → cảnh báo, diễn giải tiếng Việt các trường nhập hàng/cấu hình. Là điều chỉnh cách trình bày và điều hướng có sẵn, không thêm quy trình vận hành doanh nghiệp hoặc thay phép tính/API.17React/build đạt; browser kiểm điều hướng giữ run/ngày và không tràn ở390/1440px. [Hướng dẫn hiện hành](../../M3/IMPLEMENTATION.md#react-management-e95).109Python và CI E95 là bằng chứng lượt trước, không nhận vừa chạy lại backend.
+
+
 **CHG-063/E95 — 20/10/2026:** đã thiết kế lại React thành web quản lý M3 với sáu màn hình: Tổng quan, Tồn kho, Dự báo nhu cầu, Nhập hàng, Cảnh báo, Cấu hình. Màn hình chính ưu tiên tồn/công việc; chất lượng mô hình và đánh giá replay thu gọn. API tổng quan chỉ đọc theo run/ngày/bộ lọc; lô đang về xét ngày đặt/ETA thay trạng thái cuối kỳ.109Python+17React/build đạt; tạo phương án từ UI đã complete/verified. [Phạm vi, hướng dẫn cho nhóm và bằng chứng](../../M3/IMPLEMENTATION.md#react-management-e95). Không đổi model/ledger/M05/R07/T14. Bản React chạy FastAPI/PostgreSQL local; Streamlit E94 là ứng dụng riêng, chưa nhận đã cập nhật React lên đó.
 
 

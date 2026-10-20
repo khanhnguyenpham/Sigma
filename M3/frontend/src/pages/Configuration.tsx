@@ -137,7 +137,7 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
       setNewScenario(false);
       setVersion((v) => v + 1);
       setMessage(
-        "Đã lưu phiên bản mới. Lượt chạy đang xem vẫn giữ snapshot cũ.",
+        "Đã lưu phiên bản mới. Phương án đang xem vẫn giữ dữ liệu và cấu hình cũ.",
       );
       onChanged();
     } catch (e) {
@@ -158,13 +158,13 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
       : tab === "policies"
         ? [
             { key: "item_label", label: "Mặt hàng" },
-            { key: "supplier_code", label: "Supplier" },
+            { key: "supplier_code", label: "Nhà cung cấp" },
             { key: "version", label: "Phiên bản" },
             { key: "effective_from", label: "Từ ngày" },
             { key: "effective_to", label: "Đến trước ngày" },
-            { key: "configured_rop_floor", label: "ROP floor" },
-            { key: "moq", label: "MOQ" },
-            { key: "safety_days", label: "Safety days" },
+            { key: "configured_rop_floor", label: "Ngưỡng nhập tối thiểu" },
+            { key: "moq", label: "Lượng tối thiểu (MOQ)" },
+            { key: "safety_days", label: "Số ngày tồn an toàn" },
           ]
         : [
             { key: "code", label: "Mã" },
@@ -193,7 +193,7 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
       )}
       <Panel
         title="Danh mục và chính sách hiện tại"
-        note="Đây là catalog hiện tại. Các trang kết quả dùng snapshot của run đã chọn."
+        note="Danh mục hiện tại dùng để thiết lập phương án mới. Kết quả cũ giữ danh mục và cấu hình tại lúc tạo."
         action={
           <div className="segments">
             {[
@@ -326,7 +326,7 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
                     )}
                   </label>
                   <label>
-                    Supplier
+                    Nhà cung cấp
                     <select
                       name="supplier_id"
                       defaultValue={String(
@@ -354,7 +354,7 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
                   </label>
                   <div className="form-grid">
                     <label>
-                      ROP floor
+                      Ngưỡng nhập tối thiểu (ROP floor)
                       <input
                         name="configured_rop_floor"
                         type="number"
@@ -377,7 +377,7 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
                     </label>
                   </div>
                   <label>
-                    Safety days
+                    Số ngày tồn an toàn
                     <input
                       name="safety_days"
                       type="number"
@@ -389,7 +389,8 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
                   </label>
                   <p className="caption">
                     Nhập kho7ngày, review1ngày cố định. Ngày hiệu lực ảnh hưởng
-                    run cũ sẽ bị chặn; dùng scenario override để thử lịch sử.
+                    phương án cũ sẽ bị chặn; dùng điều chỉnh riêng trong kịch
+                    bản để thử lại lịch sử.
                   </p>
                 </>
               )}
@@ -457,7 +458,7 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
                         </label>
                         <div className="form-grid">
                           <label>
-                            ROP floor
+                            Ngưỡng nhập tối thiểu (ROP floor)
                             <input
                               type="number"
                               min="0"
@@ -496,7 +497,7 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
                           </label>
                         </div>
                         <label>
-                          Safety days
+                          Số ngày tồn an toàn
                           <input
                             type="number"
                             min="0"

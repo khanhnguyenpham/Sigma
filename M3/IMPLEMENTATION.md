@@ -3,6 +3,8 @@
 <a id="react-management-e95"></a>
 ## React quản lý M3 — E95, 20/10/2026
 
+**Bổ sung E96:** giao diện ghi rõ Kho SIM & gói data; Tổng quan có bốn lối đi Xem dự báo, Kiểm tra tồn, Kế hoạch nhập, Theo dõi cảnh báo. Đây là nút chuyển màn hình giữ context, không phải trạng thái công việc đã hoàn thành. Trang dự báo phân biệt tổng30 với forecast14ngày phục vụ tồn. Các nhãn nhà cung cấp, ngưỡng nhập tối thiểu, lượng đặt tối thiểu và số ngày tồn an toàn diễn giải bằng tiếng Việt.17React/build đạt; browser kiểm điều hướng và viewport390/1440 không tràn. Không đổi API/ML hoặc chạy lại backend;109Python/CI E95 bên dưới là lượt trước. Không thêm trang báo cáo hoặc chức năng ngoài M3.
+
 Theo yêu cầu mới của người dùng, giao diện dùng React/TypeScript/Vite, sidebar và bảng quản lý thông thường. Không thêm xử lý bán hàng, gửi đơn nhà cung cấp, đăng nhập hoặc quản trị người dùng ngoài thiết kế M3. Dữ liệu tồn/nhập/kho vẫn là mô phỏng có nhãn; ngày làm việc là UTC của snapshot 2024–2025.
 
 | Màn hình | Việc người dùng thực hiện |
