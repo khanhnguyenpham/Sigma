@@ -1155,3 +1155,6 @@ TASK/PLAN/PROJECTMAP/README/IMPLEMENTATION và FE/API docs đồng bộ. Raw/run
 
 
 **Kiểm browser sau deploy E98:** trên URL công khai đã lưu kịch bản `online_check`v1, tạo `stock_projection`hoàn tất run `e696f4ac-e75b-4836-ae14-ceca36a9b9aa` chỉ trong phiên; chọn Japan/NTTDocomo/D10G-10D/eSIM hiển thị tồn7/ROP9/pending0/Q5 theo cấu hình baseonline. Cảnh báo dự kiến09/11, mở drawer có đường14ngày01–14/11. Chọn snapshot31/12, tổng30 hiển thị Chưa đủ nhãn và actual trống; baseline selected11,62%/10tuyến trong phần mở rộng. Đây là bằng chứng app online đã chạy, không chỉ tài liệu thiết kế. Phiên kiểm không phải run sealedDB và không dùng thay benchmark.
+
+
+**Bổ sung hiển thị E98:** commit deploy `77b0b3d9406ba2131f678466b86f6615af6636e4` chừa60px cho toolbar của hosting để không che brand/header React. Chỉ CSS trong Pythonhost, không đổi dữ liệu/manifest/API/calculation. Bản phát hành dữ liệu và kiểm thử logic bên trên giữ nguyên. React menu mobile đã mở/đóng được ở390px; ảnh public desktop1440px và biên bản giữ local.
