@@ -2,7 +2,7 @@
 
 ## Bản hiện hành E98 — React quản lý
 
-[Mở SIGMA công khai](https://sigma-demand-inventory.streamlit.app/). Repo deploy riêng tư `khanhnguyenpham/Sigma-M3-App/main`, entry `streamlit_app.py`, commit `3e83fdc3ec2c4e87aa0eaf2ce85e468d07a5f736`. Cùng source React E97 được build riêng cho component Streamlit; bản FastAPI/PostgreSQL local vẫn dùng API gốc. Phần E94 bên dưới là bản Streamlit native lịch sử.
+[Mở SIGMA công khai](https://sigma-demand-inventory.streamlit.app/). Repo deploy riêng tư `khanhnguyenpham/Sigma-M3-App/main`, entry `streamlit_app.py`, commit `77b0b3d9406ba2131f678466b86f6615af6636e4`. Cùng source React E97 được build riêng cho component Streamlit; bản FastAPI/PostgreSQL local vẫn dùng API gốc. Phần E94 bên dưới là bản Streamlit native lịch sử.
 
 | Màn hình | Chức năng hiện hành |
 |---|---|
