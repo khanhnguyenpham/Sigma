@@ -1,5 +1,39 @@
 # SIGMA trên Streamlit
 
+## Bản hiện hành E98 — React quản lý
+
+[Mở SIGMA công khai](https://sigma-demand-inventory.streamlit.app/). Repo deploy riêng tư `khanhnguyenpham/Sigma-M3-App/main`, entry `streamlit_app.py`, commit `3e83fdc3ec2c4e87aa0eaf2ce85e468d07a5f736`. Cùng source React E97 được build riêng cho component Streamlit; bản FastAPI/PostgreSQL local vẫn dùng API gốc. Phần E94 bên dưới là bản Streamlit native lịch sử.
+
+| Màn hình | Chức năng hiện hành |
+|---|---|
+| Tổng quan | Tồn, nhu cầu bổ sung, lô đang về, cảnh báo và thao tác nhanh theo cùng context |
+| Tồn kho | Lọc, xem ngăn SKU với ROP/SS/pending/IP/MOQ/Q và CSV |
+| Dự báo | Tổng30/tổng7/ngày phân bổ, actual null khi chưa quan sát, baseline/metric trong phần mở rộng |
+| Nhập hàng | Cần bổ sung/Đang về/Lịch sử, tìm kiếm/sắp xếp trước phân trang, chi tiết và CSV toàn bộ bộ lọc |
+| Cảnh báo | Ngưỡng/cạn, đường dự phóng14ngày và đánh giá replay đã công bố |
+| Cấu hình | Kho, chính sách supplier-item có phiên bản, kịch bản và lô đầu kỳ; thay đổi riêng phiên |
+
+**Tạo phương án online:** chọn forecast đã công bố → kịch bản → origin có forecast và tồn công khai đầy đủ → Bắt đầu. Chỉ `stock_projection`; lấy closing tại origin đã công bố, không dùng số ngày phủ để suy lại lịch sử. Danh sách lô đầu kỳ trong kịch bản là nguồn pending (trống nghĩa không có); không tự mang lô từ snapshot cũ sang. Dùng hàm recommend/project backend nguyên byte. Chỉ đề xuất Q, không gửi PO hoặc tự ghi nhận nhập. Phương án mới chưa có actual tương lai. Huấn luyện/import raw/replay giao dịch/worker/DB bền vững/auth nhiều người dùng vẫn local hoặc ngoài phạm vi.
+
+**CSV:** bấm Xuất CSV để chuẩn bị, rồi Tải CSV. Khi đổi context, link tải cũ bị hủy; CSV xuất toàn bộ kết quả đã lọc và có context. Cấu hình/phương án mới tách theo phiên Streamlit; restart/ngủ/reset có thể làm mất. Kết quả đã công bố không thay đổi khi sửa cấu hình.
+
+**Gói v2:** `m3-react-public-20261020-v2`, manifestSHA `61033b539804419dc2ff88279a8d8726f5b3b2ad49da5e3e4a788bd830964cd4`.11bảng+cube giữ nền E94, thêm7360đường projected stock14ngày đã làm sạch vào bảng alerts; payload data7.023.845byte. `projection_json` chỉ3trường date/closing_forecast/receipts_qty. `item_id=item_key+1` và warehouseID là số thứ tự công khai, không phải ID đơn/khách hoặc khóaDB gốc. Policy ngày hiệu lực mặc định2024-01-01 là giả định online, không khẳng định là ngày hiệu lực nguồn. Thành phố mặc định trống vì không có trong release cũ.
+
+**Mã:** `sigma_public/react_host.py` phục vụ component và quản lý phiên; `react_api/bundle.py` kiểm pin/adapter, `state.py` cấu hình/phương án, `views.py` scope/ledger/CSV, `forecast.py` forecast/metric và `dispatcher.py` allowlist RPC. `metrics.py` giữ byte giống `src/evaluation.py`. Cache dữ liệu dùng chung chỉ đọc; trạng thái phiên deep-copy, không ghi CSV/run đã khóa.
+
+```powershell
+# Trong M3/frontend, sau npm ci
+npm test
+npm run build:streamlit
+# Trở lại root, nguồn và run local đã kiểm như E94
+. ./M3/scripts/load_env.ps1
+.\.venv-m3\Scripts\python.exe M3/streamlit/build_react_release.py --base outputs/streamlit-m3-public-20261020-v1 --destination outputs/react-public-new --frontend outputs/streamlit-react
+```
+
+Builder yêu cầu destination mới và kiểm DB/run nguồn trước khi lấy các projection đã làm sạch. Chỉ copy allowlist đã rà vào repo deploy; không push `outputs`, env, DB, raw hoặc giải thích chứaID. Build assets tương đối là bắt buộc; không đưa dist của chế độ FastAPI vào component.117Python/23React đã đạt; browser/API/publication và giới hạn kiểm tại E98. R05 vẫn10/10 hồi cứu; không nhận mentor đã nghiệm thu R07/T14.
+
+## Lịch sử E94 — Streamlit native
+
 Bản công khai dùng giao diện Streamlit và kết quả **M3 L7/R1/H14** cùng benchmark tổng30 M05. Mã này không cần PostgreSQL, raw orders hoặc các thư viện huấn luyện khi phục vụ web. Địa chỉ triển khai: [sigma-demand-inventory.streamlit.app](https://sigma-demand-inventory.streamlit.app/).
 
 ## Phạm vi online

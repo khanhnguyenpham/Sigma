@@ -65,6 +65,7 @@ export function Replenishment({
   useEffect(() => setPage(1), [key]);
   const ready =
     run?.status === "complete" &&
+    run.result_summary.inventory_available !== false &&
     ["policy_replay", "alert_replay", "stock_projection"].includes(run.kind);
   const appliedSort =
     view === "recommendations" && sort === "ordered_desc"

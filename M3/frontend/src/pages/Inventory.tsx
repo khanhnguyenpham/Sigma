@@ -42,6 +42,7 @@ export function Inventory({
   useEffect(() => setPage(1), [key]);
   const ready =
     run?.status === "complete" &&
+    run.result_summary.inventory_available !== false &&
     ["policy_replay", "alert_replay", "stock_projection"].includes(run.kind);
   const q = resultQuery(ctx, {
     date_from: ctx.origin,

@@ -1,5 +1,8 @@
 # Điều phối công việc SIGMA
 
+**CHG-066/E98 — React công khai trên Streamlit:** đã cập nhật [SIGMA](https://sigma-demand-inventory.streamlit.app/) sang giao diện quản lý React sáu màn hình; Python xử lý qua component hai chiều. Repo triển khai riêng tư `Sigma-M3-App/main`, commit `3e83fdc3ec2c4e87aa0eaf2ce85e468d07a5f736`, release `m3-react-public-20261020-v2`.117Python và23React đạt; build local/Streamlit, đối soát aggregate/privacy và tạo phương án trong phiên đã kiểm. [Phạm vi và cách chạy](../../M3/streamlit/README.md). Cấu hình/phương án mới riêng phiên; import/fit/replay giao dịch/DB dùng chung vẫn local. R05/M05/R07/T14 không đổi. Các mốc E94–E97 bên dưới giữ lịch sử.
+
+
 **CHG-065/E97 — 20/10/2026:** người dùng đã làm rõ muốn giao diện/quy trình như phần mềm doanh nghiệp. React chuyển trọng tâm sang công việc điều hành và bàn nhập hàng: Cần bổ sung/Đang về/Lịch sử theo ngày, tìm kiếm trước phân trang, sắp xếp, chi tiết/CSV và liên kết tồn ↔ nhập ↔ cảnh báo đúng SKU. Bỏ dãy bước hướng dẫn E96.111Python+19React/build/Ruff đạt; browser/API thật đã đối soát793đề xuất/5866đơn vị,1lô20đơn vị. [Hướng dẫn và giới hạn](../../M3/IMPLEMENTATION.md#purchasing-e97). Không tạo PO thật/duyệt/nhận hàng thủ công/auth hoặc đổi model, DB schema, metric/nghiệm thu.
 
 

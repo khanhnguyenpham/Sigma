@@ -1,5 +1,8 @@
 # SIGMA — bộ code M2 final
 
+**CHG-066/E98 — React công khai trên Streamlit:** đã cập nhật [SIGMA](https://sigma-demand-inventory.streamlit.app/) sang giao diện quản lý React sáu màn hình; Python xử lý qua component hai chiều. Repo triển khai riêng tư `Sigma-M3-App/main`, commit `3e83fdc3ec2c4e87aa0eaf2ce85e468d07a5f736`, release `m3-react-public-20261020-v2`.117Python và23React đạt; build local/Streamlit, đối soát aggregate/privacy và tạo phương án trong phiên đã kiểm. [Phạm vi và cách chạy](M3/streamlit/README.md). Cấu hình/phương án mới riêng phiên; import/fit/replay giao dịch/DB dùng chung vẫn local. R05/M05/R07/T14 không đổi. Các mốc E94–E97 bên dưới giữ lịch sử.
+
+
 **E94 — [SIGMA công khai trên Streamlit](https://sigma-demand-inventory.streamlit.app/):** đã cập nhật tổng30 M05 và profile M3 L7/R1/H14, có7màn hình/kết quả/CSV/what-if riêng từng phiên. [Source và phạm vi online](M3/streamlit/README.md). Huấn luyện/import raw/worker/DB bền vững giữ local; không gọi bản Streamlit là đã cloud hóa toàn bộ stack FastAPI/PostgreSQL.
 
 **Cập nhật M05/E93, 20/10/2026:** R05 chấm tổng 30 ngày theo mentor được người dùng thuật lại. Đã kiểm lại **10/10 tuyến ≤20%, MAPE trung bình11,62%**, coverage100%, test hồi cứu. M3 FastAPI/React có tab tổng30, baseline và CSV. [Đọc kết quả/cách chạy](M3/MONTHLY.md); tồn/cảnh báo vẫn dùng H14.

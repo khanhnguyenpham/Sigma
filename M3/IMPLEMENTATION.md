@@ -1,5 +1,15 @@
 # M3 — ứng dụng đã triển khai và cách chạy
 
+<a id="streamlit-react-e98"></a>
+## React trên Streamlit — E98
+
+Bản công khai dùng cùng source React quản lý E97; `MODE=streamlit` chuyển API sang RPC qua `streamlit-component-lib`2.0.0, assets tương đối trong `react_ui`. Adapter Python chỉ đọc gói aggregate đã pin và thay đổi trạng thái riêng từng phiên. Không mở FastAPI/PostgreSQL local ra Internet. [Hướng dẫn build, phạm vi và manifest](streamlit/README.md).
+
+Phương án mới lấy số tồn đóng tại origin đã công bố, danh sách lô đầu kỳ khai báo trong kịch bản (trống nghĩa không có), chính sách có hiệu lực và forecast H14 khóa. Dùng cùng hàm recommend/project L7/R1/H14; không tái dựng 28ngày giao dịch, không fit ML mới. Lưu cấu hình không sửa run đã công bố. Tối đa8phương án/40kịch bản/2048phiên bản policy mỗi phiên, mỗi kịch bản tối đa100điều chỉnh/lô, input số hữu hạn, ETA đúngD+7, guard parent/origin/idempotency/version. Trạng thái mất khi phiên bị reset, không phải kho dữ liệu nhiều người dùng bền vững.
+
+117Python chạy toàn bộ đạt trước lượt hardening;6test adapter chạy lại sau guard dữ liệu lỗi đạt.23React đạt sau sửa CSV; build cả local và Streamlit. Dữ liệu nguồn trực tiếp:920mặt hàng/46tuyến, tồn1314/Q793mặt hàng/5866đơn vị, lô20đơn vị ETA04/11. Phương án online cơ sở không khai báo lô giữ tồn1314 nhưng Q794mặt hàng/5871đơn vị, đúng khác biệt khởi tạo.7360đường dự phóng được bổ sung, mỗi đường14ngày chỉ gồm date/closing_forecast/receipts_qty; không sao chép explanation/rawID. R05 tổng30 giữ10/10 hồi cứu, mean11,621356%; không đổi metric/holdout/nghiệm thu. Browser công khai và bằng chứng triển khai xem E98 trong review-log.
+
+
 <a id="purchasing-e97"></a>
 ## Bàn làm việc nhập hàng — E97, 20/10/2026
 
