@@ -1,5 +1,8 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-065/E97 — 20/10/2026:** người dùng đã làm rõ muốn giao diện/quy trình như phần mềm doanh nghiệp. React chuyển trọng tâm sang công việc điều hành và bàn nhập hàng: Cần bổ sung/Đang về/Lịch sử theo ngày, tìm kiếm trước phân trang, sắp xếp, chi tiết/CSV và liên kết tồn ↔ nhập ↔ cảnh báo đúng SKU. Bỏ dãy bước hướng dẫn E96.111Python+19React/build/Ruff đạt; browser/API thật đã đối soát793đề xuất/5866đơn vị,1lô20đơn vị. [Hướng dẫn và giới hạn](../../M3/IMPLEMENTATION.md#purchasing-e97). Không tạo PO thật/duyệt/nhận hàng thủ công/auth hoặc đổi model, DB schema, metric/nghiệm thu.
+
+
 **CHG-064/E96 — 20/10/2026:** bổ sung ngữ cảnh bài M3 cho React: nhãn kho SIM/gói data, lối đi bốn bước dự báo → tồn → kế hoạch nhập → cảnh báo, diễn giải tiếng Việt các trường nhập hàng/cấu hình. Là điều chỉnh cách trình bày và điều hướng có sẵn, không thêm quy trình vận hành doanh nghiệp hoặc thay phép tính/API.17React/build đạt; browser kiểm điều hướng giữ run/ngày và không tràn ở390/1440px. [Hướng dẫn hiện hành](../../M3/IMPLEMENTATION.md#react-management-e95).109Python và CI E95 là bằng chứng lượt trước, không nhận vừa chạy lại backend.
 
 

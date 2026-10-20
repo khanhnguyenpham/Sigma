@@ -1,5 +1,8 @@
 # M3 — backend, API và worker
 
+**E97 — purchasing read model:** `GET /api/v1/runs/{id}/purchasing` và `/purchasing/export` chỉ đọc frozen inventory run complete. Query as_of_date, view, search, sort, page/page_size và bộ lọc kho/item/type/supplier; [contract, ngày được biết và kiểm thực](../IMPLEMENTATION.md#purchasing-e97). Tìm kiếm/tổng hợp/sort trước phân trang; export toàn bộ scope và chống công thức CSV. Không ghi receipt hoặc thêm bảng. Các API kết quả/export toàn kỳ cũ giữ nguyên cho đối soát.
+
+
 **E95 bổ sung read model quản lý:** `GET /api/v1/runs/{id}/workspace` nhận as_of_date bắt buộc và bộ lọc warehouse_id/item_id/product_type/supplier_id; chỉ inventory-kind complete, kiểm frozen parent. Trả context/summary/attention/incoming/route_stock, không ghi DB hoặc tính lại policy. Lô đang về xét ngày đặt/ETA theo mốc đã biết, bỏ qua trạng thái received cuối replay khi xem lịch sử. Missing inventory giữ on_hand=null. `/metrics` và CSV metric hỗ trợ split trước phân trang. [Kiểm thực và giới hạn](../IMPLEMENTATION.md#react-management-e95).
 
 
