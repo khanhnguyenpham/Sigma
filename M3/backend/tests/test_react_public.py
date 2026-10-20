@@ -454,3 +454,54 @@ def test_public_score_source_stays_identical_to_core():
     original = Path(__file__).resolve().parents[3] / "src/evaluation.py"
     public = Path(__file__).resolve().parents[2] / "streamlit/sigma_public/metrics.py"
     assert public.read_bytes() == original.read_bytes()
+
+
+def test_projection_origin_choices_require_stock_and_forecast(bundle):
+    forecast = next(r for r in bundle.runs if r["kind"] == "forecast")
+    assert forecast["result_summary"]["stock_projection_origins"] == [
+        "2025-10-31",
+        "2025-12-31",
+    ]
+    for origin in bundle.stock_projection_origins:
+        seed = bundle.seed_inventory(origin)
+        assert len(seed) == 920 and origin in bundle.origin_index
+    assert "2025-07-01" not in bundle.stock_projection_origins
+
+
+def test_host_upgrade_discards_stale_commands_but_refresh_preserves_current_session(
+    bundle,
+):
+    from sigma_public.react_host import workspace_for, ADAPTER_VERSION
+
+    old = PublicWorkspace(bundle)
+    state = dict(
+        sigma_react_workspace=old,
+        sigma_react_adapter_version="older",
+        sigma_react_ui={"requests": [{"method": "POST", "path": "/runs"}]},
+        sigma_react_responses={"stale": "cached"},
+    )
+    current = workspace_for(bundle, state)
+    assert current is not old
+    assert state["sigma_react_adapter_version"] == ADAPTER_VERSION
+    assert "sigma_react_ui" not in state and "sigma_react_responses" not in state
+    current.state["warehouses"][0]["city"] = "Session city"
+    assert workspace_for(bundle, state) is current
+    assert current.state["warehouses"][0]["city"] == "Session city"
+
+
+def test_host_bundle_cache_is_keyed_by_adapter_revision(bundle, monkeypatch):
+    import sigma_public.react_host as host
+
+    calls = []
+
+    def load(folder):
+        calls.append(folder)
+        return type("PinnedBundle", (), {"pin": bundle.pin})()
+
+    monkeypatch.setattr(host, "PublicBundle", load)
+    host.load_bundle.clear()
+    first = host.load_bundle("synthetic-public-release", bundle.pin, "v1")
+    assert host.load_bundle("synthetic-public-release", bundle.pin, "v1") is first
+    assert host.load_bundle("synthetic-public-release", bundle.pin, "v2") is not first
+    assert len(calls) == 2
+    host.load_bundle.clear()

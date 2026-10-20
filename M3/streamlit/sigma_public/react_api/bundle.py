@@ -113,6 +113,14 @@ class PublicBundle:
         }
         self.forecast_id = self.meta["runs"]["weekly46"]["run_id"]
         self.run_labels = {v["run_id"]: k for k, v in self.meta["runs"].items()}
+        seed_dates = set(
+            self.tables["inventory"]
+            .groupby(["run_label", "date"])["item_id"]
+            .nunique()
+            .loc[lambda counts: counts == 920]
+            .reset_index()["date"]
+        )
+        self.stock_projection_origins = sorted(seed_dates & set(self.origin_index))
         self.runs = []
         for label in [
             "snapshot_2025-10-31_pending",
@@ -131,6 +139,7 @@ class PublicBundle:
             }
             if label == "weekly46":
                 summary["origins"] = len(self.origins)
+                summary["stock_projection_origins"] = self.stock_projection_origins
             if label == "alert_base":
                 summary["alert_metrics"] = self.meta["alert_metrics"]
             self.runs.append(

@@ -1,4 +1,4 @@
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { waitFor } from "@testing-library/react";
 const bridge = vi.hoisted(() => ({
   listener: undefined as undefined | ((event: Event) => void),
@@ -83,4 +83,42 @@ it("aborts requests without accepting later stale replies", async () => {
   expect(requests[0].path).toBe("/runs/new");
   render({ [requests[0].id]: { ok: true, status: 200, data: { id: "new" } } });
   expect((await next).data).toEqual({ id: "new" });
+});
+
+afterEach(() => vi.useRealTimers());
+it("times out a disconnected read without accepting a late response or blocking the next request", async () => {
+  const cloud = await boot();
+  vi.useFakeTimers();
+  const task = cloud.cloudRequest("/slow");
+  const rejected = expect(task).rejects.toThrow(/Kết nối quá thời gian/);
+  await vi.advanceTimersByTimeAsync(30000);
+  await rejected;
+  const old = bridge.send.mock.calls[0][0].requests[0].id;
+  render({ [old]: { ok: true, status: 200, data: { stale: true } } });
+  const next = cloud.cloudRequest("/fresh");
+  await vi.advanceTimersByTimeAsync(0);
+  const requests = bridge.send.mock.calls.at(-1)![0].requests;
+  expect(requests).toHaveLength(1);
+  render({
+    [requests[0].id]: { ok: true, status: 200, data: { fresh: true } },
+  });
+  expect((await next).data).toEqual({ fresh: true });
+});
+it("does not retry a timed-out mutation automatically and retains its idempotency key", async () => {
+  const cloud = await boot();
+  vi.useFakeTimers();
+  const task = cloud.cloudRequest("/runs", {
+    method: "POST",
+    headers: { "Idempotency-Key": "same-write" },
+    body: "{}",
+  });
+  const rejected = expect(task).rejects.toThrow(/có thể đã được xử lý/);
+  await vi.advanceTimersByTimeAsync(89999);
+  expect(bridge.send).toHaveBeenCalledTimes(1);
+  await vi.advanceTimersByTimeAsync(1);
+  await rejected;
+  expect(bridge.send).toHaveBeenCalledTimes(1);
+  expect(bridge.send.mock.calls[0][0].requests[0].idempotency).toBe(
+    "same-write",
+  );
 });

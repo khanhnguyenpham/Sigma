@@ -3,6 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { Icon } from "./Icon";
 import { api, fmt, text, errorLabel, type Row } from "../api/client";
 export function useResource<T>(path: string | null, keepPrevious = false) {
+  const [revision, setRevision] = useState(0);
+  useEffect(() => {
+    const refresh = () => setRevision((v) => v + 1);
+    window.addEventListener("sigma:refresh", refresh);
+    return () => window.removeEventListener("sigma:refresh", refresh);
+  }, []);
   const [state, setState] = useState<{
     path: string | null;
     data?: T;
@@ -30,7 +36,7 @@ export function useResource<T>(path: string | null, keepPrevious = false) {
           setState({ path, loading: false, error });
       });
     return () => controller.abort();
-  }, [path]);
+  }, [path, revision]);
   return state.path === path || keepPrevious
     ? state
     : { loading: !!path, data: undefined, error: undefined };
@@ -101,7 +107,13 @@ export function State({
   if (error)
     return (
       <div className="notice error" role="alert">
-        {errorLabel(error)}
+        <span>{errorLabel(error)}</span>
+        <button
+          className="secondary"
+          onClick={() => window.dispatchEvent(new Event("sigma:refresh"))}
+        >
+          Thử tải lại
+        </button>
       </div>
     );
   if (empty)
