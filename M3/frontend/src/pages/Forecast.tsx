@@ -76,7 +76,11 @@ export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
     <>
       <div className="page-intro">
         <h1>Dự báo nhu cầu</h1>
-        <p>Xem lượng bán dự kiến theo tuyến và kỳ kế hoạch.</p>
+        <p>
+          Dự báo lượng SIM/gói data bán theo quốc gia và nhà mạng. Tổng 30 ngày
+          dùng xem nhu cầu dài hơn; kế hoạch tồn kho dùng dự báo 14 ngày từ hai
+          khối tuần.
+        </p>
       </div>
       <div className="segments" aria-label="Phạm vi dự báo">
         <button

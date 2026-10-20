@@ -1463,3 +1463,82 @@ body:has([aria-modal="true"]) {
   color: #4359cd;
   font-weight: 700;
 }
+
+.operation-flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 22px;
+}
+.operation-flow button {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) 14px;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+  white-space: normal;
+  padding: 14px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-width: 0;
+  color: var(--ink);
+}
+.operation-flow button:hover {
+  border-color: #aab5ef;
+  background: #fafbff;
+}
+.operation-number {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: #eff1ff;
+  color: var(--primary);
+  font-weight: 650;
+  font-size: 12px;
+}
+.operation-flow strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+}
+.operation-flow small {
+  display: block;
+  font-size: 10px;
+  color: #748198;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.operation-flow svg {
+  color: #8a96b0;
+}
+@media (max-width: 1200px) {
+  .operation-flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 420px) {
+  .operation-flow {
+    gap: 8px;
+  }
+  .operation-flow button {
+    padding: 12px 10px;
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .operation-number {
+    width: 22px;
+    height: 22px;
+  }
+  .operation-flow svg {
+    display: none;
+  }
+  .operation-flow strong {
+    font-size: 11px;
+  }
+  .operation-flow small {
+    font-size: 9px;
+  }
+}
