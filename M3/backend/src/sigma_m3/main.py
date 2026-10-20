@@ -377,6 +377,9 @@ def create_app(settings=None):
     from sigma_m3.api.workspace import router as workspace_router
 
     app.include_router(workspace_router)
+    from sigma_m3.api.purchasing import router as purchasing_router
+
+    app.include_router(purchasing_router)
     app.include_router(router)
     frontend = (
         __import__("pathlib").Path(__file__).resolve().parents[3] / "frontend/dist"
