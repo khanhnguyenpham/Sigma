@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Icon } from "./Icon";
 import { api, fmt, text, errorLabel, type Row } from "../api/client";
 export function useResource<T>(path: string | null, keepPrevious = false) {
   const [state, setState] = useState<{
@@ -20,14 +21,18 @@ export function useResource<T>(path: string | null, keepPrevious = false) {
     }));
     api<T>(path, { signal: controller.signal })
       .then((data) => {
-        if (!controller.signal.aborted) setState({ path, data, loading: false });
+        if (!controller.signal.aborted)
+          setState({ path, data, loading: false });
       })
       .catch((error) => {
-        if (!controller.signal.aborted) setState({ path, loading: false, error });
+        if (!controller.signal.aborted)
+          setState({ path, loading: false, error });
       });
     return () => controller.abort();
   }, [path]);
-  return state.path === path || keepPrevious ? state : { loading: !!path, data: undefined, error: undefined };
+  return state.path === path || keepPrevious
+    ? state
+    : { loading: !!path, data: undefined, error: undefined };
 }
 export function useDialogFocus(open: boolean, onClose: () => void) {
   const close = useRef(onClose);
@@ -35,7 +40,9 @@ export function useDialogFocus(open: boolean, onClose: () => void) {
   useEffect(() => {
     if (!open) return;
     const previous = document.activeElement as HTMLElement | null;
-    const dialog = document.querySelector<HTMLElement>('[role="dialog"]');
+    const dialog = Array.from(
+      document.querySelectorAll<HTMLElement>('[role="dialog"]'),
+    ).at(-1);
     const targets = () =>
       Array.from(
         dialog?.querySelectorAll<HTMLElement>(
@@ -44,6 +51,13 @@ export function useDialogFocus(open: boolean, onClose: () => void) {
       ).filter((el) => el.getClientRects().length > 0);
     targets()[0]?.focus();
     const key = (event: KeyboardEvent) => {
+      if (
+        dialog !==
+        Array.from(
+          document.querySelectorAll<HTMLElement>('[role="dialog"]'),
+        ).at(-1)
+      )
+        return;
       if (event.key === "Escape") {
         event.preventDefault();
         close.current();
@@ -102,14 +116,21 @@ export function Card({
   value,
   note,
   tone = "",
+  icon,
 }: {
   label: string;
   value: string;
   note?: string;
   tone?: string;
+  icon?: string;
 }) {
   return (
     <article className={"stat " + tone}>
+      {icon && (
+        <div className="stat-icon">
+          <Icon name={icon} />
+        </div>
+      )}
       <span>{label}</span>
       <strong>{value}</strong>
       {note && <small>{note}</small>}
@@ -223,7 +244,7 @@ export function Panel({
 export function ExportButton({ url }: { url: string }) {
   return (
     <a className="button secondary" href={"/api/v1" + url} download>
-      ↓ Xuất CSV
+      <Icon name="download" size={16} /> Xuất CSV
     </a>
   );
 }
@@ -237,6 +258,7 @@ export const badge = (value: unknown) => (
         not_within_horizon: "Chưa cạn trong 14 ngày",
         pending_covers: "Dưới ROP · đã đặt đủ",
         low_stock: "Cần bổ sung",
+        sufficient: "Đủ tồn",
         complete: "Hoàn tất",
         running: "Đang chạy",
         queued: "Đang chờ",
@@ -247,3 +269,61 @@ export const badge = (value: unknown) => (
     )[String(value)] ?? text(value)}
   </span>
 );
+
+export function DetailDrawer({
+  title,
+  children,
+  onClose,
+}: {
+  title: string;
+  children: React.ReactNode;
+  onClose: () => void;
+}) {
+  useDialogFocus(true, onClose);
+  return (
+    <div className="drawer-shade" onClick={onClose}>
+      <section
+        className="detail-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header>
+          <div>
+            <span className="eyebrow">Chi tiết mặt hàng</span>
+            <h2>{title}</h2>
+          </div>
+          <button
+            className="icon-button"
+            aria-label="Đóng chi tiết"
+            onClick={onClose}
+          >
+            <Icon name="close" />
+          </button>
+        </header>
+        <div className="drawer-body">{children}</div>
+      </section>
+    </div>
+  );
+}
+
+export function PlanRequired({ onChoose }: { onChoose?: () => void }) {
+  return (
+    <div className="empty-state">
+      <div className="empty-icon">
+        <Icon name="box" size={28} />
+      </div>
+      <h2>Chọn một kế hoạch tồn kho</h2>
+      <p>
+        Mở kế hoạch đã xử lý để xem tồn, hàng đang về và cảnh báo. Bạn cũng có
+        thể tạo phương án mới.
+      </p>
+      {onChoose && (
+        <button className="primary" onClick={onChoose}>
+          Mở kế hoạch tồn kho <Icon name="arrow" size={16} />
+        </button>
+      )}
+    </div>
+  );
+}

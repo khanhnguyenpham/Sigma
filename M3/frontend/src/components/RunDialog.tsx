@@ -92,7 +92,7 @@ export function RunDialog({
           ×
         </button>
         <span className="eyebrow">PHƯƠNG ÁN MỚI</span>
-        <h2 id="run-title">Giữ nguồn rõ, chạy có kiểm chứng.</h2>
+        <h2 id="run-title">Tạo phương án</h2>
         <form onSubmit={submit}>
           <label>
             Loại công việc
@@ -132,7 +132,14 @@ export function RunDialog({
             <>
               <label>
                 Dự báo cha đã hoàn tất
-                <select name="forecast_run_id" required>
+                <select
+                  name="forecast_run_id"
+                  required
+                  defaultValue={
+                    forecasts.find((r) => Number(r.result_summary.origins) > 1)
+                      ?.id ?? forecasts[0]?.id
+                  }
+                >
                   {forecasts.map((r) => (
                     <option key={r.id} value={r.id}>
                       {r.as_of_date} · {r.id.slice(0, 8)} ·{" "}
@@ -194,9 +201,8 @@ export function RunDialog({
             </div>
           )}
           <div className="notice subtle">
-            L7 / R1 / H14 cố định. Tồn và nhập là mô phỏng. Forecast replay chạy
-            validation → khóa lựa chọn → test; không chọn lại theo test. Worker
-            xử lý nền, màn hình không phải chờ kết nối HTTP dài.
+            Nhập kho sau 7 ngày, kiểm tra tồn mỗi ngày và dự phóng 14 ngày.
+            Phương án được xử lý nền; không gửi đơn đến nhà cung cấp thật.
           </div>
           {error && (
             <div role="alert" className="notice error">

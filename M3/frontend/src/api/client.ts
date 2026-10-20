@@ -116,9 +116,9 @@ export function label(kind: string) {
       {
         source_import: "Nguồn dữ liệu",
         forecast: "Dự báo 46 tuyến",
-        policy_replay: "Mô phỏng chính sách",
-        alert_replay: "Đánh giá cảnh báo",
-        stock_projection: "Ảnh chụp tồn kho",
+        policy_replay: "Kế hoạch nhập hàng",
+        alert_replay: "Kiểm tra cảnh báo",
+        stock_projection: "Kế hoạch tồn kho",
       } as Record<string, string>
     )[kind] ?? kind
   );

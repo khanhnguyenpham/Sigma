@@ -18,6 +18,7 @@ import {
   Pager,
   ExportButton,
 } from "./common";
+import { Icon } from "./Icon";
 import {
   type Run,
   type Context,
@@ -27,17 +28,15 @@ import {
   fmt,
   pct,
 } from "../api/client";
-
 interface Benchmark {
   context: Row;
   summary: Row & { baselines: Row[] };
 }
-
 export function MonthlyForecast({ run, ctx }: { run?: Run; ctx: Context }) {
-  const [page, setPage] = useState(1);
-  const [cadence, setCadence] = useState("daily_origins");
-  const [topOnly, setTopOnly] = useState(true);
-  const ready = run?.status === "complete";
+  const [page, setPage] = useState(1),
+    [cadence, setCadence] = useState("daily_origins"),
+    [topOnly, setTopOnly] = useState(false);
+  const ready = run?.status === "complete" && !!ctx.origin;
   const base = ready ? `/runs/${run.id}` : null;
   const scope = query({
     warehouse_id: ctx.warehouseId,
@@ -59,67 +58,76 @@ export function MonthlyForecast({ run, ctx }: { run?: Run; ctx: Context }) {
     () => setPage(1),
     [ctx.runId, ctx.warehouseId, ctx.origin, topOnly],
   );
-  const s = summary.data?.summary;
-  const rows = forecasts.data?.items ?? [];
-  const benchmark = summary.data?.context;
+  const s = summary.data?.summary,
+    rows = forecasts.data?.items ?? [],
+    benchmark = summary.data?.context;
+  const full = rows.length > 0 && rows.length === forecasts.data?.total;
+  const total = full
+    ? rows.reduce((sum, r) => sum + Number(r.forecast_qty), 0)
+    : null;
+  const actual =
+    full && rows.every((r) => typeof r.actual_qty === "number")
+      ? rows.reduce((sum, r) => sum + Number(r.actual_qty), 0)
+      : null;
   return (
     <>
       {!ready && (
         <div className="notice">
-          Chọn một lượt đã hoàn tất để đối chiếu benchmark cùng nguồn dữ liệu.
+          Chọn phương án đã hoàn tất và ngày làm việc để xem dự báo.
         </div>
       )}
-      <State loading={summary.loading} error={summary.error} />
-      {s && (
-        <>
-          <div className="stats">
-            <Card
-              label="R05 · Tổng 30 ngày"
-              value={`${fmt(s.routes_below_20_pct)}/${fmt(s.expected_top_routes)}`}
-              note={
-                s.meets_r05
-                  ? "Từng tuyến top 10 đạt MAPE ≤20%"
-                  : "Chưa đủ 10 tuyến đạt ngưỡng"
-              }
-              tone={s.meets_r05 ? "teal" : ""}
-            />
-            <Card
-              label="MAPE trung bình top 10"
-              value={`${fmt(s.mean_mape_positive_pct, 2)}%`}
-              note="Test · origin hằng ngày · actual dương"
-            />
-            <Card
-              label="Độ phủ tối thiểu"
-              value={pct(s.minimum_coverage)}
-              note={`${fmt(s.pairs_per_route)} cửa sổ đầy đủ / tuyến`}
-            />
-            <Card
-              label="Cửa sổ dự báo"
-              value="30 ngày"
-              note="D+1…D+30 · lượng bán theo UTC"
-            />
-          </div>
-          <div className="notice subtle">
-            <strong>Tiêu chí mentor · M05.</strong> Chấm tổng lượng bán
-            D+1…D+30, không phải tháng dương lịch. Bảng tổng kết gồm toàn bộ top
-            10 theo train và không đổi theo bộ lọc. Đây là kết quả hồi cứu:
-            hướng tinh chỉnh từng được chọn sau khi xem test; không phải holdout
-            độc lập.
-          </div>
-        </>
-      )}
+      <div className="stats forecast-kpis">
+        <Card
+          label="Nhu cầu dự kiến"
+          value={fmt(total, 1)}
+          note="Tổng lượng bán trong 30 ngày tiếp theo"
+          icon="chart"
+        />
+        <Card
+          label="Tuyến đang xem"
+          value={forecasts.data ? fmt(forecasts.data.total) : "—"}
+          note={
+            topOnly
+              ? "Tuyến chủ lực theo dữ liệu train"
+              : "Theo bộ lọc kho / tuyến"
+          }
+          icon="grid"
+        />
+        <Card
+          label="Thực tế cùng kỳ"
+          value={fmt(actual, 0)}
+          note={
+            actual === null
+              ? "Chưa có đủ actual cho cửa sổ này"
+              : "Lượng bán đã quan sát đủ 30 ngày"
+          }
+          icon="box"
+        />
+        <Card
+          label="Kỳ kế hoạch"
+          value="30 ngày"
+          note="Từ D+1 đến D+30 theo UTC"
+          tone="teal"
+          icon="clock"
+        />
+      </div>
       <Panel
-        title="Dự báo tổng 30 ngày"
-        note={`Origin ${ctx.origin || "tất cả"} · mỗi cửa sổ có đúng 30 ngày UTC`}
+        title="Nhu cầu theo tuyến"
+        note={`Ngày lập ${ctx.origin || "chưa chọn"} · Tổng lượng bán D+1…D+30.`}
         action={
-          <label className="monthly-toggle">
-            <input
-              type="checkbox"
-              checked={topOnly}
-              onChange={(e) => setTopOnly(e.target.checked)}
-            />{" "}
-            Chỉ top 10 train
-          </label>
+          <div className="panel-actions">
+            <label className="monthly-toggle">
+              <input
+                type="checkbox"
+                checked={topOnly}
+                onChange={(e) => setTopOnly(e.target.checked)}
+              />
+              Chỉ tuyến chủ lực
+            </label>
+            {base && (
+              <ExportButton url={`${base}/exports/monthly_forecasts?${q}`} />
+            )}
+          </div>
         }
       >
         <State
@@ -129,58 +137,100 @@ export function MonthlyForecast({ run, ctx }: { run?: Run; ctx: Context }) {
         />
         {(ctx.itemId || ctx.productType || ctx.supplierId) && (
           <p className="caption">
-            Tổng 30 chấm theo tuyến; bộ lọc SKU, loại sản phẩm và đối tác chỉ
-            dùng ở các màn hình vận hành.
+            Dự báo tổng 30 theo toàn tuyến. Bộ lọc mặt hàng, loại và nhà cung
+            cấp áp dụng cho tồn kho hoặc phân bổ ngày.
           </p>
         )}
         {rows.length > 0 && (
           <>
-            <p className="caption">
-              Biểu đồ tối đa 10 dòng đầu trang. Actual của cửa sổ chưa quan sát
-              đủ 30 ngày để trống; không thay bằng 0.
-            </p>
             <div className="chart">
-              <ResponsiveContainer width="100%" height={270}>
+              <ResponsiveContainer width="100%" height={260}>
                 <BarChart
                   data={rows
-                    .slice(0, 10)
-                    .map((r) => ({
-                      ...r,
-                      route_label: `${r.destination_country} / ${r.carrier}`,
-                    }))}
+                    .slice(0, 12)
+                    .map((r) => ({ ...r, route_label: r.carrier }))}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="route_label" tick={{ fontSize: 10 }} />
-                  <YAxis />
-                <Tooltip formatter={(value) => fmt(value, 2)} />
-                  <Legend />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="#edf0f6"
+                  />
+                  <XAxis
+                    dataKey="route_label"
+                    tick={{ fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    formatter={(v) => fmt(v, 2)}
+                    labelFormatter={(_, payload) =>
+                      payload[0]?.payload?.destination_country +
+                      " / " +
+                      payload[0]?.payload?.carrier
+                    }
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: 11 }} />
                   <Bar
                     dataKey="forecast_qty"
-                    name="Dự báo tổng 30"
-                    fill="#087e86"
+                    name="Dự kiến"
+                    fill="#6171e5"
+                    radius={[3, 3, 0, 0]}
+                    maxBarSize={26}
                   />
                   <Bar
                     dataKey="actual_qty"
-                    name="Actual tổng 30"
-                    fill="#d39448"
+                    name="Thực tế"
+                    fill="#bec8f0"
+                    radius={[3, 3, 0, 0]}
+                    maxBarSize={26}
                   />
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            <p className="caption">
+              Biểu đồ 12 tuyến đầu trang. Actual chưa đủ 30 ngày để trống.
+            </p>
             <Table
               rows={rows}
               columns={[
-                { key: "destination_country", label: "Điểm đến" },
-                { key: "carrier", label: "Nhà mạng" },
-                { key: "window_start", label: "Từ D+1" },
-                { key: "target_date", label: "Đến D+30" },
-                { key: "forecast_qty", label: "Dự báo" },
-                { key: "actual_qty", label: "Actual" },
-                { key: "model", label: "Mô hình" },
+                {
+                  key: "carrier",
+                  label: "Kho / tuyến",
+                  render: (v, r) => (
+                    <div className="cell-product">
+                      <strong>{String(v)}</strong>
+                      <small>{String(r.destination_country)}</small>
+                    </div>
+                  ),
+                },
+                { key: "window_start", label: "Từ ngày" },
+                { key: "target_date", label: "Đến ngày" },
+                {
+                  key: "forecast_qty",
+                  label: "Lượng dự kiến",
+                  render: (v) => (
+                    <strong className="forecast-value">{fmt(v, 1)}</strong>
+                  ),
+                },
+                { key: "actual_qty", label: "Thực tế" },
                 {
                   key: "metric_eligible",
-                  label: "Đủ cửa sổ chấm",
-                  render: (v) => (v ? "Có" : "Không"),
+                  label: "Dữ liệu thực tế",
+                  render: (_, r) => (
+                    <span
+                      className={
+                        "badge " +
+                        (r.actual_qty === null ? "queued" : "complete")
+                      }
+                    >
+                      {r.actual_qty === null ? "Chưa đủ nhãn" : "Đã quan sát"}
+                    </span>
+                  ),
                 },
               ]}
             />
@@ -189,84 +239,101 @@ export function MonthlyForecast({ run, ctx }: { run?: Run; ctx: Context }) {
               total={forecasts.data?.total ?? 0}
               onChange={setPage}
             />
-            {base && (
-              <ExportButton url={`${base}/exports/monthly_forecasts?${q}`} />
-            )}
           </>
         )}
       </Panel>
-      <Panel
-        title="Sai số tổng 30 · test lịch sử"
-        note="Chỉ cửa sổ nằm trọn 01/10–31/12/2025. Metric toàn kỳ, không phụ thuộc origin đang vẽ."
-        action={
-          <select
-            aria-label="Nhịp chấm tổng 30"
-            value={cadence}
-            onChange={(e) => setCadence(e.target.value)}
-          >
-            <option value="daily_origins">
-              Origin hằng ngày · tiêu chí chính
-            </option>
-            <option value="nonoverlapping_30d">
-              Cửa sổ không chồng · chẩn đoán
-            </option>
-          </select>
-        }
-      >
-        <State loading={metrics.loading} error={metrics.error} />
-        <Table
-          rows={metrics.data?.items ?? []}
-          columns={[
-            { key: "destination_country", label: "Điểm đến" },
-            { key: "carrier", label: "Nhà mạng" },
-            { key: "mape_positive_pct", label: "MAPE (%)" },
-            { key: "mae", label: "MAE" },
-            { key: "wape_pct", label: "WAPE (%)" },
-            { key: "bias", label: "Bias" },
-            { key: "coverage", label: "Độ phủ", render: pct },
-            { key: "n_scored_pairs", label: "Cặp chấm" },
-            {
-              key: "passes_20_pct",
-              label: "≤20%",
-              render: (v) => (v ? "Đạt" : "Chưa đạt"),
-            },
-          ]}
-        />
-        <p className="caption">
-          Actual 0 vẫn được tính vào MAE, WAPE và bias. Origin hằng ngày tạo các
-          cửa sổ chồng nhau; 63 cửa sổ không phải 63 mẫu độc lập.
-        </p>
-        {base && (
-          <ExportButton
-            url={`${base}/exports/monthly_metrics?${scope}&split=test&cadence=${cadence}`}
-          />
+      <details className="advanced-section">
+        <summary>
+          <Icon name="info" size={16} />
+          Chất lượng & nguồn dự báo
+        </summary>
+        <State loading={summary.loading} error={summary.error} />
+        {s && (
+          <>
+            <div className="stats">
+              <Card
+                label="Tuyến chủ lực đạt MAPE ≤20%"
+                value={`${fmt(s.routes_below_20_pct)}/${fmt(s.expected_top_routes)}`}
+                note="Toàn bộ top 10 theo train"
+              />
+              <Card
+                label="MAPE trung bình top 10"
+                value={fmt(s.mean_mape_positive_pct, 2) + "%"}
+              />
+              <Card
+                label="Độ phủ"
+                value={pct(s.minimum_coverage)}
+                note={fmt(s.pairs_per_route) + " cửa sổ / tuyến"}
+              />
+              <Card
+                label="Tiêu chí"
+                value="Tổng 30"
+                note="M05 · origin hằng ngày"
+              />
+            </div>
+            <p className="caption">
+              Test hồi cứu, không phải holdout độc lập. Hướng tinh chỉnh từng
+              được chọn sau khi xem test. 63 cửa sổ chồng nhau không phải 63 mẫu
+              độc lập; actual0 vẫn vào MAE/WAPE/bias. Tổng kết top10 không đổi
+              theo bộ lọc.
+            </p>
+          </>
         )}
-      </Panel>
-      {s && (
         <Panel
-          title="So sánh cùng tập cửa sổ · toàn bộ top 10"
-          note="Naive và MA chỉ dùng dữ liệu đến origin; cùng 63 cửa sổ / tuyến, không đổi tập chấm."
+          title="Sai số dự báo lịch sử"
+          note="Metric toàn kỳ test đủ nhãn; không phụ thuộc ngày lập đang xem."
+          action={
+            <select
+              aria-label="Nhịp chấm tổng 30"
+              value={cadence}
+              onChange={(e) => setCadence(e.target.value)}
+            >
+              <option value="daily_origins">Origin hằng ngày</option>
+              <option value="nonoverlapping_30d">Cửa sổ không chồng</option>
+            </select>
+          }
         >
+          <State loading={metrics.loading} error={metrics.error} />
           <Table
-            rows={s.baselines}
+            rows={metrics.data?.items ?? []}
             columns={[
-              { key: "model", label: "Phương pháp" },
-              { key: "mean_mape_positive_pct", label: "MAPE trung bình (%)" },
-              { key: "routes_below_20_pct", label: "Số tuyến ≤20% / 10" },
+              { key: "destination_country", label: "Quốc gia" },
+              { key: "carrier", label: "Nhà mạng" },
+              { key: "mape_positive_pct", label: "MAPE (%)" },
+              { key: "mae", label: "MAE" },
+              { key: "wape_pct", label: "WAPE (%)" },
+              { key: "bias", label: "Bias" },
+              { key: "coverage", label: "Độ phủ", render: pct },
+              { key: "n_scored_pairs", label: "Cửa sổ" },
             ]}
           />
+          {base && (
+            <ExportButton
+              url={`${base}/exports/monthly_metrics?${scope}&split=test&cadence=${cadence}`}
+            />
+          )}
         </Panel>
-      )}
-      {benchmark && (
-        <div className="notice subtle">
-          <strong>Nguồn kết quả:</strong> {String(benchmark.benchmark_run_id)} ·
-          xác minh {String(benchmark.verified_at_utc)}.<br />
-          Gói {String(benchmark.benchmark_package_id).slice(0, 12)} ·{" "}
-          {String(benchmark.acceptance_version)}. Benchmark 30 ngày dùng cùng
-          source/target với lượt đang chọn; tồn và cảnh báo vẫn sử dụng forecast
-          H14 riêng.
-        </div>
-      )}
+        {s && (
+          <Panel title="Đối chiếu baseline · toàn bộ top 10">
+            <Table
+              rows={s.baselines}
+              columns={[
+                { key: "model", label: "Phương pháp" },
+                { key: "mean_mape_positive_pct", label: "MAPE (%)" },
+                { key: "routes_below_20_pct", label: "Số tuyến ≤20%" },
+              ]}
+            />
+          </Panel>
+        )}
+        {benchmark && (
+          <p className="caption">
+            Nguồn {String(benchmark.benchmark_run_id)} · gói{" "}
+            {String(benchmark.benchmark_package_id).slice(0, 12)} ·{" "}
+            {String(benchmark.acceptance_version)}. Forecast tồn H14 là luồng
+            riêng của phương án.
+          </p>
+        )}
+      </details>
     </>
   );
 }

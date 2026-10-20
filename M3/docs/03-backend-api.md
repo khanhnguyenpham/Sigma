@@ -1,5 +1,8 @@
 # M3 — backend, API và worker
 
+**E95 bổ sung read model quản lý:** `GET /api/v1/runs/{id}/workspace` nhận as_of_date bắt buộc và bộ lọc warehouse_id/item_id/product_type/supplier_id; chỉ inventory-kind complete, kiểm frozen parent. Trả context/summary/attention/incoming/route_stock, không ghi DB hoặc tính lại policy. Lô đang về xét ngày đặt/ETA theo mốc đã biết, bỏ qua trạng thái received cuối replay khi xem lịch sử. Missing inventory giữ on_hand=null. `/metrics` và CSV metric hỗ trợ split trước phân trang. [Kiểm thực và giới hạn](../IMPLEMENTATION.md#react-management-e95).
+
+
 **Cập nhật M05/E93 — 20/10/2026:** [R05 tổng30 và implementation hiện hành](../MONTHLY.md) thay cổng độ chính xác ngày bằng tổng D+1…D+30 theo mentor do người dùng thuật lại. Đã đối soát 10/10≤20% hồi cứu. Benchmark chỉ đọc có manifest/source/target/hash riêng, API/UI/CSV; không thêm bảng DB hoặc thay forecast tồn H14. Các mục R05 ngày dưới đây mô tả thiết kế trước M05; A08 và nghiệm thu mentor vẫn tách riêng.
 
 **Hiện hành E90:** ứng dụng đã có code và fullrun local theo profile này. Xem [implementation, số kiểm thực và giới hạn](../IMPLEMENTATION.md). Nội dung E76/E89 có chữ “dự kiến/chưa triển khai” bên dưới là lịch sử thiết kế/checkpoint; không dùng làm trạng thái hiện hành hoặc bằng chứng chạy. R05/R07/T14 vẫn mở.

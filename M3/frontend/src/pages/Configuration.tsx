@@ -175,11 +175,10 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
   return (
     <>
       <div className="page-intro">
-        <span className="eyebrow">05 / CẤU HÌNH CÓ PHIÊN BẢN</span>
-        <h1>Thay giả định, giữ lịch sử.</h1>
+        <h1>Cấu hình kho & nhập hàng</h1>
         <p>
-          Kho và supplier đều giả định. Mỗi thay đổi policy/kịch bản tạo phiên
-          bản mới; kết quả cũ không tự đổi theo.
+          Quản lý kho, chính sách nhà cung cấp và kịch bản mô phỏng. Mỗi lần lưu
+          tạo phiên bản mới.
         </p>
       </div>
       {message && (
@@ -199,7 +198,7 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
           <div className="segments">
             {[
               ["warehouses", "Kho"],
-              ["policies", "Supplier · policy"],
+              ["policies", "Chính sách nhập hàng"],
               ["scenarios", "Kịch bản"],
             ].map(([id, name]) => (
               <button

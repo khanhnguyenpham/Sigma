@@ -1113,3 +1113,17 @@ Gói24tệp/6.620.188byte, 11bảng nén+NPZfloat64: sourceSHA giữ nguyên, ma
 106 tests Python đạt, không fail/error/skip; gồm9tests public mới. AppTest7màn hình,3chế độ forecast và submit what-if đạt. Lượt AppTest đầu bị kẹt trong sandbox; chỉ dừng đúng tiến trình test do agent tạo và chạy lại có chẩn đoán/timeout với quyền local phù hợp, đạt trong vài giây. Không sửa dữ liệu/metric vì lỗi môi trường.
 
 Đã push `Sigma-M3-App/main` commit `779b6c44f56aefbbba1c907a57a3acc4144563ef`, remoteSHA khớp. App ngủ do không hoạt động; đã wake, cloud hiện đúng `m3-public-20261020-v1`,10/10/11,62%/100%, fill90,41%/early34,39% theo profile mới. Share→Make this app public checkbox=1. Không gửi lời mời/email. Link [ứng dụng](https://sigma-demand-inventory.streamlit.app/); [source/phạm vi](../M3/streamlit/README.md). Raw/run/DB/env và ảnh/receipt kiểm giữ local. R05 test hồi cứu; R07/T14 tiếp tục cần mentor review.
+
+
+<a id="e95"></a>
+## CHG-063 / E95 — React thành web quản lý M3, 20/10/2026
+
+Người dùng yêu cầu làm lại FE bằng React, tập trung chức năng M3 đã bàn, bỏ trình bày dạng báo cáo và push cho nhóm. Nhánh codex/m3-implementation nềncdfad3a; đọc AGENTS/TASK/PROJECTMAP/PLAN và đặc tả FE/nghiệp vụ/API liên quan. Không đổi model, raw, split/top10/M05, database schema hoặc công thức policy.
+
+Đã triển khai sidebar/header/bộ lọc, tổng quan công việc theo ngày/filter, bảng tồn và ngăn chi tiết, đề xuất/lô nhập, cảnh báo nghiệp vụ, cấu hình versioned. Ba chế độ forecast giữ API thật; tổng30 mặc định46tuyến, metric/replay trong details. Thêm workspace read model theo frozen run, tính pending theo ordered_on/ETA tại mốc đã biết; metric split lọc trước phân trang/export. Fix ngăn chi tiết stale, pager nhập khi đổi filter và mặc định forecast parent replay nhiều origin. Không thêm gửi đơn supplier thật/auth/hosting nhiều người.
+
+109Python=77M3+32M2 đạt0fail/error;17React đạt, build/TypeScript/Ruff đạt. Test mới kiểm không lấy lô đặt trong tương lai/không dùng status cuối replay, SKU/type/null/incomplete guard và split trước phân trang. Test FE kiểm tác vụ chính/stalecontext/drawer/pager/parent/snapshotcaption. Lượt test đầu timeout do PostgreSQL local chưa chạy đúng cổng; khởi động đúng cluster pgdata_v2 với port55432, không reinit/mất dữ liệu. Một lần test UI sau bổ sung caption lỗi fixture thiếu context; sửa fixture theo API thật rồi chạy lại17 đạt. Bố cục mobile phát hiện chart-panel tràn; thêm min-width0 và kiểm390/768/1440 hết tràn trang.
+
+Browser tạo kịch bản management_ui_20261020v1 và phương án0c3460ff-6219-408d-b4a6-8a744f06e21d từ forecast7f7c53cb/scenario7. Worker complete/verified920threshold/920events/1lot/1714alerts. Đối soát API/CSV case item341:closing7/ROP20/pending20/IP27/Q0, ETA04/11. Tổng quan theo bộ lọc46tuyến/920item:1314tồn,793Q>0/5866đơn vị,1lô20,200urgentitems. Tất cả là mô phỏng cụ thể, không gọi KPI doanh nghiệp. Console error ở lượt cuối trống; ảnh/receipts ởoutputs private.
+
+TASK/PLAN/PROJECTMAP/README/IMPLEMENTATION và đặc tả FE/API đồng bộ. M05 vẫn10/10 hồi cứu, R07/T14 chưa nâng nghiệm thu. React mới chưa thay ứng dụng Streamlit E94; source/docs được phép push nhưng raw/run/DB/env không vào Git. SHAremote và CI kiểm sau commit, không suy đạt từ test local. Hướng dẫn cho nhóm tại [IMPLEMENTATION](../M3/IMPLEMENTATION.md#react-management-e95).

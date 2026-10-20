@@ -1,5 +1,30 @@
 # M3 — ứng dụng đã triển khai và cách chạy
 
+<a id="react-management-e95"></a>
+## React quản lý M3 — E95, 20/10/2026
+
+Theo yêu cầu mới của người dùng, giao diện dùng React/TypeScript/Vite, sidebar và bảng quản lý thông thường. Không thêm xử lý bán hàng, gửi đơn nhà cung cấp, đăng nhập hoặc quản trị người dùng ngoài thiết kế M3. Dữ liệu tồn/nhập/kho vẫn là mô phỏng có nhãn; ngày làm việc là UTC của snapshot 2024–2025.
+
+| Màn hình | Việc người dùng thực hiện |
+|---|---|
+| Tổng quan | Xem tồn hiện có, mặt hàng cần bổ sung, lô đang về và nguy cơ cạn; mở một mặt hàng hoặc tạo phương án. KPI và danh sách theo cùng run, ngày, kho, SKU, loại và nhà cung cấp. |
+| Tồn kho | Lọc trạng thái, mở ngăn chi tiết SKU để xem tồn/ROP/pending/IP/Q/MOQ; xuất CSV cùng bộ lọc. |
+| Dự báo nhu cầu | Chọn tổng30, tổng7 hoặc ngày phân bổ; xem lượng bán/actual. Tổng30/7 ở cấp tuyến; SKU/loại áp dụng cho phân bổ ngày, nhãn ghi rõ. Chất lượng, nguồn và giới hạn hồi cứu nằm trong phần mở rộng. |
+| Nhập hàng | Xem đề xuất Q>0 tại ngày đang chọn và tab các lô nhập toàn kỳ. Trạng thái tab lô là cuối kỳ mô phỏng; tổng quan dùng lô đã biết tại mốc xem, không dùng trạng thái cuối kỳ để suy ngược. |
+| Cảnh báo | Lọc tín hiệu, mở chi tiết diễn biến tồn14ngày; dữ liệu TP/FP/FN/TN và chẩn đoán cơ hội chỉ trong phần đánh giá replay mở rộng. |
+| Cấu hình | Danh mục kho, chính sách supplier-item có phiên bản, tạo kịch bản và lô đầu kỳ; lưu không sửa kết quả đã khóa. |
+
+**Tạo phương án:** nút trên header → chọn loại công việc, dự báo hoàn tất, kịch bản, ngày → gửi một lần → xem tiến độ ở Tổng quan. Mặc định ưu tiên forecast replay có nhiều origin thay bản chỉ có origin tương lai; backend vẫn kiểm parent/source/cutoff. Chọn forecast/source ở các trang tồn thì phải bấm chọn kế hoạch tương thích; không lặng lẽ lấy tồn của run khác. URL giữ bộ lọc. Đổi run/bộ lọc hủy dữ liệu cũ, ngăn chi tiết cũ đóng ngay; Escape đóng ngăn hiện tại. Không dùng màn hình này để gửi đơn thật.
+
+**API bổ sung:** `GET /api/v1/runs/{id}/workspace?as_of_date=YYYY-MM-DD`, tùy chọn warehouse_id/item_id/product_type/supplier_id. Chỉ run tồn complete/compatible; trả context, summary, attention6, incoming5, route_stock8. Tổng tính trên toàn bộ bộ lọc, không phải chỉ50dòng trang. Incoming xét `ordered_on <= known_orders_through < eta`; snapshot chỉ biết tới origin, replay chỉ tới kỳ ghi nhận. Có nhãn riêng nếu ngày xem sau mốc đã biết; thiếu sổ tồn giữ on_hand=null. Metric API thêm split trước phân trang/export để test không bị khuất sau validation.
+
+**Đã kiểm trực tiếp:**109Python (77M3+32M2),17React, TypeScript/Vite build và Ruff. Browser thực mở đủ sáu màn hình, chọn kế hoạch tương thích, lọc Japan/NTT Docomo/item341, mở/đóng chi tiết bằng Escape, chuyển ba chế độ dự báo, lưu kịch bản mới `management_ui_20261020`v1 và tạo stock_projection mới. Run `0c3460ff-6219-408d-b4a6-8a744f06e21d`complete/verified:920threshold/920events/1lot/1714alerts; cùng forecast replay/scenario7/origin31/10. API/CSV đối soát1dòng: closing7/ROP20/pending20/IP27/Q0, ETA04/11; không coi pending là tồn hiện có. Tổng quan46tuyến/920item:1314tồn,793mặt hàng Q>0/5866đơn vị,1lô20đơn vị,200mặt hàng urgent/already_depleted. Đây là số liệu của phương án mô phỏng cụ thể, không KPI doanh nghiệp thật. Responsive390/768/1440 đã kiểm: trang không tràn ngang; bảng có vùng cuộn riêng. Console error ở lượt kiểm cuối trống. Receipt và ảnh trong outputs local, không phải artifact cần push.
+
+**Nhóm lấy mã:** dùng các lệnh clone/cài trong mục “Cài trên máy thành viên” bên dưới. Nếu đã có checkout nhánh này, lưu thay đổi cá nhân rồi `git pull --ff-only origin codex/m3-implementation`; trong `M3/frontend` chạy `npm ci`, `npm test`, `npm run build`. Tại root nạp env và chạy launcher như hướng dẫn. Thành viên cần PostgreSQL và nguồn bài local; Git không kèm DB/raw/run/env. Không copy nguyên UUID local để kỳ vọng máy mới đã có kết quả; tạo nguồn/forecast/mô phỏng theo quy trình bên dưới.
+
+**Giới hạn:** React mới phục vụ cùng backend local, chưa deploy lên Internet hoặc thay app Streamlit public. M05 tổng30 vẫn10/10 hồi cứu; không refit hoặc nâng R07/T14/mentor nghiệm thu từ việc đổi giao diện. Không thêm auth/hosting nhiều người trong lượt này.
+
+
 **E94 — đã triển khai Streamlit công khai theo yêu cầu mới:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/) · [phạm vi online và source](streamlit/README.md). Cùng kết quả M3 mới L7/R1/H14 và tổng30; 11 bảng tổng hợp+1mảng forecast, khoảng6,6MB, không raw/ID đơn/khách/DB/env. What-if dùng cùng hàm policy/project và chỉ giữ trong phiên; các tác vụ worker/huấn luyện/DB vẫn local. Các mô tả “chưa deploy” bên dưới là mốc lịch sử trước E94.
 
 **E93/M05 — 20/10/2026, áp dụng hiện tại:** R05 chấm tổng 30 ngày thay từng ngày theo mentor được người dùng thuật lại. [Kết quả và tích hợp tổng 30](MONTHLY.md): 10/10≤20%, mean11,621356%, coverage100%, 63 cửa sổ/tuyến, test hồi cứu. API/React có tab riêng và CSV; luồng tồn H14 giữ nguyên. Các mô tả R05 ngày/E92 bên dưới là lịch sử trước M05.
@@ -123,7 +148,7 @@ Mở `http://127.0.0.1:8000/`, OpenAPI `/docs`, health `/api/v1/health`. Launche
 .\.venv-m3\Scripts\python.exe -m sigma_m3.cli verify --run-id RUN
 ```
 
-CLI `--wait` dùng worker thông thường; dừng worker nền trước khi dùng chế độ này. Cách dùng web: chọn nguồn/forecast/scenario, bấm Chạy phương án; worker nền nhận và cập nhật status. Không trộn hai cách để chạy hai worker. Forecast replay là việc nặng, không chạy lại chỉ để sửa thành phố hoặc xem dashboard. `forecast --mode future --forecast-run FORECAST` dùng selection khóa, origin không trước30/09/2025; không chọn lại bằng test. Missing vector/policy/history → failed, không tự điền0. Khi mã thay đổi, restart worker rồi tạo request mới; code mismatch không được ghi complete.
+CLI `--wait` dùng worker thông thường; dừng worker nền trước khi dùng chế độ này. Cách dùng web: chọn nguồn/forecast/scenario, bấm Tạo phương án; worker nền nhận và cập nhật status. Không trộn hai cách để chạy hai worker. Forecast replay là việc nặng, không chạy lại chỉ để sửa thành phố hoặc xem dashboard. `forecast --mode future --forecast-run FORECAST` dùng selection khóa, origin không trước30/09/2025; không chọn lại bằng test. Missing vector/policy/history → failed, không tự điền0. Khi mã thay đổi, restart worker rồi tạo request mới; code mismatch không được ghi complete.
 
 Seed chỉ tạo giả định rõ ràng: cover3/7/14 và safety×0,5/1/1,5, không ghi đè policy người dùng. Policy effective dates là [from,to); một supplier/item tại mỗi thời điểm. Policy mới không được đóng khoảng ảnh hưởng run đã khóa; muốn thử lịch sử dùng **scenario override** trong Cấu hình. Lô đầu kỳ có ETA đúng D+7, ordered_on≤origin. Snapshot không tự phát sinh đơn; khuyến nghị chưa là receipt.
 
@@ -132,7 +157,7 @@ Seed chỉ tạo giả định rõ ràng: cover3/7/14 và safety×0,5/1/1,5, kh�
 1. Chọn snapshot31/10 → kho Japan/NTT Docomo → SKU. Tồn kho: nhấn dòng xem SS/ROP floor/IP/MOQ/Q. Dòng snapshot là khởi tạo, không phải sales actual ngày31/10.
 2. Dự báo → Tổng7 và Ngày phân bổ; xem H1–7/H8–14, sai số toàn cửa sổ test. Actual sau31/12 giữnull.
 3. Nhập hàng → tách khuyến nghị và lô replay; Cảnh báo → nhấn dòng để thấy projection, chọn alert replay để xem confusion/early toàn lượt.
-4. Cấu hình → tạo scenario với cover/safety, policy riêng và lô đang về; tạo run mới, run cũ giữ snapshot. URL giữ run/kho/item/origin, filter dùng chung bảng/CSV; KPI Tổng quan và tỷ lệ alert được ghi rõ là **toàn lượt**.
+4. Cấu hình → tạo scenario với cover/safety, policy riêng và lô đang về; tạo run mới, run cũ giữ snapshot. URL giữ run/kho/item/origin, filter dùng chung bảng/CSV; KPI quản lý Tổng quan theo bộ lọc/ngày; tỷ lệ đánh giá replay trong phần mở rộng ghi rõ là **toàn lượt**.
 5. Xuất CSV: đối chiếu run/source/config/selection hashes, cutoff, phiên bản và nhãn mô phỏng. Export không có raw orders/customer/source IDs; đọc dữ liệu từng batch.
 
 ```powershell
