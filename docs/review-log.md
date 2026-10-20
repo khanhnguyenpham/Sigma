@@ -1134,3 +1134,12 @@ TASK/PLAN/PROJECTMAP/README/IMPLEMENTATION và đặc tả FE/API đồng bộ. 
 Ngày20/10/2026, người dùng hỏi đã giống web quản lý chưa và yêu cầu “giống bài tập hơn”. Đã hỏi làm rõ; trong khi chưa có trả lời, chọn hướng bám đề M3/dễ trình diễn, giữ giao diện quản lý. Chỉ sửa nhãn/ngữ cảnh SIM/gói data, lối đi bốn bước ở Tổng quan và diễn giải tiếng Việt thuật ngữ nhập/cấu hình. Không thêm login/PO/khách hàng/quy trình doanh nghiệp hoặc trang báo cáo; không đổi target/model/policy/API/DB/run/metric/nghiệm thu.
 
 17React và TypeScript/Vite build đã chạy đạt. Browser thực bấm Xem dự báo và Kế hoạch nhập giữ run0c3460ff/origin31/10; bốn bước là điều hướng, không giả làm trạng thái hoàn tất. Viewport390/1440 không tràn trang, số liệu mô phỏng giữ nguyên; ảnh lưuoutputs local. Không chạy lại109Python hoặc refit vì chỉ thay nhãn/điều hướng;109Python và hai CI success f563d7d thuộc E95. TASK/PLAN/PROJECTMAP/IMPLEMENTATION/FE spec đồng bộ; CI commit mới kiểm riêng khi push. Bản Streamlit không đổi.
+
+
+## CHG-065 / E97 — Theo xác nhận muốn phần mềm doanh nghiệp
+
+Ngày20/10/2026, câu trả lời của người dùng làm rõ hướng giao diện/quy trình doanh nghiệp, thay cách hiểu bám bài tập ở E96. Bỏ dãy bước đánh số; giữ6màn hình/phạm vi M3. T11/T12 thêm bàn làm việc nhập hàng với3view theo mốc, search/sort/page/CSV/drawer và liên kết đúng mặt hàng với tồn/cảnh báo. Không thêm PO thật/duyệt/nhận thủ công/auth/hosting nhiều người, không thay model/policy/DB schema hoặc nghiệm thu.
+
+Thêm2GET chỉ đọc purchasing/export dùng dữ liệu frozen, không ghi nhận receipt lại. Chỉ lô đã đặt tại min(ngày xem, mốc ghi nhận) được thấy; trạng thái nhận/received_qty không nhìn tới cuối replay. Search trước phân trang, summary cùngfilter/search, exporttoàn bộ cùngsort/context và chống công thức CSV. Tab được lưu URL; stale chi tiết/bảng/CSV ẩn khi tìm mới.111Python=79M3+32M2 và19React/build/Ruff đạt. Browser thật lô→tồn→lô giữitem341; reload tabincoming; searchOptusD10G2kếtquả. API/CSV run0c3460ff kiểm793đềxuất/5866qty, CSV793dòng dùpage2/size1; incoming20/received0 tại31/10/ETA04/11. Replaybase1308lô đã đặt tới31/10, không trả đơn tương lai. Không refit hoặc tạo run giả; receipt/ảnh outputs local.
+
+TASK/PLAN/PROJECTMAP/README/IMPLEMENTATION và FE/API docs đồng bộ. Raw/run/DB/env giữ local; chỉ source/tests/docs push cùng nhánh. M05/R07/T14 không đổi; Reactlocal và Streamlitpublic vẫn riêng. CI commit mới và remoteSHA phải kiểm sau push, không suy từ111local hoặc CI E96.

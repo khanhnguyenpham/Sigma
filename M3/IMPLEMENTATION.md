@@ -1,5 +1,19 @@
 # M3 — ứng dụng đã triển khai và cách chạy
 
+<a id="purchasing-e97"></a>
+## Bàn làm việc nhập hàng — E97, 20/10/2026
+
+Người dùng đã làm rõ muốn cách trình bày và thao tác như phần mềm doanh nghiệp. Bỏ dãy bước đánh số E96; Tổng quan ưu tiên việc cần xử lý. Phạm vi vẫn là M3 mô phỏng, không thêm đơn đặt supplier thật, phiếu duyệt, nhận hàng thủ công, tài khoản hoặc quyền truy cập nhiều người.
+
+**Cách dùng:** Nhập hàng → Cần bổ sung để rà các mặt hàng Q>0, lượng đang về, ROP và ETA nếu đặt tại ngày kế hoạch. Tìm theo SKU/nhà mạng/quốc gia/loại; nhiều từ phải cùng khớp, không phân biệt hoa thường. Sắp xếp lượng hoặc ngày nhận. Nhấn dòng xem lý do, IP/mức tồn mục tiêu/MOQ và mở đúng hồ sơ tồn kho. Đề xuất chưa phát sinh lô nhập. Tab Đang về và Lịch sử lô nhập xem các lô đã đặt tại mốc dữ liệu, mở chi tiết lịch đặt/ETA/số đã nhận/chính sách. Từ Tồn kho có thể mở đề xuất hoặc hàng đang về; từ Cảnh báo mở tồn/kế hoạch nhập. Kho/item/run/ngày giữ đúng; tab nhập được lưu bằng tham số view trong URL và khôi phục sau reload. Tìm kiếm hoặc đổi context đóng chi tiết cũ, xóa dữ liệu cũ ngay trong lúc chờ và reset trang.
+
+**Read model mới:** `GET /api/v1/runs/{id}/purchasing` và `/purchasing/export`. Query as_of_date bắt buộc, view=recommendations/incoming/history; search≤80ký tự; sort=quantity_desc/quantity_asc/eta_asc/ordered_desc (ngày đặt chỉ dành cho lô); page/page_size≤100 và bộ lọc kho/item/loại/supplier. Summary theo toàn bộ bộ lọc/tìm kiếm, không chỉ trang hiện tại; các tab chia cùng scope. CSV xuất toàn bộ tập khớp cùng thứ tự/context, bỏ giới hạn trang; có run_status, view_date, known_orders_through, is_simulated và chống công thức CSV. Không thêm bảng hoặc ghi DB.
+
+Mốc lô được biết là min(ngày xem, origin snapshot hoặc period_end replay). Chỉ lô ordered_on≤mốc mới được hiện; Đang về có ETA>mốc. received_qty=0 trước ETA dù trạng thái cuối replay là received. Không suy đã nhận sau origin snapshot; banner ghi mốc đã biết. Dữ liệu gốc của lô và sealed run giữ nguyên; cách xem toàn kỳ cũ trong API/export gốc tiếp tục dùng cho đối soát, UI quản lý mới dùng purchasing.
+
+**Kiểm thực:**111Python=79M3+32M2,0fail/error;19React, TypeScript/Vite build và Ruff đạt. Hai test API mới kiểm ngày đặt tương lai, status nhận theo ETA, snapshot clamp, tìm trước phân trang, CSV toàn bộ cùng scope/sort, invalid/incomplete guard và không ghi lại receipt. Hai test FE mới kiểm search không lộ bảng/CSV cũ, resetpage và lô→đúngitem. Browser thực kiểm lô16125→item341→Đang về, reload giữ view=incoming; tìm Optus D10G có2mặt hàng và drawer giải thích. API/CSV thật run0c3460ff:793đề xuất/5866đơn vị, xuất793dòng dù requestpage_size1/page2;1lô20đơn vị ETA04/11, đã nhận0 tại31/10. Replay cơ sở chỉ1308lô đã đặt tới31/10 được xem trong history, không lộ các lô đặt sau đó. Viewport390/1440 và receipt/ảnh giữ local. Không refit hay đổi kết quả M05/R07/T14. CI của commit mới phải kiểm riêng.
+
+
 <a id="react-management-e95"></a>
 ## React quản lý M3 — E95, 20/10/2026
 
@@ -12,7 +26,7 @@ Theo yêu cầu mới của người dùng, giao diện dùng React/TypeScript/V
 | Tổng quan | Xem tồn hiện có, mặt hàng cần bổ sung, lô đang về và nguy cơ cạn; mở một mặt hàng hoặc tạo phương án. KPI và danh sách theo cùng run, ngày, kho, SKU, loại và nhà cung cấp. |
 | Tồn kho | Lọc trạng thái, mở ngăn chi tiết SKU để xem tồn/ROP/pending/IP/Q/MOQ; xuất CSV cùng bộ lọc. |
 | Dự báo nhu cầu | Chọn tổng30, tổng7 hoặc ngày phân bổ; xem lượng bán/actual. Tổng30/7 ở cấp tuyến; SKU/loại áp dụng cho phân bổ ngày, nhãn ghi rõ. Chất lượng, nguồn và giới hạn hồi cứu nằm trong phần mở rộng. |
-| Nhập hàng | Xem đề xuất Q>0 tại ngày đang chọn và tab các lô nhập toàn kỳ. Trạng thái tab lô là cuối kỳ mô phỏng; tổng quan dùng lô đã biết tại mốc xem, không dùng trạng thái cuối kỳ để suy ngược. |
+| Nhập hàng | E97: Cần bổ sung/Đang về/Lịch sử theo mốc dữ liệu; tìm kiếm, sắp xếp, chi tiết và CSV cùng scope. Không dùng trạng thái cuối kỳ để suy ngược; xem mục purchasing-e97. |
 | Cảnh báo | Lọc tín hiệu, mở chi tiết diễn biến tồn14ngày; dữ liệu TP/FP/FN/TN và chẩn đoán cơ hội chỉ trong phần đánh giá replay mở rộng. |
 | Cấu hình | Danh mục kho, chính sách supplier-item có phiên bản, tạo kịch bản và lô đầu kỳ; lưu không sửa kết quả đã khóa. |
 

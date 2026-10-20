@@ -20,16 +20,19 @@ import {
   PlanRequired,
   badge,
 } from "../components/common";
+import type { PurchasingView } from "./Replenishment";
 import { Icon } from "../components/Icon";
 import type { WorkspaceData } from "./Overview";
 export function Inventory({
   run,
   ctx,
   onChoose,
+  onItem,
 }: {
   run?: Run;
   ctx: Context;
   onChoose?: () => void;
+  onItem?: (row: Row, page?: string, view?: PurchasingView) => void;
 }) {
   const [page, setPage] = useState(1),
     [status, setStatus] = useState(""),
@@ -294,6 +297,33 @@ export function Inventory({
               </p>
             </div>
           </details>
+          {onItem && (
+            <div className="drawer-actions">
+              <button
+                className="primary"
+                onClick={() =>
+                  onItem(
+                    focused,
+                    "replenishment",
+                    Number(focused.recommended_qty) > 0
+                      ? "recommendations"
+                      : "incoming",
+                  )
+                }
+              >
+                {Number(focused.recommended_qty) > 0
+                  ? "Xem đề xuất nhập"
+                  : "Xem hàng đang về"}
+                <Icon name="arrow" size={16} />
+              </button>
+              <button
+                className="secondary"
+                onClick={() => onItem(focused, "alerts")}
+              >
+                Xem cảnh báo
+              </button>
+            </div>
+          )}
         </DetailDrawer>
       )}
     </>

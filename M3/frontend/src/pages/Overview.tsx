@@ -16,6 +16,7 @@ import {
   PlanRequired,
   useResource,
 } from "../components/common";
+import type { PurchasingView } from "./Replenishment";
 import { Icon } from "../components/Icon";
 import {
   fmt,
@@ -48,7 +49,7 @@ export function Overview({
   runs: Run[];
   onRun: (id: string) => void;
   onCreate: () => void;
-  onNavigate: (page: string) => void;
+  onNavigate: (page: string, view?: PurchasingView) => void;
   onItem: (row: Row, page?: string) => void;
   onChoose?: () => void;
 }) {
@@ -67,59 +68,15 @@ export function Overview({
     <>
       <div className="page-heading">
         <div>
-          <h1>Tổng quan kho</h1>
+          <h1>Điều hành tồn kho</h1>
           <p>
-            Theo dõi kho SIM/gói data theo quốc gia, nhà mạng và mã sản phẩm.
+            Theo dõi tồn, nhu cầu bổ sung và lịch hàng về trong ngày kế hoạch.
           </p>
         </div>
         <button className="secondary" onClick={() => onNavigate("inventory")}>
           Xem tồn kho <Icon name="arrow" size={16} />
         </button>
       </div>
-      <section
-        className="operation-flow"
-        aria-label="Quy trình quản lý kho SIM và gói data"
-      >
-        {[
-          [
-            "forecast",
-            "Xem dự báo",
-            "Lượng bán theo tuyến",
-            "Xem dự báo nhu cầu",
-          ],
-          [
-            "inventory",
-            "Kiểm tra tồn",
-            "Tồn hiện có và ngưỡng nhập",
-            "Kiểm tra tồn kho",
-          ],
-          [
-            "replenishment",
-            "Kế hoạch nhập",
-            "Lượng cần đặt và lịch hàng về",
-            "Xem kế hoạch nhập hàng",
-          ],
-          [
-            "alerts",
-            "Theo dõi cảnh báo",
-            "Nguy cơ cạn trong 14 ngày",
-            "Theo dõi cảnh báo tồn kho",
-          ],
-        ].map(([page, title, note, accessible], index) => (
-          <button
-            key={page}
-            aria-label={accessible}
-            onClick={() => onNavigate(page)}
-          >
-            <span className="operation-number">{index + 1}</span>
-            <span>
-              <strong>{title}</strong>
-              <small>{note}</small>
-            </span>
-            <Icon name="chevron" size={14} />
-          </button>
-        ))}
-      </section>
       {run && run.status !== "complete" && (
         <div
           className={"job-status " + (terminal ? "job-error" : "")}
@@ -351,9 +308,9 @@ export function Overview({
               action={
                 <button
                   className="text-button"
-                  onClick={() => onNavigate("replenishment")}
+                  onClick={() => onNavigate("replenishment", "incoming")}
                 >
-                  Mở nhập hàng <Icon name="arrow" size={15} />
+                  Xem hàng đang về <Icon name="arrow" size={15} />
                 </button>
               }
             >

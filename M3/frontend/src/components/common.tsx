@@ -272,10 +272,12 @@ export const badge = (value: unknown) => (
 
 export function DetailDrawer({
   title,
+  eyebrow = "Chi tiết mặt hàng",
   children,
   onClose,
 }: {
   title: string;
+  eyebrow?: string;
   children: React.ReactNode;
   onClose: () => void;
 }) {
@@ -291,7 +293,7 @@ export function DetailDrawer({
       >
         <header>
           <div>
-            <span className="eyebrow">Chi tiết mặt hàng</span>
+            <span className="eyebrow">{eyebrow}</span>
             <h2>{title}</h2>
           </div>
           <button
