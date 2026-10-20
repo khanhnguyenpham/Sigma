@@ -67,7 +67,7 @@ export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
   );
   const metrics = useResource<Page>(
     ready && mode === "operational"
-      ? `/runs/${id}/metrics?${resultQuery({ ...ctx, itemId: "", supplierId: "", productType: "" }, { block, cadence: "daily_origins", granularity: daily ? "allocated_daily" : "weekly", page_size: 100 })}`
+      ? `/runs/${id}/metrics?${resultQuery({ ...ctx, itemId: "", supplierId: "", productType: "" }, { block, split: "test", cadence: "daily_origins", granularity: daily ? "allocated_daily" : "weekly", page_size: 100 })}`
       : null,
   );
   const rows = route.data?.items ?? [];
@@ -75,25 +75,35 @@ export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
   return (
     <>
       <div className="page-intro">
-        <span className="eyebrow">01 / NHU CẦU</span>
-        <h1>Dự báo theo tuyến</h1>
-        <p>
-          Tổng 30 ngày là tiêu chí chính R05 theo M05. Tổng tuần và ngày phân bổ
-          phục vụ vận hành tồn kho H14.
-        </p>
+        <h1>Dự báo nhu cầu</h1>
+        <p>Xem lượng bán dự kiến theo tuyến và kỳ kế hoạch.</p>
       </div>
       <div className="segments" aria-label="Phạm vi dự báo">
         <button
           className={mode === "monthly" ? "active" : ""}
           onClick={() => setMode("monthly")}
         >
-          Tổng 30 · R05
+          Tổng 30 ngày
         </button>
         <button
-          className={mode === "operational" ? "active" : ""}
-          onClick={() => setMode("operational")}
+          className={mode === "operational" && !daily ? "active" : ""}
+          onClick={() => {
+            setMode("operational");
+            setDaily(false);
+            setPage(1);
+          }}
         >
-          Vận hành · Tổng 7 / ngày
+          Tổng 7 ngày
+        </button>
+        <button
+          className={mode === "operational" && daily ? "active" : ""}
+          onClick={() => {
+            setMode("operational");
+            setDaily(true);
+            setPage(1);
+          }}
+        >
+          Phân bổ theo ngày
         </button>
       </div>
       {mode === "monthly" ? (
@@ -105,33 +115,19 @@ export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
       ) : (
         <>
           <Panel
-            title={
-              daily
-                ? "Ngày phân bổ từ tổng tuần"
-                : "Hai tổng tuần không chồng lấp"
-            }
-            note={`Origin ${ctx.origin} · D+1…D+7 / D+8…D+14`}
+            title={daily ? "Ngày phân bổ từ tổng tuần" : "Dự báo tổng tuần"}
+            note={`Ngày lập ${ctx.origin} · Nhu cầu trong kỳ đang chọn.`}
             action={
-              <div className="segments">
-                <button
-                  className={!daily ? "active" : ""}
-                  onClick={() => {
-                    setDaily(false);
-                    setPage(1);
-                  }}
+              !daily ? (
+                <select
+                  aria-label="Tuần dự báo"
+                  value={block}
+                  onChange={(e) => setBlock(e.target.value)}
                 >
-                  Tổng 7
-                </button>
-                <button
-                  className={daily ? "active" : ""}
-                  onClick={() => {
-                    setDaily(true);
-                    setPage(1);
-                  }}
-                >
-                  Ngày phân bổ
-                </button>
-              </div>
+                  <option value="1">Tuần 1 · D+1…D+7</option>
+                  <option value="2">Tuần 2 · D+8…D+14</option>
+                </select>
+              ) : undefined
             }
           >
             <State
@@ -166,7 +162,7 @@ export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
                           <Line
                             dataKey="forecast_qty"
                             name="Dự báo phân bổ"
-                            stroke="#087e86"
+                            stroke="#5b6de0"
                             dot={false}
                           />
                           <Line
@@ -216,12 +212,12 @@ export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
                           <Bar
                             dataKey="forecast_qty"
                             name="Dự báo tuần"
-                            fill="#087e86"
+                            fill="#5b6de0"
                           />
                           <Bar
                             dataKey="actual_qty"
                             name="Actual"
-                            fill="#d39448"
+                            fill="#bdc8f0"
                           />
                         </BarChart>
                       </ResponsiveContainer>
@@ -237,12 +233,6 @@ export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
                     { key: "block", label: "Khối" },
                     { key: "forecast_qty", label: "Dự báo" },
                     { key: "actual_qty", label: "Actual" },
-                    {
-                      key: "model_id",
-                      label: "Mô hình",
-                      render: (v) =>
-                        daily ? "Phân bổ tổng tuần" : String(v ?? "—"),
-                    },
                   ]}
                 />
                 <Pager
@@ -256,49 +246,52 @@ export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
               </>
             )}
           </Panel>
-          <Panel
-            title={
-              daily
-                ? "Sai số ngày phân bổ · test lịch sử"
-                : "Sai số tổng tuần · test lịch sử"
-            }
-            note="Metric toàn bộ các cửa sổ test đủ nhãn, không chỉ origin đang vẽ. H1–7 và H8–14 chấm riêng."
-            action={
-              <select
-                aria-label="Khối đánh giá"
-                value={block}
-                onChange={(e) => setBlock(e.target.value)}
-              >
-                <option value="1">H1–7</option>
-                <option value="2">H8–14</option>
-              </select>
-            }
-          >
-            <State loading={metrics.loading} error={metrics.error} />
-            <Table
-              rows={test}
-              columns={[
-                { key: "destination_country", label: "Điểm đến" },
-                { key: "carrier", label: "Nhà mạng" },
-                { key: "mape_positive_pct", label: "MAPE (%)" },
-                { key: "mae", label: "MAE" },
-                { key: "wape_pct", label: "WAPE (%)" },
-                { key: "bias", label: "Bias có dấu" },
-                {
-                  key: "coverage",
-                  label: "Độ phủ",
-                  render: (v) =>
-                    typeof v === "number" ? fmt(v * 100, 1) + "%" : "—",
-                },
-                { key: "n_scored_pairs", label: "Cặp chấm" },
-              ]}
-            />
-            <p className="caption">
-              MAPE chỉ trên actual dương. Ngày phân bổ là dự báo dẫn xuất. Theo
-              M05, R05 chấm tổng 30 ngày ở tab riêng; các bảng này là chẩn đoán
-              vận hành H14.
-            </p>
-          </Panel>
+          <details className="advanced-section">
+            <summary>Chất lượng dự báo lịch sử</summary>
+            <Panel
+              title={
+                daily
+                  ? "Sai số ngày phân bổ · test lịch sử"
+                  : "Sai số tổng tuần · test lịch sử"
+              }
+              note="Metric toàn bộ các cửa sổ test đủ nhãn, không chỉ origin đang vẽ. H1–7 và H8–14 chấm riêng."
+              action={
+                <select
+                  aria-label="Khối đánh giá"
+                  value={block}
+                  onChange={(e) => setBlock(e.target.value)}
+                >
+                  <option value="1">H1–7</option>
+                  <option value="2">H8–14</option>
+                </select>
+              }
+            >
+              <State loading={metrics.loading} error={metrics.error} />
+              <Table
+                rows={test}
+                columns={[
+                  { key: "destination_country", label: "Điểm đến" },
+                  { key: "carrier", label: "Nhà mạng" },
+                  { key: "mape_positive_pct", label: "MAPE (%)" },
+                  { key: "mae", label: "MAE" },
+                  { key: "wape_pct", label: "WAPE (%)" },
+                  { key: "bias", label: "Bias có dấu" },
+                  {
+                    key: "coverage",
+                    label: "Độ phủ",
+                    render: (v) =>
+                      typeof v === "number" ? fmt(v * 100, 1) + "%" : "—",
+                  },
+                  { key: "n_scored_pairs", label: "Cặp chấm" },
+                ]}
+              />
+              <p className="caption">
+                MAPE chỉ trên actual dương. Ngày phân bổ là dự báo dẫn xuất.
+                Theo M05, R05 chấm tổng 30 ngày ở tab riêng; các bảng này là
+                chẩn đoán vận hành H14.
+              </p>
+            </Panel>
+          </details>
         </>
       )}
     </>

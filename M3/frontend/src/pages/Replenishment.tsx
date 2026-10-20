@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type Run, type Context, type Page, resultQuery } from "../api/client";
 import {
   useResource,
@@ -8,13 +8,34 @@ import {
   Pager,
   ExportButton,
   badge,
+  PlanRequired,
 } from "../components/common";
-export function Replenishment({ run, ctx }: { run?: Run; ctx: Context }) {
+export function Replenishment({
+  run,
+  ctx,
+  onChoose,
+}: {
+  run?: Run;
+  ctx: Context;
+  onChoose?: () => void;
+}) {
   const [lots, setLots] = useState(false),
     [page, setPage] = useState(1);
   const ready =
     run?.status === "complete" &&
     ["policy_replay", "alert_replay", "stock_projection"].includes(run.kind);
+  useEffect(
+    () => setPage(1),
+    [
+      ctx.runId,
+      ctx.origin,
+      ctx.warehouseId,
+      ctx.itemId,
+      ctx.supplierId,
+      ctx.productType,
+      lots,
+    ],
+  );
   const q = resultQuery(ctx, {
     page,
     page_size: 50,
@@ -31,15 +52,11 @@ export function Replenishment({ run, ctx }: { run?: Run; ctx: Context }) {
   return (
     <>
       <div className="page-intro">
-        <span className="eyebrow">03 / BỔ SUNG HÀNG</span>
-        <h1>Đặt đúng lượng, hiểu rõ ETA.</h1>
-        <p>
-          Đề xuất và lô mô phỏng được tách riêng. Các thao tác không gửi đơn đến
-          supplier thật.
-        </p>
+        <h1>Nhập hàng</h1>
+        <p>Theo dõi đề xuất bổ sung và lịch các lô nhập trong phương án.</p>
       </div>
       {!ready ? (
-        <div className="notice">Chọn một lượt tồn kho đã hoàn tất.</div>
+        <PlanRequired onChoose={onChoose} />
       ) : (
         <Panel
           title={
@@ -61,7 +78,7 @@ export function Replenishment({ run, ctx }: { run?: Run; ctx: Context }) {
                   setPage(1);
                 }}
               >
-                Khuyến nghị
+                Đề xuất nhập
               </button>
               <button
                 className={lots ? "active" : ""}
@@ -70,7 +87,7 @@ export function Replenishment({ run, ctx }: { run?: Run; ctx: Context }) {
                   setPage(1);
                 }}
               >
-                Các lô nhập
+                Lô nhập hàng
               </button>
             </div>
           }

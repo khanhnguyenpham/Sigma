@@ -44,7 +44,9 @@ it("shows total-30 acceptance and discards benchmark immediately when run change
     } as Response);
   });
   const view = render(<MonthlyForecast run={run("old")} ctx={ctx} />);
-  expect(await screen.findByText("10/10")).toBeVisible();
+  expect(await screen.findByText("10/10")).not.toBeVisible();
+  fireEvent.click(screen.getByText("Chất lượng & nguồn dự báo"));
+  expect(screen.getByText("10/10")).toBeVisible();
   expect(screen.getByText("11,62%")).toBeVisible();
   expect(screen.getByText(/không phải holdout độc lập/)).toBeVisible();
   expect(
@@ -91,7 +93,7 @@ it("renders unknown future actual as blank marker and exports the same origin", 
     links.some((link) =>
       link
         .getAttribute("href")
-        ?.includes("monthly_forecasts?top10_only=true&as_of_date=2025-12-31"),
+        ?.includes("monthly_forecasts?top10_only=false&as_of_date=2025-12-31"),
     ),
   ).toBe(true);
 });

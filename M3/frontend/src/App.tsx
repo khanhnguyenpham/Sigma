@@ -2,38 +2,45 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import {
   type Run,
   type Page,
-  type Row,
   type Context,
   readContext,
   contextUrl,
   label,
+  text,
 } from "./api/client";
 import { useResource, State, badge } from "./components/common";
+import { Icon } from "./components/Icon";
 import { RunDialog } from "./components/RunDialog";
-import { Overview } from "./pages/Overview";
-const Forecast = lazy(() =>
-  import("./pages/Forecast").then((m) => ({ default: m.Forecast })),
+const Overview = lazy(() =>
+  import("./pages/Overview").then((m) => ({ default: m.Overview })),
 );
 import { Inventory } from "./pages/Inventory";
 import { Replenishment } from "./pages/Replenishment";
+import { Configuration } from "./pages/Configuration";
+import "./styles.css";
+
+const Forecast = lazy(() =>
+  import("./pages/Forecast").then((m) => ({ default: m.Forecast })),
+);
 const Alerts = lazy(() =>
   import("./pages/Alerts").then((m) => ({ default: m.Alerts })),
 );
-import { Configuration } from "./pages/Configuration";
-import "./styles.css";
 const PAGES = [
-  ["overview", "◈", "Tổng quan"],
-  ["forecast", "↗", "Dự báo"],
-  ["inventory", "▤", "Tồn kho"],
-  ["replenishment", "⇣", "Nhập hàng"],
-  ["alerts", "◉", "Cảnh báo"],
-  ["configuration", "⚙", "Cấu hình"],
+  ["overview", "grid", "Tổng quan"],
+  ["inventory", "box", "Tồn kho"],
+  ["forecast", "chart", "Dự báo nhu cầu"],
+  ["replenishment", "truck", "Nhập hàng"],
+  ["alerts", "bell", "Cảnh báo"],
+  ["configuration", "settings", "Cấu hình"],
 ];
+const inventoryKinds = ["stock_projection", "policy_replay", "alert_replay"];
+
 export default function App() {
-  const [ctx, setCtx] = useState<Context>(readContext),
-    [page, setPage] = useState(location.hash.slice(1) || "overview"),
-    [dialog, setDialog] = useState(false),
-    [refresh, setRefresh] = useState(0);
+  const [ctx, setCtx] = useState<Context>(readContext);
+  const [page, setPage] = useState(location.hash.slice(1) || "overview");
+  const [dialog, setDialog] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
+  const [refresh, setRefresh] = useState(0);
   const runsResource = useResource<Page<Run>>(
     `/runs?page_size=100&refresh=${refresh}`,
     true,
@@ -44,9 +51,11 @@ export default function App() {
       ? `/runs/${ctx.runId}`
       : null,
   );
-  const runs = selectedResource.data && !latest.some(r=>r.id===selectedResource.data?.id)
-    ? [...latest, selectedResource.data]
-    : latest;
+  const runs =
+    selectedResource.data &&
+    !latest.some((r) => r.id === selectedResource.data?.id)
+      ? [...latest, selectedResource.data]
+      : latest;
   const run = runs.find((r) => r.id === ctx.runId);
   const catalog = useResource<Page>(
     run?.status === "complete"
@@ -55,13 +64,23 @@ export default function App() {
   );
   const items = useResource<Page>(
     ctx.warehouseId
-      ? `/items?warehouse_id=${ctx.warehouseId}&page_size=100${run?.status === "complete" ? `&run_id=${run.id}` : ""}`
+      ? `/items?warehouse_id=${ctx.warehouseId}&page_size=100${run?.status === "complete" ? "&run_id=" + run.id : ""}`
       : null,
   );
   const suppliers = useResource<Page>("/suppliers?page_size=100");
-  const hasWork = runs.some(
-    (r) => r.status === "queued" || r.status === "running",
-  );
+  const hasWork = runs.some((r) => ["queued", "running"].includes(r.status));
+  const compatible =
+    runs.find(
+      (r) =>
+        r.status === "complete" &&
+        r.kind === "stock_projection" &&
+        r.as_of_date === "2025-10-31",
+    ) ??
+    runs.find(
+      (r) => r.status === "complete" && inventoryKinds.includes(r.kind),
+    );
+  const busyRun = runs.find((r) => ["queued", "running"].includes(r.status));
+
   useEffect(() => {
     const timer = setInterval(
       () => setRefresh((v) => v + 1),
@@ -70,17 +89,10 @@ export default function App() {
     return () => clearInterval(timer);
   }, [hasWork]);
   useEffect(() => {
-    if (ctx.runId || !runs.length) return;
-    const preferred =
-      runs.find(
-        (r) =>
-          r.status === "complete" &&
-          r.kind === "stock_projection" &&
-          r.as_of_date === "2025-10-31",
-      ) ??
-      runs.find((r) => r.status === "complete" && r.kind === "policy_replay") ??
-      runs.find((r) => r.status === "complete");
-    if (preferred) selectRun(preferred.id);
+    if (!ctx.runId && runs.length) {
+      const preferred = compatible ?? runs.find((r) => r.status === "complete");
+      if (preferred) selectRun(preferred.id);
+    }
   }, [runsResource.data]);
   useEffect(() => {
     history.replaceState(null, "", "?" + contextUrl(ctx) + "#" + page);
@@ -109,28 +121,38 @@ export default function App() {
       }));
   }, [run?.id, ctx.origin]);
   function selectRun(id: string) {
-    const selected = runs.find((r) => r.id === id);
-    const origin =
-      selected?.kind === "forecast"
-        ? "2025-10-31"
-        : (selected?.as_of_date ?? ctx.origin);
+    const r = runs.find((r) => r.id === id);
     setCtx((c) => ({
       ...c,
       runId: id,
-      origin,
+      origin:
+        r?.kind === "forecast" ? "2025-10-31" : (r?.as_of_date ?? c.origin),
       warehouseId: "",
       itemId: "",
       supplierId: "",
+      productType: "",
     }));
   }
   function navigate(id: string) {
     setPage(id);
+    setNavOpen(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  const props = { run, ctx };
-  const pageNode =
+  function openItem(row: Record<string, unknown>, target = "inventory") {
+    setCtx((c) => ({
+      ...c,
+      warehouseId: String(row.warehouse_id ?? ""),
+      itemId: String(row.item_id ?? ""),
+    }));
+    navigate(target);
+  }
+  const chooseInventory = compatible
+    ? () => selectRun(compatible.id)
+    : undefined;
+  const props = { run, ctx, onChoose: chooseInventory };
+  const node =
     page === "forecast" ? (
-      <Forecast {...props} />
+      <Forecast run={run} ctx={ctx} />
     ) : page === "inventory" ? (
       <Inventory {...props} />
     ) : page === "replenishment" ? (
@@ -141,14 +163,24 @@ export default function App() {
       <Configuration onChanged={() => setRefresh((v) => v + 1)} />
     ) : (
       <Overview
-        run={run}
+        {...props}
         runs={runs}
         onRun={selectRun}
         onCreate={() => setDialog(true)}
+        onNavigate={navigate}
+        onItem={openItem}
       />
     );
+  const selectedTitle = PAGES.find((p) => p[0] === page)?.[2] ?? "Tổng quan";
   return (
-    <div className="shell">
+    <div className={"shell " + (navOpen ? "nav-open" : "")}>
+      {navOpen && (
+        <button
+          className="nav-scrim"
+          aria-label="Đóng menu"
+          onClick={() => setNavOpen(false)}
+        />
+      )}
       <aside className="sidebar">
         <a
           className="brand"
@@ -158,198 +190,260 @@ export default function App() {
             navigate("overview");
           }}
         >
-          <span className="brand-symbol">S</span>
+          <span className="brand-symbol">
+            <Icon name="box" size={23} />
+          </span>
           <div>
-            <strong>SIGMA</strong>
-            <small>DEMAND & INVENTORY</small>
+            <strong>
+              sigma<span>.</span>
+            </strong>
+            <small>Inventory workspace</small>
           </div>
         </a>
-        <div className="nav-label">ĐIỀU PHỐI</div>
-        <nav>
-          {PAGES.map(([id, icon, name], index) => (
+        <div className="nav-label">QUẢN LÝ KHO</div>
+        <nav aria-label="Điều hướng chính">
+          {PAGES.slice(0, 5).map(([id, icon, name]) => (
             <button
               key={id}
               title={name}
               className={page === id ? "selected" : ""}
-              onClick={() => navigate(id)}
               aria-current={page === id ? "page" : undefined}
+              onClick={() => navigate(id)}
             >
-              <span>{icon}</span>
-              {name}
-              <small>{String(index + 1).padStart(2, "0")}</small>
+              <Icon name={icon} />
+              <span>{name}</span>
+              {page === id && <i />}
             </button>
           ))}
         </nav>
+        <div className="nav-label settings-label">THIẾT LẬP</div>
+        <nav aria-label="Thiết lập">
+          <button
+            className={page === "configuration" ? "selected" : ""}
+            aria-current={page === "configuration" ? "page" : undefined}
+            onClick={() => navigate("configuration")}
+          >
+            <Icon name="settings" />
+            <span>Cấu hình</span>
+          </button>
+        </nav>
         <div className="side-note">
-          <span className="live-dot" /> MÔI TRƯỜNG LOCAL
-          <p>
-            Kho & nhập mô phỏng
-            <br />
-            L7 · R1 · H14
-            <br />
-            Ngày nghiệp vụ UTC
-          </p>
+          <div className="workspace-icon">
+            <Icon name="box" />
+          </div>
+          <div>
+            <strong>SIGMA Workspace</strong>
+            <span>
+              <i className="live-dot" /> Môi trường mô phỏng
+            </span>
+          </div>
         </div>
       </aside>
       <main>
         <header className="topbar">
           <div className="breadcrumb">
-            SIGMA <span>/</span>{" "}
-            {PAGES.find((p) => p[0] === page)?.[2] ?? "Tổng quan"}
+            <button
+              className="icon-button mobile-menu"
+              aria-label="Mở menu"
+              onClick={() => setNavOpen(true)}
+            >
+              <Icon name="menu" />
+            </button>
+            <span className="breadcrumb-root">Quản lý kho</span>
+            <Icon name="chevron" size={14} />
+            <strong>{selectedTitle}</strong>
           </div>
           <div className="top-status">
-            {run ? (
-              badge(run.status)
-            ) : (
-              <span className="badge">Chưa chọn lượt</span>
+            {busyRun && (
+              <button
+                className="task-indicator"
+                onClick={() => {
+                  selectRun(busyRun.id);
+                  navigate("overview");
+                }}
+              >
+                <i className="spinner" />
+                Đang xử lý
+              </button>
             )}
-            <span className="source-tag">SNAPSHOT 2024–2025</span>
-            <button className="small primary" onClick={() => setDialog(true)}>
-              ＋ Chạy phương án
+            <span className="environment-pill">
+              <Icon name="info" size={14} /> Dữ liệu mô phỏng
+            </span>
+            <button className="primary" onClick={() => setDialog(true)}>
+              <Icon name="plus" size={17} />
+              Tạo phương án
             </button>
           </div>
         </header>
         <div className="workspace">
-          <section className="context-bar" aria-label="Bộ lọc cùng lượt chạy">
-            <label>
-              Lượt chạy
-              <select
-                aria-label="Lượt chạy"
-                value={ctx.runId}
-                onChange={(e) => selectRun(e.target.value)}
+          {page !== "configuration" && (
+            <>
+              <section
+                className="context-bar"
+                aria-label="Bộ lọc cùng lượt chạy"
               >
-                <option value="">Chọn lượt đã có</option>
-                {runs.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {label(r.kind)} · {r.as_of_date} · {r.id.slice(0, 8)} ·{" "}
-                    {r.status}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Kho / tuyến
-              <select
-                aria-label="Kho / tuyến"
-                value={ctx.warehouseId}
-                onChange={(e) =>
-                  setCtx((c) => ({
-                    ...c,
-                    warehouseId: e.target.value,
-                    itemId: "",
-                  }))
-                }
-              >
-                <option value="">Tất cả kho</option>
-                {catalog.data?.items.map((w) => (
-                  <option key={String(w.id)} value={String(w.id)}>
-                    {String(w.destination_country)} / {String(w.carrier)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              SKU
-              <select
-                aria-label="SKU"
-                disabled={!ctx.warehouseId}
-                value={ctx.itemId}
-                onChange={(e) =>
-                  setCtx((c) => ({ ...c, itemId: e.target.value }))
-                }
-              >
-                <option value="">Tất cả mặt hàng</option>
-                {items.data?.items.map((i) => (
-                  <option key={String(i.id)} value={String(i.id)}>
-                    {String(i.sku)} · {String(i.product_type)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Ngày xem / origin UTC
-              <input
-                aria-label="Ngày xem / origin UTC"
-                type="date"
-                value={ctx.origin}
-                onChange={(e) =>
-                  setCtx((c) => ({ ...c, origin: e.target.value }))
-                }
-              />
-            </label>
-            <button
-              className="clear"
-              onClick={() =>
-                setCtx((c) => ({
-                  ...c,
-                  warehouseId: "",
-                  itemId: "",
-                  supplierId: "",
-                  productType: "",
-                }))
-              }
-            >
-              Xóa lọc
-            </button>
-          </section>
-          <div className="context-meta">
-            {run ? (
-              <>
-                <span>
-                  {label(run.kind)} · #{run.id.slice(0, 8)}
-                </span>
-                <span>
-                  Mốc chốt {run.as_of_date} · Quan sát đến {run.observation_end}
-                </span>
-                <span>
-                  {run.kind === "forecast" || run.kind === "source_import"
-                    ? "Nguồn snapshot hồi cứu"
-                    : "TỒN / NHẬP MÔ PHỎNG"}
-                </span>
-              </>
-            ) : (
-              <span>Chọn một lượt chạy để giữ nhất quán số liệu.</span>
-            )}
-            <details>
-              <summary>Lọc thêm</summary>
-              <label>
-                Loại sản phẩm
-                <select
-                  value={ctx.productType}
-                  onChange={(e) =>
-                    setCtx((c) => ({
-                      ...c,
-                      productType: e.target.value,
-                      itemId: "",
-                    }))
-                  }
-                >
-                  <option value="">Tất cả</option>
-                  <option>eSIM</option>
-                  <option>physical_SIM</option>
-                </select>
-              </label>
-              <label>
-                Supplier
-                <select
-                  disabled={
-                    run?.kind === "forecast" || run?.kind === "source_import"
-                  }
-                  value={ctx.supplierId}
-                  onChange={(e) =>
-                    setCtx((c) => ({ ...c, supplierId: e.target.value }))
-                  }
-                >
-                  <option value="">Tất cả</option>
-                  {suppliers.data?.items.map((s) => (
-                    <option key={String(s.id)} value={String(s.id)}>
-                      {String(s.code)}
+                <label className="plan-filter">
+                  Phương án
+                  <select
+                    aria-label="Lượt chạy"
+                    value={ctx.runId}
+                    onChange={(e) => selectRun(e.target.value)}
+                  >
+                    <option value="">Chọn phương án</option>
+                    {runs.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {label(r.kind)} · {r.as_of_date} · {r.id.slice(0, 6)}
+                        {r.status === "complete" ? "" : " · " + text(r.status)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Kho / tuyến
+                  <select
+                    aria-label="Kho / tuyến"
+                    value={ctx.warehouseId}
+                    onChange={(e) =>
+                      setCtx((c) => ({
+                        ...c,
+                        warehouseId: e.target.value,
+                        itemId: "",
+                      }))
+                    }
+                  >
+                    <option value="">Tất cả kho</option>
+                    {catalog.data?.items.map((w) => (
+                      <option key={String(w.id)} value={String(w.id)}>
+                        {String(w.destination_country)} / {String(w.carrier)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Mặt hàng
+                  <select
+                    aria-label="SKU"
+                    disabled={!ctx.warehouseId}
+                    value={ctx.itemId}
+                    onChange={(e) =>
+                      setCtx((c) => ({ ...c, itemId: e.target.value }))
+                    }
+                  >
+                    <option value="">
+                      {ctx.warehouseId ? "Tất cả mặt hàng" : "Chọn kho trước"}
                     </option>
-                  ))}
-                </select>
-              </label>
-            </details>
-          </div>
+                    {items.data?.items.map((i) => (
+                      <option key={String(i.id)} value={String(i.id)}>
+                        {String(i.sku)} · {String(i.product_type)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Ngày làm việc · UTC
+                  <input
+                    aria-label="Ngày xem / origin UTC"
+                    type="date"
+                    value={ctx.origin}
+                    onChange={(e) =>
+                      setCtx((c) => ({ ...c, origin: e.target.value }))
+                    }
+                  />
+                </label>
+                <details className="extra-filters">
+                  <summary>
+                    <Icon name="filter" size={16} /> Bộ lọc
+                  </summary>
+                  <div className="filter-popover">
+                    <label>
+                      Loại sản phẩm
+                      <select
+                        aria-label="Loại sản phẩm"
+                        value={ctx.productType}
+                        onChange={(e) =>
+                          setCtx((c) => ({
+                            ...c,
+                            productType: e.target.value,
+                            itemId: "",
+                          }))
+                        }
+                      >
+                        <option value="">Tất cả</option>
+                        <option>eSIM</option>
+                        <option>physical_SIM</option>
+                      </select>
+                    </label>
+                    <label>
+                      Nhà cung cấp
+                      <select
+                        aria-label="Nhà cung cấp"
+                        disabled={!run || !inventoryKinds.includes(run.kind)}
+                        value={ctx.supplierId}
+                        onChange={(e) =>
+                          setCtx((c) => ({ ...c, supplierId: e.target.value }))
+                        }
+                      >
+                        <option value="">Tất cả</option>
+                        {suppliers.data?.items.map((s) => (
+                          <option key={String(s.id)} value={String(s.id)}>
+                            {String(s.code)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <button
+                      className="text-button"
+                      onClick={() =>
+                        setCtx((c) => ({
+                          ...c,
+                          warehouseId: "",
+                          itemId: "",
+                          supplierId: "",
+                          productType: "",
+                        }))
+                      }
+                    >
+                      Xóa bộ lọc
+                    </button>
+                  </div>
+                </details>
+              </section>
+              <div className="context-meta">
+                {run && (
+                  <>
+                    <span>
+                      {badge(run.status)}
+                      <span className="plan-type">{label(run.kind)}</span>
+                    </span>
+                    <details>
+                      <summary>
+                        Thông tin phương án <Icon name="info" size={13} />
+                      </summary>
+                      <div className="context-popover">
+                        <strong>Nguồn & phiên bản</strong>
+                        <dl>
+                          <dt>Mã phương án</dt>
+                          <dd>{run.id}</dd>
+                          <dt>Mốc chốt UTC</dt>
+                          <dd>{run.as_of_date}</dd>
+                          <dt>Quan sát đến</dt>
+                          <dd>{run.observation_end}</dd>
+                          <dt>Cấu hình</dt>
+                          <dd>{run.config_version}</dd>
+                          <dt>Giả định</dt>
+                          <dd>{run.assumption_version}</dd>
+                        </dl>
+                        <p>
+                          Snapshot lịch sử 2024–2025. Tồn và nhập là mô phỏng;
+                          chưa quan sát actual sau 31/12/2025. L7 · R1 · H14.
+                        </p>
+                      </div>
+                    </details>
+                  </>
+                )}
+              </div>
+            </>
+          )}
           <State
             loading={runsResource.loading && !runsResource.data}
             error={runsResource.error}
@@ -359,16 +453,17 @@ export default function App() {
           !run &&
           !selectedResource.loading ? (
             <div className="notice error" role="alert">
-              Lượt chạy trong URL không tồn tại. Chọn lại từ danh sách; ứng dụng
-              không tự thay sang lượt khác.
+              Không tìm thấy phương án trong liên kết. Hãy chọn lại phương án;
+              dữ liệu không được tự đổi sang kế hoạch khác.
             </div>
           ) : (
-            <Suspense fallback={<State loading />}>{pageNode}</Suspense>
+            <Suspense fallback={<State loading />}>{node}</Suspense>
           )}
           <footer>
-            <span>SIGMA · Nhu cầu & tồn kho</span>
+            <span>SIGMA · Quản lý nhu cầu & tồn kho</span>
             <span>
-              Actual · Dự báo · Phân bổ · Giả định · Mô phỏng được tách rõ
+              L7 · R1 · H14 <span className="footer-dot">·</span> Ngày nghiệp vụ
+              UTC
             </span>
           </footer>
         </div>
@@ -381,7 +476,7 @@ export default function App() {
             setDialog(false);
             setCtx((c) => ({ ...c, runId: id, origin: "" }));
             setRefresh((v) => v + 1);
-            setPage("overview");
+            navigate("overview");
           }}
         />
       )}
