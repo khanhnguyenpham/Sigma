@@ -24,7 +24,7 @@ def main():
         initial_sidebar_state="collapsed",
     )
     st.markdown(
-        """<style>[data-testid="stMainBlockContainer"]{padding:0!important;max-width:none!important}[data-testid="stMain"]{padding-top:0}iframe[title*="sigma_react"]{width:100%;border:0}header[data-testid="stHeader"]{height:2rem}</style>""",
+        """<style>[data-testid="stMainBlockContainer"]{padding:3.75rem 0 0!important;max-width:none!important}[data-testid="stMain"]{padding-top:0}iframe[title*="sigma_react"]{width:100%;border:0}header[data-testid="stHeader"]{height:2rem}</style>""",
         unsafe_allow_html=True,
     )
     folder = ROOT / "release_m3"
