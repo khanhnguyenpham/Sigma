@@ -1,3 +1,4 @@
+import { CLOUD } from "../api/cloud";
 import { useRef, useState } from "react";
 import {
   api,
@@ -101,13 +102,16 @@ export function RunDialog({
               value={kind}
               onChange={(e) => setKind(e.target.value)}
             >
-              {[
-                "stock_projection",
-                "policy_replay",
-                "alert_replay",
-                "forecast",
-                "source_import",
-              ].map((k) => (
+              {(CLOUD
+                ? ["stock_projection"]
+                : [
+                    "stock_projection",
+                    "policy_replay",
+                    "alert_replay",
+                    "forecast",
+                    "source_import",
+                  ]
+              ).map((k) => (
                 <option value={k} key={k}>
                   {label(k)}
                 </option>
@@ -198,6 +202,14 @@ export function RunDialog({
                   required
                 />
               </label>
+            </div>
+          )}
+          {CLOUD && (
+            <div className="notice subtle">
+              Phương án trực tuyến dùng dự báo đã công bố và số tồn tại mốc dữ
+              liệu; các lô đầu kỳ lấy theo kịch bản. Kết quả và cấu hình chỉ lưu
+              trong phiên. Huấn luyện và replay giao dịch chạy tại hệ thống
+              local.
             </div>
           )}
           <div className="notice subtle">

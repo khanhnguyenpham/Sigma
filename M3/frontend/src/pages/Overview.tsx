@@ -55,6 +55,7 @@ export function Overview({
 }) {
   const ready =
     run?.status === "complete" &&
+    run.result_summary.inventory_available !== false &&
     ["stock_projection", "policy_replay", "alert_replay"].includes(run.kind);
   const resource = useResource<WorkspaceData>(
     ready && ctx.origin
