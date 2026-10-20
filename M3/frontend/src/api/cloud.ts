@@ -26,8 +26,10 @@ let send: (value: unknown) => void = () => {};
 let scheduled = false,
   lastSent = "";
 let readyResolve: () => void;
-const ready = new Promise<void>((resolve) => {
+let readyReject: (error: Error) => void;
+const ready = new Promise<void>((resolve, reject) => {
   readyResolve = resolve;
+  readyReject = reject;
 });
 function flush() {
   if (scheduled) return;
@@ -56,8 +58,21 @@ export async function initCloud() {
     }
     readyResolve();
   });
+  const bootTimer = setTimeout(
+    () =>
+      readyReject(
+        new Error(
+          "Chưa kết nối được với máy chủ. Hãy kiểm tra mạng rồi tải lại trang.",
+        ),
+      ),
+    20000,
+  );
   Streamlit.setComponentReady();
-  await ready;
+  try {
+    await ready;
+  } finally {
+    clearTimeout(bootTimer);
+  }
 }
 export async function cloudRequest(
   path: string,
@@ -76,15 +91,35 @@ export async function cloudRequest(
       new Headers(options.headers).get("Idempotency-Key") ?? undefined,
   };
   return new Promise((resolve, reject) => {
+    const cleanup = () => {
+      clearTimeout(timer);
+      options.signal?.removeEventListener("abort", abort);
+    };
     const abort = () => {
+      cleanup();
       pending.delete(id);
       reject(new DOMException("Request aborted", "AbortError"));
       flush();
     };
     const finish = (reply: Reply) => {
-      options.signal?.removeEventListener("abort", abort);
+      cleanup();
       resolve(reply);
     };
+    const timer = setTimeout(
+      () => {
+        cleanup();
+        pending.delete(id);
+        flush();
+        reject(
+          new Error(
+            request.method === "GET"
+              ? "Kết nối quá thời gian. Hãy kiểm tra mạng và bấm Thử tải lại."
+              : "Chưa nhận được phản hồi. Thao tác có thể đã được xử lý; hãy làm mới và kiểm tra danh sách trước khi gửi lại.",
+          ),
+        );
+      },
+      request.method === "GET" ? 30000 : 90000,
+    );
     pending.set(id, { request, resolve: finish, reject });
     options.signal?.addEventListener("abort", abort, { once: true });
     flush();

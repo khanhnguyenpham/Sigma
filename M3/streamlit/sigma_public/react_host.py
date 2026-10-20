@@ -7,14 +7,29 @@ from sigma_public.react_api.bundle import PublicBundle
 from sigma_public.react_api.dispatcher import PublicWorkspace
 
 ROOT = Path(__file__).resolve().parents[1]
+ADAPTER_VERSION = "react-public-e99-v1"
 
 
 @st.cache_resource(show_spinner=False)
-def load_bundle(folder, pin):
+def load_bundle(folder, pin, adapter_version):
     bundle = PublicBundle(folder)
     if bundle.pin != pin:
         raise ValueError("Public manifest changed during loading")
     return bundle
+
+
+def workspace_for(bundle, state):
+    existing = state.get("sigma_react_workspace")
+    if (
+        existing is None
+        or existing.bundle.pin != bundle.pin
+        or state.get("sigma_react_adapter_version") != ADAPTER_VERSION
+    ):
+        state["sigma_react_workspace"] = PublicWorkspace(bundle)
+        state["sigma_react_adapter_version"] = ADAPTER_VERSION
+        state.pop("sigma_react_responses", None)
+        state.pop("sigma_react_ui", None)
+    return state["sigma_react_workspace"]
 
 
 def main():
@@ -30,14 +45,8 @@ def main():
     folder = ROOT / "release_m3"
     try:
         pin = (folder / "manifest.sha256").read_text().strip()
-        bundle = load_bundle(str(folder), pin)
-        if "sigma_react_workspace" not in st.session_state:
-            st.session_state.sigma_react_workspace = PublicWorkspace(bundle)
-        workspace = st.session_state.sigma_react_workspace
-        if workspace.bundle.pin != pin:
-            st.session_state.sigma_react_workspace = PublicWorkspace(bundle)
-            workspace = st.session_state.sigma_react_workspace
-            st.session_state.pop("sigma_react_responses", None)
+        bundle = load_bundle(str(folder), pin, ADAPTER_VERSION)
+        workspace = workspace_for(bundle, st.session_state)
         responses = st.session_state.setdefault("sigma_react_responses", {})
         command = st.session_state.get("sigma_react_ui") or {}
         requests = command.get("requests", []) if isinstance(command, dict) else []
