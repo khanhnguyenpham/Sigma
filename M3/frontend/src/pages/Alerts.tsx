@@ -31,16 +31,19 @@ import {
   DetailDrawer,
   PlanRequired,
 } from "../components/common";
+import type { PurchasingView } from "./Replenishment";
 import { Icon } from "../components/Icon";
 import type { WorkspaceData } from "./Overview";
 export function Alerts({
   run,
   ctx,
   onChoose,
+  onItem,
 }: {
   run?: Run;
   ctx: Context;
   onChoose?: () => void;
+  onItem?: (row: Row, page?: string, view?: PurchasingView) => void;
 }) {
   const [state, setState] = useState(""),
     [page, setPage] = useState(1),
@@ -302,6 +305,22 @@ export function Alerts({
               )}
             </div>
           </details>
+          {onItem && (
+            <div className="drawer-actions">
+              <button
+                className="primary"
+                onClick={() => onItem(focused, "inventory")}
+              >
+                Kiểm tra tồn kho <Icon name="arrow" size={16} />
+              </button>
+              <button
+                className="secondary"
+                onClick={() => onItem(focused, "replenishment")}
+              >
+                Xem kế hoạch nhập
+              </button>
+            </div>
+          )}
         </DetailDrawer>
       )}
     </>

@@ -202,3 +202,73 @@ it("labels pending lots at their frozen origin when viewing a later date", async
     await screen.findByText(/Các lô đã biết tại mốc 2025-10-31/),
   ).toBeVisible();
 });
+
+it("clears stale purchasing rows and export while a new search is pending", async () => {
+  const fetch = vi
+    .spyOn(globalThis, "fetch")
+    .mockImplementation((url) =>
+      String(url).includes("search=missing")
+        ? new Promise(() => {})
+        : response({
+            items: [{ id: 1, sku: "TEST-SKU", item_id: 1 }],
+            total: 120,
+            summary: { recommended_items: 120 },
+          }),
+    );
+  render(<Replenishment run={run()} ctx={ctx} />);
+  await screen.findByText("TEST-SKU");
+  fireEvent.click(screen.getByRole("button", { name: "Sau →" }));
+  await waitFor(() =>
+    expect(
+      fetch.mock.calls.some(([url]) => String(url).includes("page=2")),
+    ).toBe(true),
+  );
+  fireEvent.change(
+    screen.getByRole("searchbox", { name: "Tìm trong danh sách nhập hàng" }),
+    { target: { value: "missing" } },
+  );
+  expect(screen.queryByText("TEST-SKU")).toBeNull();
+  expect(screen.queryByRole("link", { name: /Xuất CSV/ })).toBeNull();
+  await waitFor(() =>
+    expect(String(fetch.mock.calls.at(-1)?.[0])).toContain("search=missing"),
+  );
+  expect(String(fetch.mock.calls.at(-1)?.[0])).toContain("page=1");
+});
+
+it("opens an incoming lot and links its exact item to inventory", async () => {
+  const row = {
+    id: 7,
+    item_id: 341,
+    warehouse_id: 18,
+    sku: "TEST-SKU",
+    product_type: "eSIM",
+    carrier: "Demo",
+    destination_country: "DemoLand",
+    ordered_on: "2025-10-28",
+    eta: "2025-11-04",
+    ordered_qty: 20,
+    received_qty: 0,
+    status: "ordered",
+  };
+  vi.spyOn(globalThis, "fetch").mockImplementation(() =>
+    response({
+      items: [row],
+      total: 1,
+      context: { known_orders_through: "2025-10-31" },
+      summary: {
+        incoming_lots: 1,
+        pending_units: 20,
+        inventory_available: true,
+      },
+    }),
+  );
+  const open = vi.fn();
+  render(<Replenishment run={run()} ctx={ctx} view="incoming" onItem={open} />);
+  fireEvent.click(await screen.findByText("Lô #7"));
+  expect(screen.getByRole("dialog", { name: "Lô #7" })).toBeVisible();
+  expect(
+    screen.getByText("Đã nhận tại mốc dữ liệu").closest("div"),
+  ).toHaveTextContent("0");
+  fireEvent.click(screen.getByRole("button", { name: /Mở hồ sơ tồn kho/ }));
+  expect(open).toHaveBeenCalledWith(row, "inventory");
+});

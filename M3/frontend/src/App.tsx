@@ -15,7 +15,7 @@ const Overview = lazy(() =>
   import("./pages/Overview").then((m) => ({ default: m.Overview })),
 );
 import { Inventory } from "./pages/Inventory";
-import { Replenishment } from "./pages/Replenishment";
+import { Replenishment, type PurchasingView } from "./pages/Replenishment";
 import { Configuration } from "./pages/Configuration";
 import "./styles.css";
 
@@ -34,12 +34,18 @@ const PAGES = [
   ["configuration", "settings", "Cấu hình"],
 ];
 const inventoryKinds = ["stock_projection", "policy_replay", "alert_replay"];
+function readPurchasingView(): PurchasingView {
+  const view = new URLSearchParams(location.search).get("view");
+  return view === "incoming" || view === "history" ? view : "recommendations";
+}
 
 export default function App() {
   const [ctx, setCtx] = useState<Context>(readContext);
   const [page, setPage] = useState(location.hash.slice(1) || "overview");
   const [dialog, setDialog] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [purchasingView, setPurchasingView] =
+    useState<PurchasingView>(readPurchasingView);
   const [refresh, setRefresh] = useState(0);
   const runsResource = useResource<Page<Run>>(
     `/runs?page_size=100&refresh=${refresh}`,
@@ -95,11 +101,20 @@ export default function App() {
     }
   }, [runsResource.data]);
   useEffect(() => {
-    history.replaceState(null, "", "?" + contextUrl(ctx) + "#" + page);
-  }, [ctx, page]);
+    history.replaceState(
+      null,
+      "",
+      "?" +
+        contextUrl(ctx) +
+        (page === "replenishment" ? "&view=" + purchasingView : "") +
+        "#" +
+        page,
+    );
+  }, [ctx, page, purchasingView]);
   useEffect(() => {
     const pop = () => {
       setCtx(readContext());
+      setPurchasingView(readPurchasingView());
       setPage(location.hash.slice(1) || "overview");
     };
     window.addEventListener("popstate", pop);
@@ -133,30 +148,39 @@ export default function App() {
       productType: "",
     }));
   }
-  function navigate(id: string) {
+  function navigate(id: string, view: PurchasingView = "recommendations") {
+    if (id === "replenishment") setPurchasingView(view);
     setPage(id);
     setNavOpen(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  function openItem(row: Record<string, unknown>, target = "inventory") {
+  function openItem(
+    row: Record<string, unknown>,
+    target = "inventory",
+    view: PurchasingView = "recommendations",
+  ) {
     setCtx((c) => ({
       ...c,
       warehouseId: String(row.warehouse_id ?? ""),
       itemId: String(row.item_id ?? ""),
     }));
-    navigate(target);
+    navigate(target, view);
   }
   const chooseInventory = compatible
     ? () => selectRun(compatible.id)
     : undefined;
-  const props = { run, ctx, onChoose: chooseInventory };
+  const props = { run, ctx, onChoose: chooseInventory, onItem: openItem };
   const node =
     page === "forecast" ? (
       <Forecast run={run} ctx={ctx} />
     ) : page === "inventory" ? (
       <Inventory {...props} />
     ) : page === "replenishment" ? (
-      <Replenishment {...props} />
+      <Replenishment
+        {...props}
+        view={purchasingView}
+        onViewChange={setPurchasingView}
+      />
     ) : page === "alerts" ? (
       <Alerts {...props} />
     ) : page === "configuration" ? (
