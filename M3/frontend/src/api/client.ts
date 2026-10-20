@@ -1,3 +1,4 @@
+import { CLOUD, cloudRequest } from "./cloud";
 export type Row = Record<string, unknown>;
 export interface Run {
   id: string;
@@ -45,6 +46,16 @@ export async function api<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
+  if (CLOUD) {
+    const reply = await cloudRequest(path, options);
+    if (!reply.ok)
+      throw new ApiError(
+        reply.error?.code ?? "invalid_input",
+        reply.error?.message ?? "Không thể thực hiện thao tác",
+        reply.status,
+      );
+    return reply.data as T;
+  }
   const response = await fetch("/api/v1" + path, options);
   const data = await response.json();
   if (!response.ok)
