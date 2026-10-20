@@ -29,6 +29,7 @@ _ALLOCATED_METRICS = {}
 
 
 class Filters(DTO):
+    split: Literal["validation", "test", "future"] | None = None
     page: int = Field(default=1, ge=1)
     page_size: int = Field(default=50, ge=1, le=100)
     warehouse_id: int | None = Field(default=None, gt=0)
@@ -492,7 +493,7 @@ def metric_records(session, run, filters):
             }
             for r in records
         ]
-    for name in ["warehouse_id", "block", "cadence", "granularity"]:
+    for name in ["warehouse_id", "block", "cadence", "granularity", "split"]:
         value = getattr(filters, name)
         if value is not None:
             records = [r for r in records if r.get(name) == value]
