@@ -1,5 +1,13 @@
 # M3 — ứng dụng đã triển khai và cách chạy
 
+<a id="submission-e99"></a>
+## Hoàn thiện bản nộp — E99, 21/10/2026
+
+[Hướng dẫn nộp và luồng kiểm sản phẩm](SUBMISSION.md). Bổ sung trạng thái khởi động/kết nối lỗi, timeout và clear timer/listener, loại late reply, không auto retry write; lỗi đọc có Thử tải lại. Làm mới phát event chỉ đọc, không reload/reset session. PageBoundary giữ lỗi trang không làm mất sidebar; reload toàn trang có cảnh báo phiên. Hướng dẫn giải thích thao tác/ROP/IP/MOQ/pending và giới hạn, có focus/Escape. Menu mobile Escape trả focus về nút mở; skip link, reduced motion và browser Back giữa các trang giữ context. Khi phương án mới đang tải không hiện nhầm chưa có kế hoạch.
+
+PublicBundle suy danh sách origin có đủ920item closing và vectorH14 từ release đã pin, không tạo target/feature hoặc fit mới; dropdown online chỉ cho chọn các ngày này. Nguồn thực có93ngày30/09–31/12/2025, đã kiểm seed920từngngày. Backend vẫn kiểm nguồn/origin/idempotency/config như E98. Không nới cổng dữ liệu, metric hoặc sửa frozen run.120Python+31React đạt; source và asset được rà trước cập nhật deploy. Browser và CI mới được ghi riêng trong review-log E99.
+
+
 <a id="streamlit-react-e98"></a>
 ## React trên Streamlit — E98
 

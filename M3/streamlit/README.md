@@ -1,5 +1,8 @@
 # SIGMA trên Streamlit
 
+**E99 — 21/10/2026:** bản deploy `10dd4e19af9fa26d1aeb05124a05bbd5fdcf78ce` bổ sung timeout đọc30s/write90s/handshake20s, không tự retry write, bỏ phản hồi trễ sau abort/timeout; có retry đọc, refresh giữ phiên, PageBoundary, hướng dẫn và điều hướng bàn phím/Back. Dropdown tạo phương án chỉ liệt kê93ngày được đối chiếu đủ closing920item và forecast. [Hướng dẫn nộp/kiểm web](../SUBMISSION.md). Data release/manifest v2 không đổi; commit E98 bên dưới là lịch sử.120Python+31React đạt.
+
+
 ## Bản hiện hành E98 — React quản lý
 
 [Mở SIGMA công khai](https://sigma-demand-inventory.streamlit.app/). Repo deploy riêng tư `khanhnguyenpham/Sigma-M3-App/main`, entry `streamlit_app.py`, commit `77b0b3d9406ba2131f678466b86f6615af6636e4`. Cùng source React E97 được build riêng cho component Streamlit; bản FastAPI/PostgreSQL local vẫn dùng API gốc. Phần E94 bên dưới là bản Streamlit native lịch sử.
@@ -80,3 +83,6 @@ python -m streamlit run streamlit_app.py
 Triển khai repo riêng tư `khanhnguyenpham/Sigma-M3-App`, nhánh `main`, entrypoint `streamlit_app.py`. Chỉ đưa allowlist đã rà lên repo; bảo toàn byte `release_m3/**` qua `.gitattributes`. App công khai và repo riêng tư là hai quyền khác nhau. Không dùng `SIGMA_RELEASE_SHA256` của sản phẩm cũ làm pin gói mới; gói này có manifest/pin riêng tại `release_m3`.
 
 Test giả tại [test_public_streamlit.py](../backend/tests/test_public_streamlit.py); kiểm cả ngưỡng strict, pending covers, MOQ/ETA, độ nhạy, source không bị sửa, checksum/schema, CSV null và công thức. AppTest dữ liệu nguồn giữ local, không đưa bảng riêng vào CI. URL hoạt động không thay thế mentor nghiệm thu hoặc holdout độc lập.
+
+
+**Cache khi cập nhật E99:** `react_host.ADAPTER_VERSION` là một phần khóa resourcecache và phiên. Khi đổi Pythonadapter, phải đổi revision này; phiên cũ được khởi tạo lại, bỏ command/response cũ để không phát lại write. Khi chỉ làm mới dữ liệu trong cùng revision, giữ cấu hình/phương án riêng phiên. Data manifest vẫn định danh dữ liệu công bố, không dùng để thay thế phiên bản mã adapter. Hai test riêng kiểm cache theo revision và giữ/reset session đúng phạm vi.
