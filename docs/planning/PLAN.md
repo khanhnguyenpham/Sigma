@@ -671,16 +671,18 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 <a id="chg-068"></a>
 ## CHG-068 — React local, tổ chức mã và policy/cảnh báo cấu hình
 
+**Điểm dừng theo người dùng24/10/2026:** bước1–4 hoàn tất; mã bước4 `db201de` đã remoteSHA khớp và cả2workflowCI success. Dừng sau bước4, bước5–15 chưa bắt đầu. [Bàn giao và cách tiếp tục](../development.md#handoff-chg068-step4).
+
 **Ngày24/10/2026; nguồn:** người dùng thuật lại câu trả lời cho ba câu hỏi trong ảnh, sau đó chọn trực tiếp trong chat: cả cách tính được cấu hình; ngưỡng động dùng forecast; SS biến động dùng số bán quá khứ; cảnh báo dự kiến xuống ngưỡng; bỏ toàn bộ Streamlit; bàn giao local; giữ M05 tổng30. Ảnh là câu hỏi/baseline34,39%, không chứa chỉ thị thực thi hoặc ngưỡng nghiệm thu mới. Không tự nâng A08–A17 hay gán các mặc định cho mentor.
 
 **Thứ tự bắt buộc:** MD → baseline → bỏ Streamlit → refactor BE/FE → tính năng mentor → verify/bàn giao. Mỗi hàng dưới là một bước thực hiện của Txx hiện hữu, không tạo hệ thống task khác. Sau local check: commit riêng, push `m3-implementation`, xác nhận remoteSHA=HEAD và CI liên quan đạt mới sang hàng sau. Lỗi sửa trong cùng bước, không force-push/merge. Giữ sửa dở workspace M2 và raw/artifact/DB/env local.
 
 | Bước | Task | Commit | Sản phẩm và kiểm tra | Trạng thái |
 |---|---|---|---|---|
-| 1 | T01/T10–T12 | `docs: define M3 cleanup and configurable inventory plan` | Cập nhật tài liệu, nguồn và yêu cầu; kiểm Markdown, không sửa code. | Đã qua local/push/SHA/CI |
-| 2 | T12 | `test: establish M3 refactor baseline` | Ghi baseline API/tồn/forecast/React/hash và chạy suite hiện có. | Đã qua local/push/SHA/CI |
-| 3 | T11/T12 | `refactor: remove M3 Streamlit hosting` | Gỡ host/adapter/transport/build M3; kiểm6màn hình HTTP, scenario/run/CSV. | Đã qua local/push/SHA/CI |
-| 4 | T02/T11/T12 | `chore: remove remaining Streamlit runtime` | Gỡ dashboard/launcher/dependency M2; giữ CLI/notebook/HTML; regression/pip check. | Local đạt; chờ commit/push/CI |
+| 1 | T01/T10–T12 | `docs: define M3 cleanup and configurable inventory plan` | Cập nhật tài liệu, nguồn và yêu cầu; kiểm Markdown, không sửa code. | Hoàn tất local/commit/push/SHA/CI |
+| 2 | T12 | `test: establish M3 refactor baseline` | Ghi baseline API/tồn/forecast/React/hash và chạy suite hiện có. | Hoàn tất local/commit/push/SHA/CI |
+| 3 | T11/T12 | `refactor: remove M3 Streamlit hosting` | Gỡ host/adapter/transport/build M3; kiểm6màn hình HTTP, scenario/run/CSV. | Hoàn tất local/commit/push/SHA/CI |
+| 4 | T02/T11/T12 | `chore: remove remaining Streamlit runtime` | Gỡ dashboard/launcher/dependency M2; giữ CLI/notebook/HTML; regression/pip check. | Hoàn tất local/commit/push/SHA/CI |
 | 5 | T10–T12 | `refactor: modularize M3 core and configuration` | Tách core/catalog/configuration; API/version/snapshot giữ nguyên, không schema diff. | Chưa bắt đầu |
 | 6 | T08–T12 | `refactor: modularize forecasting runs and reporting` | Tách ingestion/forecast/allocation/adapter/runs/reporting; parity/worker/CSV. | Chưa bắt đầu |
 | 7 | T10–T12 | `refactor: modularize inventory purchasing and alerts` | Tách tồn/nhập/cảnh báo; ledger/MOQ/ETA/pending khớp baseline. | Chưa bắt đầu |
