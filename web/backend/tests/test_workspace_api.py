@@ -2,10 +2,10 @@
 
 from datetime import timedelta
 from fastapi.testclient import TestClient
-from sigma_m3.main import create_app
-from sigma_m3.models import Run, InventoryDaily, Replenishment, Alert
-from sigma_m3.modules.configuration.models import Policy
-from sigma_m3.core.hashes import digest
+from main import create_app
+from models import Run, InventoryDaily, Replenishment, Alert
+from modules.configuration.models import Policy
+from core.hashes import digest
 from test_postgres_api import settings, D
 from test_results_api import result_fixture
 

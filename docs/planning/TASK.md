@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**CHG-071 — gom launcher và làm phẳng src:** người dùng giao chuyển worker còn lại vào web và bỏ thư mục sigma_m3. Worker ở web/backend/src/worker.py,6launcher/helper ở web/backend/scripts; import backend phẳng và packaging cập nhật, không đổi src M2. Đây là thay đổi cấu trúc bổ sung sau bước5, chưa triển khai bước6–15. Local đã đạt:110Python/26React/build/wheel/pipcheck/CLI-worker/Alembic/API-DDL; API-worker stack chạy/dừng trên DB test trống,906protectedhash nguyên. [Bàn giao](../development.md#handoff-chg071) ghi kiểm mới; commit/push/SHA/CI được kiểm riêng trước thông điệp cuối lượt.
+
 **CHG-070 — chuẩn bị bổ sung sau bước5:** dọn7Markdown cũ và chuyển backend sang web/backend (API/CLI/worker trong cùng package), cập nhật CI/lệnh chạy/path. FE/configs/scripts/research ở nguyên M3. Local đã đạt:109Python/26React/build/pipcheck/CLI/Alembic/API/DDL/HTTPsmoke,845protectedhash nguyên. [Bàn giao mới](../development.md#handoff-chg070) ghi bằng chứng; cổng commit/push/SHA/CI được kiểm riêng trước thông điệp cuối lượt. Đây không phải triển khai module bước6 hoặc FE bước8–9; bước6–15 chưa bắt đầu.
 
 **CHG-069 — đặc tả FE mới, 24/10/2026:** cập nhật Markdown theo ảnh người dùng: pages/layouts/components và các tầng hỗ trợ, bỏ thư mục chưa cần. Đã sửa kế hoạch bước8–9; [cấu trúc dự kiến](../../M3/docs/04-frontend-spec.md#frontend-target-chg069). Lượt này chỉ tài liệu; bước6–15 chưa bắt đầu, code FE chưa đổi. Cổng commit/push/SHA/CI của lượt tài liệu được xác nhận khi bàn giao.

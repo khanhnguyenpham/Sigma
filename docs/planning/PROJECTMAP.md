@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-071 — cây backend mới:** web/backend/src gồm api/, core/, modules/, services/ và main.py/worker.py/cli.py/models.py/schemas.py trực tiếp. web/backend/scripts chứa6script API/worker/stack/load_env. Worker không tách service; namespace sigma_m3 đã bỏ theo yêu cầu mới, distribution sigma-m3 và DB/env giữ tên cũ. Root src/ vẫn M2; M3 giữ frontend/configs/research/env. [Cây mới](../../M3/docs/05-source-architecture.md#flat-backend-chg071).
+
 **CHG-070 — vị trí code mới:** `web/backend/` là backend thực (src/sigma_m3, migrations, tests, requirements và pyproject); worker/CLI vẫn bên trong sigma_m3. `M3/frontend/`, `M3/configs/`, `M3/scripts/`, `M3/research/` giữ vị trí. Đích FE sau này: web/frontend với cấu trúc pages/layouts/components CHG-069. [Cây hiện hành](../../M3/docs/05-source-architecture.md#web-layout-chg070); [7Markdown đã bỏ](../review-log.md#removed-docs-chg070).
 
 **CHG-069 — cây FE dự kiến mới:** src gồm components/config/hooks/layouts/pages/services/types/utils và App.tsx/main.tsx/index.css. [Trách nhiệm và ánh xạ](../../M3/docs/04-frontend-spec.md#frontend-target-chg069). Chưa triển khai: cây thực vẫn App.tsx/main.tsx/styles.css, api/, components/, pages/. Không có stores/lib/src-docs/examples; assets chỉ tạo khi có tệp dùng thực. Bước6–15 chưa bắt đầu.

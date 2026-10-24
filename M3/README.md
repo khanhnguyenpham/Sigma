@@ -1,5 +1,7 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
+**CHG-071 — backend/worker:** source trực tiếp trong web/backend/src, launcher tại web/backend/scripts, import core/api/modules/services và các module main/worker/cli. Không còn wrapper sigma_m3; M2 src và M3 frontend/configs/research giữ nguyên. Dùng [README root](../README.md) và [cây hiện hành](docs/05-source-architecture.md#flat-backend-chg071); các cấu trúc trước đó dưới đây là checkpoint lịch sử.
+
 **CHG-070 — vị trí code:** backend đã chuyển sang `../web/backend/` tính từ M3, gồm sigma_m3 API/CLI/worker, migration và tests. FE/configs/scripts/research vẫn ở M3; dùng [README root](../README.md) để cài và chạy. [Cây thực và đích](docs/05-source-architecture.md#web-layout-chg070). Các mốc E89–E103 bên dưới là bằng chứng lịch sử, không phải kiểm mới trong lượt chuyển thư mục.
 
 **FE dự kiến CHG-069:** cập nhật theo ảnh tham khảo người dùng, dùng pages/layouts/components và config/hooks/services/types/utils, bỏ tầng feature/shared và thư mục chưa cần. [Cây đích, ánh xạ và kiểm hành vi](docs/04-frontend-spec.md#frontend-target-chg069). Đây là đặc tả bước8–9; code FE chưa đổi và bước6–15 chưa bắt đầu.
@@ -117,11 +119,11 @@ Cần Python3.12 và PostgreSQL18 local; tạo database app và database riêng 
 .\.venv-m3\Scripts\python.exe -m pip install -r web/backend/requirements.txt
 .\.venv-m3\Scripts\python.exe -m pip install --no-deps -e web/backend
 # Copy M3/configs/.env.example thành M3/.env, điền kết nối local và source root.
-. ./M3/scripts/load_env.ps1
+. ./web/backend/scripts/load_env.ps1
 .\.venv-m3\Scripts\python.exe -m alembic -c web/backend/alembic.ini upgrade head
 .\.venv-m3\Scripts\python.exe -m pip check
 .\.venv-m3\Scripts\python.exe -B -m pytest web/backend/tests
-. ./M3/scripts/start_api.ps1
+. ./web/backend/scripts/start_api.ps1
 ```
 
 API hiện chạy tại `http://127.0.0.1:8000/api/v1/health`; OpenAPI tại `http://127.0.0.1:8000/docs`. Đây là tài liệu API/backend nền, chưa là giao diện sản phẩm6màn hình. PostgreSQL bootstrap portable trên máy này nằm trong outputs ignored, không cần cài service; credentials chỉ có trong M3/.env ignored, không gửi qua HTTP/Git.
@@ -129,10 +131,10 @@ API hiện chạy tại `http://127.0.0.1:8000/api/v1/health`; OpenAPI tại `ht
 CLI thật đã kiểm:
 
 ```powershell
-. ./M3/scripts/load_env.ps1
-.\.venv-m3\Scripts\python.exe -m sigma_m3.cli import-orders --as-of-date 2025-12-31 --request-key SOURCE_KEY_MOI --wait
-.\.venv-m3\Scripts\python.exe -m sigma_m3.cli status --run-id <UUID_VUA_TAO>
-.\.venv-m3\Scripts\python.exe -m sigma_m3.cli seed-simulation --source-run <UUID_NGUON_COMPLETE> --as-of-date 2025-09-30
+. ./web/backend/scripts/load_env.ps1
+.\.venv-m3\Scripts\python.exe -m cli import-orders --as-of-date 2025-12-31 --request-key SOURCE_KEY_MOI --wait
+.\.venv-m3\Scripts\python.exe -m cli status --run-id <UUID_VUA_TAO>
+.\.venv-m3\Scripts\python.exe -m cli seed-simulation --source-run <UUID_NGUON_COMPLETE> --as-of-date 2025-09-30
 ```
 
 Không chạy `forecast/simulate/verify` trong cây CLI đích ở05 vì chưa implement. Tiếp theo theo PLAN: T08–T09 adapter/parityfinal10 +validation/lock/test36 +allocation46; T10 tích hợp ledger/replay; T11APIkết quả/FE; T12E2E/fullrun. Mốc nền không đóng R05/R07/T14.

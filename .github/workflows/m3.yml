@@ -33,6 +33,10 @@ jobs:
               c.execute('CREATE DATABASE sigma_m3_test OWNER sigma_m3_app')
           PY
       - run: python -m pip check
+      - name: Check flat backend entry points
+        run: |
+          python -m cli --help
+          python -m worker --help
       - run: python -B -m pytest web/backend/tests --junitxml=m3-tests.xml
   m2-regression:
     # The immutable 1e-8 synthetic golden was recorded on Windows.

@@ -701,7 +701,7 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 
 ### Hợp đồng triển khai đã chốt
 
-- BE giữ FastAPI/PG/worker/CLI, namespace sigma_m3; core +8module theo đặc tả05, một SQLAlchemy Base/13bảng. Refactor giữ API/transaction/idempotency/schema/kết quả; API/worker/CLI dùng cùng hàm nghiệp vụ.
+- BE giữ FastAPI/PG/worker/CLI; CHG-071 thay namespace sigma_m3 bằng module trực tiếp trong web/backend/src; core +8module theo đặc tả05, một SQLAlchemy Base/13bảng. Refactor giữ API/transaction/idempotency/schema/kết quả; API/worker/CLI dùng cùng hàm nghiệp vụ.
 - FE theo CHG-069: components/config/hooks/layouts/pages/services/types/utils cùng App.tsx/main.tsx/index.css; giữ6màn hình/URL/context/loading/error/retry đọc/abort/focus/CSV. Không thêm state/router framework; chưa cần stores/lib/src-docs/examples. React HTTP; devVite, build do FastAPI phục vụ local. [Cây và ánh xạ mã dự kiến](../../M3/docs/04-frontend-spec.md#frontend-target-chg069).
 - Policy supplier×item/version/effective date: safety_mode days hoặc volatility; rop_mode fixed hoặc forecast; safety_lookback_days7–90 mặc định28; safety_factor hữu hạn≥0 mặc định1; warning_horizon_days1–14 mặc định7. Scenario override mang cùng trường. Defaults là mô phỏng, chưa là số mentor.
 - Với m=safety_multiplier scenario: SS_days=ceil(m×safety_days×mean(f14)); SS_volatility=ceil(m×safety_factor×std_population(quantity_ngày_đến_origin)×sqrt(7)). Cần đủ cửa sổ ngày quan sát, zero hợp lệ/missing chặn; không dùng ngày sau cutoff. ROP_fixed=configured_rop_floor (không cộng SS lần2); ROP_forecast=max(floor,ceil(sum(f1..7)+SS)). S/IP/Q/MOQ/ETA giữ phép tính cũ, trigger closing<ROP.
@@ -726,3 +726,15 @@ Người dùng yêu cầu web là nơi gom BE/FE/worker; phạm vi làm ngay ch�
 - Sửa CI, editable install/test/Alembic commands, đường frontend/config và fingerprint code. Giữ API/DDL/nghiệp vụ/idempotency/snapshot; code digest mới dùng vị trí mới, sealed artifacts không đổi.
 - Xóa7file hướng dẫn/bản sao lịch sử hết hiệu lực, giữ requirements/data-contract/PLAN/TASK/PROJECTMAP/review-log và đặc tả/kiểm/bằng chứng M3; [danh sách và tra cứu Git](../review-log.md#removed-docs-chg070). Cập nhật link để không trỏ tới tệp đã xóa.
 - Kiểm local đã đạt: baseline107Python trước chuyển,109Python sau chuyển (thêm2ca static React/hash); API/DDL golden nguyên, Alembic0diff/worker-CLI-import/HTTPsmoke đạt;26React/TypeScript/build/pipcheck đạt,845protectedhash nguyên. [Bàn giao](../development.md#handoff-chg070). Một commit cho thay đổi chuẩn bị này → push thường m3-implementation → SHAremote khớp → CI đạt rồi dừng; cổng GitHub chỉ xác nhận sau kiểm.
+
+
+<a id="chg-071"></a>
+## CHG-071 — Worker cùng backend và làm phẳng src, 24/10/2026
+
+Người dùng yêu cầu chuyển nốt phần worker vào web, tự chọn nơi hợp lý và đưa code BE trực tiếp vào src, không qua sigma_m3. Làm tại Desktop/m3-implementation sau e0c5843; không làm module/tính năng bước6–15.
+
+- Di chuyển nội dung web/backend/src/sigma_m3 lên web/backend/src; PROFILE vào core/settings.py, bỏ __init__ wrapper. Giữ worker.py/cli.py cùng nghiệp vụ backend và chuyển6file M3/scripts sang web/backend/scripts.
+- Cập nhật import/caller/research/test/Alembic/packaging/entry point, PROJECT_ROOT và code_digest. Không đổi tên DB/env/distribution hoặc khôi phục shim namespace cũ; giữ package src M2 và FE/configs/research/env ở M3.
+- Giữ API /api/v1/OpenAPI,13bảng/DDL, giao dịch/idempotency và phép tính; không chỉnh golden để khớp refactor. Snapshot/run/manifest/raw giữ nguyên, code mới tạo fingerprint mới.
+- Kiểm baseline và sau sửa bằng suite BE/M2, fixture parity, API/DDL/settings/static; kiểm editable import phẳng và không shadow M2 src, CLI/worker/Alembic, launcher từ root mới, FE tests/build/pipcheck/hash protected. Smoke stack chỉ dùng DB test, không xử lý queue thật.
+- Cập nhật tài liệu trước sửa; local đạt → commit riêng → push m3-implementation → remoteSHA khớp → CI đạt. Dừng sau phạm vi này; trạng thái R07/T14 giữ chưa nghiệm thu.

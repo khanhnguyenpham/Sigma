@@ -5,17 +5,17 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select, text, inspect
 from sqlalchemy.exc import IntegrityError, DataError
-from sigma_m3.main import create_app
-from sigma_m3.models import Base, Run, RouteForecast, DailySales, Replenishment, InventoryEvent
-from sigma_m3.modules.catalog.models import Warehouse, Item, Supplier
-from sigma_m3.modules.configuration.models import Policy
-from sigma_m3.modules.configuration.schemas import PolicyCreate
-from sigma_m3.schemas import RunCreate
-from sigma_m3.modules.configuration.service import create_policy
-from sigma_m3.services.runs import enqueue
-from sigma_m3.core.settings import Settings
-from sigma_m3.core.errors import DomainError
-from sigma_m3.worker import serve
+from main import create_app
+from models import Base, Run, RouteForecast, DailySales, Replenishment, InventoryEvent
+from modules.catalog.models import Warehouse, Item, Supplier
+from modules.configuration.models import Policy
+from modules.configuration.schemas import PolicyCreate
+from schemas import RunCreate
+from modules.configuration.service import create_policy
+from services.runs import enqueue
+from core.settings import Settings
+from core.errors import DomainError
+from worker import serve
 
 D = date(2025, 10, 31)
 
@@ -253,7 +253,7 @@ def test_worker_lock_and_restart_not_false_complete(pg, tmp_path):
         )
         r.status = "running"
         key = r.id
-    from sigma_m3.worker import LOCK_ID
+    from worker import LOCK_ID
 
     with engine.connect() as lock:
         lock.execute(text("SELECT pg_advisory_lock(:key)"), {"key": LOCK_ID})
@@ -310,7 +310,7 @@ def test_receipt_transaction_is_exactly_once_under_concurrency(pg):
         s.add(order)
         s.flush()
         key = order.id
-    from sigma_m3.services.receipts import receive_due
+    from services.receipts import receive_due
 
     with pytest.raises(DomainError, match="exact ETA"):
         with sessions.begin() as s:

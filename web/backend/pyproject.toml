@@ -8,8 +8,13 @@ version = "0.1.0"
 description = "Local SIGMA inventory platform, fixed L7/R1/H14 profile"
 requires-python = ">=3.12,<3.13"
 
+[tool.setuptools]
+py-modules = ["main", "worker", "cli", "models", "schemas"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["api*", "core*", "modules*", "services*"]
+namespaces = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
