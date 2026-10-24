@@ -168,7 +168,7 @@ def main():
         },
         requirements_hashes={
             p: hashlib.sha256((root / p).read_bytes()).hexdigest()
-            for p in ["requirements.txt", "M3/backend/requirements.txt"]
+            for p in ["requirements.txt", "web/backend/requirements.txt"]
         },
         runtime=dict(
             python=platform.python_version(),

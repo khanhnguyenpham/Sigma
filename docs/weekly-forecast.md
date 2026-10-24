@@ -1,10 +1,10 @@
 # Dự báo trực tiếp tổng quantity 7 ngày
 
-**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2/README.md) và [khôi phục code cũ](review-log.md#removed-docs-chg070). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
 
-Cấu hình sản phẩm: [configs/weekly.json](../M2_CODE_MAP.md#khôi-phục-code-cũ),58 ứng viênV13; code tại [forecasting/weekly](../M2_CODE_MAP.md#khôi-phục-code-cũ). Run `sigma_weekly_boost_v13` giữ52 ứng viênV10 và thêm2 booster300cây+4 hiệu chỉnh causal. Cache394.680 validationpairs được authenticate,6 ứng viên mới fitvalidation; khóa selection trước fresh test/future. Generic kiểm447.810pairs và calibration replay42.136factors đạt. V12 trước đó giữ nguyên artifact, cấu hình gốc lưu ở [weekly-organized-v12](../M2_CODE_MAP.md#khôi-phục-code-cũ).
+Cấu hình sản phẩm: [configs/weekly.json](review-log.md#removed-docs-chg070),58 ứng viênV13; code tại [forecasting/weekly](review-log.md#removed-docs-chg070). Run `sigma_weekly_boost_v13` giữ52 ứng viênV10 và thêm2 booster300cây+4 hiệu chỉnh causal. Cache394.680 validationpairs được authenticate,6 ứng viên mới fitvalidation; khóa selection trước fresh test/future. Generic kiểm447.810pairs và calibration replay42.136factors đạt. V12 trước đó giữ nguyên artifact, cấu hình gốc lưu ở [weekly-organized-v12](review-log.md#removed-docs-chg070).
 
-**Test hồi cứu 9/10≤20%, mean16,17%, LG U+21,19%; coverage100%. R05 ngày vẫn0/10**, chưa xác nhận mentor thay bằng metric tuần. Các lần V1–V13 có version riêng, không sửa run cũ. [Hướng dẫn cũ](history/weekly-forecast-before-code-organization.md) giữ làm lịch sử.
+**Test hồi cứu 9/10≤20%, mean16,17%, LG U+21,19%; coverage100%. R05 ngày vẫn0/10**, chưa xác nhận mentor thay bằng metric tuần. Các lần V1–V13 có version riêng, không sửa run cũ. [Hướng dẫn cũ](review-log.md#removed-docs-chg070) giữ làm lịch sử.
 
 ## Dùng và kiểm
 
@@ -31,7 +31,7 @@ Mở sản phẩm cổng8503, trang “Dự báo tổng7 ngày”. Để xem run
 
 Forecast tương lai:46 tuyến×2 khối=92 tổng,644 phần ngày, actual thiếu. Policy có đủH14 tại93 origins, kể cả tail chưa có actual; cùng model đã khóa và refit neo split, không dùng dữ liệu sau origin. Stock snapshot lấy đúng policy của cùng forecast/source/config.
 
-Cấu hình nghiên cứu ở [configs/experiments](../M2_CODE_MAP.md#khôi-phục-code-cũ); V10 có52 ứng viên, top10 test giốngV9 nhưng một số tuyến khác thay selection validation. V10 giữ riêng, không trộn với sổpolicyV9. Boosting E46 đã triển khai theo CHG-028/E51–E53: mặc định150cây, override300cây được kiểm trước fit, không đổi learning rate/split/metric. Bản tích hợpV13 được chọn theo validation trước xem kết quả testV13, không chọn phiên bản bằng test.
+Cấu hình nghiên cứu ở [configs/experiments](review-log.md#removed-docs-chg070); V10 có52 ứng viên, top10 test giốngV9 nhưng một số tuyến khác thay selection validation. V10 giữ riêng, không trộn với sổpolicyV9. Boosting E46 đã triển khai theo CHG-028/E51–E53: mặc định150cây, override300cây được kiểm trước fit, không đổi learning rate/split/metric. Bản tích hợpV13 được chọn theo validation trước xem kết quả testV13, không chọn phiên bản bằng test.
 
 Cache validation phải được authenticate hash/artifacts/source/base protocol/spec/settings. Lệnh --reuse-validation-from tính lại selection rồi fit test/future mới, không cache test. Bỏ tùy chọn này để huấn luyện validation đầy đủ.
 

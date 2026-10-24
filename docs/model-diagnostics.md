@@ -1,8 +1,8 @@
 # Chẩn đoán mô hình và giải thích kết quả M2–M3
 
-**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2/README.md) và [khôi phục code cũ](review-log.md#removed-docs-chg070). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
 
-Ngày 06/10/2026, CHG-029/E56–E57. Tài liệu bổ sung bằng chứng cho [bộ trình diễn](m2m3-demo.md), không thay tiêu chí nghiệm thu hoặc bảo đảm điểm mentor. Sản phẩm giữ V13; Word và slide cũ chưa cập nhật.
+Ngày 06/10/2026, CHG-029/E56–E57. Tài liệu bổ sung bằng chứng cho [bộ trình diễn](review-log.md#removed-docs-chg070), không thay tiêu chí nghiệm thu hoặc bảo đảm điểm mentor. Sản phẩm giữ V13; Word và slide cũ chưa cập nhật.
 
 ## Chỉ tiêu phải trình bày riêng
 
@@ -28,11 +28,11 @@ MAPE nhạy với quantity nhỏ: sai 2 khi actual=2 tạo APE 100%; sai 2 khi a
 
 ## Thử nghiệm mùa vụ mới đã loại khỏi top 10
 
-[Mã nghiên cứu](../M2_CODE_MAP.md#khôi-phục-code-cũ) dùng bộ nhớ lịch tròn: bốn cấu hình quantity thô/ratio × bandwidth 28/56 ngày, thêm hai ratio với half-life 90 ngày. Ratio dùng mức bán 90 ngày tại origin. Sáu cấu hình áp dụng cho mọi tuyến, refit 7 ngày, nhãn lịch sử hoàn tất trước cutoff. Protocol ghi trước fit.
+[Mã nghiên cứu](review-log.md#removed-docs-chg070) dùng bộ nhớ lịch tròn: bốn cấu hình quantity thô/ratio × bandwidth 28/56 ngày, thêm hai ratio với half-life 90 ngày. Ratio dùng mức bán 90 ngày tại origin. Sáu cấu hình áp dụng cho mọi tuyến, refit 7 ngày, nhãn lịch sử hoàn tất trước cutoff. Protocol ghi trước fit.
 
 Run `sigma_seasonal_validation_v14` chấm **45.540 cặp**, đủ độ phủ. Phương án nghiên cứu tốt nhất từng tuyến chỉ có **4/10** đạt 20% validation và **0/10** tốt hơn lựa chọn V13. LG U+ là 15,53%, so với V13 10,96% trên cùng validation. Ba tuyến ngoài top 10 cải thiện validation; chưa tích hợp hoặc chấm test. Không đưa thử nghiệm này vào sản phẩm vì không cải thiện mục tiêu top 10; không dò test để tìm con số thuận lợi.
 
-[Đối soát độc lập](../M2_CODE_MAP.md#khôi-phục-code-cũ) kiểm nhãn tổng quantity, 1.104 nhóm metric, lưới origin/horizon và 12 phép sửa dữ liệu sau origin trên sáu cấu hình tại hai mốc. Raw và toàn bộ artifact sealed ngày giữ nguyên. Bằng chứng này chưa đóng T09/R05.
+[Đối soát độc lập](review-log.md#removed-docs-chg070) kiểm nhãn tổng quantity, 1.104 nhóm metric, lưới origin/horizon và 12 phép sửa dữ liệu sau origin trên sáu cấu hình tại hai mốc. Raw và toàn bộ artifact sealed ngày giữ nguyên. Bằng chứng này chưa đóng T09/R05.
 
 ```powershell
 .\.venv\Scripts\python.exe -m sigma validate-seasonal-weekly --output-id seasonal_new
