@@ -1,5 +1,7 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
+**CHG-068 bước4 — điểm dừng theo người dùng:** toàn bộ runtime/build/dependency Streamlit M3/M2 đã gỡ; dùng React/HTTP/FastAPI/PostgreSQL local theo [README hiện hành](../README.md). BE/FE chưa refactor theo module/feature, mode SS/ROP/cảnh báo ngưỡng mới chưa làm; tiếp tục từ bước5 khi được yêu cầu. Các mốc Streamlit E94–E99 bên dưới là lịch sử.
+
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
 Cấu trúc đích và15bước nằm trong PLAN; chưa triển khai chỉ vì đã viết MD. Phản hồi ba câu hỏi cho phép chọn cách tính SS/ROP và cảnh báo theo ngưỡng; 34,39% là số lịch sử, không là mức đạt mới. Phạm vi là local, không xóa hay chuyển hosting ứng dụng public đang tồn tại.

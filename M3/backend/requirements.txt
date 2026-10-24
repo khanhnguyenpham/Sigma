@@ -1,4 +1,4 @@
-# M3 Python3.12 environment: existing M2 lock plus verified backend dependency closure.
+# M3 Python3.12: M2 lock plus the existing backend pins, including the API server.
 -r ../../requirements.txt
 alembic==1.20.0
 annotated-doc==0.0.5
@@ -15,3 +15,11 @@ pydantic==2.14.1
 pydantic_core==2.50.1
 SQLAlchemy==2.0.55
 typing-inspection==0.4.4
+anyio==4.15.1
+certifi==2026.7.22
+click==8.5.0
+h11==0.16.0
+idna==3.20
+MarkupSafe==3.0.4
+starlette==1.7.0
+uvicorn==0.54.0
