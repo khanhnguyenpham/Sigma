@@ -1,5 +1,10 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+
+
+[Kế hoạch CHG-068 và cổng từng bước](PLAN.md#chg-068).
+
 **CHG-067/E99 — 21/10/2026, hoàn thiện bản nộp:** bổ sung phục hồi khi tải lỗi/mất kết nối, giới hạn chờ RPC, màn hình lỗi có lối thử lại, làm mới trong phiên, hướng dẫn nghiệp vụ, điều hướng Back/Escape và hỗ trợ bàn phím. Tạo phương án online chỉ chọn93ngày có đủ closing920item và forecast H14 (30/09–31/12/2025).120Python+31React đạt; dữ liệu/metric/run khóa giữ nguyên. [Hướng dẫn nộp và kiểm sản phẩm](../../M3/SUBMISSION.md). Đã push deploy `10dd4e19af9fa26d1aeb05124a05bbd5fdcf78ce`; kiểm browser/CI mới ghi riêng E99. Không nâng nghiệm thu R07/T14 hoặc bổ sung auth/PO/DB bền vững.
 
 
@@ -662,3 +667,44 @@ M04 là góp ý mentor do người dùng thuật lại về supplier×item/L7/kh
 | T13–T14 | Thiết kế lịch/bàn giao đến 07/11; chưa nghiệm thu. | Demo/run/hash/báo cáo; R05/R07 và mentor review vẫn mở. |
 
 Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigger closing<ROP, IP chỉQ, MOQ chỉQ>0. Một kho/tuyến, city giả định; mọi nhập/tồn mô phỏng. Policy replay và no-new-order alert replay tách; không dùng bằng chứng V13/L3 cũ để đóng profile mới. Không tạo task system mới, không thêm customer/payment/invoice/giao khách/user.
+
+<a id="chg-068"></a>
+## CHG-068 — React local, tổ chức mã và policy/cảnh báo cấu hình
+
+**Ngày24/10/2026; nguồn:** người dùng thuật lại câu trả lời cho ba câu hỏi trong ảnh, sau đó chọn trực tiếp trong chat: cả cách tính được cấu hình; ngưỡng động dùng forecast; SS biến động dùng số bán quá khứ; cảnh báo dự kiến xuống ngưỡng; bỏ toàn bộ Streamlit; bàn giao local; giữ M05 tổng30. Ảnh là câu hỏi/baseline34,39%, không chứa chỉ thị thực thi hoặc ngưỡng nghiệm thu mới. Không tự nâng A08–A17 hay gán các mặc định cho mentor.
+
+**Thứ tự bắt buộc:** MD → baseline → bỏ Streamlit → refactor BE/FE → tính năng mentor → verify/bàn giao. Mỗi hàng dưới là một bước thực hiện của Txx hiện hữu, không tạo hệ thống task khác. Sau local check: commit riêng, push `m3-implementation`, xác nhận remoteSHA=HEAD và CI liên quan đạt mới sang hàng sau. Lỗi sửa trong cùng bước, không force-push/merge. Giữ sửa dở workspace M2 và raw/artifact/DB/env local.
+
+| Bước | Task | Commit | Sản phẩm và kiểm tra | Trạng thái |
+|---|---|---|---|---|
+| 1 | T01/T10–T12 | `docs: define M3 cleanup and configurable inventory plan` | Cập nhật tài liệu, nguồn và yêu cầu; kiểm Markdown, không sửa code. | Local check đạt; chờ push/CI |
+| 2 | T12 | `test: establish M3 refactor baseline` | Ghi baseline API/tồn/forecast/React/hash và chạy suite hiện có. | Chưa bắt đầu |
+| 3 | T11/T12 | `refactor: remove M3 Streamlit hosting` | Gỡ host/adapter/transport/build M3; kiểm6màn hình HTTP, scenario/run/CSV. | Chưa bắt đầu |
+| 4 | T02/T11/T12 | `chore: remove remaining Streamlit runtime` | Gỡ dashboard/launcher/dependency M2; giữ CLI/notebook/HTML; regression/pip check. | Chưa bắt đầu |
+| 5 | T10–T12 | `refactor: modularize M3 core and configuration` | Tách core/catalog/configuration; API/version/snapshot giữ nguyên, không schema diff. | Chưa bắt đầu |
+| 6 | T08–T12 | `refactor: modularize forecasting runs and reporting` | Tách ingestion/forecast/allocation/adapter/runs/reporting; parity/worker/CSV. | Chưa bắt đầu |
+| 7 | T10–T12 | `refactor: modularize inventory purchasing and alerts` | Tách tồn/nhập/cảnh báo; ledger/MOQ/ETA/pending khớp baseline. | Chưa bắt đầu |
+| 8 | T11/T12 | `refactor: extract shared React components and hooks` | Tách UI/hooks/client/types/lib; kiểm abort/loading/error/focus/CSV. | Chưa bắt đầu |
+| 9 | T11/T12 | `refactor: organize React by feature` | Tách6feature/app/context/form/drawer/styles; kiểm URL/Back/Escape/mobile. | Chưa bắt đầu |
+| 10 | T10/T12 | `feat: persist configurable inventory policies` | Migration/DTO/version/override; kiểm DB13bảng và snapshot cũ. | Chưa bắt đầu |
+| 11 | T10/T12 | `feat: calculate configurable safety stock and reorder points` | SS2mode/ROP2mode/history causal; ca tính tay/default parity. | Chưa bắt đầu |
+| 12 | T10–T12 | `feat: warn on projected reorder threshold crossings` | Projection xuống ngưỡng/DTO/filter/export/đánh giá riêng; kiểm biên và dedup. | Chưa bắt đầu |
+| 13 | T11/T12 | `feat: configure inventory policies in React` | Form policy/scenario và cấu hình hiệu lực; kiểm save/override/history/conflict. | Chưa bắt đầu |
+| 14 | T11/T12 | `feat: present configurable inventory warnings` | Hiển thị ROP/ngày xuống ngưỡng/ngày cạn/lý do; đếm item duy nhất/API/CSV. | Chưa bắt đầu |
+| 15 | T10–T14 | `docs: record M3 verification and handoff` | Tích hợp/replay run mới/hash/CI/bàn giao; chỉ nâng trạng thái theo bằng chứng. | Chưa bắt đầu |
+
+### Hợp đồng triển khai đã chốt
+
+- BE giữ FastAPI/PG/worker/CLI, namespace sigma_m3; core +8module theo đặc tả05, một SQLAlchemy Base/13bảng. Refactor giữ API/transaction/idempotency/schema/kết quả; API/worker/CLI dùng cùng hàm nghiệp vụ.
+- FE app +6feature +shared(api/types/hooks/ui/lib/styles), giữ6màn hình/URL/context/loading/error/retry đọc/abort/focus/CSV. Không thêm state/router framework. React HTTP; devVite, build do FastAPI phục vụ local.
+- Policy supplier×item/version/effective date: safety_mode days hoặc volatility; rop_mode fixed hoặc forecast; safety_lookback_days7–90 mặc định28; safety_factor hữu hạn≥0 mặc định1; warning_horizon_days1–14 mặc định7. Scenario override mang cùng trường. Defaults là mô phỏng, chưa là số mentor.
+- Với m=safety_multiplier scenario: SS_days=ceil(m×safety_days×mean(f14)); SS_volatility=ceil(m×safety_factor×std_population(quantity_ngày_đến_origin)×sqrt(7)). Cần đủ cửa sổ ngày quan sát, zero hợp lệ/missing chặn; không dùng ngày sau cutoff. ROP_fixed=configured_rop_floor (không cộng SS lần2); ROP_forecast=max(floor,ceil(sum(f1..7)+SS)). S/IP/Q/MOQ/ETA giữ phép tính cũ, trigger closing<ROP.
+- Projection giữ ROP tại origin và receipts đã biết trước quyết định, không thêm Q vừa khuyến nghị. Current<ROP giữ below_rop; current≥ROP và có closing_forecast<ROP trong N ngày tạo projected_below_rop/threshold_warning/ngày xuống ngưỡng; equality không trigger. Giữ depletion/ngày cạn/metric/mẫu số cũ riêng; không đếm nhiều tín hiệu thành nhiều item.
+- Migration thêm cột/check/default vào13bảng hiện hữu, không đổi sealed snapshot/run; policy cũ đọc days/forecast. Thay config tạo version/run mới. Bản đọc cũ chỉ diễn giải defaults trong bộ nhớ, không sửa config_sha256.
+- Giữ M05/R05 tổng30 hồi cứu, H14/L7/R1 và model/target/split; không tuning/test-selection mới. Thiếu bundle verified giữ monthly_not_prepared. Không đưa forecast vào actual. R07/T14 còn mở cho mentor rà soát.
+
+### Kiểm tra và bàn giao
+
+Baseline API/CSV và pure inventory; forecast fixture1e-8; hash raw/protected. Ca4tổ hợp mode, ROP−1/=ROP/+1, N/N+1, lịch sử missing/zero/NaN/overflow/future mutation, receipts/pending/MOQ/dedup. DB migration/effective policy/snapshot/concurrency/13bảng. FE save→scenario/run→inventory/alerts→CSV, stale context/error/refresh/keyboard/mobile. Pytest BE/M2, Vitest, TypeScript/build, pip check và local smoke; CI chỉ synthetic. Cuối cùng replay local run mới bằng cấu hình khóa, đối soát độc lập, không ghi đè lịch sử.
+
+Mỗi bước cập nhật TASK và bằng chứng review-log, kết thúc theo development#handoff. Xóa source Streamlit không xóa ứng dụng online hoặc chuyển hosting. Không tự đóng R07/T14 bằng số test hoặc có giao diện.

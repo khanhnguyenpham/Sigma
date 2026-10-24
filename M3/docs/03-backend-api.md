@@ -1,5 +1,11 @@
 # M3 — backend, API và worker
 
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+
+Giữ `/api/v1` và API hiện hữu trong refactor. Policy POST/GET và scenario DTO bổ sung mode/parameter tại bước10; alerts/filter/export/workspace bổ sung tín hiệu/ngày xuống ngưỡng ở bước12. Tham số mới có default tương thích; validation dùng lỗi an toàn hiện có, optimistic version và idempotency giữ nguyên. HTTP là transport duy nhất sau bước3; không fit trong request.
+
+[Kế hoạch CHG-068 và cổng từng bước](../../docs/planning/PLAN.md#chg-068).
+
 **E97 — purchasing read model:** `GET /api/v1/runs/{id}/purchasing` và `/purchasing/export` chỉ đọc frozen inventory run complete. Query as_of_date, view, search, sort, page/page_size và bộ lọc kho/item/type/supplier; [contract, ngày được biết và kiểm thực](../IMPLEMENTATION.md#purchasing-e97). Tìm kiếm/tổng hợp/sort trước phân trang; export toàn bộ scope và chống công thức CSV. Không ghi receipt hoặc thêm bảng. Các API kết quả/export toàn kỳ cũ giữ nguyên cho đối soát.
 
 

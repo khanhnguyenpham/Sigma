@@ -1,5 +1,11 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+
+Kiểm15bước theo PLAN. Baseline trước refactor: API/CSV, pure inventory, forecast fixture1e-8, FE và hash protected. Kiểm4tổ hợp mode, history thiếu/zero/NaN/overflow, causal future mutation; cảnh báo ROP−1/=ROP/+1, N/N+1, receipts và dedup; migration/snapshot cũ; UI lưu→run→tồn/cảnh báo→CSV và stale/error/focus/mobile. Cuối cùng replay local run mới, đối soát độc lập, không refit model vì sửa MD.
+
+[Kế hoạch CHG-068 và cổng từng bước](../../docs/planning/PLAN.md#chg-068).
+
 **Cập nhật M05/E93 — 20/10/2026:** [R05 tổng30 và implementation hiện hành](../MONTHLY.md) thay cổng độ chính xác ngày bằng tổng D+1…D+30 theo mentor do người dùng thuật lại. Đã đối soát 10/10≤20% hồi cứu. Benchmark chỉ đọc có manifest/source/target/hash riêng, API/UI/CSV; không thêm bảng DB hoặc thay forecast tồn H14. Các mục R05 ngày dưới đây mô tả thiết kế trước M05; A08 và nghiệm thu mentor vẫn tách riêng.
 
 **E91 kiểm trực tiếp:**86tests Python (54M3+32M2),9FE/build đạt. Ca mới kiểm ranh6/7/14ngày, mẫu số/không sự kiện/null, chặn filter/summary lệch/run sai kind/failed, mutation tương lai không đổi feature/nhãn fit nghiên cứu và stale UI khi đổi run. Đây là số kiểm phần mềm, không đóng R05/R07/T14.

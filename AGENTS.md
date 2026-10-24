@@ -1,5 +1,11 @@
 # Hướng dẫn làm việc với SIGMA
 
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+
+Quyền hiện tại CHG-068 cho phép push từng bước code/config không nhạy cảm/tests/docs lên `m3-implementation`; không merge/force-push/deploy, không đưa raw/run/DB/env lên Git. Đọc phần CHG-068 trong PLAN trước khi sửa. Không dùng số test lịch sử thay kiểm hiện tại.
+
+[Kế hoạch CHG-068 và cổng từng bước](docs/planning/PLAN.md#chg-068).
+
 Áp dụng trong project này. Bộ hướng dẫn ngày 02/10/2026 dựa trên PLAN và yêu cầu phiên bản 2.0; phạm vi hành động theo yêu cầu người dùng ở mỗi lượt.
 
 ## Mục tiêu và ràng buộc

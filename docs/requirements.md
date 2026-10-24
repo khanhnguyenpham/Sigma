@@ -1,5 +1,11 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+
+R06/T10 bổ sung chọn SS theo ngày hoặc biến động và ROP cố định hoặc forecast; R07/T10–T12 bổ sung cảnh báo dự báo xuống ngưỡng trong N ngày; R08/T11 chuyển React/HTTP độc lập Streamlit; R09/T12 giữ tái lập, snapshot và gate GitHub. Đây là yêu cầu được chốt, chưa là kết quả nghiệm thu.
+
+[Kế hoạch CHG-068 và cổng từng bước](planning/PLAN.md#chg-068).
+
 **CHG-062/E94 — R08 online:** theo yêu cầu mới của người dùng, thêm Streamlit public cho các kết quả dẫn xuất M3 và mô phỏng riêng từng phiên. FastAPI/React/PG local vẫn là stack vận hành/huấn luyện; không mở DB/raw lên Internet hoặc tự thêm auth/quản trị cloud. [Phạm vi đã triển khai](../M3/streamlit/README.md). Đây là bổ sung cách trình bày/chia sẻ, không đổi target, nghiệm thu M05/R05 hoặc metric tồn/cảnh báo.
 
 **Hiện hành CHG-061/M05 — 20/10/2026:** mentor do người dùng thuật lại đã chốt R05 chấm **tổng 30 ngày thay từng ngày**. E93 kiểm lại 10/10≤20%, mean11,621356%, coverage100%, 63 cửa sổ/tuyến; test hồi cứu. [Tiêu chí, kết quả và tích hợp M3](../M3/MONTHLY.md). Các mốc trước M05 còn ghi R05 ngày là lịch sử; target A08, raw/top10/split và các tiêu chí tồn/cảnh báo không đổi.

@@ -1,5 +1,11 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+
+Đặc tả bổ sung: SS_days=ceil(m×b×mean(f14)); SS_volatility=ceil(m×k×std_population(quantity_ngày_quá_khứ)×sqrt(7)). Cửa sổ đủ7–90ngày đến origin (mặc định28); missing source chặn, zero-sales hợp lệ. ROP_fixed=configured_rop_floor (đã chứa dự trữ, không cộng SS lại); ROP_forecast=max(floor,ceil(sum(f1..7)+SS)). S/IP/Q/MOQ/ETA giữ công thức cũ. Nếu tồn hiện tại≥ROP và projection trong N ngày có closing<ROP thì cảnh báo dự kiến; bằng ROP chưa báo. Giữ ROP tại origin, receipts biết ở origin, không thêm lô Q mới để che rủi ro. Cảnh báo depletion và metric cũ tách riêng.
+
+[Kế hoạch CHG-068 và cổng từng bước](../../docs/planning/PLAN.md#chg-068).
+
 **Cập nhật M05/E93 — 20/10/2026:** [R05 tổng30 và implementation hiện hành](../MONTHLY.md) thay cổng độ chính xác ngày bằng tổng D+1…D+30 theo mentor do người dùng thuật lại. Đã đối soát 10/10≤20% hồi cứu. Benchmark chỉ đọc có manifest/source/target/hash riêng, API/UI/CSV; không thêm bảng DB hoặc thay forecast tồn H14. Các mục R05 ngày dưới đây mô tả thiết kế trước M05; A08 và nghiệm thu mentor vẫn tách riêng.
 
 **Hiện hành E90:** ứng dụng đã có code và fullrun local theo profile này. Xem [implementation, số kiểm thực và giới hạn](../IMPLEMENTATION.md). Nội dung E76/E89 có chữ “dự kiến/chưa triển khai” bên dưới là lịch sử thiết kế/checkpoint; không dùng làm trạng thái hiện hành hoặc bằng chứng chạy. R05/R07/T14 vẫn mở.

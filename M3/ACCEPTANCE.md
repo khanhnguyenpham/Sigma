@@ -1,5 +1,11 @@
 # M3 — Bằng chứng và các cổng chưa đóng
 
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+
+R05 tiếp tục M05 tổng30 trên test hồi cứu; forecast H14 phục vụ tồn không đổi. R06/R07 phải kiểm lại cho mode mới và cảnh báo ngưỡng; tách khỏi metric depletion. R08/R09 cần kiểm HTTP/React local sau gỡ Streamlit. Phần còn chưa có bundle tổng30 hiển thị `monthly_not_prepared`; không lấy số từ MD thay dữ liệu.
+
+[Kế hoạch CHG-068 và cổng từng bước](../docs/planning/PLAN.md#chg-068).
+
 Hiện trạng ngày 20/10/2026 (Asia/Saigon), E93/M05. Mentor do người dùng thuật lại đã chốt **tổng 30 ngày thay cho từng ngày**. Đây là bảng đối chiếu sản phẩm, không phải biên bản ký nghiệm thu. Tiêu chí ở [requirements](../docs/requirements.md); kết quả và nguồn kiểm chứng ở [MONTHLY](MONTHLY.md); cách chạy stack ở [IMPLEMENTATION](IMPLEMENTATION.md).
 
 | Cổng | Bằng chứng thực có | Trạng thái và giới hạn |

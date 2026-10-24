@@ -1,5 +1,11 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+
+Cổng từng bước: kiểm phạm vi diff và dữ liệu riêng tư; chạy kiểm phù hợp; commit riêng; push nhánh; so HEAD với remote và chờ CI liên quan đạt. Lỗi thì sửa trong bước, không đi tiếp. Tests nguồn thật/replay local; CI synthetic. Không sửa snapshot/config hash cũ để khớp code mới; thay đổi cấu hình tạo run mới.
+
+[Kế hoạch CHG-068 và cổng từng bước](planning/PLAN.md#chg-068).
+
 **CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
 
 **CHG-042/E70 — 11/10/2026:** M2 final fit mới/verify đạt tổng7 test10/10<20%, mean15,745366%; chín tuyến parity0. Full suite291 đạt+1 skip trước xuất báo cáo, sau đó4 final tests (gồm AppTest đã skip) đều đạt; pip check/notebook2 code cells/12 public hashes/privacy đạt. [Bộ final](../M2/reports/final_m2_20261011/README.md), [cấu hình10 tuyến](../M2/reports/final_m2_20261011/model_configurations.md). Raw/771 tệp protected nguyên; hai run sandbox lỗi giữ failed. Đã push nhánh M2-final-report, CI Windows của commit mã0cbeaf0 đạt. Test hồi cứu/LG U+ test-selected, h8–14/R05 ngày/R07/T14 còn mở.

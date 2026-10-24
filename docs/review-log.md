@@ -1171,3 +1171,14 @@ Kiểm thực:118Python (XML0failure/error/skipped),31React; Ruff và buildstrea
 
 
 **Kiểm cuối E99:** full120Python0failure/error/skipped (XML `outputs/submit-e99-final-python.xml`),31React, buildlocal/streamlit và Ruff đạt; docs19files/155links/73tables0errors. Browserpublic đã tạo stock_projection `00538a…`complete với920item/tồn1314/Q794/5871/pending0, dropdown hợp lệ93ngày; guide mở/đóngEscape; refresh giữ phương án. Không giả dữ liệu khi không có lô đầu kỳ. Gói private/source được rà, sourceIDleak0; các tệp src/M2/raw/config/requirements nền không đổi. Hướng dẫn nộp tại M3/SUBMISSION.md ghi rõ dữ liệu mô phỏng, pipeline local, giới hạn phiên, benchmark hồi cứu và phần mentor chưa nghiệm thu. Source commit/CI được kiểm riêng sau push; không suy từ CI lượt E98.
+
+<a id="e101"></a>
+### CHG-068 / E101 — Cập nhật tài liệu trước triển khai, 24/10/2026
+
+Người dùng duyệt toàn bộ15bước và chốt tên nhánh `m3-implementation`, nền `codex/m3-implementation` b1357cd. Cho phép push từng bước code/config/tests/docs; localchecks, SHAremote và CI là cổng bắt buộc trước bước sau. Ảnh đính kèm là ba câu hỏi; nội dung trả lời do người dùng thuật lại, các lựa chọn cách tính/cảnh báo/React/local/M05 được chốt trực tiếp trong chat. Không gán số mặc định/mode tự chọn là xác nhận mentor trực tiếp; A08–A17 giữ nhãn cũ.
+
+Bước1 cập nhật PLAN/TASK/PROJECTMAP, requirements/data-contract/development/AGENTS/README và bộ đặc tả/bàn giao M3. Sản phẩm là đặc tả, chưa sửa code hoặc chạy test ứng dụng mới; E99 và nhật ký E100 local trong checkout khác là bằng chứng lượt trước. Kế hoạch chi tiết và cổng kiểm tại [CHG-068](planning/PLAN.md#chg-068). R06–R09/T10–T12 bị tác động; giữ M05 tổng30, forecastH14/L7/R1 và mô hình; R07/T14 chưa nghiệm thu.
+
+Worktree mới tách khỏi workspace M2 đang có4tệp sửa dở; nhánh nền GitHub đã kiểm trực tiếp vẫn b1357cd, nhánh đích chưa tồn tại trước tạo. Dữ liệu/DB/env/run/ảnh và bundle chỉ local; không merge/force-push/deploy. Kiểm Markdown và kết quả commit/push/CI ghi sau khi thực kiểm, không suy từ kế hoạch.
+
+**Kiểm bước1:**19Markdown UTF-8,19link/anchor thêm mới hợp lệ;80bảng/29fence được kiểm kê, bảng15bước đủ cột/đủ thứ tự; khối mã đóng đủ, git diff --check đạt. Không tạo link lỗi mới; nguồn thiếu/link lịch sử vẫn giữ giới hạn. Chỉ19MD thay đổi, chưa sửa source/config/tests; chưa chạy lại pytest/FE/model/replay. Commit/push/CI là cổng tiếp theo, chưa suy đạt từ kiểm MD.
