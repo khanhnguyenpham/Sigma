@@ -1,4 +1,4 @@
-from sigma_m3.services.runs import source_data_id
+from sigma_m3.core.run_context import source_data_id
 
 """Transaction replay and projection on frozen policy/forecast snapshots."""
 from datetime import date, datetime, timedelta, timezone
@@ -6,7 +6,7 @@ import math, json, hashlib
 import numpy as np
 import pandas as pd
 from sqlalchemy import select, text
-from sigma_m3.errors import DomainError
+from sigma_m3.core.errors import DomainError
 from sigma_m3.models import Run, DailySales, ItemForecast, Replenishment
 from sigma_m3.services.inventory import PolicyValues, recommend, fulfill_day, eta
 from sigma_m3.services.alerts import project, replay_metrics

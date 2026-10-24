@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta, timezone
 import pandas as pd
 import pytest
 from sigma_m3.services.simulation import pure_window
-from sigma_m3.errors import DomainError
+from sigma_m3.core.errors import DomainError
 
 ORIGIN = date(2025, 9, 30)
 

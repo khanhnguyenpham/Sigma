@@ -1,14 +1,16 @@
 
 """Explicit assumption generation, never a missing-policy runtime fallback."""
-from sigma_m3.services.runs import source_data_id
+from sigma_m3.core.run_context import source_data_id
 from datetime import timedelta
 import math
 from sqlalchemy import select, func
-from sigma_m3.errors import DomainError
-from sigma_m3.models import Item, Warehouse, Supplier, Policy, DailySales, Scenario
-from sigma_m3.schemas import PolicyCreate
-from sigma_m3.services.catalog import create_policy
-from sigma_m3.services.runs import required_run
+from sigma_m3.core.errors import DomainError
+from sigma_m3.modules.catalog.models import Item, Warehouse, Supplier
+from sigma_m3.modules.configuration.models import Policy, Scenario
+from sigma_m3.models import DailySales
+from sigma_m3.modules.configuration.schemas import PolicyCreate
+from sigma_m3.modules.configuration.service import create_policy
+from sigma_m3.core.run_context import required_run
 
 
 def seed_simulation(session, source_run_id, origin):

@@ -2,11 +2,12 @@ from datetime import date, timedelta
 import numpy as np
 import pandas as pd
 import pytest
-from sigma_m3.errors import DomainError
+from sigma_m3.core.errors import DomainError
 from sigma_m3.services.inventory import PolicyValues, recommend, fulfill_day, eta
 from sigma_m3.services.alerts import project, replay_metrics
 from sigma_m3.services.allocation import allocate
-from sigma_m3.schemas import RunCreate, PolicyCreate
+from sigma_m3.schemas import RunCreate
+from sigma_m3.modules.configuration.schemas import PolicyCreate
 
 D = date(2025, 10, 31)
 P = PolicyValues(100, 50, 2)
