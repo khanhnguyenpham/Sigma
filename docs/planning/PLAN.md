@@ -1,6 +1,6 @@
 # Kế hoạch dự án SIGMA
 
-**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
 
 [Kế hoạch CHG-068 và cổng từng bước](PLAN.md#chg-068).
@@ -671,6 +671,8 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 <a id="chg-068"></a>
 ## CHG-068 — React local, tổ chức mã và policy/cảnh báo cấu hình
 
+**CHG-069 — điều chỉnh đặc tả FE, 24/10/2026:** theo yêu cầu mới, thay đích feature/shared bằng pages/layouts và component dùng chung như ảnh tham khảo; cập nhật riêng MD rồi push. Bước8–9 được sửa mô tả và tên commit dự kiến, không đổi thứ tự/cổng kiểm. Bước6–15 chưa bắt đầu; [đặc tả FE](../../M3/docs/04-frontend-spec.md#frontend-target-chg069).
+
 **CHG-068 bước5 — 24/10/2026:** người dùng yêu cầu làm riêng bước5 sau checkpoint `992b8f5`. Đã tách core/catalog/configuration và rút main391→45dòng; giữ26route/OpenAPI đầy đủ, DDL13bảng và giao dịch/version/snapshot. Local107Python/26React/build/pipcheck/CLI/import/Alembic/smoke đạt,845protectedhash nguyên. Commit mã `db6c1d5` đã push, SHAremote khớp và cả2workflowCI completed/success. Bước5 hoàn tất; bước6–15 chưa bắt đầu. [Bàn giao bước5](../development.md#handoff-chg068-step5).
 
 **Điểm dừng lượt trước24/10/2026 — lịch sử:** bước1–4 hoàn tất; mã bước4 `db201de` đã remoteSHA khớp và cả2workflowCI success. Dừng sau bước4, bước5–15 chưa bắt đầu. [Bàn giao và cách tiếp tục](../development.md#handoff-chg068-step4).
@@ -688,8 +690,8 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 | 5 | T10–T12 | `refactor(m3): modularize core, catalog and configuration` | Tách core/catalog/configuration; API/version/snapshot giữ nguyên, không schema diff. | Hoàn tất local/commit/push/SHA/CI |
 | 6 | T08–T12 | `refactor: modularize forecasting runs and reporting` | Tách ingestion/forecast/allocation/adapter/runs/reporting; parity/worker/CSV. | Chưa bắt đầu |
 | 7 | T10–T12 | `refactor: modularize inventory purchasing and alerts` | Tách tồn/nhập/cảnh báo; ledger/MOQ/ETA/pending khớp baseline. | Chưa bắt đầu |
-| 8 | T11/T12 | `refactor: extract shared React components and hooks` | Tách UI/hooks/client/types/lib; kiểm abort/loading/error/focus/CSV. | Chưa bắt đầu |
-| 9 | T11/T12 | `refactor: organize React by feature` | Tách6feature/app/context/form/drawer/styles; kiểm URL/Back/Escape/mobile. | Chưa bắt đầu |
+| 8 | T11/T12 | `refactor(frontend): extract reusable components and shared hooks` | Tách components/hooks/services/types/utils/config; kiểm abort/loading/error/focus/bảng/CSV. | Chưa bắt đầu |
+| 9 | T11/T12 | `refactor(frontend): organize pages and application layouts` | Tách layouts/App/context và form/drawer lớn trong6pages; styles.css→index.css; kiểm URL/Back/Escape/mobile. | Chưa bắt đầu |
 | 10 | T10/T12 | `feat: persist configurable inventory policies` | Migration/DTO/version/override; kiểm DB13bảng và snapshot cũ. | Chưa bắt đầu |
 | 11 | T10/T12 | `feat: calculate configurable safety stock and reorder points` | SS2mode/ROP2mode/history causal; ca tính tay/default parity. | Chưa bắt đầu |
 | 12 | T10–T12 | `feat: warn on projected reorder threshold crossings` | Projection xuống ngưỡng/DTO/filter/export/đánh giá riêng; kiểm biên và dedup. | Chưa bắt đầu |
@@ -700,7 +702,7 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 ### Hợp đồng triển khai đã chốt
 
 - BE giữ FastAPI/PG/worker/CLI, namespace sigma_m3; core +8module theo đặc tả05, một SQLAlchemy Base/13bảng. Refactor giữ API/transaction/idempotency/schema/kết quả; API/worker/CLI dùng cùng hàm nghiệp vụ.
-- FE app +6feature +shared(api/types/hooks/ui/lib/styles), giữ6màn hình/URL/context/loading/error/retry đọc/abort/focus/CSV. Không thêm state/router framework. React HTTP; devVite, build do FastAPI phục vụ local.
+- FE theo CHG-069: components/config/hooks/layouts/pages/services/types/utils cùng App.tsx/main.tsx/index.css; giữ6màn hình/URL/context/loading/error/retry đọc/abort/focus/CSV. Không thêm state/router framework; chưa cần stores/lib/src-docs/examples. React HTTP; devVite, build do FastAPI phục vụ local. [Cây và ánh xạ mã dự kiến](../../M3/docs/04-frontend-spec.md#frontend-target-chg069).
 - Policy supplier×item/version/effective date: safety_mode days hoặc volatility; rop_mode fixed hoặc forecast; safety_lookback_days7–90 mặc định28; safety_factor hữu hạn≥0 mặc định1; warning_horizon_days1–14 mặc định7. Scenario override mang cùng trường. Defaults là mô phỏng, chưa là số mentor.
 - Với m=safety_multiplier scenario: SS_days=ceil(m×safety_days×mean(f14)); SS_volatility=ceil(m×safety_factor×std_population(quantity_ngày_đến_origin)×sqrt(7)). Cần đủ cửa sổ ngày quan sát, zero hợp lệ/missing chặn; không dùng ngày sau cutoff. ROP_fixed=configured_rop_floor (không cộng SS lần2); ROP_forecast=max(floor,ceil(sum(f1..7)+SS)). S/IP/Q/MOQ/ETA giữ phép tính cũ, trigger closing<ROP.
 - Projection giữ ROP tại origin và receipts đã biết trước quyết định, không thêm Q vừa khuyến nghị. Current<ROP giữ below_rop; current≥ROP và có closing_forecast<ROP trong N ngày tạo projected_below_rop/threshold_warning/ngày xuống ngưỡng; equality không trigger. Giữ depletion/ngày cạn/metric/mẫu số cũ riêng; không đếm nhiều tín hiệu thành nhiều item.

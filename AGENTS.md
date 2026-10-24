@@ -1,6 +1,8 @@
 # Hướng dẫn làm việc với SIGMA
 
-**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+**Yêu cầu mới CHG-069 — 24/10/2026:** cập nhật và push riêng Markdown cho cấu trúc FE dự kiến theo [đặc tả](M3/docs/04-frontend-spec.md#frontend-target-chg069): pages/layouts/components và config/hooks/services/types/utils; thay đích app/features/shared. Chưa sửa code FE hoặc bắt đầu bước6–15 trong lượt này. Giữ cổng local→commit→push→remoteSHA→CI và trạng thái bước5 đã hoàn tất.
+
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
 Quyền hiện tại CHG-068 cho phép push từng bước code/config không nhạy cảm/tests/docs lên `m3-implementation`; không merge/force-push/deploy, không đưa raw/run/DB/env lên Git. Đọc phần CHG-068 trong PLAN trước khi sửa. Không dùng số test lịch sử thay kiểm hiện tại.
 

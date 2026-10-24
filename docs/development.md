@@ -1,6 +1,6 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
-**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
 Cổng từng bước: kiểm phạm vi diff và dữ liệu riêng tư; chạy kiểm phù hợp; commit riêng; push nhánh; so HEAD với remote và chờ CI liên quan đạt. Lỗi thì sửa trong bước, không đi tiếp. Tests nguồn thật/replay local; CI synthetic. Không sửa snapshot/config hash cũ để khớp code mới; thay đổi cấu hình tạo run mới.
 
@@ -256,3 +256,12 @@ Người dùng yêu cầu bắt đầu riêng bước5 sau điểm dừng bướ
 - Giới hạn: chưa browser tương tác, chưa replay/model/benchmark30 mới; monthly_not_prepared vẫn là trạng thái đúng khi thiếu bundle. Cảnh báo TestClient/httpx đã biết; không đổi pin để tắt. Không chạy nền API/worker/Vite mới hoặc deploy; không đánh dấu nghiệm thu R07/T14.
 
 Cổng mã bước5 đã kiểm: commitdb6c1d5 đã push/remoteSHA khớp, [M3 integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40082349301) và [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40082349353) đều completed/success; không suy từ CI992b8f5. Bàn giao cuối chỉ MD, CI commit MD sẽ kiểm riêng trước kết thúc. Kết thúc bước5 rồi chờ yêu cầu bước6 (forecast/runs/reporting). Khi tiếp tục, kiểm lại branch/status/remote/code/hash, đọc PLAN/TASK/PROJECTMAP và source thực; CLI/factory/start script vẫn giữ giao diện cũ.
+
+<a id="handoff-chg069"></a>
+### Bàn giao CHG-069 — đặc tả FE, 24/10/2026 (Asia/Saigon)
+
+- Phạm vi: yêu cầu mới chỉ cập nhật Markdown và push m3-implementation; checkpointc74d80e sau bước5. Bước6–15 chưa bắt đầu. [Cấu trúc FE đích](../M3/docs/04-frontend-spec.md#frontend-target-chg069) thay feature/shared bằng pages/layouts/components và config/hooks/services/types/utils, bỏ thư mục chưa cần.
+- Sản phẩm: đặc tả04, kiến trúc05, kiểm thử06, PLAN/TASK/PROJECTMAP, AGENTS và hai README đồng bộ; E103 ghi nguồn ảnh/quyền/truy vết. Không tạo thư mục hoặc di chuyển source/config/tests/CSS. Giữ frontend/tests, sáu màn hình/URL/context và hành vi HTTP/keyboard/CSV trong kế hoạch bước8–9.
+- Kiểm local trước commit đã đạt: link/anchor mới, fence/bảng, bảng15bước, git diff --check và danh sách thay đổi chỉ Markdown. Commit/SHA/CI thực được kiểm riêng và báo trong thông điệp bàn giao cuối lượt. Không chạy pytest/FE build/model/replay local cho thay đổi tài liệu; CI commit mới vẫn phải đạt trước báo hoàn tất.
+- Giới hạn: đây là thiết kế, không phải cây source đang triển khai. Code FE thực vẫn api/components/pages/App/main/styles.css. Giữ nguyên dữ liệu/run/snapshot/manifest và trạng thái R05/M05/H14/L7/R1/R07/T14; không deploy/merge/force-push.
+- Tiếp theo khi được giao: bước6 forecasting/runs/reporting, tiếp bước7 BE rồi bước8–9 FE theo đặc tả mới. Mỗi bước giữ local→commit→push→SHAremote→CI, không tự chuyển sang triển khai vì đã sửa MD.

@@ -1,5 +1,7 @@
 # SIGMA — React / FastAPI local
 
+**FE dự kiến CHG-069:** bước8–9 sẽ tổ chức theo pages/layouts/components và config/hooks/services/types/utils, cùng App.tsx/main.tsx/index.css. [Cấu trúc và cách chuyển mã](M3/docs/04-frontend-spec.md#frontend-target-chg069). Hiện chỉ cập nhật tài liệu, chưa đổi code FE; bước6–15 chưa bắt đầu.
+
 Nhánh hiện hành: **`m3-implementation`**, nền `b1357cd`. CHG-068 đã cập nhật tài liệu và baseline, gỡ runtime/build/dependency Streamlit M3 và M2. React gọi HTTP `/api/v1`; FastAPI phục vụ bản build, PostgreSQL và worker chạy local.
 
 **Lượt mới24/10/2026:** người dùng giao riêng bước5: nền BE đã tách `core/`, `modules/catalog/`, `modules/configuration/`; API/schema/phép tính giữ nguyên, commitdb6c1d5 đã push/remoteSHA khớp/CI đạt. Bước6–15 chưa bắt đầu; FE và mode SS/ROP/cảnh báo mới thuộc các bước sau. [Kế hoạch15bước](docs/planning/PLAN.md#chg-068) · [Bàn giao bước5](docs/development.md#handoff-chg068-step5).

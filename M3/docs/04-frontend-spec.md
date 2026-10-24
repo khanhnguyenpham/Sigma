@@ -1,8 +1,62 @@
 # M3 — đặc tả frontend
 
-**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
-Đích gồm `app/`, `features/{overview,inventory,forecast,purchasing,alerts,configuration}` và `shared/{api,types,hooks,ui,lib,styles}`. Giữ6màn hình/URL/context/CSV/loading/error/keyboard. Dùng chung Table/Pager/State/Dialog/Drawer/Badge và PolicyFields cho policy/override; mode chỉ hiển thị trường phù hợp. Cảnh báo giải thích tồn/ROP/N/ngày xuống ngưỡng/ngày cạn riêng; tổng quan đếm item duy nhất, không đếm số loại tín hiệu thành số item.
+<a id="frontend-target-chg069"></a>
+## Cấu trúc FE dự kiến — CHG-069, 24/10/2026
+
+Người dùng yêu cầu cập nhật Markdown và push trước, tham khảo cây thư mục trong ảnh và cho phép bỏ thư mục chưa cần. Đây là đặc tả cho bước8–9 CHG-068, thay đích `app/features/shared` trước đó; chưa di chuyển hoặc sửa code FE. Ảnh chỉ là tham chiếu cấu trúc, không bổ sung chức năng của project trong ảnh. Bước1–5 đã hoàn tất; bước6–15 chưa bắt đầu.
+
+```text
+M3/frontend/src/
+├── components/       # UI dùng chung và component nghiệp vụ tái sử dụng
+├── config/           # Điều hướng và cấu hình HTTP phía trình duyệt
+├── hooks/            # Tải dữ liệu, abort, focus, context run/bộ lọc
+├── layouts/          # Khung ứng dụng, sidebar, header, bộ lọc chung
+├── pages/            # Sáu màn hình hiện có
+├── services/         # HTTP client typed gọi FastAPI
+├── types/            # DTO API và kiểu context/URL
+├── utils/            # Format, nhãn, ngày UTC, query string
+├── App.tsx           # Ghép layout và màn hình theo URL hiện có
+├── index.css         # CSS toàn cục; đổi từ styles.css ở bước9
+├── main.tsx          # Mount React và import CSS toàn cục một lần
+└── vite-env.d.ts
+```
+
+### Trách nhiệm và cách chuyển mã
+
+| Đích dự kiến | Mã hiện có và trách nhiệm |
+|---|---|
+| `components/ui/` | Tách Table, Pager, State, Card, Panel, Badge, DetailDrawer từ `components/common.tsx`; gom Icon/PageBoundary hiện có. Component nhận props, không chứa phép tính tồn. |
+| `components/dialogs/` | HelpDialog và RunDialog; dùng chung hook quản lý focus/Escape. |
+| `components/forecast/`, `components/alerts/` | Đặt MonthlyForecast và AlertOpportunity hiện có vào nhóm nghiệp vụ tương ứng. Chỉ tạo nhóm khi chuyển component thực. |
+| `components/configuration/` | Tách PolicyForm, ScenarioForm, PolicyOverrideEditor, ReceiptEditor khi xử lý form lớn; dùng chung PolicyFields cho policy/override. Không thêm form-builder. Các trường mode mới chỉ triển khai ở bước13. |
+| `hooks/` | Tách useResource và useDialogFocus từ common.tsx; useAppContext gom run/bộ lọc/đồng bộ URL từ App. Giữ AbortController, chống response cũ, refresh và loading/error. |
+| `layouts/` | Tách AppLayout, Sidebar, Header, ContextFilters từ App.tsx; layout điều phối bố cục và nhận context qua props/hook. |
+| `pages/` | Giữ Overview, Inventory, Forecast, Replenishment, Alerts, Configuration. Page ghép component và dữ liệu; form, drawer, bảng lớn được tách khi có trách nhiệm riêng. |
+| `services/http.ts` | Chuyển api và ApiError từ api/client.ts, dùng Fetch API hiện có; giữ abort, read30s/write90s, Idempotency-Key và không tự retry write. Giữ một client, chưa tạo wrapper cho từng endpoint. |
+| `types/api.ts`, `types/context.ts` | Tách Row/Run/Page và Context/kiểu view nhập hàng khỏi client/App; bổ sung DTO cụ thể khi sử dụng, không tạo kiểu cho tính năng chưa có. |
+| `utils/` | format.ts cho text/num/fmt/pct; labels.ts cho label/errorLabel; url.ts cho query/resultQuery/readContext/contextUrl/readPurchasingView. Tiện ích ngày dùng UTC, không tính lại SS/ROP/metric. |
+| `config/` | navigation.ts giữ sáu ID/nhãn PAGES hiện có; http.ts giữ prefix `/api/v1` và timeout dùng chung client/export. Không đặt secret hoặc policy nghiệp vụ tại đây. |
+| `App.tsx`, `main.tsx`, `index.css` | App chỉ ghép layout/page và context. Đổi styles.css thành index.css và chuyển import sang main.tsx ở bước9, giữ giao diện; chỉ tách CSS component khi thực sự cần. |
+
+Luồng phụ thuộc: pages/layouts điều phối components/hooks; hooks gọi services; services dùng types/config; utils độc lập với UI. Không tạo import vòng hoặc đưa component riêng của một page vào thư mục chung khi chưa được tách rõ. React tiếp tục dùng state/hook và URL hiện có, không thêm router hoặc state framework.
+
+### Các thư mục chưa cần
+
+- `stores/`: state/run/bộ lọc hiện đủ với useState, hooks và URL; chưa cần Redux/Zustand hoặc store riêng.
+- `lib/`: trách nhiệm hiện tại đã thuộc services/utils, chưa có SDK cần adapter riêng.
+- `src/docs/`, `src/examples/`: tài liệu ở `M3/docs/`, fixture giả và tests ở `M3/frontend/tests/`.
+- `assets/`: chỉ thêm khi có ảnh/font được import thực; favicon hiện giữ ở `public/`.
+- Không tạo thư mục rỗng hoặc thêm tầng `app/`, `features/`, `shared/` bên ngoài cây trên.
+
+### Phân bước và điều kiện giữ hành vi
+
+Bước8 tách components/hooks/services/types/utils/config khỏi common.tsx/client tổng; cập nhật import và kiểm loading/error/abort/focus/bảng/phân trang/CSV. Bước9 tách layouts, context của App, form/drawer lớn và tổ chức sáu pages; đổi CSS theo cây trên. Mỗi bước vẫn kiểm local → commit → push → SHA remote khớp → CI đạt trước bước kế tiếp.
+
+Giữ nguyên sáu màn hình và ID URL `overview`, `inventory`, `forecast`, `replenishment`, `alerts`, `configuration`; không đổi `replenishment` thành `purchasing`. Giữ run/ngày/bộ lọc và tab nhập hàng qua refresh/Back, chống dữ liệu cũ khi đổi context nhanh, retry đọc, hỗ trợ bàn phím/Escape/focus, mobile và export CSV. Tests tiếp tục ở frontend/tests; chỉ đổi import khi refactor thực, giữ kiểm null khác0 và lỗi mạng. Dev dùng Vite; React gọi FastAPI HTTP và build được FastAPI phục vụ local.
+
+PolicyFields dùng chung cho policy/scenario override; chỉ hiển thị trường phù hợp mode ở bước13. Cảnh báo ở bước14 giải thích tồn/ROP/N/ngày xuống ngưỡng/ngày cạn riêng; tổng quan đếm item duy nhất. CHG-069 không đổi yêu cầu nghiệp vụ hoặc nghiệm thu R08–R09/T11–T12, R07/T14 vẫn mở.
 
 [Kế hoạch CHG-068 và cổng từng bước](../../docs/planning/PLAN.md#chg-068).
 

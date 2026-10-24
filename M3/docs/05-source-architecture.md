@@ -41,9 +41,9 @@ SHA256 canonical của toàn bộ OpenAPI và DDL table/index được ghi golde
 Phần forecast/runs/reporting, inventory/purchasing/alerts và FE chưa tổ chức lại theo bước6–9. Core có helper đọc/kiểm run dùng chung; điều đó không tự hoàn tất module runs hoặc thay forecast/ledger.
 
 
-**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
-Đích BE: `core/` cho settings, DB/Base, lỗi/hash/run context; `modules/{catalog,configuration,forecasting,inventory,purchasing,alerts,runs,reporting}`. Main chỉ bootstrap/router; worker/CLI dùng cùng service; model đăng ký một metadata cho Alembic. Giữ module nhỏ, không thêm repo/service factory/queue mới. FE feature/shared theo04. Gỡ host/adapter/cloud transport/build/dependency Streamlit, giữ artifact/HTML/notebook/CLI M2.
+Đích BE: `core/` cho settings, DB/Base, lỗi/hash/run context; `modules/{catalog,configuration,forecasting,inventory,purchasing,alerts,runs,reporting}`. Main chỉ bootstrap/router; worker/CLI dùng cùng service; model đăng ký một metadata cho Alembic. Giữ module nhỏ, không thêm repo/service factory/queue mới. FE đích theo pages/layouts/components và các tầng hỗ trợ của [CHG-069](04-frontend-spec.md#frontend-target-chg069), chưa refactor code FE. Gỡ host/adapter/cloud transport/build/dependency Streamlit, giữ artifact/HTML/notebook/CLI M2.
 
 [Kế hoạch CHG-068 và cổng từng bước](../../docs/planning/PLAN.md#chg-068).
 
@@ -98,11 +98,18 @@ M3/
 │   ├── package-lock.json
 │   ├── vite.config.ts
 │   ├── src/
-│   │   ├── api/                    # Typed client/DTO/context/error
-│   │   ├── components/             # Filters/status/table/chart
-│   │   ├── pages/                  # Sáu trang theo 04
+│   │   ├── components/             # Đích FE bước8–9 CHG-069, chưa là cây thực
+│   │   ├── config/
+│   │   ├── hooks/
+│   │   ├── layouts/
+│   │   ├── pages/                  # Giữ sáu màn hình/URL hiện có
+│   │   ├── services/
+│   │   ├── types/
+│   │   ├── utils/
 │   │   ├── App.tsx
-│   │   └── styles.css
+│   │   ├── main.tsx
+│   │   ├── index.css               # Đổi từ styles.css khi làm bước9
+│   │   └── vite-env.d.ts
 │   └── tests/
 ├── configs/
 │   ├── m3-profile.json             # Không raw/secret

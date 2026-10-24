@@ -1,8 +1,10 @@
 # Điều phối công việc SIGMA
 
+**CHG-069 — đặc tả FE mới, 24/10/2026:** cập nhật Markdown theo ảnh người dùng: pages/layouts/components và các tầng hỗ trợ, bỏ thư mục chưa cần. Đã sửa kế hoạch bước8–9; [cấu trúc dự kiến](../../M3/docs/04-frontend-spec.md#frontend-target-chg069). Lượt này chỉ tài liệu; bước6–15 chưa bắt đầu, code FE chưa đổi. Cổng commit/push/SHA/CI của lượt tài liệu được xác nhận khi bàn giao.
+
 **Thực hiện CHG-068 — bước5 được giao mới:** checkpoint992b8f5 đã remoteSHA khớp và CI đạt sau đổi tên commit. Bước1–4 hoàn tất; bước5 core/catalog/configuration hoàn tất, commitdb6c1d5 đã remoteSHA khớp và cả2CI success;107Python/26React/build/Alembic/API/DDL/845hash đạt. Bước6–15 chưa bắt đầu; [bàn giao hiện hành](../development.md#handoff-chg068-step5). R07/T14 chưa nghiệm thu.
 
-**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
 
 [Kế hoạch CHG-068 và cổng từng bước](PLAN.md#chg-068).
