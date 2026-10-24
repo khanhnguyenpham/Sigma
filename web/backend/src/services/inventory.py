@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 import math
 import numpy as np
-from sigma_m3.core.errors import DomainError
+from core.errors import DomainError
 
 
 def quantity(value):

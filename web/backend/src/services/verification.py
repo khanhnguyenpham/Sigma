@@ -1,14 +1,14 @@
 
 """Independent reconciliation of persisted forecasts, ledgers and replay denominators."""
-from sigma_m3.core.run_context import source_data_id
+from core.run_context import source_data_id
 import hashlib, json, math
 import numpy as np
 import pandas as pd
 from sqlalchemy import text
-from sigma_m3.models import Run
-from sigma_m3.core.errors import DomainError
-from sigma_m3.core.hashes import digest
-from sigma_m3.services.forecast import clean_json
+from models import Run
+from core.errors import DomainError
+from core.hashes import digest
+from services.forecast import clean_json
 
 
 def verify_run(settings, sessions, key, allow_running=False):
@@ -418,7 +418,7 @@ def verify_inventory(s, run, settings):
             previous = r.closing_qty
             threshold_count += 1
     event_balance_count = 0
-    from sigma_m3.services.m2_adapter import configuration
+    from services.m2_adapter import configuration
     from src.data import audit_orders
 
     cfg, _, _ = configuration()

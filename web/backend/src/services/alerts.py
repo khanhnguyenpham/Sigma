@@ -1,5 +1,5 @@
 from datetime import timedelta
-from sigma_m3.services.inventory import quantity, vector14
+from services.inventory import quantity, vector14
 
 
 def project(origin, on_hand, forecast, receipts):

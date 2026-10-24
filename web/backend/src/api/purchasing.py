@@ -7,11 +7,11 @@ import uuid
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import Field
-from sigma_m3.api.workspace import WorkspaceFilters
-from sigma_m3.api.results import Filters, context, dataset
-from sigma_m3.core.errors import DomainError
-from sigma_m3.services.forecast import clean_json
-from sigma_m3.core.run_context import required_run
+from api.workspace import WorkspaceFilters
+from api.results import Filters, context, dataset
+from core.errors import DomainError
+from services.forecast import clean_json
+from core.run_context import required_run
 
 router = APIRouter(prefix="/api/v1/runs")
 

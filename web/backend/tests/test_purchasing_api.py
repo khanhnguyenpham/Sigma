@@ -5,8 +5,8 @@ import io
 from datetime import timedelta
 from fastapi.testclient import TestClient
 from sqlalchemy import select
-from sigma_m3.main import create_app
-from sigma_m3.models import Run, Replenishment
+from main import create_app
+from models import Run, Replenishment
 from test_postgres_api import settings, D
 from test_workspace_api import workspace_fixture
 

@@ -1,12 +1,12 @@
 from datetime import datetime, timezone
 from sqlalchemy import select
-from sigma_m3.core.errors import DomainError
-from sigma_m3.models import Replenishment, InventoryEvent
+from core.errors import DomainError
+from models import Replenishment, InventoryEvent
 
 
 def receive_due(session, order_id, day, balance_before, event_sequence):
     """Worker primitive: caller owns the item's serialized daily transaction."""
-    from sigma_m3.services.inventory import quantity
+    from services.inventory import quantity
 
     balance_before, event_sequence = quantity(balance_before), quantity(event_sequence)
     order = session.scalar(
