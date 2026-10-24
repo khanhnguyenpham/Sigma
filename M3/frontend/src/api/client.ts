@@ -1,4 +1,3 @@
-import { CLOUD, cloudRequest } from "./cloud";
 export type Row = Record<string, unknown>;
 export interface Run {
   id: string;
@@ -46,25 +45,38 @@ export async function api<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  if (CLOUD) {
-    const reply = await cloudRequest(path, options);
-    if (!reply.ok)
-      throw new ApiError(
-        reply.error?.code ?? "invalid_input",
-        reply.error?.message ?? "Không thể thực hiện thao tác",
-        reply.status,
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  if (options.signal?.aborted) throw new DOMException("Aborted", "AbortError");
+  options.signal?.addEventListener("abort", abort, { once: true });
+  let expired = false;
+  const timer = setTimeout(() => {
+    expired = true;
+    controller.abort();
+  }, ["GET", "HEAD"].includes((options.method ?? "GET").toUpperCase()) ? 30_000 : 90_000);
+  let rejectAbort: () => void = () => {};
+  const aborted = new Promise<never>((_, reject) => {
+    rejectAbort = () => reject(expired
+      ? new ApiError("request_timeout", "Máy chủ phản hồi quá lâu. Hãy thử lại.", 408)
+      : new DOMException("Aborted", "AbortError"));
+    controller.signal.addEventListener("abort", rejectAbort, { once: true });
+  });
+  try {
+    return await Promise.race([aborted, (async () => {
+      const response = await fetch("/api/v1" + path, { ...options, signal: controller.signal });
+      const data = await response.json();
+      if (!response.ok) throw new ApiError(
+        data.error?.code ?? "network_error",
+        data.error?.message ?? "Không thể tải dữ liệu",
+        response.status,
       );
-    return reply.data as T;
+      return data as T;
+    })()]);
+  } finally {
+    clearTimeout(timer);
+    options.signal?.removeEventListener("abort", abort);
+    controller.signal.removeEventListener("abort", rejectAbort);
   }
-  const response = await fetch("/api/v1" + path, options);
-  const data = await response.json();
-  if (!response.ok)
-    throw new ApiError(
-      data.error?.code ?? "network_error",
-      data.error?.message ?? "Không thể tải dữ liệu",
-      response.status,
-    );
-  return data;
 }
 export function query(
   values: Record<string, string | number | undefined | null>,

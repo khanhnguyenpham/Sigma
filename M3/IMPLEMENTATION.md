@@ -17,7 +17,7 @@ PublicBundle suy danh sách origin có đủ920item closing và vectorH14 từ r
 <a id="streamlit-react-e98"></a>
 ## React trên Streamlit — E98
 
-Bản công khai dùng cùng source React quản lý E97; `MODE=streamlit` chuyển API sang RPC qua `streamlit-component-lib`2.0.0, assets tương đối trong `react_ui`. Adapter Python chỉ đọc gói aggregate đã pin và thay đổi trạng thái riêng từng phiên. Không mở FastAPI/PostgreSQL local ra Internet. [Hướng dẫn build, phạm vi và manifest](streamlit/README.md).
+Bản công khai dùng cùng source React quản lý E97; `MODE=streamlit` chuyển API sang RPC qua `streamlit-component-lib`2.0.0, assets tương đối trong `react_ui`. Adapter Python chỉ đọc gói aggregate đã pin và thay đổi trạng thái riêng từng phiên. Không mở FastAPI/PostgreSQL local ra Internet. [Hướng dẫn build, phạm vi và manifest](../docs/history/m3-streamlit.md).
 
 Phương án mới lấy số tồn đóng tại origin đã công bố, danh sách lô đầu kỳ khai báo trong kịch bản (trống nghĩa không có), chính sách có hiệu lực và forecast H14 khóa. Dùng cùng hàm recommend/project L7/R1/H14; không tái dựng 28ngày giao dịch, không fit ML mới. Lưu cấu hình không sửa run đã công bố. Tối đa8phương án/40kịch bản/2048phiên bản policy mỗi phiên, mỗi kịch bản tối đa100điều chỉnh/lô, input số hữu hạn, ETA đúngD+7, guard parent/origin/idempotency/version. Trạng thái mất khi phiên bị reset, không phải kho dữ liệu nhiều người dùng bền vững.
 
@@ -65,7 +65,7 @@ Theo yêu cầu mới của người dùng, giao diện dùng React/TypeScript/V
 **Giới hạn:** React mới phục vụ cùng backend local, chưa deploy lên Internet hoặc thay app Streamlit public. M05 tổng30 vẫn10/10 hồi cứu; không refit hoặc nâng R07/T14/mentor nghiệm thu từ việc đổi giao diện. Không thêm auth/hosting nhiều người trong lượt này.
 
 
-**E94 — đã triển khai Streamlit công khai theo yêu cầu mới:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/) · [phạm vi online và source](streamlit/README.md). Cùng kết quả M3 mới L7/R1/H14 và tổng30; 11 bảng tổng hợp+1mảng forecast, khoảng6,6MB, không raw/ID đơn/khách/DB/env. What-if dùng cùng hàm policy/project và chỉ giữ trong phiên; các tác vụ worker/huấn luyện/DB vẫn local. Các mô tả “chưa deploy” bên dưới là mốc lịch sử trước E94.
+**E94 — đã triển khai Streamlit công khai theo yêu cầu mới:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/) · [phạm vi online và source](../docs/history/m3-streamlit.md). Cùng kết quả M3 mới L7/R1/H14 và tổng30; 11 bảng tổng hợp+1mảng forecast, khoảng6,6MB, không raw/ID đơn/khách/DB/env. What-if dùng cùng hàm policy/project và chỉ giữ trong phiên; các tác vụ worker/huấn luyện/DB vẫn local. Các mô tả “chưa deploy” bên dưới là mốc lịch sử trước E94.
 
 **E93/M05 — 20/10/2026, áp dụng hiện tại:** R05 chấm tổng 30 ngày thay từng ngày theo mentor được người dùng thuật lại. [Kết quả và tích hợp tổng 30](MONTHLY.md): 10/10≤20%, mean11,621356%, coverage100%, 63 cửa sổ/tuyến, test hồi cứu. API/React có tab riêng và CSV; luồng tồn H14 giữ nguyên. Các mô tả R05 ngày/E92 bên dưới là lịch sử trước M05.
 
