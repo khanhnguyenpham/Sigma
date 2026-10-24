@@ -5,10 +5,12 @@
 <a id="frontend-target-chg069"></a>
 ## Cấu trúc FE dự kiến — CHG-069, 24/10/2026
 
+**CHG-070:** đích thư mục FE sau này là `web/frontend/`; hiện code/tests/build FE vẫn tại `M3/frontend/` và chưa di chuyển. Lượt này chỉ chuyển BE vào `web/backend/`. Cách chia bên trong src giữ CHG-069.
+
 Người dùng yêu cầu cập nhật Markdown và push trước, tham khảo cây thư mục trong ảnh và cho phép bỏ thư mục chưa cần. Đây là đặc tả cho bước8–9 CHG-068, thay đích `app/features/shared` trước đó; chưa di chuyển hoặc sửa code FE. Ảnh chỉ là tham chiếu cấu trúc, không bổ sung chức năng của project trong ảnh. Bước1–5 đã hoàn tất; bước6–15 chưa bắt đầu.
 
 ```text
-M3/frontend/src/
+web/frontend/src/
 ├── components/       # UI dùng chung và component nghiệp vụ tái sử dụng
 ├── config/           # Điều hướng và cấu hình HTTP phía trình duyệt
 ├── hooks/            # Tải dữ liệu, abort, focus, context run/bộ lọc
