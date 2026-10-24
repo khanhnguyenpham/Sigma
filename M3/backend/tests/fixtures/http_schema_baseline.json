@@ -1,0 +1,281 @@
+{
+  "routes": {
+    "/api/v1/health": [
+      "get"
+    ],
+    "/api/v1/items": [
+      "get"
+    ],
+    "/api/v1/runs": [
+      "get",
+      "post"
+    ],
+    "/api/v1/runs/{key}": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/alert-opportunities": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/alerts": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/exports/monthly_forecasts": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/exports/monthly_metrics": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/exports/{name}": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/forecasts/items": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/forecasts/routes": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/inventory": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/metrics": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/monthly-forecasts": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/monthly-metrics": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/monthly-summary": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/purchasing": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/purchasing/export": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/replenishments": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/summary": [
+      "get"
+    ],
+    "/api/v1/runs/{key}/workspace": [
+      "get"
+    ],
+    "/api/v1/scenarios": [
+      "get",
+      "post"
+    ],
+    "/api/v1/supplier-item-policies": [
+      "get",
+      "post"
+    ],
+    "/api/v1/suppliers": [
+      "get"
+    ],
+    "/api/v1/warehouses": [
+      "get"
+    ],
+    "/api/v1/warehouses/{key}": [
+      "patch"
+    ]
+  },
+  "tables": {
+    "alerts": [
+      "actual_depletion_date",
+      "alert_type",
+      "as_of_date",
+      "evaluation_class",
+      "exclusion_reason",
+      "explanation",
+      "id",
+      "is_evaluable",
+      "is_simulated",
+      "item_id",
+      "lead_days",
+      "predicted_depletion_date",
+      "run_id",
+      "state",
+      "window_origin"
+    ],
+    "daily_sales": [
+      "actual_available",
+      "date",
+      "item_id",
+      "order_count",
+      "sales_qty",
+      "source_import_run_id"
+    ],
+    "inventory_daily": [
+      "closing_qty",
+      "config_status",
+      "date",
+      "forecast_as_of_date",
+      "fulfilled_qty",
+      "id",
+      "inventory_position",
+      "is_simulated",
+      "item_id",
+      "needs_replenishment",
+      "opening_qty",
+      "pending_qty",
+      "policy_id",
+      "receipts_qty",
+      "recommended_qty",
+      "rop",
+      "rop_forecast",
+      "run_id",
+      "sales_qty",
+      "shortage_qty",
+      "ss",
+      "target_stock",
+      "window_origin"
+    ],
+    "inventory_events": [
+      "balance_after",
+      "event_at",
+      "event_kind",
+      "event_sequence",
+      "fulfilled_qty",
+      "id",
+      "is_simulated",
+      "item_id",
+      "quantity",
+      "replenishment_order_id",
+      "run_id",
+      "shortage_qty",
+      "source_sequence",
+      "window_origin"
+    ],
+    "item_forecasts": [
+      "actual_available",
+      "actual_qty",
+      "allocation_basis",
+      "as_of_date",
+      "forecast_qty",
+      "horizon_day",
+      "id",
+      "item_id",
+      "item_share",
+      "run_id",
+      "share_window_days",
+      "target_date",
+      "weekday_weight"
+    ],
+    "items": [
+      "created_at",
+      "first_seen_date",
+      "id",
+      "product_type",
+      "sku",
+      "warehouse_id"
+    ],
+    "replenishment_orders": [
+      "eta",
+      "id",
+      "is_initial",
+      "is_simulated",
+      "item_id",
+      "order_key",
+      "ordered_on",
+      "ordered_qty",
+      "policy_id",
+      "received_qty",
+      "run_id",
+      "status",
+      "window_origin"
+    ],
+    "route_forecasts": [
+      "actual_available",
+      "actual_qty",
+      "as_of_date",
+      "block",
+      "family",
+      "forecast_qty",
+      "id",
+      "model_id",
+      "parent_bundle_sha256",
+      "run_id",
+      "selection_basis",
+      "target_date",
+      "warehouse_id",
+      "window_start"
+    ],
+    "runs": [
+      "artifact_manifest",
+      "as_of_date",
+      "assumption_version",
+      "code_revision",
+      "code_sha256",
+      "config_sha256",
+      "config_snapshot",
+      "config_version",
+      "created_at",
+      "error_code",
+      "finished_at",
+      "forecast_run_id",
+      "heartbeat_at",
+      "id",
+      "kind",
+      "observation_end",
+      "period_end",
+      "period_start",
+      "request_key",
+      "request_sha256",
+      "result_summary",
+      "retry_of_run_id",
+      "scenario_id",
+      "selection_sha256",
+      "source_import_run_id",
+      "source_sha256",
+      "started_at",
+      "status",
+      "target_version"
+    ],
+    "scenarios": [
+      "assumption_version",
+      "code",
+      "created_at",
+      "description",
+      "id",
+      "name",
+      "settings",
+      "version"
+    ],
+    "supplier_item_policies": [
+      "assumption_source",
+      "configured_rop_floor",
+      "created_at",
+      "effective_from",
+      "effective_to",
+      "id",
+      "is_assumed",
+      "item_id",
+      "moq",
+      "safety_days",
+      "supplier_id",
+      "version"
+    ],
+    "suppliers": [
+      "assumption_source",
+      "code",
+      "created_at",
+      "display_name",
+      "id",
+      "is_assumed"
+    ],
+    "warehouses": [
+      "assumption_source",
+      "carrier",
+      "city",
+      "code",
+      "created_at",
+      "destination_country",
+      "id",
+      "is_assumed",
+      "version"
+    ]
+  }
+}
