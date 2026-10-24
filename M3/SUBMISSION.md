@@ -6,7 +6,7 @@ Hướng bàn giao CHG-068 chuyển local React/FastAPI; nguồn public Streamli
 
 [Kế hoạch CHG-068 và cổng từng bước](../docs/planning/PLAN.md#chg-068).
 
-Cập nhật21/10/2026, E99. [Mở ứng dụng công khai](https://sigma-demand-inventory.streamlit.app/) · [Mã nguồn React/Python](https://github.com/khanhnguyenpham/Sigma/tree/codex/m3-implementation) · [Cài và chạy local](IMPLEMENTATION.md) · [Phạm vi online](streamlit/README.md).
+Cập nhật21/10/2026, E99. [Mở ứng dụng công khai](https://sigma-demand-inventory.streamlit.app/) · [Mã nguồn React/Python](https://github.com/khanhnguyenpham/Sigma/tree/codex/m3-implementation) · [Cài và chạy local](IMPLEMENTATION.md) · [Phạm vi online](../docs/history/m3-streamlit.md).
 
 ## Nội dung nộp
 

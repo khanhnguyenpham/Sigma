@@ -1,4 +1,3 @@
-import { CLOUD } from "./api/cloud";
 import { lazy, Suspense, useEffect, useState } from "react";
 import {
   type Run,
@@ -347,7 +346,7 @@ export default function App() {
             )}
             <span className="environment-pill">
               <Icon name="info" size={14} />{" "}
-              {CLOUD ? "Trực tuyến · dữ liệu mô phỏng" : "Dữ liệu mô phỏng"}
+              {"Dữ liệu mô phỏng"}
             </span>
             <button className="primary" onClick={() => setDialog(true)}>
               <Icon name="plus" size={17} />
@@ -548,7 +547,7 @@ export default function App() {
                 Hướng dẫn sử dụng
               </button>{" "}
               · SIGMA · Quản lý nhu cầu & tồn kho
-              {CLOUD ? " · Cấu hình và phương án riêng phiên" : ""}
+              {""}
             </span>
             <span>
               L7 · R1 · H14 <span className="footer-dot">·</span> Ngày nghiệp vụ

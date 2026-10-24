@@ -1,4 +1,3 @@
-import { CLOUD, prepareCloudCsv } from "../api/cloud";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "./Icon";
 import { api, fmt, text, errorLabel, type Row } from "../api/client";
@@ -255,68 +254,6 @@ export function Panel({
   );
 }
 export function ExportButton({ url }: { url: string }) {
-  const [busy, setBusy] = useState(false),
-    [error, setError] = useState<string>(),
-    [prepared, setPrepared] = useState<{ path: string; href: string }>();
-  const request = useRef<AbortController | null>(null);
-  const currentUrl = useRef(url);
-  currentUrl.current = url;
-  useEffect(() => {
-    request.current?.abort();
-    setBusy(false);
-    setError(undefined);
-    setPrepared(undefined);
-    return () => request.current?.abort();
-  }, [url]);
-  useEffect(
-    () => () => {
-      if (prepared) URL.revokeObjectURL(prepared.href);
-    },
-    [prepared],
-  );
-  if (CLOUD)
-    return (
-      <>
-        {prepared?.path === url ? (
-          <a
-            className="button secondary"
-            href={prepared.href}
-            download="sigma_export.csv"
-          >
-            <Icon name="download" size={16} /> Tải CSV
-          </a>
-        ) : (
-          <button
-            className="secondary"
-            disabled={busy}
-            onClick={async () => {
-              const controller = new AbortController();
-              request.current = controller;
-              setBusy(true);
-              setError(undefined);
-              try {
-                const href = await prepareCloudCsv(url, controller.signal);
-                if (controller.signal.aborted || currentUrl.current !== url)
-                  URL.revokeObjectURL(href);
-                else setPrepared({ path: url, href });
-              } catch (e) {
-                if (!controller.signal.aborted) setError((e as Error).message);
-              } finally {
-                if (!controller.signal.aborted) setBusy(false);
-              }
-            }}
-          >
-            <Icon name="download" size={16} />
-            {busy ? "Đang xuất…" : "Xuất CSV"}
-          </button>
-        )}
-        {error && (
-          <span role="alert" className="caption">
-            {error}
-          </span>
-        )}
-      </>
-    );
   return (
     <a className="button secondary" href={"/api/v1" + url} download>
       <Icon name="download" size={16} /> Xuất CSV
