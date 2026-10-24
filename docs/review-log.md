@@ -1112,7 +1112,7 @@ Gói24tệp/6.620.188byte, 11bảng nén+NPZfloat64: sourceSHA giữ nguyên, ma
 
 106 tests Python đạt, không fail/error/skip; gồm9tests public mới. AppTest7màn hình,3chế độ forecast và submit what-if đạt. Lượt AppTest đầu bị kẹt trong sandbox; chỉ dừng đúng tiến trình test do agent tạo và chạy lại có chẩn đoán/timeout với quyền local phù hợp, đạt trong vài giây. Không sửa dữ liệu/metric vì lỗi môi trường.
 
-Đã push `Sigma-M3-App/main` commit `779b6c44f56aefbbba1c907a57a3acc4144563ef`, remoteSHA khớp. App ngủ do không hoạt động; đã wake, cloud hiện đúng `m3-public-20261020-v1`,10/10/11,62%/100%, fill90,41%/early34,39% theo profile mới. Share→Make this app public checkbox=1. Không gửi lời mời/email. Link [ứng dụng](https://sigma-demand-inventory.streamlit.app/); [source/phạm vi](../M3/streamlit/README.md). Raw/run/DB/env và ảnh/receipt kiểm giữ local. R05 test hồi cứu; R07/T14 tiếp tục cần mentor review.
+Đã push `Sigma-M3-App/main` commit `779b6c44f56aefbbba1c907a57a3acc4144563ef`, remoteSHA khớp. App ngủ do không hoạt động; đã wake, cloud hiện đúng `m3-public-20261020-v1`,10/10/11,62%/100%, fill90,41%/early34,39% theo profile mới. Share→Make this app public checkbox=1. Không gửi lời mời/email. Link [ứng dụng](https://sigma-demand-inventory.streamlit.app/); [source/phạm vi](history/m3-streamlit.md). Raw/run/DB/env và ảnh/receipt kiểm giữ local. R05 test hồi cứu; R07/T14 tiếp tục cần mentor review.
 
 
 <a id="e95"></a>
@@ -1184,3 +1184,5 @@ Worktree mới tách khỏi workspace M2 đang có4tệp sửa dở; nhánh nề
 **Kiểm bước1:**19Markdown UTF-8,19link/anchor thêm mới hợp lệ;80bảng/29fence được kiểm kê, bảng15bước đủ cột/đủ thứ tự; khối mã đóng đủ, git diff --check đạt. Không tạo link lỗi mới; nguồn thiếu/link lịch sử vẫn giữ giới hạn. Chỉ19MD thay đổi, chưa sửa source/config/tests; chưa chạy lại pytest/FE/model/replay. Commit/push/CI là cổng tiếp theo, chưa suy đạt từ kiểm MD.
 
 **CHG-068 bước2 — kiểm trực tiếp:** 121 Python đạt (0 failure/error/skip),31React và TypeScript/Vite build/pipcheck đạt; baseline26route/13bảng,845protectedhash local. Lượt đầu21setup-error do PG dừng, sau khởi động lại cụm cũ bộ kiểm đạt; không sửa code ứng dụng. Bước1 commit4ccf11e đã remoteSHA khớp và cả2workflowCI success. Commit/push/SHA/CI chỉ xác nhận sau khi đọc kết quả; chưa bước sau khi cổng chưa đạt.
+
+**CHG-068 bước3 — kiểm trực tiếp:** Bước2 commit35bce8b đã remoteSHA khớp và2CI success. Gỡ toàn bộ Streamlit M3/cloud bridge/build/dependency cùng test riêng; giữ MD lịch sử và sửa link.71Python BE,26React,TypeScript/Vite build đạt; HTTP smoke builtReact/health/catalog/workspace/inventory/alerts/3purchasingview/CSV trên DB local đạt,không business-write.3HTTPtest mới kiểm read30s/write90s/abort/late-response và không autoretry write. Chưa browser tương tác, M2Streamlit chờ bước4. Commit/push/SHA/CI chỉ xác nhận sau khi đọc kết quả; chưa bước sau khi cổng chưa đạt.

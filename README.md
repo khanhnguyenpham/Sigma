@@ -2,17 +2,17 @@
 
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
-Bàn giao đích là React/FastAPI/PostgreSQL local: dev Vite, build React do FastAPI phục vụ. Luồng Streamlit vẫn là hiện trạng ở bước tài liệu và sẽ được gỡ ở bước 3–4; HTML, CLI và notebook M2 được giữ. Lệnh chạy mới chỉ ghi là đã kiểm sau khi thực chạy.
+Bước3 đã gỡ Streamlit M3; React gọi HTTP/FastAPI local, dev Vite và build do FastAPI phục vụ. M2 Streamlit còn chờ bước4; HTML, CLI và notebook M2 được giữ. 71tests BE/26React/build và smoke API local đạt; chưa kiểm browser tương tác trong bước3. Tài liệu Streamlit phía dưới là lịch sử, không còn source M3 để chạy.
 
 [Kế hoạch CHG-068 và cổng từng bước](docs/planning/PLAN.md#chg-068).
 
 **CHG-067/E99 — 21/10/2026, hoàn thiện bản nộp:** bổ sung phục hồi khi tải lỗi/mất kết nối, giới hạn chờ RPC, màn hình lỗi có lối thử lại, làm mới trong phiên, hướng dẫn nghiệp vụ, điều hướng Back/Escape và hỗ trợ bàn phím. Tạo phương án online chỉ chọn93ngày có đủ closing920item và forecast H14 (30/09–31/12/2025).120Python+31React đạt; dữ liệu/metric/run khóa giữ nguyên. [Hướng dẫn nộp và kiểm sản phẩm](M3/SUBMISSION.md). Đã push deploy `10dd4e19af9fa26d1aeb05124a05bbd5fdcf78ce`; kiểm browser/CI mới ghi riêng E99. Không nâng nghiệm thu R07/T14 hoặc bổ sung auth/PO/DB bền vững.
 
 
-**CHG-066/E98 — React công khai trên Streamlit:** đã cập nhật [SIGMA](https://sigma-demand-inventory.streamlit.app/) sang giao diện quản lý React sáu màn hình; Python xử lý qua component hai chiều. Repo triển khai riêng tư `Sigma-M3-App/main`, commit `77b0b3d9406ba2131f678466b86f6615af6636e4`, release `m3-react-public-20261020-v2`.117Python và23React đạt; build local/Streamlit, đối soát aggregate/privacy và tạo phương án trong phiên đã kiểm. [Phạm vi và cách chạy](M3/streamlit/README.md). Cấu hình/phương án mới riêng phiên; import/fit/replay giao dịch/DB dùng chung vẫn local. R05/M05/R07/T14 không đổi. Các mốc E94–E97 bên dưới giữ lịch sử.
+**CHG-066/E98 — React công khai trên Streamlit:** đã cập nhật [SIGMA](https://sigma-demand-inventory.streamlit.app/) sang giao diện quản lý React sáu màn hình; Python xử lý qua component hai chiều. Repo triển khai riêng tư `Sigma-M3-App/main`, commit `77b0b3d9406ba2131f678466b86f6615af6636e4`, release `m3-react-public-20261020-v2`.117Python và23React đạt; build local/Streamlit, đối soát aggregate/privacy và tạo phương án trong phiên đã kiểm. [Phạm vi và cách chạy](docs/history/m3-streamlit.md). Cấu hình/phương án mới riêng phiên; import/fit/replay giao dịch/DB dùng chung vẫn local. R05/M05/R07/T14 không đổi. Các mốc E94–E97 bên dưới giữ lịch sử.
 
 
-**E94 — [SIGMA công khai trên Streamlit](https://sigma-demand-inventory.streamlit.app/):** đã cập nhật tổng30 M05 và profile M3 L7/R1/H14, có7màn hình/kết quả/CSV/what-if riêng từng phiên. [Source và phạm vi online](M3/streamlit/README.md). Huấn luyện/import raw/worker/DB bền vững giữ local; không gọi bản Streamlit là đã cloud hóa toàn bộ stack FastAPI/PostgreSQL.
+**E94 — [SIGMA công khai trên Streamlit](https://sigma-demand-inventory.streamlit.app/):** đã cập nhật tổng30 M05 và profile M3 L7/R1/H14, có7màn hình/kết quả/CSV/what-if riêng từng phiên. [Source và phạm vi online](docs/history/m3-streamlit.md). Huấn luyện/import raw/worker/DB bền vững giữ local; không gọi bản Streamlit là đã cloud hóa toàn bộ stack FastAPI/PostgreSQL.
 
 **Cập nhật M05/E93, 20/10/2026:** R05 chấm tổng 30 ngày theo mentor được người dùng thuật lại. Đã kiểm lại **10/10 tuyến ≤20%, MAPE trung bình11,62%**, coverage100%, test hồi cứu. M3 FastAPI/React có tab tổng30, baseline và CSV. [Đọc kết quả/cách chạy](M3/MONTHLY.md); tồn/cảnh báo vẫn dùng H14.
 

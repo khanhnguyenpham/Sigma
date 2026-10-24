@@ -1,5 +1,4 @@
 import { Component, type ReactNode } from "react";
-import { CLOUD } from "../api/cloud";
 export class PageBoundary extends Component<
   { children: ReactNode },
   { failed: boolean }
@@ -22,12 +21,7 @@ export class PageBoundary extends Component<
         <button className="secondary" onClick={() => window.location.reload()}>
           Tải lại trang
         </button>
-        {CLOUD && (
-          <p className="caption">
-            Tải lại trang có thể tạo phiên mới; cấu hình chưa lưu ra ngoài phiên
-            có thể mất.
-          </p>
-        )}
+
       </section>
     ) : (
       this.props.children

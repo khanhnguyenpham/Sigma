@@ -1,4 +1,3 @@
-import { CLOUD } from "../api/cloud";
 import { useDialogFocus } from "./common";
 export function HelpDialog({ onClose }: { onClose: () => void }) {
   useDialogFocus(true, onClose);
@@ -68,19 +67,12 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
           Tạo kịch bản trong Cấu hình, khai báo rõ lô đang về, rồi bấm Tạo
           phương án. Lưu cấu hình không sửa kết quả của phương án cũ.
         </p>
-        {CLOUD && (
-          <div className="notice">
-            Bản trực tuyến dùng dữ liệu đã công bố. Phương án mới lấy số tồn tại
-            ngày chọn; danh sách lô trống nghĩa không có lô đầu kỳ. Cấu hình và
-            phương án mới riêng phiên, có thể mất khi máy chủ ngủ hoặc phiên bị
-            reset.
-          </div>
-        )}
+
         <h3>Tải dữ liệu và xử lý lỗi</h3>
         <p>
-          CSV chứa toàn bộ kết quả theo bộ lọc. Trực tuyến: bấm Xuất CSV rồi Tải
-          CSV. Khi đổi bộ lọc, hãy xuất lại. Nếu mất kết nối, bấm Làm mới dữ
-          liệu; thao tác này không xóa cấu hình trong phiên. Chưa có actual được
+          CSV chứa toàn bộ kết quả theo bộ lọc. Bấm Xuất CSV để tải kết quả.
+          Nếu mất kết nối, bấm Làm mới dữ liệu; thao tác này không thay đổi
+          phương án đã lưu. Chưa có actual được
           hiển thị trống, không phải 0.
         </p>
         <button className="primary" onClick={onClose}>

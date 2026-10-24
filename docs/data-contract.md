@@ -6,7 +6,7 @@ Giao diện đích thêm policy/override: `safety_mode=days|volatility`, `safety
 
 [Kế hoạch CHG-068 và cổng từng bước](planning/PLAN.md#chg-068).
 
-**E94 — gói public được người dùng yêu cầu xuất bản:** 11 bảng tổng hợp nén và mảng185×920×14 float64; khoảng6,6MB, chỉ source-derived quantity/forecast/metric/danh mục và tồn/nhập/cảnh báo giả định. Loại raw/ID đơn/khách/event/source_sequence/env/DB; item_key là ordinal mới. Runtime kiểm hash/schema, CSV mang source/phiên bản/null/scope. [Hợp đồng gói Streamlit](../M3/streamlit/README.md).
+**E94 — gói public được người dùng yêu cầu xuất bản:** 11 bảng tổng hợp nén và mảng185×920×14 float64; khoảng6,6MB, chỉ source-derived quantity/forecast/metric/danh mục và tồn/nhập/cảnh báo giả định. Loại raw/ID đơn/khách/event/source_sequence/env/DB; item_key là ordinal mới. Runtime kiểm hash/schema, CSV mang source/phiên bản/null/scope. [Hợp đồng gói Streamlit](history/m3-streamlit.md).
 
 **M05/E93, 20/10/2026:** R05 hiện chấm tổng quantity D+1…D+30; chỉ cửa sổ trọn split có actual mới vào metric. Null không phải0. Top10 train/success-orderUTC A08 vẫn như cũ. H14 giữ cho vận hành tồn. [Hợp đồng benchmark/API tổng30](../M3/MONTHLY.md). Những quy định R05 ngày trước M05 là lịch sử.
 

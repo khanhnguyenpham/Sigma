@@ -1,6 +1,10 @@
+# Streamlit M3 — lịch sử đã ngừng dùng
+
+CHG-068 bước3 bỏ toàn bộ source/adapter/build Streamlit. Nội dung dưới đây chỉ ghi lại E94–E99, không là lệnh chạy của nhánh hiện tại. Ứng dụng online cũ không bị thay đổi.
+
 # SIGMA trên Streamlit
 
-**E99 — 21/10/2026:** bản deploy `10dd4e19af9fa26d1aeb05124a05bbd5fdcf78ce` bổ sung timeout đọc30s/write90s/handshake20s, không tự retry write, bỏ phản hồi trễ sau abort/timeout; có retry đọc, refresh giữ phiên, PageBoundary, hướng dẫn và điều hướng bàn phím/Back. Dropdown tạo phương án chỉ liệt kê93ngày được đối chiếu đủ closing920item và forecast. [Hướng dẫn nộp/kiểm web](../SUBMISSION.md). Data release/manifest v2 không đổi; commit E98 bên dưới là lịch sử.120Python+31React đạt.
+**E99 — 21/10/2026:** bản deploy `10dd4e19af9fa26d1aeb05124a05bbd5fdcf78ce` bổ sung timeout đọc30s/write90s/handshake20s, không tự retry write, bỏ phản hồi trễ sau abort/timeout; có retry đọc, refresh giữ phiên, PageBoundary, hướng dẫn và điều hướng bàn phím/Back. Dropdown tạo phương án chỉ liệt kê93ngày được đối chiếu đủ closing920item và forecast. [Hướng dẫn nộp/kiểm web](../../M3/SUBMISSION.md). Data release/manifest v2 không đổi; commit E98 bên dưới là lịch sử.120Python+31React đạt.
 
 
 ## Bản hiện hành E98 — React quản lý
@@ -65,7 +69,7 @@ Builder kiểm complete/verified/config/source/target/artifact hashes, tổng30 
 
 ## Tạo và kiểm gói
 
-Từ root implementation, có nguồn và run local hợp lệ theo [hướng dẫn M3](../IMPLEMENTATION.md), [benchmark30](../MONTHLY.md):
+Từ root implementation, có nguồn và run local hợp lệ theo [hướng dẫn M3](../../M3/IMPLEMENTATION.md), [benchmark30](../../M3/MONTHLY.md):
 
 ```powershell
 . ./M3/scripts/load_env.ps1
@@ -82,7 +86,7 @@ python -m streamlit run streamlit_app.py
 
 Triển khai repo riêng tư `khanhnguyenpham/Sigma-M3-App`, nhánh `main`, entrypoint `streamlit_app.py`. Chỉ đưa allowlist đã rà lên repo; bảo toàn byte `release_m3/**` qua `.gitattributes`. App công khai và repo riêng tư là hai quyền khác nhau. Không dùng `SIGMA_RELEASE_SHA256` của sản phẩm cũ làm pin gói mới; gói này có manifest/pin riêng tại `release_m3`.
 
-Test giả tại [test_public_streamlit.py](../backend/tests/test_public_streamlit.py); kiểm cả ngưỡng strict, pending covers, MOQ/ETA, độ nhạy, source không bị sửa, checksum/schema, CSV null và công thức. AppTest dữ liệu nguồn giữ local, không đưa bảng riêng vào CI. URL hoạt động không thay thế mentor nghiệm thu hoặc holdout độc lập.
+Test giả lịch sử tại [test_public_streamlit.py ở phiên bản b1357cd](https://github.com/khanhnguyenpham/Sigma/blob/b1357cd/M3/backend/tests/test_public_streamlit.py); kiểm cả ngưỡng strict, pending covers, MOQ/ETA, độ nhạy, source không bị sửa, checksum/schema, CSV null và công thức. AppTest dữ liệu nguồn giữ local, không đưa bảng riêng vào CI. URL hoạt động không thay thế mentor nghiệm thu hoặc holdout độc lập.
 
 
 **Cache khi cập nhật E99:** `react_host.ADAPTER_VERSION` là một phần khóa resourcecache và phiên. Khi đổi Pythonadapter, phải đổi revision này; phiên cũ được khởi tạo lại, bỏ command/response cũ để không phát lại write. Khi chỉ làm mới dữ liệu trong cùng revision, giữ cấu hình/phương án riêng phiên. Data manifest vẫn định danh dữ liệu công bố, không dùng để thay thế phiên bản mã adapter. Hai test riêng kiểm cache theo revision và giữ/reset session đúng phạm vi.

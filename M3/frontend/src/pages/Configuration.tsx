@@ -1,4 +1,3 @@
-import { CLOUD } from "../api/cloud";
 import { useState } from "react";
 import { api, type Page, type Row, query, errorLabel } from "../api/client";
 import {
@@ -182,13 +181,7 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
           tạo phiên bản mới.
         </p>
       </div>
-      {CLOUD && (
-        <div className="notice subtle">
-          Cấu hình trực tuyến chỉ áp dụng cho phiên này. Phương án mới lấy số
-          tồn công khai tại ngày kế hoạch; không tái dựng tồn đầu từ giao dịch
-          gốc.
-        </div>
-      )}
+
       {message && (
         <div className="notice success" role="status">
           {message}
@@ -418,22 +411,17 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
                     />
                   </label>
                   <label>
-                    {CLOUD ? "Nguồn tồn đầu" : "Tồn đầu · số ngày phủ"}
-                    <select disabled={CLOUD} name="cover_days" defaultValue="7">
+                    {"Tồn đầu · số ngày phủ"}
+                    <select name="cover_days" defaultValue="7">
                       <option>3</option>
                       <option value="7">
-                        {CLOUD ? "Số tồn tại mốc chọn" : "7"}
+                        {"7"}
                       </option>
                       <option>14</option>
                     </select>
                   </label>
-                  {CLOUD && <input type="hidden" name="cover_days" value="7" />}
-                  {CLOUD && (
-                    <p className="caption">
-                      Dùng số tồn đã công bố tại mốc chọn; không đổi số ngày phủ
-                      để suy lại lịch sử.
-                    </p>
-                  )}
+
+
                   <label>
                     Hệ số safety
                     <input

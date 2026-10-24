@@ -1,4 +1,3 @@
-import { CLOUD } from "../api/cloud";
 import { useRef, useState } from "react";
 import {
   api,
@@ -56,8 +55,7 @@ export function RunDialog({
     (scenarios.loading ||
       !!scenarios.error ||
       !scenarios.data?.items.length ||
-      !selectedForecast ||
-      (CLOUD && !availableDates.length));
+      !selectedForecast);
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (sending.current || unavailable) return;
@@ -129,9 +127,7 @@ export function RunDialog({
               value={kind}
               onChange={(e) => setKind(e.target.value)}
             >
-              {(CLOUD
-                ? ["stock_projection"]
-                : [
+              {([
                     "stock_projection",
                     "policy_replay",
                     "alert_replay",
@@ -193,27 +189,7 @@ export function RunDialog({
           )}
           <label>
             Mốc chốt UTC
-            {CLOUD ? (
-              <select
-                key={selectedForecast?.id}
-                name="as_of_date"
-                required
-                defaultValue={
-                  availableDates.includes("2025-10-31")
-                    ? "2025-10-31"
-                    : availableDates.at(-1)
-                }
-              >
-                {!availableDates.length && (
-                  <option value="">Chưa có ngày đủ dữ liệu</option>
-                )}
-                {availableDates.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
-            ) : (
+            {(
               <input
                 key={kind}
                 name="as_of_date"
@@ -251,20 +227,8 @@ export function RunDialog({
               </label>
             </div>
           )}
-          {CLOUD && !availableDates.length && (
-            <div role="alert" className="notice">
-              Chưa có ngày đồng thời đủ tồn và dự báo. Hãy làm mới danh sách
-              phương án.
-            </div>
-          )}
-          {CLOUD && (
-            <div className="notice subtle">
-              Phương án trực tuyến dùng dự báo đã công bố và số tồn tại mốc dữ
-              liệu; các lô đầu kỳ lấy theo kịch bản. Kết quả và cấu hình chỉ lưu
-              trong phiên. Huấn luyện và replay giao dịch chạy tại hệ thống
-              local.
-            </div>
-          )}
+
+
           <div className="notice subtle">
             Nhập kho sau 7 ngày, kiểm tra tồn mỗi ngày và dự phóng 14 ngày.
             Phương án được xử lý nền; không gửi đơn đến nhà cung cấp thật.
