@@ -1,5 +1,11 @@
 # M3 — đặc tả frontend
 
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+
+Đích gồm `app/`, `features/{overview,inventory,forecast,purchasing,alerts,configuration}` và `shared/{api,types,hooks,ui,lib,styles}`. Giữ6màn hình/URL/context/CSV/loading/error/keyboard. Dùng chung Table/Pager/State/Dialog/Drawer/Badge và PolicyFields cho policy/override; mode chỉ hiển thị trường phù hợp. Cảnh báo giải thích tồn/ROP/N/ngày xuống ngưỡng/ngày cạn riêng; tổng quan đếm item duy nhất, không đếm số loại tín hiệu thành số item.
+
+[Kế hoạch CHG-068 và cổng từng bước](../../docs/planning/PLAN.md#chg-068).
+
 **E97 hiện hành — cách dùng như phần mềm điều hành:** [Phạm vi và bằng chứng](../IMPLEMENTATION.md#purchasing-e97). Dãy bước E96 đã bỏ theo trả lời làm rõ của người dùng. Nhập hàng dùng purchasing read model theo ngày với3tab/search/sort/CSV/drawer. Liên kết tồn ↔ nhập ↔ cảnh báo giữ đúng SKU/context; view nhập khôi phục qua URL. Các rule/view toàn kỳ trước đó là lịch sử hoặc phục vụ API đối soát. Không thêm màn hình/phân quyền/PO thật ngoài M3.
 
 

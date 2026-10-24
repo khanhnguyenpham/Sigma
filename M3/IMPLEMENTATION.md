@@ -1,5 +1,11 @@
 # M3 — ứng dụng đã triển khai và cách chạy
 
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+
+Bản nguồn hiện có dùng API/worker/React và lớp Streamlit riêng. CHG-068 chỉ cập nhật đặc tả ở bước1; bảng kiểm/chạy bên dưới thuộc lần trước. Từng bước sau sẽ ghi kiểm thực cùng giới hạn; không nhận đã refactor, chạy lại replay hoặc cải thiện metric ở bước tài liệu.
+
+[Kế hoạch CHG-068 và cổng từng bước](../docs/planning/PLAN.md#chg-068).
+
 <a id="submission-e99"></a>
 ## Hoàn thiện bản nộp — E99, 21/10/2026
 

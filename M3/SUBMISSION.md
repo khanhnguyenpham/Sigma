@@ -1,5 +1,11 @@
 # SIGMA — hướng dẫn nộp và kiểm tra sản phẩm
 
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+
+Hướng bàn giao CHG-068 chuyển local React/FastAPI; nguồn public Streamlit bên dưới là hướng dẫn lịch sử E99 và chưa bị xóa ở bước tài liệu. Không upload dữ liệu hoặc deploy trong lượt này. Sau bước15 cập nhật lệnh đã kiểm, run/hash, commit/CI và vấn đề mở.
+
+[Kế hoạch CHG-068 và cổng từng bước](../docs/planning/PLAN.md#chg-068).
+
 Cập nhật21/10/2026, E99. [Mở ứng dụng công khai](https://sigma-demand-inventory.streamlit.app/) · [Mã nguồn React/Python](https://github.com/khanhnguyenpham/Sigma/tree/codex/m3-implementation) · [Cài và chạy local](IMPLEMENTATION.md) · [Phạm vi online](streamlit/README.md).
 
 ## Nội dung nộp

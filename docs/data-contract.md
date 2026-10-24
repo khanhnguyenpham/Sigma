@@ -1,5 +1,11 @@
 # Hợp đồng dữ liệu SIGMA
 
+**CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
+
+Giao diện đích thêm policy/override: `safety_mode=days|volatility`, `safety_lookback_days` nguyên7–90 (mặc định28), `safety_factor` hữu hạn≥0 (mặc định1), `rop_mode=fixed|forecast`, `warning_horizon_days` nguyên1–14 (mặc định7). Policy cũ về days/forecast. Cảnh báo thêm `projected_below_rop` và `predicted_threshold_crossing_date` nullable, giữ riêng `predicted_depletion_date`. Thêm cột/check bằng Alembic về sau, giữ13bảng.
+
+[Kế hoạch CHG-068 và cổng từng bước](planning/PLAN.md#chg-068).
+
 **E94 — gói public được người dùng yêu cầu xuất bản:** 11 bảng tổng hợp nén và mảng185×920×14 float64; khoảng6,6MB, chỉ source-derived quantity/forecast/metric/danh mục và tồn/nhập/cảnh báo giả định. Loại raw/ID đơn/khách/event/source_sequence/env/DB; item_key là ordinal mới. Runtime kiểm hash/schema, CSV mang source/phiên bản/null/scope. [Hợp đồng gói Streamlit](../M3/streamlit/README.md).
 
 **M05/E93, 20/10/2026:** R05 hiện chấm tổng quantity D+1…D+30; chỉ cửa sổ trọn split có actual mới vào metric. Null không phải0. Top10 train/success-orderUTC A08 vẫn như cũ. H14 giữ cho vận hành tồn. [Hợp đồng benchmark/API tổng30](../M3/MONTHLY.md). Những quy định R05 ngày trước M05 là lịch sử.
