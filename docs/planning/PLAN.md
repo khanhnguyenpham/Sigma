@@ -671,7 +671,7 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 <a id="chg-068"></a>
 ## CHG-068 — React local, tổ chức mã và policy/cảnh báo cấu hình
 
-**CHG-068 bước5 — 24/10/2026:** người dùng yêu cầu làm riêng bước5 sau checkpoint `992b8f5`. Đã tách core/catalog/configuration và rút main391→45dòng; giữ26route/OpenAPI đầy đủ, DDL13bảng và giao dịch/version/snapshot. Local107Python/26React/build/pipcheck/CLI/import/Alembic/smoke đạt,845protectedhash nguyên. Commit/push/SHA/CI bước5 còn là cổng trước khi xác nhận hoàn tất; bước6–15 chưa bắt đầu. [Bàn giao bước5](../development.md#handoff-chg068-step5).
+**CHG-068 bước5 — 24/10/2026:** người dùng yêu cầu làm riêng bước5 sau checkpoint `992b8f5`. Đã tách core/catalog/configuration và rút main391→45dòng; giữ26route/OpenAPI đầy đủ, DDL13bảng và giao dịch/version/snapshot. Local107Python/26React/build/pipcheck/CLI/import/Alembic/smoke đạt,845protectedhash nguyên. Commit mã `db6c1d5` đã push, SHAremote khớp và cả2workflowCI completed/success. Bước5 hoàn tất; bước6–15 chưa bắt đầu. [Bàn giao bước5](../development.md#handoff-chg068-step5).
 
 **Điểm dừng lượt trước24/10/2026 — lịch sử:** bước1–4 hoàn tất; mã bước4 `db201de` đã remoteSHA khớp và cả2workflowCI success. Dừng sau bước4, bước5–15 chưa bắt đầu. [Bàn giao và cách tiếp tục](../development.md#handoff-chg068-step4).
 
@@ -685,7 +685,7 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 | 2 | T12 | `test(m3): add API and database schema regression contracts` | Ghi baseline API/tồn/forecast/React/hash và chạy suite hiện có. | Hoàn tất local/commit/push/SHA/CI |
 | 3 | T11/T12 | `refactor(m3): replace Streamlit hosting with direct HTTP requests` | Gỡ host/adapter/transport/build M3; kiểm6màn hình HTTP, scenario/run/CSV. | Hoàn tất local/commit/push/SHA/CI |
 | 4 | T02/T11/T12 | `refactor(m2): remove Streamlit dashboard and isolate API dependencies` | Gỡ dashboard/launcher/dependency M2; giữ CLI/notebook/HTML; regression/pip check. | Hoàn tất local/commit/push/SHA/CI |
-| 5 | T10–T12 | `refactor(m3): modularize core, catalog and configuration` | Tách core/catalog/configuration; API/version/snapshot giữ nguyên, không schema diff. | Local đạt; chờ commit/push/SHA/CI |
+| 5 | T10–T12 | `refactor(m3): modularize core, catalog and configuration` | Tách core/catalog/configuration; API/version/snapshot giữ nguyên, không schema diff. | Hoàn tất local/commit/push/SHA/CI |
 | 6 | T08–T12 | `refactor: modularize forecasting runs and reporting` | Tách ingestion/forecast/allocation/adapter/runs/reporting; parity/worker/CSV. | Chưa bắt đầu |
 | 7 | T10–T12 | `refactor: modularize inventory purchasing and alerts` | Tách tồn/nhập/cảnh báo; ledger/MOQ/ETA/pending khớp baseline. | Chưa bắt đầu |
 | 8 | T11/T12 | `refactor: extract shared React components and hooks` | Tách UI/hooks/client/types/lib; kiểm abort/loading/error/focus/CSV. | Chưa bắt đầu |
