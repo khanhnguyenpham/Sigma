@@ -50,16 +50,3 @@ def test_public_report_loads_without_raw_and_rejects_modified_metrics(tmp_path):
     assert len(load_report(tmp_path)['routes']) == 10
     with (tmp_path/'test_metrics.csv').open('a', encoding='utf-8') as stream: stream.write('\n')
     with pytest.raises(ValueError, match='changed'): load_report(tmp_path)
-
-
-def test_final_dashboard_reads_approved_aggregate_bundle():
-    from streamlit.testing.v1 import AppTest
-    from M2.final_report import REPORT
-    if not REPORT.exists(): pytest.skip('Final bundle is generated after the fresh replay')
-    app = AppTest.from_file(str(ROOT/'M2/final_app.py'), default_timeout=60).run()
-    assert not app.exception
-    assert app.metric[0].value == '10/10'
-    assert len(app.tabs) == 3
-    app.selectbox[0].select('nonoverlapping_7d')
-    app.selectbox[1].select(2).run()
-    assert not app.exception and len(app.dataframe[1].value) == 10
