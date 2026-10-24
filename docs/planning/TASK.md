@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**Thực hiện CHG-068:** bước2/15 đã kiểm local: 121 Python đạt (0 failure/error/skip),31React và TypeScript/Vite build/pipcheck đạt; baseline26route/13bảng,845protectedhash local. Lượt đầu21setup-error do PG dừng, sau khởi động lại cụm cũ bộ kiểm đạt; không sửa code ứng dụng. Bước1 commit4ccf11e đã remoteSHA khớp và cả2workflowCI success. Cổng push/SHA/CI của bước này đang kiểm; bước trước đã qua cổng. Không nâng R07/T14.
+
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
 

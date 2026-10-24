@@ -1182,3 +1182,5 @@ Bước1 cập nhật PLAN/TASK/PROJECTMAP, requirements/data-contract/developme
 Worktree mới tách khỏi workspace M2 đang có4tệp sửa dở; nhánh nền GitHub đã kiểm trực tiếp vẫn b1357cd, nhánh đích chưa tồn tại trước tạo. Dữ liệu/DB/env/run/ảnh và bundle chỉ local; không merge/force-push/deploy. Kiểm Markdown và kết quả commit/push/CI ghi sau khi thực kiểm, không suy từ kế hoạch.
 
 **Kiểm bước1:**19Markdown UTF-8,19link/anchor thêm mới hợp lệ;80bảng/29fence được kiểm kê, bảng15bước đủ cột/đủ thứ tự; khối mã đóng đủ, git diff --check đạt. Không tạo link lỗi mới; nguồn thiếu/link lịch sử vẫn giữ giới hạn. Chỉ19MD thay đổi, chưa sửa source/config/tests; chưa chạy lại pytest/FE/model/replay. Commit/push/CI là cổng tiếp theo, chưa suy đạt từ kiểm MD.
+
+**CHG-068 bước2 — kiểm trực tiếp:** 121 Python đạt (0 failure/error/skip),31React và TypeScript/Vite build/pipcheck đạt; baseline26route/13bảng,845protectedhash local. Lượt đầu21setup-error do PG dừng, sau khởi động lại cụm cũ bộ kiểm đạt; không sửa code ứng dụng. Bước1 commit4ccf11e đã remoteSHA khớp và cả2workflowCI success. Commit/push/SHA/CI chỉ xác nhận sau khi đọc kết quả; chưa bước sau khi cổng chưa đạt.
