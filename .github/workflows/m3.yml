@@ -21,9 +21,9 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-          cache-dependency-path: M3/backend/requirements.txt
-      - run: python -m pip install -r M3/backend/requirements.txt
-      - run: python -m pip install --no-deps -e M3/backend
+          cache-dependency-path: web/backend/requirements.txt
+      - run: python -m pip install -r web/backend/requirements.txt
+      - run: python -m pip install --no-deps -e web/backend
       - name: Create isolated CI app role and test database
         run: |
           python - <<'PY'
@@ -33,7 +33,7 @@ jobs:
               c.execute('CREATE DATABASE sigma_m3_test OWNER sigma_m3_app')
           PY
       - run: python -m pip check
-      - run: python -B -m pytest M3/backend/tests --junitxml=m3-tests.xml
+      - run: python -B -m pytest web/backend/tests --junitxml=m3-tests.xml
   m2-regression:
     # The immutable 1e-8 synthetic golden was recorded on Windows.
     # Keep strict parity on that platform with the full M3 dependency lock;
@@ -45,9 +45,9 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-          cache-dependency-path: M3/backend/requirements.txt
-      - run: python -m pip install -r M3/backend/requirements.txt
-      - run: python -m pip install --no-deps -e M3/backend
+          cache-dependency-path: web/backend/requirements.txt
+      - run: python -m pip install -r web/backend/requirements.txt
+      - run: python -m pip install --no-deps -e web/backend
       - run: python -m pip check
       - run: python -B -m pytest tests M2/models/tests --junitxml=m2-regression-tests.xml
   frontend:

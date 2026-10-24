@@ -1,5 +1,7 @@
 # M3 — ứng dụng đã triển khai và cách chạy
 
+**CHG-070 — cách chạy hiện hành:** cài package từ `web/backend`, dùng Alembic `web/backend/alembic.ini`; FE build tại `M3/frontend/dist`, configs/env/scripts giữ ở M3. API/worker/CLI dùng cùng package sigma_m3. [Lệnh chạy hiện hành](../README.md) và [cây thư mục](docs/05-source-architecture.md#web-layout-chg070). Các mô tả Streamlit và số kiểm E89–E103 bên dưới giữ như lịch sử;7file hướng dẫn/bản sao cũ đã bỏ, tra bằng [Git/E104](../docs/review-log.md#removed-docs-chg070).
+
 **CHG-068 bước5 — 24/10/2026:** người dùng yêu cầu làm riêng bước5 sau checkpoint `992b8f5`. Đã tách core/catalog/configuration và rút main391→45dòng; giữ26route/OpenAPI đầy đủ, DDL13bảng và giao dịch/version/snapshot. Local107Python/26React/build/pipcheck/CLI/import/Alembic/smoke đạt,845protectedhash nguyên. Commit mã `db6c1d5` đã push, SHAremote khớp và cả2workflowCI completed/success. Bước5 hoàn tất; bước6–15 chưa bắt đầu. [Bàn giao và kiểm tra](../docs/development.md#handoff-chg068-step5). Không có migration hoặc thay model/policy/mẫu số metric ở bước này; chưa chạy fullreplay mới.
 
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
@@ -19,7 +21,7 @@ PublicBundle suy danh sách origin có đủ920item closing và vectorH14 từ r
 <a id="streamlit-react-e98"></a>
 ## React trên Streamlit — E98
 
-Bản công khai dùng cùng source React quản lý E97; `MODE=streamlit` chuyển API sang RPC qua `streamlit-component-lib`2.0.0, assets tương đối trong `react_ui`. Adapter Python chỉ đọc gói aggregate đã pin và thay đổi trạng thái riêng từng phiên. Không mở FastAPI/PostgreSQL local ra Internet. [Hướng dẫn build, phạm vi và manifest](../docs/history/m3-streamlit.md).
+Bản công khai dùng cùng source React quản lý E97; `MODE=streamlit` chuyển API sang RPC qua `streamlit-component-lib`2.0.0, assets tương đối trong `react_ui`. Adapter Python chỉ đọc gói aggregate đã pin và thay đổi trạng thái riêng từng phiên. Không mở FastAPI/PostgreSQL local ra Internet. [Hướng dẫn build, phạm vi và manifest](../docs/review-log.md#removed-docs-chg070).
 
 Phương án mới lấy số tồn đóng tại origin đã công bố, danh sách lô đầu kỳ khai báo trong kịch bản (trống nghĩa không có), chính sách có hiệu lực và forecast H14 khóa. Dùng cùng hàm recommend/project L7/R1/H14; không tái dựng 28ngày giao dịch, không fit ML mới. Lưu cấu hình không sửa run đã công bố. Tối đa8phương án/40kịch bản/2048phiên bản policy mỗi phiên, mỗi kịch bản tối đa100điều chỉnh/lô, input số hữu hạn, ETA đúngD+7, guard parent/origin/idempotency/version. Trạng thái mất khi phiên bị reset, không phải kho dữ liệu nhiều người dùng bền vững.
 
@@ -67,7 +69,7 @@ Theo yêu cầu mới của người dùng, giao diện dùng React/TypeScript/V
 **Giới hạn:** React mới phục vụ cùng backend local, chưa deploy lên Internet hoặc thay app Streamlit public. M05 tổng30 vẫn10/10 hồi cứu; không refit hoặc nâng R07/T14/mentor nghiệm thu từ việc đổi giao diện. Không thêm auth/hosting nhiều người trong lượt này.
 
 
-**E94 — đã triển khai Streamlit công khai theo yêu cầu mới:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/) · [phạm vi online và source](../docs/history/m3-streamlit.md). Cùng kết quả M3 mới L7/R1/H14 và tổng30; 11 bảng tổng hợp+1mảng forecast, khoảng6,6MB, không raw/ID đơn/khách/DB/env. What-if dùng cùng hàm policy/project và chỉ giữ trong phiên; các tác vụ worker/huấn luyện/DB vẫn local. Các mô tả “chưa deploy” bên dưới là mốc lịch sử trước E94.
+**E94 — đã triển khai Streamlit công khai theo yêu cầu mới:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/) · [phạm vi online và source](../docs/review-log.md#removed-docs-chg070). Cùng kết quả M3 mới L7/R1/H14 và tổng30; 11 bảng tổng hợp+1mảng forecast, khoảng6,6MB, không raw/ID đơn/khách/DB/env. What-if dùng cùng hàm policy/project và chỉ giữ trong phiên; các tác vụ worker/huấn luyện/DB vẫn local. Các mô tả “chưa deploy” bên dưới là mốc lịch sử trước E94.
 
 **E93/M05 — 20/10/2026, áp dụng hiện tại:** R05 chấm tổng 30 ngày thay từng ngày theo mentor được người dùng thuật lại. [Kết quả và tích hợp tổng 30](MONTHLY.md): 10/10≤20%, mean11,621356%, coverage100%, 63 cửa sổ/tuyến, test hồi cứu. API/React có tab riêng và CSV; luồng tồn H14 giữ nguyên. Các mô tả R05 ngày/E92 bên dưới là lịch sử trước M05.
 
@@ -143,8 +145,8 @@ Clone đúng nhánh; không cần merge main để đọc/chạy:
 git clone --branch codex/m3-implementation https://github.com/khanhnguyenpham/Sigma.git
 cd Sigma
 py -3.12 -m venv .venv-m3
-.\.venv-m3\Scripts\python.exe -m pip install -r M3/backend/requirements.txt
-.\.venv-m3\Scripts\python.exe -m pip install --no-deps -e M3/backend
+.\.venv-m3\Scripts\python.exe -m pip install -r web/backend/requirements.txt
+.\.venv-m3\Scripts\python.exe -m pip install --no-deps -e web/backend
 Copy-Item M3/configs/.env.example M3/.env
 ```
 
@@ -161,7 +163,7 @@ CREATE DATABASE sigma_m3_test OWNER sigma_m3_app;
 
 ```powershell
 . ./M3/scripts/load_env.ps1
-.\.venv-m3\Scripts\python.exe -m alembic -c M3/backend/alembic.ini upgrade head
+.\.venv-m3\Scripts\python.exe -m alembic -c web/backend/alembic.ini upgrade head
 .\.venv-m3\Scripts\python.exe -m pip check
 cd M3/frontend
 npm ci
@@ -204,8 +206,8 @@ Seed chỉ tạo giả định rõ ràng: cover3/7/14 và safety×0,5/1/1,5, kh�
 
 ```powershell
 . ./M3/scripts/load_env.ps1
-.\.venv-m3\Scripts\python.exe -B -m pytest M3/backend/tests tests M2/models/tests --basetemp=outputs/pytest-team
-.\.venv-m3\Scripts\python.exe -m alembic -c M3/backend/alembic.ini check
+.\.venv-m3\Scripts\python.exe -B -m pytest web/backend/tests tests M2/models/tests --basetemp=outputs/pytest-team
+.\.venv-m3\Scripts\python.exe -m alembic -c web/backend/alembic.ini check
 ```
 
 Test DB phải đúng tên `sigma_m3_test`; fixture TRUNCATE chỉ database này, không dùng DB ứng dụng. Thiếu env thì tests PostgreSQL sẽ skip, không được báo là đã kiểm DB. CI chỉ dùng fixture giả; lần push phải xem kết quả GitHub riêng, không suy CI từ tests local. Workflow M3 tách Linux/PostgreSQL (54 tests M3), Windows/Python3.12 với toàn bộ dependency M3 (32 tests hồi quy M2, gồm golden300forecast ở ngưỡng1e-8), và frontend (9 tests/build). Golden được ghi trên Windows: lần CI đầu trên Linux có30giá trị Prophet lệch tối đa7,8783e-6; đây là giới hạn parity giữa hai nền tảng, chưa chứng minh Linux tái lập golden ở1e-8. Giữ nguyên fixture/ngưỡng/model M2; không bỏ test hoặc dùng CI xanh để nhận parity Linux.

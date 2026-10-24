@@ -1,11 +1,11 @@
 from datetime import date
 import json
-from pathlib import Path
 import uuid
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sigma_m3 import PROFILE
 from sigma_m3.core.errors import DomainError
+from sigma_m3.core.settings import PROJECT_ROOT
 from sigma_m3.core.hashes import digest, code_digest, revision
 from sigma_m3.core.run_context import required_run
 from sigma_m3.models import Run
@@ -27,7 +27,7 @@ def enqueue(session, request, key):
                 409,
             )
         return existing, False
-    profile_path = Path(__file__).resolve().parents[4] / "configs/m3-profile.json"
+    profile_path = PROJECT_ROOT / "M3/configs/m3-profile.json"
     profile = json.loads(profile_path.read_text(encoding="utf-8"))
     snapshot = dict(profile=profile, request=body, **PROFILE)
     source_sha = None

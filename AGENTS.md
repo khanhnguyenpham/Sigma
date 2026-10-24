@@ -1,5 +1,7 @@
 # Hướng dẫn làm việc với SIGMA
 
+**Yêu cầu mới CHG-070 — 24/10/2026:** người dùng giao dọn Markdown dư thừa và gom ứng dụng vào `web/`; lượt này chỉ chuyển backend sang `web/backend/`, giữ FE ở `M3/frontend/`, configs/research/scripts/env tại M3. Worker vẫn cùng package sigma_m3 và launcher cũ, không tách service. Xóa7tài liệu đã thay thế, ghi đường tra cứu Git trong [E104](docs/review-log.md#removed-docs-chg070). Đây là phần chuẩn bị bổ sung sau bước5, không tự hoàn tất bước6–15. Quyền push thường trên m3-implementation giữ nguyên; thay phạm vi chỉ MD của CHG-069 ở trên bằng yêu cầu mới này.
+
 **Yêu cầu mới CHG-069 — 24/10/2026:** cập nhật và push riêng Markdown cho cấu trúc FE dự kiến theo [đặc tả](M3/docs/04-frontend-spec.md#frontend-target-chg069): pages/layouts/components và config/hooks/services/types/utils; thay đích app/features/shared. Chưa sửa code FE hoặc bắt đầu bước6–15 trong lượt này. Giữ cổng local→commit→push→remoteSHA→CI và trạng thái bước5 đã hoàn tất.
 
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.

@@ -8,7 +8,7 @@
 **CHG-067/E99 — 21/10/2026, hoàn thiện bản nộp:** bổ sung phục hồi khi tải lỗi/mất kết nối, giới hạn chờ RPC, màn hình lỗi có lối thử lại, làm mới trong phiên, hướng dẫn nghiệp vụ, điều hướng Back/Escape và hỗ trợ bàn phím. Tạo phương án online chỉ chọn93ngày có đủ closing920item và forecast H14 (30/09–31/12/2025).120Python+31React đạt; dữ liệu/metric/run khóa giữ nguyên. [Hướng dẫn nộp và kiểm sản phẩm](../../M3/SUBMISSION.md). Đã push deploy `10dd4e19af9fa26d1aeb05124a05bbd5fdcf78ce`; kiểm browser/CI mới ghi riêng E99. Không nâng nghiệm thu R07/T14 hoặc bổ sung auth/PO/DB bền vững.
 
 
-**CHG-066/E98 — React công khai trên Streamlit:** đã cập nhật [SIGMA](https://sigma-demand-inventory.streamlit.app/) sang giao diện quản lý React sáu màn hình; Python xử lý qua component hai chiều. Repo triển khai riêng tư `Sigma-M3-App/main`, commit `77b0b3d9406ba2131f678466b86f6615af6636e4`, release `m3-react-public-20261020-v2`.117Python và23React đạt; build local/Streamlit, đối soát aggregate/privacy và tạo phương án trong phiên đã kiểm. [Phạm vi và cách chạy](../history/m3-streamlit.md). Cấu hình/phương án mới riêng phiên; import/fit/replay giao dịch/DB dùng chung vẫn local. R05/M05/R07/T14 không đổi. Các mốc E94–E97 bên dưới giữ lịch sử.
+**CHG-066/E98 — React công khai trên Streamlit:** đã cập nhật [SIGMA](https://sigma-demand-inventory.streamlit.app/) sang giao diện quản lý React sáu màn hình; Python xử lý qua component hai chiều. Repo triển khai riêng tư `Sigma-M3-App/main`, commit `77b0b3d9406ba2131f678466b86f6615af6636e4`, release `m3-react-public-20261020-v2`.117Python và23React đạt; build local/Streamlit, đối soát aggregate/privacy và tạo phương án trong phiên đã kiểm. [Phạm vi và cách chạy](../review-log.md#removed-docs-chg070). Cấu hình/phương án mới riêng phiên; import/fit/replay giao dịch/DB dùng chung vẫn local. R05/M05/R07/T14 không đổi. Các mốc E94–E97 bên dưới giữ lịch sử.
 
 
 **CHG-065/E97 — 20/10/2026:** người dùng đã làm rõ muốn giao diện/quy trình như phần mềm doanh nghiệp. React chuyển trọng tâm sang công việc điều hành và bàn nhập hàng: Cần bổ sung/Đang về/Lịch sử theo ngày, tìm kiếm trước phân trang, sắp xếp, chi tiết/CSV và liên kết tồn ↔ nhập ↔ cảnh báo đúng SKU. Bỏ dãy bước hướng dẫn E96.111Python+19React/build/Ruff đạt; browser/API thật đã đối soát793đề xuất/5866đơn vị,1lô20đơn vị. [Hướng dẫn và giới hạn](../../M3/IMPLEMENTATION.md#purchasing-e97). Không tạo PO thật/duyệt/nhận hàng thủ công/auth hoặc đổi model, DB schema, metric/nghiệm thu.
@@ -20,7 +20,7 @@
 **CHG-063/E95 — 20/10/2026:** đã thiết kế lại React thành web quản lý M3 với sáu màn hình: Tổng quan, Tồn kho, Dự báo nhu cầu, Nhập hàng, Cảnh báo, Cấu hình. Màn hình chính ưu tiên tồn/công việc; chất lượng mô hình và đánh giá replay thu gọn. API tổng quan chỉ đọc theo run/ngày/bộ lọc; lô đang về xét ngày đặt/ETA thay trạng thái cuối kỳ.109Python+17React/build đạt; tạo phương án từ UI đã complete/verified. [Phạm vi, hướng dẫn cho nhóm và bằng chứng](../../M3/IMPLEMENTATION.md#react-management-e95). Không đổi model/ledger/M05/R07/T14. Bản React chạy FastAPI/PostgreSQL local; Streamlit E94 là ứng dụng riêng, chưa nhận đã cập nhật React lên đó.
 
 
-**CHG-062/E94 — 20/10/2026:** theo yêu cầu người dùng đã đưa [SIGMA lên Streamlit công khai](https://sigma-demand-inventory.streamlit.app/), release `m3-public-20261020-v1`, repo triển khai riêng tư `Sigma-M3-App` commit `779b6c44f56aefbbba1c907a57a3acc4144563ef`. Giao diện Streamlit7màn hình đọc aggregate M3 L7/R1/H14 và benchmark30 M05; có what-if riêng từng phiên/CSV. Huấn luyện/import raw/worker/DB bền vững vẫn local. [Phạm vi, gói và cách chạy](../history/m3-streamlit.md). R05 vẫn10/10 hồi cứu; R07/T14 không tự nâng nghiệm thu.
+**CHG-062/E94 — 20/10/2026:** theo yêu cầu người dùng đã đưa [SIGMA lên Streamlit công khai](https://sigma-demand-inventory.streamlit.app/), release `m3-public-20261020-v1`, repo triển khai riêng tư `Sigma-M3-App` commit `779b6c44f56aefbbba1c907a57a3acc4144563ef`. Giao diện Streamlit7màn hình đọc aggregate M3 L7/R1/H14 và benchmark30 M05; có what-if riêng từng phiên/CSV. Huấn luyện/import raw/worker/DB bền vững vẫn local. [Phạm vi, gói và cách chạy](../review-log.md#removed-docs-chg070). R05 vẫn10/10 hồi cứu; R07/T14 không tự nâng nghiệm thu.
 
 **CHG-061/E93/M05 — 20/10/2026, hiện hành:** mentor do người dùng thuật lại đã chốt **R05 tổng 30 ngày thay ngày**. Verifier nguồn và đối soát DB M3 xác nhận 10/10≤20%, mean11,621356%, coverage100%, 63 cửa sổ/tuyến; test hồi cứu. API/React tích hợp benchmark tổng 30 chỉ đọc, tách forecast H14 dùng tồn. Xem [kết quả và cách chạy](../../M3/MONTHLY.md). Các mốc trước M05 bên dưới giữ lịch sử; không dùng số ngày ở E92 làm cổng R05 hiện tại. T14 vẫn cần mentor nghiệm thu, R07 chưa có ngưỡng tỷ lệ tổng chính thức. T08–T09 bổ sung read model tổng 30 đã đối soát; T11 có API/UI/export; T12 kiểm cửa sổ/cutoff/context/hash; T14 phân biệt đạt metric M05 với mentor ký nghiệm thu. Không thay kế hoạch ledger L7/R1/H14.
 
@@ -466,7 +466,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **CHG-048/E76:** Forecast46 M3 cần run mới và lock validation; không nâng R05 ngày.
 
-- **CHG-045/E73:** dọn toàn bộ code cho M2 final trên `cleanup/m2-final`, bảo toàn checkpoint `5271d0b` ở `backup/m2-before-cleanup`. Giữ10 lựa chọn/7 cấu hình, LightGBM pooled top10 và Prophet au(KDDI); bỏ implementation/sweep/entrypoint/test M1–M3 và biến thể không được chọn, giữ nguyên raw/run/báo cáo. [M2_CODE_MAP](../../M2_CODE_MAP.md) ghi luồng, tham số, lệnh và cách lấy code cũ. Kiểm tra và giới hạn tại E73; không đổi model/metric/nghiệm thu, R05/R07/T14 mở.
+- **CHG-045/E73:** dọn toàn bộ code cho M2 final trên `cleanup/m2-final`, bảo toàn checkpoint `5271d0b` ở `backup/m2-before-cleanup`. Giữ10 lựa chọn/7 cấu hình, LightGBM pooled top10 và Prophet au(KDDI); bỏ implementation/sweep/entrypoint/test M1–M3 và biến thể không được chọn, giữ nguyên raw/run/báo cáo. [M2_CODE_MAP](../../M2/README.md) ghi luồng, tham số, lệnh và cách lấy code cũ. Kiểm tra và giới hạn tại E73; không đổi model/metric/nghiệm thu, R05/R07/T14 mở.
 
 - **CHG-042/E70:** Khóa10 lựa chọn trước rerun; tổng7 test10/10<20%, coverage100%. Chín tuyến parity1e-8; LG U+ test-selected, không thay R05 ngày.
 
@@ -534,7 +534,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **CHG-048/E76:** Lượt này kiểm Markdown; tests BE/FE/DB mới chưa chạy.
 
-- **CHG-045/E73:** dọn toàn bộ code cho M2 final trên `cleanup/m2-final`, bảo toàn checkpoint `5271d0b` ở `backup/m2-before-cleanup`. Giữ10 lựa chọn/7 cấu hình, LightGBM pooled top10 và Prophet au(KDDI); bỏ implementation/sweep/entrypoint/test M1–M3 và biến thể không được chọn, giữ nguyên raw/run/báo cáo. [M2_CODE_MAP](../../M2_CODE_MAP.md) ghi luồng, tham số, lệnh và cách lấy code cũ. Kiểm tra và giới hạn tại E73; không đổi model/metric/nghiệm thu, R05/R07/T14 mở.
+- **CHG-045/E73:** dọn toàn bộ code cho M2 final trên `cleanup/m2-final`, bảo toàn checkpoint `5271d0b` ở `backup/m2-before-cleanup`. Giữ10 lựa chọn/7 cấu hình, LightGBM pooled top10 và Prophet au(KDDI); bỏ implementation/sweep/entrypoint/test M1–M3 và biến thể không được chọn, giữ nguyên raw/run/báo cáo. [M2_CODE_MAP](../../M2/README.md) ghi luồng, tham số, lệnh và cách lấy code cũ. Kiểm tra và giới hạn tại E73; không đổi model/metric/nghiệm thu, R05/R07/T14 mở.
 
 - **CHG-042/E70:** Run m2_final_20261011_local fit mới validation/test/future, audit raw và verifier độc lập; hash/cặp/nhãn/cutoff/metric/heads/parity kiểm lại.
 
@@ -561,7 +561,7 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 - **CHG-046/E74 — 14/10/2026:** theo yêu cầu mới, đổi tên nhánh `cleanup/m2-final` thành `M2-final-cleanup` và cho phép push nhánh này lên GitHub. Commit dọn `7cea158` giữ nguyên; chỉ cập nhật tên/lệnh trong tài liệu. Nhánh gốc/backup, raw/run/báo cáo và nghiệm thu không đổi.
 
-- **CHG-045/E73:** dọn toàn bộ code cho M2 final trên `cleanup/m2-final`, bảo toàn checkpoint `5271d0b` ở `backup/m2-before-cleanup`. Giữ10 lựa chọn/7 cấu hình, LightGBM pooled top10 và Prophet au(KDDI); bỏ implementation/sweep/entrypoint/test M1–M3 và biến thể không được chọn, giữ nguyên raw/run/báo cáo. [M2_CODE_MAP](../../M2_CODE_MAP.md) ghi luồng, tham số, lệnh và cách lấy code cũ. Kiểm tra và giới hạn tại E73; không đổi model/metric/nghiệm thu, R05/R07/T14 mở.
+- **CHG-045/E73:** dọn toàn bộ code cho M2 final trên `cleanup/m2-final`, bảo toàn checkpoint `5271d0b` ở `backup/m2-before-cleanup`. Giữ10 lựa chọn/7 cấu hình, LightGBM pooled top10 và Prophet au(KDDI); bỏ implementation/sweep/entrypoint/test M1–M3 và biến thể không được chọn, giữ nguyên raw/run/báo cáo. [M2_CODE_MAP](../../M2/README.md) ghi luồng, tham số, lệnh và cách lấy code cũ. Kiểm tra và giới hạn tại E73; không đổi model/metric/nghiệm thu, R05/R07/T14 mở.
 
 - **CHG-044/E72 — 14/10/2026:** [Word học M2 20 trang](../../M2/reports/mentor_prep_20261014/SIGMA_M2_Tai_lieu_hoc_va_bao_cao.docx) gồm nội dung học và ôn tập đã render/kiểm toàn bộ trang; T13 bổ sung định dạng theo yêu cầu, bảo vệ/nghiệm thu còn mở.
 
@@ -714,3 +714,15 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 Baseline API/CSV và pure inventory; forecast fixture1e-8; hash raw/protected. Ca4tổ hợp mode, ROP−1/=ROP/+1, N/N+1, lịch sử missing/zero/NaN/overflow/future mutation, receipts/pending/MOQ/dedup. DB migration/effective policy/snapshot/concurrency/13bảng. FE save→scenario/run→inventory/alerts→CSV, stale context/error/refresh/keyboard/mobile. Pytest BE/M2, Vitest, TypeScript/build, pip check và local smoke; CI chỉ synthetic. Cuối cùng replay local run mới bằng cấu hình khóa, đối soát độc lập, không ghi đè lịch sử.
 
 Mỗi bước cập nhật TASK và bằng chứng review-log, kết thúc theo development#handoff. Xóa source Streamlit không xóa ứng dụng online hoặc chuyển hosting. Không tự đóng R07/T14 bằng số test hoặc có giao diện.
+
+
+<a id="chg-070"></a>
+## CHG-070 — Dọn tài liệu và gom code web, 24/10/2026
+
+Người dùng yêu cầu web là nơi gom BE/FE/worker; phạm vi làm ngay chỉ backend và xóa Markdown không cần. Thực hiện bổ sung sau bước5 CHG-068, giữ15bước hiện có, không tự bắt đầu/hoàn tất bước6–15.
+
+- Chuyển toàn bộ68file backend tracked từ M3/backend sang web/backend, gồm package sigma_m3/worker/CLI, migration, tests và dependency lock; không sao chép raw/run/DB/env/cache vào Git.
+- FE vẫn M3/frontend; đích FE sau này web/frontend theo CHG-069. Configs/scripts/research/env giữ ở M3. Worker vẫn entry point cùng package, không tạo service mới.
+- Sửa CI, editable install/test/Alembic commands, đường frontend/config và fingerprint code. Giữ API/DDL/nghiệp vụ/idempotency/snapshot; code digest mới dùng vị trí mới, sealed artifacts không đổi.
+- Xóa7file hướng dẫn/bản sao lịch sử hết hiệu lực, giữ requirements/data-contract/PLAN/TASK/PROJECTMAP/review-log và đặc tả/kiểm/bằng chứng M3; [danh sách và tra cứu Git](../review-log.md#removed-docs-chg070). Cập nhật link để không trỏ tới tệp đã xóa.
+- Kiểm local đã đạt: baseline107Python trước chuyển,109Python sau chuyển (thêm2ca static React/hash); API/DDL golden nguyên, Alembic0diff/worker-CLI-import/HTTPsmoke đạt;26React/TypeScript/build/pipcheck đạt,845protectedhash nguyên. [Bàn giao](../development.md#handoff-chg070). Một commit cho thay đổi chuẩn bị này → push thường m3-implementation → SHAremote khớp → CI đạt rồi dừng; cổng GitHub chỉ xác nhận sau kiểm.
