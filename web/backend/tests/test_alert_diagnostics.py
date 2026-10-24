@@ -1,9 +1,9 @@
 from datetime import date, timedelta
 import pytest
 from fastapi.testclient import TestClient
-from sigma_m3.services.alerts import opportunity_breakdown
-from sigma_m3.main import create_app
-from sigma_m3.models import Alert, Run
+from services.alerts import opportunity_breakdown
+from main import create_app
+from models import Alert, Run
 from test_results_api import result_fixture
 from test_postgres_api import settings
 

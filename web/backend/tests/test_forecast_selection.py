@@ -1,8 +1,8 @@
 import pandas as pd
 import pytest
-from sigma_m3.services.forecast import select_new
-from sigma_m3.services import m2_adapter
-from sigma_m3.core.errors import DomainError
+from services.forecast import select_new
+from services import m2_adapter
+from core.errors import DomainError
 
 
 def fixture():

@@ -1,9 +1,9 @@
 """HTTP routes and the original business columns survive module relocation."""
 import json
 from pathlib import Path
-from sigma_m3.main import create_app
-from sigma_m3.core.settings import Settings
-from sigma_m3.models import Base
+from main import create_app
+from core.settings import Settings
+from models import Base
 
 
 def test_http_and_schema_preserve_existing_contract(tmp_path):

@@ -1,7 +1,7 @@
 from alembic import context
 from sqlalchemy import create_engine, pool
-from sigma_m3 import models  # Register both feature modules and remaining domain tables.
-from sigma_m3.core.settings import Settings
+import models  # Register both feature modules and remaining domain tables.
+from core.settings import Settings
 
 config = context.config
 target_metadata = models.Base.metadata

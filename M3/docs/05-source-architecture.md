@@ -1,7 +1,36 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+<a id="flat-backend-chg071"></a>
+## Backend trực tiếp trong src — CHG-071, 24/10/2026
+
+Theo yêu cầu mới, bỏ tầng sigma_m3; worker ở cùng backend, launcher gom về web/backend/scripts. Cấu trúc sau thay đổi:
+
+```text
+web/backend/
+├── src/
+│   ├── main.py
+│   ├── worker.py
+│   ├── cli.py
+│   ├── models.py
+│   ├── schemas.py
+│   ├── api/
+│   ├── core/          # Settings/PROFILE, DB/Base, errors/hash/context
+│   ├── modules/       # catalog/configuration đã tách ở bước5
+│   └── services/      # Phần nghiệp vụ còn chờ bước6–7
+├── scripts/           # load_env/local_stack/start_api/start_worker/start_m3/stop_m3
+├── migrations/
+├── tests/
+├── pyproject.toml
+├── requirements.txt
+└── alembic.ini
+```
+
+Setuptools khai báo5py-modules main/worker/cli/models/schemas và4nhóm package api/core/modules/services từ src. Không tạo backend package tên src vì root repo đã có package src của M2. PROFILE chuyển từ __init__ cũ vào core/settings.py; không đổi giá trị. Import Python và entry point dùng tên trực tiếp, không giữ shim sigma_m3. Giữ tên distribution sigma-m3, bảng/DB sigma_m3 và biến M3_* để không đổi dữ liệu hoặc cấu hình kết nối.
+
+PROJECT_ROOT được cập nhật theo độ sâu mới; ingestion/adapter tiếp tục đọc data/configs tại root. Launcher lấy root từ web/backend/scripts, đọc M3/.env, dùng .venv-m3 của Desktop; background process tiếp tục hidden và dừng theo PID đã ghi. Không thêm queue/service/state layer. FE build vẫn M3/frontend/dist, configs/research/env ở M3. Các cây của CHG-070/bước5 bên dưới là checkpoint trước yêu cầu bỏ namespace; bước6–15 chưa bắt đầu.
+
 <a id="web-layout-chg070"></a>
-## Vị trí code CHG-070 — 24/10/2026
+## Checkpoint CHG-070 trước khi bỏ namespace — 24/10/2026
 
 Lượt này chuyển backend sau bước5 vào web, dọn tài liệu cũ; chưa triển khai module bước6–7 hoặc refactor FE bước8–9. Cây thực:
 
@@ -89,7 +118,7 @@ Phần forecast/runs/reporting, inventory/purchasing/alerts và FE chưa tổ ch
 ```text
 web/                                # ĐÍCH sau các bước refactor còn lại
 ├── backend/
-│   ├── src/sigma_m3/
+│   ├── src/
 │   │   ├── main.py
 │   │   ├── core/
 │   │   ├── modules/
@@ -103,6 +132,7 @@ web/                                # ĐÍCH sau các bước refactor còn lạ
 │   │   │   └── reporting/
 │   │   ├── worker.py
 │   │   └── cli.py
+│   ├── scripts/                    # Launcher API/worker đã chuyển ở CHG-071
 │   ├── migrations/
 │   ├── tests/
 │   ├── pyproject.toml
@@ -163,11 +193,11 @@ main.py chỉ khởi tạo API; worker.py process riêng, một run cùng lúc v
 CLI đích, **chưa có implementation/chưa kiểm lệnh**:
 
 ```powershell
-python -m sigma_m3.cli import-orders --source-key orders_snapshot
-python -m sigma_m3.cli forecast --source-run <uuid> --mode replay
-python -m sigma_m3.cli simulate --kind policy_replay --forecast-run <uuid> --scenario-id 1
-python -m sigma_m3.cli verify --run-id <uuid>
-python -m sigma_m3.worker
+python -m cli import-orders --source-key orders_snapshot
+python -m cli forecast --source-run <uuid> --mode replay
+python -m cli simulate --kind policy_replay --forecast-run <uuid> --scenario-id 1
+python -m cli verify --run-id <uuid>
+python -m worker
 ```
 
 CLI tạo/đọc run cùng contract/idempotency API; tùy chọn --wait trả exit0 chỉ khi complete. Không có lệnh gửi đơn thực. Launcher đích mở API127.0.0.1:8000/FE127.0.0.1:5173/worker; Windows background process hidden. Dừng đúng PID do launcher tạo, không kill mọi python/node. Sau build FE có thể serve static local qua FastAPI; dev dùng Vite.

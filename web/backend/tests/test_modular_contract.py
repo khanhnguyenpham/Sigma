@@ -9,12 +9,12 @@ from fastapi.testclient import TestClient
 from sqlalchemy.dialects.postgresql import dialect
 from sqlalchemy.schema import CreateIndex, CreateTable
 
-from sigma_m3.core.db import Base
-from sigma_m3.core.settings import Settings
-from sigma_m3.main import create_app
-from sigma_m3 import models
-from sigma_m3.modules.catalog.models import Item, Supplier, Warehouse
-from sigma_m3.modules.configuration.models import Policy, Scenario
+from core.db import Base
+from core.settings import Settings
+from main import create_app
+import models
+from modules.catalog.models import Item, Supplier, Warehouse
+from modules.configuration.models import Policy, Scenario
 
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -73,8 +73,22 @@ def test_settings_keep_checkout_defaults_and_explicit_paths(monkeypatch, tmp_pat
     assert explicit.output_root == (tmp_path / "runs").resolve()
 
 
+def test_flat_backend_keeps_the_m2_src_package_independent():
+    import importlib.util
+    import cli
+    import main
+    import src
+    import worker
+    from core.settings import PROJECT_ROOT
+
+    assert Path(main.__file__).resolve().parent == PROJECT_ROOT / "web/backend/src"
+    assert Path(src.__file__).resolve() == PROJECT_ROOT / "src/__init__.py"
+    assert cli.Settings is worker.Settings is Settings
+    assert importlib.util.find_spec("sigma_m3") is None
+
+
 def test_relocated_backend_serves_the_existing_react_build(monkeypatch, tmp_path):
-    from sigma_m3 import main
+    import main
 
     frontend = tmp_path / "M3/frontend/dist"
     frontend.mkdir(parents=True)
@@ -87,9 +101,9 @@ def test_relocated_backend_serves_the_existing_react_build(monkeypatch, tmp_path
 
 
 def test_code_digest_detects_changes_in_the_relocated_backend(monkeypatch, tmp_path):
-    from sigma_m3.core import hashes
+    from core import hashes
 
-    source = tmp_path / "web/backend/src/sigma_m3/main.py"
+    source = tmp_path / "web/backend/src/main.py"
     source.parent.mkdir(parents=True)
     source.write_text("before", encoding="utf-8")
     final_report = tmp_path / "M2/final_report.py"

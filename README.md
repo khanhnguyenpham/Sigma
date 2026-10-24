@@ -1,6 +1,8 @@
 # SIGMA — React / FastAPI local
 
-**Cấu trúc hiện hành CHG-070:** backend, migration, tests và entry point worker/CLI ở `web/backend/`; FE còn ở `M3/frontend/`, cấu hình và launcher ở `M3/configs/`, `M3/scripts/`. Đích tiếp theo là gom FE vào `web/frontend/` khi được giao. Worker dùng chung package, không có worker service riêng. [Tài liệu cũ đã bỏ và cách tra lịch sử](docs/review-log.md#removed-docs-chg070).
+**Cấu trúc hiện hành CHG-071:** code BE nằm thẳng trong `web/backend/src/` với main.py, worker.py, cli.py và api/core/modules/services; không còn thư mục sigma_m3. Worker dùng cùng nghiệp vụ; các launcher đã gom về `web/backend/scripts/`. Chạy từ root repo: API `python -m uvicorn main:create_app --factory`, worker `python -m worker`, CLI `python -m cli`. FE/configs/research/env vẫn ở M3, tên DB/env không đổi; M2 giữ package src riêng ở root.
+
+**Cấu trúc hiện hành CHG-070:** backend, migration, tests và entry point worker/CLI ở `web/backend/`; FE còn ở `M3/frontend/`, cấu hình và launcher ở `M3/configs/`, `web/backend/scripts/`. Đích tiếp theo là gom FE vào `web/frontend/` khi được giao. Worker dùng chung package, không có worker service riêng. [Tài liệu cũ đã bỏ và cách tra lịch sử](docs/review-log.md#removed-docs-chg070).
 
 **FE dự kiến CHG-069:** bước8–9 sẽ tổ chức theo pages/layouts/components và config/hooks/services/types/utils, cùng App.tsx/main.tsx/index.css. [Cấu trúc và cách chuyển mã](M3/docs/04-frontend-spec.md#frontend-target-chg069). Hiện chỉ cập nhật tài liệu, chưa đổi code FE; bước6–15 chưa bắt đầu.
 
@@ -25,11 +27,11 @@ npm.cmd --prefix M3/frontend run build
 Tạo `M3/.env` từ `M3/configs/.env.example` nếu chưa có; điền PostgreSQL/source/output root local, không ghi đè env hiện có. Tests dùng riêng **`sigma_m3_test`**; tài khoản app không phải superuser.
 
 ```powershell
-. ./M3/scripts/load_env.ps1
+. ./web/backend/scripts/load_env.ps1
 .\.venv-m3\Scripts\python.exe -m alembic -c web/backend/alembic.ini upgrade head
-. ./M3/scripts/start_m3.ps1
+. ./web/backend/scripts/start_m3.ps1
 # Dừng đúng API/worker do launcher này tạo:
-. ./M3/scripts/stop_m3.ps1
+. ./web/backend/scripts/stop_m3.ps1
 ```
 
 Bản build ở `http://127.0.0.1:8000`, OpenAPI ở `http://127.0.0.1:8000/docs`. Dev React: `npm.cmd --prefix M3/frontend run dev`, proxy tới API8000. Xem [M3](M3/README.md), [implementation](M3/IMPLEMENTATION.md) và [nghiệm thu](M3/ACCEPTANCE.md).
@@ -37,7 +39,7 @@ Bản build ở `http://127.0.0.1:8000`, OpenAPI ở `http://127.0.0.1:8000/docs
 ## Kiểm tra
 
 ```powershell
-. ./M3/scripts/load_env.ps1
+. ./web/backend/scripts/load_env.ps1
 .\.venv-m3\Scripts\python.exe -B -m pytest tests M2/models/tests web/backend/tests --tb=short
 npm.cmd --prefix M3/frontend test
 npm.cmd --prefix M3/frontend run build

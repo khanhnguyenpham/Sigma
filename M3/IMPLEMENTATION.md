@@ -1,6 +1,8 @@
 # M3 — ứng dụng đã triển khai và cách chạy
 
-**CHG-070 — cách chạy hiện hành:** cài package từ `web/backend`, dùng Alembic `web/backend/alembic.ini`; FE build tại `M3/frontend/dist`, configs/env/scripts giữ ở M3. API/worker/CLI dùng cùng package sigma_m3. [Lệnh chạy hiện hành](../README.md) và [cây thư mục](docs/05-source-architecture.md#web-layout-chg070). Các mô tả Streamlit và số kiểm E89–E103 bên dưới giữ như lịch sử;7file hướng dẫn/bản sao cũ đã bỏ, tra bằng [Git/E104](../docs/review-log.md#removed-docs-chg070).
+**CHG-071 — lệnh hiện hành:** từ root repo, API dùng `python -m uvicorn main:create_app --factory`, worker `python -m worker`, CLI `python -m cli`; launcher ở web/backend/scripts. Cài editable từ web/backend; src backend không có thư mục sigma_m3. FE/configs/env vẫn M3, root src vẫn M2. Cấu trúc/namespace trong các mốc E89–E104 là lịch sử, không là lệnh chạy mới.
+
+**CHG-070 — cách chạy hiện hành:** cài package từ `web/backend`, dùng Alembic `web/backend/alembic.ini`; FE build tại `M3/frontend/dist`, configs/env/scripts giữ ở M3. API/worker/CLI dùng cùng package  [Lệnh chạy hiện hành](../README.md) và [cây thư mục](docs/05-source-architecture.md#web-layout-chg070). Các mô tả Streamlit và số kiểm E89–E103 bên dưới giữ như lịch sử;7file hướng dẫn/bản sao cũ đã bỏ, tra bằng [Git/E104](../docs/review-log.md#removed-docs-chg070).
 
 **CHG-068 bước5 — 24/10/2026:** người dùng yêu cầu làm riêng bước5 sau checkpoint `992b8f5`. Đã tách core/catalog/configuration và rút main391→45dòng; giữ26route/OpenAPI đầy đủ, DDL13bảng và giao dịch/version/snapshot. Local107Python/26React/build/pipcheck/CLI/import/Alembic/smoke đạt,845protectedhash nguyên. Commit mã `db6c1d5` đã push, SHAremote khớp và cả2workflowCI completed/success. Bước5 hoàn tất; bước6–15 chưa bắt đầu. [Bàn giao và kiểm tra](../docs/development.md#handoff-chg068-step5). Không có migration hoặc thay model/policy/mẫu số metric ở bước này; chưa chạy fullreplay mới.
 
@@ -126,7 +128,7 @@ Fresh future run `d57975c8-3d14-40a2-bee6-b3b8e20575ad` qua mã worker cuối:46
 
 | Đường dẫn | Trách nhiệm |
 |---|---|
-| `backend/src/sigma_m3/models.py`, `backend/migrations/` |13 bảng, FK/unique/check/index và migration. |
+| `web/backend/src/models.py`, `web/backend/migrations/` |13 bảng, FK/unique/check/index và migration. |
 | `settings.py`, `schemas.py`, `errors.py` |Env local, DTO strict, lỗi không echo dữ liệu nhạy cảm. |
 | `services/ingestion.py`, `seeding.py`, `catalog.py` |Audit nguồn, hash-dedup, danh mục và giả định có version. |
 | `services/m2_adapter.py`, `forecast.py`, `allocation.py` |Tái dùng M2, validation/selection/forecast46 và phân bổ causal. |
@@ -162,7 +164,7 @@ CREATE DATABASE sigma_m3_test OWNER sigma_m3_app;
 Điền mật khẩu/port/local paths trong `M3/.env`, không commit. `M3_SOURCE_ROOT` trỏ workspace đang giữ nguyên CSV tại `data/sigma_sim_data_orders.csv`; raw không nằm trong Git, thành viên dùng nguồn bài nhóm đã có. Không cần gửi lại dữ liệu doanh nghiệp. `M3_OUTPUT_ROOT` là thư mục private; không chọn M2/artifacts hoặc thư mục run cũ. DB trên máy kiểm là portable127.0.0.1:55432, không cài service toàn máy; đây không là yêu cầu port của mọi thành viên.
 
 ```powershell
-. ./M3/scripts/load_env.ps1
+. ./web/backend/scripts/load_env.ps1
 .\.venv-m3\Scripts\python.exe -m alembic -c web/backend/alembic.ini upgrade head
 .\.venv-m3\Scripts\python.exe -m pip check
 cd M3/frontend
@@ -170,26 +172,26 @@ npm ci
 npm test
 npm run build
 cd ../..
-. ./M3/scripts/start_m3.ps1
+. ./web/backend/scripts/start_m3.ps1
 ```
 
-Mở `http://127.0.0.1:8000/`, OpenAPI `/docs`, health `/api/v1/health`. Launcher chạy API+worker ẩn, log ở outputs; dừng bằng `M3/scripts/stop_m3.ps1`, chỉ dừng PID mà launcher tạo và đúng creation time. PostgreSQL quản lý riêng. Đây là app local, chưa có auth/hosting nhiều người; push GitHub không xuất bản database hoặc ứng dụng lên Internet.
+Mở `http://127.0.0.1:8000/`, OpenAPI `/docs`, health `/api/v1/health`. Launcher chạy API+worker ẩn, log ở outputs; dừng bằng `web/backend/scripts/stop_m3.ps1`, chỉ dừng PID mà launcher tạo và đúng creation time. PostgreSQL quản lý riêng. Đây là app local, chưa có auth/hosting nhiều người; push GitHub không xuất bản database hoặc ứng dụng lên Internet.
 
 Để phát triển FE: chạy `start_api.ps1`, `start_worker.ps1` trong hai terminal; tại M3/frontend dùng `npm run dev` port5173 proxyAPI8000. Không đồng thời mở worker dev và launcher; worker thứ hai bị advisory lock chặn.
 
 ## Tạo dữ liệu và lượt chạy
 
 ```powershell
-. ./M3/scripts/load_env.ps1
-.\.venv-m3\Scripts\python.exe -m sigma_m3.cli import-orders --as-of-date 2025-12-31 --request-key import-v1 --wait
+. ./web/backend/scripts/load_env.ps1
+.\.venv-m3\Scripts\python.exe -m cli import-orders --as-of-date 2025-12-31 --request-key import-v1 --wait
 # Thay SOURCE bằng UUID trả về ở lệnh trên, không dùng chuỗi ví dụ nguyên trạng.
-.\.venv-m3\Scripts\python.exe -m sigma_m3.cli seed-simulation --source-run SOURCE --as-of-date 2025-09-30
-.\.venv-m3\Scripts\python.exe -m sigma_m3.cli forecast --source-run SOURCE --as-of-date 2025-12-31 --mode replay --request-key forecast-v1 --wait
+.\.venv-m3\Scripts\python.exe -m cli seed-simulation --source-run SOURCE --as-of-date 2025-09-30
+.\.venv-m3\Scripts\python.exe -m cli forecast --source-run SOURCE --as-of-date 2025-12-31 --mode replay --request-key forecast-v1 --wait
 # Thay FORECAST bằng UUID forecast complete và SCENARIO bằng ID kịch bản đã seed.
-.\.venv-m3\Scripts\python.exe -m sigma_m3.cli simulate --kind policy_replay --forecast-run FORECAST --scenario-id SCENARIO --as-of-date 2025-09-30 --period-start 2025-10-01 --period-end 2025-12-31 --wait
-.\.venv-m3\Scripts\python.exe -m sigma_m3.cli simulate --kind alert_replay --forecast-run FORECAST --scenario-id SCENARIO --as-of-date 2025-09-30 --period-start 2025-10-01 --period-end 2025-12-31 --wait
-.\.venv-m3\Scripts\python.exe -m sigma_m3.cli simulate --kind stock_projection --forecast-run FORECAST --scenario-id SCENARIO --as-of-date 2025-10-31 --wait
-.\.venv-m3\Scripts\python.exe -m sigma_m3.cli verify --run-id RUN
+.\.venv-m3\Scripts\python.exe -m cli simulate --kind policy_replay --forecast-run FORECAST --scenario-id SCENARIO --as-of-date 2025-09-30 --period-start 2025-10-01 --period-end 2025-12-31 --wait
+.\.venv-m3\Scripts\python.exe -m cli simulate --kind alert_replay --forecast-run FORECAST --scenario-id SCENARIO --as-of-date 2025-09-30 --period-start 2025-10-01 --period-end 2025-12-31 --wait
+.\.venv-m3\Scripts\python.exe -m cli simulate --kind stock_projection --forecast-run FORECAST --scenario-id SCENARIO --as-of-date 2025-10-31 --wait
+.\.venv-m3\Scripts\python.exe -m cli verify --run-id RUN
 ```
 
 CLI `--wait` dùng worker thông thường; dừng worker nền trước khi dùng chế độ này. Cách dùng web: chọn nguồn/forecast/scenario, bấm Tạo phương án; worker nền nhận và cập nhật status. Không trộn hai cách để chạy hai worker. Forecast replay là việc nặng, không chạy lại chỉ để sửa thành phố hoặc xem dashboard. `forecast --mode future --forecast-run FORECAST` dùng selection khóa, origin không trước30/09/2025; không chọn lại bằng test. Missing vector/policy/history → failed, không tự điền0. Khi mã thay đổi, restart worker rồi tạo request mới; code mismatch không được ghi complete.
@@ -205,7 +207,7 @@ Seed chỉ tạo giả định rõ ràng: cover3/7/14 và safety×0,5/1/1,5, kh�
 5. Xuất CSV: đối chiếu run/source/config/selection hashes, cutoff, phiên bản và nhãn mô phỏng. Export không có raw orders/customer/source IDs; đọc dữ liệu từng batch.
 
 ```powershell
-. ./M3/scripts/load_env.ps1
+. ./web/backend/scripts/load_env.ps1
 .\.venv-m3\Scripts\python.exe -B -m pytest web/backend/tests tests M2/models/tests --basetemp=outputs/pytest-team
 .\.venv-m3\Scripts\python.exe -m alembic -c web/backend/alembic.ini check
 ```

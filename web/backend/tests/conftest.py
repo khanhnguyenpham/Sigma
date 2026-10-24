@@ -5,7 +5,7 @@ from alembic.config import Config
 from alembic import command
 from sqlalchemy import text
 from sqlalchemy.engine import make_url
-from sigma_m3.core.db import database
+from core.db import database
 
 
 @pytest.fixture(scope="session")
@@ -27,7 +27,7 @@ def pg_database():
 @pytest.fixture
 def pg(pg_database):
     engine, sessions = pg_database
-    from sigma_m3.models import Base
+    from models import Base
 
     tables = ",".join('"' + name + '"' for name in sorted(Base.metadata.tables))
     with engine.begin() as connection:

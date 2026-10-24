@@ -9,10 +9,10 @@ import numpy as np
 import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
-from sigma_m3.core.errors import DomainError
-from sigma_m3.main import create_app
-from sigma_m3.services import monthly
-from sigma_m3.core.hashes import digest
+from core.errors import DomainError
+from main import create_app
+from services import monthly
+from core.hashes import digest
 from test_results_api import result_fixture
 from test_postgres_api import settings
 
@@ -178,7 +178,7 @@ def test_monthly_http_context_filters_export_and_unknown_actual(pg, tmp_path):
     _, sessions = pg
     cfg = settings(tmp_path)
     source_id, forecast_id, _ = result_fixture(sessions)
-    from sigma_m3.core.run_context import required_run
+    from core.run_context import required_run
 
     with sessions() as session:
         source = required_run(session, source_id)

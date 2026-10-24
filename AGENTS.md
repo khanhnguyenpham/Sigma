@@ -1,5 +1,7 @@
 # Hướng dẫn làm việc với SIGMA
 
+**Yêu cầu mới CHG-071 — 24/10/2026:** làm trực tiếp workspace Desktop, nhánh m3-implementation từ e0c5843. Người dùng yêu cầu bỏ tầng sigma_m3 và chuyển phần worker/launcher còn lại vào web. Backend đặt trực tiếp main.py/worker.py/cli.py/models.py/schemas.py cùng api/core/modules/services dưới web/backend/src; launcher ở web/backend/scripts. Yêu cầu này thay ràng buộc giữ namespace sigma_m3 trước đó; tên DB/env/distribution không đổi. Giữ src của M2 tại root, FE/configs/research/env ở M3; không triển khai module/tính năng bước6–15. Kiểm local→commit→push→remoteSHA→CI như cũ.
+
 **Yêu cầu mới CHG-070 — 24/10/2026:** người dùng giao dọn Markdown dư thừa và gom ứng dụng vào `web/`; lượt này chỉ chuyển backend sang `web/backend/`, giữ FE ở `M3/frontend/`, configs/research/scripts/env tại M3. Worker vẫn cùng package sigma_m3 và launcher cũ, không tách service. Xóa7tài liệu đã thay thế, ghi đường tra cứu Git trong [E104](docs/review-log.md#removed-docs-chg070). Đây là phần chuẩn bị bổ sung sau bước5, không tự hoàn tất bước6–15. Quyền push thường trên m3-implementation giữ nguyên; thay phạm vi chỉ MD của CHG-069 ở trên bằng yêu cầu mới này.
 
 **Yêu cầu mới CHG-069 — 24/10/2026:** cập nhật và push riêng Markdown cho cấu trúc FE dự kiến theo [đặc tả](M3/docs/04-frontend-spec.md#frontend-target-chg069): pages/layouts/components và config/hooks/services/types/utils; thay đích app/features/shared. Chưa sửa code FE hoặc bắt đầu bước6–15 trong lượt này. Giữ cổng local→commit→push→remoteSHA→CI và trạng thái bước5 đã hoàn tất.
