@@ -13,11 +13,11 @@ import numpy as np
 import pandas as pd
 from lightgbm import LGBMRegressor
 from sqlalchemy import text
-from sigma_m3.core.db import database
-from sigma_m3.core.settings import Settings
-from sigma_m3.core.run_context import required_run, source_data_id
-from sigma_m3.core.hashes import digest
-from sigma_m3.services.forecast import clean_json
+from core.db import database
+from core.settings import Settings
+from core.run_context import required_run, source_data_id
+from core.hashes import digest
+from services.forecast import clean_json
 from src.evaluation import score
 
 ROUTE = ["destination_country", "carrier"]

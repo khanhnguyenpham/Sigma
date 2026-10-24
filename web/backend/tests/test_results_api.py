@@ -4,14 +4,14 @@ from datetime import timedelta
 import hashlib
 from fastapi.testclient import TestClient
 from sqlalchemy import select, func
-from sigma_m3.main import create_app
-from sigma_m3.models import Run, DailySales, RouteForecast, ItemForecast
-from sigma_m3.modules.catalog.models import Item, Warehouse
-from sigma_m3.schemas import RunCreate
-from sigma_m3.services.runs import enqueue
-from sigma_m3.core.hashes import digest
-from sigma_m3.core.run_context import source_data_id
-from sigma_m3.services.ingestion import import_snapshot
+from main import create_app
+from models import Run, DailySales, RouteForecast, ItemForecast
+from modules.catalog.models import Item, Warehouse
+from schemas import RunCreate
+from services.runs import enqueue
+from core.hashes import digest
+from core.run_context import source_data_id
+from services.ingestion import import_snapshot
 from test_postgres_api import seed, settings, D
 
 

@@ -7,16 +7,16 @@ from fastapi import APIRouter, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import Field
 from sqlalchemy import select, func, text
-from sigma_m3.core.schemas import DTO
-from sigma_m3.models import Run, DailySales, RouteForecast, ItemForecast, InventoryDaily, Replenishment, Alert
-from sigma_m3.modules.catalog.models import Item
-from sigma_m3.core.run_context import required_run, source_data_id
-from sigma_m3.services.forecast import clean_json
-from sigma_m3.core.errors import DomainError
+from core.schemas import DTO
+from models import Run, DailySales, RouteForecast, ItemForecast, InventoryDaily, Replenishment, Alert
+from modules.catalog.models import Item
+from core.run_context import required_run, source_data_id
+from services.forecast import clean_json
+from core.errors import DomainError
 from src.evaluation import score
-from sigma_m3.services.alerts import opportunity_breakdown
+from services.alerts import opportunity_breakdown
 
-from sigma_m3.core.run_context import snapshot_maps
+from core.run_context import snapshot_maps
 
 router = APIRouter(prefix="/api/v1/runs")
 _ALLOCATED_METRICS = {}

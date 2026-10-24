@@ -12,11 +12,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sqlalchemy import text
-from sigma_m3.core.db import database
-from sigma_m3.core.settings import Settings
-from sigma_m3.services.forecast import clean_json
-from sigma_m3.core.hashes import digest
-from sigma_m3.core.run_context import required_run, source_data_id
+from core.db import database
+from core.settings import Settings
+from services.forecast import clean_json
+from core.hashes import digest
+from core.run_context import required_run, source_data_id
 from M3.research import daily_validation as base
 
 PROTOCOL = {
