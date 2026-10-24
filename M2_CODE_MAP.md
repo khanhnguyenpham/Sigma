@@ -1,5 +1,7 @@
 # Bản đồ code M2 final — chuẩn bị báo cáo 16/10/2026
 
+**CHG-068 bước4:** nhánh `m3-implementation` đã gỡ dashboard/launcher/dependency Streamlit; CLI/notebook/HTML và mô hình được giữ. Các số kiểm E73 phía dưới là lịch sử, không phải kết quả mới.
+
 Bản dọn trên `M2-final-cleanup` chỉ chạy bộ final đã chốt: **10 lựa chọn theo tuyến, 7 cấu hình khác nhau**. LightGBM học **pooled trên toàn bộ top 10 train**, kể cả khi chỉ xuất kết quả cho một tuyến; Prophet học riêng au (KDDI). Không tìm lại model hoặc thay feature, loss, cửa sổ, lịch refit và metric.
 
 Chín tuyến giữ lựa chọn validation; LG U+ chọn sau test-sweep. Kết quả tổng D+1…D+7 là 10/10 dưới 20%, mean 15,745366%, coverage 100% trên test hồi cứu. H8–14 có 8/10; R05 ngày/R07/T14 còn mở. Nguồn là snapshot trạng thái cuối, A08 vẫn là phương án thực nghiệm, không phải xác nhận mentor hoặc quy tắc kế toán.
@@ -13,7 +15,6 @@ src/
   evaluation.py             công thức metric quantity
 M2/
   final_report.py           CLI chung: fit/refit, forecast, verify, export
-  final_app.py              dashboard chỉ đọc báo cáo final đã khóa
   models/
     weekly.py               feature, nhãn tổng 7, fit pooled, predict batch
     LightGBM/model.py       chạy 5 cấu hình dùng cho 8 tuyến
@@ -34,7 +35,6 @@ data/configs/
   config.json               nguồn, target UTC, split, seed, ngưỡng metric
   m2-final.json             10 lựa chọn cố định, override LG U+, nguồn đối chiếu
   m2-reproduce.json         tham số dùng chung, dẫn tới 2 variants.json
-scripts/start_m2.ps1         mở dashboard final ở localhost:8505
 tests/                      audit, metric, feature/leakage, parity và CLI
   fixtures/m2_final_parity.csv  300 forecast chuẩn từ dữ liệu giả trước dọn
 requirements.txt            phiên bản cũ của các dependency còn dùng
@@ -75,7 +75,7 @@ LightGBM: 150 cây, learning rate 0,03, lambda 10, seed 42. Weighted L1 dùng tr
 | Đầu nhân LG U+ | `focus.phase`, `calibration.relative_factor` | Teacher pooled fit tại origin quá khứ; chỉ dùng cặp đã đủ nhãn ở cutoff; weighted median có prior tại 1, clip hệ số [0,5; 1,5] |
 | Metric | [src/evaluation.py](src/evaluation.py) `score`; `families.metrics`, `monthly_metrics` | MAPE chỉ actual dương; MAE/WAPE/bias dùng mọi cặp có nhãn; coverage và nhịp origin được báo riêng |
 | Đối soát | [verify.py](M2/models/verify.py) `reconcile_labels`, `reconcile_metrics`; `final_report.verify_run` | Tính lại từ raw/daily/forecast, kiểm đủ cặp, causal fitlog, hash và parity với run cha |
-| Báo cáo/dashboard | `final_report.export_report`, `load_report`; [final_app.py](M2/final_app.py) | Export sang thư mục mới; dashboard chỉ đọc bảng aggregate đã kiểm hash |
+| Báo cáo | `final_report.export_report`, `load_report` và notebook final | Export sang thư mục mới; HTML/notebook chỉ đọc bảng aggregate đã kiểm hash |
 
 **Ba khoảng thời gian khác nhau:**
 
@@ -87,30 +87,24 @@ Code hiện hữu fit model trong bộ nhớ rồi lưu forecast, cấu hình, l
 
 ## Lệnh dùng tại root project
 
+Trên nhánh `m3-implementation`, dashboard/launcher Streamlit đã gỡ ở CHG-068 bước4. Dùng HTML offline hoặc notebook đọc cùng `load_report`; CLI giữ nguyên, không tự train khi mở React/báo cáo.
+
 ```powershell
-# Cài đúng lock; môi trường local hiện có không bị gỡ package.
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-
-# Xem báo cáo final, không fit.
-.\scripts\start_m2.ps1
-.\.venv\Scripts\python.exe -m M2.final_report --help
-
-# Kiểm bằng chứng run lịch sử sau dọn: không yêu cầu source hiện tại giống mã cũ,
-# không ghi đè receipt cũ, không refit; kết quả có current_code_matches_recorded_run=false.
-.\.venv\Scripts\python.exe -m M2.final_report --run-id m2_final_20261011_local --stage verify-artifacts
-
-# Chỉ chạy khi chủ động cần tái huấn luyện bộ fixed final; không phải sweep.
-# Dùng run-id và report-id mới, không trùng thư mục cũ.
-.\.venv\Scripts\python.exe -m M2.final_report --run-id m2_final_replay_20261016 --stage run
-.\.venv\Scripts\python.exe -m M2.final_report --run-id m2_final_replay_20261016 --stage verify
-.\.venv\Scripts\python.exe -m M2.final_report --run-id m2_final_replay_20261016 --stage export --report-id m2_final_replay_20261016
-
-# Test có fixture giả đủ 7 cấu hình, 10 tuyến, ba lần refit.
-.\.venv\Scripts\python.exe -B -m pytest
-.\.venv\Scripts\python.exe -m pip check
+.\.venv-m3\Scripts\python.exe -m M2.final_report --help
+.\.venv-m3\Scripts\python.exe -m M2.final_report --run-id m2_final_20261011_local --stage verify-artifacts
 ```
 
-`--stage run` đọc raw local và các artifact cha đã khóa trong `m2-final.json`, fit lại validation/test/future, ghi `*_predictions.csv`, `*_fit_log.csv`, metric và manifest mới. `--stage verify` yêu cầu mã/cấu hình khớp run mới; `verify-artifacts` chỉ xác minh bằng chứng lịch sử. Notebook [final_report.ipynb](M2/notebooks/final_report.ipynb) đọc cùng `load_report`, không có thuật toán riêng. Launcher mở bộ báo cáo khóa 11/10; báo cáo export mới xem trực tiếp ở thư mục mới.
+`verify-artifacts` cần artifact local gốc, không refit/ghi đè receipt cũ. Nó kiểm bằng chứng lịch sử, không nhận code hiện tại khớp source cũ. [Notebook](M2/notebooks/final_report.ipynb) dùng chung hàm đọc; [HTML final](M2/reports/final_m2_20261011/index.html) mở offline.
+
+Nếu chủ động cần tái huấn luyện, dùng run-id/report-id mới:
+
+```powershell
+.\.venv-m3\Scripts\python.exe -m M2.final_report --run-id m2_final_new --stage run
+.\.venv-m3\Scripts\python.exe -m M2.final_report --run-id m2_final_new --stage verify
+.\.venv-m3\Scripts\python.exe -m M2.final_report --run-id m2_final_new --stage export --report-id m2_final_new
+```
+
+Run mới dùng raw/artifact cha đã khóa, giữ model/feature/refit và manifest riêng. Không chạy refit trong lượt gỡ Streamlit. Bằng chứng E73 phía dưới là lịch sử; kiểm mới ghi CHG-068. Lệnh dashboard trong báo cáo cũ chỉ áp dụng source cũ.
 
 ## Bằng chứng được bảo toàn
 

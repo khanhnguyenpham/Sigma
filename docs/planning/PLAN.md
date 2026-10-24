@@ -679,8 +679,8 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 |---|---|---|---|---|
 | 1 | T01/T10–T12 | `docs: define M3 cleanup and configurable inventory plan` | Cập nhật tài liệu, nguồn và yêu cầu; kiểm Markdown, không sửa code. | Đã qua local/push/SHA/CI |
 | 2 | T12 | `test: establish M3 refactor baseline` | Ghi baseline API/tồn/forecast/React/hash và chạy suite hiện có. | Đã qua local/push/SHA/CI |
-| 3 | T11/T12 | `refactor: remove M3 Streamlit hosting` | Gỡ host/adapter/transport/build M3; kiểm6màn hình HTTP, scenario/run/CSV. | Local đạt; chờ commit/push/CI |
-| 4 | T02/T11/T12 | `chore: remove remaining Streamlit runtime` | Gỡ dashboard/launcher/dependency M2; giữ CLI/notebook/HTML; regression/pip check. | Chưa bắt đầu |
+| 3 | T11/T12 | `refactor: remove M3 Streamlit hosting` | Gỡ host/adapter/transport/build M3; kiểm6màn hình HTTP, scenario/run/CSV. | Đã qua local/push/SHA/CI |
+| 4 | T02/T11/T12 | `chore: remove remaining Streamlit runtime` | Gỡ dashboard/launcher/dependency M2; giữ CLI/notebook/HTML; regression/pip check. | Local đạt; chờ commit/push/CI |
 | 5 | T10–T12 | `refactor: modularize M3 core and configuration` | Tách core/catalog/configuration; API/version/snapshot giữ nguyên, không schema diff. | Chưa bắt đầu |
 | 6 | T08–T12 | `refactor: modularize forecasting runs and reporting` | Tách ingestion/forecast/allocation/adapter/runs/reporting; parity/worker/CSV. | Chưa bắt đầu |
 | 7 | T10–T12 | `refactor: modularize inventory purchasing and alerts` | Tách tồn/nhập/cảnh báo; ledger/MOQ/ETA/pending khớp baseline. | Chưa bắt đầu |

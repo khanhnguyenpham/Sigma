@@ -111,7 +111,7 @@ def new_manifest(cfg, source, run_id):
     except (OSError, subprocess.CalledProcessError):
         revision = None
     packages = {}
-    for name in ["numpy", "pandas", "lightgbm", "prophet", "matplotlib", "streamlit"]:
+    for name in ["numpy", "pandas", "lightgbm", "prophet", "matplotlib"]:
         try:
             packages[name] = importlib.metadata.version(name)
         except importlib.metadata.PackageNotFoundError:
