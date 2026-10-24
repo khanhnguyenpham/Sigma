@@ -16,7 +16,7 @@ def code_digest():
     project = PROJECT_ROOT
     paths = [
         p
-        for folder in ["M3/backend/src/sigma_m3", "src", "M2/models"]
+        for folder in ["web/backend/src/sigma_m3", "src", "M2/models"]
         for p in (project / folder).rglob("*.py")
     ]
     paths.append(project / "M2/final_report.py")

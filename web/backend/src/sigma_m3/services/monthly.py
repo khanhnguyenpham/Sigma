@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 from sqlalchemy import select, func
 from sigma_m3.core.errors import DomainError
+from sigma_m3.core.settings import PROJECT_ROOT
 from sigma_m3.models import DailySales
 from sigma_m3.modules.catalog.models import Item
 from sigma_m3.core.hashes import digest
@@ -21,7 +22,7 @@ from src.evaluation import score
 
 ROUTE = ["destination_country", "carrier"]
 BUNDLE = "sigma_aggregate_focus_20261018"
-ACCEPTANCE = Path(__file__).resolve().parents[4] / "configs/acceptance-30d.json"
+ACCEPTANCE = PROJECT_ROOT / "M3/configs/acceptance-30d.json"
 
 
 def sha(data):

@@ -980,7 +980,7 @@ Theo yêu cầu người dùng, tạo [một file Word](../M2/reports/mentor_pre
 
 **Truy vết và sản phẩm:** đối chiếu config final, report/manifest/selected và code thật:10 lựa chọn,7 cấu hình, LightGBM9 tuyến pooled top10, Prophet au(KDDI), LG U+ `tune56_w540_mul56p4` test-selected. Tách feature/fit pooled và đầu nhân cần thiết ra `M2/models/weekly.py`, `focus.py`, `calibration.py`; giữ audit/daily/top/metric ở src, CLI final, dashboard, notebook final và tests liên quan. Bỏ code M1/M3/V13, SARIMA implementation, biến thể không chọn, sweep/calendar/recent/composition/residual/blend, aliases, notebook/entrypoint/tests cũ và39 công cụ tmp đã sao lưu.193→28 tệp code tracked `.py/.ps1/.ipynb`;205 tệp tracked bị xóa, tổng244 nếu tính tmp. Không chuyển code bị loại vào archive trong codebase. Bỏ5 dependency không còn nằm trong closure sử dụng (statsmodels/patsy/formulaic/interface_meta/wrapt), giữ83 phiên bản cũ theo metadata local; không uninstall môi trường.
 
-[Bản đồ code tiếng Việt](../M2_CODE_MAP.md) có bảng10 tuyến→config→hàm, feature/nhãn/cửa sổ/refit/metric, tham số/bằng chứng và lệnh khôi phục. README/M2/model guides, launcher8505, CI và tài liệu bị ảnh hưởng đã cập nhật; nội dung nghiên cứu cũ được giữ, link implementation bị xóa được dẫn đến cách lấy backup trong tài liệu có thể sửa. Báo cáo khóa/Word/PDF giữ byte; link/lệnh code trong các báo cáo khóa là lịch sử, cần backup. `--stage verify-artifacts` kiểm evidence lịch sử mà không nhận source hiện tại giống source cũ hoặc sửa receipt; `verify` cho run mới vẫn bắt buộc khớp source/config. Export cho phép report-id mới và từ chối ghi đè.
+[Bản đồ code tiếng Việt](../M2/README.md) có bảng10 tuyến→config→hàm, feature/nhãn/cửa sổ/refit/metric, tham số/bằng chứng và lệnh khôi phục. README/M2/model guides, launcher8505, CI và tài liệu bị ảnh hưởng đã cập nhật; nội dung nghiên cứu cũ được giữ, link implementation bị xóa được dẫn đến cách lấy backup trong tài liệu có thể sửa. Báo cáo khóa/Word/PDF giữ byte; link/lệnh code trong các báo cáo khóa là lịch sử, cần backup. `--stage verify-artifacts` kiểm evidence lịch sử mà không nhận source hiện tại giống source cũ hoặc sửa receipt; `verify` cho run mới vẫn bắt buộc khớp source/config. Export cho phép report-id mới và từ chối ghi đè.
 
 **Kiểm trực tiếp:** Python3.12.14 local, `python -B -m pytest -s --basetemp=.cache/m2-final-suite`:**32 passed in26.16s**. Có300 forecast giả,10 tuyến,7 cấu hình, ba refit; parity trước/sau tối đa0. Fixture chạy cả Prophet/CmdStan native và pooled LightGBM150 cây; không lấy dữ liệu riêng tư làm fixture. Tests thêm kiểm future mutation,7.300 nhãn pooled tại cutoff, tổng7/annual calendar, Prophet540, zero/missing, head/prior/clip, manifest/path, export và AppTest3tab/cadence/block. Notebook hai code cell dùng load_report được kiểm riêng, không lưu output. Bảng tham số hiệu lực và tất cả key/spec còn giữ đối chiếu backup không đổi; import15module nội bộ, parse26Python files, PowerShell launcher và `pip check` đạt. `git diff --check` đạt.
 
@@ -1112,7 +1112,7 @@ Gói24tệp/6.620.188byte, 11bảng nén+NPZfloat64: sourceSHA giữ nguyên, ma
 
 106 tests Python đạt, không fail/error/skip; gồm9tests public mới. AppTest7màn hình,3chế độ forecast và submit what-if đạt. Lượt AppTest đầu bị kẹt trong sandbox; chỉ dừng đúng tiến trình test do agent tạo và chạy lại có chẩn đoán/timeout với quyền local phù hợp, đạt trong vài giây. Không sửa dữ liệu/metric vì lỗi môi trường.
 
-Đã push `Sigma-M3-App/main` commit `779b6c44f56aefbbba1c907a57a3acc4144563ef`, remoteSHA khớp. App ngủ do không hoạt động; đã wake, cloud hiện đúng `m3-public-20261020-v1`,10/10/11,62%/100%, fill90,41%/early34,39% theo profile mới. Share→Make this app public checkbox=1. Không gửi lời mời/email. Link [ứng dụng](https://sigma-demand-inventory.streamlit.app/); [source/phạm vi](history/m3-streamlit.md). Raw/run/DB/env và ảnh/receipt kiểm giữ local. R05 test hồi cứu; R07/T14 tiếp tục cần mentor review.
+Đã push `Sigma-M3-App/main` commit `779b6c44f56aefbbba1c907a57a3acc4144563ef`, remoteSHA khớp. App ngủ do không hoạt động; đã wake, cloud hiện đúng `m3-public-20261020-v1`,10/10/11,62%/100%, fill90,41%/early34,39% theo profile mới. Share→Make this app public checkbox=1. Không gửi lời mời/email. Link [ứng dụng](https://sigma-demand-inventory.streamlit.app/); [source/phạm vi](review-log.md#removed-docs-chg070). Raw/run/DB/env và ảnh/receipt kiểm giữ local. R05 test hồi cứu; R07/T14 tiếp tục cần mentor review.
 
 
 <a id="e95"></a>
@@ -1212,3 +1212,27 @@ Worktree mới tách khỏi workspace M2 đang có4tệp sửa dở; nhánh nề
 **Quyết định:** thay đích app/features/shared bằng components/config/hooks/layouts/pages/services/types/utils và App.tsx/main.tsx/index.css. Chưa cần stores/lib/src-docs/examples; assets chỉ tạo khi có import ảnh/font thực. Giữ sáu page/URL, native Fetch/state/hook/URL hiện có, không thêm thư viện. Đổi CSS chỉ dự kiến ở bước9. [Đặc tả và ánh xạ](../M3/docs/04-frontend-spec.md#frontend-target-chg069) là nguồn cấu trúc đích; PLAN bước8–9 đồng bộ, T11/T12 và R08/R09 giữ tiêu chí, không nâng R07/T14.
 
 **Sản phẩm/kiểm trong lượt:** chỉ sửa Markdown đặc tả/kiến trúc/kế hoạch/điều phối/bản đồ/README/hướng dẫn kiểm và bàn giao. Đã kiểm link/anchor mới, fence/bảng, đủ15bước và diff chỉ Markdown, không có lỗi; cổng GitHub của commit tài liệu sẽ được kiểm riêng trước thông điệp bàn giao cuối lượt. Không chạy lại mô hình hoặc nhận code FE đã refactor; cổng push/SHA/CI chỉ xác nhận sau khi đọc kết quả của commit mới.
+
+
+<a id="removed-docs-chg070"></a>
+### CHG-070 / E104 — Gom backend vào web và bỏ Markdown cũ, 24/10/2026
+
+Người dùng yêu cầu dọn MD và tạo web để gom BE/FE/worker; phạm vi làm ngay backend và MD, không tự chuyển FE hoặc triển khai module/tính năng bước6–15. Thay đổi chỉ vị trí package, đường chạy và tài liệu; giữ M05/tổng30/H14/L7/R1 và R07/T14 chưa nghiệm thu.
+
+Các bản sao/hướng dẫn dưới đây đã hết hiệu lực vì launcher/Streamlit/code cũ bị bỏ, trùng với hướng dẫn hiện hành hoặc nhật ký đã có. Xóa khỏi checkout theo yêu cầu người dùng; Git giữ nguyên lịch sử. Nguồn duy nhất như kickoff, yêu cầu, hợp đồng dữ liệu, nghiên cứu, đặc tả và bằng chứng nghiệm thu được giữ. Các link tới tài liệu đã xóa chuyển về mục này để phân biệt lịch sử với cách chạy hiện tại.
+
+| File đã bỏ | Nguồn đang giữ để đọc hiện tại |
+|---|---|
+| docs/history/README-before-code-organization.md | README root và review-log lịch sử CHG-027/E49 |
+| docs/history/README-before-streamlit-removal.md | README root; CHG-068/E101 ghi gỡ Streamlit |
+| docs/history/customer-delivery-before-code-organization.md | customer-delivery.md và bằng chứng giao D+7 trong review-log |
+| docs/history/weekly-forecast-before-code-organization.md | weekly-forecast.md; requirements/MONTHLY cho M05 mới |
+| docs/history/m3-streamlit.md | E94–E99 trong review-log và IMPLEMENTATION giữ bằng chứng, runtime đã gỡ |
+| docs/m2m3-demo.md | README root, M3/IMPLEMENTATION và đặc tả kiểm06; launcher demo V13 đã bỏ |
+| M2_CODE_MAP.md | Xóa theo yêu cầu trực tiếp bổ sung của người dùng; M2/README và models/README giữ lệnh/implementation, cấu hình ở báo cáo final |
+
+Để đọc chính xác bản đã xóa, dùng `git show e18bda023c1c22d17c6b54f18947467d8475cfc4:<đường-dẫn-file-trong-bảng>`; hoặc mở lịch sử file trên GitHub tại checkpoint đó. Không đổi commit cũ hoặc tự khôi phục source đã bỏ. Việc bỏ hướng dẫn Streamlit không xóa website đang online.
+
+Đường lệnh/source pointer trong MD được cập nhật theo web/backend, số liệu/SHA/bằng chứng cũ không được coi là kiểm lại. Baseline trực tiếp trước chuyển:107Python đạt,0failure/error/skip. Backend giữ cấu trúc module bước5, worker/CLI trong cùng package; FE/configs/scripts/research giữ M3. Kết quả sau chuyển và cổng GitHub chỉ ghi sau khi kiểm thực.
+
+**Kiểm trực tiếp sau chuyển:**109Python0failure/error/skip (107baseline +2ca static React/hash),26React/9file và TypeScript/Vite build đạt; pipcheck/CLI M2-M3/freshimport worker-CLI-monthly đạt. Cài editable từ web/backend thành công; cần build isolation chuẩn vì venv không chứa setuptools. OpenAPI/DDL golden nguyên, Alembiccheck0upgrade; HTTP TestClient chỉ đọc health/catalog/React build trên DB local đạt.68file chuyển,63nguyên byte;4file production chỉ sửa path/import và1file test thêm2ca. Worker.py/CLI/migration/dependency lock giữ nguyên byte.845protectedhash nguyên; không sửa raw/run/DB/env/manifest, không fullmodel/replay/browser/deploy. [Bàn giao](development.md#handoff-chg070); commit/push/SHA/CI mới là cổng tiếp theo, chỉ xác nhận sau khi đọc đúng commit.

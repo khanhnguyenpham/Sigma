@@ -294,7 +294,7 @@ def main():
         },
         requirements_sha256={
             name: hashlib.sha256((root / name).read_bytes()).hexdigest()
-            for name in ["requirements.txt", "M3/backend/requirements.txt"]
+            for name in ["requirements.txt", "web/backend/requirements.txt"]
         },
     )
 

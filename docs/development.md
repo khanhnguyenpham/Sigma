@@ -6,7 +6,7 @@ Cổng từng bước: kiểm phạm vi diff và dữ liệu riêng tư; chạy 
 
 [Kế hoạch CHG-068 và cổng từng bước](planning/PLAN.md#chg-068).
 
-**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2/README.md) và [khôi phục code cũ](review-log.md#removed-docs-chg070). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
 
 **CHG-042/E70 — 11/10/2026:** M2 final fit mới/verify đạt tổng7 test10/10<20%, mean15,745366%; chín tuyến parity0. Full suite291 đạt+1 skip trước xuất báo cáo, sau đó4 final tests (gồm AppTest đã skip) đều đạt; pip check/notebook2 code cells/12 public hashes/privacy đạt. [Bộ final](../M2/reports/final_m2_20261011/README.md), [cấu hình10 tuyến](../M2/reports/final_m2_20261011/model_configurations.md). Raw/771 tệp protected nguyên; hai run sandbox lỗi giữ failed. Đã push nhánh M2-final-report, CI Windows của commit mã0cbeaf0 đạt. Test hồi cứu/LG U+ test-selected, h8–14/R05 ngày/R07/T14 còn mở.
 
@@ -265,3 +265,14 @@ Cổng mã bước5 đã kiểm: commitdb6c1d5 đã push/remoteSHA khớp, [M3 i
 - Kiểm local trước commit đã đạt: link/anchor mới, fence/bảng, bảng15bước, git diff --check và danh sách thay đổi chỉ Markdown. Commit/SHA/CI thực được kiểm riêng và báo trong thông điệp bàn giao cuối lượt. Không chạy pytest/FE build/model/replay local cho thay đổi tài liệu; CI commit mới vẫn phải đạt trước báo hoàn tất.
 - Giới hạn: đây là thiết kế, không phải cây source đang triển khai. Code FE thực vẫn api/components/pages/App/main/styles.css. Giữ nguyên dữ liệu/run/snapshot/manifest và trạng thái R05/M05/H14/L7/R1/R07/T14; không deploy/merge/force-push.
 - Tiếp theo khi được giao: bước6 forecasting/runs/reporting, tiếp bước7 BE rồi bước8–9 FE theo đặc tả mới. Mỗi bước giữ local→commit→push→SHAremote→CI, không tự chuyển sang triển khai vì đã sửa MD.
+
+<a id="handoff-chg070"></a>
+### Bàn giao CHG-070 — chuyển backend và dọn MD, 24/10/2026 (Asia/Saigon)
+
+- Phạm vi được giao: gom code web, trước mắt chỉ backend và MD; xóa thêm M2_CODE_MAP.md theo tin nhắn bổ sung. Nhánh m3-implementation từ e18bda0. Đã chuyển68file M3/backend→web/backend và xóa7MD; FE/configs/scripts/research/env còn M3. Worker/CLI vẫn sigma_m3, không tách service hoặc queue.
+- Đổi cần thiết: CI/cache/install/test/Alembic command sang web/backend; code_digest theo source mới, API static và acceptance/profile đọc đúng M3. Hai script nghiên cứu chỉ đổi đường dependency hash. Cài lại editable bằng pip install --no-deps -e web/backend đã đạt; --no-build-isolation không dùng được vì venv thiếu setuptools, không thay lock runtime.
+- Kiểm trước/sau:107→109Python0failure/error/skip;26React/9file, TypeScript/Vite build/pipcheck/CLI M2-M3 đạt. API/DDL golden không đổi, Alembiccheck0upgrade,3freshimport worker/CLI/monthly đạt. TestClient đọc DB local health/catalog và React build đạt; không business-write. Hai test mới kiểm static từ M3/frontend/dist và fingerprint bắt thay đổi BE ở web/backend.
+- Bảo toàn:63/68file backend giữ byte; chỉ4file production sửa path/import và1test thêm ca. Worker/CLI/migration/lock và toàn bộ FE/configs/launcher giữ nguyên;845protectedhash gồm raw/artifact/report và sửa dở workspace M2 nguyên. Xóa MD chỉ tại worktree này; file M2_CODE_MAP.md sửa dở của workspace M2 khác giữ nguyên. Danh sách7file và tra Git ở [E104](review-log.md#removed-docs-chg070).
+- Evidence local ignored: outputs/chg070-before.xml, chg070-after.xml, chg070-backend-before.json, chg070-verification.json. Code digest mới09692eaf98de364786f80239b2bed19f761b3cc24c578764c77b8a3ed013ca44 dùng cho run mới; không sửa sealed run/manifest cũ. Markdown kiểm link/anchor/fence/bảng15bước, staged diff và phạm vi trước commit.
+- Giới hạn: chưa browser tương tác/fullmodel/refit/replay/benchmark30 mới; không migrate DB app/deploy/merge/force-push. Cảnh báo TestClient/httpx cũ còn, không đổi pin. Giữ M05/R05/H14/L7/R1 và R07/T14 chưa nghiệm thu. Commit/push/remoteSHA/CI được kiểm đúng commit mới trước thông điệp bàn giao cuối lượt.
+- Bước tiếp khi được giao: tiếp tục module bước6–7, rồi chuyển/refactor FE vào web/frontend theo CHG-069 ở bước8–9; bước6–15 vẫn chưa bắt đầu trong lượt này. Không tạo frontend/worker rỗng ở web hoặc copy code hai nơi.

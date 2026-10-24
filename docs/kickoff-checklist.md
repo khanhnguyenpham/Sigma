@@ -1,6 +1,6 @@
 # Đối chiếu ảnh kickoff nhận ngày 05/10/2026
 
-**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2/README.md) và [khôi phục code cũ](review-log.md#removed-docs-chg070). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
 
 Đã xem trực tiếp ảnh JPG do người dùng gửi trong cuộc trò chuyện, tên gốc `f43397dd-bd00-4bd4-b239-f1daa267ced2.jpg`. Bản sao nguyên byte giữ local tại `reports/requirements/kickoff_received_2026-10-05.jpg`, không đưa ảnh lên Git. SHA256: `ee6b9837b60d5321683b1e452204f22b188a5a43f11f8072a4fca9fb82f1b7b2`.
 

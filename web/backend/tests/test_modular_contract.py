@@ -73,6 +73,34 @@ def test_settings_keep_checkout_defaults_and_explicit_paths(monkeypatch, tmp_pat
     assert explicit.output_root == (tmp_path / "runs").resolve()
 
 
+def test_relocated_backend_serves_the_existing_react_build(monkeypatch, tmp_path):
+    from sigma_m3 import main
+
+    frontend = tmp_path / "M3/frontend/dist"
+    frontend.mkdir(parents=True)
+    (frontend / "index.html").write_text("synthetic-react-build", encoding="utf-8")
+    monkeypatch.setattr(main, "PROJECT_ROOT", tmp_path)
+    with TestClient(main.create_app(settings(tmp_path))) as client:
+        response = client.get("/")
+        assert response.status_code == 200
+        assert response.text == "synthetic-react-build"
+
+
+def test_code_digest_detects_changes_in_the_relocated_backend(monkeypatch, tmp_path):
+    from sigma_m3.core import hashes
+
+    source = tmp_path / "web/backend/src/sigma_m3/main.py"
+    source.parent.mkdir(parents=True)
+    source.write_text("before", encoding="utf-8")
+    final_report = tmp_path / "M2/final_report.py"
+    final_report.parent.mkdir()
+    final_report.write_text("unchanged", encoding="utf-8")
+    monkeypatch.setattr(hashes, "PROJECT_ROOT", tmp_path)
+    before = hashes.code_digest()
+    source.write_text("after", encoding="utf-8")
+    assert hashes.code_digest() != before
+
+
 def test_shared_router_uses_each_application_session(tmp_path):
     def sessions(label):
         @contextmanager

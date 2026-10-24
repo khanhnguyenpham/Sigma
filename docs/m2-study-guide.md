@@ -1,6 +1,6 @@
 # Hiểu M2 SIGMA từ dữ liệu đến kết quả
 
-**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2/README.md) và [khôi phục code cũ](review-log.md#removed-docs-chg070). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
 
 Tài liệu ôn báo cáo cho Chủ nhật 11/10/2026. Đối chiếu ngày 09/10/2026, Asia/Saigon, tại checkout `C:/Users/Admin/OneDrive/Desktop/WorksSpace/Sigma`.
 
@@ -145,7 +145,7 @@ Ví dụ minh họa slide 16: actual `[3,8,2,9,4,6,3]`, dự báo ngày `[5,5,4,
 
 ## 7. Baseline: vì sao cần và vì sao hai baseline có cùng tổng?
 
-Ba baseline trong [src/models.py](../M2_CODE_MAP.md#khôi-phục-code-cũ):
+Ba baseline trong [src/models.py](review-log.md#removed-docs-chg070):
 
 | Baseline | Cách dự báo | MAPE ngày trong slide | MAPE tổng 7 trong slide |
 |---|---|---:|---:|
@@ -176,7 +176,7 @@ Một mô hình pooled dùng chung cho 10 tuyến và 14 horizon, có mã tuyế
 
 ### LightGBM trực tiếp tổng 7
 
-Mã dùng chung: `prepare`, `inputs`, `fit` trong [weekly.py](../M2_CODE_MAP.md#khôi-phục-code-cũ).
+Mã dùng chung: `prepare`, `inputs`, `fit` trong [weekly.py](review-log.md#removed-docs-chg070).
 
 | Nhóm | Feature |
 |---|---|
@@ -200,7 +200,7 @@ ID không là đầu vào trực tiếp của mô hình M2. Các thử nghiệm 
 
 Mô hình dùng quan hệ với các giá trị trễ, sai phân và thành phần mùa vụ. Với `(p,d,q)(P,D,Q,s)`: p/P là bậc tự hồi quy, d/D là sai phân, q/Q là thành phần sai số trễ; s=7 biểu diễn chu kỳ tuần. Không phải mọi biến thể đều sai phân: `(1,0,0)` có d=0.
 
-[SARIMA/model.py](../M2_CODE_MAP.md#khôi-phục-code-cũ) dùng `statsmodels.SARIMAX`. Các biến thể có/không seasonal, log1p hoặc annual exog. Log1p dùng `log(1+y)` rồi `expm1` khi dự báo; không có hiệu chỉnh bias log chưa kiểm chứng. Nếu không hội tụ thì log lỗi và candidate bị loại khỏi lựa chọn, không âm thầm bỏ riêng những ngày sai số lớn.
+[SARIMA/model.py](review-log.md#removed-docs-chg070) dùng `statsmodels.SARIMAX`. Các biến thể có/không seasonal, log1p hoặc annual exog. Log1p dùng `log(1+y)` rồi `expm1` khi dự báo; không có hiệu chỉnh bias log chưa kiểm chứng. Nếu không hội tụ thì log lỗi và candidate bị loại khỏi lựa chọn, không âm thầm bỏ riêng những ngày sai số lớn.
 
 Tám biến thể: `sarima_100_100_7`, `sarima_111_011_7`, `sarima_log_100_100_7`, `sarimax_annual_100_100_7`, `arima_101`, `arima_111`, `sarima_100_100_7_window180`, `sarimax_annual_100_100_7_window540`.
 
@@ -234,7 +234,7 @@ Ví dụ scale tuần = 70, target tuần = 84 → nhãn ratio = 1,2. Mô hình 
 
 **Calibration** điều chỉnh forecast bằng lỗi của những dự báo lịch sử đã có kết quả thật. Hai biến thể dùng lịch sử 56 ngày, các origin cách nhau 7 ngày, prior 4 và factor giới hạn 0,5–1,5, học riêng từng tuyến × block, refit mỗi 7 ngày.
 
-Mã trong [calibration.py](../M2_CODE_MAP.md#khôi-phục-code-cũ) dùng weighted median của tỷ số `actual/predicted`, trọng số `predicted/actual`; prior thêm tỷ số 1 với sức nặng tương đương 4 tuần trung bình. Không phải lấy trung bình tỷ số hoặc cộng thêm 4 tuần dữ liệu thật.
+Mã trong [calibration.py](review-log.md#removed-docs-chg070) dùng weighted median của tỷ số `actual/predicted`, trọng số `predicted/actual`; prior thêm tỷ số 1 với sức nặng tương đương 4 tuần trung bình. Không phải lấy trung bình tỷ số hoặc cộng thêm 4 tuần dữ liệu thật.
 
 Forecast sửa = forecast parent × factor. Teacher tại origin quá khứ chỉ fit nhãn đã có ở origin đó; head tại cutoff hiện tại chỉ dùng cửa sổ đã kết thúc. Head không học từ actual tương lai. Việc LG U+ validation tốt nhưng test kém cho thấy hiệu chỉnh lịch sử không bảo đảm sửa được mọi thay đổi về sau.
 
@@ -249,7 +249,7 @@ Forecast sửa = forecast parent × factor. Teacher tại origin quá khứ ch�
 
 Cộng hai mục tiêu có **50 cấu hình**, trên 10 tuyến là **500 tổ hợp tuyến × cấu hình validation**. Không phải 500 họ thuật toán hoặc 500 mô hình cùng được dùng khi vận hành. “8 ngày/10 tuần” trên slide 22 nên đọc là 8 biến thể cho target ngày và 10 biến thể cho target tổng tuần.
 
-Pool cải tiến gồm 12 biến thể đối chứng cũ và 14 mới. Sau đánh giá, mỗi tuyến/mục tiêu chỉ dùng lựa chọn đã khóa. Mã đăng ký tại [registry.py](../M2/models/registry.py), cấu hình tại [model_families.json](../M2_CODE_MAP.md#khôi-phục-code-cũ) và `variants.json` của từng họ.
+Pool cải tiến gồm 12 biến thể đối chứng cũ và 14 mới. Sau đánh giá, mỗi tuyến/mục tiêu chỉ dùng lựa chọn đã khóa. Mã đăng ký tại [registry.py](../M2/models/registry.py), cấu hình tại [model_families.json](review-log.md#removed-docs-chg070) và `variants.json` của từng họ.
 
 ## 12. Chọn mô hình bằng validation, không bằng test
 
@@ -515,12 +515,12 @@ Những chỗ nên nói rõ hoặc chỉnh khi nhóm sửa slide:
 | Nhãn S(t) và cửa sổ | [common.py](../M2/models/common.py): `target_history`, `prediction_rows` |
 | Backtest/selection/lock | [families.py](../M2/models/families.py): `ts_job`, `select`, `run` |
 | LightGBM ngày | [model.py](../M2/models/LightGBM/model.py): `prepare_daily`, `daily_lgbm_fit` |
-| LightGBM tuần | [weekly.py](../M2_CODE_MAP.md#khôi-phục-code-cũ): `prepare`, `fit`, `predict_batch` |
-| SARIMA | [model.py](../M2_CODE_MAP.md#khôi-phục-code-cũ) và [variants](../M2_CODE_MAP.md#khôi-phục-code-cũ) |
+| LightGBM tuần | [weekly.py](review-log.md#removed-docs-chg070): `prepare`, `fit`, `predict_batch` |
+| SARIMA | [model.py](review-log.md#removed-docs-chg070) và [variants](review-log.md#removed-docs-chg070) |
 | Prophet | [model.py](../M2/models/Prophet/model.py) và [variants](../M2/models/Prophet/variants.json) |
-| Ratio/head | [LightGBM variants](../M2/models/LightGBM/variants.json), [calibration.py](../M2_CODE_MAP.md#khôi-phục-code-cũ) |
-| Đối soát run M2 | [verify.py](../M2/models/verify.py), [tests cải tiến](../M2_CODE_MAP.md#khôi-phục-code-cũ) |
-| Tạo báo cáo/UI | [presentation.py](../M2_CODE_MAP.md#khôi-phục-code-cũ), [report_app.py](../M2_CODE_MAP.md#khôi-phục-code-cũ), [build_report.py](../M2_CODE_MAP.md#khôi-phục-code-cũ) |
+| Ratio/head | [LightGBM variants](../M2/models/LightGBM/variants.json), [calibration.py](review-log.md#removed-docs-chg070) |
+| Đối soát run M2 | [verify.py](../M2/models/verify.py), [tests cải tiến](review-log.md#removed-docs-chg070) |
+| Tạo báo cáo/UI | [presentation.py](review-log.md#removed-docs-chg070), [report_app.py](review-log.md#removed-docs-chg070), [build_report.py](review-log.md#removed-docs-chg070) |
 | Kết quả exact | [metric test](../M2/reports/published_m2_20261007/overall_test_metrics.csv), [selection](../M2/reports/published_m2_20261007/overall_selected_models.csv) |
 | Lịch sử và trạng thái | [review-log](review-log.md), [TASK](planning/TASK.md), [code-map](code-map.md) |
 

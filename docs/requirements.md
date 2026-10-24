@@ -6,7 +6,7 @@ R06/T10 bổ sung chọn SS theo ngày hoặc biến động và ROP cố địn
 
 [Kế hoạch CHG-068 và cổng từng bước](planning/PLAN.md#chg-068).
 
-**CHG-062/E94 — R08 online:** theo yêu cầu mới của người dùng, thêm Streamlit public cho các kết quả dẫn xuất M3 và mô phỏng riêng từng phiên. FastAPI/React/PG local vẫn là stack vận hành/huấn luyện; không mở DB/raw lên Internet hoặc tự thêm auth/quản trị cloud. [Phạm vi đã triển khai](history/m3-streamlit.md). Đây là bổ sung cách trình bày/chia sẻ, không đổi target, nghiệm thu M05/R05 hoặc metric tồn/cảnh báo.
+**CHG-062/E94 — R08 online:** theo yêu cầu mới của người dùng, thêm Streamlit public cho các kết quả dẫn xuất M3 và mô phỏng riêng từng phiên. FastAPI/React/PG local vẫn là stack vận hành/huấn luyện; không mở DB/raw lên Internet hoặc tự thêm auth/quản trị cloud. [Phạm vi đã triển khai](review-log.md#removed-docs-chg070). Đây là bổ sung cách trình bày/chia sẻ, không đổi target, nghiệm thu M05/R05 hoặc metric tồn/cảnh báo.
 
 **Hiện hành CHG-061/M05 — 20/10/2026:** mentor do người dùng thuật lại đã chốt R05 chấm **tổng 30 ngày thay từng ngày**. E93 kiểm lại 10/10≤20%, mean11,621356%, coverage100%, 63 cửa sổ/tuyến; test hồi cứu. [Tiêu chí, kết quả và tích hợp M3](../M3/MONTHLY.md). Các mốc trước M05 còn ghi R05 ngày là lịch sử; target A08, raw/top10/split và các tiêu chí tồn/cảnh báo không đổi.
 
@@ -18,7 +18,7 @@ R06/T10 bổ sung chọn SS theo ngày hoặc biến động và ROP cố địn
 
 **CHG-048/E76 — 19/10/2026, profile M3 mới:** đã đặc tả [M3](../M3/README.md) theo phản hồi mentor do người dùng thuật lại và lựa chọn trong phiên: 46 tuyến/46 kho giả định, supplier×item có ROP floor/MOQ/safety riêng, nhập kho7 ngày UTC, FastAPI/React/PostgreSQL. Chỉ hoàn tất tài liệu; BE/FE/DB/ML36 chưa triển khai. Phần Streamlit/L3/stress lead time cũ bên dưới là lịch sử khi áp dụng cho M3 mới. R05/R07/T14 chưa đóng.
 
-**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2/README.md) và [khôi phục code cũ](review-log.md#removed-docs-chg070). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
 
 **CHG-034/E62 — 06/10/2026:** người dùng chốt dùng kết quả M2 tổng7 hiện tại9/10 cho báo cáo ngày07/10, giữ LG U+20,69% chưa đạt và tối ưu sau. Không đổi ngưỡng/bỏ tuyến hoặc nhận R05 ngày đạt. Nhánh báo cáo có dữ liệu/split, mô hình từng tuyến, phương pháp và metric; sản phẩm V13 riêng. [Guide](../M2/reports/presentation-guide.md).
 

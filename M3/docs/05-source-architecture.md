@@ -1,5 +1,30 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+<a id="web-layout-chg070"></a>
+## Vị trí code CHG-070 — 24/10/2026
+
+Lượt này chuyển backend sau bước5 vào web, dọn tài liệu cũ; chưa triển khai module bước6–7 hoặc refactor FE bước8–9. Cây thực:
+
+```text
+Sigma/
+├── web/
+│   └── backend/
+│       ├── src/sigma_m3/  # API, core/modules/services, worker.py, cli.py
+│       ├── migrations/
+│       ├── tests/
+│       ├── alembic.ini
+│       ├── pyproject.toml
+│       └── requirements.txt
+└── M3/
+    ├── frontend/         # FE hiện tại, chưa di chuyển/refactor
+    ├── configs/          # Profile/acceptance và env example
+    ├── scripts/          # Launcher API/worker và load_env
+    ├── research/
+    └── docs/
+```
+
+Đích sau này là web/backend và web/frontend; entry point worker tiếp tục trong package backend để dùng cùng nghiệp vụ, không tạo queue/package/service thứ hai. Không tạo folder frontend/worker rỗng ở web. Giữ namespace sigma_m3,13bảng và /api/v1. Backend dùng PROJECT_ROOT của checkout để đọc M3/configs và M3/frontend/dist; source/output env không đổi. code_digest ghi đường mới cho run mới, không sửa hash/manifest/run cũ. Cây chi tiết module sau bước5 bên dưới vẫn mô tả package đang dùng; mục1 bên dưới là đích sau các bước refactor còn lại, không phải trạng thái hiện tại.
+
 <a id="step5-actual"></a>
 ## Cấu trúc thực sau bước5 CHG-068
 
@@ -62,61 +87,48 @@ Phần forecast/runs/reporting, inventory/purchasing/alerts và FE chưa tổ ch
 Đích triển khai: Python3.12 cho đường M2 đã kiểm local; FastAPI/Pydantic2, SQLAlchemy2, psycopg3, Alembic; PostgreSQL18 local; React/TypeScript/Vite/Recharts. Khi bắt đầu code, khóa patch versions đã cài/kiểm trong dependency files, không sửa môi trường M2 đã khóa để viết tài liệu. BE có requirements riêng kế thừa root requirements với constraints chung; FE có package-lock.json.
 
 ```text
-M3/
-├── README.md
-├── docs/                           # 01–06, có thật trong lượt tài liệu
-├── backend/                        # Tất cả source bên dưới là DỰ KIẾN
+web/                                # ĐÍCH sau các bước refactor còn lại
+├── backend/
+│   ├── src/sigma_m3/
+│   │   ├── main.py
+│   │   ├── core/
+│   │   ├── modules/
+│   │   │   ├── catalog/
+│   │   │   ├── configuration/
+│   │   │   ├── forecasting/
+│   │   │   ├── inventory/
+│   │   │   ├── purchasing/
+│   │   │   ├── alerts/
+│   │   │   ├── runs/
+│   │   │   └── reporting/
+│   │   ├── worker.py
+│   │   └── cli.py
+│   ├── migrations/
+│   ├── tests/
 │   ├── pyproject.toml
 │   ├── requirements.txt
-│   ├── src/sigma_m3/
-│   │   ├── __init__.py
-│   │   ├── main.py                 # FastAPI/CORS/lifecycle
-│   │   ├── settings.py             # Env/source registry/L7/R1/H14
-│   │   ├── db.py                   # Engine/session/transaction
-│   │   ├── models.py               # 13 bảng SQLAlchemy
-│   │   ├── schemas.py              # DTO/input validation
-│   │   ├── api/
-│   │   │   ├── catalog.py          # Kho/item/supplier/policy/scenario
-│   │   │   ├── runs.py             # Queue/status/summary
-│   │   │   └── results.py          # Forecast/tồn/alert/metric/export
-│   │   ├── services/
-│   │   │   ├── ingestion.py        # Audit/source version/daily sales
-│   │   │   ├── m2_adapter.py       # Interface tới src/M2 hiện hữu
-│   │   │   ├── forecast.py         # ML36 + final10
-│   │   │   ├── allocation.py       # Weekday90/item30–90
-│   │   │   ├── catalog.py          # Seed giả định/policy version
-│   │   │   ├── inventory.py        # SS/ROP/IP/Q/ledger/ETA
-│   │   │   ├── alerts.py           # Projection/replay14
-│   │   │   ├── evaluation.py       # Metric/mẫu số
-│   │   │   └── verification.py     # Manifest/coverage/bảo toàn
-│   │   ├── worker.py               # Claim/phase/heartbeat
-│   │   └── cli.py                  # Gọi cùng services với API
-│   ├── migrations/                 # Alembic
-│   └── tests/                      # Fixture giả/DB integration
-├── frontend/
-│   ├── package.json
-│   ├── package-lock.json
-│   ├── vite.config.ts
-│   ├── src/
-│   │   ├── components/             # Đích FE bước8–9 CHG-069, chưa là cây thực
-│   │   ├── config/
-│   │   ├── hooks/
-│   │   ├── layouts/
-│   │   ├── pages/                  # Giữ sáu màn hình/URL hiện có
-│   │   ├── services/
-│   │   ├── types/
-│   │   ├── utils/
-│   │   ├── App.tsx
-│   │   ├── main.tsx
-│   │   ├── index.css               # Đổi từ styles.css khi làm bước9
-│   │   └── vite-env.d.ts
-│   └── tests/
-├── configs/
-│   ├── m3-profile.json             # Không raw/secret
-│   └── .env.example
-└── scripts/
-    └── start_m3.ps1                # Launcher local sau implementation
+│   └── alembic.ini
+└── frontend/                       # Chưa di chuyển, còn M3/frontend
+    ├── src/
+    │   ├── components/
+    │   ├── config/
+    │   ├── hooks/
+    │   ├── layouts/
+    │   ├── pages/
+    │   ├── services/
+    │   ├── types/
+    │   ├── utils/
+    │   ├── App.tsx
+    │   ├── main.tsx
+    │   ├── index.css
+    │   └── vite-env.d.ts
+    ├── tests/
+    ├── package.json
+    ├── package-lock.json
+    └── vite.config.ts
 ```
+
+Cấu trúc thực hiện tại xem đầu tài liệu: backend đã ở web, mới tách core/catalog/configuration; các module còn lại là bước6–7, FE theo bước8–9 và CHG-069. Docs/configs/research/scripts/env còn ở M3, không nằm trong package hoặc tự tạo bản sao ở web.
 
 Không thêm repository/service factory cho một implementation, message bus/microservices hoặc wrapper chỉ gọi một hàm. Services dùng session SQLAlchemy và transaction theo03. API/worker/CLI dùng cùng domain code. Không nhân bản M2 hoặc khôi phục toàn bộ code đã xóa từ backup.
 

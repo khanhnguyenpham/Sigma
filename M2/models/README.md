@@ -1,6 +1,6 @@
 # Implementation bộ M2 final
 
-[Bản đồ 10 tuyến và lệnh chạy](../../M2_CODE_MAP.md). Entrypoint duy nhất cho fit/refit/forecast/evaluate/export là `python -m M2.final_report`; không còn runner sweep hoặc chọn model lại.
+[Bản đồ 10 tuyến và lệnh chạy](../README.md). Entrypoint duy nhất cho fit/refit/forecast/evaluate/export là `python -m M2.final_report`; không còn runner sweep hoặc chọn model lại.
 
 | File | Vai trò |
 |---|---|

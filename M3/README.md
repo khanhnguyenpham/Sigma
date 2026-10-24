@@ -1,5 +1,7 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
+**CHG-070 — vị trí code:** backend đã chuyển sang `../web/backend/` tính từ M3, gồm sigma_m3 API/CLI/worker, migration và tests. FE/configs/scripts/research vẫn ở M3; dùng [README root](../README.md) để cài và chạy. [Cây thực và đích](docs/05-source-architecture.md#web-layout-chg070). Các mốc E89–E103 bên dưới là bằng chứng lịch sử, không phải kiểm mới trong lượt chuyển thư mục.
+
 **FE dự kiến CHG-069:** cập nhật theo ảnh tham khảo người dùng, dùng pages/layouts/components và config/hooks/services/types/utils, bỏ tầng feature/shared và thư mục chưa cần. [Cây đích, ánh xạ và kiểm hành vi](docs/04-frontend-spec.md#frontend-target-chg069). Đây là đặc tả bước8–9; code FE chưa đổi và bước6–15 chưa bắt đầu.
 
 **CHG-068 bước5 — 24/10/2026:** người dùng yêu cầu làm riêng bước5 sau checkpoint `992b8f5`. Đã tách core/catalog/configuration và rút main391→45dòng; giữ26route/OpenAPI đầy đủ, DDL13bảng và giao dịch/version/snapshot. Local107Python/26React/build/pipcheck/CLI/import/Alembic/smoke đạt,845protectedhash nguyên. Commit mã `db6c1d5` đã push, SHAremote khớp và cả2workflowCI completed/success. Bước5 hoàn tất; bước6–15 chưa bắt đầu. [Cấu trúc hiện hành](docs/05-source-architecture.md#step5-actual). Các đoạn điểm dừng bước4 và E99 bên dưới là lịch sử; CLI/factory/start scripts vẫn cùng giao diện.
@@ -15,7 +17,7 @@ Cấu trúc đích và15bước nằm trong PLAN; chưa triển khai chỉ vì �
 **CHG-067/E99 — 21/10/2026, hoàn thiện bản nộp:** bổ sung phục hồi khi tải lỗi/mất kết nối, giới hạn chờ RPC, màn hình lỗi có lối thử lại, làm mới trong phiên, hướng dẫn nghiệp vụ, điều hướng Back/Escape và hỗ trợ bàn phím. Tạo phương án online chỉ chọn93ngày có đủ closing920item và forecast H14 (30/09–31/12/2025).120Python+31React đạt; dữ liệu/metric/run khóa giữ nguyên. [Hướng dẫn nộp và kiểm sản phẩm](SUBMISSION.md). Đã push deploy `10dd4e19af9fa26d1aeb05124a05bbd5fdcf78ce`; kiểm browser/CI mới ghi riêng E99. Không nâng nghiệm thu R07/T14 hoặc bổ sung auth/PO/DB bền vững.
 
 
-**CHG-066/E98 — React công khai trên Streamlit:** đã cập nhật [SIGMA](https://sigma-demand-inventory.streamlit.app/) sang giao diện quản lý React sáu màn hình; Python xử lý qua component hai chiều. Repo triển khai riêng tư `Sigma-M3-App/main`, commit `77b0b3d9406ba2131f678466b86f6615af6636e4`, release `m3-react-public-20261020-v2`.117Python và23React đạt; build local/Streamlit, đối soát aggregate/privacy và tạo phương án trong phiên đã kiểm. [Phạm vi và cách chạy](../docs/history/m3-streamlit.md). Cấu hình/phương án mới riêng phiên; import/fit/replay giao dịch/DB dùng chung vẫn local. R05/M05/R07/T14 không đổi. Các mốc E94–E97 bên dưới giữ lịch sử.
+**CHG-066/E98 — React công khai trên Streamlit:** đã cập nhật [SIGMA](https://sigma-demand-inventory.streamlit.app/) sang giao diện quản lý React sáu màn hình; Python xử lý qua component hai chiều. Repo triển khai riêng tư `Sigma-M3-App/main`, commit `77b0b3d9406ba2131f678466b86f6615af6636e4`, release `m3-react-public-20261020-v2`.117Python và23React đạt; build local/Streamlit, đối soát aggregate/privacy và tạo phương án trong phiên đã kiểm. [Phạm vi và cách chạy](../docs/review-log.md#removed-docs-chg070). Cấu hình/phương án mới riêng phiên; import/fit/replay giao dịch/DB dùng chung vẫn local. R05/M05/R07/T14 không đổi. Các mốc E94–E97 bên dưới giữ lịch sử.
 
 
 **E97 — giao diện và quy trình điều hành kho:** [Bàn làm việc nhập hàng](IMPLEMENTATION.md#purchasing-e97) có ba danh sách theo ngày, tìm kiếm/sắp xếp, chi tiết lô, CSV và liên kết đúng SKU giữa tồn/nhập/cảnh báo.111Python+19React/build đạt; đã kiểm API/browser thật. Giữ phạm vi mô phỏng M3, không nhận là đã triển khai ERP hoặc cập nhật Streamlit.
@@ -24,7 +26,7 @@ Cấu trúc đích và15bước nằm trong PLAN; chưa triển khai chỉ vì �
 **E95 — React quản lý M3:** đã làm lại giao diện sáu màn hình, thao tác quản lý tồn/nhập/cảnh báo và tạo phương án qua API thật; các bảng đánh giá chuyển vào phần mở rộng. [Hướng dẫn cho nhóm, kiểm thử và giới hạn](IMPLEMENTATION.md#react-management-e95).109Python+17React/build đạt. Đây là bản React/FastAPI/PostgreSQL local; bản Streamlit E94 bên dưới tiếp tục độc lập.
 
 
-**E94 — đã triển khai Streamlit công khai theo yêu cầu mới:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/) · [phạm vi online và source](../docs/history/m3-streamlit.md). Cùng kết quả M3 mới L7/R1/H14 và tổng30; 11 bảng tổng hợp+1mảng forecast, khoảng6,6MB, không raw/ID đơn/khách/DB/env. What-if dùng cùng hàm policy/project và chỉ giữ trong phiên; các tác vụ worker/huấn luyện/DB vẫn local. Các mô tả “chưa deploy” bên dưới là mốc lịch sử trước E94.
+**E94 — đã triển khai Streamlit công khai theo yêu cầu mới:** [Mở SIGMA](https://sigma-demand-inventory.streamlit.app/) · [phạm vi online và source](../docs/review-log.md#removed-docs-chg070). Cùng kết quả M3 mới L7/R1/H14 và tổng30; 11 bảng tổng hợp+1mảng forecast, khoảng6,6MB, không raw/ID đơn/khách/DB/env. What-if dùng cùng hàm policy/project và chỉ giữ trong phiên; các tác vụ worker/huấn luyện/DB vẫn local. Các mô tả “chưa deploy” bên dưới là mốc lịch sử trước E94.
 
 **E93/M05 — 20/10/2026, áp dụng hiện tại:** R05 chấm tổng 30 ngày thay từng ngày theo mentor được người dùng thuật lại. [Kết quả và tích hợp tổng 30](MONTHLY.md): 10/10≤20%, mean11,621356%, coverage100%, 63 cửa sổ/tuyến, test hồi cứu. API/React có tab riêng và CSV; luồng tồn H14 giữ nguyên. Các mô tả R05 ngày/E92 bên dưới là lịch sử trước M05.
 
@@ -112,13 +114,13 @@ Lượt nguồn `96e77f53-fa7c-46be-987f-50e308920dba` complete; độc lập t�
 Cần Python3.12 và PostgreSQL18 local; tạo database app và database riêng `sigma_m3_test`, role không superuser. Tạo `.venv-m3` bằng Python3.12 đã cài, rồi từ root checkout:
 
 ```powershell
-.\.venv-m3\Scripts\python.exe -m pip install -r M3/backend/requirements.txt
-.\.venv-m3\Scripts\python.exe -m pip install --no-deps -e M3/backend
+.\.venv-m3\Scripts\python.exe -m pip install -r web/backend/requirements.txt
+.\.venv-m3\Scripts\python.exe -m pip install --no-deps -e web/backend
 # Copy M3/configs/.env.example thành M3/.env, điền kết nối local và source root.
 . ./M3/scripts/load_env.ps1
-.\.venv-m3\Scripts\python.exe -m alembic -c M3/backend/alembic.ini upgrade head
+.\.venv-m3\Scripts\python.exe -m alembic -c web/backend/alembic.ini upgrade head
 .\.venv-m3\Scripts\python.exe -m pip check
-.\.venv-m3\Scripts\python.exe -B -m pytest M3/backend/tests
+.\.venv-m3\Scripts\python.exe -B -m pytest web/backend/tests
 . ./M3/scripts/start_api.ps1
 ```
 

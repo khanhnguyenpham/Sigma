@@ -1,12 +1,11 @@
 """Compose the local API; HTTP requests never fit models or upload raw data."""
 from contextlib import asynccontextmanager
-from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sigma_m3.core.db import database
 from sigma_m3.core.http import install_error_handlers, router as health_router
-from sigma_m3.core.settings import Settings
+from sigma_m3.core.settings import PROJECT_ROOT, Settings
 from sigma_m3.modules.catalog.router import router as catalog_router
 from sigma_m3.modules.configuration.router import router as configuration_router
 from sigma_m3.api.runs import router as runs_router
@@ -39,7 +38,7 @@ def create_app(settings=None):
         monthly_router, workspace_router, purchasing_router, results_router,
     ):
         app.include_router(router)
-    frontend = Path(__file__).resolve().parents[3] / "frontend/dist"
+    frontend = PROJECT_ROOT / "M3/frontend/dist"
     if frontend.is_dir():
         app.mount("/", StaticFiles(directory=frontend, html=True), name="frontend")
     return app

@@ -1,6 +1,6 @@
 # So sánh dự báo ngày và tổng 7 ngày
 
-**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2/README.md) và [khôi phục code cũ](review-log.md#removed-docs-chg070). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
 
 Bản so sánh chính thức đã chạy theo yêu cầu CHG-027, không chờ nghiệm thu toàn bài như thứ tự lịch sử CHG-025. Nguồn quantity/success/UTC, split và top 10 train được giữ nguyên. Test đã từng được xem: đây là kết quả hồi cứu.
 
@@ -38,7 +38,7 @@ Replay dùng cùng2.867 sự kiện/5.520 cửa sổ, giữ các ca cạn trư�
 
 Đầu ra đầy đủ nằm trong run private `outputs/sigma_day_week_comparison_v3/`: `comparison.md`, `comparison.html`, hình PNG và bốn CSV chi tiết; summary ghi hash nguồn/cha/từng artifact. Run này so weeklyV13 với dailyv11 và policyV4; kiểm cùng forecast/cửa sổ/source/13kịch bản/sự kiện đạt. V1/V2 và parityV12/V9 giữ làm lịch sử. BảnV13 dùng lựa chọn validation, không chọn từ bảng test này. Không đưa các outputs vào GitHub.
 
-Tạo bản mới bằng [CLI so sánh](../M2_CODE_MAP.md#khôi-phục-code-cũ):
+Tạo bản mới bằng [CLI so sánh](review-log.md#removed-docs-chg070):
 
 ```powershell
 .\.venv\Scripts\python.exe -m sigma compare --weekly-run sigma_weekly_boost_v13 --daily-run sigma_scaled_v11 --policy-run sigma_weekly_policy_v4 --output-id comparison_new
