@@ -7,22 +7,16 @@ from fastapi import APIRouter, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import Field
 from sqlalchemy import select, func, text
-from sigma_m3.schemas import DTO
-from sigma_m3.models import (
-    Run,
-    Item,
-    DailySales,
-    RouteForecast,
-    ItemForecast,
-    InventoryDaily,
-    Replenishment,
-    Alert,
-)
-from sigma_m3.services.runs import required_run, source_data_id
+from sigma_m3.core.schemas import DTO
+from sigma_m3.models import Run, DailySales, RouteForecast, ItemForecast, InventoryDaily, Replenishment, Alert
+from sigma_m3.modules.catalog.models import Item
+from sigma_m3.core.run_context import required_run, source_data_id
 from sigma_m3.services.forecast import clean_json
-from sigma_m3.errors import DomainError
+from sigma_m3.core.errors import DomainError
 from src.evaluation import score
 from sigma_m3.services.alerts import opportunity_breakdown
+
+from sigma_m3.core.run_context import snapshot_maps
 
 router = APIRouter(prefix="/api/v1/runs")
 _ALLOCATED_METRICS = {}
@@ -70,23 +64,6 @@ def context(row):
     )
 
 
-def snapshot_maps(session, run):
-    snap = run.config_snapshot
-    if "catalog_snapshot" not in snap and run.source_import_run_id:
-        snap = {**session.get(Run, run.source_import_run_id).config_snapshot, **snap}
-    warehouses = {w["id"]: w for w in snap.get("warehouse_snapshot", [])}
-    routes = {
-        (w["destination_country"], w["carrier"]): w["id"] for w in warehouses.values()
-    }
-    items = {
-        i["item_id"]: {
-            **i,
-            "warehouse_id": routes[(i["destination_country"], i["carrier"])],
-        }
-        for i in snap.get("catalog_snapshot", [])
-    }
-    policies = {p["id"]: p for p in snap.get("policies", [])}
-    return warehouses, items, policies
 
 
 def permitted_items(items, policies, filters, as_of):
