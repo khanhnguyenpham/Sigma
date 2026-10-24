@@ -2,10 +2,11 @@
 
 import argparse, json, uuid
 from datetime import date
-from sigma_m3.db import database
+from sigma_m3.core.db import database
 from sigma_m3.schemas import RunCreate
-from sigma_m3.services.runs import enqueue, required_run
-from sigma_m3.settings import Settings
+from sigma_m3.services.runs import enqueue
+from sigma_m3.core.run_context import required_run
+from sigma_m3.core.settings import Settings
 from sigma_m3.worker import serve
 
 

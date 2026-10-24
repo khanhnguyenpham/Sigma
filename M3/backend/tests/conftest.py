@@ -5,7 +5,7 @@ from alembic.config import Config
 from alembic import command
 from sqlalchemy import text
 from sqlalchemy.engine import make_url
-from sigma_m3.db import database
+from sigma_m3.core.db import database
 
 
 @pytest.fixture(scope="session")

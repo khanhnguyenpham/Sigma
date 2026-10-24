@@ -1,13 +1,13 @@
 
 """Validation-locked ML extension, final10 replay and causal H14 allocation."""
-from sigma_m3.services.runs import source_data_id
+from sigma_m3.core.run_context import source_data_id
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime, timezone
 import hashlib, json
 import numpy as np
 import pandas as pd
 from sqlalchemy import select
-from sigma_m3.errors import DomainError
+from sigma_m3.core.errors import DomainError
 from sigma_m3.models import Run, DailySales
 from sigma_m3.services import m2_adapter
 from sigma_m3.services.allocation import allocate

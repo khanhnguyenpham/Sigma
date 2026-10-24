@@ -2,8 +2,9 @@
 
 from datetime import timedelta
 from sqlalchemy import select
-from sigma_m3.models import Policy, Item, Warehouse, Supplier
-from sigma_m3.errors import DomainError
+from sigma_m3.modules.configuration.models import Policy
+from sigma_m3.modules.catalog.models import Item, Warehouse, Supplier
+from sigma_m3.core.errors import DomainError
 
 
 def freeze_inventory(session, request, source, scenario):

@@ -4,7 +4,9 @@
 
 Quyền hiện tại CHG-068 cho phép push từng bước code/config không nhạy cảm/tests/docs lên `m3-implementation`; không merge/force-push/deploy, không đưa raw/run/DB/env lên Git. Đọc phần CHG-068 trong PLAN trước khi sửa. Không dùng số test lịch sử thay kiểm hiện tại.
 
-**Điểm dừng người dùng chốt24/10/2026:** hoàn tất bước4 và cổng commit/push/SHA/CI rồi dừng lượt này. Bước5–15 chưa bắt đầu; tiếp tục từ bước5 khi người dùng yêu cầu làm tiếp. Giữ worktree và bằng chứng local để bàn giao.
+**Điểm dừng lượt trước24/10/2026:** hoàn tất bước4 và cổng commit/push/SHA/CI rồi dừng lượt này. Bước5–15 chưa bắt đầu; tiếp tục từ bước5 khi người dùng yêu cầu làm tiếp. Giữ worktree và bằng chứng local để bàn giao.
+
+**Phạm vi mới24/10/2026:** người dùng yêu cầu bắt đầu riêng bước5 core/catalog/configuration. Hoàn tất local→commit→push→remoteSHA→CI cho bước5; bước6–15 chờ yêu cầu tiếp. Điểm dừng sau bước4 ở trên là lịch sử, không cấm bước5 được giao mới.
 
 [Kế hoạch CHG-068 và cổng từng bước](docs/planning/PLAN.md#chg-068).
 

@@ -1,10 +1,10 @@
 from alembic import context
 from sqlalchemy import create_engine, pool
-from sigma_m3.models import Base
-from sigma_m3.settings import Settings
+from sigma_m3 import models  # Register both feature modules and remaining domain tables.
+from sigma_m3.core.settings import Settings
 
 config = context.config
-target_metadata = Base.metadata
+target_metadata = models.Base.metadata
 url = config.attributes.get("database_url") or Settings.from_env().database_url
 
 if context.is_offline_mode():

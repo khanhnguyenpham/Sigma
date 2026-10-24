@@ -4,8 +4,8 @@ import argparse, json, os, subprocess, sys, time
 from pathlib import Path
 import psutil
 from sqlalchemy import text
-from sigma_m3.db import database
-from sigma_m3.settings import Settings
+from sigma_m3.core.db import database
+from sigma_m3.core.settings import Settings
 
 ROOT = Path(__file__).resolve().parents[2]
 STATE = ROOT / "outputs/m3-stack.json"

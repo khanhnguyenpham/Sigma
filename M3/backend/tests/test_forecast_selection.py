@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 from sigma_m3.services.forecast import select_new
 from sigma_m3.services import m2_adapter
-from sigma_m3.errors import DomainError
+from sigma_m3.core.errors import DomainError
 
 
 def fixture():

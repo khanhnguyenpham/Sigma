@@ -9,12 +9,13 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import Response
 from pydantic import Field
-from sigma_m3.schemas import DTO
-from sigma_m3.api.results import context, snapshot_maps
-from sigma_m3.services.runs import required_run
+from sigma_m3.core.schemas import DTO
+from sigma_m3.api.results import context
+from sigma_m3.core.run_context import snapshot_maps
+from sigma_m3.core.run_context import required_run
 from sigma_m3.services.forecast import clean_json
 from sigma_m3.services.monthly import load_package, benchmark_summary, ROUTE
-from sigma_m3.errors import DomainError
+from sigma_m3.core.errors import DomainError
 
 router = APIRouter(prefix="/api/v1/runs")
 
