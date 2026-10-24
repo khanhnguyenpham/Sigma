@@ -1,4 +1,4 @@
-"""Thirteen business tables. Constraints are exercised on PostgreSQL, not SQLite."""
+"""Register all thirteen tables; remaining domain models move in steps 6–7."""
 
 import uuid
 from sqlalchemy import (
@@ -11,122 +11,24 @@ from sqlalchemy import (
     Double,
     ForeignKey,
     ForeignKeyConstraint,
-    Identity,
     Index,
-    Integer,
-    Numeric,
     SmallInteger,
     String,
     Text,
     UniqueConstraint,
-    func,
     text,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import DeclarativeBase
 
 
-class Base(DeclarativeBase):
-    pass
 
-
-def identity():
-    return Column(BigInteger, Identity(always=True), primary_key=True)
-
-
-def fk(table, nullable=False):
-    return Column(
-        BigInteger, ForeignKey(table + ".id", ondelete="RESTRICT"), nullable=nullable
-    )
-
-
-def created():
-    return Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-
-
-class Warehouse(Base):
-    __tablename__ = "warehouses"
-    id = identity()
-    code = Column(Text, nullable=False, unique=True)
-    destination_country = Column(Text, nullable=False)
-    carrier = Column(Text, nullable=False)
-    city = Column(Text, nullable=False)
-    is_assumed = Column(Boolean, nullable=False, default=True)
-    assumption_source = Column(Text, nullable=False)
-    version = Column(Integer, nullable=False, default=1)
-    created_at = created()
-    __table_args__ = (
-        UniqueConstraint("destination_country", "carrier"),
-        CheckConstraint("version >= 1"),
-        CheckConstraint("length(city)>0"),
-    )
-
-
-class Item(Base):
-    __tablename__ = "items"
-    id = identity()
-    warehouse_id = fk("warehouses")
-    sku = Column(Text, nullable=False)
-    product_type = Column(Text, nullable=False)
-    first_seen_date = Column(Date, nullable=False)
-    created_at = created()
-    __table_args__ = (
-        UniqueConstraint("warehouse_id", "sku", "product_type"),
-        CheckConstraint("product_type IN ('eSIM','physical_SIM')"),
-        Index("ix_items_warehouse", "warehouse_id"),
-    )
-
-
-class Supplier(Base):
-    __tablename__ = "suppliers"
-    id = identity()
-    code = Column(Text, nullable=False, unique=True)
-    display_name = Column(Text, nullable=False)
-    is_assumed = Column(Boolean, nullable=False, default=True)
-    assumption_source = Column(Text, nullable=False)
-    created_at = created()
-
-
-class Policy(Base):
-    __tablename__ = "supplier_item_policies"
-    id = identity()
-    item_id = fk("items")
-    supplier_id = fk("suppliers")
-    version = Column(Integer, nullable=False)
-    effective_from = Column(Date, nullable=False)
-    effective_to = Column(Date)
-    configured_rop_floor = Column(BigInteger, nullable=False)
-    moq = Column(BigInteger, nullable=False)
-    safety_days = Column(Numeric(8, 3), nullable=False)
-    is_assumed = Column(Boolean, nullable=False, default=True)
-    assumption_source = Column(Text, nullable=False)
-    created_at = created()
-    __table_args__ = (
-        UniqueConstraint("item_id", "version"),
-        UniqueConstraint("item_id", "effective_from"),
-        UniqueConstraint("id", "item_id"),
-        CheckConstraint(
-            "configured_rop_floor>=0 AND moq>=1 AND safety_days>=0 AND version>=1"
-        ),
-        CheckConstraint("effective_to IS NULL OR effective_to>effective_from"),
-        Index("ix_policy_effective", "item_id", "effective_from", "effective_to"),
-    )
-
-
-class Scenario(Base):
-    __tablename__ = "scenarios"
-    id = identity()
-    code = Column(Text, nullable=False)
-    version = Column(Integer, nullable=False)
-    name = Column(Text, nullable=False)
-    description = Column(Text, nullable=False, default="")
-    settings = Column(JSONB, nullable=False)
-    assumption_version = Column(Text, nullable=False)
-    created_at = created()
-    __table_args__ = (
-        UniqueConstraint("code", "version"),
-        CheckConstraint("version>=1"),
-    )
+from sigma_m3.core.db import Base, created, fk, identity
+from sigma_m3.modules.catalog.models import (
+    Warehouse as Warehouse,
+    Item as Item,
+    Supplier as Supplier,
+)
+from sigma_m3.modules.configuration.models import Policy as Policy, Scenario as Scenario
 
 
 class Run(Base):

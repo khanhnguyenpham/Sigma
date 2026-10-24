@@ -6,23 +6,15 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select, text, inspect
 from sqlalchemy.exc import IntegrityError, DataError
 from sigma_m3.main import create_app
-from sigma_m3.models import (
-    Base,
-    Warehouse,
-    Item,
-    Supplier,
-    Policy,
-    Run,
-    RouteForecast,
-    DailySales,
-    Replenishment,
-    InventoryEvent,
-)
-from sigma_m3.schemas import PolicyCreate, RunCreate
-from sigma_m3.services.catalog import create_policy
+from sigma_m3.models import Base, Run, RouteForecast, DailySales, Replenishment, InventoryEvent
+from sigma_m3.modules.catalog.models import Warehouse, Item, Supplier
+from sigma_m3.modules.configuration.models import Policy
+from sigma_m3.modules.configuration.schemas import PolicyCreate
+from sigma_m3.schemas import RunCreate
+from sigma_m3.modules.configuration.service import create_policy
 from sigma_m3.services.runs import enqueue
-from sigma_m3.settings import Settings
-from sigma_m3.errors import DomainError
+from sigma_m3.core.settings import Settings
+from sigma_m3.core.errors import DomainError
 from sigma_m3.worker import serve
 
 D = date(2025, 10, 31)

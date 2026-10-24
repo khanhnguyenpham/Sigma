@@ -5,9 +5,9 @@ from typing import Annotated, Literal
 import uuid
 from fastapi import APIRouter, Query, Request
 from pydantic import Field
-from sigma_m3.schemas import DTO
-from sigma_m3.errors import DomainError
-from sigma_m3.services.runs import required_run
+from sigma_m3.core.schemas import DTO
+from sigma_m3.core.errors import DomainError
+from sigma_m3.core.run_context import required_run
 from sigma_m3.api.results import Filters, context, dataset
 from sigma_m3.services.forecast import clean_json
 

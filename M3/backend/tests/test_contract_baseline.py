@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 from sigma_m3.main import create_app
-from sigma_m3.settings import Settings
+from sigma_m3.core.settings import Settings
 from sigma_m3.models import Base
 
 

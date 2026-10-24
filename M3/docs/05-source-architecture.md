@@ -1,5 +1,46 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+<a id="step5-actual"></a>
+## Cấu trúc thực sau bước5 CHG-068
+
+**CHG-068 bước5 — 24/10/2026:** người dùng yêu cầu làm riêng bước5 sau checkpoint `992b8f5`. Đã tách core/catalog/configuration và rút main391→45dòng; giữ26route/OpenAPI đầy đủ, DDL13bảng và giao dịch/version/snapshot. Local107Python/26React/build/pipcheck/CLI/import/Alembic/smoke đạt,845protectedhash nguyên. Commit/push/SHA/CI bước5 còn là cổng trước khi xác nhận hoàn tất; bước6–15 chưa bắt đầu.
+
+```text
+sigma_m3/
+  main.py                         factory/lifecycle/CORS/router/static,45dòng
+  core/
+    db.py                         engine/session, một Base và column helpers
+    settings.py                   cấu hình/PROJECT_ROOT giữ đúng checkout
+    errors.py                     DomainError
+    schemas.py                    DTO base dùng chung
+    hashes.py                     JSON/code digest và Git revision
+    run_context.py                parent/checksum/source identity/snapshot maps
+    http.py                       lỗi HTTP, health, record và pagination chung
+  modules/
+    catalog/
+      models.py                   Warehouse,Item,Supplier
+      schemas.py                  WarehouseUpdate
+      service.py                  đọc live/frozen catalog, sửa kho có version
+      router.py                   HTTP kho/item/supplier
+    configuration/
+      models.py                   Policy,Scenario
+      schemas.py                  PolicyCreate và scenario/receipt/override DTO
+      service.py                  policy/version/scenario với transaction lock
+      context.py                  freeze_inventory nguyên quy tắc
+      router.py                   HTTP policy/scenario
+  models.py                       registry13bảng +8domain model chờ bước6–7
+  schemas.py                      RunCreate chờ bước6
+  api/runs.py                     route/view runs đã tách khỏi main; chưa module6
+  api/,services/,worker.py,cli.py  phần còn lại, dùng import core/module mới
+```
+
+`models.py` đăng ký cả model feature và model còn lại vào đúng `core.db.Base.metadata`; Alembic nạp registry này trước kiểm. Không còn db.py/errors.py/settings.py ở root package hoặc services/catalog.py/context.py; callers/tests/scripts/research đã đổi import. Không tạo shim hoặc module tương lai rỗng.
+
+SHA256 canonical của toàn bộ OpenAPI và DDL table/index được ghi golden từ code992b8f5 trước refactor;6test contract đạt, trong fullsuite107Python.22định nghĩa hàm/model/DTO/helper di chuyển khớp AST cũ; kiểm3thứ tự import từ process mới không vòng lặp. Default source/output root không lệch sau chuyển settings; router không dùng session global chung giữa hai app. Các cây có chữ dự kiến ở bên dưới thuộc thiết kế/checkpoint cũ; chỉ cấu trúc trên đã thực hiện trong bước5.
+
+Phần forecast/runs/reporting, inventory/purchasing/alerts và FE chưa tổ chức lại theo bước6–9. Core có helper đọc/kiểm run dùng chung; điều đó không tự hoàn tất module runs hoặc thay forecast/ledger.
+
+
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
 Đích BE: `core/` cho settings, DB/Base, lỗi/hash/run context; `modules/{catalog,configuration,forecasting,inventory,purchasing,alerts,runs,reporting}`. Main chỉ bootstrap/router; worker/CLI dùng cùng service; model đăng ký một metadata cho Alembic. Giữ module nhỏ, không thêm repo/service factory/queue mới. FE feature/shared theo04. Gỡ host/adapter/cloud transport/build/dependency Streamlit, giữ artifact/HTML/notebook/CLI M2.

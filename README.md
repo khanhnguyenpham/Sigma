@@ -2,7 +2,7 @@
 
 Nhánh hiện hành: **`m3-implementation`**, nền `b1357cd`. CHG-068 đã cập nhật tài liệu và baseline, gỡ runtime/build/dependency Streamlit M3 và M2. React gọi HTTP `/api/v1`; FastAPI phục vụ bản build, PostgreSQL và worker chạy local.
 
-**Theo yêu cầu ngày24/10/2026, dừng sau bước4 đã kiểm/commit/push/CI.** Bước5–15 chưa bắt đầu: BE/FE chưa refactor theo module/feature; chế độ SS/ROP và cảnh báo ngưỡng mới chưa triển khai. [Kế hoạch15bước](docs/planning/PLAN.md#chg-068) · [TASK](docs/planning/TASK.md).
+**Lượt mới24/10/2026:** người dùng giao riêng bước5: nền BE đã tách `core/`, `modules/catalog/`, `modules/configuration/`; API/schema/phép tính giữ nguyên, đang kiểm cổng commit/push/CI. Bước6–15 chưa bắt đầu; FE và mode SS/ROP/cảnh báo mới thuộc các bước sau. [Kế hoạch15bước](docs/planning/PLAN.md#chg-068) · [Bàn giao bước5](docs/development.md#handoff-chg068-step5).
 
 ## Cài và chạy
 

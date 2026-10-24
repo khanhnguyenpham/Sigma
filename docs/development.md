@@ -243,3 +243,16 @@ Code 183ed10 đã push, hai CI Windows (push/PR) của đúng code đều succes
 - Giới hạn: chưa browser tương tác trong lượt này, chưa fullmodel/refit/policy-alert replay/benchmark30 mới; bundle tổng30 thiếu vẫn monthly_not_prepared. Deprecation TestClient/httpx là cảnh báo đã biết, không đổi pin để tắt. Website Streamlit online cũ không thay đổi/xóa; code runtime Streamlit đã gỡ và tài liệu cũ có nhãn lịch sử.
 
 **Lần tiếp tục:** kiểm branch/status/remote/CI và hash hiện có, đọc PLAN#chg-068 cùng yêu cầu mới. Bắt đầu bước5 core/catalog/configuration, giữ API/schema/transaction/versioning/snapshot và baseline; chỉ sau local→commit→push→remoteSHA→CI mới bước6. Không tự làm bước5 khi người dùng chưa yêu cầu tiếp. Lượt bàn giao chỉ cập nhật MD sau CI mã bước4; CI commit MD cuối kiểm riêng trước báo hoàn tất.
+
+<a id="handoff-chg068-step5"></a>
+### Bàn giao CHG-068 bước5 — 24/10/2026 (Asia/Saigon)
+
+Người dùng yêu cầu bắt đầu riêng bước5 sau điểm dừng bước4. Nhánh `m3-implementation`, worktree `C:/Users/Admin/.codex/worktrees/m3-modular-config/Sigma`, checkpoint đầu lượt992b8f5 đã đối chiếu GitHub/CI. Chưa bắt đầu bước6–15; R05/M05/H14/L7/R1/A08 và R07/T14 giữ trạng thái.
+
+- Đã làm: core DB/Base/settings/errors/DTO/hash/run context/HTTP; module catalog và configuration có model/schema/service/router, configuration giữ freeze_inventory. main391→45dòng chỉ bootstrap; api/runs.py tách route run khỏi main để chờ bước6. models.py là registry13bảng và8domain model còn lại; schemas.py còn RunCreate. Mọi import CLI/worker/services/tests/scripts/research cập nhật; không thêm wrapper, dependencies, migration hoặc nghiệp vụ mới.
+- Kiểm mới:107Python/0failure-error-skip (XML `outputs/step5-final-python.xml`);26React/9files/build đạt, không sửa source FE. SHA256 canonical OpenAPI đầy đủ và DDL table/index đúng golden ghi từ992b8f5 trước sửa;6contract tests riêng đạt. Alembic check không có upgrade operation trên sigma_m3_test;22định nghĩa di chuyển giữ AST,3fresh-process import orders/CLIhelp/pipcheck đạt. Router session của2app cô lập; defaults source/output root giữ đúng checkout.
+- Smoke chỉ đọc qua TestClient trên app DB local: React build/health/catalog/workspace/inventory/alerts/3purchasingview/CSV đạt. Không business-write/import/refit/fullreplay thật; tests forecast dùng fixture giả.845protectedfile giữ hash gồm raw/run/report và4tài liệu M2 sửa dở. Không sửa artifact/manifest/snapshot cũ để khớp code mới; code_digest ghi source mới cho run mới.
+- Evidence local: `outputs/step5-contract.xml`, `outputs/step5-final-python.xml`, `outputs/step5-verification.json`; code hash local e4a2d28b69e73ae26584195a6b27bc843b014d7c775a76449a0fc4e4718e4115. Không đưa các output/DB/env/raw vào Git. Bộ golden công khai chỉ schema/DDL, không có dữ liệu người dùng.
+- Giới hạn: chưa browser tương tác, chưa replay/model/benchmark30 mới; monthly_not_prepared vẫn là trạng thái đúng khi thiếu bundle. Cảnh báo TestClient/httpx đã biết; không đổi pin để tắt. Không chạy nền API/worker/Vite mới hoặc deploy; không đánh dấu nghiệm thu R07/T14.
+
+Cổng commit/push/remoteSHA/CI của bước5 sẽ ghi sau kiểm thật; không suy từ CI992b8f5. Kết thúc bước5 rồi chờ yêu cầu bước6 (forecast/runs/reporting). Khi tiếp tục, kiểm lại branch/status/remote/code/hash, đọc PLAN/TASK/PROJECTMAP và source thực; CLI/factory/start script vẫn giữ giao diện cũ.

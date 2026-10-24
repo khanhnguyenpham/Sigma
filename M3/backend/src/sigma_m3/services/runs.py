@@ -1,99 +1,15 @@
 from datetime import date
-import hashlib, json
+import json
 from pathlib import Path
 import uuid
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sigma_m3 import PROFILE
-from sigma_m3.errors import DomainError
-from sigma_m3.models import Run, Scenario
-
-
-def digest(value):
-    return hashlib.sha256(
-        json.dumps(
-            value, sort_keys=True, separators=(",", ":"), default=str, allow_nan=False
-        ).encode()
-    ).hexdigest()
-
-
-def source_data_id(source):
-    """A deduplicated import keeps its own request identity, not duplicate observations."""
-    return (
-        uuid.UUID(source.config_snapshot["resolved_source_import_run_id"])
-        if source.config_snapshot.get("resolved_source_import_run_id")
-        else source.id
-    )
-
-
-def code_digest():
-    project = Path(__file__).resolve().parents[5]
-    paths = [
-        p
-        for folder in ["M3/backend/src/sigma_m3", "src", "M2/models"]
-        for p in (project / folder).rglob("*.py")
-    ]
-    paths.append(project / "M2/final_report.py")
-    return digest(
-        {
-            p.relative_to(project).as_posix(): hashlib.sha256(
-                p.read_bytes()
-            ).hexdigest()
-            for p in sorted(paths)
-        }
-    )
-
-
-def required_run(session, key, kind=None, complete=False, _ancestors=frozenset()):
-    row = session.get(Run, key)
-    if row is None:
-        raise DomainError("not_found", "Run does not exist", 404)
-    if complete and row.status != "complete":
-        raise DomainError("run_not_complete", "Results require a complete run", 409)
-    if kind and row.kind != kind:
-        raise DomainError("parent_mismatch", "Parent has the wrong run kind", 409)
-    if complete:
-        if row.id in _ancestors:
-            raise DomainError("parent_mismatch", "Parent graph contains a cycle", 409)
-        if digest(row.config_snapshot) != row.config_sha256:
-            raise DomainError(
-                "parent_mismatch", "Frozen run configuration checksum differs", 409
-            )
-        for attr, expected_kind in [
-            ("source_import_run_id", "source_import"),
-            ("forecast_run_id", "forecast"),
-        ]:
-            parent_id = getattr(row, attr)
-            if not parent_id:
-                continue
-            parent = required_run(
-                session,
-                parent_id,
-                expected_kind,
-                complete=True,
-                _ancestors=_ancestors | {row.id},
-            )
-            if (
-                parent is None
-                or parent.status != "complete"
-                or parent.kind != expected_kind
-                or parent.source_sha256 != row.source_sha256
-                or parent.target_version != row.target_version
-            ):
-                raise DomainError(
-                    "parent_mismatch", "A frozen parent is no longer compatible", 409
-                )
-            frozen = row.config_snapshot.get(
-                "source_parent_config_sha256"
-                if attr == "source_import_run_id"
-                else "forecast_parent_config_sha256"
-            )
-            if frozen and parent.config_sha256 != frozen:
-                raise DomainError(
-                    "parent_mismatch", "Parent configuration changed", 409
-                )
-    return row
-
+from sigma_m3.core.errors import DomainError
+from sigma_m3.core.hashes import digest, code_digest, revision
+from sigma_m3.core.run_context import required_run
+from sigma_m3.models import Run
+from sigma_m3.modules.configuration.models import Scenario
 
 def enqueue(session, request, key):
     if not key or len(key) > 128 or not key.isprintable():
@@ -161,7 +77,7 @@ def enqueue(session, request, key):
         snapshot["scenario"] = dict(
             id=scenario.id, version=scenario.version, settings=scenario.settings
         )
-        from sigma_m3.services.context import freeze_inventory
+        from sigma_m3.modules.configuration.context import freeze_inventory
 
         snapshot.update(freeze_inventory(session, request, source, scenario))
     if request.retry_of_run_id:
@@ -212,19 +128,3 @@ def enqueue(session, request, key):
             "idempotency_conflict", "Key already belongs to a different request", 409
         )
     return row, False
-
-
-def revision():
-    import subprocess
-    import shutil
-
-    try:
-        executable = shutil.which("git") or "F:/code/Git/cmd/git.exe"
-        return subprocess.check_output(
-            [executable, "rev-parse", "HEAD"],
-            cwd=Path(__file__).resolve().parents[5],
-            text=True,
-            stderr=subprocess.DEVNULL,
-        ).strip()
-    except (OSError, subprocess.CalledProcessError):
-        return "uncommitted-source"

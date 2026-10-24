@@ -12,9 +12,11 @@ from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 from sqlalchemy import select, func
-from sigma_m3.errors import DomainError
-from sigma_m3.models import DailySales, Item
-from sigma_m3.services.runs import digest, required_run, source_data_id
+from sigma_m3.core.errors import DomainError
+from sigma_m3.models import DailySales
+from sigma_m3.modules.catalog.models import Item
+from sigma_m3.core.hashes import digest
+from sigma_m3.core.run_context import required_run, source_data_id
 from src.evaluation import score
 
 ROUTE = ["destination_country", "carrier"]

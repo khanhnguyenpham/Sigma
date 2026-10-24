@@ -5,6 +5,9 @@ import os
 from pathlib import Path
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[5]
+
+
 @dataclass(frozen=True)
 class Settings:
     database_url: str
@@ -14,7 +17,7 @@ class Settings:
 
     @classmethod
     def from_env(cls):
-        project = Path(__file__).resolve().parents[4]
+        project = PROJECT_ROOT
         url = os.environ.get("M3_DATABASE_URL", "")
         if not url.startswith("postgresql+psycopg://"):
             raise ValueError("M3_DATABASE_URL must use PostgreSQL with psycopg")

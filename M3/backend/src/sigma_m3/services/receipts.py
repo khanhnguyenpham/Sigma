@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from sqlalchemy import select
-from sigma_m3.errors import DomainError
+from sigma_m3.core.errors import DomainError
 from sigma_m3.models import Replenishment, InventoryEvent
 
 

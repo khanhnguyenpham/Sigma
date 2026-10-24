@@ -4,8 +4,9 @@ import json
 from pathlib import Path
 import pandas as pd
 from sqlalchemy import select, func
-from sigma_m3.errors import DomainError
-from sigma_m3.models import Warehouse, Item, Supplier, Run, DailySales
+from sigma_m3.core.errors import DomainError
+from sigma_m3.modules.catalog.models import Warehouse, Item, Supplier
+from sigma_m3.models import Run, DailySales
 from src.data import audit_orders, daily_sales, route_top
 from src.common import ROUTE, ITEM, sha256
 
@@ -52,7 +53,7 @@ def import_snapshot(settings, sessions, run_id):
             .limit(1)
         )
         if existing:
-            from sigma_m3.services.runs import required_run, source_data_id
+            from sigma_m3.core.run_context import required_run, source_data_id
 
             required_run(session, existing.id, "source_import", complete=True)
             row = session.get(Run, run_id)

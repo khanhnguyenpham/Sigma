@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-from sigma_m3.errors import DomainError
+from sigma_m3.core.errors import DomainError
 
 
 def allocate(history, first_seen, origin, block_totals):
