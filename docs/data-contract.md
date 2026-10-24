@@ -6,13 +6,13 @@ Giao diện đích thêm policy/override: `safety_mode=days|volatility`, `safety
 
 [Kế hoạch CHG-068 và cổng từng bước](planning/PLAN.md#chg-068).
 
-**E94 — gói public được người dùng yêu cầu xuất bản:** 11 bảng tổng hợp nén và mảng185×920×14 float64; khoảng6,6MB, chỉ source-derived quantity/forecast/metric/danh mục và tồn/nhập/cảnh báo giả định. Loại raw/ID đơn/khách/event/source_sequence/env/DB; item_key là ordinal mới. Runtime kiểm hash/schema, CSV mang source/phiên bản/null/scope. [Hợp đồng gói Streamlit](history/m3-streamlit.md).
+**E94 — gói public được người dùng yêu cầu xuất bản:** 11 bảng tổng hợp nén và mảng185×920×14 float64; khoảng6,6MB, chỉ source-derived quantity/forecast/metric/danh mục và tồn/nhập/cảnh báo giả định. Loại raw/ID đơn/khách/event/source_sequence/env/DB; item_key là ordinal mới. Runtime kiểm hash/schema, CSV mang source/phiên bản/null/scope. [Hợp đồng gói Streamlit](review-log.md#removed-docs-chg070).
 
 **M05/E93, 20/10/2026:** R05 hiện chấm tổng quantity D+1…D+30; chỉ cửa sổ trọn split có actual mới vào metric. Null không phải0. Top10 train/success-orderUTC A08 vẫn như cũ. H14 giữ cho vận hành tồn. [Hợp đồng benchmark/API tổng30](../M3/MONTHLY.md). Những quy định R05 ngày trước M05 là lịch sử.
 
 **CHG-048/E76 — 19/10/2026:** hợp đồng [M3 mới](../M3/docs/02-data-model.md) đặc tả 13 bảng PostgreSQL, nguồn order local, warehouse=route, item=route×sku×product_type, policy phiên bản, hai khối forecast7 và ledger mô phỏng. Chưa có DB/migration/run mới. Lead time nhập kho M3=7 ngày UTC; nguồn/profile cũ bên dưới giữ lịch sử, không dùng làm bằng chứng nghiệm thu profile mới.
 
-**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2_CODE_MAP.md) và [khôi phục code cũ](../M2_CODE_MAP.md#khôi-phục-code-cũ). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
+**CHG-045/E73 — 14/10/2026:** nhánh `cleanup/m2-final` chỉ giữ code M2 final. Xem [bản đồ code hiện hành](../M2/README.md) và [khôi phục code cũ](review-log.md#removed-docs-chg070). Các lệnh/đường code M1, M3, V13 và thử nghiệm bên dưới là lịch sử, cần nhánh backup để chạy; dữ liệu, kết quả, bằng chứng và tiêu chí nghiệm thu không đổi.
 
 **Hiện hành CHG-028/E53–E55 — 06/10/2026:** sản phẩm mặc định dùng V13 với 58 ứng viên chọn bằng validation, cùng policy V4, stock V7, customer V6 và comparison V3. Bộ báo cáo đã khóa tại sigma_m2m3_checkpoint_v3; mở start_m2m3.ps1 ở cổng 8504. **214 tests và CI Windows của commit 183ed10 đạt**; đã đối soát 447.810 cặp dự báo, 42.136 hệ số hiệu chỉnh, 1.100.320 dòng sổ, 267.908 giao dịch/nhập và 920 mặt hàng. AppTest sáu trang, bốn kịch bản và bộ lọc SKU/loại đạt. Job Windows 07:00 đã cài, chạy thử mã 0. Tuần đạt 9/10, MAPE trung bình 16,17%, LG U+ 21,19%; R05 ngày vẫn 0/10, tỷ lệ báo sớm 33,73% trên 2.867 sự kiện. **Chưa nghiệm thu toàn bài.** Dữ liệu gốc và 59 artifact v11 nguyên; src/ và run.py không đổi, app.py chỉ thêm khóa bộ run. Word/slide chưa làm lại; các cập nhật cũ bên dưới là lịch sử.
 
