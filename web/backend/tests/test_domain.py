@@ -5,8 +5,8 @@ import pytest
 from core.errors import DomainError
 from services.inventory import PolicyValues, recommend, fulfill_day, eta
 from services.alerts import project, replay_metrics
-from services.allocation import allocate
-from schemas import RunCreate
+from modules.forecasting.allocation import allocate
+from modules.runs.schemas import RunCreate
 from modules.configuration.schemas import PolicyCreate
 
 D = date(2025, 10, 31)

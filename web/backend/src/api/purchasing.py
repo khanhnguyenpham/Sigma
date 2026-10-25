@@ -8,9 +8,10 @@ from fastapi import APIRouter, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import Field
 from api.workspace import WorkspaceFilters
-from api.results import Filters, context, dataset
+from modules.reporting.schemas import Filters
+from modules.reporting.service import context, dataset
 from core.errors import DomainError
-from services.forecast import clean_json
+from core.serialization import clean_json
 from core.run_context import required_run
 
 router = APIRouter(prefix="/api/v1/runs")

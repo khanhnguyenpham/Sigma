@@ -3,7 +3,8 @@ import pytest
 from fastapi.testclient import TestClient
 from services.alerts import opportunity_breakdown
 from main import create_app
-from models import Alert, Run
+from models import Alert
+from modules.runs.models import Run
 from test_results_api import result_fixture
 from test_postgres_api import settings
 
