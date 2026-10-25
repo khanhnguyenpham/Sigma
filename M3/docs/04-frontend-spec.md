@@ -1,5 +1,30 @@
 # M3 — đặc tả frontend
 
+<a id="step9-actual"></a>
+## Cấu trúc thực sau bước9 CHG-068 — 25/10/2026
+
+Frontend vẫn ở **M3/frontend**. App ghép sáu page và AppLayout; không thêm router/state framework hoặc dependency. Phần bổ sung dưới src:
+
+```text
+layouts/        AppLayout, Sidebar, Header, ContextFilters
+hooks/          useAppContext, useConfiguration (cùng useResource/useDialogFocus)
+components/
+  configuration/ ConfigurationDialog, ItemSelect, PolicyFields, PolicyForm,
+                 ScenarioForm, PolicyOverrideEditor, ReceiptEditor
+  inventory/     InventoryDetails
+  purchasing/    PurchasingDetails
+  alerts/        AlertDetails (cùng AlertOpportunity)
+pages/           Configuration ghép danh sách/dialog; Inventory/Replenishment/Alerts
+                 giữ query/selection/stale guard, ghép detail; Overview/Forecast giữ nguyên
+App.tsx          ghép page theo6URL cũ, truyền context/hành động
+main.tsx         import index.css; giữ mount/PageBoundary
+index.css        đổi tên từ styles.css, giữ nguyên byte
+```
+
+Các nhóm ui/dialogs/forecast, services/types/utils/config từ bước8 giữ nguyên. useAppContext giữ29câu lệnh state/effect/handler theo thứ tự cũ; useConfiguration giữ11câu lệnh controller/ghi cấu hình, gồm functional update receipt. Drawer nhận dữ liệu đã chọn, không sở hữu query. PolicyFields dùng3input với ràng buộc/default cũ cho policy và override; chưa có trường mode mới. Layout giữ DOM sau inline Sidebar/Header/ContextFilters; không thêm wrapper làm đổi CSS.
+
+34React/build,120Python baseline và9contract sau sửa/pipcheck đạt;969protectedhash nguyên, CSS SHA256 `9505f1be628ca0e8cb251c77baf46b4006a24b6f52bdf8e355e353f8cb3cc88e`. Browser synthetic6page/3drawer/form/Back/reload/Escape/focus, desktop1440/mobile390 đạt; fixture không có gói monthly nên hiển thị trạng thái thiếu nguồn đúng. [Bàn giao và giới hạn](../../docs/development.md#handoff-chg068-step9). Bước10–15 chưa bắt đầu; cây bước8 dưới đây giữ làm checkpoint lịch sử.
+
 <a id="step8-actual"></a>
 ## Cấu trúc thực sau bước8 CHG-068 — 25/10/2026
 
