@@ -1,5 +1,7 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
+**CHG-073 — 25/10/2026, lượt này chỉ Markdown:** bổ sung [mục tiêu làm việc R07≥45%](../../docs/requirements.md#r07-target-chg073) theo lời mentor được người dùng thuật lại; tính bắt buộc/phạm vi còn cần làm rõ. Chưa thêm/sửa test code hoặc chạy replay mới. Các ca CHG-073 bên dưới là kỳ vọng cần kiểm khi được giao kỹ thuật, không phải kết quả đã chạy; bước12–15 chưa bắt đầu, R07/T14 chưa nghiệm thu.
+
 **CHG-069 — kiểm refactor FE bước8–9 (dự kiến):** [cấu trúc mới](04-frontend-spec.md#frontend-target-chg069) dùng pages/layouts/components cùng services/hooks/types/utils/config. Giữ tests tại frontend/tests, cập nhật import khi chuyển code; kiểm sáu URL, context/Back/refresh, abort/stale, read30s/write90s/không autoretry write, loading/error/retry đọc, Escape/focus/mobile và CSV/null khác0. Lượt đổi đặc tả chỉ kiểm Markdown; không lấy kết quả test lịch sử làm kiểm mới.
 
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
@@ -86,6 +88,20 @@ Không dùng stress lead time1/3 hoặc nhận trễ nghiệm thu profile L7 c�
 | Không mẫu | Không cảnh báo hoặc sự kiện | Tỷ lệ có mẫu số0=null, kèm counts. |
 
 Replay14 không chồng từ 30/09/2025, đủ nhãn, no-new-order/receipts biết trước. Có 6 đợt đủ nhãn, origin cuối09/12 và kết thúc23/12/2025; 8 ngày24–31/12 ngoài các đợt đủ14 được công khai, không chấm như đủ nhãn. Policy replay có đặt/ETA là lượt khác; không coi ngăn cạn là FP. Lưu ca bị loại và lý do; không bỏ ca báo muộn.
+
+**Bổ sung CHG-073 — ca kiểm dự kiến, chưa thực thi trong lượt MD:**
+
+| Ca | Cách kiểm khi được giao kỹ thuật | Kỳ vọng |
+|---|---|---|
+| Mục tiêu45% | Counts giả44/100,45/100,46/100 sau kiểm điều kiện báo trước≥7ngày | Lần lượt dưới/chạm/vượt mục tiêu làm việc; không dùng làm bằng chứng dữ liệu thật hoặc ngưỡng nghiệm thu đã chốt. |
+| Không sự kiện | Event denominator0 | Tỷ lệ null; không nhận đạt45% bằng0/0 hoặc mặc định100%. |
+| Thời gian báo trước | Có cảnh báo ở origin, ngày cạn trong replay D+6/D+7; giữ ca D+6 trong mẫu số | D+6 không tính sớm, D+7 được tính; không dùng ngày cạn dự báo thay ngày cạn replay để chấm thời gian báo trước. |
+| N khác mốc7ngày | Tín hiệu xuống ROP trong N ngày, chưa có dự báo cạn | Đánh giá cảnh báo ngưỡng riêng; không tự tăng tử số depletion cũ hoặc nhận N=7 là đạt báo trước≥7ngày. |
+| Tăng safety | Cùng source/forecast/tồn đầu/receipts/origin, alert replay không đặt mới | Đường tồn/ngày cạn/metric depletion giữ nguyên; ROP/đề nghị nhập có thể đổi. Không coi tăng SS là bảo đảm đạt45%. |
+| Đổi tập sự kiện | Thay cover/tồn đầu/receipts hoặc origin | Báo riêng config/version/hash, numerator/denominator và sự kiện/ca loại thay đổi; không gọi là cải thiện trên cùng mẫu. |
+| Tái lập và phạm vi | Đối soát event đầu tiên/item/cửa sổ, counts toàn lượt và bộ lọc bảng | Giữ mẫu số, không bỏ ca D+1…D+6; ≥45% không suy thành yêu cầu cho từng tuyến/SKU; khóa cách đánh giá trước run mới. |
+
+Baseline986/2.867 và trần thời điểm1.317/2.867=45,936519% là số lịch sử. Mốc45% trên cùng tập cần1.291ca, thêm305ca; không điều chỉnh forecast/policy theo actual test cũ để ép số. Báo precision/recall, số muộn, coverage/ca loại và sai số ngày cạn cùng tỷ lệ. [Nguồn và giới hạn CHG-073](../../docs/review-log.md#chg073).
 
 ## 6. API/DB/FE — dự kiến
 

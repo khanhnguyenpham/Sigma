@@ -1,5 +1,7 @@
 # Kế hoạch dự án SIGMA
 
+**Phạm vi hiện tại CHG-073 — 25/10/2026:** chỉ cập nhật Markdown về mục tiêu báo sớm45% theo lời mentor được người dùng thuật lại. [Bổ sung kế hoạch](#chg073) giữ mốc báo trước≥7ngày, phân biệt cấu hình cảnh báo N với tỷ lệ kết quả và ghi phần cần làm rõ; chưa sửa code hoặc chạy replay mới. Bước11 CHG-068 đã hoàn tất; bước12–15 chưa bắt đầu, R07/T14 chưa nghiệm thu.
+
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
 
@@ -708,10 +710,10 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 | 9 | T11/T12 | `refactor(frontend): organize pages and application layouts` | Tách layouts/App/context và form/drawer lớn trong6pages; styles.css→index.css; kiểm URL/Back/Escape/mobile. | Hoàn tất local/commit/push/SHA/CI; mã62a97e4 |
 | 10 | T10/T12 | `feat: persist configurable inventory policies` | Migration/DTO/version/override; kiểm DB13bảng và snapshot cũ. | Hoàn tất local/commit/push/SHA/CI; mãdbc3038 |
 | 11 | T10/T12 | `feat: calculate configurable safety stock and reorder points` | SS2mode/ROP2mode/history causal; ca tính tay/default parity. | Hoàn tất local/commit/push/SHA/CI; mã588b8f6 |
-| 12 | T10–T12 | `feat: warn on projected reorder threshold crossings` | Projection xuống ngưỡng/DTO/filter/export/đánh giá riêng; kiểm biên và dedup. | Chưa bắt đầu |
+| 12 | T10–T12 | `feat: warn on projected reorder threshold crossings` | Projection xuống ngưỡng/DTO/filter/export/đánh giá riêng; kiểm biên và dedup. CHG-073: không gộp tín hiệu ROP vào metric depletion cũ để nhận đạt45%. | Chưa bắt đầu |
 | 13 | T11/T12 | `feat: configure inventory policies in React` | Form policy/scenario và cấu hình hiệu lực; kiểm save/override/history/conflict. | Chưa bắt đầu |
 | 14 | T11/T12 | `feat: present configurable inventory warnings` | Hiển thị ROP/ngày xuống ngưỡng/ngày cạn/lý do; đếm item duy nhất/API/CSV. | Chưa bắt đầu |
-| 15 | T10–T14 | `docs: record M3 verification and handoff` | Tích hợp/replay run mới/hash/CI/bàn giao; chỉ nâng trạng thái theo bằng chứng. | Chưa bắt đầu |
+| 15 | T10–T14 | `docs: record M3 verification and handoff` | Tích hợp/replay run mới/hash/CI/bàn giao; đối chiếu mục tiêu làm việc45% theo CHG-073 với counts/cấu hình/phạm vi rõ, chỉ nâng trạng thái theo bằng chứng và tiêu chí đã chốt. | Chưa bắt đầu |
 
 ### Hợp đồng triển khai đã chốt
 
@@ -764,3 +766,16 @@ Nguồn25/10/2026: trước bước11, người dùng yêu cầu chuyển fronte
 - Hai script nghiên cứu về web/backend/research, dùng module web.backend.research từ root và PROJECT_ROOT hiện có. Protocol/hướng dẫn giữ tại M3/docs/research.md. Không chạy fit/replay nghiên cứu trong lượt chuyển vị trí.
 - M3 chỉ còn12Markdown; source M2/raw/artifact/report/DB/snapshot giữ nguyên. Baseline và sau144Python/34React/build đạt,1005protectedhash và10file dist khớp;9AST chỉ đổi path/import/root. Smoke API/worker DB test đạt/dừng đúng PID, đối soát readonly3run app giữ hash/0002_policy.
 - Local đạt→commit riêng→push thường m3-implementation→remoteSHA khớp→2workflowCI success, rồi dừng trước bước11. [Bàn giao và giới hạn](../development.md#handoff-chg072), [cây hiện hành](../../M3/docs/05-source-architecture.md#web-layout-chg072).
+
+
+<a id="chg073"></a>
+## CHG-073 — Làm rõ mục tiêu cảnh báo 45%, chỉ Markdown
+
+**Ngày25/10/2026; nguồn:** người dùng thuật lại sau khi xem record: câu1–2 cần cấu hình, câu3 “đạt 45% theo cấu hình”, rồi yêu cầu sửa MD trước và chưa đụng code. [Nguồn/đối chiếu](../review-log.md#chg073). Giữ lựa chọn SS days/volatility, ROP fixed/forecast và cảnh báo dự kiến xuống ngưỡng đã chốt ở CHG-068; không diễn giải con số45% thành công thức SS/ROP mới.
+
+T01/T10/T12/T14 ghi **early rate≥45% với báo trước≥7ngày** làm mục tiêu làm việc, theo [hợp đồng đánh giá R07](../requirements.md#r07-target-chg073). Chưa đủ nguồn để gọi45% là ngưỡng nghiệm thu bắt buộc, áp cho từng tuyến/SKU hoặc cho phép người dùng chỉnh ngưỡng đạt trên UI. Cần làm rõ tính bắt buộc và cấu hình/phạm vi nghiệm thu; chưa tự thêm trường DB/API/FE cho mục tiêu này.
+
+- Giữ nguyên cách đếm/mẫu số depletion của baseline; N ngày dự kiến xuống ROP là tín hiệu riêng, không thay mốc báo trước ngày cạn≥7ngày. Baseline986/2.867=34,391350% vẫn là kết quả lịch sử, chưa đạt mục tiêu làm việc45%; chưa có run mới trong lượt này.
+- Khi được giao bước12–15, tiếp tục đúng15bước hiện có. Hoàn tất cảnh báo ngưỡng/cấu hình UI không tự chứng minh45%. Bước15 ghi counts, precision/recall, ca loại, ngày cạn và source/forecast/policy/scenario/origin đã khóa, đối soát riêng từng loại cảnh báo. Thay cover/tồn đầu/receipts phải công khai tập sự kiện/mẫu số đổi; không chọn lại model/policy bằng test cũ chỉ để vượt mục tiêu.
+- Chỉ cập nhật tài liệu điều phối, requirements, đặc tả chức năng/kiểm, bảng nghiệm thu và bằng chứng/bàn giao. Không sửa code/tests/config/env/schema/dữ liệu, không refit/replay hoặc ghi snapshot; kết quả cũ giữ vai trò baseline, không bị sửa thành kết quả mới.
+- Kiểm Markdown/link/anchor/bảng/fence/diff và hash tệp ngoài MD. Cổng commit/push thường/remoteSHA/CI chỉ cho thay đổi MD theo quyền hiện có; CI không chứng minh45%. R07/T14 giữ chưa nghiệm thu; bước11 hoàn tất, bước12–15 chưa bắt đầu và chỉ tiếp tục code khi người dùng giao.
