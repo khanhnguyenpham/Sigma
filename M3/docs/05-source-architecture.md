@@ -1,6 +1,6 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
-**Frontend sau bước8 CHG-068 — 25/10/2026:** FE tại M3/frontend đã tách components/hooks/services/types/utils/config theo [cây thực](04-frontend-spec.md#step8-actual). App/layout/context/form lớn và styles.css chờ bước9; đích web/frontend bên dưới vẫn dự kiến. Backend8module, launcher và API/13bảng không đổi trong lượt FE này.
+**Frontend sau bước9 CHG-068 — 25/10/2026:** FE vẫn M3/frontend; App ghép6pages với AppLayout/Sidebar/Header/ContextFilters, state/effect ở useAppContext. useConfiguration giữ ghi cấu hình; form policy/scenario và3drawer tách component. index.css giữ byte của styles.css, import tại main. Không dependency/nghiệp vụ mới. [Cây thực](04-frontend-spec.md#step9-actual), [kiểm và bàn giao](../../docs/development.md#handoff-chg068-step9). Backend/dữ liệu không đổi; bước10–15 chưa bắt đầu.
 
 <a id="step7-actual"></a>
 ## Cấu trúc thực sau bước7 CHG-068 — 25/10/2026

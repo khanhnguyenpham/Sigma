@@ -136,7 +136,7 @@ Fresh future run `d57975c8-3d14-40a2-bee6-b3b8e20575ad` qua mã worker cuối:46
 | `modules/runs/`, `worker.py`, `cli.py` |Parent DAG/config hash, idempotency, queue một worker, heartbeat30s, verify trước complete. |
 | `modules/runs/verification.py` |Tính lại allocation/actual/threshold/event/receipt/mẫu số cảnh báo; receipt kiểm ngoài run đã khóa. |
 | `main.py`, `modules/reporting/`, các module/router.py |Result/metric/CSV/monthly và serve React đã build; tổng quan/tồn/nhập/cảnh báo ở module tương ứng. |
-| `M3/frontend/src/services/`, `types/`, `utils/`, `config/`, `hooks/`, `components/`, `pages/` |Client typed/abort, UI dùng chung và sáu trang; App giữ layout/context, CSS và form lớn chờ bước9. |
+| `M3/frontend/src/services/`, `types/`, `utils/`, `config/`, `hooks/`, `components/`, `layouts/`, `pages/` |Client typed/abort, context/layout và sáu trang ghép component; form/drawer riêng, main import index.css giữ byte cũ. |
 | `web/backend/tests/`, `M3/frontend/tests/`, `.github/workflows/m3.yml` ở root |Fixture giả PostgreSQL, unit/integration, RTL và CI. |
 
 ## Cài trên máy thành viên
