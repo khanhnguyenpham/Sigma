@@ -2,16 +2,19 @@
 
 from datetime import timedelta
 import hashlib
+import json
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select, func
 from main import create_app
-from models import Run, DailySales, RouteForecast, ItemForecast
+from modules.runs.models import Run
+from modules.forecasting.models import DailySales, RouteForecast, ItemForecast
 from modules.catalog.models import Item, Warehouse
-from schemas import RunCreate
-from services.runs import enqueue
+from modules.runs.schemas import RunCreate
+from modules.runs.service import enqueue
 from core.hashes import digest
 from core.run_context import source_data_id
-from services.ingestion import import_snapshot
+from modules.forecasting.ingestion import import_snapshot
 from test_postgres_api import seed, settings, D
 
 
@@ -207,8 +210,9 @@ def test_parent_invalidation_blocks_results(pg, tmp_path):
         assert c.get(f"/api/v1/runs/{key}/forecasts/routes").status_code == 409
 
 
+@pytest.mark.parametrize("through_worker", [False, True])
 def test_source_hash_reuse_retains_request_identity_without_duplicate_daily(
-    pg, tmp_path
+    pg, tmp_path, through_worker
 ):
     _, sessions = pg
     source, _, _ = result_fixture(sessions)
@@ -230,7 +234,20 @@ def test_source_hash_reuse_retains_request_identity_without_duplicate_daily(
             "second-key",
         )
         key = alias.id
-    summary = import_snapshot(cfg, sessions, key)
+    if through_worker:
+        from worker import serve
+
+        assert serve(cfg, once=True) == key
+        with sessions() as s:
+            completed = s.get(Run, key)
+            assert completed.status == "complete", completed.error_code
+            summary = completed.result_summary
+            assert summary["verification"]["status"] == "verified"
+        manifest = json.loads((cfg.output_root / str(key) / "manifest.json").read_text())
+        assert manifest["status"] == "verified"
+        assert manifest["source_import_run_id"] == str(source)
+    else:
+        summary = import_snapshot(cfg, sessions, key)
     assert summary["reused_source"] is True
     with sessions() as s:
         alias = s.get(Run, key)

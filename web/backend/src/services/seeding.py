@@ -7,7 +7,7 @@ from sqlalchemy import select, func
 from core.errors import DomainError
 from modules.catalog.models import Item, Warehouse, Supplier
 from modules.configuration.models import Policy, Scenario
-from models import DailySales
+from modules.forecasting.models import DailySales
 from modules.configuration.schemas import PolicyCreate
 from modules.configuration.service import create_policy
 from core.run_context import required_run

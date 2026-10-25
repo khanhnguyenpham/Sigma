@@ -17,7 +17,7 @@ from core.db import database
 from core.settings import Settings
 from core.run_context import required_run, source_data_id
 from core.hashes import digest
-from services.forecast import clean_json
+from core.serialization import clean_json
 from src.evaluation import score
 
 ROUTE = ["destination_country", "carrier"]

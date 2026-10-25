@@ -8,7 +8,7 @@ from core.errors import DomainError
 from core.settings import PROJECT_ROOT
 from core.hashes import digest, code_digest, revision
 from core.run_context import required_run
-from models import Run
+from modules.runs.models import Run
 from modules.configuration.models import Scenario
 
 def enqueue(session, request, key):
@@ -128,3 +128,9 @@ def enqueue(session, request, key):
             "idempotency_conflict", "Key already belongs to a different request", 409
         )
     return row, False
+
+
+def progress(sessions, key, phase, **counts):
+    with sessions.begin() as s:
+        row = s.get(Run, key)
+        row.result_summary = {"phase": phase, **counts}

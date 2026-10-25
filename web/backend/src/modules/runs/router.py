@@ -1,12 +1,12 @@
-"""Run HTTP routes, kept here until the runs-module refactor in step 6."""
+"""HTTP adapters for run creation, status and summaries."""
 import uuid
 from fastapi import APIRouter, Header, Query, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy import select, func
-from models import Run
-from schemas import RunCreate
-from services.runs import enqueue
+from modules.runs.models import Run
+from modules.runs.schemas import RunCreate
+from modules.runs.service import enqueue
 from core.run_context import required_run
 
 router = APIRouter(prefix="/api/v1")

@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
-from services.forecast import select_new
-from services import m2_adapter
+from modules.forecasting.service import select_new
+from modules.forecasting import m2_adapter
 from core.errors import DomainError
 
 

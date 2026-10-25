@@ -11,7 +11,7 @@ import pytest
 from fastapi.testclient import TestClient
 from core.errors import DomainError
 from main import create_app
-from services import monthly
+from modules.reporting import monthly
 from core.hashes import digest
 from test_results_api import result_fixture
 from test_postgres_api import settings

@@ -6,8 +6,8 @@ import hashlib, json, os, time, threading
 from sqlalchemy import select, text, update
 from core.db import database
 from core.errors import DomainError
-from models import Run
-from services.ingestion import import_snapshot
+from modules.runs.models import Run
+from modules.forecasting.ingestion import import_snapshot
 from core.hashes import digest, code_digest
 from core.settings import Settings
 
@@ -60,7 +60,7 @@ def process_one(settings, sessions):
         if kind == "source_import":
             summary = import_snapshot(settings, sessions, key)
         elif kind == "forecast":
-            from services.forecast import forecast_run
+            from modules.forecasting.service import forecast_run
 
             summary = forecast_run(settings, sessions, key)
         else:
@@ -71,7 +71,7 @@ def process_one(settings, sessions):
             row = session.get(Run, key)
             row.config_sha256 = digest(row.config_snapshot)
             row.result_summary = summary
-        from services.verification import verify_run
+        from modules.runs.verification import verify_run
 
         verification = verify_run(settings, sessions, key, allow_running=True)
         if expected_code != code_digest():

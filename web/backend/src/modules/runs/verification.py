@@ -5,10 +5,10 @@ import hashlib, json, math
 import numpy as np
 import pandas as pd
 from sqlalchemy import text
-from models import Run
+from modules.runs.models import Run
 from core.errors import DomainError
 from core.hashes import digest
-from services.forecast import clean_json
+from core.serialization import clean_json
 
 
 def verify_run(settings, sessions, key, allow_running=False):
@@ -418,7 +418,7 @@ def verify_inventory(s, run, settings):
             previous = r.closing_qty
             threshold_count += 1
     event_balance_count = 0
-    from services.m2_adapter import configuration
+    from modules.forecasting.m2_adapter import configuration
     from src.data import audit_orders
 
     cfg, _, _ = configuration()

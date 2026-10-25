@@ -15,6 +15,8 @@ from main import create_app
 import models
 from modules.catalog.models import Item, Supplier, Warehouse
 from modules.configuration.models import Policy, Scenario
+from modules.forecasting.models import DailySales, ItemForecast, RouteForecast
+from modules.runs.models import Run
 
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -53,8 +55,9 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
 def test_features_share_the_single_registered_metadata():
     assert models.Base is Base
     assert len(Base.metadata.tables) == 13
-    for model in (Warehouse, Item, Supplier, Policy, Scenario, models.Run):
+    for model in (Warehouse, Item, Supplier, Policy, Scenario, Run, DailySales, RouteForecast, ItemForecast):
         assert model.__table__.metadata is Base.metadata
+        assert getattr(models, model.__name__) is model
 
 
 def test_settings_keep_checkout_defaults_and_explicit_paths(monkeypatch, tmp_path):

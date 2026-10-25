@@ -3,8 +3,8 @@
 import argparse, json, uuid
 from datetime import date
 from core.db import database
-from schemas import RunCreate
-from services.runs import enqueue
+from modules.runs.schemas import RunCreate
+from modules.runs.service import enqueue
 from core.run_context import required_run
 from core.settings import Settings
 from worker import serve
@@ -56,7 +56,7 @@ def main():
     engine, sessions = database(settings.database_url)
     try:
         if args.command == "prepare-monthly":
-            from services.monthly import prepare
+            from modules.reporting.monthly import prepare
 
             with sessions() as session:
                 result = prepare(
@@ -72,7 +72,7 @@ def main():
             print(json.dumps(result))
             return
         if args.command == "verify":
-            from services.verification import verify_run
+            from modules.runs.verification import verify_run
 
             print(json.dumps(verify_run(settings, sessions, args.run_id), default=str))
             return

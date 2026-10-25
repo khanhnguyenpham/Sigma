@@ -4,34 +4,18 @@ import csv
 import io
 import json
 import uuid
-from datetime import date
-from typing import Annotated, Literal
+from typing import Annotated
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import Response
-from pydantic import Field
-from core.schemas import DTO
-from api.results import context
+from modules.reporting.schemas import MonthlyFilters, SummaryFilters
+from modules.reporting.service import context
 from core.run_context import snapshot_maps
 from core.run_context import required_run
-from services.forecast import clean_json
-from services.monthly import load_package, benchmark_summary, ROUTE
+from core.serialization import clean_json
+from modules.reporting.monthly import load_package, benchmark_summary, ROUTE
 from core.errors import DomainError
 
 router = APIRouter(prefix="/api/v1/runs")
-
-
-class MonthlyFilters(DTO):
-    page: int = Field(default=1, ge=1)
-    page_size: int = Field(default=50, ge=1, le=100)
-    warehouse_id: int | None = Field(default=None, gt=0)
-    as_of_date: date | None = None
-    split: Literal["validation", "test", "future"] | None = None
-    cadence: Literal["daily_origins", "nonoverlapping_30d"] = "daily_origins"
-    top10_only: bool = True
-
-
-class SummaryFilters(DTO):
-    pass
 
 
 def package(session, request, key):

@@ -2,7 +2,7 @@
 import uuid
 from core.errors import DomainError
 from core.hashes import digest
-from models import Run
+from modules.runs.models import Run
 
 
 def source_data_id(source):
