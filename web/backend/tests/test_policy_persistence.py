@@ -15,7 +15,6 @@ from sqlalchemy import inspect, text
 from sqlalchemy.exc import IntegrityError, DataError
 
 from core.hashes import digest
-from core.errors import DomainError
 from core.run_context import snapshot_maps, required_run
 from main import create_app
 from models import Base
@@ -230,9 +229,9 @@ def test_upgrade_preserves_legacy_snapshot_scenario_and_defaults(pg):
 
 
 @pytest.mark.parametrize("safety,rop", [("days", "fixed"), ("volatility", "forecast"), ("volatility", "fixed")])
-def test_unimplemented_modes_cannot_silently_run_legacy_formula(safety, rop):
+def test_persisted_modes_are_executable_after_step11(safety, rop):
     args = list(inputs())
     args[4][0].update(safety_mode=safety, rop_mode=rop)
-    with pytest.raises(DomainError) as error:
-        pure_window(*args, "stock_projection", ORIGIN, ORIGIN)
-    assert error.value.code == "stage_not_implemented"
+    row = pure_window(*args, "stock_projection", ORIGIN, ORIGIN)["ledger"][0]
+    assert row["ss"] == (20 if safety == "days" else 0)
+    assert row["rop"] == (100 if rop == "fixed" else max(100, row["rop_forecast"]))

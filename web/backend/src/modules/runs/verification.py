@@ -2,6 +2,7 @@
 """Independent reconciliation of persisted forecasts, ledgers and replay denominators."""
 from core.run_context import source_data_id
 import hashlib, json, math
+from statistics import pstdev
 import numpy as np
 import pandas as pd
 from sqlalchemy import text
@@ -300,12 +301,14 @@ def verify_inventory(s, run, settings):
     source = s.get(Run, run.source_import_run_id)
     daily = pd.read_sql(
         text(
-            "SELECT item_id,date,sales_qty FROM daily_sales WHERE source_import_run_id=:id"
+            "SELECT item_id,date,sales_qty,actual_available FROM daily_sales WHERE source_import_run_id=:id"
         ),
         s.connection(),
         params={"id": source_data_id(source)},
         parse_dates=["date"],
+        dtype={"sales_qty": "Int64"},
     )
+    daily["sales_qty"] = daily.sales_qty.where(daily.actual_available)
     matrix = daily.pivot(index="date", columns="item_id", values="sales_qty")
     fc = pd.read_sql(
         text(
@@ -352,6 +355,11 @@ def verify_inventory(s, run, settings):
                 )
     threshold_count = 0
     for (window, item), group in ledger.groupby(["window_origin", "item_id"]):
+        initial_history = matrix.reindex(
+            pd.date_range(window - pd.Timedelta(days=27), window)
+        )[item]
+        if not np.isfinite(initial_history.to_numpy(dtype=float, na_value=np.nan)).all():
+            raise DomainError("verification_failed", "Initial stock history has missing observations")
         initial = math.ceil(
             float(matrix.loc[window - pd.Timedelta(days=27) : window, item].mean())
             * scenario["cover_days"]
@@ -371,7 +379,10 @@ def verify_inventory(s, run, settings):
                 or r.closing_qty < 0
             ):
                 raise DomainError("verification_failed", "Daily balance differs")
-            if r.date > window and int(matrix.at[r.date, item]) != r.sales_qty:
+            if r.date > window and (
+                pd.isna(matrix.at[r.date, item])
+                or int(matrix.at[r.date, item]) != r.sales_qty
+            ):
                 raise DomainError(
                     "verification_failed",
                     "Sales was replaced by fulfillment or dropped",
@@ -383,13 +394,41 @@ def verify_inventory(s, run, settings):
             )
             f = vectors[(r.forecast_as_of_date, int(item))]
             p = policies[r.policy_id]
-            ss = math.ceil(
-                float(p["safety_days"])
-                * scenario["safety_multiplier"]
-                * float(f.mean())
-            )
+            expected_origin = window if run.kind == "alert_replay" else r.date
+            if r.forecast_as_of_date != expected_origin or p["item_id"] != item or not (
+                p["effective_from"] <= expected_origin.date().isoformat()
+                and (p["effective_to"] is None or expected_origin.date().isoformat() < p["effective_to"])
+            ):
+                raise DomainError("verification_failed", "Decision cutoff or effective policy differs")
+            if p.get("safety_mode", "days") == "volatility":
+                days = p.get("safety_lookback_days", 28)
+                observed = matrix.reindex(
+                    pd.date_range(expected_origin - pd.Timedelta(days=days - 1), expected_origin)
+                )[item]
+                if (
+                    not np.isfinite(observed.to_numpy(dtype=float, na_value=np.nan)).all()
+                    or not observed.ge(0).all()
+                ):
+                    raise DomainError(
+                        "verification_failed", "Safety window has missing observations"
+                    )
+                sigma = pstdev([int(v) for v in observed])
+                factor = p.get("safety_factor", 1.0)
+                ss = (
+                    math.ceil(scenario["safety_multiplier"] * factor * sigma * math.sqrt(7))
+                    if scenario["safety_multiplier"] and factor and sigma
+                    else 0
+                )
+            else:
+                ss = math.ceil(
+                    float(p["safety_days"]) * scenario["safety_multiplier"] * float(f.mean())
+                )
             rf = math.ceil(float(f[:7].sum()) + ss)
-            rop = max(rf, p["configured_rop_floor"])
+            rop = (
+                p["configured_rop_floor"]
+                if p.get("rop_mode", "forecast") == "fixed"
+                else max(rf, p["configured_rop_floor"])
+            )
             target = rop + math.ceil(float(f[7]))
             ip = r.closing_qty + int(pending)
             raw = max(0, target - ip) if r.closing_qty < rop else 0

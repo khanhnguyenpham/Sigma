@@ -10,7 +10,7 @@ from core.errors import DomainError
 from modules.runs.models import Run
 from modules.forecasting.models import DailySales, ItemForecast
 from modules.purchasing.models import Replenishment
-from modules.inventory.service import PolicyValues, recommend, fulfill_day, eta
+from modules.inventory.service import PolicyValues, recommend, fulfill_day, eta, history_quantities
 from modules.alerts.service import project, replay_metrics
 from modules.runs.service import progress
 from core.serialization import clean_json
@@ -30,16 +30,22 @@ def policy_at(policies, item, day):
         raise DomainError(
             "missing_partner_config", "Expected one frozen policy", item_id=item
         )
-    if (
-        rows[0].get("safety_mode", "days") != "days"
-        or rows[0].get("rop_mode", "forecast") != "forecast"
-    ):
-        raise DomainError(
-            "stage_not_implemented",
-            "This policy mode is stored but calculation is not implemented yet",
-            item_id=item,
-        )
     return rows[0]
+
+
+def history_at(matrix, item, origin, days):
+    """Use exactly the UTC calendar prefix ending at this decision, never future rows."""
+    dates = pd.date_range(origin - timedelta(days=days - 1), origin)
+    if item not in matrix.columns or not isinstance(matrix.index, pd.DatetimeIndex):
+        raise DomainError(
+            "insufficient_history", "Observed item history is missing", item_id=item
+        )
+    window = matrix.loc[(matrix.index >= dates[0]) & (matrix.index <= dates[-1]), item]
+    if not window.index.is_unique:
+        raise DomainError(
+            "insufficient_history", "Observed dates must be unique", item_id=item
+        )
+    return history_quantities(window.reindex(dates).to_numpy(), days)
 
 
 def pure_window(
@@ -47,11 +53,6 @@ def pure_window(
 ):
     known = [i for i in catalog if date.fromisoformat(i["first_seen_date"]) <= origin]
     ids = [i["item_id"] for i in known]
-    history = matrix.reindex(pd.date_range(origin - timedelta(days=27), origin))[ids]
-    if len(history) != 28 or not np.isfinite(history.to_numpy(float)).all():
-        raise DomainError(
-            "insufficient_history", "Initial stock needs 28 observed days"
-        )
     if kind == "policy_replay":
         later = {i["item_id"] for i in catalog if i["item_id"] not in ids}
         if any(item in later and origin < day <= end for day, item in sales_events):
@@ -60,7 +61,10 @@ def pure_window(
                 "New item appears inside replay; initialization needs a new causal window",
             )
     stock = {
-        i: math.ceil(float(history[i].mean()) * scenario["cover_days"]) for i in ids
+        i: math.ceil(
+            float(np.mean(history_at(matrix, i, origin, 28))) * scenario["cover_days"]
+        )
+        for i in ids
     }
     sequences = {i: 0 for i in ids}
     orders = []
@@ -157,6 +161,8 @@ def pure_window(
                     )
                 )
             demands = sales_events.get((day, item), []) if day > origin else []
+            if day > origin:
+                history_at(matrix, item, day, 1)  # Replay actual must also be observed.
             fulfilled = fulfill_day(opening, received, [r["quantity"] for r in demands])
             stock[item] = fulfilled["closing_qty"]
             for demand, event in zip(demands, fulfilled["events"], strict=True):
@@ -191,14 +197,24 @@ def pure_window(
             values = PolicyValues(
                 p["configured_rop_floor"],
                 p["moq"],
-                float(p["safety_days"]) * scenario["safety_multiplier"],
+                float(p["safety_days"]),
+                safety_mode=p.get("safety_mode", "days"),
+                rop_mode=p.get("rop_mode", "forecast"),
+                safety_lookback_days=p.get("safety_lookback_days", 28),
+                safety_factor=p.get("safety_factor", 1.0),
+                safety_multiplier=scenario["safety_multiplier"],
             )
             pending = sum(
                 o["ordered_qty"]
                 for o in orders_by_item[item]
                 if o["status"] == "ordered"
             )
-            decision = recommend(vector, stock[item], pending, values)
+            history = (
+                history_at(matrix, item, decision_origin, values.safety_lookback_days)
+                if values.safety_mode == "volatility"
+                else None
+            )
+            decision = recommend(vector, stock[item], pending, values, history)
             ledger.append(
                 dict(
                     window_origin=origin,
@@ -383,6 +399,7 @@ def simulate_run(settings, sessions, key):
             ).where(DailySales.source_import_run_id == source_data_id(source)),
             s.connection(),
             parse_dates=["date"],
+            dtype={"sales_qty": "Int64"},
         )
         needed_origins = (
             [origin]
@@ -407,8 +424,9 @@ def simulate_run(settings, sessions, key):
             s.connection(),
             parse_dates=["as_of_date"],
         )
-    if not daily.actual_available.all():
-        raise DomainError("insufficient_history", "Observed daily history has gaps")
+    # Unavailable observations stay missing. Only dates actually used by this run
+    # may block it; an unknown future label cannot alter an origin decision.
+    daily["sales_qty"] = daily.sales_qty.where(daily.actual_available)
     matrix = daily.pivot(index="date", columns="item_id", values="sales_qty")
     vectors = {}
     for (as_of, item), part in fc.groupby(["as_of_date", "item_id"]):
