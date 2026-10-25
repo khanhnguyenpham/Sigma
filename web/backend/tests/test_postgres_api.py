@@ -6,7 +6,9 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select, text, inspect
 from sqlalchemy.exc import IntegrityError, DataError
 from main import create_app
-from models import Base, Replenishment, InventoryEvent
+from models import Base
+from modules.purchasing.models import Replenishment
+from modules.inventory.models import InventoryEvent
 from modules.runs.models import Run
 from modules.forecasting.models import RouteForecast, DailySales
 from modules.catalog.models import Warehouse, Item, Supplier
@@ -312,7 +314,7 @@ def test_receipt_transaction_is_exactly_once_under_concurrency(pg):
         s.add(order)
         s.flush()
         key = order.id
-    from services.receipts import receive_due
+    from modules.purchasing.receipts import receive_due
 
     with pytest.raises(DomainError, match="exact ETA"):
         with sessions.begin() as s:

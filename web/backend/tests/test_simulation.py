@@ -1,7 +1,7 @@
 from datetime import date, datetime, timedelta, timezone
 import pandas as pd
 import pytest
-from services.simulation import pure_window
+from modules.inventory.simulation import pure_window
 from core.errors import DomainError
 
 ORIGIN = date(2025, 9, 30)

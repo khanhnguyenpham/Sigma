@@ -13,7 +13,7 @@ py-modules = ["main", "worker", "cli", "models"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["api*", "core*", "modules*", "services*"]
+include = ["core*", "modules*"]
 namespaces = false
 
 [tool.pytest.ini_options]

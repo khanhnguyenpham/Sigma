@@ -65,7 +65,7 @@ def main():
             print(json.dumps(result, default=str, allow_nan=False))
             return
         if args.command == "seed-simulation":
-            from services.seeding import seed_simulation
+            from modules.inventory.seeding import seed_simulation
 
             with sessions.begin() as session:
                 result = seed_simulation(session, args.source_run, args.as_of_date)

@@ -1,7 +1,7 @@
 from sqlalchemy import select, func, text
 from core.errors import DomainError
 from core.http import record
-from models import InventoryDaily
+from modules.inventory.models import InventoryDaily
 from modules.runs.models import Run
 from modules.catalog.models import Item, Supplier, Warehouse
 from modules.configuration.models import Policy, Scenario

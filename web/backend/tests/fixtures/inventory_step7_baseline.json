@@ -1,0 +1,195 @@
+{
+  "source_commit": "203e506ddeabec1f66ec5599c0006811b51ffb5e",
+  "basis": "Synthetic inputs; recorded before step7 source extraction; do not regenerate for refactors.",
+  "cases": {
+    "policy_replay/base": {
+      "canonical_sha256": "8ef0c0fd012fa8194505419ea5f4b5bcbd89446fd8e7f076e4b0437f9c2ae0ec",
+      "summary": {
+        "sales_qty": 140,
+        "fulfilled_qty": 140,
+        "shortage_qty": 0,
+        "fill_rate": 1.0,
+        "mean_closing": 48.57142857142857,
+        "order_count": 4,
+        "ordered_qty": 200,
+        "items": 1,
+        "already_depleted_count": 0
+      },
+      "rows": {
+        "ledger": 15,
+        "events": 18,
+        "orders": 4,
+        "alerts": 30,
+        "cases": 0
+      }
+    },
+    "policy_replay/pending": {
+      "canonical_sha256": "c697dab01a4c08bac5ec5360c7bb737dbb933501a3953486df021980bed1675c",
+      "summary": {
+        "sales_qty": 140,
+        "fulfilled_qty": 140,
+        "shortage_qty": 0,
+        "fill_rate": 1.0,
+        "mean_closing": 780.7142857142857,
+        "order_count": 1,
+        "ordered_qty": 1000,
+        "items": 1,
+        "already_depleted_count": 0
+      },
+      "rows": {
+        "ledger": 15,
+        "events": 16,
+        "orders": 1,
+        "alerts": 19,
+        "cases": 0
+      }
+    },
+    "policy_replay/zero_stock": {
+      "canonical_sha256": "97a3a962c8d7076e21e5ed33176d1e4d5763a096d009100a493aa92ce14abd8e",
+      "summary": {
+        "sales_qty": 140,
+        "fulfilled_qty": 80,
+        "shortage_qty": 60,
+        "fill_rate": 0.5714285714285714,
+        "mean_closing": 37.142857142857146,
+        "order_count": 3,
+        "ordered_qty": 210,
+        "items": 1,
+        "already_depleted_count": 1
+      },
+      "rows": {
+        "ledger": 15,
+        "events": 16,
+        "orders": 3,
+        "alerts": 29,
+        "cases": 0
+      }
+    },
+    "alert_replay/base": {
+      "canonical_sha256": "e49a193ea31f02929fd986558a122051526ab8c2a5099ed910a825ab718b2c95",
+      "summary": {
+        "sales_qty": 140,
+        "fulfilled_qty": 70,
+        "shortage_qty": 70,
+        "fill_rate": 0.5,
+        "mean_closing": 15.0,
+        "order_count": 0,
+        "ordered_qty": 0,
+        "items": 1,
+        "already_depleted_count": 0
+      },
+      "rows": {
+        "ledger": 15,
+        "events": 15,
+        "orders": 0,
+        "alerts": 2,
+        "cases": 1
+      }
+    },
+    "alert_replay/pending": {
+      "canonical_sha256": "eeae5f5190ce0373d92df7284acedf4f9562e362bf38183f1b536bae87af03f8",
+      "summary": {
+        "sales_qty": 140,
+        "fulfilled_qty": 140,
+        "shortage_qty": 0,
+        "fill_rate": 1.0,
+        "mean_closing": 780.7142857142857,
+        "order_count": 1,
+        "ordered_qty": 1000,
+        "items": 1,
+        "already_depleted_count": 0
+      },
+      "rows": {
+        "ledger": 15,
+        "events": 16,
+        "orders": 1,
+        "alerts": 2,
+        "cases": 1
+      }
+    },
+    "alert_replay/zero_stock": {
+      "canonical_sha256": "894cc0550b5411b1227ec9f01dbc4d800ca4224dbf5091872c04efe758436c23",
+      "summary": {
+        "sales_qty": 140,
+        "fulfilled_qty": 0,
+        "shortage_qty": 140,
+        "fill_rate": 0.0,
+        "mean_closing": 0.0,
+        "order_count": 0,
+        "ordered_qty": 0,
+        "items": 1,
+        "already_depleted_count": 1
+      },
+      "rows": {
+        "ledger": 15,
+        "events": 15,
+        "orders": 0,
+        "alerts": 2,
+        "cases": 1
+      }
+    },
+    "stock_projection/base": {
+      "canonical_sha256": "05dbb491b63403aaa97dc37ccb5a09e24811766464896383ef98b1a1269d168a",
+      "summary": {
+        "sales_qty": 0,
+        "fulfilled_qty": 0,
+        "shortage_qty": 0,
+        "fill_rate": null,
+        "mean_closing": null,
+        "order_count": 0,
+        "ordered_qty": 0,
+        "items": 1,
+        "already_depleted_count": 0
+      },
+      "rows": {
+        "ledger": 1,
+        "events": 1,
+        "orders": 0,
+        "alerts": 2,
+        "cases": 0
+      }
+    },
+    "stock_projection/pending": {
+      "canonical_sha256": "72ecfdd2d97bc26245bb1e20050237463029c7d78f85112ae6275c26416aa9b2",
+      "summary": {
+        "sales_qty": 0,
+        "fulfilled_qty": 0,
+        "shortage_qty": 0,
+        "fill_rate": null,
+        "mean_closing": null,
+        "order_count": 1,
+        "ordered_qty": 1000,
+        "items": 1,
+        "already_depleted_count": 0
+      },
+      "rows": {
+        "ledger": 1,
+        "events": 1,
+        "orders": 1,
+        "alerts": 2,
+        "cases": 0
+      }
+    },
+    "stock_projection/zero_stock": {
+      "canonical_sha256": "855170b1d48364956669f51046c2d168916b2e1a63939911387c6dc8a0182903",
+      "summary": {
+        "sales_qty": 0,
+        "fulfilled_qty": 0,
+        "shortage_qty": 0,
+        "fill_rate": null,
+        "mean_closing": null,
+        "order_count": 0,
+        "ordered_qty": 0,
+        "items": 1,
+        "already_depleted_count": 1
+      },
+      "rows": {
+        "ledger": 1,
+        "events": 1,
+        "orders": 0,
+        "alerts": 2,
+        "cases": 0
+      }
+    }
+  }
+}
