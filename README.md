@@ -1,5 +1,7 @@
 # SIGMA — React / FastAPI local
 
+**Tính policy bước11 CHG-068 — 25/10/2026:** inventory/service có2mode SS và2mode ROP, simulation chọn lịch sử causal theo decision origin, independent verifier tự đối soát từng dòng. Mode đã lưu từ bước10 nay chạy được, không guard tạm; API/schema13bảng/FE/default legacy giữ, cấu trúc web của CHG-072 giữ. [Công thức và ví dụ](M3/docs/01-functional-spec.md#configurable-calculation-step11), [kiểm và bàn giao](docs/development.md#handoff-chg068-step11). Bước12–15 chưa bắt đầu; các trạng thái trước bước11 bên dưới là checkpoint lịch sử.
+
 **Hiện hành CHG-072 — 25/10/2026:** frontend ở web/frontend, configs/research code/env ở web/backend; M3 chỉ giữ Markdown và protocol nghiên cứu. Backend serve/build/launcher/CI đã đổi đường; tên env/DB, FE/nghiệp vụ/API/13bảng/snapshot giữ nguyên. [Cây thực](M3/docs/05-source-architecture.md#web-layout-chg072), [bàn giao](docs/development.md#handoff-chg072). Bước11–15 chưa bắt đầu; các mốc đường M3/frontend/configs/research/env dưới đây là lịch sử trước chuyển vị trí, các lệnh chạy đã cập nhật.
 
 **Policy persistence bước10 CHG-068 — 25/10/2026:** backend lưu mode SS/ROP, lookback/factor và horizon cảnh báo vào policy version/scenario override/run mới; Alembic0002_policy vẫn13bảng. Đã backup/migrate DB local, giữ toàn bộ cột cũ và snapshot/hash. Mode fixed/volatility chưa chạy công thức mới trước bước11; UI vẫn bước9. [Trường và migration](M3/docs/02-data-model.md#policy-persistence-step10), [kiểm và bàn giao](docs/development.md#handoff-chg068-step10). Bước11–15 chưa bắt đầu.
