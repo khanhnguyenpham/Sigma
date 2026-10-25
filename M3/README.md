@@ -1,5 +1,7 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
+**Hiện hành CHG-068 bước7 — 25/10/2026:** đã tách inventory/purchasing/alerts, hoàn tất8module backend và bỏ source api/services cũ. models.py chỉ đăng ký13model; entry point/launcher/API/DDL/phép tính giữ nguyên. [Cây source](docs/05-source-architecture.md#step7-actual), [kiểm và bàn giao](../docs/development.md#handoff-chg068-step7). Bước8–15 chưa bắt đầu; các trạng thái bên dưới là checkpoint lịch sử.
+
 **Hiện hành CHG-068 bước6 — 25/10/2026:** đã tách forecasting/runs/reporting tại web/backend/src/modules; worker/CLI/launcher dùng cùng dịch vụ và giữ giao diện chạy. API/13bảng/phép tính giữ nguyên. [Cây source](docs/05-source-architecture.md#step6-actual), [kiểm và bàn giao](../docs/development.md#handoff-chg068-step6). Bước7–15 chưa bắt đầu; các trạng thái bên dưới là checkpoint lịch sử.
 
 **CHG-071 — backend/worker:** source trực tiếp trong web/backend/src, launcher tại web/backend/scripts, import core/api/modules/services và các module main/worker/cli. Không còn wrapper sigma_m3; M2 src và M3 frontend/configs/research giữ nguyên. Dùng [README root](../README.md) và [cây hiện hành](docs/05-source-architecture.md#flat-backend-chg071); các cấu trúc trước đó dưới đây là checkpoint lịch sử.

@@ -671,6 +671,8 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 <a id="chg-068"></a>
 ## CHG-068 — React local, tổ chức mã và policy/cảnh báo cấu hình
 
+**Bước7 — 25/10/2026, local đã đạt:** người dùng giao tiếp tục riêng bước7 từ203e506. Đã chuyển4model còn lại, phép tính tồn/replay/seeding, receipt primitive và router/read model tồn/nhập/cảnh báo vào inventory/purchasing/alerts; models.py chỉ giữ registry. Baseline111→120Python,26React/build/pipcheck/CLI/wheel/Alembic/stack smoke đạt;9snapshot giữ nguyên hash,137định nghĩa giữ AST ngoài import và main chỉ thêm router alerts,906protectedhash nguyên. Không thêm policy/cảnh báo mới hoặc thay API/DDL/nghiệp vụ/snapshot. [Bàn giao](../development.md#handoff-chg068-step7). Cổng commit/push thường/remoteSHA/CI kiểm đúng commit mới trước kết thúc lượt. Bước8–15 chưa bắt đầu.
+
 **Bước6 — 25/10/2026, hoàn tất:** người dùng yêu cầu tiếp tục bước kế tiếp và push GitHub. Đã tách forecasting (ingestion/forecast/allocation/adapter và model), runs (DTO/model/enqueue/verification/router), reporting (read model/metric/CSV/monthly); cập nhật caller worker/CLI/research. Baseline110→111Python,26React/build/pipcheck/CLI/wheel/Alembic/HTTP-worker smoke đạt;138định nghĩa giữ AST ngoài import,906protectedhash nguyên. Giữ launcher worker.py, một Base/13bảng, API và dữ liệu/snapshot cũ. [Bàn giao](../development.md#handoff-chg068-step6). Commit mã7023c722e9ba9de931e64e340eb0721884389b7a đã push thường lên m3-implementation, remoteSHA khớp và cả2workflowCI completed/success. Bước7–15 chưa bắt đầu.
 
 **CHG-069 — điều chỉnh đặc tả FE, 24/10/2026:** theo yêu cầu mới, thay đích feature/shared bằng pages/layouts và component dùng chung như ảnh tham khảo; cập nhật riêng MD rồi push. Bước8–9 được sửa mô tả và tên commit dự kiến, không đổi thứ tự/cổng kiểm. Bước6–15 chưa bắt đầu; [đặc tả FE](../../M3/docs/04-frontend-spec.md#frontend-target-chg069).
@@ -691,7 +693,7 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 | 4 | T02/T11/T12 | `refactor(m2): remove Streamlit dashboard and isolate API dependencies` | Gỡ dashboard/launcher/dependency M2; giữ CLI/notebook/HTML; regression/pip check. | Hoàn tất local/commit/push/SHA/CI |
 | 5 | T10–T12 | `refactor(m3): modularize core, catalog and configuration` | Tách core/catalog/configuration; API/version/snapshot giữ nguyên, không schema diff. | Hoàn tất local/commit/push/SHA/CI |
 | 6 | T08–T12 | `refactor: modularize forecasting runs and reporting` | Tách ingestion/forecast/allocation/adapter/runs/reporting; parity/worker/CSV. | Hoàn tất local/commit/push/SHA/CI; mã7023c72 |
-| 7 | T10–T12 | `refactor: modularize inventory purchasing and alerts` | Tách tồn/nhập/cảnh báo; ledger/MOQ/ETA/pending khớp baseline. | Chưa bắt đầu |
+| 7 | T10–T12 | `refactor: modularize inventory purchasing and alerts` | Tách tồn/nhập/cảnh báo; ledger/MOQ/ETA/pending khớp baseline. | Hoàn tất local; cổng commit/push/SHA/CI kiểm sau commit |
 | 8 | T11/T12 | `refactor(frontend): extract reusable components and shared hooks` | Tách components/hooks/services/types/utils/config; kiểm abort/loading/error/focus/bảng/CSV. | Chưa bắt đầu |
 | 9 | T11/T12 | `refactor(frontend): organize pages and application layouts` | Tách layouts/App/context và form/drawer lớn trong6pages; styles.css→index.css; kiểm URL/Back/Escape/mobile. | Chưa bắt đầu |
 | 10 | T10/T12 | `feat: persist configurable inventory policies` | Migration/DTO/version/override; kiểm DB13bảng và snapshot cũ. | Chưa bắt đầu |

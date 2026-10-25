@@ -128,14 +128,14 @@ Fresh future run `d57975c8-3d14-40a2-bee6-b3b8e20575ad` qua mã worker cuối:46
 
 | Đường dẫn | Trách nhiệm |
 |---|---|
-| `web/backend/src/models.py`, `web/backend/migrations/` |Registry13 bảng, FK/unique/check/index và migration;4model tồn chờ bước7. |
+| `web/backend/src/models.py`, `web/backend/migrations/` |Registry13 model thuộc8module trên cùng Base; FK/unique/check/index và migration giữ nguyên. |
 | `core/`, `modules/*/schemas.py` dưới backend src |Env local, Base/DTO/hash/context/serialization, lỗi không echo dữ liệu nhạy cảm. |
-| `modules/forecasting/ingestion.py`, `services/seeding.py`, `modules/catalog/` |Audit nguồn, hash-dedup, danh mục và giả định có version. |
+| `modules/forecasting/ingestion.py`, `modules/inventory/seeding.py`, `modules/catalog/` |Audit nguồn, hash-dedup, danh mục và giả định có version. |
 | `modules/forecasting/{m2_adapter,service,allocation,models}.py` |Tái dùng M2, validation/selection/forecast46 và phân bổ causal. |
-| `modules/configuration/context.py`, `services/{inventory,simulation,alerts,receipts}.py` |Snapshot policy, sổ giao dịch/ngày, lượng nhập, ETA và hai replay riêng; chờ bước7. |
+| `modules/configuration/context.py`, `modules/inventory/`, `modules/purchasing/`, `modules/alerts/` |Snapshot policy, sổ giao dịch/ngày, lượng nhập, ETA, hai replay và router/read model nghiệp vụ. |
 | `modules/runs/`, `worker.py`, `cli.py` |Parent DAG/config hash, idempotency, queue một worker, heartbeat30s, verify trước complete. |
 | `modules/runs/verification.py` |Tính lại allocation/actual/threshold/event/receipt/mẫu số cảnh báo; receipt kiểm ngoài run đã khóa. |
-| `main.py`, `modules/reporting/`, `api/{workspace,purchasing}.py` |Result/metric/CSV/monthly, tổng quan/nhập và serve React đã build; router catalog/config/run ở module tương ứng. |
+| `main.py`, `modules/reporting/`, các module/router.py |Result/metric/CSV/monthly và serve React đã build; tổng quan/tồn/nhập/cảnh báo ở module tương ứng. |
 | `M3/frontend/src/api/`, `components/`, `pages/` |Client typed, hủy response cũ, sáu trang; hai trang chart được lazy load. |
 | `web/backend/tests/`, `M3/frontend/tests/`, `.github/workflows/m3.yml` ở root |Fixture giả PostgreSQL, unit/integration, RTL và CI. |
 

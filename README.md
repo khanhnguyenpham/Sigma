@@ -1,14 +1,14 @@
 # SIGMA — React / FastAPI local
 
-**Cấu trúc hiện hành CHG-071:** code BE nằm thẳng trong `web/backend/src/` với main.py, worker.py, cli.py và api/core/modules/services; không còn thư mục sigma_m3. Worker dùng cùng nghiệp vụ; các launcher đã gom về `web/backend/scripts/`. Chạy từ root repo: API `python -m uvicorn main:create_app --factory`, worker `python -m worker`, CLI `python -m cli`. FE/configs/research/env vẫn ở M3, tên DB/env không đổi; M2 giữ package src riêng ở root.
+**Hiện hành CHG-068 bước7 — 25/10/2026:** BE tại `web/backend/src/` gồm main.py, worker.py, cli.py, models.py, core và8module catalog/configuration/forecasting/inventory/purchasing/alerts/runs/reporting. Source api/services cũ đã chuyển hết vào module, models.py chỉ giữ registry13model chung Base. API/DDL/phép tính và dữ liệu/snapshot giữ nguyên; [cây thực](M3/docs/05-source-architecture.md#step7-actual), [bàn giao](docs/development.md#handoff-chg068-step7). Launcher ở `web/backend/scripts/`; chạy API `python -m uvicorn main:create_app --factory`, worker `python -m worker`, CLI `python -m cli`. FE/configs/research/env vẫn M3, M2 giữ package src riêng ở root.
 
-**Cấu trúc hiện hành CHG-070:** backend, migration, tests và entry point worker/CLI ở `web/backend/`; FE còn ở `M3/frontend/`, cấu hình và launcher ở `M3/configs/`, `web/backend/scripts/`. Đích tiếp theo là gom FE vào `web/frontend/` khi được giao. Worker dùng chung package, không có worker service riêng. [Tài liệu cũ đã bỏ và cách tra lịch sử](docs/review-log.md#removed-docs-chg070).
+**Checkpoint CHG-070:** backend, migration, tests và entry point worker/CLI ở `web/backend/`; FE còn ở `M3/frontend/`, cấu hình và launcher ở `M3/configs/`, `web/backend/scripts/`. Đích tiếp theo là gom FE vào `web/frontend/` khi được giao. Worker dùng chung package, không có worker service riêng. [Tài liệu cũ đã bỏ và cách tra lịch sử](docs/review-log.md#removed-docs-chg070).
 
-**FE dự kiến CHG-069:** bước8–9 sẽ tổ chức theo pages/layouts/components và config/hooks/services/types/utils, cùng App.tsx/main.tsx/index.css. [Cấu trúc và cách chuyển mã](M3/docs/04-frontend-spec.md#frontend-target-chg069). Hiện chỉ cập nhật tài liệu, chưa đổi code FE; bước6–15 chưa bắt đầu.
+**FE dự kiến CHG-069:** bước8–9 sẽ tổ chức theo pages/layouts/components và config/hooks/services/types/utils, cùng App.tsx/main.tsx/index.css. [Cấu trúc và cách chuyển mã](M3/docs/04-frontend-spec.md#frontend-target-chg069). Chưa đổi code FE; bước8–15 chưa bắt đầu.
 
 Nhánh hiện hành: **`m3-implementation`**, nền `b1357cd`. CHG-068 đã cập nhật tài liệu và baseline, gỡ runtime/build/dependency Streamlit M3 và M2. React gọi HTTP `/api/v1`; FastAPI phục vụ bản build, PostgreSQL và worker chạy local.
 
-**Lượt mới24/10/2026:** người dùng giao riêng bước5: nền BE đã tách `core/`, `modules/catalog/`, `modules/configuration/`; API/schema/phép tính giữ nguyên, commitdb6c1d5 đã push/remoteSHA khớp/CI đạt. Bước6–15 chưa bắt đầu; FE và mode SS/ROP/cảnh báo mới thuộc các bước sau. [Kế hoạch15bước](docs/planning/PLAN.md#chg-068) · [Bàn giao bước5](docs/development.md#handoff-chg068-step5).
+**Checkpoint bước5 ngày24/10/2026:** nền BE tách core/catalog/configuration, commitdb6c1d5 đã push/remoteSHA khớp/CI đạt. Bước6–7 đã triển khai tiếp sau checkpoint này; FE và mode SS/ROP/cảnh báo cấu hình mới thuộc các bước sau. [Kế hoạch15bước](docs/planning/PLAN.md#chg-068) · [Bàn giao bước5](docs/development.md#handoff-chg068-step5).
 
 ## Cài và chạy
 

@@ -1,7 +1,38 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+<a id="step7-actual"></a>
+## Cấu trúc thực sau bước7 CHG-068 — 25/10/2026
+
+`web/backend/src` hiện có4entry/registry main.py, worker.py, cli.py, models.py; `core/` và8module catalog/configuration/forecasting/inventory/purchasing/alerts/runs/reporting. Không còn source trong api/services cũ, không giữ shim. Phần vừa chuyển:
+
+```text
+modules/inventory/
+  models.py           InventoryDaily, InventoryEvent
+  service.py          quantity/vector14/PolicyValues/recommend/eta/fulfill_day
+  simulation.py       pure_window và persist replay/projection
+  seeding.py          giả định tồn/chính sách/kịch bản được khai báo
+  schemas.py          WorkspaceFilters
+  router.py           workspace và inventory HTTP
+modules/purchasing/
+  models.py           Replenishment
+  schemas.py          PurchasingFilters
+  service.py          purchasing_data, lịch sử nhận hàng theo as-of
+  receipts.py         receive_due, transaction lock/idempotent receipt
+  router.py           workbench, CSV, replenishments HTTP
+modules/alerts/
+  models.py           Alert
+  schemas.py          WholeRun
+  service.py          project/replay_metrics/opportunity_breakdown
+  router.py           alerts và alert-opportunities HTTP
+models.py             chỉ đăng ký13model chung core.db.Base cho Alembic
+```
+
+Reporting giữ Filters/dataset/context/metric/CSV dùng chung và result_response HTTP adapter; router các module dùng lại adapter này. Runs giữ verifier độc lập. Không thêm tầng service/repository/queue hoặc công thức thứ hai. Main chỉ thêm wiring router alerts; worker/CLI đổi import module,6launcher giữ nguyên. Packaging chỉ tìm core/modules và4py-modules, không gói api/services cũ.
+
+Đã kiểm9snapshot synthetic lấy từ203e506 trước tách, ledger/event/order/alert/summary khớp canonical hash; toàn bộ kiểm tại [bàn giao bước7](../../docs/development.md#handoff-chg068-step7). API/13bảng/DDL và snapshot cũ giữ nguyên. Bước8–15 chưa bắt đầu. Các cây dưới đây là checkpoint lịch sử hoặc thiết kế tương lai.
+
 <a id="step6-actual"></a>
-## Cấu trúc sau bước6 CHG-068 — 25/10/2026
+## Checkpoint sau bước6 CHG-068 — 25/10/2026
 
 Đã tách forecasting/runs/reporting từ checkpoint4abdc8a. Cây thực dưới `web/backend/src/`:
 

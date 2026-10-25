@@ -64,7 +64,7 @@ def process_one(settings, sessions):
 
             summary = forecast_run(settings, sessions, key)
         else:
-            from services.simulation import simulate_run
+            from modules.inventory.simulation import simulate_run
 
             summary = simulate_run(settings, sessions, key)
         with sessions.begin() as session:

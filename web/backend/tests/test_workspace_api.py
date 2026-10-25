@@ -4,7 +4,9 @@ from datetime import timedelta
 from fastapi.testclient import TestClient
 from main import create_app
 from modules.runs.models import Run
-from models import InventoryDaily, Replenishment, Alert
+from modules.inventory.models import InventoryDaily
+from modules.purchasing.models import Replenishment
+from modules.alerts.models import Alert
 from modules.configuration.models import Policy
 from core.hashes import digest
 from test_postgres_api import settings, D

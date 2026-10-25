@@ -10,8 +10,9 @@ from modules.catalog.router import router as catalog_router
 from modules.configuration.router import router as configuration_router
 from modules.runs.router import router as runs_router
 from modules.reporting.monthly_router import router as monthly_router
-from api.workspace import router as workspace_router
-from api.purchasing import router as purchasing_router
+from modules.inventory.router import router as workspace_router
+from modules.purchasing.router import router as purchasing_router
+from modules.alerts.router import router as alerts_router
 from modules.reporting.router import router as results_router
 
 
@@ -35,7 +36,7 @@ def create_app(settings=None):
     install_error_handlers(app)
     for router in (
         health_router, catalog_router, configuration_router, runs_router,
-        monthly_router, workspace_router, purchasing_router, results_router,
+        monthly_router, workspace_router, purchasing_router, alerts_router, results_router,
     ):
         app.include_router(router)
     frontend = PROJECT_ROOT / "M3/frontend/dist"
