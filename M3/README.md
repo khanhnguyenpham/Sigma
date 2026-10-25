@@ -1,5 +1,7 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
+**Hiện hành CHG-072 — 25/10/2026:** frontend ở web/frontend, configs/research code/env ở web/backend; M3 chỉ giữ Markdown và protocol nghiên cứu. Backend serve/build/launcher/CI đã đổi đường; tên env/DB, FE/nghiệp vụ/API/13bảng/snapshot giữ nguyên. [Cây thực](docs/05-source-architecture.md#web-layout-chg072), [bàn giao](../docs/development.md#handoff-chg072). Bước11–15 chưa bắt đầu; các mốc đường M3/frontend/configs/research/env dưới đây là lịch sử trước chuyển vị trí, các lệnh chạy đã cập nhật.
+
 **Backend bước10 CHG-068 — 25/10/2026:** lưu5tham số policy/override, migration0002_policy với default tương thích; snapshot/run cũ nguyên, bản đọc chỉ thêm default trong bộ nhớ.144Python BE/M2 và migration DB test/app local đã kiểm; FE giữ bước9. [Schema/cách migrate](docs/02-data-model.md#policy-persistence-step10), [bàn giao/giới hạn](../docs/development.md#handoff-chg068-step10). Công thức fixed/volatility thuộc bước11; trước đó worker chặn mode này bằng stage_not_implemented.
 
 **Frontend sau bước9 CHG-068 — 25/10/2026:** FE vẫn M3/frontend; App ghép6pages với AppLayout/Sidebar/Header/ContextFilters, state/effect ở useAppContext. useConfiguration giữ ghi cấu hình; form policy/scenario và3drawer tách component. index.css giữ byte của styles.css, import tại main. Không dependency/nghiệp vụ mới. [Cây thực](docs/04-frontend-spec.md#step9-actual), [kiểm và bàn giao](../docs/development.md#handoff-chg068-step9). Backend/dữ liệu không đổi; bước10–15 chưa bắt đầu.
@@ -40,9 +42,9 @@ Cấu trúc đích và15bước nằm trong PLAN; chưa triển khai chỉ vì �
 
 **E93/M05 — 20/10/2026, áp dụng hiện tại:** R05 chấm tổng 30 ngày thay từng ngày theo mentor được người dùng thuật lại. [Kết quả và tích hợp tổng 30](MONTHLY.md): 10/10≤20%, mean11,621356%, coverage100%, 63 cửa sổ/tuyến, test hồi cứu. API/React có tab riêng và CSV; luồng tồn H14 giữ nguyên. Các mô tả R05 ngày/E92 bên dưới là lịch sử trước M05.
 
-**E92 — 20/10/2026:** [Bảng đối chiếu tiêu chí](ACCEPTANCE.md) ghi rõ các cổng đã kiểm và chưa nghiệm thu. Nghiên cứu panel validation giảm còn45,971604%, vẫn0/10≤20%; app/serving giữ nguyên.89Python đạt;9FE/CI E91 đã xác nhận. [Protocol nghiên cứu](research/README.md).
+**E92 — 20/10/2026:** [Bảng đối chiếu tiêu chí](ACCEPTANCE.md) ghi rõ các cổng đã kiểm và chưa nghiệm thu. Nghiên cứu panel validation giảm còn45,971604%, vẫn0/10≤20%; app/serving giữ nguyên.89Python đạt;9FE/CI E91 đã xác nhận. [Protocol nghiên cứu](docs/research.md).
 
-**E91 bổ sung:** có chẩn đoán cơ hội báo sớm trong Cảnh báo và [nghiên cứu dự báo ngày validation](research/README.md).86Python+9FE/build đạt; không thay model chính hoặc đóng R05/R07/T14. [Kết quả/giới hạn](IMPLEMENTATION.md).
+**E91 bổ sung:** có chẩn đoán cơ hội báo sớm trong Cảnh báo và [nghiên cứu dự báo ngày validation](docs/research.md).86Python+9FE/build đạt; không thay model chính hoặc đóng R05/R07/T14. [Kết quả/giới hạn](IMPLEMENTATION.md).
 
 **Ngày:** 19/10/2026 (Asia/Saigon). **Trạng thái hiện hành E90:** đã triển khai ứng dụng local46tuyến: forecast, allocation, replay tồn/cảnh báo, API và React. [Cách chạy/bằng chứng/giới hạn](IMPLEMENTATION.md). R05/R07/T14 còn mở; không gọi toàn bộ chỉ tiêu đã đạt. Phần thiết kế bên dưới giữ nguyên phạm vi đích. **Mốc mục tiêu:** 07/11/2026. **Truy vết:** CHG-048/E76; R04–R09; T08–T14.
 
@@ -126,7 +128,7 @@ Cần Python3.12 và PostgreSQL18 local; tạo database app và database riêng 
 ```powershell
 .\.venv-m3\Scripts\python.exe -m pip install -r web/backend/requirements.txt
 .\.venv-m3\Scripts\python.exe -m pip install --no-deps -e web/backend
-# Copy M3/configs/.env.example thành M3/.env, điền kết nối local và source root.
+# Copy web/backend/configs/.env.example thành web/backend/.env, điền kết nối local và source root.
 . ./web/backend/scripts/load_env.ps1
 .\.venv-m3\Scripts\python.exe -m alembic -c web/backend/alembic.ini upgrade head
 .\.venv-m3\Scripts\python.exe -m pip check

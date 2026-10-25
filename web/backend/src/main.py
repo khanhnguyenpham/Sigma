@@ -39,7 +39,7 @@ def create_app(settings=None):
         monthly_router, workspace_router, purchasing_router, alerts_router, results_router,
     ):
         app.include_router(router)
-    frontend = PROJECT_ROOT / "M3/frontend/dist"
+    frontend = PROJECT_ROOT / "web/frontend/dist"
     if frontend.is_dir():
         app.mount("/", StaticFiles(directory=frontend, html=True), name="frontend")
     return app

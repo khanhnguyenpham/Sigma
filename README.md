@@ -1,5 +1,7 @@
 # SIGMA — React / FastAPI local
 
+**Hiện hành CHG-072 — 25/10/2026:** frontend ở web/frontend, configs/research code/env ở web/backend; M3 chỉ giữ Markdown và protocol nghiên cứu. Backend serve/build/launcher/CI đã đổi đường; tên env/DB, FE/nghiệp vụ/API/13bảng/snapshot giữ nguyên. [Cây thực](M3/docs/05-source-architecture.md#web-layout-chg072), [bàn giao](docs/development.md#handoff-chg072). Bước11–15 chưa bắt đầu; các mốc đường M3/frontend/configs/research/env dưới đây là lịch sử trước chuyển vị trí, các lệnh chạy đã cập nhật.
+
 **Policy persistence bước10 CHG-068 — 25/10/2026:** backend lưu mode SS/ROP, lookback/factor và horizon cảnh báo vào policy version/scenario override/run mới; Alembic0002_policy vẫn13bảng. Đã backup/migrate DB local, giữ toàn bộ cột cũ và snapshot/hash. Mode fixed/volatility chưa chạy công thức mới trước bước11; UI vẫn bước9. [Trường và migration](M3/docs/02-data-model.md#policy-persistence-step10), [kiểm và bàn giao](docs/development.md#handoff-chg068-step10). Bước11–15 chưa bắt đầu.
 
 **Frontend sau bước9 CHG-068 — 25/10/2026:** FE vẫn M3/frontend; App ghép6pages với AppLayout/Sidebar/Header/ContextFilters, state/effect ở useAppContext. useConfiguration giữ ghi cấu hình; form policy/scenario và3drawer tách component. index.css giữ byte của styles.css, import tại main. Không dependency/nghiệp vụ mới. [Cây thực](M3/docs/04-frontend-spec.md#step9-actual), [kiểm và bàn giao](docs/development.md#handoff-chg068-step9). Backend/dữ liệu không đổi; bước10–15 chưa bắt đầu.
@@ -24,11 +26,11 @@ python -m venv .venv-m3
 .\.venv-m3\Scripts\python.exe -m pip install -r web/backend/requirements.txt
 .\.venv-m3\Scripts\python.exe -m pip install --no-deps -e web/backend
 .\.venv-m3\Scripts\python.exe -m pip check
-npm.cmd --prefix M3/frontend ci
-npm.cmd --prefix M3/frontend run build
+npm.cmd --prefix web/frontend ci
+npm.cmd --prefix web/frontend run build
 ```
 
-Tạo `M3/.env` từ `M3/configs/.env.example` nếu chưa có; điền PostgreSQL/source/output root local, không ghi đè env hiện có. Tests dùng riêng **`sigma_m3_test`**; tài khoản app không phải superuser.
+Tạo `web/backend/.env` từ `web/backend/configs/.env.example` nếu chưa có; điền PostgreSQL/source/output root local, không ghi đè env hiện có. Tests dùng riêng **`sigma_m3_test`**; tài khoản app không phải superuser.
 
 ```powershell
 . ./web/backend/scripts/load_env.ps1
@@ -38,15 +40,15 @@ Tạo `M3/.env` từ `M3/configs/.env.example` nếu chưa có; điền PostgreS
 . ./web/backend/scripts/stop_m3.ps1
 ```
 
-Bản build ở `http://127.0.0.1:8000`, OpenAPI ở `http://127.0.0.1:8000/docs`. Dev React: `npm.cmd --prefix M3/frontend run dev`, proxy tới API8000. Xem [M3](M3/README.md), [implementation](M3/IMPLEMENTATION.md) và [nghiệm thu](M3/ACCEPTANCE.md).
+Bản build ở `http://127.0.0.1:8000`, OpenAPI ở `http://127.0.0.1:8000/docs`. Dev React: `npm.cmd --prefix web/frontend run dev`, proxy tới API8000. Xem [M3](M3/README.md), [implementation](M3/IMPLEMENTATION.md) và [nghiệm thu](M3/ACCEPTANCE.md).
 
 ## Kiểm tra
 
 ```powershell
 . ./web/backend/scripts/load_env.ps1
 .\.venv-m3\Scripts\python.exe -B -m pytest tests M2/models/tests web/backend/tests --tb=short
-npm.cmd --prefix M3/frontend test
-npm.cmd --prefix M3/frontend run build
+npm.cmd --prefix web/frontend test
+npm.cmd --prefix web/frontend run build
 .\.venv-m3\Scripts\python.exe -m pip check
 .\.venv-m3\Scripts\python.exe -m M2.final_report --help
 ```

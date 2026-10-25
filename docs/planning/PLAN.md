@@ -671,6 +671,8 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 <a id="chg-068"></a>
 ## CHG-068 — React local, tổ chức mã và policy/cảnh báo cấu hình
 
+**CHG-072 — 25/10/2026, local đạt trước bước11:** đã chuyển69file FE vào web/frontend; configs/env vào web/backend,2script nghiên cứu vào web/backend/research và protocol vào M3/docs/research.md. M3 chỉ còn Markdown.144Python/34React/build trước–sau, pipcheck/research help/API-worker smoke đạt;1005protectedhash/10file build nguyên,9AST chỉ đổi path/import/root. DB app chỉ đọc đối soát3run nguyên hash, schema0002_policy giữ. [Bàn giao](../development.md#handoff-chg072). Chờ commit/push/remoteSHA/CI; bước11–15 chưa bắt đầu, R07/T14 chưa nghiệm thu.
+
 **CHG-068 bước10 — 25/10/2026, hoàn tất:** migration0002_policy thêm5cột/default/check; PolicyCreate/PolicyOverride, version/effective date và frozen snapshot mang cùng tham số.144Python BE/M2,34React/build/pipcheck/CLI-worker và API-worker smoke đạt;956protectedhash nguyên, golden cũ giữ,13bảng. DB test kiểm downgrade/upgrade; app local đã backup/nâng schema, hash toàn bộ cột cũ13bảng/3run nguyên. [Bàn giao](../development.md#handoff-chg068-step10). Commit mãdbc3038e96759994fb9ce62efa7b3c5e317768b3 đã push thường, remoteSHA khớp và2workflowCI completed/success; mode fixed/volatility lưu được nhưng chạy báo stage_not_implemented tới bước11. Bước11–15 chưa bắt đầu; R07/T14 chưa nghiệm thu.
 
 **CHG-068 bước9 — 25/10/2026, hoàn tất:** tách layouts/useAppContext, useConfiguration, form policy/scenario và3drawer chi tiết; CSS đổi index.css giữ byte, import ở main. FE vẫn M3/frontend, giữ6URL/hành vi/nghiệp vụ.34React/build,120Python baseline/9contract sau sửa/pipcheck đạt;969protectedhash nguyên, browser synthetic desktop/mobile/Back/reload/Escape/focus đạt và stack đã dừng. [Bàn giao](../development.md#handoff-chg068-step9), [cây thực](../../M3/docs/04-frontend-spec.md#step9-actual). Commit mã62a97e4436c31845c37a3fc19827ea98f4ff6771 đã push thường, remoteSHA khớp và2workflowCI completed/success; bước10–15 chưa bắt đầu, R07/T14 chưa nghiệm thu.
@@ -748,3 +750,15 @@ Người dùng yêu cầu chuyển nốt phần worker vào web, tự chọn nơ
 - Giữ API /api/v1/OpenAPI,13bảng/DDL, giao dịch/idempotency và phép tính; không chỉnh golden để khớp refactor. Snapshot/run/manifest/raw giữ nguyên, code mới tạo fingerprint mới.
 - Kiểm baseline và sau sửa bằng suite BE/M2, fixture parity, API/DDL/settings/static; kiểm editable import phẳng và không shadow M2 src, CLI/worker/Alembic, launcher từ root mới, FE tests/build/pipcheck/hash protected. Smoke stack chỉ dùng DB test, không xử lý queue thật.
 - Cập nhật tài liệu trước sửa; local đạt → commit riêng → push m3-implementation → remoteSHA khớp → CI đạt. Dừng sau phạm vi này; trạng thái R07/T14 giữ chưa nghiệm thu.
+
+
+<a id="chg-072"></a>
+## CHG-072 — Gom code ứng dụng vào web, M3 chỉ giữ tài liệu
+
+Nguồn25/10/2026: trước bước11, người dùng yêu cầu chuyển frontend vào web để M3 chỉ giữ docs/tài liệu liên quan. Thay ràng buộc giữ FE/configs/research/env tại M3 của CHG-070/071; không bắt đầu công thức bước11 hoặc tính năng bước12–15.
+
+- web/frontend nhận nguyên frontend (source/tests/public/package/lock/Vite/TS, cả node_modules/dist local ignored). Backend/launcher/CI dùng web/frontend/dist và npm root mới.
+- web/backend/configs nhận2JSON và .env.example; env local chuyển nguyên byte tới web/backend/.env, load_env mặc định đường đó. Tên biến/DB/distribution và source/output root không đổi, không commit env.
+- Hai script nghiên cứu về web/backend/research, dùng module web.backend.research từ root và PROJECT_ROOT hiện có. Protocol/hướng dẫn giữ tại M3/docs/research.md. Không chạy fit/replay nghiên cứu trong lượt chuyển vị trí.
+- M3 chỉ còn12Markdown; source M2/raw/artifact/report/DB/snapshot giữ nguyên. Baseline và sau144Python/34React/build đạt,1005protectedhash và10file dist khớp;9AST chỉ đổi path/import/root. Smoke API/worker DB test đạt/dừng đúng PID, đối soát readonly3run app giữ hash/0002_policy.
+- Local đạt→commit riêng→push thường m3-implementation→remoteSHA khớp→2workflowCI success, rồi dừng trước bước11. [Bàn giao và giới hạn](../development.md#handoff-chg072), [cây hiện hành](../../M3/docs/05-source-architecture.md#web-layout-chg072).

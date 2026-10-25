@@ -114,7 +114,7 @@ def test_flat_backend_keeps_the_m2_src_package_independent():
 def test_relocated_backend_serves_the_existing_react_build(monkeypatch, tmp_path):
     import main
 
-    frontend = tmp_path / "M3/frontend/dist"
+    frontend = tmp_path / "web/frontend/dist"
     frontend.mkdir(parents=True)
     (frontend / "index.html").write_text("synthetic-react-build", encoding="utf-8")
     monkeypatch.setattr(main, "PROJECT_ROOT", tmp_path)

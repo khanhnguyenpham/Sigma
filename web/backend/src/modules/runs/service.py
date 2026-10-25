@@ -27,7 +27,7 @@ def enqueue(session, request, key):
                 409,
             )
         return existing, False
-    profile_path = PROJECT_ROOT / "M3/configs/m3-profile.json"
+    profile_path = PROJECT_ROOT / "web/backend/configs/m3-profile.json"
     profile = json.loads(profile_path.read_text(encoding="utf-8"))
     snapshot = dict(profile=profile, request=body, **PROFILE)
     source_sha = None

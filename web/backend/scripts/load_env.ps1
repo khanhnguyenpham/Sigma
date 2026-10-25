@@ -1,6 +1,6 @@
-param([string]$EnvFile = (Join-Path $PSScriptRoot '../../../M3/.env'))
+param([string]$EnvFile = (Join-Path $PSScriptRoot '../.env'))
 $ErrorActionPreference = 'Stop'
-if (-not (Test-Path -LiteralPath $EnvFile)) { throw 'Create the ignored M3/.env from M3/configs/.env.example first.' }
+if (-not (Test-Path -LiteralPath $EnvFile)) { throw 'Create the ignored web/backend/.env from web/backend/configs/.env.example first.' }
 foreach ($line in Get-Content -LiteralPath $EnvFile) {
     if ($line -match '^\s*(#|$)') { continue }
     $parts = $line.Split('=', 2)

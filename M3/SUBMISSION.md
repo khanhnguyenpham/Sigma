@@ -1,5 +1,7 @@
 # SIGMA — hướng dẫn nộp và kiểm tra sản phẩm
 
+**Hiện hành CHG-072 — 25/10/2026:** frontend ở web/frontend, configs/research code/env ở web/backend; M3 chỉ giữ Markdown và protocol nghiên cứu. Backend serve/build/launcher/CI đã đổi đường; tên env/DB, FE/nghiệp vụ/API/13bảng/snapshot giữ nguyên. [Cây thực](docs/05-source-architecture.md#web-layout-chg072), [bàn giao](../docs/development.md#handoff-chg072). Bước11–15 chưa bắt đầu; các mốc đường M3/frontend/configs/research/env dưới đây là lịch sử trước chuyển vị trí, các lệnh chạy đã cập nhật.
+
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo feature và thành phần dùng chung, sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
 Hướng bàn giao CHG-068 chuyển local React/FastAPI; nguồn public Streamlit bên dưới là hướng dẫn lịch sử E99 và chưa bị xóa ở bước tài liệu. Không upload dữ liệu hoặc deploy trong lượt này. Sau bước15 cập nhật lệnh đã kiểm, run/hash, commit/CI và vấn đề mở.
@@ -36,7 +38,7 @@ Khi thử phương án online cơ sở với danh sách lô trống, tồn đầ
 E99 chạy120testPython không lỗi/bỏ qua,31testReact đạt, build TypeScript/Vite cả hai chế độ. Bao gồm timeout đọc, không tự gửi lại write, late reply không gán sang context mới, ngày khả dụng, nguồn/error guards, pending/ETA/MOQ, CSV, isolation và hồi quyM2. Link, anchor, code fence và bảng Markdown được kiểm. CI của từng commit phải xem trạng thái thực trong [GitHub Actions](https://github.com/khanhnguyenpham/Sigma/actions); không suy từ tài liệu rằng CI mới đã thành công.
 
 ```powershell
-# Trong M3/frontend
+# Trong web/frontend
 npm ci
 npm test
 npm run build
