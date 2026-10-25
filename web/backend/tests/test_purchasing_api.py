@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select
 from main import create_app
 from modules.runs.models import Run
-from models import Replenishment
+from modules.purchasing.models import Replenishment
 from test_postgres_api import settings, D
 from test_workspace_api import workspace_fixture
 

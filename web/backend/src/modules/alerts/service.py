@@ -1,5 +1,5 @@
 from datetime import timedelta
-from services.inventory import quantity, vector14
+from modules.inventory.service import quantity, vector14
 
 
 def project(origin, on_hand, forecast, receipts):

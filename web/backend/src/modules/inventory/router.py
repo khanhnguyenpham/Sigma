@@ -1,11 +1,10 @@
 """Operational read model. Every total follows the same frozen run/date/filter."""
 
-from datetime import date
-from typing import Annotated, Literal
+from typing import Annotated
 import uuid
 from fastapi import APIRouter, Query, Request
-from pydantic import Field
-from core.schemas import DTO
+from modules.reporting.router import result_response
+from modules.inventory.schemas import WorkspaceFilters
 from core.errors import DomainError
 from core.run_context import required_run
 from modules.reporting.schemas import Filters
@@ -13,14 +12,6 @@ from modules.reporting.service import context, dataset
 from core.serialization import clean_json
 
 router = APIRouter(prefix="/api/v1/runs")
-
-
-class WorkspaceFilters(DTO):
-    as_of_date: date
-    warehouse_id: int | None = Field(default=None, gt=0)
-    item_id: int | None = Field(default=None, gt=0)
-    supplier_id: int | None = Field(default=None, gt=0)
-    product_type: Literal["eSIM", "physical_SIM"] | None = None
 
 
 @router.get("/{key}/workspace")
@@ -106,3 +97,8 @@ def workspace(
                 route_stock=route_stock[:8],
             )
         )
+
+
+@router.get("/{key}/inventory")
+def inventory(key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]):
+    return result_response(request, key, "inventory_daily", filters)

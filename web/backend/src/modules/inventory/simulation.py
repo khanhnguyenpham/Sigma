@@ -9,9 +9,9 @@ from sqlalchemy import select, text
 from core.errors import DomainError
 from modules.runs.models import Run
 from modules.forecasting.models import DailySales, ItemForecast
-from models import Replenishment
-from services.inventory import PolicyValues, recommend, fulfill_day, eta
-from services.alerts import project, replay_metrics
+from modules.purchasing.models import Replenishment
+from modules.inventory.service import PolicyValues, recommend, fulfill_day, eta
+from modules.alerts.service import project, replay_metrics
 from modules.runs.service import progress
 from core.serialization import clean_json
 from src.data import audit_orders

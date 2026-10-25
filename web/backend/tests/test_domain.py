@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 import pytest
 from core.errors import DomainError
-from services.inventory import PolicyValues, recommend, fulfill_day, eta
-from services.alerts import project, replay_metrics
+from modules.inventory.service import PolicyValues, recommend, fulfill_day, eta
+from modules.alerts.service import project, replay_metrics
 from modules.forecasting.allocation import allocate
 from modules.runs.schemas import RunCreate
 from modules.configuration.schemas import PolicyCreate
