@@ -1,5 +1,7 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+**CHG-073 — 25/10/2026, chỉ cập nhật đặc tả:** [R07 mục tiêu làm việc45%](../../docs/requirements.md#r07-target-chg073) theo lời mentor người dùng thuật lại; tính bắt buộc/phạm vi nghiệm thu còn cần làm rõ. Giữ cách tính cảnh báo≥7ngày và mẫu số depletion. Chưa sửa code; SS/ROP bước11 giữ nguyên, cảnh báo ngưỡng/UI bước12–14 chưa triển khai. [Kế hoạch và giới hạn](../../docs/planning/PLAN.md#chg073).
+
 <a id="configurable-calculation-step11"></a>
 ## Công thức thực sau bước11 CHG-068 — 25/10/2026
 
@@ -140,6 +142,8 @@ Tách `below_rop` từ tồn cuối và `depletion` từ chiếu14 ngày bằng 
 **Policy replay:** liên tục01/10–31/12/2025, khởi tạo30/09, cho đặt mới/ETA7. Forecast đủ 14 ở tail dù actual tail chưa đủ chấm. Báo fill rate, shortage, tồn cuối bình quân, số lô/lượng nhập. Không coi cảnh báo ngăn được cạn là false positive.
 
 Sales metric error=forecast−actual; MAPE chỉ actual>0, MAE/bias mọi cặp có nhãn, WAPE chia tổng actual; toàn actual0 → MAPE/WAPE null. Coverage=cặp forecast hợp lệ/cặp dự kiến có nhãn. Tách ngày/tổng tuần, h1–7/h8–14, rolling/nonoverlap. R07 chưa có ngưỡng precision/recall chính thức, không hứa mọi ca đều báo trước 7 ngày.
+
+**CHG-073 — phân biệt cấu hình và kết quả:** SS days/volatility và ROP fixed/forecast là lựa chọn chính sách; `warning_horizon_days=N` tìm lần dự kiến xuống ROP trong N ngày tới. Mục tiêu early rate≥45% đo tỷ lệ sự kiện cạn có cảnh báo trước≥7ngày, không phải giá trị điều khiển SS/ROP hoặc N. Chỉ ghi mục tiêu chưa yêu cầu một cột DB/trường API/control FE mới. Cảnh báo ngưỡng cần kết quả/đánh giá riêng, không tự cộng vào tử số depletion cũ. Alert replay không đặt mới nên đổi safety đơn thuần không đổi đường tồn/ngày cạn cơ sở. Khi được giao triển khai, khóa source/forecast/policy/scenario/origin/tồn đầu/receipts và báo counts theo [R07](../../docs/requirements.md#r07-target-chg073); thay tập sự kiện phải công khai, không hạ mốc7ngày hoặc bỏ ca cạn sớm để vượt45%.
 
 ## 9. Hiển thị và thay đổi
 

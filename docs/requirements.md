@@ -1,5 +1,7 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**CHG-073 — 25/10/2026, chỉ cập nhật Markdown:** người dùng xem lại record và thuật lại câu 1–2 cần cấu hình, câu 3 là “đạt 45% theo cấu hình”. Ghi **mục tiêu làm việc early rate ≥45% với thời gian báo trước ≥7 ngày**; tính bắt buộc và phạm vi nghiệm thu của con số này còn cần làm rõ. Đây là nguồn thuật lại, chưa có record/biên bản mentor được đọc trực tiếp. [Quy ước đánh giá](#r07-target-chg073), [nguồn và giới hạn](review-log.md#chg073). Chưa sửa code hoặc bắt đầu bước12–15; R07/T14 chưa nghiệm thu.
+
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
 R06/T10 bổ sung chọn SS theo ngày hoặc biến động và ROP cố định hoặc forecast; R07/T10–T12 bổ sung cảnh báo dự báo xuống ngưỡng trong N ngày; R08/T11 chuyển React/HTTP độc lập Streamlit; R09/T12 giữ tái lập, snapshot và gate GitHub. Đây là yêu cầu được chốt, chưa là kết quả nghiệm thu.
@@ -62,6 +64,7 @@ Xác nhận mới của mentor do người dùng cung cấp thay phần cũ mâu
 | M03 | Ngày 05/10/2026 người dùng thuật lại mentor: **giao đến khách đúng 7 ngày tính từ khách đặt**, mọi trường hợp không trễ; câu trả lời làm rõ phạm vi customer order→delivery, không phải supplier→warehouse |
 | U07 | CHG-024: người dùng mô tả order là dữ liệu giả định; cho phép áp dụng D+7 không customer delay. Không cho phép sửa nguồn/sales/split hoặc coi lịch cam kết là actual giao |
 | U08 | CHG-025: sau khi đủ các yêu cầu/điều kiện, làm so sánh chính thức dự báo từng ngày với tổng 7 ngày và tổ chức lại code. Hai việc này chưa được đóng từ bảng đối soát nghiên cứu |
+| CHG-073 | Ngày25/10/2026, người dùng thuật lại sau khi xem record: câu1–2 cần cấu hình; câu3 “đạt 45% theo cấu hình”. Sau khi đối chiếu slide và mã, người dùng yêu cầu sửa Markdown trước, chưa đụng code. 45% được ghi là mục tiêu làm việc; chưa suy thành ngưỡng nghiệm thu đã chốt hoặc tham số policy phải nhập. |
 
 M01/M02/M03 ghi đúng nguồn thuật lại, không giả nhận đã xem hai ảnh. Không cần xin lại quyết định mentor đã chốt hoặc dữ liệu doanh nghiệp sẽ không cung cấp. Ngày ghi nhận theo Asia/Saigon; ngày trong dữ liệu theo UTC.
 
@@ -147,12 +150,22 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 <a id="r07"></a>
 ### R07 — Đo cảnh báo trước ít nhất 7 ngày
 
-- **Nguồn:** S01/M3; P02 replay/horizon; U04 mô phỏng có nhãn. **Trạng thái:** Chưa nghiệm thu.
+- **Nguồn:** S01/M3; P02 replay/horizon; U04 mô phỏng có nhãn; CHG-073 thuật lại mục tiêu45%. **Trạng thái:** Chưa nghiệm thu; mục tiêu45% theo diễn giải bên dưới chưa được xác nhận là ngưỡng nghiệm thu bắt buộc.
 - **Nội dung:** Tách cảnh báo dưới ngưỡng với ngày cạn dự kiến; 1–6 ngày khẩn/muộn, 7–14 sớm, không bịa ngày ngoài horizon.
 - **Tiêu chí:** Ca cạn ngày 10 có báo trước≥7; ngày 3 không tính đạt. Replay đợt 14 ngày không chồng lấn từ origin 30/09/2025, đủ nhãn, không đặt mới; event đầu tiên/mặt hàng/đợt duy nhất. Có precision/recall, tỷ lệ báo sớm, số muộn, sai số ngày cạn/mẫu số. Lượt đánh giá chính sách có nhập mới tách riêng, không gọi cảnh báo được ngăn cạn là sai.
 - **Sản phẩm dự kiến:** alerts.csv, event ledger, simulation_metrics.csv, ca tính tay và độ nhạy.
 - **Nhiệm vụ:** [T06](planning/PLAN.md#t06), [T10](planning/PLAN.md#t10), [T12](planning/PLAN.md#t12), [T13](planning/PLAN.md#t13), [T14](planning/PLAN.md#t14).
 - **Giới hạn:** Ca chuẩn chỉ chứng minh cơ chế, phải công khai replay. Không có ngưỡng precision/recall chính thức; không tự thêm để tuyên bố đạt. Không coi cạn trong 7 ngày là báo trước 7 ngày, không bảo đảm mọi tình huống.
+
+<a id="r07-target-chg073"></a>
+#### Bổ sung CHG-073 — Mục tiêu 45% và cấu hình đánh giá
+
+- **Cách hiểu làm việc:** early rate = số sự kiện cạn trong replay có cảnh báo trước ngày cạn ít nhất7ngày / tổng sự kiện cạn hợp lệ của lượt replay; hướng tới **≥45%**. Tạm dùng phạm vi toàn lượt như baseline slide14–15, chưa suy ra yêu cầu45% cho từng tuyến/SKU. Cần làm rõ với mentor đây là mức bắt buộc hay gợi ý, và phạm vi/cấu hình nào dùng nghiệm thu; không cần chờ làm rõ để hoàn tất lượt sửa MD này.
+- **Ba đại lượng riêng:** ≥7ngày là thời gian báo trước ngày cạn; 45% là tỷ lệ sự kiện đạt thời gian đó; `warning_horizon_days=N` là số ngày nhìn trước để tìm lần dự kiến xuống ROP. N=7 không tự chứng minh báo trước ngày cạn≥7ngày hoặc early rate≥45%. SS/ROP là cấu hình vận hành, không phải giá trị nhập để ép tỷ lệ kết quả.
+- **Khóa cách đánh giá:** ghi nguồn/forecast, tập item, origin/cửa sổ H14, tồn đầu/receipts biết trước và policy/scenario version/hash. Giữ một sự kiện cạn đầu tiên/item/cửa sổ; các ca cạn D+1…D+6 vẫn trong mẫu số, ca đã cạn tại origin loại riêng có lý do. Bộ lọc bảng không thay tỷ lệ toàn lượt; không có sự kiện thì tỷ lệ null, chưa có bằng chứng đạt45%. Công bố numerator/denominator, precision/recall, số muộn, coverage/ca loại và sai số ngày cạn cùng tỷ lệ.
+- **Baseline là bằng chứng cũ:** 986/2.867=34,391350%, chưa đạt mục tiêu làm việc45%. Có1.550ca cạn D+1…D+6 và1.317ca còn đủ thời gian, nên trần theo thời điểm của chính replay đó là45,936519%. Nếu giữ nguyên tập sự kiện/mẫu số, cần ít nhất1.291ca báo sớm (thêm305ca), tương đương98,0258% số ca còn đủ thời gian. Đây là phép tính từ số đã lưu, không phải run mới hoặc trần mọi hệ thống. [Bằng chứng và độ nhạy cũ](../M3/IMPLEMENTATION.md).
+- **So sánh trung thực:** alert replay không đặt mới; chỉ tăng safety không làm đổi đường tồn/ngày cạn của phép thử cũ. Đổi tồn đầu/cover/receipts có thể đổi tập sự kiện và mẫu số, phải báo riêng thay vì gọi là cải thiện trên cùng mẫu. Cảnh báo dự kiến xuống ROP và metric depletion giữ riêng; không gộp thêm tín hiệu vào tử số cũ hoặc hạ mốc7ngày để vượt45%. Thay cơ chế phải có protocol/chọn bằng quá khứ hoặc validation; đánh giá lại test đã xem vẫn là hồi cứu.
+- **Phạm vi hiện tại:** chỉ sửa tài liệu. Chưa thêm trường target45% vào DB/API/FE, chưa đổi công thức, model, mẫu số, run hoặc snapshot. Chỉ ghi mục tiêu chưa đòi hỏi một trường cấu hình mới. Bước12–15 giữ chờ yêu cầu tiếp; cần run/đối soát mới trước khi kết luận về kết quả cấu hình mới. R05/M05 và A08–A17 giữ trạng thái hiện có.
 
 <a id="r08"></a>
 ### R08 — Dashboard riêng trên Windows
