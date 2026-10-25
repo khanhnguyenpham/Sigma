@@ -1,5 +1,7 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+**Backend bước10 — 25/10/2026:** configuration models/schemas/service/context thêm persistence policy parameters; core/run_context thêm default vào bản diễn giải legacy, không ghi snapshot; policy_at chặn mode chưa có công thức. Alembic0002_policy thêm5cột/5check trên supplier_item_policies, vẫn13bảng. [Schema](02-data-model.md#policy-persistence-step10), [bàn giao](../../docs/development.md#handoff-chg068-step10). Không thêm module/dependency, FE/nghiệp vụ tính toán giữ bước9; bước11–15 chưa bắt đầu.
+
 **Frontend sau bước9 CHG-068 — 25/10/2026:** FE vẫn M3/frontend; App ghép6pages với AppLayout/Sidebar/Header/ContextFilters, state/effect ở useAppContext. useConfiguration giữ ghi cấu hình; form policy/scenario và3drawer tách component. index.css giữ byte của styles.css, import tại main. Không dependency/nghiệp vụ mới. [Cây thực](04-frontend-spec.md#step9-actual), [kiểm và bàn giao](../../docs/development.md#handoff-chg068-step9). Backend/dữ liệu không đổi; bước10–15 chưa bắt đầu.
 
 <a id="step7-actual"></a>

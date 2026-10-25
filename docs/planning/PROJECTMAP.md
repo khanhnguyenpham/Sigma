@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**Backend bước10 CHG-068 — 25/10/2026:** configuration models/schemas/service/context lưu5tham số policy/override, migration0002_policy giữ13bảng. core/run_context diễn giải default của policy cũ trong bản sao; inventory/policy_at chặn mode chưa tính tới bước11. FE giữ nguyên bước9. [Bàn giao](../development.md#handoff-chg068-step10), [schema hiện hành](../../M3/docs/02-data-model.md#policy-persistence-step10). Bước11–15 chưa bắt đầu.
+
 **Frontend sau bước9 CHG-068 — 25/10/2026:** FE vẫn M3/frontend; App ghép6pages với AppLayout/Sidebar/Header/ContextFilters, state/effect ở useAppContext. useConfiguration giữ ghi cấu hình; form policy/scenario và3drawer tách component. index.css giữ byte của styles.css, import tại main. Không dependency/nghiệp vụ mới. [Cây thực](../../M3/docs/04-frontend-spec.md#step9-actual), [kiểm và bàn giao](../development.md#handoff-chg068-step9). Backend/dữ liệu không đổi; bước10–15 chưa bắt đầu.
 
 **Hiện hành CHG-068 bước7 — 25/10/2026:** đủ8module backend; inventory chứa ledger/event/phép tính/simulation/seeding/workspace, purchasing chứa Replenishment/receipt/workbench/CSV, alerts chứa model/project/metric/diagnostic/router. models.py chỉ giữ registry13model chung Base; api/services cũ đã bỏ source. Entry point/launcher/API/DDL và FE giữ nguyên. [Cây thực](../../M3/docs/05-source-architecture.md#step7-actual), [bàn giao](../development.md#handoff-chg068-step7). Bước8–15 chưa bắt đầu; các cây trước ở dưới là checkpoint lịch sử.

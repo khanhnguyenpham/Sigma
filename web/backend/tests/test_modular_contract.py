@@ -1,6 +1,7 @@
 """Refactor guards captured before module extraction, not regenerated from new code."""
 import json
 import hashlib
+import re
 from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -23,6 +24,8 @@ from modules.alerts.models import Alert
 
 
 FIXTURES = Path(__file__).parent / "fixtures"
+POLICY_COLUMNS = {"safety_mode", "safety_lookback_days", "safety_factor", "rop_mode", "warning_horizon_days"}
+POLICY_CHECKS = {"ck_policy_safety_mode", "ck_policy_safety_lookback", "ck_policy_safety_factor", "ck_policy_rop_mode", "ck_policy_warning_horizon"}
 
 
 def settings(folder):
@@ -36,7 +39,14 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
     app = create_app(settings(tmp_path))
     try:
         expected = json.loads((FIXTURES / "openapi_baseline.json").read_text(encoding="utf-8"))
-        canonical = json.dumps(app.openapi(), sort_keys=True, separators=(",", ":")).encode()
+        schema = app.openapi()
+        # CHG-068 step10 explicitly adds these optional request fields only.
+        # Keep the original golden intact and compare the rest byte-for-byte.
+        for name in ("PolicyCreate", "PolicyOverride"):
+            properties = schema["components"]["schemas"][name]["properties"]
+            for field in POLICY_COLUMNS:
+                properties.pop(field)
+        canonical = json.dumps(schema, sort_keys=True, separators=(",", ":")).encode()
         assert hashlib.sha256(canonical).hexdigest() == expected["canonical_sha256"]
     finally:
         app.state.engine.dispose()
@@ -45,7 +55,14 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
 def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
     statements = []
     for _, table in sorted(Base.metadata.tables.items()):
-        statements.append(str(CreateTable(table).compile(dialect=dialect())).strip())
+        ddl = str(CreateTable(table).compile(dialect=dialect())).strip()
+        if table.name == "supplier_item_policies":
+            ddl = "\n".join(
+                line for line in ddl.splitlines()
+                if not re.match(r"\s*(?:" + "|".join(POLICY_COLUMNS) + r")\s", line)
+                and not any(f"CONSTRAINT {name} " in line for name in POLICY_CHECKS)
+            )
+        statements.append(ddl)
         for index in sorted(table.indexes, key=lambda index: index.name):
             statements.append(str(CreateIndex(index).compile(dialect=dialect())).strip())
     # SQLAlchemy emits spaces after commas; normalize only end-of-line whitespace.

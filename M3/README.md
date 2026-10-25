@@ -1,5 +1,7 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
+**Backend bước10 CHG-068 — 25/10/2026:** lưu5tham số policy/override, migration0002_policy với default tương thích; snapshot/run cũ nguyên, bản đọc chỉ thêm default trong bộ nhớ.144Python BE/M2 và migration DB test/app local đã kiểm; FE giữ bước9. [Schema/cách migrate](docs/02-data-model.md#policy-persistence-step10), [bàn giao/giới hạn](../docs/development.md#handoff-chg068-step10). Công thức fixed/volatility thuộc bước11; trước đó worker chặn mode này bằng stage_not_implemented.
+
 **Frontend sau bước9 CHG-068 — 25/10/2026:** FE vẫn M3/frontend; App ghép6pages với AppLayout/Sidebar/Header/ContextFilters, state/effect ở useAppContext. useConfiguration giữ ghi cấu hình; form policy/scenario và3drawer tách component. index.css giữ byte của styles.css, import tại main. Không dependency/nghiệp vụ mới. [Cây thực](docs/04-frontend-spec.md#step9-actual), [kiểm và bàn giao](../docs/development.md#handoff-chg068-step9). Backend/dữ liệu không đổi; bước10–15 chưa bắt đầu.
 
 **Hiện hành CHG-068 bước7 — 25/10/2026:** đã tách inventory/purchasing/alerts, hoàn tất8module backend và bỏ source api/services cũ. models.py chỉ đăng ký13model; entry point/launcher/API/DDL/phép tính giữ nguyên. [Cây source](docs/05-source-architecture.md#step7-actual), [kiểm và bàn giao](../docs/development.md#handoff-chg068-step7). Bước8–15 chưa bắt đầu; các trạng thái bên dưới là checkpoint lịch sử.
