@@ -1,10 +1,20 @@
 # M3 — backend, API và worker
 
+<a id="policy-api-step10"></a>
+## Policy API thực sau bước10 — 25/10/2026
+
+POST/GET `/api/v1/supplier-item-policies` bổ sung5trường của [schema](02-data-model.md#policy-persistence-step10). Bỏ trường ở policy POST dùng default days/forecast/28/1/7; null hoặc enum/range/nonfinite sai trả422 invalid_input theo lỗi an toàn cũ. Version/effective date/conflict409 và HTTP path không đổi.
+
+POST `/api/v1/scenarios` nhận cùng5trường tùy chọn trong từng settings.policy_overrides: thiếu/null kế thừa policy, giá trị0 của factor là override hợp lệ. GET trả các trường đã khai báo; scenario version trước không bị cập nhật. POST `/runs` đóng băng policy hiệu lực+override vào config mới, idempotency giữ nguyên. GET run tiếp tục ẩn detailed snapshot như cũ; inventory/alerts/CSV chưa thêm field/tín hiệu mới ở bước10.
+
+Mode fixed/volatility mới chỉ lưu, chưa triển khai tính toán trước bước11: khi worker tính sẽ báo stage_not_implemented. Client FE hiện chưa có control mới (bước13); body policy cũ vẫn dùng defaults. Run cũ/hash nguyên; [bàn giao và kiểm](../../docs/development.md#handoff-chg068-step10).
+
+
 **CHG-068 bước5 — 24/10/2026:** người dùng yêu cầu làm riêng bước5 sau checkpoint `992b8f5`. Đã tách core/catalog/configuration và rút main391→45dòng; giữ26route/OpenAPI đầy đủ, DDL13bảng và giao dịch/version/snapshot. Local107Python/26React/build/pipcheck/CLI/import/Alembic/smoke đạt,845protectedhash nguyên. Commit mã `db6c1d5` đã push, SHAremote khớp và cả2workflowCI completed/success. Bước5 hoàn tất; bước6–15 chưa bắt đầu. HTTP giữ URL, operation ID, tham số/body/schema, pagination, lỗi an toàn và idempotency. Router catalog/configuration dùng session của từng app qua Request; API runs chỉ chuyển khỏi main sang api/runs.py, chưa triển khai module runs của bước6.
 
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
-Giữ `/api/v1` và API hiện hữu trong refactor. Policy POST/GET và scenario DTO bổ sung mode/parameter tại bước10; alerts/filter/export/workspace bổ sung tín hiệu/ngày xuống ngưỡng ở bước12. Tham số mới có default tương thích; validation dùng lỗi an toàn hiện có, optimistic version và idempotency giữ nguyên. HTTP là transport duy nhất sau bước3; không fit trong request.
+Giữ `/api/v1` và API hiện hữu; policy/scenario DTO đã thêm mode/parameter tại bước10 ở trên. Alerts/filter/export/workspace thêm tín hiệu/ngày xuống ngưỡng vẫn chờ bước12. HTTP là transport duy nhất sau bước3; không fit trong request. Các mốc refactor dưới đây là lịch sử.
 
 [Kế hoạch CHG-068 và cổng từng bước](../../docs/planning/PLAN.md#chg-068).
 
@@ -44,7 +54,7 @@ Mỗi response kết quả có `context`: run_id, source_import_run_id, forecast
 | GET `/scenarios` | code/version/settings/assumptions | Mỗi version bất biến. |
 | POST `/scenarios` | name,code,base_scenario_id?,settings | Tạo version; cover3/7/14, multiplier≥0, receipts khai báo; L7/R1 cố định. |
 
-Các policy field canonical là `configured_rop_floor`, `moq`, `safety_days`; dùng thống nhất DB/DTO/FE. effective_to được BE xác lập từ phiên bản tiếp theo, không cho FE đóng khoảng gây khoảng trống bất ngờ. Khoảng trống đã có phải báo thiếu policy; không tự lấp bằng supplier khác. Policy override hồi tố chỉ qua scenario snapshot mới, với lý do và is_assumed=true.
+Các policy field gốc canonical là `configured_rop_floor`, `moq`, `safety_days`; bước10 bổ sung5tham số theo bảng schema ở trên cho DB/DTO, control FE mới chờ bước13. effective_to được BE xác lập từ phiên bản tiếp theo, không cho FE đóng khoảng gây khoảng trống bất ngờ. Khoảng trống đã có phải báo thiếu policy; không tự lấp bằng supplier khác. Policy override hồi tố chỉ qua scenario snapshot mới, với lý do và is_assumed=true.
 
 POST policy giả minh họa:
 

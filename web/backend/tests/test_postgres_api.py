@@ -110,7 +110,9 @@ def test_concurrent_policy_edits_one_wins(pg):
     def save(supplier):
         try:
             with sessions.begin() as s:
-                create_policy(s, request(i, supplier))
+                body = request(i, supplier).model_dump()
+                body.update(safety_mode="volatility", rop_mode="fixed", safety_factor=float(supplier))
+                create_policy(s, PolicyCreate.model_validate(body))
             return "created"
         except DomainError as exc:
             return exc.code
@@ -119,7 +121,10 @@ def test_concurrent_policy_edits_one_wins(pg):
         results = list(pool.map(save, [a, b]))
     assert sorted(results) == ["created", "version_conflict"]
     with sessions() as s:
-        assert len(s.scalars(select(Policy)).all()) == 1
+        policies = s.scalars(select(Policy)).all()
+        assert len(policies) == 1
+        assert policies[0].safety_mode == "volatility" and policies[0].rop_mode == "fixed"
+        assert policies[0].safety_factor == float(policies[0].supplier_id)
 
 
 def test_frozen_run_prevents_retroactive_policy_close(pg):

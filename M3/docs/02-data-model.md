@@ -1,8 +1,35 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
+<a id="policy-persistence-step10"></a>
+## Policy persistence thực sau bước10 — 25/10/2026
+
+Alembic `0002_policy` (tệp `0002_configurable_inventory_policies.py`, sau0001_m3) thêm5cột NOT NULL và5check có tên vào `supplier_item_policies`, vẫn13bảng. Default server áp dụng cho hàng cũ và insert bỏ trường; không UPDATE run/scenario JSON, checksum hoặc manifest. Backend hiện lưu/đọc PolicyCreate và scenario PolicyOverride, đóng băng các giá trị hiệu lực vào run mới.
+
+| Trường | Kiểu DB / DTO | Default policy | Ràng buộc |
+|---|---|---|---|
+| safety_mode | text / literal | days | days hoặc volatility |
+| safety_lookback_days | smallint / strict int |28|7–90, không bool/số thực |
+| safety_factor | double precision / strict float |1|Hữu hạn≥0, không NaN/Infinity/bool |
+| rop_mode | text / literal | forecast | fixed hoặc forecast |
+| warning_horizon_days | smallint / strict int |7|1–14, không bool/số thực |
+
+Mỗi thay đổi policy tạo version mới, giữ lock theo item, expected_version và khoảng ngày nửa mở [effective_from,effective_to); không hồi tố làm đổi run đã khóa. Scenario tạo version mới, override chỉ ghi trường có giá trị (thiếu/null kế thừa từ policy); không tự gán defaults làm mất kế thừa. Run mới chứa đủ5trường sau merge; scenario JSON trong run giữ đúng version đã chọn. Run cũ chỉ được diễn giải days/forecast/28/1/7 trong bản sao do snapshot_maps trả về, không thay config_sha256.
+
+DB local hiện tại đã backup và nâng0002; hash toàn bộ cột cũ13bảng và3run khớp. Test DB kiểm downgrade→0001→upgrade→head lặp, backfill/constraint và Alembic0diff kể cả server defaults. Golden0001/OpenAPI trước refactor giữ nguyên; contract loại đúng5trường và5check được giao thêm rồi so phần còn lại. [Kiểm và giới hạn](../../docs/development.md#handoff-chg068-step10).
+
+Máy mới/máy thành viên chạy từ root sau cài dependencies và cấu hình env local:
+
+```powershell
+. web/backend/scripts/load_env.ps1
+.venv-m3/Scripts/python.exe -B -m alembic -c web/backend/alembic.ini upgrade head
+```
+
+Bước10 chỉ persistence. Công thức SS/ROP mới ở bước11; policy mode fixed hoặc volatility lưu được và đóng băng được, nhưng tính toán hiện trả stage_not_implemented, không âm thầm dùng công thức cũ. days/forecast giữ phép tính và snapshot parity cũ. Alerts type/state/ngày xuống ngưỡng còn dự kiến bước12, UI bước13–14; schema alert chưa đổi.
+
+
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
-Migration dự kiến thêm năm trường mode/parameter vào supplier_item_policies; check enum/range/hữu hạn, backfill days/forecast/28/1/7. Scenario override và frozen policy snapshot mang cùng trường. Alerts thêm ngày xuống ngưỡng nullable, type `projected_below_rop`, state `threshold_warning`; giữ khóa duy nhất theo run/window/item/date/type và13bảng. Không backfill hay đổi sealed snapshot/run cũ; defaults khi đọc chỉ ở bản diễn giải trong bộ nhớ.
+**Phân biệt giai đoạn CHG-068:**5trường policy đã triển khai tại bước10 ở trên. Alerts thêm ngày xuống ngưỡng nullable, type projected_below_rop/state threshold_warning vẫn dự kiến bước12. Giữ13bảng và khóa run/window/item/date/type; không sửa sealed snapshot/run cũ.
 
 [Kế hoạch CHG-068 và cổng từng bước](../../docs/planning/PLAN.md#chg-068).
 
@@ -57,7 +84,7 @@ erDiagram
 | `warehouses` | id; code text; destination_country text; carrier text; city text; is_assumed bool=true; assumption_source text; version int; created_at | UNIQUE(code), UNIQUE(destination_country,carrier). Một route một kho; city bắt buộc nhưng không được coi tối ưu. |
 | `items` | id; warehouse_id FK; sku text; product_type text; first_seen_date date; created_at | UNIQUE(warehouse_id,sku,product_type); CHECK product_type IN ('eSIM','physical_SIM'). Index warehouse_id. Không giả định sku duy nhất toàn hệ thống. |
 | `suppliers` | id; code text; display_name text; is_assumed bool=true; assumption_source text; created_at | UNIQUE(code). Một supplier có nhiều policy; v1 không lưu thông tin liên hệ, tài khoản ngân hàng hay hợp đồng đính kèm. |
-| `supplier_item_policies` | id; item_id FK; supplier_id FK; version int; effective_from date; effective_to date?; configured_rop_floor bigint; moq bigint; safety_days numeric(8,3); is_assumed bool=true; assumption_source text; created_at | UNIQUE(item_id,version), UNIQUE(item_id,effective_from), UNIQUE(id,item_id); CHECK floor≥0, moq≥1, safety≥0, end>start nếu có. Index(item_id,effective_from,effective_to). Một policy hiệu lực/item/ngày, kể cả đổi supplier. |
+| `supplier_item_policies` | id; item_id FK; supplier_id FK; version int; effective_from date; effective_to date?; configured_rop_floor bigint; moq bigint; safety_days numeric(8,3); safety_mode text; safety_lookback_days smallint; safety_factor double precision; rop_mode text; warning_horizon_days smallint; is_assumed bool=true; assumption_source text; created_at | UNIQUE(item_id,version), UNIQUE(item_id,effective_from), UNIQUE(id,item_id); CHECK floor≥0, moq≥1, safety≥0, end>start nếu có. Index(item_id,effective_from,effective_to). Một policy hiệu lực/item/ngày, kể cả đổi supplier. |
 
 Không lưu lead_time_days tùy chỉnh ở policy: profile M3 khóa L7/R1 trong run config; API từ chối giá trị khác. Không có fallback policy chung. Chặn chồng khoảng bằng transaction khóa dòng items tương ứng, kiểm `[from,to)` trước insert/đóng khoảng; UNIQUE chặn trùng đầu khoảng. Không dùng CHECK tham chiếu dòng khác. Chỉ một đường mutation policy trong API/CLI để giữ kiểm này, tài khoản DB ứng dụng không được dùng tùy tiện ngoài dịch vụ.
 

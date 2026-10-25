@@ -2,7 +2,7 @@
 
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
-Giao diện đích thêm policy/override: `safety_mode=days|volatility`, `safety_lookback_days` nguyên7–90 (mặc định28), `safety_factor` hữu hạn≥0 (mặc định1), `rop_mode=fixed|forecast`, `warning_horizon_days` nguyên1–14 (mặc định7). Policy cũ về days/forecast. Cảnh báo thêm `projected_below_rop` và `predicted_threshold_crossing_date` nullable, giữ riêng `predicted_depletion_date`. Thêm cột/check bằng Alembic về sau, giữ13bảng.
+Bước10 đã lưu policy/override: `safety_mode=days|volatility`, `safety_lookback_days` nguyên7–90 (default28), `safety_factor` hữu hạn≥0 (default1), `rop_mode=fixed|forecast`, `warning_horizon_days` nguyên1–14 (default7). Alembic0002_policy backfill5default vào policy, giữ13bảng; run/scenario JSON cũ và config_sha256 không sửa, defaults chỉ thêm vào bản đọc. Override thiếu/null kế thừa policy hiệu lực, không tự chèn default vào override. [Bằng chứng](development.md#handoff-chg068-step10). Công thức mới ở bước11; mode fixed/volatility hiện bị chặn khi tính bằng stage_not_implemented. Cảnh báo projected_below_rop/ngày xuống ngưỡng và UI mới vẫn dự kiến bước12–14.
 
 [Kế hoạch CHG-068 và cổng từng bước](planning/PLAN.md#chg-068).
 

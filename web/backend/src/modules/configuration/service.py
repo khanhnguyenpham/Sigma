@@ -5,6 +5,7 @@ from modules.inventory.models import InventoryDaily
 from modules.runs.models import Run
 from modules.catalog.models import Item, Supplier, Warehouse
 from modules.configuration.models import Policy, Scenario
+from modules.configuration.schemas import POLICY_DEFAULTS
 
 
 def create_policy(session, request):
@@ -73,6 +74,7 @@ def create_policy(session, request):
         configured_rop_floor=request.configured_rop_floor,
         moq=request.moq,
         safety_days=request.safety_days,
+        **{name: getattr(request, name) for name in POLICY_DEFAULTS},
         is_assumed=True,
         assumption_source="user_configured_simulation_v1",
     )

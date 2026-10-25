@@ -3,6 +3,7 @@
 from datetime import timedelta
 from sqlalchemy import select
 from modules.configuration.models import Policy
+from modules.configuration.schemas import POLICY_DEFAULTS
 from modules.catalog.models import Item, Warehouse, Supplier
 from core.errors import DomainError
 
@@ -51,6 +52,7 @@ def freeze_inventory(session, request, source, scenario):
                 "safety_days",
                 "is_assumed",
                 "assumption_source",
+                *POLICY_DEFAULTS,
             ]
         }
         record["effective_from"] = p.effective_from.isoformat()

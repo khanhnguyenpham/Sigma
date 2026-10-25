@@ -30,6 +30,15 @@ def policy_at(policies, item, day):
         raise DomainError(
             "missing_partner_config", "Expected one frozen policy", item_id=item
         )
+    if (
+        rows[0].get("safety_mode", "days") != "days"
+        or rows[0].get("rop_mode", "forecast") != "forecast"
+    ):
+        raise DomainError(
+            "stage_not_implemented",
+            "This policy mode is stored but calculation is not implemented yet",
+            item_id=item,
+        )
     return rows[0]
 
 
