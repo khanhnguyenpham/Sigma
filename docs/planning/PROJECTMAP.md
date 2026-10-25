@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**Hiện hành CHG-072 — 25/10/2026:** frontend ở web/frontend, configs/research code/env ở web/backend; M3 chỉ giữ Markdown và protocol nghiên cứu. Backend serve/build/launcher/CI đã đổi đường; tên env/DB, FE/nghiệp vụ/API/13bảng/snapshot giữ nguyên. [Cây thực](../../M3/docs/05-source-architecture.md#web-layout-chg072), [bàn giao](../development.md#handoff-chg072). Bước11–15 chưa bắt đầu; các mốc đường M3/frontend/configs/research/env dưới đây là lịch sử trước chuyển vị trí, các lệnh chạy đã cập nhật.
+
 **Backend bước10 CHG-068 — 25/10/2026:** configuration models/schemas/service/context lưu5tham số policy/override, migration0002_policy giữ13bảng. core/run_context diễn giải default của policy cũ trong bản sao; inventory/policy_at chặn mode chưa tính tới bước11. FE giữ nguyên bước9. [Bàn giao](../development.md#handoff-chg068-step10), [schema hiện hành](../../M3/docs/02-data-model.md#policy-persistence-step10). Bước11–15 chưa bắt đầu.
 
 **Frontend sau bước9 CHG-068 — 25/10/2026:** FE vẫn M3/frontend; App ghép6pages với AppLayout/Sidebar/Header/ContextFilters, state/effect ở useAppContext. useConfiguration giữ ghi cấu hình; form policy/scenario và3drawer tách component. index.css giữ byte của styles.css, import tại main. Không dependency/nghiệp vụ mới. [Cây thực](../../M3/docs/04-frontend-spec.md#step9-actual), [kiểm và bàn giao](../development.md#handoff-chg068-step9). Backend/dữ liệu không đổi; bước10–15 chưa bắt đầu.

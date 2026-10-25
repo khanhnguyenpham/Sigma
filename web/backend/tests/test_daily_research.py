@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 import pytest
-from M3.research.daily_validation import examples, fit_rows, FEATURES, weighted_median
+from web.backend.research.daily_validation import examples, fit_rows, FEATURES, weighted_median
 
 
 def synthetic():

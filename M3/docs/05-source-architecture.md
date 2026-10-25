@@ -1,5 +1,31 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+<a id="web-layout-chg072"></a>
+## Cấu trúc thực CHG-072 — 25/10/2026
+
+Theo yêu cầu trước bước11, code ứng dụng nằm trong web; M3 chỉ giữ Markdown đặc tả, protocol và hướng dẫn. Đây là chuyển vị trí sau bước10, không triển khai bước11–15.
+
+```text
+web/
+  frontend/           index.html, package/lock, public, src, tests, tsconfig, vite.config
+  backend/
+    src/              main/worker/cli/models, core và8module hiện có
+    configs/          m3-profile.json, acceptance-30d.json, .env.example
+    research/         daily_validation.py, daily_panel.py
+    scripts/          launcher API/worker/stack, load_env.ps1
+    migrations/       0001_m3, 0002_policy
+    tests/            kiểm BE/DB/research hiện có
+    .env              local ignored, chuyển nguyên byte từ M3/.env
+M3/
+  docs/               đặc tả và research.md (protocol nghiên cứu)
+  *.md                README/IMPLEMENTATION/ACCEPTANCE/MONTHLY/SUBMISSION
+```
+
+FastAPI và launcher đọc web/frontend/dist. CI npm working-directory/cache theo web/frontend; profile/monthly acceptance đọc web/backend/configs, không giữ fallback đường M3 cũ. load_env.ps1 mặc định web/backend/.env; tên biến/DB/distribution vẫn sigma_m3/M3 như trước. Hai nghiên cứu chạy từ root bằng python -m web.backend.research.daily_validation hoặc daily_panel; PROJECT_ROOT dùng chung giữ output/requirements tại root. Không thêm dependency/package wrapper/symlink.
+
+FE source/tests/package-lock và10file build giữ byte; config JSON/env giữ byte.144Python và34React/build trước/sau đạt,1005protectedhash nguyên; AST9file Python chỉ đổi đường/import/root. [Bàn giao và giới hạn](../../docs/development.md#handoff-chg072). Các cây cũ bên dưới là checkpoint lịch sử trước CHG-072.
+
+
 **Backend bước10 — 25/10/2026:** configuration models/schemas/service/context thêm persistence policy parameters; core/run_context thêm default vào bản diễn giải legacy, không ghi snapshot; policy_at chặn mode chưa có công thức. Alembic0002_policy thêm5cột/5check trên supplier_item_policies, vẫn13bảng. [Schema](02-data-model.md#policy-persistence-step10), [bàn giao](../../docs/development.md#handoff-chg068-step10). Không thêm module/dependency, FE/nghiệp vụ tính toán giữ bước9; bước11–15 chưa bắt đầu.
 
 **Frontend sau bước9 CHG-068 — 25/10/2026:** FE vẫn M3/frontend; App ghép6pages với AppLayout/Sidebar/Header/ContextFilters, state/effect ở useAppContext. useConfiguration giữ ghi cấu hình; form policy/scenario và3drawer tách component. index.css giữ byte của styles.css, import tại main. Không dependency/nghiệp vụ mới. [Cây thực](04-frontend-spec.md#step9-actual), [kiểm và bàn giao](../../docs/development.md#handoff-chg068-step9). Backend/dữ liệu không đổi; bước10–15 chưa bắt đầu.
@@ -170,7 +196,7 @@ Phần forecast/runs/reporting, inventory/purchasing/alerts và FE chưa tổ ch
 
 **Cập nhật M05/E93 — 20/10/2026:** [R05 tổng30 và implementation hiện hành](../MONTHLY.md) thay cổng độ chính xác ngày bằng tổng D+1…D+30 theo mentor do người dùng thuật lại. Đã đối soát 10/10≤20% hồi cứu. Benchmark chỉ đọc có manifest/source/target/hash riêng, API/UI/CSV; không thêm bảng DB hoặc thay forecast tồn H14. Các mục R05 ngày dưới đây mô tả thiết kế trước M05; A08 và nghiệm thu mentor vẫn tách riêng.
 
-**E91 đã triển khai:** services/alerts.py tính chẩn đoán hậu kiểm, api/results.py phục vụ GET alert-opportunities; FE AlertOpportunity dùng context theo run. M3/research/daily_validation.py riêng ngoài worker/adapter/selection phục vụ; outputs private, không thêm bảng DB. [Protocol nghiên cứu](../research/README.md).
+**E91 đã triển khai:** services/alerts.py tính chẩn đoán hậu kiểm, api/results.py phục vụ GET alert-opportunities; FE AlertOpportunity dùng context theo run. M3/research/daily_validation.py riêng ngoài worker/adapter/selection phục vụ; outputs private, không thêm bảng DB. [Protocol nghiên cứu](research.md).
 
 **Hiện hành E90:** ứng dụng đã có code và fullrun local theo profile này. Xem [implementation, số kiểm thực và giới hạn](../IMPLEMENTATION.md). Nội dung E76/E89 có chữ “dự kiến/chưa triển khai” bên dưới là lịch sử thiết kế/checkpoint; không dùng làm trạng thái hiện hành hoặc bằng chứng chạy. R05/R07/T14 vẫn mở.
 

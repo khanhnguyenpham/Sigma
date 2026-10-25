@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 import pytest
-from M3.research import daily_panel as panel
+from web.backend.research import daily_panel as panel
 from test_daily_research import synthetic
-from M3.research.daily_validation import evaluate_frame
+from web.backend.research.daily_validation import evaluate_frame
 
 
 def market():

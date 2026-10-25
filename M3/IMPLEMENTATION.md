@@ -1,5 +1,7 @@
 # M3 — ứng dụng đã triển khai và cách chạy
 
+**Hiện hành CHG-072 — 25/10/2026:** frontend ở web/frontend, configs/research code/env ở web/backend; M3 chỉ giữ Markdown và protocol nghiên cứu. Backend serve/build/launcher/CI đã đổi đường; tên env/DB, FE/nghiệp vụ/API/13bảng/snapshot giữ nguyên. [Cây thực](docs/05-source-architecture.md#web-layout-chg072), [bàn giao](../docs/development.md#handoff-chg072). Bước11–15 chưa bắt đầu; các mốc đường M3/frontend/configs/research/env dưới đây là lịch sử trước chuyển vị trí, các lệnh chạy đã cập nhật.
+
 **CHG-071 — lệnh hiện hành:** từ root repo, API dùng `python -m uvicorn main:create_app --factory`, worker `python -m worker`, CLI `python -m cli`; launcher ở web/backend/scripts. Cài editable từ web/backend; src backend không có thư mục sigma_m3. FE/configs/env vẫn M3, root src vẫn M2. Cấu trúc/namespace trong các mốc E89–E104 là lịch sử, không là lệnh chạy mới.
 
 **CHG-070 — cách chạy hiện hành:** cài package từ `web/backend`, dùng Alembic `web/backend/alembic.ini`; FE build tại `M3/frontend/dist`, configs/env/scripts giữ ở M3. API/worker/CLI dùng cùng package  [Lệnh chạy hiện hành](../README.md) và [cây thư mục](docs/05-source-architecture.md#web-layout-chg070). Các mô tả Streamlit và số kiểm E89–E103 bên dưới giữ như lịch sử;7file hướng dẫn/bản sao cũ đã bỏ, tra bằng [Git/E104](../docs/review-log.md#removed-docs-chg070).
@@ -66,7 +68,7 @@ Theo yêu cầu mới của người dùng, giao diện dùng React/TypeScript/V
 
 **Đã kiểm trực tiếp:**109Python (77M3+32M2),17React, TypeScript/Vite build và Ruff. Browser thực mở đủ sáu màn hình, chọn kế hoạch tương thích, lọc Japan/NTT Docomo/item341, mở/đóng chi tiết bằng Escape, chuyển ba chế độ dự báo, lưu kịch bản mới `management_ui_20261020`v1 và tạo stock_projection mới. Run `0c3460ff-6219-408d-b4a6-8a744f06e21d`complete/verified:920threshold/920events/1lot/1714alerts; cùng forecast replay/scenario7/origin31/10. API/CSV đối soát1dòng: closing7/ROP20/pending20/IP27/Q0, ETA04/11; không coi pending là tồn hiện có. Tổng quan46tuyến/920item:1314tồn,793mặt hàng Q>0/5866đơn vị,1lô20đơn vị,200mặt hàng urgent/already_depleted. Đây là số liệu của phương án mô phỏng cụ thể, không KPI doanh nghiệp thật. Responsive390/768/1440 đã kiểm: trang không tràn ngang; bảng có vùng cuộn riêng. Console error ở lượt kiểm cuối trống. Receipt và ảnh trong outputs local, không phải artifact cần push.
 
-**Nhóm lấy mã:** dùng các lệnh clone/cài trong mục “Cài trên máy thành viên” bên dưới. Nếu đã có checkout nhánh này, lưu thay đổi cá nhân rồi `git pull --ff-only origin codex/m3-implementation`; trong `M3/frontend` chạy `npm ci`, `npm test`, `npm run build`. Tại root nạp env và chạy launcher như hướng dẫn. Thành viên cần PostgreSQL và nguồn bài local; Git không kèm DB/raw/run/env. Không copy nguyên UUID local để kỳ vọng máy mới đã có kết quả; tạo nguồn/forecast/mô phỏng theo quy trình bên dưới.
+**Nhóm lấy mã:** dùng các lệnh clone/cài trong mục “Cài trên máy thành viên” bên dưới. Nếu đã có checkout nhánh này, lưu thay đổi cá nhân rồi `git pull --ff-only origin m3-implementation`; trong `web/frontend` chạy `npm ci`, `npm test`, `npm run build`. Tại root nạp env và chạy launcher như hướng dẫn. Thành viên cần PostgreSQL và nguồn bài local; Git không kèm DB/raw/run/env. Không copy nguyên UUID local để kỳ vọng máy mới đã có kết quả; tạo nguồn/forecast/mô phỏng theo quy trình bên dưới.
 
 **Giới hạn:** React mới phục vụ cùng backend local, chưa deploy lên Internet hoặc thay app Streamlit public. M05 tổng30 vẫn10/10 hồi cứu; không refit hoặc nâng R07/T14/mentor nghiệm thu từ việc đổi giao diện. Không thêm auth/hosting nhiều người trong lượt này.
 
@@ -136,20 +138,20 @@ Fresh future run `d57975c8-3d14-40a2-bee6-b3b8e20575ad` qua mã worker cuối:46
 | `modules/runs/`, `worker.py`, `cli.py` |Parent DAG/config hash, idempotency, queue một worker, heartbeat30s, verify trước complete. |
 | `modules/runs/verification.py` |Tính lại allocation/actual/threshold/event/receipt/mẫu số cảnh báo; receipt kiểm ngoài run đã khóa. |
 | `main.py`, `modules/reporting/`, các module/router.py |Result/metric/CSV/monthly và serve React đã build; tổng quan/tồn/nhập/cảnh báo ở module tương ứng. |
-| `M3/frontend/src/services/`, `types/`, `utils/`, `config/`, `hooks/`, `components/`, `layouts/`, `pages/` |Client typed/abort, context/layout và sáu trang ghép component; form/drawer riêng, main import index.css giữ byte cũ. |
-| `web/backend/tests/`, `M3/frontend/tests/`, `.github/workflows/m3.yml` ở root |Fixture giả PostgreSQL, unit/integration, RTL và CI. |
+| `web/frontend/src/services/`, `types/`, `utils/`, `config/`, `hooks/`, `components/`, `layouts/`, `pages/` |Client typed/abort, context/layout và sáu trang ghép component; form/drawer riêng, main import index.css giữ byte cũ. |
+| `web/backend/tests/`, `web/frontend/tests/`, `.github/workflows/m3.yml` ở root |Fixture giả PostgreSQL, unit/integration, RTL và CI. |
 
 ## Cài trên máy thành viên
 
 Clone đúng nhánh; không cần merge main để đọc/chạy:
 
 ```powershell
-git clone --branch codex/m3-implementation https://github.com/khanhnguyenpham/Sigma.git
+git clone --branch m3-implementation https://github.com/khanhnguyenpham/Sigma.git
 cd Sigma
 py -3.12 -m venv .venv-m3
 .\.venv-m3\Scripts\python.exe -m pip install -r web/backend/requirements.txt
 .\.venv-m3\Scripts\python.exe -m pip install --no-deps -e web/backend
-Copy-Item M3/configs/.env.example M3/.env
+Copy-Item web/backend/configs/.env.example web/backend/.env
 ```
 
 Cần PostgreSQL18 và Node24/npm11. Tạo app role **không superuser**, hai database riêng `sigma_m3`/`sigma_m3_test` do role đó sở hữu. Dùng tài khoản quản trị PostgreSQL của máy để thực hiện; ví dụ trong psql:
@@ -161,13 +163,13 @@ CREATE DATABASE sigma_m3 OWNER sigma_m3_app;
 CREATE DATABASE sigma_m3_test OWNER sigma_m3_app;
 ```
 
-Điền mật khẩu/port/local paths trong `M3/.env`, không commit. `M3_SOURCE_ROOT` trỏ workspace đang giữ nguyên CSV tại `data/sigma_sim_data_orders.csv`; raw không nằm trong Git, thành viên dùng nguồn bài nhóm đã có. Không cần gửi lại dữ liệu doanh nghiệp. `M3_OUTPUT_ROOT` là thư mục private; không chọn M2/artifacts hoặc thư mục run cũ. DB trên máy kiểm là portable127.0.0.1:55432, không cài service toàn máy; đây không là yêu cầu port của mọi thành viên.
+Điền mật khẩu/port/local paths trong `web/backend/.env`, không commit. `M3_SOURCE_ROOT` trỏ workspace đang giữ nguyên CSV tại `data/sigma_sim_data_orders.csv`; raw không nằm trong Git, thành viên dùng nguồn bài nhóm đã có. Không cần gửi lại dữ liệu doanh nghiệp. `M3_OUTPUT_ROOT` là thư mục private; không chọn M2/artifacts hoặc thư mục run cũ. DB trên máy kiểm là portable127.0.0.1:55432, không cài service toàn máy; đây không là yêu cầu port của mọi thành viên.
 
 ```powershell
 . ./web/backend/scripts/load_env.ps1
 .\.venv-m3\Scripts\python.exe -m alembic -c web/backend/alembic.ini upgrade head
 .\.venv-m3\Scripts\python.exe -m pip check
-cd M3/frontend
+cd web/frontend
 npm ci
 npm test
 npm run build
@@ -177,7 +179,7 @@ cd ../..
 
 Mở `http://127.0.0.1:8000/`, OpenAPI `/docs`, health `/api/v1/health`. Launcher chạy API+worker ẩn, log ở outputs; dừng bằng `web/backend/scripts/stop_m3.ps1`, chỉ dừng PID mà launcher tạo và đúng creation time. PostgreSQL quản lý riêng. Đây là app local, chưa có auth/hosting nhiều người; push GitHub không xuất bản database hoặc ứng dụng lên Internet.
 
-Để phát triển FE: chạy `start_api.ps1`, `start_worker.ps1` trong hai terminal; tại M3/frontend dùng `npm run dev` port5173 proxyAPI8000. Không đồng thời mở worker dev và launcher; worker thứ hai bị advisory lock chặn.
+Để phát triển FE: chạy `start_api.ps1`, `start_worker.ps1` trong hai terminal; tại web/frontend dùng `npm run dev` port5173 proxyAPI8000. Không đồng thời mở worker dev và launcher; worker thứ hai bị advisory lock chặn.
 
 ## Tạo dữ liệu và lượt chạy
 
@@ -229,7 +231,7 @@ Màn Cảnh báo có phân tích **toàn lượt alert replay** qua GET /runs/{i
 
 Cơ sở:1.550/2.867 sự kiện cạn ởD+1…D+6; chỉ1.317ca có khoảng cách từ origin≥7. Do đó trần báo sớm tại chính các origin/tồn đầu này là45,936519%, so thực986/2867=34,391350%; còn331ca đủ thời gian nhưng không có cảnh báo. Trần này không áp cho mọi hệ thống/kịch bản, không xóa ca cạn sớm hoặc thay R07 bằng tỷ lệ có điều kiện. Không có sự kiện thì các tỷ lệ null. UI hiển thị phân bố14ngày và giữ mẫu số khi lọc bảng; đã kiểm trực tiếp chọnJapan/NTTDocomo:40dòng tại origin, mẫu số toàn lượt vẫn2867. Ảnh local outputs/m3-alert-opportunities.png.
 
-[Nghiên cứu ngày validation](research/README.md) dùng8phương pháp/28fits,95.760forecast/160nhóm metric/6.390ngày-tuyến đầu vào≤30/09/2025; không đọc test. Best theo từng tuyến H1–7 mean49,451918%,0/10≤20%; phân bổ M3 cùng623cặp/tuyến mean51,905954%.7/10tuyến có MAPE thấp hơn, nhưng loss giảm kèm bias âm; chưa chọn để phục vụ hoặc dùng vào tồn. Không nhận là đã cải thiện test/sản phẩm. Cần bằng chứng tiếp trước thay profile.
+[Nghiên cứu ngày validation](docs/research.md) dùng8phương pháp/28fits,95.760forecast/160nhóm metric/6.390ngày-tuyến đầu vào≤30/09/2025; không đọc test. Best theo từng tuyến H1–7 mean49,451918%,0/10≤20%; phân bổ M3 cùng623cặp/tuyến mean51,905954%.7/10tuyến có MAPE thấp hơn, nhưng loss giảm kèm bias âm; chưa chọn để phục vụ hoặc dùng vào tồn. Không nhận là đã cải thiện test/sản phẩm. Cần bằng chứng tiếp trước thay profile.
 
 Run nghiên cứu cuối: outputs/research/daily-validation-v1-560a112e-2452-4b7a-a0c7-1e16d0475351. SelectionSHA0608d7dcda479cfea1e051f610edbfa833130db0ed43635b28c2bade72057180. Lượt trước7811fb30 được giữ; bản cuối bổ sung runtime/input/requirements hashes và clipping log, predictions/metrics/selection giống byte. Đối soát độc lập160nhóm metric/28cutoff/hashes/10selection đạt; receipt outputs/e91-verification.json ngoài run đã khóa.
 

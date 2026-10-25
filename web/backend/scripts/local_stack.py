@@ -70,8 +70,8 @@ def main():
         )
     if not 1024 <= args.port <= 65535:
         raise SystemExit("Port must be in 1024..65535")
-    if not (ROOT / "M3/frontend/dist/index.html").is_file():
-        raise SystemExit("Build M3/frontend with npm ci and npm run build first.")
+    if not (ROOT / "web/frontend/dist/index.html").is_file():
+        raise SystemExit("Build web/frontend with npm ci and npm run build first.")
     settings = Settings.from_env()
     engine, _ = database(settings.database_url)
     try:
