@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { api } from "../src/api/client";
+import { api } from "../src/services/http";
 
 afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
 

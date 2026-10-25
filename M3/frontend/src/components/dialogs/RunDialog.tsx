@@ -1,13 +1,10 @@
 import { useRef, useState } from "react";
-import {
-  api,
-  type Run,
-  type Page,
-  type Row,
-  label,
-  errorLabel,
-} from "../api/client";
-import { useResource, State, useDialogFocus } from "./common";
+import { api } from "../../services/http";
+import { type Run, type Page, type Row } from "../../types/api";
+import { label, errorLabel } from "../../utils/labels";
+import { useResource } from "../../hooks/useResource";
+import { State } from "../ui/State";
+import { useDialogFocus } from "../../hooks/useDialogFocus";
 export function RunDialog({
   runs,
   onClose,

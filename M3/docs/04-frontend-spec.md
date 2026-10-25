@@ -1,5 +1,32 @@
 # M3 — đặc tả frontend
 
+<a id="step8-actual"></a>
+## Cấu trúc thực sau bước8 CHG-068 — 25/10/2026
+
+Frontend vẫn ở **M3/frontend**, chưa chuyển sang web/frontend. Đã tách common.tsx và api/client.ts; không giữ shim hoặc barrel. Cây thực dưới src:
+
+```text
+components/
+  ui/           State, Card, Table/Column, Pager, Panel, ExportButton,
+                Badge (badge), DetailDrawer, PlanRequired, Icon, PageBoundary
+  dialogs/      HelpDialog, RunDialog
+  forecast/     MonthlyForecast
+  alerts/       AlertOpportunity
+hooks/          useResource.ts, useDialogFocus.ts
+services/       http.ts: api, ApiError
+config/         http.ts: API_PREFIX và read30s/write90s; navigation.ts: PAGES/kind
+types/         api.ts: Row/Run/Page/WorkspaceData; context.ts: Context/PurchasingView
+utils/          format.ts, labels.ts, url.ts (gồm readPurchasingView)
+pages/          sáu trang cũ, giữ JSX và form/drawer lớn
+App.tsx         giữ state/effect/layout/context; chỉ đổi import/đưa hằng ra config
+main.tsx        giữ mount; chỉ đổi import PageBoundary
+styles.css      giữ nguyên byte, import ở App; đổi index.css ở bước9
+```
+
+53khai báo/câu lệnh giữ AST ngoài import/export và tham chiếu3hằng HTTP có đúng giá trị cũ. App/layout và JSX/hook không đổi; client giữ Fetch API/abort/read30s/write90s/Idempotency-Key, không tự retry write. useResource giữ refresh/chặn response cũ, useDialogFocus giữ Tab/Escape/phục hồi focus. Types dùng chung được page/component import trực tiếp; không thêm router/state framework hoặc dependency.
+
+Kiểm baseline26→30React/build,120Python baseline và9contract sau sửa;4ca mới cho bảng bàn phím, pager, CSV và focus. Smoke browser6màn hình trên DB test trống và help/Escape/focus đạt;970protectedhash và CSS nguyên. [Bàn giao](../../docs/development.md#handoff-chg068-step8). Bước9–15 chưa bắt đầu; cây đích CHG-069 và các trạng thái cũ bên dưới là thiết kế/checkpoint trước.
+
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
 <a id="frontend-target-chg069"></a>

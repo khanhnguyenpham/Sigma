@@ -8,32 +8,24 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-import { AlertOpportunity } from "../components/AlertOpportunity";
-import {
-  type Run,
-  type Context,
-  type Page,
-  type Row,
-  resultQuery,
-  fmt,
-  pct,
-  text,
-} from "../api/client";
-import {
-  useResource,
-  Panel,
-  State,
-  Table,
-  Pager,
-  ExportButton,
-  badge,
-  Card,
-  DetailDrawer,
-  PlanRequired,
-} from "../components/common";
-import type { PurchasingView } from "./Replenishment";
-import { Icon } from "../components/Icon";
-import type { WorkspaceData } from "./Overview";
+import { AlertOpportunity } from "../components/alerts/AlertOpportunity";
+import { type Run, type Page, type Row } from "../types/api";
+import { type Context } from "../types/context";
+import { resultQuery } from "../utils/url";
+import { fmt, pct, text } from "../utils/format";
+import { useResource } from "../hooks/useResource";
+import { Panel } from "../components/ui/Panel";
+import { State } from "../components/ui/State";
+import { Table } from "../components/ui/Table";
+import { Pager } from "../components/ui/Pager";
+import { ExportButton } from "../components/ui/ExportButton";
+import { badge } from "../components/ui/Badge";
+import { Card } from "../components/ui/Card";
+import { DetailDrawer } from "../components/ui/DetailDrawer";
+import { PlanRequired } from "../components/ui/PlanRequired";
+import type { PurchasingView } from "../types/context";
+import { Icon } from "../components/ui/Icon";
+import type { WorkspaceData } from "../types/api";
 export function Alerts({
   run,
   ctx,

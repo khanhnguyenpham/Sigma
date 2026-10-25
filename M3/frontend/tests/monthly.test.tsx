@@ -1,7 +1,8 @@
 import { cleanup, render, screen, fireEvent } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { MonthlyForecast } from "../src/components/MonthlyForecast";
-import { type Run, type Context } from "../src/api/client";
+import { MonthlyForecast } from "../src/components/forecast/MonthlyForecast";
+import { type Run } from "../src/types/api";
+import { type Context } from "../src/types/context";
 
 afterEach(() => {
   cleanup();

@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { AlertOpportunity } from "../src/components/AlertOpportunity";
-import { type Run } from "../src/api/client";
+import { AlertOpportunity } from "../src/components/alerts/AlertOpportunity";
+import { type Run } from "../src/types/api";
 
 afterEach(() => {
   cleanup();

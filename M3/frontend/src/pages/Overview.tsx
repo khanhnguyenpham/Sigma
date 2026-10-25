@@ -1,3 +1,4 @@
+import { type WorkspaceData } from "../types/api";
 import {
   ResponsiveContainer,
   BarChart,
@@ -7,33 +8,22 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
-import {
-  Card,
-  Panel,
-  Table,
-  badge,
-  State,
-  PlanRequired,
-  useResource,
-} from "../components/common";
-import type { PurchasingView } from "./Replenishment";
-import { Icon } from "../components/Icon";
-import {
-  fmt,
-  label,
-  resultQuery,
-  type Run,
-  type Row,
-  type Context,
-} from "../api/client";
+import { Card } from "../components/ui/Card";
+import { Panel } from "../components/ui/Panel";
+import { Table } from "../components/ui/Table";
+import { badge } from "../components/ui/Badge";
+import { State } from "../components/ui/State";
+import { PlanRequired } from "../components/ui/PlanRequired";
+import { useResource } from "../hooks/useResource";
+import type { PurchasingView } from "../types/context";
+import { Icon } from "../components/ui/Icon";
+import { fmt } from "../utils/format";
+import { label } from "../utils/labels";
+import { resultQuery } from "../utils/url";
+import { type Run, type Row } from "../types/api";
+import { type Context } from "../types/context";
 
-export interface WorkspaceData {
-  context: Row;
-  summary: Row;
-  attention: Row[];
-  incoming: Row[];
-  route_stock: Row[];
-}
+
 export function Overview({
   run,
   ctx,

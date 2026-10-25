@@ -9,8 +9,9 @@ import { afterEach, expect, it, vi } from "vitest";
 import { Overview } from "../src/pages/Overview";
 import { Inventory } from "../src/pages/Inventory";
 import { Replenishment } from "../src/pages/Replenishment";
-import { RunDialog } from "../src/components/RunDialog";
-import { type Run, type Context } from "../src/api/client";
+import { RunDialog } from "../src/components/dialogs/RunDialog";
+import { type Run } from "../src/types/api";
+import { type Context } from "../src/types/context";
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();

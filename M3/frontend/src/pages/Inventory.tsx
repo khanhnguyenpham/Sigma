@@ -1,28 +1,21 @@
 import { useEffect, useState } from "react";
-import {
-  type Run,
-  type Context,
-  type Page,
-  type Row,
-  resultQuery,
-  fmt,
-  text,
-} from "../api/client";
-import {
-  useResource,
-  Panel,
-  Table,
-  Pager,
-  State,
-  ExportButton,
-  Card,
-  DetailDrawer,
-  PlanRequired,
-  badge,
-} from "../components/common";
-import type { PurchasingView } from "./Replenishment";
-import { Icon } from "../components/Icon";
-import type { WorkspaceData } from "./Overview";
+import { type Run, type Page, type Row } from "../types/api";
+import { type Context } from "../types/context";
+import { resultQuery } from "../utils/url";
+import { fmt, text } from "../utils/format";
+import { useResource } from "../hooks/useResource";
+import { Panel } from "../components/ui/Panel";
+import { Table } from "../components/ui/Table";
+import { Pager } from "../components/ui/Pager";
+import { State } from "../components/ui/State";
+import { ExportButton } from "../components/ui/ExportButton";
+import { Card } from "../components/ui/Card";
+import { DetailDrawer } from "../components/ui/DetailDrawer";
+import { PlanRequired } from "../components/ui/PlanRequired";
+import { badge } from "../components/ui/Badge";
+import type { PurchasingView } from "../types/context";
+import { Icon } from "../components/ui/Icon";
+import type { WorkspaceData } from "../types/api";
 export function Inventory({
   run,
   ctx,

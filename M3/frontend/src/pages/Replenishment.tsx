@@ -1,27 +1,21 @@
+import { type PurchasingView } from "../types/context";
 import { useEffect, useState } from "react";
-import {
-  type Run,
-  type Context,
-  type Page,
-  type Row,
-  resultQuery,
-  fmt,
-  text,
-} from "../api/client";
-import {
-  useResource,
-  Panel,
-  State,
-  Table,
-  Pager,
-  ExportButton,
-  badge,
-  PlanRequired,
-  Card,
-  DetailDrawer,
-} from "../components/common";
-import { Icon } from "../components/Icon";
-export type PurchasingView = "recommendations" | "incoming" | "history";
+import { type Run, type Page, type Row } from "../types/api";
+import { type Context } from "../types/context";
+import { resultQuery } from "../utils/url";
+import { fmt, text } from "../utils/format";
+import { useResource } from "../hooks/useResource";
+import { Panel } from "../components/ui/Panel";
+import { State } from "../components/ui/State";
+import { Table } from "../components/ui/Table";
+import { Pager } from "../components/ui/Pager";
+import { ExportButton } from "../components/ui/ExportButton";
+import { badge } from "../components/ui/Badge";
+import { PlanRequired } from "../components/ui/PlanRequired";
+import { Card } from "../components/ui/Card";
+import { DetailDrawer } from "../components/ui/DetailDrawer";
+import { Icon } from "../components/ui/Icon";
+
 interface PurchasingData extends Page {
   summary: Row;
 }

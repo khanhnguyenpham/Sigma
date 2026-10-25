@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MonthlyForecast } from "../components/MonthlyForecast";
+import { MonthlyForecast } from "../components/forecast/MonthlyForecast";
 import {
   ResponsiveContainer,
   BarChart,
@@ -12,22 +12,16 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import {
-  useResource,
-  Panel,
-  State,
-  Table,
-  Pager,
-  ExportButton,
-} from "../components/common";
-import {
-  type Run,
-  type Context,
-  type Page,
-  type Row,
-  resultQuery,
-  fmt,
-} from "../api/client";
+import { useResource } from "../hooks/useResource";
+import { Panel } from "../components/ui/Panel";
+import { State } from "../components/ui/State";
+import { Table } from "../components/ui/Table";
+import { Pager } from "../components/ui/Pager";
+import { ExportButton } from "../components/ui/ExportButton";
+import { type Run, type Page, type Row } from "../types/api";
+import { type Context } from "../types/context";
+import { resultQuery } from "../utils/url";
+import { fmt } from "../utils/format";
 export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
   const [mode, setMode] = useState<"monthly" | "operational">("monthly");
   const [daily, setDaily] = useState(false),
