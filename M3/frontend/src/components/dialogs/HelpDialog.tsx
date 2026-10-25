@@ -1,4 +1,4 @@
-import { useDialogFocus } from "./common";
+import { useDialogFocus } from "../../hooks/useDialogFocus";
 export function HelpDialog({ onClose }: { onClose: () => void }) {
   useDialogFocus(true, onClose);
   return (

@@ -1,23 +1,24 @@
+import { PAGES, inventoryKinds } from "./config/navigation";
+import { readPurchasingView } from "./utils/url";
 import { lazy, Suspense, useEffect, useState } from "react";
-import {
-  type Run,
-  type Page,
-  type Context,
-  readContext,
-  contextUrl,
-  label,
-  text,
-} from "./api/client";
-import { useResource, State, badge } from "./components/common";
-import { Icon } from "./components/Icon";
-import { HelpDialog } from "./components/HelpDialog";
-import { PageBoundary } from "./components/PageBoundary";
-import { RunDialog } from "./components/RunDialog";
+import { type Run, type Page } from "./types/api";
+import { type Context } from "./types/context";
+import { readContext, contextUrl } from "./utils/url";
+import { label } from "./utils/labels";
+import { text } from "./utils/format";
+import { useResource } from "./hooks/useResource";
+import { State } from "./components/ui/State";
+import { badge } from "./components/ui/Badge";
+import { Icon } from "./components/ui/Icon";
+import { HelpDialog } from "./components/dialogs/HelpDialog";
+import { PageBoundary } from "./components/ui/PageBoundary";
+import { RunDialog } from "./components/dialogs/RunDialog";
 const Overview = lazy(() =>
   import("./pages/Overview").then((m) => ({ default: m.Overview })),
 );
 import { Inventory } from "./pages/Inventory";
-import { Replenishment, type PurchasingView } from "./pages/Replenishment";
+import { Replenishment } from "./pages/Replenishment";
+import { type PurchasingView } from "./types/context";
 import { Configuration } from "./pages/Configuration";
 import "./styles.css";
 
@@ -27,19 +28,6 @@ const Forecast = lazy(() =>
 const Alerts = lazy(() =>
   import("./pages/Alerts").then((m) => ({ default: m.Alerts })),
 );
-const PAGES = [
-  ["overview", "grid", "Tổng quan"],
-  ["inventory", "box", "Tồn kho"],
-  ["forecast", "chart", "Dự báo nhu cầu"],
-  ["replenishment", "truck", "Nhập hàng"],
-  ["alerts", "bell", "Cảnh báo"],
-  ["configuration", "settings", "Cấu hình"],
-];
-const inventoryKinds = ["stock_projection", "policy_replay", "alert_replay"];
-function readPurchasingView(): PurchasingView {
-  const view = new URLSearchParams(location.search).get("view");
-  return view === "incoming" || view === "history" ? view : "recommendations";
-}
 
 export default function App() {
   const [ctx, setCtx] = useState<Context>(readContext);

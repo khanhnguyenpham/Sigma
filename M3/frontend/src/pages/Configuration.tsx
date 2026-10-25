@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { api, type Page, type Row, query, errorLabel } from "../api/client";
-import {
-  useResource,
-  Panel,
-  Table,
-  State,
-  Pager,
-  useDialogFocus,
-} from "../components/common";
+import { api } from "../services/http";
+import { type Page, type Row } from "../types/api";
+import { query } from "../utils/url";
+import { errorLabel } from "../utils/labels";
+import { useResource } from "../hooks/useResource";
+import { Panel } from "../components/ui/Panel";
+import { Table } from "../components/ui/Table";
+import { State } from "../components/ui/State";
+import { Pager } from "../components/ui/Pager";
+import { useDialogFocus } from "../hooks/useDialogFocus";
 export function Configuration({ onChanged }: { onChanged: () => void }) {
   const [tab, setTab] = useState("warehouses"),
     [page, setPage] = useState(1),

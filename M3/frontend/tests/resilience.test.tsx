@@ -1,8 +1,9 @@
 import { afterEach, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { State, useResource } from "../src/components/common";
-import { PageBoundary } from "../src/components/PageBoundary";
-import { HelpDialog } from "../src/components/HelpDialog";
+import { State } from "../src/components/ui/State";
+import { useResource } from "../src/hooks/useResource";
+import { PageBoundary } from "../src/components/ui/PageBoundary";
+import { HelpDialog } from "../src/components/dialogs/HelpDialog";
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();

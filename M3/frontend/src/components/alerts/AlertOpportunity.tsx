@@ -1,5 +1,9 @@
-import { useResource, Panel, Table, State } from "./common";
-import { type Run, type Row, fmt, pct } from "../api/client";
+import { useResource } from "../../hooks/useResource";
+import { Panel } from "../ui/Panel";
+import { Table } from "../ui/Table";
+import { State } from "../ui/State";
+import { type Run, type Row } from "../../types/api";
+import { fmt, pct } from "../../utils/format";
 
 export function AlertOpportunity({ run }: { run?: Run }) {
   const ready = run?.kind === "alert_replay" && run.status === "complete";

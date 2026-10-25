@@ -9,25 +9,18 @@ import {
   Legend,
 } from "recharts";
 import { useEffect, useState } from "react";
-import {
-  useResource,
-  Card,
-  Panel,
-  State,
-  Table,
-  Pager,
-  ExportButton,
-} from "./common";
-import { Icon } from "./Icon";
-import {
-  type Run,
-  type Context,
-  type Page,
-  type Row,
-  query,
-  fmt,
-  pct,
-} from "../api/client";
+import { useResource } from "../../hooks/useResource";
+import { Card } from "../ui/Card";
+import { Panel } from "../ui/Panel";
+import { State } from "../ui/State";
+import { Table } from "../ui/Table";
+import { Pager } from "../ui/Pager";
+import { ExportButton } from "../ui/ExportButton";
+import { Icon } from "../ui/Icon";
+import { type Run, type Page, type Row } from "../../types/api";
+import { type Context } from "../../types/context";
+import { query } from "../../utils/url";
+import { fmt, pct } from "../../utils/format";
 interface Benchmark {
   context: Row;
   summary: Row & { baselines: Row[] };

@@ -1,5 +1,7 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+**Frontend sau bước8 CHG-068 — 25/10/2026:** FE tại M3/frontend đã tách components/hooks/services/types/utils/config theo [cây thực](04-frontend-spec.md#step8-actual). App/layout/context/form lớn và styles.css chờ bước9; đích web/frontend bên dưới vẫn dự kiến. Backend8module, launcher và API/13bảng không đổi trong lượt FE này.
+
 <a id="step7-actual"></a>
 ## Cấu trúc thực sau bước7 CHG-068 — 25/10/2026
 

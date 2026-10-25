@@ -7,16 +7,15 @@ import {
   cleanup,
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { State, Table, useResource } from "../src/components/common";
-import { RunDialog } from "../src/components/RunDialog";
-import {
-  ApiError,
-  contextUrl,
-  readContext,
-  fmt,
-  type Context,
-  type Run,
-} from "../src/api/client";
+import { State } from "../src/components/ui/State";
+import { Table } from "../src/components/ui/Table";
+import { useResource } from "../src/hooks/useResource";
+import { RunDialog } from "../src/components/dialogs/RunDialog";
+import { ApiError } from "../src/services/http";
+import { contextUrl, readContext } from "../src/utils/url";
+import { fmt } from "../src/utils/format";
+import { type Context } from "../src/types/context";
+import { type Run } from "../src/types/api";
 
 afterEach(() => {
   cleanup();
