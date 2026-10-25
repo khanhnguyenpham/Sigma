@@ -1,47 +1,25 @@
-from datetime import date, timedelta
-import csv, io, uuid
-from typing import Annotated, Literal
+"""Read models for frozen run datasets, metrics and exports."""
+from datetime import timedelta
 import numpy as np
 import pandas as pd
-from fastapi import APIRouter, Query, Request
-from fastapi.responses import StreamingResponse
-from pydantic import Field
 from sqlalchemy import select, func, text
-from core.schemas import DTO
-from models import Run, DailySales, RouteForecast, ItemForecast, InventoryDaily, Replenishment, Alert
+from modules.forecasting.models import DailySales, RouteForecast, ItemForecast
+from models import InventoryDaily, Replenishment, Alert
 from modules.catalog.models import Item
-from core.run_context import required_run, source_data_id
-from services.forecast import clean_json
+from core.run_context import required_run, source_data_id, snapshot_maps
+from core.serialization import clean_json
 from core.errors import DomainError
 from src.evaluation import score
-from services.alerts import opportunity_breakdown
 
-from core.run_context import snapshot_maps
-
-router = APIRouter(prefix="/api/v1/runs")
 _ALLOCATED_METRICS = {}
 
-
-class Filters(DTO):
-    split: Literal["validation", "test", "future"] | None = None
-    page: int = Field(default=1, ge=1)
-    page_size: int = Field(default=50, ge=1, le=100)
-    warehouse_id: int | None = Field(default=None, gt=0)
-    item_id: int | None = Field(default=None, gt=0)
-    supplier_id: int | None = Field(default=None, gt=0)
-    product_type: Literal["eSIM", "physical_SIM"] | None = None
-    date_from: date | None = None
-    date_to: date | None = None
-    as_of_date: date | None = None
-    block: int | None = Field(default=None, ge=1, le=2)
-    state: str | None = None
-    granularity: Literal["weekly", "allocated_daily", "alert", "policy"] | None = None
-    cadence: Literal["daily_origins", "nonoverlapping_7d"] | None = None
-    aggregate: Literal["route_day"] | None = None
-
-
-class WholeRun(DTO):
-    """Diagnostic denominators must not silently change with table filters."""
+MODELS = {
+    "route_forecasts": RouteForecast,
+    "item_forecasts": ItemForecast,
+    "inventory_daily": InventoryDaily,
+    "replenishments": Replenishment,
+    "alerts": Alert,
+}
 
 
 def context(row):
@@ -62,8 +40,6 @@ def context(row):
         is_simulated=row.kind in {"policy_replay", "alert_replay", "stock_projection"},
         evaluation_limit="Historical snapshot; inventory simulated; no independent holdout.",
     )
-
-
 
 
 def permitted_items(items, policies, filters, as_of):
@@ -92,15 +68,6 @@ def permitted_items(items, policies, filters, as_of):
             and (p["effective_to"] is None or p["effective_to"] > as_of.isoformat())
         }
     return selected
-
-
-MODELS = {
-    "route_forecasts": RouteForecast,
-    "item_forecasts": ItemForecast,
-    "inventory_daily": InventoryDaily,
-    "replenishments": Replenishment,
-    "alerts": Alert,
-}
 
 
 def dataset(session, run, name, filters, paginate=True):
@@ -279,95 +246,6 @@ def dataset(session, run, name, filters, paginate=True):
     return output, total
 
 
-def result_response(request, key, name, filters):
-    with request.app.state.sessions() as s:
-        run = required_run(s, key, complete=True)
-        if name in {"route_forecasts", "item_forecasts"} and run.kind != "forecast":
-            run = (
-                required_run(s, run.forecast_run_id, "forecast", complete=True)
-                if run.forecast_run_id
-                else run
-            )
-        records, total = dataset(s, run, name, filters)
-        return dict(
-            context=context(run),
-            items=records,
-            total=total,
-            page=filters.page,
-            page_size=filters.page_size,
-        )
-
-
-@router.get("/{key}/forecasts/routes")
-def routes(key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]):
-    return result_response(request, key, "route_forecasts", filters)
-
-
-@router.get("/{key}/forecasts/items")
-def item_forecasts(
-    key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]
-):
-    return result_response(request, key, "item_forecasts", filters)
-
-
-@router.get("/{key}/inventory")
-def inventory(key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]):
-    return result_response(request, key, "inventory_daily", filters)
-
-
-@router.get("/{key}/replenishments")
-def replenishments(
-    key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]
-):
-    return result_response(request, key, "replenishments", filters)
-
-
-@router.get("/{key}/alerts")
-def alerts(key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]):
-    return result_response(request, key, "alerts", filters)
-
-
-@router.get("/{key}/alert-opportunities")
-def alert_opportunities(
-    key: uuid.UUID, request: Request, filters: Annotated[WholeRun, Query()]
-):
-    with request.app.state.sessions() as session:
-        run = required_run(session, key, "alert_replay", complete=True)
-        cases = (
-            session.execute(
-                select(
-                    Alert.as_of_date,
-                    Alert.actual_depletion_date,
-                    Alert.predicted_depletion_date,
-                    Alert.is_evaluable,
-                ).where(Alert.run_id == key, Alert.alert_type == "depletion")
-            )
-            .mappings()
-            .all()
-        )
-        try:
-            diagnostic = opportunity_breakdown(cases)
-        except ValueError:
-            raise DomainError(
-                "verification_failed", "Invalid replay event window", 409
-            ) from None
-        official = run.result_summary.get("alert_metrics", {})
-        if any(
-            official.get(k) != diagnostic[v]
-            for k, v in [
-                ("early_numerator", "observed_early_numerator"),
-                ("event_denominator", "event_denominator"),
-                ("excluded_count", "excluded_count"),
-            ]
-        ):
-            raise DomainError(
-                "verification_failed",
-                "Replay diagnostic differs from verified summary",
-                409,
-            )
-        return dict(context=context(run), diagnostic=diagnostic)
-
-
 def allocated_metrics(session, run):
     cache_key = (str(session.bind.url), str(run.id), run.config_sha256)
     if cache_key in _ALLOCATED_METRICS:
@@ -475,97 +353,3 @@ def metric_records(session, run, filters):
         if value is not None:
             records = [r for r in records if r.get(name) == value]
     return records
-
-
-@router.get("/{key}/metrics")
-def metrics(key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]):
-    with request.app.state.sessions() as s:
-        run = required_run(s, key, complete=True)
-        records = metric_records(s, run, filters)
-        return dict(
-            context=context(run),
-            items=records[
-                (filters.page - 1) * filters.page_size : filters.page
-                * filters.page_size
-            ],
-            total=len(records),
-            page=filters.page,
-            page_size=filters.page_size,
-        )
-
-
-@router.get("/{key}/exports/{name}")
-def exports(
-    key: uuid.UUID, name: str, request: Request, filters: Annotated[Filters, Query()]
-):
-    allowed = {
-        "route_forecasts": "route_forecasts",
-        "item_forecasts": "item_forecasts",
-        "inventory_daily": "inventory_daily",
-        "replenishments": "replenishments",
-        "alerts": "alerts",
-        "metrics": "metrics",
-    }
-    if name not in allowed:
-        raise DomainError("not_found", "Unknown export dataset", 404)
-    with request.app.state.sessions() as s:
-        run = required_run(s, key, complete=True)
-        first = filters.model_copy(update={"page": 1, "page_size": 5000})
-        rows = (
-            metric_records(s, run, filters)
-            if name == "metrics"
-            else dataset(s, run, allowed[name], first)[0]
-        )
-        metadata = context(run)
-        metadata.update(
-            source_sha256=run.source_sha256,
-            config_sha256=run.config_sha256,
-            selection_sha256=run.selection_sha256,
-        )
-
-    def lines():
-        fields = sorted({k for row in rows for k in row} | set(metadata))
-        stream = io.StringIO()
-        writer = csv.DictWriter(stream, fieldnames=fields, extrasaction="ignore")
-        writer.writeheader()
-        yield "\ufeff" + stream.getvalue()
-        stream.seek(0)
-        stream.truncate(0)
-        page = 1
-        batch = rows
-        while batch:
-            for row in batch:
-                values = {**metadata, **row}
-                for k, v in values.items():
-                    if isinstance(v, (dict, list)):
-                        v = json.dumps(v, ensure_ascii=False, default=str)
-                    if isinstance(v, str) and v.startswith(
-                        ("=", "+", "-", "@", "\t", "\r")
-                    ):
-                        v = "'" + v
-                    values[k] = v
-                writer.writerow(values)
-                yield stream.getvalue()
-                stream.seek(0)
-                stream.truncate(0)
-            if name == "metrics" or len(batch) < 5000:
-                break
-            page += 1
-            with request.app.state.sessions() as s:
-                current = required_run(s, key, complete=True)
-                batch = dataset(
-                    s,
-                    current,
-                    allowed[name],
-                    filters.model_copy(update={"page": page, "page_size": 5000}),
-                )[0]
-
-    import json
-
-    return StreamingResponse(
-        lines(),
-        media_type="text/csv; charset=utf-8",
-        headers={
-            "Content-Disposition": f'attachment; filename="sigma_{name}_{key}_{run.as_of_date}.csv"'
-        },
-    )

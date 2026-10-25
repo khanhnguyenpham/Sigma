@@ -14,7 +14,7 @@ import pandas as pd
 from sqlalchemy import text
 from core.db import database
 from core.settings import Settings
-from services.forecast import clean_json
+from core.serialization import clean_json
 from core.hashes import digest
 from core.run_context import required_run, source_data_id
 from M3.research import daily_validation as base
