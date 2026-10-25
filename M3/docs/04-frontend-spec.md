@@ -1,5 +1,11 @@
 # M3 — đặc tả frontend
 
+<a id="frontend-web-chg072"></a>
+## Vị trí thực sau CHG-072 — 25/10/2026
+
+Toàn bộ frontend đã chuyển từ M3/frontend sang **web/frontend**, gồm69file tracked cùng node_modules/dist local ignored. Cây bên trong src giữ nguyên bước9: components/config/hooks/layouts/pages/services/types/utils và App/main/index.css. Không sửa byte source/tests/lock/CSS hay hành vi6màn hình. FastAPI/launcher/CI và lệnh npm dùng vị trí mới; M3 chỉ còn Markdown. [Cây hiện hành](05-source-architecture.md#web-layout-chg072), [kiểm/bàn giao](../../docs/development.md#handoff-chg072). Bước11–15 chưa bắt đầu; các mục bước8–9 dưới đây ghi checkpoint trước chuyển vị trí.
+
+
 <a id="step9-actual"></a>
 ## Cấu trúc thực sau bước9 CHG-068 — 25/10/2026
 
