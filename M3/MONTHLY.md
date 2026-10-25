@@ -71,7 +71,7 @@ Gói thực E93 có **8.510 forecast tổng 30**, **184 dòng metric** (46 tuy�
 
 Cadence chính `daily_origins`; chẩn đoán `nonoverlapping_30d` có 3 cửa sổ/tuyến. API từ chối item/supplier filter; dữ liệu thiếu gói trả `monthly_not_prepared`, gói lệch trả `monthly_invalid`. Run chưa complete hoặc parent không tương thích cũng bị chặn. CSV có BOM, escape chuỗi bắt đầu bằng ký tự công thức, null xuất ô trống.
 
-Mã hiện hành sau bước6 CHG-068: [service](../web/backend/src/modules/reporting/monthly.py), [API](../web/backend/src/modules/reporting/monthly_router.py), [UI](frontend/src/components/MonthlyForecast.tsx), [test backend](../web/backend/tests/test_monthly.py), [test UI](frontend/tests/monthly.test.tsx). Hướng dẫn chạy stack tại [README root](../README.md).
+Mã hiện hành sau bước8 CHG-068: [service](../web/backend/src/modules/reporting/monthly.py), [API](../web/backend/src/modules/reporting/monthly_router.py), [UI](frontend/src/components/forecast/MonthlyForecast.tsx), [test backend](../web/backend/tests/test_monthly.py), [test UI](frontend/tests/monthly.test.tsx). Hướng dẫn chạy stack tại [README root](../README.md).
 
 R05 **đạt ngưỡng số học theo M05 trên bộ test hồi cứu**. Nghiệm thu toàn bài/T14 còn cần mentor rà target A08, phạm vi mô phỏng, kết quả R07 và giới hạn holdout; không tự nhận đã được mentor ký duyệt.
 

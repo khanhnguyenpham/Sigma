@@ -1,5 +1,7 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
+**Hiện hành CHG-068 bước8 — 25/10/2026:** FE tại M3/frontend đã tách components/ui/dialogs/forecast/alerts, hooks/services/types/utils/config; common.tsx và api/client.ts đã bỏ. Giữ App/layout/context/form lớn/CSS và6màn hình hiện có; phần tổ chức layout/page thuộc bước9. [Cây FE thực](docs/04-frontend-spec.md#step8-actual), [kiểm và bàn giao](../docs/development.md#handoff-chg068-step8). Backend/dữ liệu không đổi, bước9–15 chưa bắt đầu; các mốc bên dưới là checkpoint trước.
+
 **Hiện hành CHG-068 bước7 — 25/10/2026:** đã tách inventory/purchasing/alerts, hoàn tất8module backend và bỏ source api/services cũ. models.py chỉ đăng ký13model; entry point/launcher/API/DDL/phép tính giữ nguyên. [Cây source](docs/05-source-architecture.md#step7-actual), [kiểm và bàn giao](../docs/development.md#handoff-chg068-step7). Bước8–15 chưa bắt đầu; các trạng thái bên dưới là checkpoint lịch sử.
 
 **Hiện hành CHG-068 bước6 — 25/10/2026:** đã tách forecasting/runs/reporting tại web/backend/src/modules; worker/CLI/launcher dùng cùng dịch vụ và giữ giao diện chạy. API/13bảng/phép tính giữ nguyên. [Cây source](docs/05-source-architecture.md#step6-actual), [kiểm và bàn giao](../docs/development.md#handoff-chg068-step6). Bước7–15 chưa bắt đầu; các trạng thái bên dưới là checkpoint lịch sử.
