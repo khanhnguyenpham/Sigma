@@ -1,7 +1,39 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+<a id="step6-actual"></a>
+## Cấu trúc sau bước6 CHG-068 — 25/10/2026
+
+Đã tách forecasting/runs/reporting từ checkpoint4abdc8a. Cây thực dưới `web/backend/src/`:
+
+```text
+main.py / worker.py / cli.py          entry point giữ nguyên giao diện
+models.py                            registry13bảng +4model tồn chờ bước7
+core/serialization.py                clean_json dùng chung
+modules/
+  catalog/ / configuration/          phần đã tách ở bước5
+  forecasting/
+    models.py                        DailySales, RouteForecast, ItemForecast
+    ingestion.py                     audit/import/dedup nguồn
+    service.py                       validation/selection/forecast46
+    allocation.py / m2_adapter.py     phân bổ causal/tái dùng M2
+  runs/
+    models.py / schemas.py            Run/RunCreate
+    service.py                       enqueue/idempotency/progress
+    router.py / verification.py       HTTP run/đối soát độc lập
+  reporting/
+    schemas.py / service.py           filter/context/dataset/metric
+    router.py                        bảng kết quả/chẩn đoán/CSV
+    monthly.py / monthly_router.py    benchmark30 read model/API/CSV
+api/                                 workspace/purchasing, chờ bước7
+services/                            inventory/simulation/alerts/receipts/seeding
+```
+
+`models.py` đăng ký đúng một `core.db.Base`; alias model tại registry phục vụ Alembic. Caller nghiệp vụ dùng model của module trực tiếp. `RunCreate` chuyển vào runs/schemas.py, bỏ schemas.py ở root và cập nhật packaging thành4py-modules. Không giữ shim import cũ; entry point worker/CLI và6launcher không đổi giao diện. `progress` chuyển runs/service để simulation dùng chung; JSON serialization thuộc core.
+
+Reporting giữ các view đọc kết quả và CSV hiện có, kể cả tồn/cảnh báo dùng chung; worker vẫn dispatch cùng service với CLI/API. Không thay phép tính, ledger, API, schema, dependency hoặc snapshot. Bước7–15 chưa bắt đầu. [Kiểm và bàn giao](../../docs/development.md#handoff-chg068-step6). Các cây phía dưới ghi checkpoint lịch sử hoặc đích tương lai.
+
 <a id="flat-backend-chg071"></a>
-## Backend trực tiếp trong src — CHG-071, 24/10/2026
+## Checkpoint backend trực tiếp trong src — CHG-071, 24/10/2026
 
 Theo yêu cầu mới, bỏ tầng sigma_m3; worker ở cùng backend, launcher gom về web/backend/scripts. Cấu trúc sau thay đổi:
 

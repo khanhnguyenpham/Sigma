@@ -8,11 +8,11 @@ from core.http import install_error_handlers, router as health_router
 from core.settings import PROJECT_ROOT, Settings
 from modules.catalog.router import router as catalog_router
 from modules.configuration.router import router as configuration_router
-from api.runs import router as runs_router
-from api.monthly import router as monthly_router
+from modules.runs.router import router as runs_router
+from modules.reporting.monthly_router import router as monthly_router
 from api.workspace import router as workspace_router
 from api.purchasing import router as purchasing_router
-from api.results import router as results_router
+from modules.reporting.router import router as results_router
 
 
 def create_app(settings=None):

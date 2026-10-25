@@ -6,7 +6,8 @@ from sqlalchemy import select, func
 from core.errors import DomainError
 from core.settings import PROJECT_ROOT
 from modules.catalog.models import Warehouse, Item, Supplier
-from models import Run, DailySales
+from modules.runs.models import Run
+from modules.forecasting.models import DailySales
 from src.data import audit_orders, daily_sales, route_top
 from src.common import ROUTE, ITEM, sha256
 

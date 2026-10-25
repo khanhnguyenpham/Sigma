@@ -128,16 +128,16 @@ Fresh future run `d57975c8-3d14-40a2-bee6-b3b8e20575ad` qua mã worker cuối:46
 
 | Đường dẫn | Trách nhiệm |
 |---|---|
-| `web/backend/src/models.py`, `web/backend/migrations/` |13 bảng, FK/unique/check/index và migration. |
-| `settings.py`, `schemas.py`, `errors.py` |Env local, DTO strict, lỗi không echo dữ liệu nhạy cảm. |
-| `services/ingestion.py`, `seeding.py`, `catalog.py` |Audit nguồn, hash-dedup, danh mục và giả định có version. |
-| `services/m2_adapter.py`, `forecast.py`, `allocation.py` |Tái dùng M2, validation/selection/forecast46 và phân bổ causal. |
-| `services/context.py`, `inventory.py`, `simulation.py`, `alerts.py`, `receipts.py` |Snapshot policy, sổ giao dịch/ngày, lượng nhập, ETA và hai replay riêng. |
-| `services/runs.py`, `worker.py`, `cli.py` |Parent DAG/config hash, idempotency, queue một worker, heartbeat30s, verify trước complete. |
-| `services/verification.py` |Tính lại allocation/actual/threshold/event/receipt/mẫu số cảnh báo; receipt kiểm ngoài run đã khóa. |
-| `main.py`, `api/results.py` |Catalog/config/run/status/summary/result/metric/export và serve React đã build. |
-| `frontend/src/api/`, `components/`, `pages/` |Client typed, hủy response cũ, sáu trang; hai trang chart được lazy load. |
-| `backend/tests/`, `frontend/tests/`, `.github/workflows/m3.yml` ở root |Fixture giả PostgreSQL, unit/integration, RTL và CI. |
+| `web/backend/src/models.py`, `web/backend/migrations/` |Registry13 bảng, FK/unique/check/index và migration;4model tồn chờ bước7. |
+| `core/`, `modules/*/schemas.py` dưới backend src |Env local, Base/DTO/hash/context/serialization, lỗi không echo dữ liệu nhạy cảm. |
+| `modules/forecasting/ingestion.py`, `services/seeding.py`, `modules/catalog/` |Audit nguồn, hash-dedup, danh mục và giả định có version. |
+| `modules/forecasting/{m2_adapter,service,allocation,models}.py` |Tái dùng M2, validation/selection/forecast46 và phân bổ causal. |
+| `modules/configuration/context.py`, `services/{inventory,simulation,alerts,receipts}.py` |Snapshot policy, sổ giao dịch/ngày, lượng nhập, ETA và hai replay riêng; chờ bước7. |
+| `modules/runs/`, `worker.py`, `cli.py` |Parent DAG/config hash, idempotency, queue một worker, heartbeat30s, verify trước complete. |
+| `modules/runs/verification.py` |Tính lại allocation/actual/threshold/event/receipt/mẫu số cảnh báo; receipt kiểm ngoài run đã khóa. |
+| `main.py`, `modules/reporting/`, `api/{workspace,purchasing}.py` |Result/metric/CSV/monthly, tổng quan/nhập và serve React đã build; router catalog/config/run ở module tương ứng. |
+| `M3/frontend/src/api/`, `components/`, `pages/` |Client typed, hủy response cũ, sáu trang; hai trang chart được lazy load. |
+| `web/backend/tests/`, `M3/frontend/tests/`, `.github/workflows/m3.yml` ở root |Fixture giả PostgreSQL, unit/integration, RTL và CI. |
 
 ## Cài trên máy thành viên
 

@@ -8,8 +8,9 @@ from pydantic import Field
 from core.schemas import DTO
 from core.errors import DomainError
 from core.run_context import required_run
-from api.results import Filters, context, dataset
-from services.forecast import clean_json
+from modules.reporting.schemas import Filters
+from modules.reporting.service import context, dataset
+from core.serialization import clean_json
 
 router = APIRouter(prefix="/api/v1/runs")
 

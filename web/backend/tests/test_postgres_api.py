@@ -6,13 +6,15 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select, text, inspect
 from sqlalchemy.exc import IntegrityError, DataError
 from main import create_app
-from models import Base, Run, RouteForecast, DailySales, Replenishment, InventoryEvent
+from models import Base, Replenishment, InventoryEvent
+from modules.runs.models import Run
+from modules.forecasting.models import RouteForecast, DailySales
 from modules.catalog.models import Warehouse, Item, Supplier
 from modules.configuration.models import Policy
 from modules.configuration.schemas import PolicyCreate
-from schemas import RunCreate
+from modules.runs.schemas import RunCreate
 from modules.configuration.service import create_policy
-from services.runs import enqueue
+from modules.runs.service import enqueue
 from core.settings import Settings
 from core.errors import DomainError
 from worker import serve

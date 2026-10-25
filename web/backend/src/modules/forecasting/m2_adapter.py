@@ -10,7 +10,6 @@ from M2.models.families import ts_job
 from M2.final_report import replay as final_replay
 
 
-
 def configuration():
     cfg = json.loads((ROOT / "data/configs/config.json").read_text(encoding="utf-8"))
     settings = load_settings(ROOT / "data/configs/m2-reproduce.json")

@@ -1,4 +1,4 @@
-"""Run request schema; moved into the runs module in step 6."""
+"""Validated requests shared by HTTP and CLI run creation."""
 from datetime import date
 from typing import Literal
 from uuid import UUID

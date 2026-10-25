@@ -3,39 +3,20 @@
 from core.run_context import source_data_id
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime, timezone
+from core.serialization import clean_json
+from modules.runs.service import progress
 import hashlib, json
 import numpy as np
 import pandas as pd
 from sqlalchemy import select
 from core.errors import DomainError
-from models import Run, DailySales
-from services import m2_adapter
-from services.allocation import allocate
+from modules.runs.models import Run
+from modules.forecasting.models import DailySales
+from modules.forecasting import m2_adapter
+from modules.forecasting.allocation import allocate
 from M2.models.families import metrics
 from src.data import audit_orders, daily_sales, route_top
 from src.common import ROUTE
-
-
-def clean_json(value):
-    if isinstance(value, dict):
-        return {str(k): clean_json(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [clean_json(v) for v in value]
-    if isinstance(value, (np.integer,)):
-        return int(value)
-    if isinstance(value, (np.floating, float)):
-        return float(value) if np.isfinite(value) else None
-    if isinstance(value, (np.bool_,)):
-        return bool(value)
-    if isinstance(value, (pd.Timestamp, datetime)):
-        return value.isoformat()
-    return value
-
-
-def progress(sessions, key, phase, **counts):
-    with sessions.begin() as s:
-        row = s.get(Run, key)
-        row.result_summary = {"phase": phase, **counts}
 
 
 def select_new(validation, cfg, routes, models):

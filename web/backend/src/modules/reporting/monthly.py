@@ -14,7 +14,7 @@ import pandas as pd
 from sqlalchemy import select, func
 from core.errors import DomainError
 from core.settings import PROJECT_ROOT
-from models import DailySales
+from modules.forecasting.models import DailySales
 from modules.catalog.models import Item
 from core.hashes import digest
 from core.run_context import required_run, source_data_id
