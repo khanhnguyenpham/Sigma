@@ -14,7 +14,7 @@ import pandas as pd
 from lightgbm import LGBMRegressor
 from sqlalchemy import text
 from core.db import database
-from core.settings import Settings
+from core.settings import Settings, PROJECT_ROOT
 from core.run_context import required_run, source_data_id
 from core.hashes import digest
 from core.serialization import clean_json
@@ -275,7 +275,7 @@ def main():
     parser.add_argument("--source-run", type=uuid.UUID, required=True)
     args = parser.parse_args()
     settings = Settings.from_env()
-    root = Path(__file__).resolve().parents[2]
+    root = PROJECT_ROOT
     output = root / "outputs/research" / (PROTOCOL["id"] + "-" + str(uuid.uuid4()))
     output.mkdir(parents=True, exist_ok=False)
     manifest = dict(

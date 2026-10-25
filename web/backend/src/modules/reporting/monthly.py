@@ -22,7 +22,7 @@ from src.evaluation import score
 
 ROUTE = ["destination_country", "carrier"]
 BUNDLE = "sigma_aggregate_focus_20261018"
-ACCEPTANCE = PROJECT_ROOT / "M3/configs/acceptance-30d.json"
+ACCEPTANCE = PROJECT_ROOT / "web/backend/configs/acceptance-30d.json"
 
 
 def sha(data):
