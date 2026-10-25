@@ -1,5 +1,29 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+<a id="configurable-calculation-step11"></a>
+## Công thức thực sau bước11 CHG-068 — 25/10/2026
+
+Backend đã thực hiện đủ4tổ hợp từ policy/override đóng băng; bỏ guard stage_not_implemented của bước10. Không thêm migration/route/dependency hoặc sửa FE; M3 giữ tài liệu, mã tại web. Đây là mở rộng tính toán, chưa có tín hiệu projected_below_rop hoặc control mode mới trên FE (bước12–14).
+
+- SS days: ceil(safety_multiplier × safety_days × mean(f1…f14)), giữ thứ tự nhân/ceil của mặc định trước.
+- SS volatility: ceil(safety_multiplier × safety_factor × std_population(quantity) × sqrt(7)); ddof0, không dùng sample std. Python statistics.pstdev dùng số đếm integer, tránh mất phương sai nhỏ khi quantity gần bigint max. Zero/std0 hoặc hệ số0 cho SS0 nhưng vẫn yêu cầu đủ lịch sử đã quan sát.
+- ROP fixed = configured_rop_floor, không cộng SS lần nữa. ROP forecast = max(floor, ceil(sum(f1…f7)+SS)). Trường rop_forecast vẫn chứa ngưỡng chẩn đoán forecast ở cả hai mode; chỉ rop là ngưỡng được chọn. H14 đầy đủ vẫn bắt buộc cho S/projection/chẩn đoán.
+- S=ROP+ceil(f8); IP=closing+pending; trigger closing<ROP (bằng ROP không trigger); Q chỉ khi trigger và S>IP, áp MOQ khi Q dương. ETA D+7 và receipts/pending/order timing giữ trước bước11. Bất kỳ SS/ROP/diagnostic/S/IP/Q vượt bigint hoặc tính không hữu hạn báo numeric_overflow, không sinh Q0 giả.
+
+Cửa sổ volatility gồm đúng safety_lookback_days ngày lịch UTC đến ngày quyết định, từ DailySales của source frozen (không lấy fulfilled/lost-sales mô phỏng làm actual). Ngày thiếu, actual_available=false, null/NaN/Infinity/số âm/phân số/trùng ngày không được biến thành0; nguồn đủ ngày có quantity0 hợp lệ. Policy replay cập nhật cutoff mỗi ngày sau bán; alert replay giữ ngày origin trong cả cửa sổ, không dùng actual tương lai tính SS. Stock projection không bị chặn bởi nhãn chưa biết sau origin. Replay vẫn yêu cầu actual của các ngày được chấm/ghi ledger; tồn đầu vẫn dựa28ngày quan sát như trước.
+
+Ví dụ tính tay: f1…7=2 mỗi ngày, f8=4, f9…14=6, safety_days2, m1,5, factor2, lịch sử7ngày [0,1,2,3,4,5,6], floor10, MOQ5, closing8, pending3. mean(f14)=27/7, std_population=2, IP11:
+
+| Safety | ROP mode | SS | rop_forecast | ROP | S | Q |
+|---|---|---|---|---|---|---|
+| days | fixed |12|26|10|14|5|
+| days | forecast |12|26|26|30|19|
+| volatility | fixed |16|30|10|14|5|
+| volatility | forecast |16|30|30|34|23|
+
+Independent verifier đọc lại DailySales/forecast/frozen policy và tự tính SS/ROP/S/IP/Q, kiểm cutoff và khoảng hiệu lực; không gọi recommend/history_at của simulation. Chỉ dùng chung thư viện số học chuẩn.214Python/34React/build đạt, worker12tổ hợp4mode×3run, API/CSV/manifest và ca tamper SS/cutoff đã kiểm.9snapshot tồn và M2 golden1e-8 nguyên; projection app cũ920ngưỡng cũng verified trong transaction readonly. [Bàn giao, bằng chứng và giới hạn](../../docs/development.md#handoff-chg068-step11). R07/T14 vẫn chờ nghiệm thu, không dùng các ca synthetic để nâng trạng thái.
+
+
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
 Đặc tả bổ sung: SS_days=ceil(m×b×mean(f14)); SS_volatility=ceil(m×k×std_population(quantity_ngày_quá_khứ)×sqrt(7)). Cửa sổ đủ7–90ngày đến origin (mặc định28); missing source chặn, zero-sales hợp lệ. ROP_fixed=configured_rop_floor (đã chứa dự trữ, không cộng SS lại); ROP_forecast=max(floor,ceil(sum(f1..7)+SS)). S/IP/Q/MOQ/ETA giữ công thức cũ. Nếu tồn hiện tại≥ROP và projection trong N ngày có closing<ROP thì cảnh báo dự kiến; bằng ROP chưa báo. Giữ ROP tại origin, receipts biết ở origin, không thêm lô Q mới để che rủi ro. Cảnh báo depletion và metric cũ tách riêng.

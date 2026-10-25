@@ -24,7 +24,7 @@ Máy mới/máy thành viên chạy từ root sau cài dependencies và cấu h�
 .venv-m3/Scripts/python.exe -B -m alembic -c web/backend/alembic.ini upgrade head
 ```
 
-Bước10 chỉ persistence. Công thức SS/ROP mới ở bước11; policy mode fixed hoặc volatility lưu được và đóng băng được, nhưng tính toán hiện trả stage_not_implemented, không âm thầm dùng công thức cũ. days/forecast giữ phép tính và snapshot parity cũ. Alerts type/state/ngày xuống ngưỡng còn dự kiến bước12, UI bước13–14; schema alert chưa đổi.
+Bước10 chỉ persistence; guard stage_not_implemented là checkpoint khi đó. Sau bước11, cả4tổ hợp đã được tính và đối soát theo [công thức](01-functional-spec.md#configurable-calculation-step11), giữ days/forecast parity. Không migration mới sau0002_policy; snapshot cũ không sửa. Alerts type/state/ngày xuống ngưỡng còn dự kiến bước12, UI bước13–14; schema alert chưa đổi.
 
 
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
