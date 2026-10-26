@@ -16,7 +16,8 @@ class Filters(DTO):
     as_of_date: date | None = None
     block: int | None = Field(default=None, ge=1, le=2)
     state: str | None = None
-    granularity: Literal["weekly", "allocated_daily", "alert", "policy"] | None = None
+    alert_type: Literal["below_rop", "depletion", "projected_below_rop"] | None = None
+    granularity: Literal["weekly", "allocated_daily", "alert", "policy", "threshold"] | None = None
     cadence: Literal["daily_origins", "nonoverlapping_7d"] | None = None
     aggregate: Literal["route_day"] | None = None
 
