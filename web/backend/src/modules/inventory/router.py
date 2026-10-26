@@ -61,6 +61,8 @@ def workspace(
             if r["alert_type"] == "depletion"
             and r["state"] in {"urgent", "already_depleted"}
         }
+        projected = {r["item_id"] for r in signals if r["alert_type"] == "projected_below_rop"}
+        warnings = {r["item_id"] for r in signals if r["state"] != "not_within_horizon"}
         routes = {}
         for row in inventory:
             route = (row["destination_country"], row["carrier"])
@@ -74,6 +76,8 @@ def workspace(
             low_stock_items=len(low),
             replenish_items=len(action),
             urgent_items=len(urgent),
+            projected_below_rop_items=len(projected),
+            warning_items=len(warnings),
             incoming_lots=len(incoming),
             pending_units=sum(r["ordered_qty"] for r in incoming),
             recommended_units=sum(r["recommended_qty"] for r in action),

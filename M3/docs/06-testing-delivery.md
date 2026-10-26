@@ -1,5 +1,16 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
+**CHG-068 bước14 — 26/10/2026, local đạt:** sau cổng13 mã73d6f39/remoteSHA/2CI success, người dùng giao14. React hiển thị ROP/SS/mode/N, ngày xuống ROP riêng ngày cạn, lý do/đường projection/bảng UTC; filter/export và metric threshold riêng depletion. Workspace thêm warning_items/projected_below_rop_items đếm item duy nhất; inventory API/CSV đọc5tham số từ policy frozen, công thức fixed hiển thị đúng.245Python (3ca mới),50React (7ca mới,1worker)/build/pipcheck và browser desktop/mobile390px trên2run synthetic đạt;1027protectedhash và3app run nguyên, schema0003_threshold giữ. Chờ commit/push/remoteSHA/CI; bước15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật mới chứng minh45%.
+
+<a id="warning-ui-tests-step14"></a>
+## Kiểm hiển thị bước14 thực chạy — 26/10/2026
+
+Baseline bước13 có242Python/43React và2CI success. Sau thay đổi:245Python/0failure/error/skip, thêm3ca worker/read model/API/CSV kiểm item duy nhất khi hai tín hiệu, loại no-event khỏi số cảnh báo, filter, frozen policy khi sửa live và defaults của run legacy.9inventory golden/M2 parity và OpenAPI/DDL contract giữ.
+
+50React đạt --maxWorkers=1, thêm7ca: type/state/export/page reset, drawer ROP/N/hai ngày/UTC, metric giữ mẫu số, stale context, Overview unique count, fixed formula và ratio null. Lượt mặc định khi chạy cùng Python có1ca Back/reload cũ timeout5000ms (49/50); không đổi timeout hoặc code test cũ, chạy lại1worker50/50. TypeScript/Vite build/pipcheck đạt.
+
+Browser/API thật trên2run synthetic stock_projection và alert_replay đã worker/verifier complete:2signals/1item, filteredCSV1row, ROP20/N7/ngày threshold01/11 riêng depletion09/11; hai panel metric không gộp. Desktop1280×720 và mobile viewport390×844, chart/scroll/Escape/focus đạt; reset viewport/đóng tab/dừng stack.1027protectedhash nguyên, app3run hash nguyên trong transaction readonly và revision0003_threshold giữ. Không replay dữ liệu thật hoặc tự đóng R07/T14. [Bàn giao](../../docs/development.md#handoff-chg068-step14).
+
 <a id="policy-form-tests-step13"></a>
 ## Kiểm form bước13 thực chạy — 26/10/2026
 

@@ -1,5 +1,9 @@
 import { ApiError } from "../services/http";
 
+export function alertTypeLabel(value: unknown) {
+  return ({ depletion: "Nguy cơ cạn", below_rop: "Dưới ngưỡng nhập", projected_below_rop: "Dự kiến xuống ROP" } as Record<string, string>)[String(value)] ?? String(value ?? "—");
+}
+
 export function label(kind: string) {
   return (
     (

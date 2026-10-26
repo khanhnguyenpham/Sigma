@@ -62,6 +62,9 @@ export function InventoryDetails({
           <dt>Tồn an toàn</dt>
           <dd>{fmt(focused.ss)}</dd>
         </div>
+        <div><dt>Cách tính SS</dt><dd>{focused.safety_mode === "volatility" ? `Biến động ${fmt(focused.safety_lookback_days)} ngày · hệ số ${fmt(focused.safety_factor)}` : `Số ngày bán · ${fmt(focused.safety_days)} ngày`}</dd></div>
+        <div><dt>Cách tính ROP</dt><dd>{focused.rop_mode === "fixed" ? "Cố định" : "Theo dự báo"}</dd></div>
+        <div><dt>N ngày cảnh báo xuống ROP</dt><dd>{fmt(focused.warning_horizon_days)}</dd></div>
         <div>
           <dt>MOQ</dt>
           <dd>{fmt(focused.moq)}</dd>
@@ -99,8 +102,9 @@ export function InventoryDetails({
           />
           <div className="formula">
             <span>
-              ROP = max({fmt(focused.rop_forecast)},{" "}
-              {fmt(focused.configured_rop_floor)})
+              {focused.rop_mode === "fixed"
+                ? `ROP cố định = ${fmt(focused.configured_rop_floor)}; không cộng SS lần nữa`
+                : `ROP = max(${fmt(focused.rop_forecast)}, ${fmt(focused.configured_rop_floor)})`}
             </span>
             <span>
               IP = tồn cuối + đang về = {fmt(focused.inventory_position)}

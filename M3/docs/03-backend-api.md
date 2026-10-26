@@ -1,5 +1,14 @@
 # M3 — backend, API và worker
 
+**CHG-068 bước14 — 26/10/2026, local đạt:** sau cổng13 mã73d6f39/remoteSHA/2CI success, người dùng giao14. React hiển thị ROP/SS/mode/N, ngày xuống ROP riêng ngày cạn, lý do/đường projection/bảng UTC; filter/export và metric threshold riêng depletion. Workspace thêm warning_items/projected_below_rop_items đếm item duy nhất; inventory API/CSV đọc5tham số từ policy frozen, công thức fixed hiển thị đúng.245Python (3ca mới),50React (7ca mới,1worker)/build/pipcheck và browser desktop/mobile390px trên2run synthetic đạt;1027protectedhash và3app run nguyên, schema0003_threshold giữ. Chờ commit/push/remoteSHA/CI; bước15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật mới chứng minh45%.
+
+<a id="warning-read-model-step14"></a>
+## Read model trình bày sau bước14 — 26/10/2026
+
+Workspace summary thêm warning_items và projected_below_rop_items bằng set item_id từ các alert đã lưu trong context/ngày; warning bỏ not_within_horizon, projected chỉ type projected_below_rop. urgent_items và các trường cũ giữ nghĩa trước đây. Hai tín hiệu cho một item vẫn warning_items=1; số dòng bảng/CSV không là số item. Không tính lại projection khi đọc run cũ.
+
+Inventory API/CSV thêm safety_mode/safety_lookback_days/safety_factor/rop_mode/warning_horizon_days từ policy snapshot; policy legacy diễn giải defaults trong bộ nhớ. Thay live policy không đổi dữ liệu đọc từ run. Không mở rộng schema/route/filter mới ở bước14, không thêm các trường này vào dataset replenishments. [UI và kiểm](04-frontend-spec.md#warning-presentation-step14).
+
 **CHG-068 bước12 — 26/10/2026, hoàn tất:** cảnh báo projected_below_rop/threshold_warning với predicted_threshold_date đã qua hàm thuần/simulation/worker, DTO/filter/CSV và verifier độc lập. Giữ ROP tại decision origin, chỉ receipts đã biết trước Q mới, strict < trong N ngày; metric threshold riêng depletion.242Python BE/M2 (28ca mới),34React chạy1worker/build/pipcheck/API-worker smoke đạt;9inventory golden/M2 parity và1024protectedhash nguyên. DB app đã backup/nâng0003_threshold, hash mọi cột cũ13bảng/3run nguyên, schema0diff. Commit mã14b18415014ee2867fac436e6bd7530d74b12188 đã push thường, remoteSHA khớp và2workflowCI completed/success; bước13–15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật chứng minh45%.
 
 <a id="threshold-api-step12"></a>
@@ -23,7 +32,7 @@ Tại checkpoint bước10, mode mới chỉ lưu và worker báo stage_not_impl
 
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
-Giữ `/api/v1` và API hiện hữu; policy/scenario DTO đã thêm mode/parameter tại bước10 ở trên. Alerts/filter/export đã thêm tín hiệu/ngày xuống ngưỡng tại bước12; phần trình bày workspace/UI chờ bước14. HTTP là transport duy nhất sau bước3; không fit trong request. Các mốc refactor dưới đây là lịch sử.
+Giữ `/api/v1` và API hiện hữu; policy/scenario DTO đã thêm mode/parameter tại bước10 ở trên. Alerts/filter/export đã thêm tín hiệu/ngày xuống ngưỡng tại bước12; phần trình bày workspace/UI đã triển khai tại bước14. HTTP là transport duy nhất sau bước3; không fit trong request. Các mốc refactor dưới đây là lịch sử.
 
 [Kế hoạch CHG-068 và cổng từng bước](../../docs/planning/PLAN.md#chg-068).
 

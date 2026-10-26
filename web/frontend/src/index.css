@@ -691,6 +691,7 @@ tr.clickable:hover {
   background: #f0f2ff;
 }
 .badge.low_stock,
+.badge.threshold_warning,
 .badge.queued {
   color: #c99243;
   background: #fff6e9;
