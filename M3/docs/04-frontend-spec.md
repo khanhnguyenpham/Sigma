@@ -1,5 +1,19 @@
 # M3 — đặc tả frontend
 
+**CHG-068 bước13 — 26/10/2026, local đạt:** sau cổng bước12 mã14b1841/remoteSHA/2CI success, người dùng giao tiếp tục bước13. Form React policy/scenario có SS days/volatility, ROP fixed/forecast, lookback/factor/N; override trống kế thừa,0giữ đúng, chỉ trường phù hợp mode hiển thị/gửi. Giữ version/effective date/conflict/cấu hình cũ; bảng policy phân biệt tham số đang áp dụng.43React (9ca mới, chạy mặc định và1worker)/build/browser synthetic save-reload-Escape-focus đạt;1029protectedhash và3app run nguyên, schema0003_threshold giữ. 242Python BE/M2/pipcheck đạt; chờ commit/push/SHA/CI; bước14–15 chưa bắt đầu, R07/T14 chưa nghiệm thu.
+
+<a id="policy-forms-step13"></a>
+## Form cấu hình thực sau bước13 — 26/10/2026
+
+PolicyFields dùng chung cho PolicyForm và PolicyOverrideEditor; config/policy.ts giữ5default giao diện khớp backend. Policy mới mặc định SS days/28ngày/factor1, ROP forecast và N7. Khi mở phiên bản đã có, dùng đúng mode/tham số của phiên bản đó, giữ expected_version và ngày hiệu lực do người dùng chọn. Lưu tạo phiên bản mới, không sửa snapshot/kết quả đã khóa; lỗi409 giữ nguyên form để người dùng xem lại.
+
+- SS days hiện safety_days; volatility hiện lookback7–90ngày nguyên và factor hữu hạn≥0. Đổi mode trên policy vẫn giữ tham số không hoạt động trong form/payload, tránh mất cấu hình khi chuyển qua lại; backend chỉ dùng tham số mode đã chọn.
+- ROP forecast/fixed có lựa chọn riêng. Fixed giải thích ngưỡng nhập đã chứa dự trữ, không cộng SS lần2. N nguyên1–14 tìm xuống ROP, khác thời gian báo trước ngày cạn và tỷ lệ45%.
+- Override mới chỉ có item, các trường trống/“Kế thừa policy” không sinh0 hoặc mặc định ghi đè. Chọn mode SS để điều chỉnh tham số tương ứng; các tham số mode không hoạt động bị bỏ khỏi payload scenario, tham số trống tiếp tục kế thừa. Giá trị0 được giữ. Native min/max/step/required và reportValidity chặn submit không hợp lệ trước request.
+- Bảng lịch sử policy giữ version/từ/đến, thêm cách tính SS/ROP/N và tham số đang áp dụng; tham số không hoạt động hiển thị dấu—. Không thêm control target45% hoặc thay trang cảnh báo của bước14.
+
+43React đạt cả npm test mặc định và --maxWorkers=1;9ca mới kiểm mode/payload/tham sốẩn, lịch sử/conflict, blank/zero/override và biên native. Browser local713×615 trên sigma_m3_test lưu policy v2(volatility/fixed/90/0/14), đọc lại đúng sau reload; v1 và tham số cũ giữ, kiểm Escape/focus và scenario partial override qua API thật. Không gọi đây là kiểm lại1366×768/390px hoặc run dự báo thật. [Bàn giao/giới hạn](../../docs/development.md#handoff-chg068-step13).
+
 <a id="frontend-web-chg072"></a>
 ## Vị trí thực sau CHG-072 — 25/10/2026
 
@@ -90,7 +104,7 @@ web/frontend/src/
 | `components/ui/` | Tách Table, Pager, State, Card, Panel, Badge, DetailDrawer từ `components/common.tsx`; gom Icon/PageBoundary hiện có. Component nhận props, không chứa phép tính tồn. |
 | `components/dialogs/` | HelpDialog và RunDialog; dùng chung hook quản lý focus/Escape. |
 | `components/forecast/`, `components/alerts/` | Đặt MonthlyForecast và AlertOpportunity hiện có vào nhóm nghiệp vụ tương ứng. Chỉ tạo nhóm khi chuyển component thực. |
-| `components/configuration/` | Tách PolicyForm, ScenarioForm, PolicyOverrideEditor, ReceiptEditor khi xử lý form lớn; dùng chung PolicyFields cho policy/override. Không thêm form-builder. Các trường mode mới chỉ triển khai ở bước13. |
+| `components/configuration/` | Tách PolicyForm, ScenarioForm, PolicyOverrideEditor, ReceiptEditor khi xử lý form lớn; dùng chung PolicyFields cho policy/override. Không thêm form-builder. Các trường mode đã triển khai tại bước13, xem mô tả thực ở trên. |
 | `hooks/` | Tách useResource và useDialogFocus từ common.tsx; useAppContext gom run/bộ lọc/đồng bộ URL từ App. Giữ AbortController, chống response cũ, refresh và loading/error. |
 | `layouts/` | Tách AppLayout, Sidebar, Header, ContextFilters từ App.tsx; layout điều phối bố cục và nhận context qua props/hook. |
 | `pages/` | Giữ Overview, Inventory, Forecast, Replenishment, Alerts, Configuration. Page ghép component và dữ liệu; form, drawer, bảng lớn được tách khi có trách nhiệm riêng. |
@@ -116,7 +130,7 @@ Bước8 tách components/hooks/services/types/utils/config khỏi common.tsx/cl
 
 Giữ nguyên sáu màn hình và ID URL `overview`, `inventory`, `forecast`, `replenishment`, `alerts`, `configuration`; không đổi `replenishment` thành `purchasing`. Giữ run/ngày/bộ lọc và tab nhập hàng qua refresh/Back, chống dữ liệu cũ khi đổi context nhanh, retry đọc, hỗ trợ bàn phím/Escape/focus, mobile và export CSV. Tests tiếp tục ở frontend/tests; chỉ đổi import khi refactor thực, giữ kiểm null khác0 và lỗi mạng. Dev dùng Vite; React gọi FastAPI HTTP và build được FastAPI phục vụ local.
 
-PolicyFields dùng chung cho policy/scenario override; chỉ hiển thị trường phù hợp mode ở bước13. Cảnh báo ở bước14 giải thích tồn/ROP/N/ngày xuống ngưỡng/ngày cạn riêng; tổng quan đếm item duy nhất. CHG-069 không đổi yêu cầu nghiệp vụ hoặc nghiệm thu R08–R09/T11–T12, R07/T14 vẫn mở.
+PolicyFields đã dùng chung cho policy/scenario override và hiển thị trường theo mode sau bước13. Cảnh báo ở bước14 giải thích tồn/ROP/N/ngày xuống ngưỡng/ngày cạn riêng; tổng quan đếm item duy nhất. CHG-069 không đổi yêu cầu nghiệp vụ hoặc nghiệm thu R08–R09/T11–T12, R07/T14 vẫn mở.
 
 [Kế hoạch CHG-068 và cổng từng bước](../../docs/planning/PLAN.md#chg-068).
 
