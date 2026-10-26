@@ -1,6 +1,13 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
-**CHG-068 bước12 — 26/10/2026, local đạt:** cảnh báo projected_below_rop/threshold_warning với predicted_threshold_date đã qua hàm thuần/simulation/worker, DTO/filter/CSV và verifier độc lập. Giữ ROP tại decision origin, chỉ receipts đã biết trước Q mới, strict < trong N ngày; metric threshold riêng depletion.242Python BE/M2 (28ca mới),34React chạy1worker/build/pipcheck/API-worker smoke đạt;9inventory golden/M2 parity và1024protectedhash nguyên. DB app đã backup/nâng0003_threshold, hash mọi cột cũ13bảng/3run nguyên, schema0diff. Chờ commit/push/remoteSHA/CI; bước13–15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật chứng minh45%.
+<a id="policy-form-tests-step13"></a>
+## Kiểm form bước13 thực chạy — 26/10/2026
+
+Baseline nhận từ bước12:242Python/34React đã đạt local và2CI. Sau sửa FE:43React (thêm9ca) đạt cả mặc định và1worker, TypeScript/Vite build đạt;9ca kiểm payload volatility/fixed, giữ inactive policy values khi đổi mode, policy lịch sử/expected_version/effective date và409,6biên native chặn POST, scenario partial override/blank/0/bỏ inactive fields. Các ca34cũ tiếp tục kiểm nativefields/URL/Back/Escape/focus/batched update; cập nhật kỳ vọng payload đúng5trường mới.
+
+Browser713×615 gọi API thật trên DB test: lưu policyv2, đọc lại lookback90/factor0/N14/mode sau reload, giữ tham sốv1 và hết hiệu lực đúng ngày; scenario lưu chỉ item/mode/factor0/N1, trường trống không ghi đè. Escape đóng modal/trả focus dòng đã mở; form cuộn tới nút lưu được. Stack test dừng.1029protectedhash nguyên, chỉ source FE được giao cùng build dist/cache được phép thay; app3run hash nguyên trong transaction readonly, schema0003_threshold. Kiểm Python hiện tại ghi ở bàn giao; không chạy replay thật/đổi metric hoặc nâng R07/T14. [Bàn giao](../../docs/development.md#handoff-chg068-step13).
+
+**CHG-068 bước12 — 26/10/2026, hoàn tất:** cảnh báo projected_below_rop/threshold_warning với predicted_threshold_date đã qua hàm thuần/simulation/worker, DTO/filter/CSV và verifier độc lập. Giữ ROP tại decision origin, chỉ receipts đã biết trước Q mới, strict < trong N ngày; metric threshold riêng depletion.242Python BE/M2 (28ca mới),34React chạy1worker/build/pipcheck/API-worker smoke đạt;9inventory golden/M2 parity và1024protectedhash nguyên. DB app đã backup/nâng0003_threshold, hash mọi cột cũ13bảng/3run nguyên, schema0diff. Commit mã14b18415014ee2867fac436e6bd7530d74b12188 đã push thường, remoteSHA khớp và2workflowCI completed/success; bước13–15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật chứng minh45%.
 
 <a id="threshold-tests-step12"></a>
 ## Kiểm bước12 thực chạy — 26/10/2026

@@ -5,6 +5,8 @@ import { type ConfigurationState } from "../../hooks/useConfiguration";
 import { ItemSelect } from "./ItemSelect";
 
 import { PolicyFields } from "./PolicyFields";
+import { useState } from "react";
+import { POLICY_DEFAULTS } from "../../config/policy";
 
 export function PolicyForm({
   editor,
@@ -14,6 +16,10 @@ export function PolicyForm({
   policy: Row;
 }) {
   const { supplierData, itemOptions } = editor;
+  const [values, setValues] = useState<Row>({
+    configured_rop_floor: 0, moq: 5, safety_days: 2,
+    ...POLICY_DEFAULTS, ...policy,
+  });
   return (
     <>
       <label>
@@ -63,7 +69,8 @@ export function PolicyForm({
           defaultValue="2026-01-01"
         />
       </label>
-      <PolicyFields policy={policy} />
+      <PolicyFields policy={values} onChange={(key, value) =>
+        setValues((previous) => ({ ...previous, [key]: value }))} />
 
       <p className="caption">
         Nhập kho7ngày, review1ngày cố định. Ngày hiệu lực ảnh hưởng phương án cũ
