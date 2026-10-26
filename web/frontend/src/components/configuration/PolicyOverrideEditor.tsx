@@ -17,6 +17,7 @@ export function PolicyOverrideEditor({
       <p className="caption">
         Đổi kho phía trên để chọn mặt hàng. Điều chỉnh chỉ áp dụng trong kịch
         bản này.
+        Để trống để kế thừa policy có hiệu lực khi chạy. Chọn cách tính SS để điều chỉnh tham số tương ứng.
       </p>
       {overrides.map((row, index) => (
         <div className="scenario-row" key={index}>
@@ -35,6 +36,7 @@ export function PolicyOverrideEditor({
           </label>
           <PolicyFields
             policy={row}
+            override
             onChange={(key, value) =>
               update(overrides, setOverrides, index, key, value)
             }
@@ -58,9 +60,6 @@ export function PolicyOverrideEditor({
             ...overrides,
             {
               item_id: Number(itemOptions[0]?.id ?? 0),
-              configured_rop_floor: 0,
-              moq: 5,
-              safety_days: 2,
             },
           ])
         }

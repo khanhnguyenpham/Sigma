@@ -56,6 +56,7 @@ export function useConfiguration(onChanged: () => void) {
   }
   async function save(event: React.FormEvent<HTMLFormElement>, kind: string) {
     event.preventDefault();
+    if (!event.currentTarget.reportValidity()) return;
     if (busy) return;
     setBusy(true);
     setError(undefined);
@@ -82,6 +83,11 @@ export function useConfiguration(onChanged: () => void) {
           configured_rop_floor: Number(form.get("configured_rop_floor")),
           moq: Number(form.get("moq")),
           safety_days: Number(form.get("safety_days")),
+          safety_mode: String(form.get("safety_mode")),
+          safety_lookback_days: Number(form.get("safety_lookback_days")),
+          safety_factor: Number(form.get("safety_factor")),
+          rop_mode: String(form.get("rop_mode")),
+          warning_horizon_days: Number(form.get("warning_horizon_days")),
           expected_version: policy?.version ?? 0,
         };
       }
@@ -94,7 +100,15 @@ export function useConfiguration(onChanged: () => void) {
           settings: {
             cover_days: Number(form.get("cover_days")),
             safety_multiplier: Number(form.get("safety_multiplier")),
-            policy_overrides: overrides,
+            policy_overrides: overrides.map((row) => {
+              const active = { ...row };
+              if (row.safety_mode !== "days") delete active.safety_days;
+              if (row.safety_mode !== "volatility") {
+                delete active.safety_lookback_days;
+                delete active.safety_factor;
+              }
+              return active;
+            }),
             receipts_initial: receipts,
             receipts_declared: true,
           },

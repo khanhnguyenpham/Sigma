@@ -46,7 +46,12 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
             { key: "effective_to", label: "Đến trước ngày" },
             { key: "configured_rop_floor", label: "Ngưỡng nhập tối thiểu" },
             { key: "moq", label: "Lượng tối thiểu (MOQ)" },
-            { key: "safety_days", label: "Số ngày tồn an toàn" },
+            { key: "safety_days", label: "Số ngày tồn an toàn", render: (value: unknown, row: Record<string, unknown>) => row.safety_mode === "volatility" ? "—" : String(value ?? "—") },
+            { key: "safety_mode", label: "Cách tính SS", render: (value: unknown) => value === "volatility" ? "Biến động số bán" : "Số ngày bán" },
+            { key: "safety_lookback_days", label: "Ngày lịch sử", render: (value: unknown, row: Record<string, unknown>) => row.safety_mode === "volatility" ? String(value ?? "—") : "—" },
+            { key: "safety_factor", label: "Hệ số biến động", render: (value: unknown, row: Record<string, unknown>) => row.safety_mode === "volatility" ? String(value ?? "—") : "—" },
+            { key: "rop_mode", label: "Cách tính ROP", render: (value: unknown) => value === "fixed" ? "Cố định" : "Theo dự báo" },
+            { key: "warning_horizon_days", label: "N ngày cảnh báo" },
           ]
         : [
             { key: "code", label: "Mã" },
