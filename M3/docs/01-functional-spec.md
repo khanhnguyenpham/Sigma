@@ -1,5 +1,20 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+**CHG-068 bước12 — 26/10/2026, local đạt:** cảnh báo projected_below_rop/threshold_warning với predicted_threshold_date đã qua hàm thuần/simulation/worker, DTO/filter/CSV và verifier độc lập. Giữ ROP tại decision origin, chỉ receipts đã biết trước Q mới, strict < trong N ngày; metric threshold riêng depletion.242Python BE/M2 (28ca mới),34React chạy1worker/build/pipcheck/API-worker smoke đạt;9inventory golden/M2 parity và1024protectedhash nguyên. DB app đã backup/nâng0003_threshold, hash mọi cột cũ13bảng/3run nguyên, schema0diff. Chờ commit/push/remoteSHA/CI; bước13–15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật chứng minh45%.
+
+<a id="threshold-alerts-step12"></a>
+## Cảnh báo xuống ROP thực sau bước12 — 26/10/2026
+
+Tính projection H14 hiện hữu: nhận receipts theo ETA đầu ngày rồi trừ forecast, clip0. Giữ nguyên ROP được tính từ policy/scenario/forecast/lịch sử tại ngày quyết định, không tính lại ROP theo ngày trong đường projection và không cộng lô Q vừa khuyến nghị. Alert replay chỉ quyết định tại origin; policy replay dùng từng ngày quyết định.
+
+- Current<ROP: giữ below_rop (low_stock/pending_covers), không tạo projected_below_rop cho cùng item/ngày.
+- Current≥ROP: lấy lần đầu closing_forecast<ROP trong D+1…D+N, với N=warning_horizon_days1–14, default7 cho policy cũ. Bằng ROP chưa báo; D+N được tính, D+N+1 không. Tạo projected_below_rop/state threshold_warning/predicted_threshold_date. ROP0 không thể xuống dưới0.
+- Depletion giữ dòng riêng và predicted_depletion_date/lead_days/state cũ. Dòng threshold có các trường ngày cạn/lead_days null; một item có thể có cả hai tín hiệu, không coi hai dòng là hai item. Unique key run/window/item/as_of/type vẫn giữ.
+
+Đánh giá threshold của alert_replay xét lần đầu closing actual mô phỏng<ROP origin trong cùng N ngày, một case/item/window. Current<ROP loại riêng với lý do already_below_rop_at_origin; current=ROP vẫn hợp lệ. TP/FP/FN/TN, precision/recall, signal_count, event_denominator, evaluated_count, excluded_count và date_mae nằm trong threshold_metrics/metric granularity=threshold, mẫu số0 trả null cho tỷ lệ. FN/TN không cần tạo tín hiệu giả; verifier dựng lại tất cả case từ ledger để kiểm coverage/mẫu số. Các dòng tín hiệu threshold được đánh giá TP/FP có threshold_evaluation trong explanation. Policy replay/projection không gắn confusion.
+
+Không thay depletion cases/alert_metrics/early rate hoặc mẫu số, không thêm threshold vào tử số45%. Các ca synthetic không chứng minh hiệu quả trên dữ liệu thật. [Bàn giao và kiểm](../../docs/development.md#handoff-chg068-step12).
+
 **CHG-073 — 25/10/2026, chỉ cập nhật đặc tả:** [R07 mục tiêu làm việc45%](../../docs/requirements.md#r07-target-chg073) theo lời mentor người dùng thuật lại; tính bắt buộc/phạm vi nghiệm thu còn cần làm rõ. Giữ cách tính cảnh báo≥7ngày và mẫu số depletion. Chưa sửa code; SS/ROP bước11 giữ nguyên, cảnh báo ngưỡng/UI bước12–14 chưa triển khai. [Kế hoạch và giới hạn](../../docs/planning/PLAN.md#chg073).
 
 <a id="configurable-calculation-step11"></a>

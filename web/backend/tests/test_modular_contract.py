@@ -46,6 +46,21 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
             properties = schema["components"]["schemas"][name]["properties"]
             for field in POLICY_COLUMNS:
                 properties.pop(field)
+        # Step12 adds only alert_type, threshold metric granularity and the
+        # typed alert response. Keep the original API golden unchanged.
+        for methods in schema["paths"].values():
+            for operation in methods.values():
+                if not isinstance(operation, dict):
+                    continue
+                operation["parameters"] = [p for p in operation.get("parameters", []) if p["name"] != "alert_type"]
+                if not operation["parameters"]:
+                    operation.pop("parameters")
+                for p in operation.get("parameters", []):
+                    if p["name"] == "granularity":
+                        p["schema"]["anyOf"][0]["enum"].remove("threshold")
+        schema["paths"]["/api/v1/runs/{key}/alerts"]["get"]["responses"]["200"]["content"]["application/json"]["schema"] = {}
+        for name in ("AlertRow", "AlertPage"):
+            schema["components"]["schemas"].pop(name)
         canonical = json.dumps(schema, sort_keys=True, separators=(",", ":")).encode()
         assert hashlib.sha256(canonical).hexdigest() == expected["canonical_sha256"]
     finally:
@@ -62,6 +77,12 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
                 if not re.match(r"\s*(?:" + "|".join(POLICY_COLUMNS) + r")\s", line)
                 and not any(f"CONSTRAINT {name} " in line for name in POLICY_CHECKS)
             )
+        if table.name == "alerts":
+            ddl = "\n".join(line for line in ddl.splitlines()
+                if not re.match(r"\s*predicted_threshold_date\s", line)
+                and "CONSTRAINT ck_alert_threshold_date " not in line)
+            ddl = ddl.replace("CONSTRAINT ck_alert_type ", "").replace("CONSTRAINT ck_alert_state ", "")
+            ddl = ddl.replace(",\'projected_below_rop\'", "").replace(",\'threshold_warning\'", "")
         statements.append(ddl)
         for index in sorted(table.indexes, key=lambda index: index.name):
             statements.append(str(CreateIndex(index).compile(dialect=dialect())).strip())
