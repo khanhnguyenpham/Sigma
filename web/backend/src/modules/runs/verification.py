@@ -296,6 +296,7 @@ def verify_inventory(s, run, settings):
             "as_of_date",
             "predicted_depletion_date",
             "actual_depletion_date",
+            "predicted_threshold_date",
         ],
     )
     source = s.get(Run, run.source_import_run_id)
@@ -607,6 +608,8 @@ def verify_inventory(s, run, settings):
             or m["excluded_count"] != excluded
         ):
             raise DomainError("verification_failed", "Alert metric denominator differs")
+    if run.result_summary.get("threshold_warning_version") == 1:
+        verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, policies)
     return dict(
         status="verified",
         kind=run.kind,
@@ -619,3 +622,77 @@ def verify_inventory(s, run, settings):
         event_denominator=denominator,
         excluded_count=excluded,
     )
+
+
+def verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, policies):
+    """Independently rebuild crossings and confusion counts from frozen inputs."""
+    expected_keys, cases = set(), []
+    actual_rows = {(r.window_origin, r.item_id, r.as_of_date, r.alert_type): r
+                   for r in alerts.itertuples()}
+    if len(actual_rows) != len(alerts):
+        raise DomainError("verification_failed", "Duplicate alert signals")
+    for (window, item), group in ledger.groupby(["window_origin", "item_id"]):
+        decisions = group.loc[group.date.eq(window)] if run.kind == "alert_replay" else group
+        lots = order_groups.get((window, int(item)), empty_orders)
+        for row in decisions.itertuples():
+            key = (window, item, row.date)
+            expected_keys.add((*key, "depletion"))
+            p = policies[row.policy_id]
+            n = p.get("warning_horizon_days", 7)
+            receipts = {}
+            for lot in lots.itertuples():
+                if lot.eta > row.date and (lot.is_initial or lot.ordered_on < row.date):
+                    receipts[lot.eta] = receipts.get(lot.eta, 0) + lot.ordered_qty
+            stock, first, path = float(row.closing_qty), None, []
+            f = vectors[(row.forecast_as_of_date, int(item))]
+            for h, demand in enumerate(f, 1):
+                day = row.date + pd.Timedelta(days=h)
+                stock = max(0.0, stock + receipts.get(day, 0) - float(demand))
+                path.append(dict(date=day.date().isoformat(), closing_forecast=stock, receipts_qty=receipts.get(day, 0)))
+                if row.closing_qty >= row.rop and first is None and h <= n and stock < row.rop:
+                    first = day
+            if row.closing_qty < row.rop:
+                expected_keys.add((*key, "below_rop"))
+            if first is not None:
+                expected_keys.add((*key, "projected_below_rop"))
+                alert = actual_rows.get((*key, "projected_below_rop"))
+                if alert is None or alert.predicted_threshold_date != first or alert.state != "threshold_warning":
+                    raise DomainError("verification_failed", "Projected ROP crossing differs")
+                exp = alert.explanation
+                expected_receipts = [dict(eta=d.date().isoformat(), quantity=q) for d, q in sorted(receipts.items())]
+                if (exp.get("origin_on_hand") != row.closing_qty or exp.get("policy") != p
+                    or exp.get("receipts") != expected_receipts or exp.get("projection") != path
+                    or exp.get("basis") != "known_receipts_before_new_recommendation"
+                    or exp.get("thresholds", {}).get("rop") != row.rop
+                    or exp.get("forecast14") != list(map(float, f))
+                    or pd.notna(alert.predicted_depletion_date) or pd.notna(alert.actual_depletion_date)
+                    or pd.notna(alert.lead_days)):
+                    raise DomainError("verification_failed", "Threshold explanation differs from frozen inputs")
+                if run.kind != "alert_replay" and (alert.is_evaluable or alert.evaluation_class is not None):
+                    raise DomainError("verification_failed", "Projection is not an evaluated replay")
+            if run.kind == "alert_replay":
+                eligible = row.closing_qty >= row.rop
+                actual = group.loc[group.date.gt(window) & group.date.le(window + pd.Timedelta(days=n)) & group.closing_qty.lt(row.rop), "date"].min() if eligible else pd.NaT
+                label = "TP" if first is not None and pd.notna(actual) else "FP" if first is not None else "FN" if pd.notna(actual) else "TN"
+                cases.append((eligible, first, actual, label))
+                if first is not None:
+                    alert = actual_rows[(*key, "projected_below_rop")]
+                    evaluation = dict(item_id=int(item), as_of_date=window.date().isoformat(), rop=row.rop,
+                        warning_horizon_days=n, predicted_threshold_date=first.date().isoformat(),
+                        actual_threshold_date=actual.date().isoformat() if pd.notna(actual) else None,
+                        is_evaluable=True, exclusion_reason=None)
+                    if not alert.is_evaluable or alert.evaluation_class != label or alert.explanation.get("threshold_evaluation") != evaluation:
+                        raise DomainError("verification_failed", "Threshold evaluation differs")
+    if set(actual_rows) != expected_keys:
+        raise DomainError("verification_failed", "Alert signal coverage differs")
+    if run.kind == "alert_replay":
+        counts = {name: sum(eligible and label == name for eligible, _, _, label in cases) for name in ("TP", "FP", "FN", "TN")}
+        tp, fp, fn = counts["TP"], counts["FP"], counts["FN"]
+        errors = [abs((predicted - actual).days) for eligible, predicted, actual, _ in cases if eligible and predicted is not None and pd.notna(actual)]
+        expected = dict(**counts, scope="whole_alert_replay", basis="origin_rop_crossing_within_warning_horizon",
+            precision=tp / (tp + fp) if tp + fp else None, recall=tp / (tp + fn) if tp + fn else None,
+            signal_count=tp + fp, event_denominator=tp + fn, evaluated_count=sum(counts.values()),
+            excluded_count=sum(not c[0] for c in cases), date_mae=sum(errors) / len(errors) if errors else None)
+        metric_rows = [r for r in run.result_summary.get("metrics", []) if r.get("granularity") == "threshold"]
+        if run.result_summary.get("threshold_metrics") != expected or metric_rows != [dict(granularity="threshold", **expected)]:
+            raise DomainError("verification_failed", "Threshold metric denominator differs")

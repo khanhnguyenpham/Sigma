@@ -89,6 +89,10 @@ def dataset(session, run, name, filters, paginate=True):
     }:
         raise DomainError("parent_mismatch", "This run has no inventory dataset", 409)
     query = select(model).where(model.run_id == run.id)
+    if filters.alert_type:
+        if model is not Alert:
+            raise DomainError("invalid_input", "Alert type filter requires alerts")
+        query = query.where(model.alert_type == filters.alert_type)
     if model is RouteForecast:
         if filters.item_id or filters.product_type:
             raise DomainError(
@@ -330,6 +334,8 @@ def allocated_metrics(session, run):
 
 
 def metric_records(session, run, filters):
+    if filters.alert_type:
+        raise DomainError("invalid_input", "Alert type filter requires alerts")
     if filters.granularity == "allocated_daily":
         if run.kind != "forecast":
             run = required_run(session, run.forecast_run_id, "forecast", complete=True)

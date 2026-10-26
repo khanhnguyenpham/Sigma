@@ -1,5 +1,14 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
+**CHG-068 bước12 — 26/10/2026, local đạt:** cảnh báo projected_below_rop/threshold_warning với predicted_threshold_date đã qua hàm thuần/simulation/worker, DTO/filter/CSV và verifier độc lập. Giữ ROP tại decision origin, chỉ receipts đã biết trước Q mới, strict < trong N ngày; metric threshold riêng depletion.242Python BE/M2 (28ca mới),34React chạy1worker/build/pipcheck/API-worker smoke đạt;9inventory golden/M2 parity và1024protectedhash nguyên. DB app đã backup/nâng0003_threshold, hash mọi cột cũ13bảng/3run nguyên, schema0diff. Chờ commit/push/remoteSHA/CI; bước13–15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật chứng minh45%.
+
+<a id="threshold-tests-step12"></a>
+## Kiểm bước12 thực chạy — 26/10/2026
+
+Baseline HEAD8233a96 ở source snapshot ignored:214Python đạt. Sau thay đổi242Python/0failure/error/skip, thêm28ca trong test_threshold_alerts.py: ROP−1/=ROP/+1,0, N/N+1/14, horizon không hợp lệ, receipts/ETA/causal, hai item với ROP riêng, dedup/current-low riêng, confusion/exclusion/null,3worker kind/manifest/API/filter/CSV, tamper ngày/xóa tín hiệu/mẫu số và migration/check/unique/downgrade an toàn. Verifier tự dựng projection từ frozen forecast/ledger/orders/policy, không gọi helper sản xuất để làm kỳ vọng.
+
+9golden tồn so mọi trường legacy sau khi loại đúng phần additive bước12; fixture cũ không sửa. OpenAPI/DDL golden vẫn giữ, contract chỉ loại đúng trường/filter/DTO/check được phép thêm. M2 parity1e-8 giữ.34React đạt khi chạy npm test -- --maxWorkers=1; lượt chạy song song ban đầu33/34 do timeout5000ms, không sửa FE/test timeout. Build/pipcheck/API-worker smoke đạt,1024protectedhash nguyên. [Bàn giao đầy đủ](../../docs/development.md#handoff-chg068-step12).
+
 **CHG-073 — 25/10/2026, lượt này chỉ Markdown:** bổ sung [mục tiêu làm việc R07≥45%](../../docs/requirements.md#r07-target-chg073) theo lời mentor được người dùng thuật lại; tính bắt buộc/phạm vi còn cần làm rõ. Chưa thêm/sửa test code hoặc chạy replay mới. Các ca CHG-073 bên dưới là kỳ vọng cần kiểm khi được giao kỹ thuật, không phải kết quả đã chạy; bước12–15 chưa bắt đầu, R07/T14 chưa nghiệm thu.
 
 **CHG-069 — kiểm refactor FE bước8–9 (dự kiến):** [cấu trúc mới](04-frontend-spec.md#frontend-target-chg069) dùng pages/layouts/components cùng services/hooks/types/utils/config. Giữ tests tại frontend/tests, cập nhật import khi chuyển code; kiểm sáu URL, context/Back/refresh, abort/stale, read30s/write90s/không autoretry write, loading/error/retry đọc, Escape/focus/mobile và CSV/null khác0. Lượt đổi đặc tả chỉ kiểm Markdown; không lấy kết quả test lịch sử làm kiểm mới.

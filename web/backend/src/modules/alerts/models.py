@@ -14,6 +14,7 @@ class Alert(Base):
     as_of_date = Column(Date, nullable=False)
     alert_type = Column(Text, nullable=False)
     state = Column(Text, nullable=False)
+    predicted_threshold_date = Column(Date)
     predicted_depletion_date = Column(Date)
     actual_depletion_date = Column(Date)
     lead_days = Column(SmallInteger)
@@ -26,9 +27,15 @@ class Alert(Base):
         UniqueConstraint(
             "run_id", "window_origin", "item_id", "as_of_date", "alert_type"
         ),
-        CheckConstraint("alert_type IN ('below_rop','depletion')"),
+        CheckConstraint("alert_type IN ('below_rop','depletion','projected_below_rop')", name="ck_alert_type"),
         CheckConstraint(
-            "state IN ('low_stock','pending_covers','urgent','early','already_depleted','not_within_horizon')"
+            "state IN ('low_stock','pending_covers','urgent','early','already_depleted','not_within_horizon','threshold_warning')",
+            name="ck_alert_state",
+        ),
+        CheckConstraint(
+            "(alert_type = 'projected_below_rop' AND state = 'threshold_warning' AND predicted_threshold_date IS NOT NULL AND predicted_threshold_date > as_of_date AND predicted_threshold_date <= as_of_date + 14) OR "
+            "(alert_type <> 'projected_below_rop' AND state <> 'threshold_warning' AND predicted_threshold_date IS NULL)",
+            name="ck_alert_threshold_date",
         ),
         CheckConstraint(
             "evaluation_class IS NULL OR evaluation_class IN ('TP','FP','FN','TN')"

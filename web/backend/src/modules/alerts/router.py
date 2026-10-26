@@ -5,7 +5,7 @@ from fastapi import APIRouter, Query, Request
 from sqlalchemy import select
 from modules.alerts.models import Alert
 from modules.alerts.service import opportunity_breakdown
-from modules.alerts.schemas import WholeRun
+from modules.alerts.schemas import WholeRun, AlertPage
 from core.errors import DomainError
 from core.run_context import required_run
 from modules.reporting.schemas import Filters
@@ -14,7 +14,7 @@ from modules.reporting.router import result_response
 
 router = APIRouter(prefix="/api/v1/runs")
 
-@router.get("/{key}/alerts")
+@router.get("/{key}/alerts", response_model=AlertPage)
 def alerts(key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]):
     return result_response(request, key, "alerts", filters)
 

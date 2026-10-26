@@ -1,5 +1,14 @@
 # M3 — backend, API và worker
 
+**CHG-068 bước12 — 26/10/2026, local đạt:** cảnh báo projected_below_rop/threshold_warning với predicted_threshold_date đã qua hàm thuần/simulation/worker, DTO/filter/CSV và verifier độc lập. Giữ ROP tại decision origin, chỉ receipts đã biết trước Q mới, strict < trong N ngày; metric threshold riêng depletion.242Python BE/M2 (28ca mới),34React chạy1worker/build/pipcheck/API-worker smoke đạt;9inventory golden/M2 parity và1024protectedhash nguyên. DB app đã backup/nâng0003_threshold, hash mọi cột cũ13bảng/3run nguyên, schema0diff. Chờ commit/push/remoteSHA/CI; bước13–15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật chứng minh45%.
+
+<a id="threshold-api-step12"></a>
+## Alerts API/CSV thực sau bước12 — 26/10/2026
+
+GET /runs/{id}/alerts dùng DTO AlertPage/AlertRow, thêm predicted_threshold_date nullable và enum projected_below_rop/threshold_warning. alert_type được whitelist below_rop/depletion/projected_below_rop; kết hợp state/as_of_date/warehouse/item/supplier/product_type/date/pagination như cũ. Filter type sai bị422; dùng filter này ở dataset khác bị422. total là số dòng tín hiệu, không phải số item duy nhất.
+
+GET /runs/{id}/exports/alerts nhận cùng filter, xuất mọi trang cùng predicted_threshold_date, context/hash và explanation frozen. Run cũ có ngày mới null, không được sinh ngược tín hiệu mới. GET /metrics?granularity=threshold đọc metric toàn alert replay đã khóa; lọc bảng alerts không sửa mẫu số. GET /alert-opportunities tiếp tục chỉ đối soát depletion. [Định nghĩa và giới hạn](01-functional-spec.md#threshold-alerts-step12).
+
 <a id="policy-api-step10"></a>
 ## Policy API thực sau bước10 — 25/10/2026
 
@@ -14,7 +23,7 @@ Tại checkpoint bước10, mode mới chỉ lưu và worker báo stage_not_impl
 
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
-Giữ `/api/v1` và API hiện hữu; policy/scenario DTO đã thêm mode/parameter tại bước10 ở trên. Alerts/filter/export/workspace thêm tín hiệu/ngày xuống ngưỡng vẫn chờ bước12. HTTP là transport duy nhất sau bước3; không fit trong request. Các mốc refactor dưới đây là lịch sử.
+Giữ `/api/v1` và API hiện hữu; policy/scenario DTO đã thêm mode/parameter tại bước10 ở trên. Alerts/filter/export đã thêm tín hiệu/ngày xuống ngưỡng tại bước12; phần trình bày workspace/UI chờ bước14. HTTP là transport duy nhất sau bước3; không fit trong request. Các mốc refactor dưới đây là lịch sử.
 
 [Kế hoạch CHG-068 và cổng từng bước](../../docs/planning/PLAN.md#chg-068).
 
@@ -84,7 +93,7 @@ ID trên là ID giả trong ví dụ, không phải bản ghi nguồn. Thiếu p
 | GET `/runs/{id}/forecasts/items` | Forecast ngày item, share và nguồn phân bổ; aggregate=route_day nếu cần. |
 | GET `/runs/{id}/inventory` | Tồn ngày, SS/ROP/S/IP/Q, config_status. |
 | GET `/runs/{id}/replenishments` | Lô mô phỏng, ordered/received, quantity/ETA/supplier. |
-| GET `/runs/{id}/alerts` | BelowROP/depletion, giải thích, đánh giá nếu alert replay. |
+| GET `/runs/{id}/alerts` | BelowROP/depletion/projected_below_rop, ngày xuống ROP riêng ngày cạn, giải thích/đánh giá alert replay. |
 | GET `/runs/{id}/alert-opportunities` | E91: chẩn đoán toàn alert_replay complete; phân bố ngày cạn, caD+1…6, trần thời gian và ca đủ7ngày nhưng bỏ sót. Không nhận query filter; actual chỉ dùng giải thích sau replay; đối soát mẫu số với summary đã khóa. |
 | GET `/runs/{id}/metrics` | Chọn granularity=weekly/allocated_daily/alert/policy, block/cadence. |
 | GET `/runs/{id}/exports/{dataset}` | CSV theo dataset allowlist và filter hiện tại; download response. |
@@ -121,7 +130,7 @@ Mode future yêu cầu selection lock của run forecast complete cùng source/t
 
 Inventory row tối thiểu: item_id,warehouse_id,date,opening_qty,receipts_qty,sales_qty,fulfilled_qty,shortage_qty,closing_qty,policy_id,ss,rop_forecast,configured_rop_floor,rop,target_stock,pending_qty,inventory_position,needs_replenishment,recommended_qty,eta_if_ordered,config_status. `configured_rop_floor`/supplier lấy policy snapshot, eta_if_ordered=date+7 chỉ có khi Q>0.
 
-Alert row: item/warehouse/as_of/type/state/predicted_depletion_date/lead_days/actual_depletion_date/evaluation_class/is_evaluable/exclusion_reason/explanation. explanation gồm tồn origin, vector forecast14, receipts biết trước, tham số đã áp dụng và projection ngày; số liệu đều cùng run. Không có event source IDs.
+Alert row: item/warehouse/as_of/type/state/predicted_threshold_date/predicted_depletion_date/lead_days/actual_depletion_date/evaluation_class/is_evaluable/exclusion_reason/explanation. explanation gồm tồn origin, vector forecast14, receipts biết trước, tham số đã áp dụng và projection ngày; số liệu đều cùng run. Không có event source IDs.
 
 Metric row: warehouse_id hoặc item_id theo granularity, block,cadence,mape_positive_pct,mae,wape_pct,bias,expected_pairs,labeled_pairs,positive_pairs,coverage. Alert metric thêm TP/FP/FN/TN, early_numerator/event_denominator/late_count/date_mae; policy metric thêm fulfilled/sales/shortage/mean_closing. Null có null_reason.
 

@@ -1,5 +1,6 @@
 from datetime import timedelta
 from modules.inventory.service import quantity, vector14
+from core.errors import DomainError
 
 
 def project(origin, on_hand, forecast, receipts):
@@ -74,6 +75,45 @@ def replay_metrics(cases):
         late_count=late,
         date_mae=sum(errors) / len(errors) if errors else None,
         excluded_count=excluded,
+    )
+
+
+def project_threshold(origin, on_hand, rop, warning_horizon_days, projection):
+    """First strict crossing of the origin ROP, using the existing H14 path."""
+    rop = quantity(rop)
+    stock = quantity(on_hand)
+    if type(warning_horizon_days) is not int or not 1 <= warning_horizon_days <= 14:
+        raise DomainError("invalid_input", "Warning horizon must be an integer in 1..14")
+    if stock < rop:
+        return None  # The current below_rop signal already covers this item.
+    return next(
+        (origin + timedelta(days=h)
+         for h, row in enumerate(projection[:warning_horizon_days], 1)
+         if row["closing_forecast"] < rop),
+        None,
+    )
+
+
+def threshold_metrics(cases):
+    """Origin ROP crossings within N days; separate from depletion/early rate."""
+    counts = dict(TP=0, FP=0, FN=0, TN=0)
+    excluded, errors = 0, []
+    for row in cases:
+        if not row["is_evaluable"]:
+            excluded += 1
+            continue
+        predicted, actual = row["predicted_threshold_date"], row["actual_threshold_date"]
+        counts["TP" if predicted and actual else "FP" if predicted else "FN" if actual else "TN"] += 1
+        if predicted and actual:
+            errors.append(abs((predicted - actual).days))
+    tp, fp, fn = counts["TP"], counts["FP"], counts["FN"]
+    return dict(
+        **counts, scope="whole_alert_replay", basis="origin_rop_crossing_within_warning_horizon",
+        precision=tp / (tp + fp) if tp + fp else None,
+        recall=tp / (tp + fn) if tp + fn else None,
+        signal_count=tp + fp, event_denominator=tp + fn,
+        evaluated_count=sum(counts.values()), excluded_count=excluded,
+        date_mae=sum(errors) / len(errors) if errors else None,
     )
 
 

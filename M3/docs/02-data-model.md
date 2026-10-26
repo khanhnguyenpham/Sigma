@@ -1,5 +1,14 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
+**CHG-068 bước12 — 26/10/2026, local đạt:** cảnh báo projected_below_rop/threshold_warning với predicted_threshold_date đã qua hàm thuần/simulation/worker, DTO/filter/CSV và verifier độc lập. Giữ ROP tại decision origin, chỉ receipts đã biết trước Q mới, strict < trong N ngày; metric threshold riêng depletion.242Python BE/M2 (28ca mới),34React chạy1worker/build/pipcheck/API-worker smoke đạt;9inventory golden/M2 parity và1024protectedhash nguyên. DB app đã backup/nâng0003_threshold, hash mọi cột cũ13bảng/3run nguyên, schema0diff. Chờ commit/push/remoteSHA/CI; bước13–15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật chứng minh45%.
+
+<a id="threshold-persistence-step12"></a>
+## Alerts thực sau bước12 — 26/10/2026
+
+Alembic0003_threshold sau0002_policy thêm alerts.predicted_threshold_date date nullable; các dòng cũ giữ null. Mở rộng check type với projected_below_rop và state với threshold_warning. Check có tên bắt buộc cặp type/state/date hợp lệ: dòng projected phải có ngày>D và≤D+14; dòng khác không mang ngày threshold hoặc state threshold_warning. UNIQUE và13bảng giữ.
+
+Không cập nhật run/config_snapshot/result_summary/manifest cũ. DB test kiểm downgrade→0002→upgrade head lặp, row/snapshot nguyên và metadata0diff. Downgrade có projected row sẽ thất bại giao dịch theo check cũ, giữ nguyên dữ liệu thay vì xóa tín hiệu. DB app đã pg_dump backup local ignored và nâng0003, hash toàn bộ cột cũ13bảng/3run khớp. Máy mới dùng lệnh upgrade head dưới đây. [Bàn giao](../../docs/development.md#handoff-chg068-step12).
+
 <a id="policy-persistence-step10"></a>
 ## Policy persistence thực sau bước10 — 25/10/2026
 
@@ -15,7 +24,7 @@ Alembic `0002_policy` (tệp `0002_configurable_inventory_policies.py`, sau0001_
 
 Mỗi thay đổi policy tạo version mới, giữ lock theo item, expected_version và khoảng ngày nửa mở [effective_from,effective_to); không hồi tố làm đổi run đã khóa. Scenario tạo version mới, override chỉ ghi trường có giá trị (thiếu/null kế thừa từ policy); không tự gán defaults làm mất kế thừa. Run mới chứa đủ5trường sau merge; scenario JSON trong run giữ đúng version đã chọn. Run cũ chỉ được diễn giải days/forecast/28/1/7 trong bản sao do snapshot_maps trả về, không thay config_sha256.
 
-DB local hiện tại đã backup và nâng0002; hash toàn bộ cột cũ13bảng và3run khớp. Test DB kiểm downgrade→0001→upgrade→head lặp, backfill/constraint và Alembic0diff kể cả server defaults. Golden0001/OpenAPI trước refactor giữ nguyên; contract loại đúng5trường và5check được giao thêm rồi so phần còn lại. [Kiểm và giới hạn](../../docs/development.md#handoff-chg068-step10).
+Tại checkpoint bước10, DB local đã backup và nâng0002; hash toàn bộ cột cũ13bảng và3run khớp. Test DB kiểm downgrade→0001→upgrade→head lặp, backfill/constraint và Alembic0diff kể cả server defaults. Golden0001/OpenAPI trước refactor giữ nguyên; contract loại đúng5trường và5check được giao thêm rồi so phần còn lại. [Kiểm và giới hạn](../../docs/development.md#handoff-chg068-step10).
 
 Máy mới/máy thành viên chạy từ root sau cài dependencies và cấu hình env local:
 
@@ -24,12 +33,12 @@ Máy mới/máy thành viên chạy từ root sau cài dependencies và cấu h�
 .venv-m3/Scripts/python.exe -B -m alembic -c web/backend/alembic.ini upgrade head
 ```
 
-Bước10 chỉ persistence; guard stage_not_implemented là checkpoint khi đó. Sau bước11, cả4tổ hợp đã được tính và đối soát theo [công thức](01-functional-spec.md#configurable-calculation-step11), giữ days/forecast parity. Không migration mới sau0002_policy; snapshot cũ không sửa. Alerts type/state/ngày xuống ngưỡng còn dự kiến bước12, UI bước13–14; schema alert chưa đổi.
+Bước10 chỉ persistence; guard stage_not_implemented là checkpoint khi đó. Sau bước11, cả4tổ hợp đã được tính và đối soát theo [công thức](01-functional-spec.md#configurable-calculation-step11), giữ days/forecast parity. Tại checkpoint bước11, chưa có migration sau0002_policy; bước12 nay thêm0003_threshold như trên, snapshot cũ không sửa. UI vẫn chờ bước13–14.
 
 
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
-**Phân biệt giai đoạn CHG-068:**5trường policy đã triển khai tại bước10 ở trên. Alerts thêm ngày xuống ngưỡng nullable, type projected_below_rop/state threshold_warning vẫn dự kiến bước12. Giữ13bảng và khóa run/window/item/date/type; không sửa sealed snapshot/run cũ.
+**Phân biệt giai đoạn CHG-068:**5trường policy đã triển khai tại bước10 ở trên. Alerts đã thêm predicted_threshold_date nullable, type projected_below_rop/state threshold_warning tại bước12. Giữ13bảng và khóa run/window/item/date/type; không sửa sealed snapshot/run cũ.
 
 [Kế hoạch CHG-068 và cổng từng bước](../../docs/planning/PLAN.md#chg-068).
 
@@ -120,7 +129,7 @@ route_forecasts chứa đúng tổng7 ngày, không chứa forecast ngày. Forec
 | `inventory_events` | id; run_id FK; window_origin date; item_id FK; event_at timestamptz; event_sequence bigint; event_kind text; source_sequence bigint?; replenishment_order_id FK?; quantity bigint; fulfilled_qty bigint; shortage_qty bigint; balance_after bigint; is_simulated bool=true | UNIQUE(run_id,window_origin,item_id,event_sequence). kind initial_stock/receipt/sale. Sale: quantity=fulfilled+shortage; receipt/initial: fulfilled=shortage=0. Không lưu ID nguồn. Unique receipt theo replenishment_order_id khi kind=receipt. |
 | `inventory_daily` | id; run_id FK; window_origin date; item_id FK; date; policy_id FK?; forecast_as_of_date date; opening_qty bigint; receipts_qty bigint; sales_qty bigint; fulfilled_qty bigint; shortage_qty bigint; closing_qty bigint; ss bigint?; rop_forecast bigint?; rop bigint?; target_stock bigint?; pending_qty bigint; inventory_position bigint; needs_replenishment bool?; recommended_qty bigint?; config_status text; is_simulated bool=true | UNIQUE(run_id,window_origin,item_id,date). CHECK closing=opening+receipts−fulfilled, sales=fulfilled+shortage; số lượng≥0. Composite FK(policy_id,item_id) sang policy. Index(run_id,date,item_id). ss/rop/Q null khi thiếu config/vector, không giả0; run đó không complete. |
 | `replenishment_orders` | id; run_id FK; window_origin date; item_id FK; policy_id FK; order_key text; ordered_on date; eta date; ordered_qty bigint; received_qty bigint; status text; is_initial bool; is_simulated bool=true | UNIQUE(run_id,window_origin,order_key); composite FK(policy_id,item_id). qty>0; received0 hoặcordered; status ordered/received; eta=ordered_on+7. Một order/item/decision day cho lô chính sách, key='policy:'+item+date; lô seed có key riêng. Index(run_id,eta,status). |
-| `alerts` | id; run_id FK; window_origin date; item_id FK; as_of_date date; alert_type text; state text; predicted_depletion_date date?; actual_depletion_date date?; lead_days smallint?; is_evaluable bool; evaluation_class text?; exclusion_reason text?; explanation jsonb; is_simulated bool=true | UNIQUE(run_id,window_origin,item_id,as_of_date,alert_type). type below_rop/depletion. State low_stock/pending_covers/urgent/early/already_depleted/not_within_horizon. evaluation_class TP/FP/FN/TN chỉ alert_replay. Index(run_id,state,as_of_date). |
+| `alerts` | id; run_id FK; window_origin date; item_id FK; as_of_date date; alert_type text; state text; predicted_threshold_date date?; predicted_depletion_date date?; actual_depletion_date date?; lead_days smallint?; is_evaluable bool; evaluation_class text?; exclusion_reason text?; explanation jsonb; is_simulated bool=true | UNIQUE(run_id,window_origin,item_id,as_of_date,alert_type). type below_rop/depletion/projected_below_rop. State low_stock/pending_covers/urgent/early/already_depleted/not_within_horizon/threshold_warning. evaluation_class TP/FP/FN/TN chỉ alert_replay. Index(run_id,state,as_of_date). |
 
 inventory_events ghi receipt và sale theo thứ tự, initial_stock trước ngày đầu replay; initial không tính như receipt trong cân bằng daily. Với alert_replay, không tái forecast sau origin trong cửa sổ: forecast_as_of_date=window_origin; policy chỉ áp dụng tại origin để giải thích, không đặt mới. Với policy_replay, forecast_as_of_date=date cho quyết định cuối ngày, nhưng sales ngày đó đã xử lý bằng actual; quyết định chỉ áp dụng tương lai. Với stock_projection, date=as_of_date thể hiện snapshot cuối ngày, không trừ lại sales origin; diễn biến tương lai nằm ở projection alert và không giả thành actual ledger. Dòng snapshot có opening=closing=tồn seed cuối cutoff và receipts/sales/fulfilled/shortage=0, được ghi rõ là khởi tạo mô phỏng; không diễn giải sales=0 này là actual bán ngày cutoff.
 

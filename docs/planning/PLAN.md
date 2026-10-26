@@ -1,6 +1,8 @@
 # Kế hoạch dự án SIGMA
 
-**Phạm vi hiện tại CHG-073 — 25/10/2026:** chỉ cập nhật Markdown về mục tiêu báo sớm45% theo lời mentor được người dùng thuật lại. [Bổ sung kế hoạch](#chg073) giữ mốc báo trước≥7ngày, phân biệt cấu hình cảnh báo N với tỷ lệ kết quả và ghi phần cần làm rõ; chưa sửa code hoặc chạy replay mới. Bước11 CHG-068 đã hoàn tất; bước12–15 chưa bắt đầu, R07/T14 chưa nghiệm thu.
+**CHG-068 bước12 — 26/10/2026, local đạt:** cảnh báo projected_below_rop/threshold_warning với predicted_threshold_date đã qua hàm thuần/simulation/worker, DTO/filter/CSV và verifier độc lập. Giữ ROP tại decision origin, chỉ receipts đã biết trước Q mới, strict < trong N ngày; metric threshold riêng depletion.242Python BE/M2 (28ca mới),34React chạy1worker/build/pipcheck/API-worker smoke đạt;9inventory golden/M2 parity và1024protectedhash nguyên. DB app đã backup/nâng0003_threshold, hash mọi cột cũ13bảng/3run nguyên, schema0diff. Chờ commit/push/remoteSHA/CI; bước13–15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật chứng minh45%.
+
+**Checkpoint CHG-073 — 25/10/2026:** chỉ cập nhật Markdown về mục tiêu báo sớm45% theo lời mentor được người dùng thuật lại. [Bổ sung kế hoạch](#chg073) giữ mốc báo trước≥7ngày, phân biệt cấu hình cảnh báo N với tỷ lệ kết quả và ghi phần cần làm rõ; chưa sửa code hoặc chạy replay mới. Bước11 CHG-068 đã hoàn tất; bước12–15 chưa bắt đầu, R07/T14 chưa nghiệm thu.
 
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
 
@@ -710,7 +712,7 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 | 9 | T11/T12 | `refactor(frontend): organize pages and application layouts` | Tách layouts/App/context và form/drawer lớn trong6pages; styles.css→index.css; kiểm URL/Back/Escape/mobile. | Hoàn tất local/commit/push/SHA/CI; mã62a97e4 |
 | 10 | T10/T12 | `feat: persist configurable inventory policies` | Migration/DTO/version/override; kiểm DB13bảng và snapshot cũ. | Hoàn tất local/commit/push/SHA/CI; mãdbc3038 |
 | 11 | T10/T12 | `feat: calculate configurable safety stock and reorder points` | SS2mode/ROP2mode/history causal; ca tính tay/default parity. | Hoàn tất local/commit/push/SHA/CI; mã588b8f6 |
-| 12 | T10–T12 | `feat: warn on projected reorder threshold crossings` | Projection xuống ngưỡng/DTO/filter/export/đánh giá riêng; kiểm biên và dedup. CHG-073: không gộp tín hiệu ROP vào metric depletion cũ để nhận đạt45%. | Chưa bắt đầu |
+| 12 | T10–T12 | `feat: warn on projected reorder threshold crossings` | Projection xuống ngưỡng/DTO/filter/export/đánh giá riêng; kiểm biên và dedup. CHG-073: không gộp tín hiệu ROP vào metric depletion cũ để nhận đạt45%. | Local đạt; chờ commit/push/SHA/CI |
 | 13 | T11/T12 | `feat: configure inventory policies in React` | Form policy/scenario và cấu hình hiệu lực; kiểm save/override/history/conflict. | Chưa bắt đầu |
 | 14 | T11/T12 | `feat: present configurable inventory warnings` | Hiển thị ROP/ngày xuống ngưỡng/ngày cạn/lý do; đếm item duy nhất/API/CSV. | Chưa bắt đầu |
 | 15 | T10–T14 | `docs: record M3 verification and handoff` | Tích hợp/replay run mới/hash/CI/bàn giao; đối chiếu mục tiêu làm việc45% theo CHG-073 với counts/cấu hình/phạm vi rõ, chỉ nâng trạng thái theo bằng chứng và tiêu chí đã chốt. | Chưa bắt đầu |
