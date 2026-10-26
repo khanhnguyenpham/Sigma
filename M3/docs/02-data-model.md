@@ -33,7 +33,7 @@ Máy mới/máy thành viên chạy từ root sau cài dependencies và cấu h�
 .venv-m3/Scripts/python.exe -B -m alembic -c web/backend/alembic.ini upgrade head
 ```
 
-Bước10 chỉ persistence; guard stage_not_implemented là checkpoint khi đó. Sau bước11, cả4tổ hợp đã được tính và đối soát theo [công thức](01-functional-spec.md#configurable-calculation-step11), giữ days/forecast parity. Tại checkpoint bước11, chưa có migration sau0002_policy; bước12 nay thêm0003_threshold như trên, snapshot cũ không sửa. UI vẫn chờ bước13–14.
+Bước10 chỉ persistence; guard stage_not_implemented là checkpoint khi đó. Sau bước11, cả4tổ hợp đã được tính và đối soát theo [công thức](01-functional-spec.md#configurable-calculation-step11), giữ days/forecast parity. Tại checkpoint bước11, chưa có migration sau0002_policy; bước12 nay thêm0003_threshold như trên, snapshot cũ không sửa. UI policy bước13 và cảnh báo bước14 nay đã triển khai; schema0003_threshold không đổi ở hai bước này.
 
 
 **CHG-068 — 24/10/2026, kế hoạch đã được người dùng duyệt:** nhánh `m3-implementation` từ `codex/m3-implementation` tại `b1357cd`; cập nhật tài liệu trước, bỏ toàn bộ Streamlit, tổ chức BE theo module/FE theo pages, layouts và component dùng chung (CHG-069), sau đó thêm policy/cảnh báo cấu hình. Mỗi bước kiểm local → commit → push → SHA remote khớp → CI đạt trước bước sau. Code chưa thay đổi ở bước 1; các mốc E99 trở về trước bên dưới là bằng chứng lịch sử, không phải kiểm lại trong lượt này. Giữ M05 tổng30, H14/L7/R1, snapshot và dữ liệu local; R07/T14 chưa nghiệm thu.
