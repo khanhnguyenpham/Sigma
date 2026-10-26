@@ -1,6 +1,21 @@
 # M3 — đặc tả frontend
 
-**CHG-068 bước13 — 26/10/2026, local đạt:** sau cổng bước12 mã14b1841/remoteSHA/2CI success, người dùng giao tiếp tục bước13. Form React policy/scenario có SS days/volatility, ROP fixed/forecast, lookback/factor/N; override trống kế thừa,0giữ đúng, chỉ trường phù hợp mode hiển thị/gửi. Giữ version/effective date/conflict/cấu hình cũ; bảng policy phân biệt tham số đang áp dụng.43React (9ca mới, chạy mặc định và1worker)/build/browser synthetic save-reload-Escape-focus đạt;1029protectedhash và3app run nguyên, schema0003_threshold giữ. 242Python BE/M2/pipcheck đạt; chờ commit/push/SHA/CI; bước14–15 chưa bắt đầu, R07/T14 chưa nghiệm thu.
+**CHG-068 bước14 — 26/10/2026, local đạt:** sau cổng13 mã73d6f39/remoteSHA/2CI success, người dùng giao14. React hiển thị ROP/SS/mode/N, ngày xuống ROP riêng ngày cạn, lý do/đường projection/bảng UTC; filter/export và metric threshold riêng depletion. Workspace thêm warning_items/projected_below_rop_items đếm item duy nhất; inventory API/CSV đọc5tham số từ policy frozen, công thức fixed hiển thị đúng.245Python (3ca mới),50React (7ca mới,1worker)/build/pipcheck và browser desktop/mobile390px trên2run synthetic đạt;1027protectedhash và3app run nguyên, schema0003_threshold giữ. Chờ commit/push/remoteSHA/CI; bước15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật mới chứng minh45%.
+
+<a id="warning-presentation-step14"></a>
+## Cảnh báo hiển thị thực sau bước14 — 26/10/2026
+
+Trang Alerts có bộ lọc type below_rop/projected_below_rop/depletion và state threshold_warning cùng các state cũ; đổi context/type/state làm reset trang và ẩn drawer cũ. CSV giữ cùng run/origin/bộ lọc, xuất toàn kết quả theo hợp đồng API; bảng ghi rõ số dòng tín hiệu khác số mặt hàng.
+
+Bảng/drawer phân biệt ROP tại quyết định, N, predicted_threshold_date và predicted_depletion_date/lead_days. Dòng projected không bị gán ngày cạn hoặc lead_days của threshold; xem tín hiệu depletion riêng cho cùng item. Drawer dùng policy/thresholds/projection frozen, có SS/mode/lookback/factor, giải thích current<ROP hoặc lần đầu dự kiến<ROP, biểu đồ đường tồn với đường ROP cố định và bảng số UTC/receipts. Actual threshold trong replay đọc threshold_evaluation và có nhãn riêng; không trình bày như ngày cạn thực doanh nghiệp.
+
+Metric threshold ở panel riêng, gồm event denominator/signal/evaluated/excluded, precision/recall, TP/FP/FN/TN và date_mae; null giữ dấu—. Panel depletion/early rate và chẩn đoán cơ hội7ngày giữ mẫu số toàn replay; cả hai panel không đổi khi lọc bảng. Mục tiêu45% vẫn là mục tiêu làm việc theo nguồn thuật lại, không tự nhận nghiệm thu.
+
+Thẻ warning_items trên Overview và Alerts đếm tập item có tín hiệu actionable (loại not_within_horizon); projected_below_rop_items là tập item có projected signal. Không cộng số dòng hoặc cộng các tập với nhau. urgent_items giữ riêng nghĩa depletion urgent/already_depleted. Các thẻ theo context kho/item/supplier/type/ngày; filter type/state của bảng không đổi tổng trên thẻ. Inventory drawer nhận5trường policy frozen qua read model; ROP fixed hiển thị floor và không dùng công thức max(forecast,floor).
+
+245Python/50React/build/pipcheck và2worker synthetic qua verifier/API/CSV đạt. Browser desktop1280×720 và viewport mobile390×844 kiểm card1item/2signals, filter/CSV link, hai metric, drawer/chart/UTC/scroll/Escape/focus; override viewport đã reset, tab/stack test dừng. Chỉ synthetic, không thay kết quả run cũ hoặc chạy nghiệm thu thực. [Bàn giao](../../docs/development.md#handoff-chg068-step14).
+
+**CHG-068 bước13 — 26/10/2026, hoàn tất:** sau cổng bước12 mã14b1841/remoteSHA/2CI success, người dùng giao tiếp tục bước13. Form React policy/scenario có SS days/volatility, ROP fixed/forecast, lookback/factor/N; override trống kế thừa,0giữ đúng, chỉ trường phù hợp mode hiển thị/gửi. Giữ version/effective date/conflict/cấu hình cũ; bảng policy phân biệt tham số đang áp dụng.43React (9ca mới, chạy mặc định và1worker)/build/browser synthetic save-reload-Escape-focus đạt;1029protectedhash và3app run nguyên, schema0003_threshold giữ. 242Python BE/M2/pipcheck đạt; commit mã73d6f398de4fb069ab2484a85cecf71bc345147c đã push thường, remoteSHA khớp và2workflowCI completed/success; bước14–15 chưa bắt đầu, R07/T14 chưa nghiệm thu.
 
 <a id="policy-forms-step13"></a>
 ## Form cấu hình thực sau bước13 — 26/10/2026

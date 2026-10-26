@@ -19,6 +19,7 @@ import { PlanRequired } from "../components/ui/PlanRequired";
 import type { PurchasingView } from "../types/context";
 import { Icon } from "../components/ui/Icon";
 import type { WorkspaceData } from "../types/api";
+import { alertTypeLabel } from "../utils/labels";
 export function Alerts({
   run,
   ctx,
@@ -31,9 +32,10 @@ export function Alerts({
   onItem?: (row: Row, page?: string, view?: PurchasingView) => void;
 }) {
   const [state, setState] = useState(""),
+    [alertType, setAlertType] = useState(""),
     [page, setPage] = useState(1),
     [selection, setSelection] = useState<{ key: string; row: Row }>();
-  const key = JSON.stringify([ctx, state]);
+  const key = JSON.stringify([ctx, state, alertType]);
   const focused = selection?.key === key ? selection.row : undefined;
   useEffect(() => setPage(1), [key]);
   const ready =
@@ -42,6 +44,7 @@ export function Alerts({
   const q = resultQuery(ctx, {
     as_of_date: ctx.origin,
     state,
+    alert_type: alertType,
     page,
     page_size: 50,
   });
@@ -56,13 +59,15 @@ export function Alerts({
     run?.status === "complete"
       ? (run.result_summary.alert_metrics as Row | undefined)
       : undefined;
+  const thresholdMetric = run?.status === "complete"
+    ? run.result_summary.threshold_metrics as Row | undefined : undefined;
 
   return (
     <>
       <div className="page-heading">
         <div>
           <h1>Cảnh báo tồn kho</h1>
-          <p>Ưu tiên các mặt hàng có nguy cơ cạn hoặc cần bổ sung.</p>
+          <p>Phân biệt dự kiến xuống ngưỡng nhập với ngày cạn dự kiến.</p>
         </div>
         {ready && <ExportButton url={`/runs/${run.id}/exports/alerts?${q}`} />}
       </div>
@@ -86,15 +91,15 @@ export function Alerts({
               icon="alert"
             />
             <Card
-              label="Cần đặt thêm"
-              value={fmt(summary.data?.summary.replenish_items)}
-              note="Đã tính lượng hàng đang về"
-              icon="truck"
+              label="Dự kiến xuống ROP"
+              value={fmt(summary.data?.summary.projected_below_rop_items)}
+              note="Số mặt hàng duy nhất trong N ngày của policy"
+              icon="clock"
             />
             <Card
-              label="Hàng đang về"
-              value={fmt(summary.data?.summary.pending_units)}
-              note="Lượng đã đặt tại mốc đang xem"
+              label="Mặt hàng có cảnh báo"
+              value={fmt(summary.data?.summary.warning_items)}
+              note="Một mặt hàng có nhiều tín hiệu vẫn chỉ tính một lần"
               tone="teal"
               icon="clock"
             />
@@ -104,6 +109,13 @@ export function Alerts({
             title="Danh sách cảnh báo"
             note={`Ngày ${ctx.origin} · Nhấn một dòng để xem diễn biến tồn dự kiến.`}
             action={
+              <div className="segments">
+              <select aria-label="Loại tín hiệu cảnh báo" value={alertType} onChange={(e) => setAlertType(e.target.value)}>
+                <option value="">Tất cả tín hiệu</option>
+                <option value="below_rop">Dưới ngưỡng nhập</option>
+                <option value="projected_below_rop">Dự kiến xuống ROP</option>
+                <option value="depletion">Nguy cơ cạn</option>
+              </select>
               <select
                 aria-label="Trạng thái cảnh báo"
                 value={state}
@@ -115,10 +127,12 @@ export function Alerts({
                 <option value="already_depleted">Đã hết tại mốc chốt</option>
                 <option value="low_stock">Cần bổ sung</option>
                 <option value="pending_covers">Đã đặt đủ hàng đang về</option>
+                <option value="threshold_warning">Dự kiến xuống ROP</option>
                 <option value="not_within_horizon">
                   Chưa cạn trong 14 ngày
                 </option>
               </select>
+              </div>
             }
           >
             <State
@@ -154,10 +168,12 @@ export function Alerts({
                   {
                     key: "alert_type",
                     label: "Tín hiệu",
-                    render: (v) =>
-                      v === "depletion" ? "Nguy cơ cạn" : "Dưới ngưỡng nhập",
+                    render: alertTypeLabel,
                   },
                   { key: "state", label: "Trạng thái", render: badge },
+                  { key: "rop", label: "ROP tại quyết định", render: (_, row) => fmt((((row.explanation as Row)?.thresholds) as Row)?.rop) },
+                  { key: "warning_horizon_days", label: "N ngày", render: (_, row) => fmt((((row.explanation as Row)?.policy) as Row)?.warning_horizon_days ?? 7) },
+                  { key: "predicted_threshold_date", label: "Xuống ROP dự kiến" },
                   { key: "predicted_depletion_date", label: "Cạn dự kiến" },
                   { key: "lead_days", label: "Số ngày còn lại" },
                   {
@@ -173,6 +189,7 @@ export function Alerts({
               total={data.data?.total ?? 0}
               onChange={setPage}
             />
+            <p className="caption">{fmt(data.data?.total)} dòng tín hiệu trong bộ lọc; tổng mặt hàng trên thẻ được tính duy nhất theo kho, mặt hàng và ngày đang xem.</p>
           </Panel>
           {m && (
             <details className="advanced-section">
@@ -188,12 +205,22 @@ export function Alerts({
                 <Card label="Ca không chấm" value={fmt(m.excluded_count)} />
               </div>
               <p className="caption">
-                Metric toàn lượt replay; không áp dụng bộ lọc bảng. Chưa có
-                ngưỡng tỷ lệ tổng được mentor chốt.
+                Metric depletion toàn lượt replay; không áp dụng bộ lọc bảng. Mục tiêu làm việc ≥45% với báo trước ≥7 ngày theo lời mentor được thuật lại; tính bắt buộc/phạm vi nghiệm thu còn cần làm rõ.
               </p>
               <AlertOpportunity run={run} />
             </details>
           )}
+          {thresholdMetric && <details className="advanced-section">
+            <summary>Đánh giá xuống ROP · riêng ngày cạn</summary>
+            <div className="stats">
+              <Card label="Sự kiện xuống ROP" value={fmt(thresholdMetric.event_denominator)} note={`${fmt(thresholdMetric.signal_count)} tín hiệu · ${fmt(thresholdMetric.evaluated_count)} ca hợp lệ`} />
+              <Card label="Precision xuống ROP" value={pct(thresholdMetric.precision)} />
+              <Card label="Recall xuống ROP" value={pct(thresholdMetric.recall)} />
+              <Card label="Ca đã dưới ROP tại origin" value={fmt(thresholdMetric.excluded_count)} />
+            </div>
+            <p className="caption">Metric toàn alert replay, dùng ROP tại origin và N của từng policy; không áp dụng bộ lọc bảng, không cộng vào tỷ lệ báo trước ngày cạn ≥7 ngày. Sai số ngày xuống ROP: {fmt(thresholdMetric.date_mae, 2)} ngày.</p>
+            <p className="caption">TP {fmt(thresholdMetric.TP)} · FP {fmt(thresholdMetric.FP)} · FN {fmt(thresholdMetric.FN)} · TN {fmt(thresholdMetric.TN)}</p>
+          </details>}
         </>
       )}
       {focused && (

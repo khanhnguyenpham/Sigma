@@ -156,8 +156,8 @@ export function Overview({
             />
             <Card
               label="Cảnh báo cần xử lý"
-              value={fmt(s?.urgent_items)}
-              note="Có nguy cơ cạn dưới 7 ngày hoặc đã cạn"
+              value={fmt(s?.warning_items)}
+              note="Mỗi mặt hàng tính một lần, gồm ngưỡng nhập và nguy cơ cạn"
               tone="red"
               icon="bell"
             />

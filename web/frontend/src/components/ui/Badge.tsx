@@ -10,6 +10,7 @@ export const badge = (value: unknown) => (
         not_within_horizon: "Chưa cạn trong 14 ngày",
         pending_covers: "Dưới ROP · đã đặt đủ",
         low_stock: "Cần bổ sung",
+        threshold_warning: "Dự kiến xuống ROP",
         sufficient: "Đủ tồn",
         complete: "Hoàn tất",
         running: "Đang chạy",

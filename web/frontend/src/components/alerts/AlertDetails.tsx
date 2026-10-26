@@ -6,6 +6,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  ReferenceLine,
 } from "recharts";
 import { type Row } from "../../types/api";
 import { fmt, text } from "../../utils/format";
@@ -13,6 +14,8 @@ import { badge } from "../ui/Badge";
 import { DetailDrawer } from "../ui/DetailDrawer";
 import type { PurchasingView } from "../../types/context";
 import { Icon } from "../ui/Icon";
+import { Table } from "../ui/Table";
+import { alertTypeLabel } from "../../utils/labels";
 
 export function AlertDetails({
   focused,
@@ -25,6 +28,10 @@ export function AlertDetails({
 }) {
   const explanation = focused?.explanation as Row | undefined;
   const projection = explanation?.projection as Row[] | undefined;
+  const policy = explanation?.policy as Row | undefined;
+  const thresholds = explanation?.thresholds as Row | undefined;
+  const evaluation = explanation?.threshold_evaluation as Row | undefined;
+  const projected = focused.alert_type === "projected_below_rop";
   return (
     <DetailDrawer title={text(focused.sku)} onClose={onClose}>
       <dl className="drawer-fields">
@@ -37,9 +44,7 @@ export function AlertDetails({
         <div>
           <dt>Loại tín hiệu</dt>
           <dd>
-            {focused.alert_type === "depletion"
-              ? "Nguy cơ cạn"
-              : "Dưới ngưỡng nhập"}
+            {alertTypeLabel(focused.alert_type)}
           </dd>
         </div>
         <div>
@@ -47,10 +52,30 @@ export function AlertDetails({
           <dd>{badge(focused.state)}</dd>
         </div>
         <div>
+          <dt>Ngày quyết định · UTC</dt><dd>{text(focused.as_of_date)}</dd>
+        </div>
+        <div><dt>Tồn tại quyết định</dt><dd>{fmt(explanation?.origin_on_hand)}</dd></div>
+        <div><dt>ROP tại quyết định</dt><dd>{fmt(thresholds?.rop)}</dd></div>
+        <div><dt>Cách tính ROP</dt><dd>{policy?.rop_mode === "fixed" ? "Cố định" : "Theo dự báo"}</dd></div>
+        <div><dt>Tồn an toàn SS</dt><dd>{fmt(thresholds?.ss)}</dd></div>
+        <div><dt>Cách tính SS</dt><dd>{policy?.safety_mode === "volatility" ? `Biến động · ${fmt(policy.safety_lookback_days)} ngày · hệ số ${fmt(policy.safety_factor)}` : `Số ngày bán · ${fmt(policy?.safety_days)} ngày`}</dd></div>
+        <div><dt>N ngày nhìn trước ROP</dt><dd>{fmt(policy?.warning_horizon_days ?? 7)}</dd></div>
+        <div><dt>Xuống ROP dự kiến</dt><dd>{text(focused.predicted_threshold_date)}</dd></div>
+        <div>
           <dt>Cạn dự kiến</dt>
           <dd>{text(focused.predicted_depletion_date)}</dd>
         </div>
+        <div><dt>Số ngày tới lúc cạn</dt><dd>{fmt(focused.lead_days)}</dd></div>
       </dl>
+      <p className="notice subtle">
+        {projected
+          ? `Tồn tại quyết định chưa dưới ROP. Lần đầu tồn cuối ngày dự kiến < ROP là ${text(focused.predicted_threshold_date)} trong N ngày. Ngày cạn được đọc từ tín hiệu Nguy cơ cạn riêng của mặt hàng.`
+          : focused.alert_type === "below_rop"
+            ? focused.state === "pending_covers"
+              ? "Tồn cuối ngày dưới ROP, nhưng lượng đang về đã đủ mức mục tiêu nên chưa đề xuất đặt thêm."
+              : "Tồn cuối ngày dưới ROP; kiểm tra lượng đang về và đề xuất nhập."
+            : "Ngày cạn là lần đầu tồn dự kiến chạm 0 trong H14; khác ngày tồn xuống dưới ROP. Báo sớm ≥7 ngày được đo riêng trong replay."}
+      </p>
       {projection ? (
         <>
           <h2>Diễn biến tồn dự kiến</h2>
@@ -74,6 +99,7 @@ export function AlertDetails({
                   tickLine={false}
                 />
                 <Tooltip formatter={(v) => fmt(v, 2)} />
+                {thresholds?.rop != null && <ReferenceLine y={Number(thresholds.rop)} ifOverflow="extendDomain" stroke="#c99243" strokeDasharray="5 4" label="ROP tại quyết định" />}
                 <Line
                   dataKey="closing_forecast"
                   name="Tồn dự kiến"
@@ -88,6 +114,14 @@ export function AlertDetails({
             Chỉ tính các lô đã biết và nhận đúng ETA đầu ngày. Chưa có actual
             tương lai; không đặt thêm lô trong dự phóng này.
           </p>
+          <details className="advanced-section">
+            <summary>Bảng tồn dự kiến theo ngày UTC</summary>
+            <Table rows={projection} columns={[
+              { key: "date", label: "Ngày UTC" },
+              { key: "receipts_qty", label: "Hàng đã biết về đầu ngày" },
+              { key: "closing_forecast", label: "Tồn cuối ngày dự kiến" },
+            ]} />
+          </details>
         </>
       ) : (
         <div className="notice">
@@ -100,8 +134,8 @@ export function AlertDetails({
         <div className="drawer-body">
           <dl className="drawer-fields">
             <div>
-              <dt>Ngày cạn trong replay</dt>
-              <dd>{text(focused.actual_depletion_date)}</dd>
+              <dt>{projected ? "Ngày xuống ROP trong replay" : "Ngày cạn trong replay"}</dt>
+              <dd>{text(projected ? evaluation?.actual_threshold_date : focused.actual_depletion_date)}</dd>
             </div>
             <div>
               <dt>Đánh giá</dt>
