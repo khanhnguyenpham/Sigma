@@ -11,7 +11,7 @@ from modules.runs.models import Run
 from modules.forecasting.models import DailySales, ItemForecast
 from modules.purchasing.models import Replenishment
 from modules.inventory.service import PolicyValues, recommend, fulfill_day, eta, history_quantities
-from modules.alerts.service import project, replay_metrics
+from modules.alerts.service import project, replay_metrics, project_threshold, threshold_metrics
 from modules.runs.service import progress
 from core.serialization import clean_json
 from src.data import audit_orders
@@ -72,6 +72,7 @@ def pure_window(
     events = []
     ledger = []
     alerts = []
+    threshold_cases = []
 
     def add_order(record):
         orders.append(record)
@@ -248,6 +249,10 @@ def pure_window(
                             receipts.get(lot["eta"], 0) + lot["ordered_qty"]
                         )
                 projection = project(day, stock[item], vector, receipts)
+                threshold_date = project_threshold(
+                    day, stock[item], decision["rop"], p.get("warning_horizon_days", 7),
+                    projection["projection"],
+                )
                 explanation = dict(
                     origin_on_hand=stock[item],
                     forecast14=list(map(float, vector)),
@@ -267,6 +272,7 @@ def pure_window(
                         as_of_date=day,
                         alert_type="depletion",
                         state=projection["state"],
+                        predicted_threshold_date=None,
                         predicted_depletion_date=projection["predicted_depletion_date"],
                         actual_depletion_date=None,
                         lead_days=projection["lead_days"],
@@ -285,6 +291,7 @@ def pure_window(
                             as_of_date=day,
                             alert_type="below_rop",
                             state=decision["state"],
+                            predicted_threshold_date=None,
                             predicted_depletion_date=None,
                             actual_depletion_date=None,
                             lead_days=None,
@@ -295,6 +302,23 @@ def pure_window(
                             is_simulated=True,
                         )
                     )
+                if threshold_date is not None:
+                    alerts.append(dict(
+                        window_origin=origin, item_id=item, as_of_date=day,
+                        alert_type="projected_below_rop", state="threshold_warning",
+                        predicted_threshold_date=threshold_date,
+                        predicted_depletion_date=None, actual_depletion_date=None,
+                        lead_days=None, is_evaluable=False, evaluation_class=None,
+                        exclusion_reason=None, explanation=explanation, is_simulated=True,
+                    ))
+                if kind == "alert_replay":
+                    threshold_cases.append(dict(
+                        item_id=item, as_of_date=origin, rop=decision["rop"],
+                        warning_horizon_days=p.get("warning_horizon_days", 7),
+                        predicted_threshold_date=threshold_date, actual_threshold_date=None,
+                        is_evaluable=stock[item] >= decision["rop"],
+                        exclusion_reason="already_below_rop_at_origin" if stock[item] < decision["rop"] else None,
+                    ))
             if kind == "policy_replay" and decision["recommended_qty"] > 0:
                 add_order(
                     dict(
@@ -313,7 +337,25 @@ def pure_window(
                 )
     cases = []
     if kind == "alert_replay":
+        ledger_by_item = {item: [] for item in ids}
+        for row in ledger:
+            ledger_by_item[row["item_id"]].append(row)
+        for case in threshold_cases:
+            case["actual_threshold_date"] = next((
+                row["date"] for row in ledger_by_item[case["item_id"]]
+                if case["is_evaluable"]
+                and origin < row["date"] <= origin + timedelta(days=case["warning_horizon_days"])
+                and row["closing_qty"] < case["rop"]
+            ), None)
+        threshold_by_item = {r["item_id"]: r for r in threshold_cases}
         for row in alerts:
+            if row["alert_type"] == "projected_below_rop":
+                case = threshold_by_item[row["item_id"]]
+                row["is_evaluable"] = True
+                row["evaluation_class"] = "TP" if case["actual_threshold_date"] else "FP"
+                row["explanation"] = {**row["explanation"], "threshold_evaluation": {
+                    k: v.isoformat() if isinstance(v, date) else v for k, v in case.items()
+                }}
             if row["alert_type"] != "depletion":
                 continue
             item = row["item_id"]
@@ -369,6 +411,7 @@ def pure_window(
         orders=orders,
         alerts=alerts,
         cases=cases,
+        threshold_cases=threshold_cases,
         summary=summary,
     )
 
@@ -470,7 +513,7 @@ def simulate_run(settings, sessions, key):
             day += timedelta(days=14)
     else:
         windows = [(origin, end)]
-    combined = {name: [] for name in ["ledger", "events", "orders", "alerts", "cases"]}
+    combined = {name: [] for name in ["ledger", "events", "orders", "alerts", "cases", "threshold_cases"]}
     summaries = []
     for idx, (start, finish) in enumerate(windows, 1):
         progress(
@@ -571,6 +614,9 @@ def simulate_run(settings, sessions, key):
         else None,
         ordered_qty=sum(o["ordered_qty"] for o in combined["orders"]),
         is_simulated=True,
+        threshold_warning_version=1,
+        threshold_metrics=threshold_metrics(combined["threshold_cases"])
+        if kind == "alert_replay" else None,
         alert_metrics=replay_metrics(combined["cases"])
         if kind == "alert_replay"
         else None,
@@ -589,7 +635,8 @@ def simulate_run(settings, sessions, key):
                     )
                 ),
             )
-        ],
+        ] + ([dict(granularity="threshold", **threshold_metrics(combined["threshold_cases"]))]
+             if kind == "alert_replay" else []),
     )
     folder = settings.output_root / str(key)
     folder.mkdir(parents=True, exist_ok=False)

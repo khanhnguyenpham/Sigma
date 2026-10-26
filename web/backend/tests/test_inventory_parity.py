@@ -29,5 +29,11 @@ def test_inventory_replay_matches_pre_step7_snapshot(kind, variant):
     baseline = json.loads((Path(__file__).parent / "fixtures/inventory_step7_baseline.json").read_text())
     expected = baseline["cases"][f"{kind}/{variant}"]
     result = replay_snapshot(kind, variant)
+    # Step12 adds threshold signals and a nullable date, not legacy behavior.
+    # Compare every original field against the immutable pre-step7 golden.
+    result.pop("threshold_cases")
+    result["alerts"] = [r for r in result["alerts"] if r["alert_type"] != "projected_below_rop"]
+    for row in result["alerts"]:
+        row.pop("predicted_threshold_date")
     assert digest(result) == expected["canonical_sha256"]
     assert result["summary"] == expected["summary"]
