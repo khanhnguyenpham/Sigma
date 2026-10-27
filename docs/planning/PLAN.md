@@ -796,7 +796,7 @@ Người dùng duyệt và giao ngày 27/10/2026, nhánh `codex/alert-safety-sto
 
 | Mốc | Sản phẩm/cổng | Trạng thái |
 |---|---|---|
-| 1 | Protocol/tài liệu/hash, đối chứng A986/2867 và policy cơ sở | Local đạt; chờ cổng GitHub |
+| 1 | Protocol/tài liệu/hash, đối chứng A986/2867 và policy cơ sở | Hoàn tất local/commit/push/SHA/CI; mãf1bd4de |
 | 2 | CLI validate/evaluate/verify, B/C/D và ca tính tay | Chưa bắt đầu |
 | 3 | Verifier độc lập; causal/episode/intervention/censor/tamper | Chưa bắt đầu |
 | 4 | Ma trận validation và selection lock | Chưa bắt đầu |
