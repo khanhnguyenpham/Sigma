@@ -213,11 +213,7 @@ def test_forged_receipt_and_resealed_outputs_cannot_authorize_test_reads(bundle,
 
 def test_synthetic_verification_cannot_authorize_real_data_evaluation(bundle, tmp_path, monkeypatch):
     folder = clone(bundle, tmp_path); proof = verifier.verify_run(folder)
-    manifest = runner.read_json(folder/"manifest.json")
-    lock = dict(validation_run=str(folder), validation_manifest_sha256=proof["manifest_sha256"],
-        validation_verification_sha256=verifier.sha(folder/"verification.json"), protocol_sha256=manifest["protocol_sha256"],
-        selected_configs=["C-cover3"], **{k: manifest["input_meta"][k] for k in ("source_sha256","forecast_config_sha256","selection_sha256")})
-    path = tmp_path/"lock.json"; runner.write_json(path, lock)
+    path = runner.write_selection_lock(folder)
     def forbidden(*args, **kwargs): pytest.fail("Synthetic lock read real test data")
     monkeypatch.setattr(runner, "load_database_inputs", forbidden)
     assert runner.main(["evaluate", "--selection-lock", str(path)]) == 1

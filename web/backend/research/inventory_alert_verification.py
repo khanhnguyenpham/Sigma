@@ -7,6 +7,7 @@ import hashlib
 from html.parser import HTMLParser
 import json
 import math
+import sys
 from pathlib import Path
 from statistics import pstdev
 
@@ -395,6 +396,33 @@ def changes(baseline, candidate):
             for w,i in sorted(before.keys() | after.keys()) if before.get((w,i)) != after.get((w,i))]
 
 
+def representatives(metrics):
+    """Independent objective comparison; event rates compare by cross multiplication."""
+    selected, reasons = [], []
+    for group in ("C", "D"):
+        rows = [r for r in metrics if r["config"]["group"] == group]
+        require(bool(rows), "Missing selection group")
+        for criterion, field in [("highest_early_rate", "early_rate"), ("lowest_shortage_qty", "shortage_qty"),
+                                 ("lowest_mean_closing", "mean_closing")]:
+            eligible = [r for r in rows if r["event_denominator"] > 0] if field == "early_rate" else rows
+            winner = None
+            for row in eligible:
+                if winner is None:
+                    winner = row; continue
+                if field == "early_rate":
+                    delta = row["early_numerator"]*winner["event_denominator"] - winner["early_numerator"]*row["event_denominator"]
+                    better, tied = delta > 0, delta == 0
+                else:
+                    better, tied = row[field] < winner[field], row[field] == winner[field]
+                if better or tied and (row["ordered_qty"], row["config"]["id"]) < (winner["ordered_qty"], winner["config"]["id"]):
+                    winner = row
+            identity = winner["config"]["id"] if winner else None
+            if identity is not None and identity not in selected: selected.append(identity)
+            reasons.append(dict(group=group, criterion=criterion, config_id=identity,
+                value=None if winner is None else winner["early_numerator"]/winner["event_denominator"] if field == "early_rate" else winner[field]))
+    return selected, reasons
+
+
 def same(actual, expected, location="result"):
     if isinstance(expected, dict):
         require(isinstance(actual, dict) and actual.keys() == expected.keys(), "Fields differ at " + location)
@@ -584,6 +612,8 @@ def verify_run(folder, *, write_receipt=True, settings=None, baseline_root=None)
         require(bool(selected) and len(selected) == len(set(selected))
                 and all(i in known and known[i]["group"] in ("C", "D") for i in selected), "Invalid representatives")
         require(all(sum(known[i]["group"] == g for i in selected) <= 3 for g in ("C", "D")), "Too many representatives")
+        expected_selection, reasons = representatives(read(validation/"metrics.json"))
+        require(selected == expected_selection and lock.get("selection_details") == reasons, "Selection rule differs")
         require(ids == [i for i in known if i in set(selected) | {"A-base", "B-daily", "C-days-m1-cover7", "D-days-m1-cover7"}], "Test matrix differs from lock")
     summaries, baseline, first_cases = [], None, None
     rows_checked = defaultdict(int)
@@ -602,6 +632,7 @@ def verify_run(folder, *, write_receipt=True, settings=None, baseline_root=None)
         summaries.append(expected["metrics"])
         for name, table in expected.items():
             if isinstance(table, list): rows_checked[name] += len(table)
+        print(f"Verified {len(summaries)}/{len(ids)} {identity}", file=sys.stderr, flush=True)
     reported = read(folder/"metrics.json")
     same(reported, summaries, "summary_metrics")
     columns = ["early_numerator", "event_denominator", "early_rate", "shortage_qty", "mean_closing", "ordered_qty"]

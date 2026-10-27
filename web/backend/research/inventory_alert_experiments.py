@@ -1,6 +1,7 @@
 """Local A/B/C/D research; calculations are sealed and independently checked by verify."""
 
 import argparse
+import csv
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
 import gzip
@@ -11,6 +12,8 @@ import json
 import math
 from pathlib import Path
 import platform
+from fractions import Fraction
+import sys
 import uuid
 
 import numpy as np
@@ -495,6 +498,95 @@ def verify_artifacts(folder):
                 metrics_status="unverified", artifacts_checked=len(artifacts))
 
 
+def select_representatives(metrics):
+    """Three predeclared objectives, exact event-rate ordering, then quantity/ID ties."""
+    known = {c["id"]: c for c in experiment_matrix()}
+    groups = {g: [] for g in ("C", "D")}
+    seen = set()
+    for row in metrics:
+        identity = row["config"]["id"]
+        if identity not in known or identity in seen or row["config"] != known[identity]:
+            raise ValueError("Invalid or duplicate selection configuration")
+        seen.add(identity)
+        if known[identity]["group"] not in groups:
+            continue
+        n, d = row["early_numerator"], row["event_denominator"]
+        if type(n) is not int or type(d) is not int or not 0 <= n <= d:
+            raise ValueError("Invalid event counts for selection")
+        if (d == 0 and row["early_rate"] is not None) or (d > 0 and (
+            type(row["early_rate"]) not in (int, float) or not math.isfinite(row["early_rate"])
+            or abs(row["early_rate"]-n/d) > 1e-8)):
+            raise ValueError("Selection rate differs from event counts")
+        for field in ("shortage_qty", "ordered_qty"):
+            quantity(row[field])
+        if type(row["mean_closing"]) not in (int, float) or not math.isfinite(row["mean_closing"]) or row["mean_closing"] < 0:
+            raise ValueError("Selection needs a finite inventory mean")
+        groups[known[identity]["group"]].append(row)
+    selected, details = [], []
+    for group, rows in groups.items():
+        if not rows:
+            raise ValueError("Both C and D must be represented")
+        for criterion in protocol()["selection"]:
+            eligible = [r for r in rows if r["event_denominator"] > 0] if criterion == "highest_early_rate" else rows
+            if not eligible:
+                details.append(dict(group=group, criterion=criterion, config_id=None, value=None))
+                continue
+            field = {"highest_early_rate": "early_rate", "lowest_shortage_qty": "shortage_qty", "lowest_mean_closing": "mean_closing"}[criterion]
+            def rank(r):
+                value = -Fraction(r["early_numerator"], r["event_denominator"]) if field == "early_rate" else r[field]
+                return value, r["ordered_qty"], r["config"]["id"]
+            winner = min(eligible, key=rank)
+            identity = winner["config"]["id"]
+            if identity not in selected:
+                selected.append(identity)
+            details.append(dict(group=group, criterion=criterion, config_id=identity,
+                                value=winner["early_numerator"]/winner["event_denominator"] if field == "early_rate" else winner[field]))
+    return selected, details
+
+
+def write_selection_lock(folder, baseline_root=None):
+    from web.backend.research.inventory_alert_verification import representatives, verify_run
+
+    folder = Path(folder).resolve()
+    manifest = read_json(folder/"manifest.json")
+    if manifest["split"] != "validation":
+        raise ValueError("Selection must not read test outcomes")
+    proof = verify_run(folder, baseline_root=baseline_root)
+    metrics = read_json(folder/"metrics.json")
+    selected, details = select_representatives(metrics)
+    if (selected, details) != representatives(metrics):
+        raise ValueError("Independent selection differs")
+    lock = dict(validation_run=str(folder), validation_manifest_sha256=proof["manifest_sha256"],
+        validation_verification_sha256=file_hash(folder/"verification.json"), protocol_sha256=proof["protocol_sha256"],
+        selected_configs=selected, selection_details=details,
+        **{k: manifest["input_meta"][k] for k in ("source_sha256", "forecast_config_sha256", "selection_sha256")})
+    target = folder/"selection_lock.json"
+    if target.exists():
+        previous = read_json(target); created = previous.pop("created_at")
+        if previous != lock or datetime.fromisoformat(created).tzinfo is None:
+            raise ValueError("Existing selection lock differs; create a new run")
+    else:
+        lock["created_at"] = datetime.now(timezone.utc).isoformat()
+        with target.open("x", encoding="utf-8") as stream:
+            json.dump(lock, stream, sort_keys=True, indent=2, allow_nan=False)
+    # Human reports are derivatives; the lock and receipt bind the verified metrics/manifest.
+    fields = ["early_numerator", "event_denominator", "early_rate", "precision", "recall", "date_mae",
+              "fill_rate", "shortage_qty", "mean_closing", "ordered_qty", "mean_pending", "stockout_item_days"]
+    with (folder/"validation-comparison.csv").open("w", newline="", encoding="utf-8-sig") as stream:
+        writer = csv.writer(stream); writer.writerow(["config_id", "unit", "selected", *fields])
+        for row in metrics:
+            writer.writerow([row["config"]["id"], row["unit"], row["config"]["id"] in selected, *[row[k] for k in fields]])
+    body = "".join("<tr><td>"+html.escape(row["config"]["id"])+"</td><td>"+str(row["config"]["id"] in selected)
+        +"</td>"+"".join("<td>"+html.escape(str(row[k]))+"</td>" for k in fields)+"</tr>" for row in metrics)
+    (folder/"validation-comparison.html").write_text("<!doctype html><meta charset='utf-8'><title>Validation comparison</title>"
+        "<h1>Validation trên tồn mô phỏng — đã kiểm độc lập</h1><p>Chỉ validation, không phải nghiệm thu R07/T14. A/B cùng sự kiện; "
+        "C/D thay tồn hoặc chính sách nên mẫu số riêng. D precision theo item/ngày; early theo đợt cạn duy nhất. "
+        "Chưa chạy test hồi cứu. Evidence: "+html.escape(proof["evidence_class"])+".</p><p>Manifest SHA256: "+proof["manifest_sha256"]
+        +"</p><table border='1'><tr><th>Config</th><th>Đại diện</th>"+"".join("<th>"+f+"</th>" for f in fields)
+        +"</tr>"+body+"</table><pre>"+html.escape(json.dumps(details, indent=2))+"</pre>", encoding="utf-8")
+    return target
+
+
 def read_selection_lock(path, baseline_root=None):
     lock = read_json(path)
     validation = Path(lock["validation_run"]).resolve()
@@ -509,7 +601,7 @@ def read_selection_lock(path, baseline_root=None):
         or manifest["application_code_sha256"] != code_digest()
         or manifest["protocol_sha256"] != lock["protocol_sha256"]):
         raise ValueError("Selection needs independently verified validation and matching code/protocol")
-    from web.backend.research.inventory_alert_verification import verify_run
+    from web.backend.research.inventory_alert_verification import representatives, verify_run
 
     verify_run(validation, write_receipt=False, baseline_root=baseline_root)
     selected = lock["selected_configs"]
@@ -521,6 +613,9 @@ def read_selection_lock(path, baseline_root=None):
         raise ValueError("Invalid locked representatives")
     if any(sum(known[c]["group"] == g for c in selected) > 3 for g in ("C", "D")):
         raise ValueError("Too many locked representatives")
+    expected, details = representatives(read_json(validation/"metrics.json"))
+    if selected != expected or lock.get("selection_details") != details:
+        raise ValueError("Selection does not follow the predeclared validation rule")
     controls = {"A-base", "B-daily", "C-days-m1-cover7", "D-days-m1-cover7"}
     return lock, [c for c in experiment_matrix() if c["id"] in controls | set(selected)]
 
@@ -570,6 +665,7 @@ def calculate(snapshot, configs, output_root, selection_lock=None):
                                                        for k in ("appeared", "disappeared", "moved")}
             write_json(folder / "results" / (config["id"] + ".json.gz"), result)
             summaries.append(result["metrics"])
+            print(f"Calculated {len(summaries)}/{len(configs)} {config['id']}", file=sys.stderr, flush=True)
         write_json(folder / "metrics.json", summaries)
         columns = ["early_numerator", "event_denominator", "early_rate", "shortage_qty", "mean_closing", "ordered_qty"]
         body = "".join("<tr><td>" + html.escape(r["config"]["id"]) + "</td>" + "".join(
@@ -607,12 +703,20 @@ def main(argv=None):
     verify = commands.add_parser("verify", help="Independently reconstruct frozen inputs, outputs and metrics")
     verify.add_argument("--run-dir", type=Path, required=True)
     verify.add_argument("--baseline-root", type=Path, default=PROJECT_ROOT / "outputs/step15/runs")
+    select = commands.add_parser("select", help="Independently verify validation and seal its representative selection")
+    select.add_argument("--run-dir", type=Path, required=True)
+    select.add_argument("--baseline-root", type=Path, default=PROJECT_ROOT / "outputs/step15/runs")
     args = parser.parse_args(argv)
     try:
         if args.command == "verify":
             from web.backend.research.inventory_alert_verification import verify_run
 
             print(json.dumps(verify_run(args.run_dir, baseline_root=args.baseline_root)))
+            return 0
+        if args.command == "select":
+            path = write_selection_lock(args.run_dir, args.baseline_root)
+            print(json.dumps(dict(selection_lock=str(path), selected_configs=read_json(path)["selected_configs"],
+                                  status="validation_selection_locked")))
             return 0
         lock, configs = read_selection_lock(args.selection_lock, args.baseline_root) if args.command == "evaluate" else (None, experiment_matrix())
         split = "test" if args.command == "evaluate" else "validation"

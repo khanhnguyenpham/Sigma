@@ -239,11 +239,8 @@ def test_evaluate_honors_synthetic_selection_fixture_and_mandatory_controls(tmp_
     # Actual independent verification, still explicitly synthetic rather than business evidence.
     manifest_hash = research.file_hash(folder / "manifest.json")
     verify_run(folder)
-    lock = dict(validation_run=str(folder), validation_manifest_sha256=manifest_hash,
-        validation_verification_sha256=research.file_hash(folder / "verification.json"),
-        protocol_sha256=digest(p), selected_configs=["C-cover3", "D-days-m0-cover7"],
-        **{k: validation["meta"][k] for k in ("source_sha256", "forecast_config_sha256", "selection_sha256")})
-    lock_path = tmp_path / "lock.json"; research.write_json(lock_path, lock)
+    lock_path = research.write_selection_lock(folder)
+    lock = research.read_json(lock_path)
     start, finish = (date.fromisoformat(p["test"][k]) for k in ("origin", "end"))
     test = fixture_snapshot(origin=start, length=(finish - start).days,
                             score_start=date.fromisoformat(p["test"]["score_start"]))
@@ -254,7 +251,7 @@ def test_evaluate_honors_synthetic_selection_fixture_and_mandatory_controls(tmp_
     result = json.loads(capsys.readouterr().out)
     metrics = research.read_json(Path(result["output"]) / "metrics.json")
     assert {r["config"]["id"] for r in metrics} == {
-        "A-base", "B-daily", "C-cover3", "D-days-m0-cover7", "C-days-m1-cover7", "D-days-m1-cover7"}
+        "A-base", "B-daily", "C-days-m1-cover7", "D-days-m1-cover7"} | set(lock["selected_configs"])
     assert result["independent_replay"] is False
     lock["source_sha256"] = "changed"
     research.write_json(lock_path, lock)
