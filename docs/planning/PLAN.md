@@ -797,7 +797,7 @@ Ngày 27/10/2026, người dùng ban đầu giao đưa SS days×1 vào m3-implem
 
 | Mốc | Nội dung | Trạng thái |
 |---|---|---|
-| 1 | Làm rõ không có cải thiện từ chọn lại days×1; lập hướng và phép so sánh cố định | Local đạt; chờ commit/push/SHA/CI |
+| 1 | Làm rõ không có cải thiện từ chọn lại days×1; lập hướng và phép so sánh cố định | Hoàn tất kế hoạch/local/commit/push/SHA/CI; mãd501da9 |
 | 2 | Nếu được giao: khóa protocol máy đọc, triển khai cảnh báo nghiên cứu/verifier/causal test | Chưa bắt đầu |
 | 3 | Nếu được giao: validation4cấu hình, khóa tối đa1đại diện đạt45% có precision cao nhất | Chưa bắt đầu |
 | 4 | Nếu được giao: test hồi cứu đại diện+đối chứng, báo đánh đổi và quyết định có đưa vào app | Chưa bắt đầu |
