@@ -787,3 +787,19 @@ T01/T10/T12/T14 ghi **early rate≥45% với báo trước≥7ngày** làm mục
 - Khi được giao bước12–15, tiếp tục đúng15bước hiện có. Hoàn tất cảnh báo ngưỡng/cấu hình UI không tự chứng minh45%. Bước15 ghi counts, precision/recall, ca loại, ngày cạn và source/forecast/policy/scenario/origin đã khóa, đối soát riêng từng loại cảnh báo. Thay cover/tồn đầu/receipts phải công khai tập sự kiện/mẫu số đổi; không chọn lại model/policy bằng test cũ chỉ để vượt mục tiêu.
 - Chỉ cập nhật tài liệu điều phối, requirements, đặc tả chức năng/kiểm, bảng nghiệm thu và bằng chứng/bàn giao. Không sửa code/tests/config/env/schema/dữ liệu, không refit/replay hoặc ghi snapshot; kết quả cũ giữ vai trò baseline, không bị sửa thành kết quả mới.
 - Kiểm Markdown/link/anchor/bảng/fence/diff và hash tệp ngoài MD. Cổng commit/push thường/remoteSHA/CI chỉ cho thay đổi MD theo quyền hiện có; CI không chứng minh45%. R07/T14 giữ chưa nghiệm thu; bước11 hoàn tất, bước12–15 chưa bắt đầu và chỉ tiếp tục code khi người dùng giao.
+
+<a id="chg-075"></a>
+## CHG-075 — Ưu tiên báo sớm 45%, giữ mặc định và đường tồn
+
+Ngày 27/10/2026, người dùng ban đầu giao đưa SS days×1 vào m3-implementation. Kiểm code xác nhận mode days, multiplier1, policy_replay cập nhật mỗi ngày đã có sẵn từ CHG-068; thử D toàn kỳ khớp policy cũ14437/15968/thiếu1531/3245đơn. Sau khi làm rõ, người dùng chọn **“Ưu tiên báo sớm ≥45%: lập hướng thử nghiệm tiếp, chưa thay cấu hình mặc định”**. Phạm vi hiện tại chỉ Markdown trên m3-implementation từ a2241dbe; không triển khai preset hoặc thay thuật toán trong lượt này. Nhánh nghiên cứu CHG-074 giữ ở67d2ab6, không merge/cherry-pick hoặc sửa artifact.
+
+Đề xuất [early-warning-risk-v1](../../M3/docs/research.md#early-warning-risk-v1): giữ SS days×1 và toàn bộ đường tồn/đơn nhập/ETA/sự kiện cạn; chỉ thử kịch bản tiêu thụ dùng phát cảnh báo rủi ro với hệ số1/1,1/1,25/1,5. Không đổi forecast phục vụ, policy nhập hoặc giả định có thêm tồn. Đây là kịch bản stress, không phải forecast mới hoặc xác suất đã hiệu chỉnh. Chấm early≥7ngày trên cùng episode, đi cùng precision/số cảnh báo/can thiệp/thiếu nhãn; không gộp tín hiệu ROP. Mục tiêu45% theo protocol D nghiên cứu, không tự đổi nghiệm thu R07 cũ.
+
+| Mốc | Nội dung | Trạng thái |
+|---|---|---|
+| 1 | Làm rõ không có cải thiện từ chọn lại days×1; lập hướng và phép so sánh cố định | Local đạt; chờ commit/push/SHA/CI |
+| 2 | Nếu được giao: khóa protocol máy đọc, triển khai cảnh báo nghiên cứu/verifier/causal test | Chưa bắt đầu |
+| 3 | Nếu được giao: validation4cấu hình, khóa tối đa1đại diện đạt45% có precision cao nhất | Chưa bắt đầu |
+| 4 | Nếu được giao: test hồi cứu đại diện+đối chứng, báo đánh đổi và quyết định có đưa vào app | Chưa bắt đầu |
+
+Từng mốc nhỏ theo yêu cầu người dùng; không chạy hết hoặc tự chuyển web/scheduler/refit. Không tự đặt mức FP chấp nhận được. Nếu không có cấu hình đạt45%, ghi chưa đạt; không hạ7ngày, xóa ca khó hoặc chọn lại từ test. Local→commit→push thường→remoteSHA→2CI success trước mốc kế tiếp. Giữ mọi raw/run/DB/env local.
