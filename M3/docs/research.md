@@ -180,7 +180,7 @@ Can thiệp và thiếu nhãn là số item/ngày phát cảnh báo không đư�
 | C | C-days-m0.5-cover7 | C-volatility-m1.5-cover7 | C-cover3 |
 | D | D-days-m0-cover7 | D-volatility-m1.5-cover7 | D-days-m0-cover7 (trùng) |
 
-Tổng 5 đại diện; nếu người dùng giao mốc 5, evaluate sẽ chạy 9 cấu hình gồm 5 đại diện và 4 đối chứng A/B/C-days×1/D-days×1. Chưa gọi evaluate hoặc đọc kết quả test mới. Lock tạo lúc 07:36:16 UTC ngày 27/10/2026 sau kiểm độc lập validation; không chọn lại theo test.
+Tổng 5 đại diện; nếu người dùng giao mốc 5, evaluate sẽ chạy 9 cấu hình gồm 5 đại diện và 4 đối chứng A/B/C-days×1/D-days×1. Chưa gọi evaluate trên dữ liệu thật hoặc đọc kết quả test mới. Lock tạo lúc 07:36:16 UTC ngày 27/10/2026 sau kiểm độc lập validation; không chọn lại theo test.
 
 - Manifest SHA256: `7508438701af4d1a404b78e55d9ff93e29477d3302ceb83a4fe168ea6a61aa32`.
 - Verification receipt SHA256: `0cbd8d65a1e824966fb87c4be2d514c5f64e54d9b5dd236b1402ddc92aa04f71`.
