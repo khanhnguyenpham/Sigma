@@ -800,6 +800,6 @@ Người dùng duyệt và giao ngày 27/10/2026, nhánh `codex/alert-safety-sto
 | 2 | CLI validate/evaluate, verify toàn vẹn; A/B/C/D và ca tính tay | Hoàn tất local/commit/push/SHA/CI; mã8436eaa |
 | 3 | Verifier độc lập; causal/episode/intervention/censor/tamper | Hoàn tất local/commit/push/SHA/CI; mãad3ab88 |
 | 4 | Ma trận validation và selection lock | Hoàn tất local/commit/push/SHA/CI; mã78d5b95 |
-| 5 | Test hồi cứu đã khóa/báo cáo/bảo toàn/bàn giao | Local đạt; chờ commit/push/SHA/CI |
+| 5 | Test hồi cứu đã khóa/báo cáo/bảo toàn/bàn giao | Hoàn tất local/commit/push/SHA/CI; mã65eb603 |
 
 Mỗi mốc local→commit→push thường nhánh thử→remoteSHA khớp→2CI success trước mốc sau. Baseline34,391350% không ghi đè; R07/T14 chưa nghiệm thu; raw/run/DB/env private.
