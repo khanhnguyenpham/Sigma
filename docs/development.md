@@ -498,3 +498,17 @@ Bằng chứng private tại `outputs/research/ss-checkpoint`: `db-before.json`,
 Cổng GitHub mốc 1 đã xác nhận bên dưới. Kết thúc lượt sau cổng này; mốc kế tiếp là CLI và ca tính tay, chỉ bắt đầu khi người dùng giao. Baseline 34,391350% chưa đạt mục tiêu làm việc45%; R07/T14 chưa nghiệm thu.
 
 **Cổng GitHub CHG-074 mốc 1 đã kiểm:** commit `f1bd4de2d478f96f2eeb5e0979d807b3ae1e6319` push thường lên `codex/alert-safety-stock-experiments`, remoteSHA khớp; [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40444994494) và [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40444994460) completed/success, đủ bốn job test/backend/frontend/m2-regression. Kết thúc riêng mốc 1; mốc 2–5 chưa bắt đầu và chờ người dùng giao tiếp. Commit tài liệu xác nhận cổng được kiểm SHA/CI riêng trước thông điệp cuối; không triển khai CLI/B/C/D hoặc thay dữ liệu/nghiệm thu.
+
+
+<a id="handoff-chg074-step2"></a>
+### CHG-074 mốc 2 — CLI và phép tính, 27/10/2026
+
+Người dùng giao riêng mốc2 từ checkpoint467c6a3 đã remoteSHA khớp/hai CI success ở mốc1. Lượt này triển khai CLI và phép tính A/B/C/D; mốc3–5 chờ giao tiếp. [Giao diện và cách chạy](../M3/docs/research.md#inventory-alert-safety-step2).
+
+- Sản phẩm: một module nghiên cứu mới và một module tests mới. Ma trận19cấu hình A1/B1/C8/D9; reuse recommend/project/project_threshold/fulfill_day và metric hiện có. Không sửa backend src/FE/M2/model/phân bổ/protocol/API/schema/dependency hoặc tạo run app mới.
+- Đầu vào DB chỉ đọc, có kiểm hash sealed parents và audit sales; validation seed causal28ngày. Đầu ra gzipJSON/HTML/manifest có code/runtime/protocol/hash. CLI evaluate yêu cầu lock/receipt validation hợp lệ trước khi đọc test; verify ở mốc2 chỉ kiểm toàn vẹn tệp, không phải verifier độc lập.
+- Kiểm mới: 271 Python BE/M2,0failure/error/skip;26ca mới. Sau khi siết version/item ID, chạy lại riêng26/26 đạt. pipcheck và help ba CLI đạt. Synthetic CLI smoke thật qua subprocess:19configs,22artifact được kiểm hash, không selection lock, không ghi nhận kết quả verified. Test reader PostgreSQL chỉ đọc dùng sigma_m3_test và boundary audit synthetic.
+- Bảo toàn: đối chiếu toàn bộ hàng14bảng (13nghiệp vụ+Alembic) và1.185hash protected/protocol, giữ nguyên dữ liệu, sealed artifacts và forecast. Chỉ nghiên cứu/tests/docs mới thay đổi. Chưa chạy validation/test thật, không chọn cấu hình hoặc dùng số synthetic để nhận đạt45%; baseline986/2867 và R07/T14 giữ.
+- Lỗi môi trường: lượt targeted đầu19ca đạt,2fixture tmp_path bị sandbox chặn tạo thư mục; chạy lại quyền local đạt, không sửa timeout/test cũ. Starlette/httpx có cảnh báo deprecation hiện hữu. Không có lỗi nghiệp vụ còn mở trong các ca đã chạy; tính độc lập/tamper/causal toàn diện vẫn là phạm vi mốc3.
+
+Evidence private: outputs/research/ss-step2/{before.json,preservation.json,all-python.xml,targeted.xml,smoke.json,synthetic-input.json.gz,smoke/<UUID>/...}. Helper tmp.ss_tests nạp URL DB test riêng; tmp.ss_step2_preserve kiểm DB app chỉ đọc; tmp.ss_step2_smoke chỉ dùng fixture synthetic. Không đưa raw/output/DB/env lên Git. Cổng commit/push/SHA/CI ghi sau kiểm GitHub; hoàn tất cổng mốc2 rồi dừng, mốc3 chờ giao.

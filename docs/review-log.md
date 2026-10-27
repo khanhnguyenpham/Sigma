@@ -1375,3 +1375,9 @@ Nguồn: người dùng duyệt A/B/C/D, chọn local trước/web sau, đánh g
 Đã tạo nhánh `codex/alert-safety-stock-experiments` từ `a2241dbe`, lưu protocol/thiết kế. Kiểm mới: 245 Python đạt, verifier độc lập đối chứng A986/2867 và policy14437/15968/thiếu1531, 14 bảng và1.184hash protected nguyên. Không sửa source ứng dụng, refit, tạo replay run mới hoặc triển khai CLI/B/C/D. Cổng GitHub ghi sau kiểm thật. R07/T14 chưa nghiệm thu. [Kế hoạch](planning/PLAN.md#chg-074), [bàn giao](development.md#handoff-chg074).
 
 **Cổng GitHub CHG-074 mốc 1 đã kiểm:** commit `f1bd4de2d478f96f2eeb5e0979d807b3ae1e6319` push thường lên `codex/alert-safety-stock-experiments`, remoteSHA khớp; [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40444994494) và [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40444994460) completed/success, đủ bốn job test/backend/frontend/m2-regression. Kết thúc riêng mốc 1; mốc 2–5 chưa bắt đầu và chờ người dùng giao tiếp. Commit tài liệu xác nhận cổng được kiểm SHA/CI riêng trước thông điệp cuối; không triển khai CLI/B/C/D hoặc thay dữ liệu/nghiệm thu.
+
+
+<a id="chg074-step2"></a>
+### CHG-074 mốc 2 — 27/10/2026, người dùng giao tiếp riêng CLI
+
+Từ467c6a3 trên nhánh thử; thêm CLI validate/evaluate/verify và phép tính19config A/B/C/D,26ca mới. 271Python đạt,26ca targeted cuối/pipcheck/help/subprocess synthetic/DB test reader đạt. Verify hiện chỉ artifact integrity; kết quả calculated_unverified, không giả receipt độc lập hay chạy validation/test thật. 14bảng và1.185hash protected/protocol giữ nguyên; không đổi app/forecast/model/schema. [Bàn giao](development.md#handoff-chg074-step2), [hợp đồng CLI](../M3/docs/research.md#inventory-alert-safety-step2). Cổng GitHub ghi sau kiểm thật; mốc3–5 chưa bắt đầu, R07/T14 chưa nghiệm thu.

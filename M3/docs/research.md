@@ -20,7 +20,7 @@ E91:28fits/95.760forecast/160nhóm metric. Lựa chọn validation H1–7 mean49
 <a id="inventory-alert-safety-v1"></a>
 ## CHG-074 — Thử cảnh báo hằng ngày và tồn an toàn
 
-Người dùng duyệt kế hoạch và giao thực hiện ngày 27/10/2026 trên nhánh `codex/alert-safety-stock-experiments`, từ `a2241dbe`. Sau đó người dùng yêu cầu làm từng bước nhỏ: lượt này hoàn tất riêng **mốc 1**, qua local/commit/push/SHA/CI rồi dừng. Mốc 2–5 chỉ tiếp tục khi được giao.
+Người dùng duyệt kế hoạch và giao thực hiện ngày 27/10/2026 trên nhánh `codex/alert-safety-stock-experiments`, từ `a2241dbe`. Người dùng yêu cầu làm từng bước nhỏ. Mốc 1 đã hoàn tất; lượt mới giao riêng **mốc 2**, qua local/commit/push/SHA/CI rồi dừng. Mốc 3–5 chờ giao tiếp.
 
 Protocol máy đọc nằm tại `web/backend/configs/inventory-alert-experiments.json`. Mục tiêu nghiên cứu là xác định tác động riêng của cảnh báo hằng ngày, giả định tồn đầu và chính sách nhập hàng có SS. Giữ nguyên dự báo, mô hình và phân bổ; không đổi API, schema, run kind, React hoặc cài lịch tự chạy. Giữ baseline 986/2.867 = 34,391350% và trạng thái R07/T14 chưa nghiệm thu.
 
@@ -46,9 +46,9 @@ Protocol máy đọc nằm tại `web/backend/configs/inventory-alert-experiment
 - Báo early/counts, precision/recall, sai số ngày cạn, fill/thiếu, số đợt/ngày hết hàng, tồn bình quân, lượng đặt/pending. C/D có mẫu số riêng; không quy đổi thành tiền hoặc nhận có phương án tối ưu khi chưa có ưu tiên kinh doanh.
 - Validation chạy toàn ma trận. Chọn tối đa ba đại diện mỗi nhóm C/D: early cao nhất, shortage ít nhất, mean closing thấp nhất; bỏ trùng. Khi hòa, ưu tiên ordered quantity ít hơn rồi config ID. Early null không thắng tiêu chí early. Khóa selection/hash trước evaluate; test chỉ các đại diện và đối chứng A/B/C-days×1/D-days×1. Mọi kết quả là hồi cứu vì test đã được xem.
 
-### Triển khai dự kiến từ mốc 2
+### CLI nghiên cứu ở mốc 2
 
-CLI nghiên cứu sẽ nằm tại `web/backend/research/inventory_alert_experiments.py`, với các lệnh sau (chưa triển khai ở mốc 1):
+CLI tại `web/backend/research/inventory_alert_experiments.py` đã có ba lệnh dưới đây. Lượt mốc 2 chỉ chạy synthetic. Chạy validation/test thật chờ mốc 4–5; verifier độc lập chờ mốc 3.
 
 ```powershell
 python -m web.backend.research.inventory_alert_experiments validate
@@ -61,3 +61,28 @@ Nạp env local như README. DB ứng dụng chỉ đọc; kiểm config/source/
 ### Kiểm thử và bàn giao
 
 Ca ngày cạn 6/7/14 hoặc không cạn; SS hai mode/hệ số 0; ETA/pending/MOQ; cộng SS một lần; cảnh báo lặp; tồn 0 kéo dài; nhận rồi cạn cùng ngày; warmup/intervention/censor; future mutation không đổi quyết định trước đó; sửa/xóa artifact bị phát hiện. Mỗi mốc qua local → commit → push thường nhánh thử → remote SHA khớp → hai CI success trước bước sau. Xem [PLAN](../../docs/planning/PLAN.md#chg-074) và [bàn giao](../../docs/development.md#handoff-chg074).
+
+<a id="inventory-alert-safety-step2"></a>
+### CHG-074 mốc 2 — Giao diện và giới hạn đã triển khai
+
+- `validate`: đọc snapshot bằng `--snapshot <json hoặc json.gz>` hoặc đọc DB ứng dụng qua env nếu không truyền snapshot; tính toàn bộ 19 cấu hình. DB dùng một giao dịch REPEATABLE READ/READ ONLY; kiểm lineage/source/config/selection hash và hash sealed artifacts, không enqueue/ghi run mới.
+- `evaluate --selection-lock <path>`: chỉ nhận lock gắn manifest validation và receipt `verification.json` có `status=verified`, `independent_replay=true`; kiểm code/protocol/lineage và tối đa ba đại diện mỗi nhóm C/D. Kiểm lock trước khi đọc dữ liệu test. Luôn thêm đối chứng A/B/C-days×1/D-days×1. Lượt này receipt chỉ được inject trong unit fixture synthetic; chưa có receipt thật hoặc bộ chọn cấu hình.
+- `verify --run-dir <path>`: hiện chỉ kiểm hash và các artifact bắt buộc, trả `artifact_integrity_passed`, `independent_replay=false`. Không viết receipt độc lập hoặc nâng kết quả thành verified; phần này thuộc mốc 3.
+- `--output-root` mặc định `outputs/research`; mỗi lần dùng UUID mới. `--baseline-root` mặc định `outputs/step15/runs`; source/forecast lấy sealed artifacts từ output root trong env. Không thêm dependency, API/schema/run kind hoặc thay ứng dụng đang dùng.
+
+Snapshot version1 gồm `split`, `period` đúng protocol, `meta` (provenance synthetic/local_frozen_db và source/forecast/selection hashes), `catalog`, `daily`, `forecasts`, `sales`, `policies`, `receipts`. Ngày dùng ISO UTC; daily là quantity nguyên có actual_available=true; forecast có đủ14giá trị mỗi item/origin; sales giữ source sequence đã audit để xử lý giao dịch đúng thứ tự. Ngày thiếu khác0, trùng khóa hoặc dữ liệu không hợp lệ bị chặn. Validation seed dùng đúng28ngày quá khứ, không lấy floor test áp ngược. Cohort khóa tại đầu split, liệt kê mặt hàng/doanh số ngoài cohort.
+
+Lock dự kiến cho mốc4 gồm `validation_run`, `validation_manifest_sha256`, `validation_verification_sha256`, `protocol_sha256`, `source_sha256`, `forecast_config_sha256`, `selection_sha256`, `selected_configs` (danh sách config ID). Tạo lock và chọn đại diện chưa triển khai trong mốc2.
+
+Đầu ra có `inputs.json.gz`, `results/<config-id>.json.gz` (initialization, ledger, transactions, events, orders, alarms, cases, threshold_cases, metrics; D thêm alarm_evaluation, C thêm event_changes), `metrics.json`, `report.html`, `manifest.json`. Manifest ghi research/application code, Python/packages/requirements, protocol/input/output hashes. Trạng thái là `calculated_unverified`; báo cáo không nhận đạt nghiệm thu hoặc cải thiện model. Chạy lỗi ghi failed và diagnostic private, không in driver/credential/raw record ra console.
+
+Ở D, đơn mới đặt cùng ngày sau cảnh báo cũng là receipt chưa biết tại thời điểm cảnh báo. Precision chỉ chấm ngày phát cảnh báo trong kỳ chấm; cảnh báo warmup vẫn được dùng tính lead của sự kiện trong kỳ. Một sự kiện có nhiều cảnh báo vẫn chỉ đếm một lần. Đây là quy tắc tính đã kiểm tính tay, chưa thay thế verifier độc lập.
+
+Ví dụ kiểm CLI bằng snapshot synthetic (không dùng dữ liệu thật):
+
+```powershell
+python -m web.backend.research.inventory_alert_experiments validate --snapshot <synthetic.json.gz> --output-root outputs/research/ss-step2/smoke
+python -m web.backend.research.inventory_alert_experiments verify --run-dir <thư-mục-UUID-vừa-tạo>
+```
+
+Mốc 2 có26ca mới: boundary6/7/14/no-event/zero, parity A với pure replay hiện có, B không đổi sự kiện và giới hạn ngày trong đợt, C SS2mode/ceil/cộng1lần/cover, D MOQ/pending/ETA/zero/recovery, warmup/dedup/intervention/censor, đầu vào thiếu/trùng/sai kiểu, CLI/integrity/evaluate guard và snapshot DB test chỉ đọc. Kết quả thực và cổng GitHub tại [bàn giao](../../docs/development.md#handoff-chg074-step2).
