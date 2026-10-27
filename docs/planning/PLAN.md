@@ -798,7 +798,7 @@ Người dùng duyệt và giao ngày 27/10/2026, nhánh `codex/alert-safety-sto
 |---|---|---|
 | 1 | Protocol/tài liệu/hash, đối chứng A986/2867 và policy cơ sở | Hoàn tất local/commit/push/SHA/CI; mãf1bd4de |
 | 2 | CLI validate/evaluate, verify toàn vẹn; A/B/C/D và ca tính tay | Hoàn tất local/commit/push/SHA/CI; mã8436eaa |
-| 3 | Verifier độc lập; causal/episode/intervention/censor/tamper | Local đạt; chờ commit/push/SHA/CI |
+| 3 | Verifier độc lập; causal/episode/intervention/censor/tamper | Hoàn tất local/commit/push/SHA/CI; mãad3ab88 |
 | 4 | Ma trận validation và selection lock | Chưa bắt đầu |
 | 5 | Test hồi cứu đã khóa/báo cáo/bảo toàn/bàn giao | Chưa bắt đầu |
 
