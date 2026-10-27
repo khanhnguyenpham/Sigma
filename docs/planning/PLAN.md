@@ -1,5 +1,7 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-068 bước 15 — 27/10/2026, local đạt:** đã chạy hai replay thật mới với cấu hình cơ sở khóa trước kết quả; worker và verifier độc lập đạt. Policy fill 90,4121%, thiếu 1.531/15.968; depletion báo sớm 986/2.867 = **34,391350%, chưa đạt mục tiêu làm việc 45%**. Metric xuống ROP giữ riêng (TP101/FP89/FN0/TN619). 245 Python, 50 React, build/pip check, API/CSV/browser đạt; 1.038 hash protected, 140 artifact sealed và hàng cũ của 13 bảng nghiệp vụ + Alembic nguyên. Schema 0003_threshold/0diff; chỉ thêm hai run local, không refit/tuning. R07/T14 chưa nghiệm thu; đang chốt cổng commit/push/SHA/CI.
+
 **CHG-068 bước14 — 26/10/2026, hoàn tất:** sau cổng13 mã73d6f39/remoteSHA/2CI success, người dùng giao14. React hiển thị ROP/SS/mode/N, ngày xuống ROP riêng ngày cạn, lý do/đường projection/bảng UTC; filter/export và metric threshold riêng depletion. Workspace thêm warning_items/projected_below_rop_items đếm item duy nhất; inventory API/CSV đọc5tham số từ policy frozen, công thức fixed hiển thị đúng.245Python (3ca mới),50React (7ca mới,1worker)/build/pipcheck và browser desktop/mobile390px trên2run synthetic đạt;1027protectedhash và3app run nguyên, schema0003_threshold giữ. Commit mã37c4525b90cb361d8eeabc23c46cfc82fb39f8dc đã push thường, remoteSHA khớp và2workflowCI completed/success; bước15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật mới chứng minh45%.
 
 **CHG-068 bước13 — 26/10/2026, hoàn tất:** sau cổng bước12 mã14b1841/remoteSHA/2CI success, người dùng giao tiếp tục bước13. Form React policy/scenario có SS days/volatility, ROP fixed/forecast, lookback/factor/N; override trống kế thừa,0giữ đúng, chỉ trường phù hợp mode hiển thị/gửi. Giữ version/effective date/conflict/cấu hình cũ; bảng policy phân biệt tham số đang áp dụng.43React (9ca mới, chạy mặc định và1worker)/build/browser synthetic save-reload-Escape-focus đạt;1029protectedhash và3app run nguyên, schema0003_threshold giữ. 242Python BE/M2/pipcheck đạt; commit mã73d6f398de4fb069ab2484a85cecf71bc345147c đã push thường, remoteSHA khớp và2workflowCI completed/success; bước14–15 chưa bắt đầu, R07/T14 chưa nghiệm thu.
@@ -669,9 +671,9 @@ M04 là góp ý mentor do người dùng thuật lại về supplier×item/L7/kh
 |---|---|---|
 | T01 | Đặc tả và nguồn/requirementsM3 đã cập nhật. | Không nâng yêu cầu đã viết thành app đã đạt. |
 | T08–T09 | E90: ML36 đã fit/chọn validation/khóa/test, final10 được giữ;46 tuyến/185 origins/2khối đã đối soát. | Selection validation/hash, full46/H14, allocation causal/parityfinal10. |
-| T10 | E90: policy/alert replay riêng, ledger giao dịch và snapshotL7 chạy thật; early34,3913%, R07 mở. | Strict<, ETA7, balance/idempotency, mẫu số R07 và độ nhạy mới. |
-| T11 | E90: API kết quả/export/config/worker và React6màn hình đã build/kiểm thực. | Worker/API/FE tương thích, snapshot run, null actual, export đúng. |
-| T12 | E90:46tests M3 +32M2 +7FE, fullML/replay và API/export/UI đã kiểm. | Unit/DB/FE/E2E/full local với bằng chứng theo06. |
+| T10 | E117/bước15: SS/ROP/N đã tích hợp; hai replay mới complete/verified,fill90,4121%,early986/2867=34,391350%,chưa đạt mục tiêu45%; R07 mở. | Strict<, ETA7, balance/idempotency, config frozen/verifier/SQL/API/CSV và mẫu số R07 đã kiểm mới. |
+| T11 | E117/bước15: React6màn hình local tại web/frontend,BE/worker tại web/backend; policy cấu hình/cảnh báo/CSV và browser trên replay mới đạt. | Run/ngày/filter/UTC/drawer/Escape/reload/metric riêng; local chưa có bundle tổng30. |
+| T12 | E117/bước15:245Python/50React/build/pipcheck,2replay+cha verified;1038protected/140sealedfiles/hàng cũ13bảng+Alembic nguyên/0diff. | Bằng chứng mới và giới hạn tại development#handoff-chg068-step15; CI sau push; R07/T14 chưa nghiệm thu. |
 | T13–T14 | Thiết kế lịch/bàn giao đến 07/11; chưa nghiệm thu. | Demo/run/hash/báo cáo; R05/R07 và mentor review vẫn mở. |
 
 Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigger closing<ROP, IP chỉQ, MOQ chỉQ>0. Một kho/tuyến, city giả định; mọi nhập/tồn mô phỏng. Policy replay và no-new-order alert replay tách; không dùng bằng chứng V13/L3 cũ để đóng profile mới. Không tạo task system mới, không thêm customer/payment/invoice/giao khách/user.
@@ -719,7 +721,7 @@ Hằng mớiL7/R1/H14; ROP=max(ceil(sumf1..7+SS), floor); S=ROP+ceil(f8); trigge
 | 12 | T10–T12 | `feat: warn on projected reorder threshold crossings` | Projection xuống ngưỡng/DTO/filter/export/đánh giá riêng; kiểm biên và dedup. CHG-073: không gộp tín hiệu ROP vào metric depletion cũ để nhận đạt45%. | Hoàn tất local/commit/push/SHA/CI; mã14b1841 |
 | 13 | T11/T12 | `feat: configure inventory policies in React` | Form policy/scenario và cấu hình hiệu lực; kiểm save/override/history/conflict. | Hoàn tất local/commit/push/SHA/CI; mã73d6f39 |
 | 14 | T11/T12 | `feat: present configurable inventory warnings` | Hiển thị ROP/ngày xuống ngưỡng/ngày cạn/lý do; đếm item duy nhất/API/CSV. | Hoàn tất local/commit/push/SHA/CI; mã37c4525 |
-| 15 | T10–T14 | `docs: record M3 verification and handoff` | Tích hợp/replay run mới/hash/CI/bàn giao; đối chiếu mục tiêu làm việc45% theo CHG-073 với counts/cấu hình/phạm vi rõ, chỉ nâng trạng thái theo bằng chứng và tiêu chí đã chốt. | Chưa bắt đầu |
+| 15 | T10–T14 | `docs: record M3 verification and handoff` | Tích hợp/replay run mới/hash/CI/bàn giao; đối chiếu mục tiêu làm việc45% theo CHG-073 với counts/cấu hình/phạm vi rõ, chỉ nâng trạng thái theo bằng chứng và tiêu chí đã chốt. | Local đạt; chờ commit/push/SHA/CI |
 
 ### Hợp đồng triển khai đã chốt
 
