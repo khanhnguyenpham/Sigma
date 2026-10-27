@@ -798,8 +798,18 @@ Ngày 27/10/2026, người dùng ban đầu giao đưa SS days×1 vào m3-implem
 | Mốc | Nội dung | Trạng thái |
 |---|---|---|
 | 1 | Làm rõ không có cải thiện từ chọn lại days×1; lập hướng và phép so sánh cố định | Hoàn tất kế hoạch/local/commit/push/SHA/CI; mãd501da9 |
-| 2 | Nếu được giao: khóa protocol máy đọc, triển khai cảnh báo nghiên cứu/verifier/causal test | Chưa bắt đầu |
+| 2a | Người dùng giao riêng: tái lập đối chứng và audit trần cơ hội trước thử alpha | Local đạt; chờ commit/push/SHA/CI nhánh nghiên cứu |
+| 2b | Khi được giao và trần cho phép: triển khai cảnh báo alpha/verifier/causal test | Chưa bắt đầu |
 | 3 | Nếu được giao: validation4cấu hình, khóa tối đa1đại diện đạt45% có precision cao nhất | Chưa bắt đầu |
 | 4 | Nếu được giao: test hồi cứu đại diện+đối chứng, báo đánh đổi và quyết định có đưa vào app | Chưa bắt đầu |
 
 Từng mốc nhỏ theo yêu cầu người dùng; không chạy hết hoặc tự chuyển web/scheduler/refit. Không tự đặt mức FP chấp nhận được. Nếu không có cấu hình đạt45%, ghi chưa đạt; không hạ7ngày, xóa ca khó hoặc chọn lại từ test. Local→commit→push thường→remoteSHA→2CI success trước mốc kế tiếp. Giữ mọi raw/run/DB/env local.
+
+<a id="chg075-opportunity"></a>
+### CHG-075 — Phạm vi mới: bước 1–2 đối chứng và trần cơ hội
+
+Người dùng giao riêng hai bước và hỏi nhánh để không ảnh hưởng nhánh ứng dụng. Tạo codex/early-warning-opportunity-audit từ m3-implementation/86a0162; không merge hoặc push sang m3-implementation. Dùng bundle CHG-074 frozen đã kiểm độc lập, tái chạy hàm app pure_window với SSdays×1 rồi đối chiếu ledger/giao dịch/đơn/episode/cảnh báo và chấm193/578 (validation151/486). Trần hậu kiểm được tính hai cách day-first/event-first, giữ closing>0 và sự kiện đầu tiên trongH14, lead7–14; không sử dụng actual để phát cảnh báo.
+
+Chỉ thêm CLI nghiên cứu/config khóa và tests; không sửa BE src/FE/M2/model/schema/default. Không triển khai hoặc chạy alpha dù trần có thể đạt45%. Nguồn CSV/DB không đọc lại như một audit mới; tái lập từ inputs/results frozen có pin manifest/receipt/input/result hashes và bảo toàn DB/raw/artifact bằng hash riêng. Phải ghi đúng loại bằng chứng này. [Chi tiết/lệnh](../../M3/docs/research.md#opportunity-audit-v1). Cổng local→commit→push thường **nhánh nghiên cứu**→remoteSHA→2CI; kết thúc hai bước rồi dừng.
+
+**Audit hai bước đã có kết quả local:** test193/578 và trần524/578; validation151/486 và trần449/486, kiểm độc lập đạt. Mục tiêu45% chưa bị trần cấu trúc loại trừ, nhưng chưa có thuật toán mới đạt45%. Chưa thử alpha. Bằng chứng/giới hạn tại [audit](../../M3/docs/research.md#opportunity-audit-v1); nhánh ứng dụng giữ86a0162.

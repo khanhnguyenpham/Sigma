@@ -19,7 +19,7 @@ E91:28fits/95.760forecast/160nhóm metric. Lựa chọn validation H1–7 mean49
 <a id="early-warning-risk-v1"></a>
 ## CHG-075 — Hướng thử cảnh báo rủi ro trên đường tồn cố định
 
-**Trạng thái: kế hoạch, chưa có code/run/kết quả mới.** Người dùng chọn ưu tiên báo trước ít nhất7ngày cho≥45% sự kiện và chưa thay cấu hình mặc định. Đây là hướng tiếp theo sau CHG-074; [báo cáo đã kiểm ở nhánh nghiên cứu67d2ab6](https://github.com/khanhnguyenpham/Sigma/blob/67d2ab6a19f86101acdc58af7fec788c3a48b093/M3/docs/research.md#inventory-alert-safety-step5). Không đưa code nghiên cứu hoặc output cũ vào nhánh ứng dụng trong lượt lập kế hoạch này.
+**Checkpoint kế hoạch trước lượt mới: chưa có code/run/kết quả mới.** Người dùng chọn ưu tiên báo trước ít nhất7ngày cho≥45% sự kiện và chưa thay cấu hình mặc định. Đây là hướng tiếp theo sau CHG-074; [báo cáo đã kiểm ở nhánh nghiên cứu67d2ab6](https://github.com/khanhnguyenpham/Sigma/blob/67d2ab6a19f86101acdc58af7fec788c3a48b093/M3/docs/research.md#inventory-alert-safety-step5). Không đưa code nghiên cứu hoặc output cũ vào nhánh ứng dụng trong lượt lập kế hoạch này.
 
 ### Vì sao không triển khai lại SS days×1
 
@@ -55,3 +55,51 @@ Nếu có đại diện, test chỉ alpha1 và đại diện đã khóa; mọi k
 Đầu ra dự kiến: thư mục local mới, protocol/source/code/selection hashes; đường cơ sở frozen; cảnh báo và đối chiếu episode từng alpha; metrics/CSV/HTML và verifier tính độc lập. Tái sử dụng hàm projection hiện có nhưng verifier không dùng helper sản xuất làm kỳ vọng. Không thêm dependency, API/schema/run kind hoặc cài lịch ở giai đoạn nghiên cứu. Công thức/đường stress phải mang nhãn nghiên cứu riêng, không thay forecast và các run cũ. Chỉ code/tests/docs không nhạy cảm được push nếu sau này được giao triển khai; raw/DB/run luôn local.
 
 Lượt này chỉ lập kế hoạch và bảo toàn; chưa tạo protocol máy đọc, viết runner/verifier, chạy validation/test mới hoặc thay mặc định. Giữ R07/T14 chưa nghiệm thu. [Kế hoạch từng mốc](../../docs/planning/PLAN.md#chg-075).
+
+<a id="opportunity-audit-v1"></a>
+## CHG-075 — Audit đối chứng và trần cơ hội, chưa thử alpha
+
+Người dùng giao riêng bước1–2 ngày27/10/2026. Nhánh codex/early-warning-opportunity-audit từ86a0162 của m3-implementation; nhánh ứng dụng và research CHG-074 cũ không thay đổi. Protocol máy đọc web/backend/configs/inventory-alert-opportunity-audit.json, SHA256caa57e2d16c20cb9013b7603e3001a75b3a9a090ed4df0ae5861b6cc99226530. Khóa D-days-m1-cover7, period/warmup và hashes manifest/receipt/input/result của hai bundle CHG-074.
+
+CLI web/backend/research/inventory_alert_opportunity_audit.py tái dùng pure_window của app trên inputs frozen. Snapshot chỉ giữ date/source sequence, không timestamp gốc; adapter dùng timestamp đại diện trong cùng ngày và giữ thứ tự source sequence của từng item. Đây là tái lập tồn/cảnh báo cuối ngày UTC, không nhận tái dựng timestamp giao dịch gốc. So từng trường ledger/SS/ROP/IP/Q, initialization, từng transaction, orders, episode và depletion alarms với kết quả đã sealed; đối chiếu cả cases và metric precision/recall/MAE/intervention/censor, không chỉ193/578.
+
+Verifier riêng inventory_alert_opportunity_verification.py không import runner hoặc helper inventory/alerts. Tự tái dựng stock/fulfill/shortage/episode từ initial history/sales/receipts frozen, tính projection với receipts biết trước Q mới và chấm event-first. Ledger SS/ROP/Q đối chiếu kết quả đã được verifier CHG-074 kiểm độc lập; không nhận đã viết lại toàn bộ thuật toán nhập. Bằng chứng nguồn là previously_verified_frozen_inputs_and_results, không raw CSV/DB re-audit. App code hash phải giữ2a02ba9e9069e83c25e0588da0b19c228ffbb550662b85644d6abcf872992dda.
+
+Trần cơ hội day-first được đối chiếu event-first: có ít nhất một ngày quyết định trước episode7–14ngày, closing>0 và episode đó là sự kiện đầu tiên sau ngày quyết định. Lưu từng candidate day/episode và lý do không đủ cơ hội: không có ngày quyết định, bị episode trước chặn, hoặc không có tồn dương. Ngày có nhiều cảnh báo không nhân episode; tồn0 kéo dài không tạo event; warmup vẫn được dùng. Trần là hậu kiểm theo đường tồn/protocol này, không là forecast, early rate thực đạt hoặc bảo đảm alpha sẽ đạt nó. Không dùng trần để chọn alpha bằng test.
+
+```powershell
+python -m web.backend.research.inventory_alert_opportunity_audit audit --validation-run <frozen-validation-run> --test-run <frozen-test-run> --output-root outputs/research/early-opportunity-audit
+python -m web.backend.research.inventory_alert_opportunity_audit verify --run-dir <new-audit-run>
+```
+
+Mỗi audit tạo UUID mới, không ghi đè parent hoặc run cũ; JSON gzip deterministically sealed. Có replay/cases/opportunities từng split, metrics/report.html và manifest. Manifest giữ calculated_unverified; chỉ có receipt riêng verification.json sau kiểm độc lập, kiểm lại giữ timestamp/bytes. Parent hashes được pin trong protocol; sửa/xóa parent/artifact hoặc reseal phép tính sai phải bị chặn. Không thêm thư viện hoặc gọi DB trong CLI.
+
+262Python BE/M2 (17ca mới) đạt trước native audit, pipcheck/help đạt. Ca6/7/14, prior episode, same-day episode, stock0/recovery/receipt rồi cạn, warmup/repeat alarm, intervention/censor, no-event/null, future mutation và forged physical ledger. Lượt targeted đầu có lỗi date object/ISO boundary và một fixture tmp bị sandbox chặn; đã chuẩn hóa date ở adapter, chạy quyền local, không đổi phép tính app. Full262 và targeted17 cuối đạt. Code/protocol khóa trước kết quả tại outputs/research/early-audit-checkpoint/code-lock.json; kết quả và cổng ghi sau kiểm thực. Chưa thử alpha hoặc nghiệm thu R07/T14.
+
+Lượt native đầu dừng trước kết quả do policy seed validation không có ID DB. Adapter đã thêm ID đại diện âm chỉ để đáp ứng metadata của pure_window, không dùng trong phép tính hoặc ghi DB; ca hồi quy xác nhận đường tồn/đơn/cảnh báo giống nhau khi có hoặc không có ID. Giữ nguyên code-lock/command/stdout lần đầu và folder/log lỗi local; khóa lại code trước lượt audit mới, không chỉnh thuật toán theo kết quả. Full262 và targeted-v2.xml17ca đạt trước lượt audit mới.
+
+### Kết quả hai bước đã kiểm độc lập
+
+Native audit tại `early-warning-opportunity-audit-v1-8e5028c3-a382-4502-8c4e-50e8536903ba`, từ app code không đổi. Verifier chạy thành công trên cả validation và test, tự dựng physics/projection/scoring theo event và đối chiếu trần event-first với day-first. Kiểm lại receipt giữ bytes/timestamp và 10artifact gốc; sửa replay rồi reseal, sửa candidate day rồi reseal và xóa artifact đều bị chặn.
+
+| Kỳ | Đối chứng báo sớm | Episode có cơ hội | Trần cấu trúc | Cần để ≥45% | Cần thêm so đối chứng | Cơ hội còn chưa báo sớm |
+|---|---:|---:|---:|---:|---:|---:|
+| Validation | 151/486 = 31,0700% | 449/486 | 92,3868% | 219 | 68 | 298 |
+| Test hồi cứu | 193/578 = 33,3910% | 524/578 | 90,6574% | 261 | 68 | 331 |
+
+Giữ nguyên denominator486/578, không loại các episode không có cơ hội. Test có54episode không đủ điều kiện:42bị episode trước chặn mọi ngày cần báo sớm,12không có tồn dương trên các ngày còn hợp lệ; không có ca thiếu ngày quyết định. Validation có37ca:18bị episode trước chặn,19không tồn dương,0thiếu ngày. Cách chia lý do có thứ tự: ngày quyết định → không bị episode trước chặn → closing>0; không cộng trùng các lý do.
+
+**45% chưa bị trần cấu trúc này ngăn chặn.** Trên test cần thêm68trong331cơ hội chưa báo sớm, nhưng việc có ngày cảnh báo hợp lệ **không bảo đảm** forecast hoặc bốn alpha đề xuất sẽ phát hiện đúng. Số524/578=90,6574% sử dụng ngày cạn thực tế để chẩn đoán hậu kiểm; không được đưa ngày/cờ cơ hội vào feature, policy hay cảnh báo, không quảng bá thành early rate dự báo. Trần của A/B cũ45,936519% và trần D90,6574% khác protocol/đường tồn, không phải model cải thiện.
+
+Bước1 đạt: test tái lập193/578, precision80,6202%, recall81,1419%, MAE4,9808ngày, alarmTP1768/FP425, can thiệp1990, thiếu nhãn625; validation151/486, precision76,2585%, recall79,0123%, MAE4,8542ngày, alarmTP1227/FP382, can thiệp1665, thiếu nhãn332. Precision theo item/ngày cảnh báo, early/recall theo episode; không gộp số alarmTP vào numerator193. Các bảng ledger/SS/ROP/IP/Q, orders và transaction/episode/depletion alarms đã khớp artifact frozen, không chỉ khớp metric tổng.
+
+262Python BE/M2 (17ca mới) và targeted-v2 17/17, pipcheck/help đạt. Bằng chứng native dùng source/parent đã verified và pinned hashes; không nhận đã đọc lại raw CSV hoặc đối soát nguồn DB như một nghiên cứu mới. Đối soát bảo toàn riêng sau audit xác nhận14bảng/1.336hash raw/artifact/protocol cũ và application code nguyên. Không chạy lại React/browser vì chỉ research/config/tests/docs thay đổi; CI vẫn kiểm ứng dụng theo workflow sẵn có.
+
+- Audit manifest SHA256: `23ed307ea2e3fdf86d3f91c2759bc4c6f52deaccc6e199e1c1bb97ee928a35e9`.
+- Verification receipt SHA256: `5af9a8bf253d7fa6fe0973de2e77b6016fab226c2e9a167c36b34670a622b8d7`.
+- Protocol SHA256: `caa57e2d16c20cb9013b7603e3001a75b3a9a090ed4df0ae5861b6cc99226530`.
+- Runner/verifier hashes nằm trong code-lock/manifest/receipt; freeze cuối trước kết quả, không đổi code sau xem trần.
+
+Evidence private outputs/research/early-audit-checkpoint: before/preservation, all-python/targeted-v2 XML, code-lock/command/stdout của native, integrity-checks, summary.json/csv, verified-summary.html và sealed-files. Bundle audit trong outputs/research/early-opportunity-audit/<UUID> có replay/cases/opportunities2split, metrics/report/manifest/verification. Báo cáo gốc giữ nhãn pending ở thời điểm tạo; receipt và verified-summary là bằng chứng kiểm sau đó, không sửa tệp sealed. Giữ folder/log lỗi của lần native đầu và freeze-attempt1 để phân biệt lỗi adapter với kết quả thành công. Dữ liệu/đầu ra không đưa Git.
+
+Lượt này hoàn tất riêng đối chứng và trần. **Chưa thử hoặc chọn alpha, chưa đạt mục tiêu45% bằng thuật toán mới, chưa thay ứng dụng/default hoặc nghiệm thu R07/T14.** Nếu được giao bước kế tiếp, có thể triển khai thử bốn alpha trên validation, đồng thời đo precision/FP/số cảnh báo; test chỉ được chạy sau khóa đại diện. Không dùng kết quả trần test này để mở rộng/chọn lại grid.

@@ -1,0 +1,32 @@
+{
+  "id": "early-warning-opportunity-audit-v1",
+  "config_id": "D-days-m1-cover7",
+  "application_code_sha256": "2a02ba9e9069e83c25e0588da0b19c228ffbb550662b85644d6abcf872992dda",
+  "parent_protocol_sha256": "7cc329aa47583cbf5536416bfc04b291f40c262bc0b50cc7671f1965ebd1990a",
+  "minimum_early_days": 7,
+  "horizon_days": 14,
+  "target_percent": 45,
+  "scope": "posthoc_structural_upper_bound_not_a_forecast",
+  "validation": {
+    "origin": "2025-06-30",
+    "end": "2025-09-30",
+    "score_start": "2025-07-29",
+    "early_numerator": 151,
+    "event_denominator": 486,
+    "manifest_sha256": "7508438701af4d1a404b78e55d9ff93e29477d3302ceb83a4fe168ea6a61aa32",
+    "verification_sha256": "0cbd8d65a1e824966fb87c4be2d514c5f64e54d9b5dd236b1402ddc92aa04f71",
+    "input_sha256": "23dc7c19f0aefd6f0e6c433fe9c6136ba20b42c68e0f2907082a83ccb5cccd7f",
+    "result_sha256": "93e8fbf1b7c9d2fc6e4ddd07da229531d5a664432634a4038117f77314b86797"
+  },
+  "test": {
+    "origin": "2025-09-30",
+    "end": "2025-12-31",
+    "score_start": "2025-10-29",
+    "early_numerator": 193,
+    "event_denominator": 578,
+    "manifest_sha256": "e86670254c3c841faf0364a5b529ed44aecec713a5f1e6a35fd3d94180df2ab5",
+    "verification_sha256": "ec681bb2ec041c5d4718a13e365b3795a2e023c8ab149723cc832bdb2854c363",
+    "input_sha256": "c40acf4ecbd3915f7a88d103d0347b6bb13fc97404d8a9462200fbd9fe58e09c",
+    "result_sha256": "03dc873e77fc95d86df08cbfbe7807f23bd12b5ed6b7fc55a7e059a4f32a553b"
+  }
+}
