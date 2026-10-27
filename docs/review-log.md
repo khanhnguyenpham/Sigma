@@ -1365,3 +1365,11 @@ Policy85.560ledger/16.423events/3.245lô,fill90,412074%,shortage1.531/15.968; al
 245Python/50React(1worker)/build/pipcheck/CLI đạt; worker+verifier độc lập sau complete và SQL/API/CSV/filter/mẫu số/6màn hình browser đạt.1038protectedhash,140sealed artifacts/3run cũ và hàng cũ13bảng+Alembic nguyên,revision0003_threshold/0diff. Chỉ thêm2run private local; mới và cũ tách output root. Browser cửa sổ IAB khoảng713px, không nhận chạy lại390px; tab/API kiểm đã dừng. React lượt đầu khi chạy đồng thời có1timeout cũ; serial50/50, không sửa test/timeout. Cổng GitHub ghi sau kiểm thật, không dùng CI synthetic để chứng minh45%.
 
 **Cổng GitHub bước15 đã kiểm:** commit `2658b8116accbed4354fdc18b55d7ed52f436f7c` push thường lên `m3-implementation`, remoteSHA khớp; [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40438165663) và [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40438165527) completed/success, đủ4job test/backend/frontend/m2-regression. Bước1–15 CHG-068 hoàn tất kiểm kỹ thuật/bàn giao; R07 cơ sở34,391350% chưa đạt mục tiêu45%, R07/T14 chưa nghiệm thu. Không merge/force-push/deploy hoặc đưa run/DB/env/raw lên Git. Commit tài liệu xác nhận sau mốc này được kiểm SHA/CI riêng trước bàn giao cuối.
+
+
+<a id="chg074"></a>
+### CHG-074 — 27/10/2026, thử nghiệm theo từng mốc
+
+Nguồn: người dùng duyệt A/B/C/D, chọn local trước/web sau, đánh giá song song, giữ dự báo và thử SS cả qua nhập hàng lẫn cộng tồn đầu nhưng tách kết quả. Sau đó người dùng yêu cầu làm từng bước nhỏ; lượt này chỉ mốc 1 rồi dừng, mốc 2–5 chờ giao tiếp.
+
+Đã tạo nhánh `codex/alert-safety-stock-experiments` từ `a2241dbe`, lưu protocol/thiết kế. Kiểm mới: 245 Python đạt, verifier độc lập đối chứng A986/2867 và policy14437/15968/thiếu1531, 14 bảng và1.184hash protected nguyên. Không sửa source ứng dụng, refit, tạo replay run mới hoặc triển khai CLI/B/C/D. Cổng GitHub ghi sau kiểm thật. R07/T14 chưa nghiệm thu. [Kế hoạch](planning/PLAN.md#chg-074), [bàn giao](development.md#handoff-chg074).

@@ -787,3 +787,19 @@ T01/T10/T12/T14 ghi **early rate≥45% với báo trước≥7ngày** làm mục
 - Khi được giao bước12–15, tiếp tục đúng15bước hiện có. Hoàn tất cảnh báo ngưỡng/cấu hình UI không tự chứng minh45%. Bước15 ghi counts, precision/recall, ca loại, ngày cạn và source/forecast/policy/scenario/origin đã khóa, đối soát riêng từng loại cảnh báo. Thay cover/tồn đầu/receipts phải công khai tập sự kiện/mẫu số đổi; không chọn lại model/policy bằng test cũ chỉ để vượt mục tiêu.
 - Chỉ cập nhật tài liệu điều phối, requirements, đặc tả chức năng/kiểm, bảng nghiệm thu và bằng chứng/bàn giao. Không sửa code/tests/config/env/schema/dữ liệu, không refit/replay hoặc ghi snapshot; kết quả cũ giữ vai trò baseline, không bị sửa thành kết quả mới.
 - Kiểm Markdown/link/anchor/bảng/fence/diff và hash tệp ngoài MD. Cổng commit/push thường/remoteSHA/CI chỉ cho thay đổi MD theo quyền hiện có; CI không chứng minh45%. R07/T14 giữ chưa nghiệm thu; bước11 hoàn tất, bước12–15 chưa bắt đầu và chỉ tiếp tục code khi người dùng giao.
+
+
+<a id="chg-074"></a>
+## CHG-074 — Thử cảnh báo hằng ngày và tồn an toàn
+
+Người dùng duyệt và giao ngày 27/10/2026, nhánh `codex/alert-safety-stock-experiments` từ `a2241dbe`. Người dùng yêu cầu chia nhỏ: lượt này chỉ hoàn tất mốc 1 rồi dừng; mốc 2–5 chờ giao tiếp. Chỉ nghiên cứu local, giữ forecast/model/phân bổ/API/schema/React; không scheduler/refit/merge/deploy. [Protocol đầy đủ](../../M3/docs/research.md#inventory-alert-safety-v1).
+
+| Mốc | Sản phẩm/cổng | Trạng thái |
+|---|---|---|
+| 1 | Protocol/tài liệu/hash, đối chứng A986/2867 và policy cơ sở | Local đạt; chờ cổng GitHub |
+| 2 | CLI validate/evaluate/verify, B/C/D và ca tính tay | Chưa bắt đầu |
+| 3 | Verifier độc lập; causal/episode/intervention/censor/tamper | Chưa bắt đầu |
+| 4 | Ma trận validation và selection lock | Chưa bắt đầu |
+| 5 | Test hồi cứu đã khóa/báo cáo/bảo toàn/bàn giao | Chưa bắt đầu |
+
+Mỗi mốc local→commit→push thường nhánh thử→remoteSHA khớp→2CI success trước mốc sau. Baseline34,391350% không ghi đè; R07/T14 chưa nghiệm thu; raw/run/DB/env private.

@@ -479,3 +479,20 @@ Muốn tạo lượt tái lập khác: dùng `cli simulate --kind policy_replay`
 **Giới hạn/bước tiếp:** hoàn tất kiểm kỹ thuật15bước CHG-068 sau cổng GitHub; R07/T14 giữ chưa nghiệm thu. R05/M05 tổng30 là bằng chứng hồi cứu E93, không được chạy lại/đổi thành kết quả mới trong bước15; máy local vẫn thiếu bundle tổng30. Chưa diễn tập trên máy nhóm khác hoặc có holdout độc lập; tồn/nhập/đối tác vẫn mô phỏng, A08 đề xuất. Nếu tiếp tục cải thiện45%, cần protocol chọn bằng quá khứ/validation và công khai trade-off trước đánh giá test hồi cứu; mentor còn làm rõ tính bắt buộc/phạm vi mục tiêu và nghiệm thu. Không tự mở bước16, merge hoặc deploy. Cổng commit/push/remoteSHA/CI đã xác nhận bên dưới.
 
 **Cổng GitHub bước15 đã kiểm:** commit `2658b8116accbed4354fdc18b55d7ed52f436f7c` push thường lên `m3-implementation`, remoteSHA khớp; [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40438165663) và [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40438165527) completed/success, đủ4job test/backend/frontend/m2-regression. Bước1–15 CHG-068 hoàn tất kiểm kỹ thuật/bàn giao; R07 cơ sở34,391350% chưa đạt mục tiêu45%, R07/T14 chưa nghiệm thu. Không merge/force-push/deploy hoặc đưa run/DB/env/raw lên Git. Commit tài liệu xác nhận sau mốc này được kiểm SHA/CI riêng trước bàn giao cuối.
+
+
+<a id="handoff-chg074"></a>
+### CHG-074 mốc 1 — Kế hoạch, protocol và đối chứng
+
+Ngày 27/10/2026, người dùng giao kế hoạch A/B/C/D rồi yêu cầu chia nhỏ từng lượt. Đã tạo nhánh `codex/alert-safety-stock-experiments` từ HEAD sạch `a2241dbe93e83d51360a07f2af6c82aa5fc7c660`. Lượt này chỉ mốc 1; mốc 2–5 chờ giao tiếp. [Protocol và các bước](../M3/docs/research.md#inventory-alert-safety-v1).
+
+- Sản phẩm: protocol JSON cố định, tài liệu nghiệp vụ/điều phối và hướng dẫn CLI dự kiến. Chưa viết CLI, thay model/forecast/phân bổ, API/schema/React hoặc cài scheduler. Không tạo run mới trong DB ứng dụng.
+- Kiểm mới: 245 Python BE/M2, 0 failure/error/skip; JUnit tại `outputs/research/ss-checkpoint/baseline-tests.xml`. PostgreSQL test riêng `sigma_m3_test`; không dùng số test lịch sử. Starlette/httpx có cảnh báo deprecation hiện hữu.
+- Verifier độc lập hiện tại kiểm lại các replay đã sealed bằng nguồn/forecast/ledger/orders: A 82.800 ngưỡng, 16.395 events, 10.421 signals, early 986/2.867, loại 1.099, TP2098/FP852/FN769/TN702; policy 85.560 ngưỡng, 16.423 events, 3.245 lô và 113.630 signals. Policy giữ đáp ứng 14.437/15.968, thiếu 1.531. Đây là kiểm lại đối chứng, không phải replay hoặc kết quả B/C/D mới.
+- Bảo toàn: fingerprint tất cả hàng của 13 bảng nghiệp vụ + Alembic trước/sau khớp; 1.184 hash protected/sealed nguyên. Nguồn CSV, forecast, mô hình, schema và DB ứng dụng không đổi. Chỉ các tệp Markdown và protocol mới được đưa lên Git.
+- Kiểm tài liệu: 8 Markdown, 11 link/anchor mới, fence và `git diff --check` đạt; JSON/ma trận và H14/L7/R1/early7/warmup28 khớp. Protocol SHA256: `7cc329aa47583cbf5536416bfc04b291f40c262bc0b50cc7671f1965ebd1990a`.
+- Giới hạn/lỗi đã xử lý: khởi động lại PostgreSQL portable sẵn có tại loopback55432; lần gọi verifier bằng script trực tiếp thiếu root import `src`, đã gọi lại bằng `python -B -m tmp.ss_verify_a`, không sửa code ứng dụng. Sandbox chặn loopback nên dùng quyền local cho DB test/đọc đối chứng; không upload dữ liệu.
+
+Bằng chứng private tại `outputs/research/ss-checkpoint`: `db-before.json`, `parents.json`, `protected.json`, `baseline-proof.json`, `preservation.json`, `docs-check.json`, JUnit. Các helper trong `tmp` chỉ hỗ trợ kiểm mốc 1, không phải CLI nghiên cứu đã triển khai. Lệnh kiểm: nạp env bằng `web/backend/scripts/load_env.ps1`, chạy `.venv-m3/Scripts/python.exe -B tmp/ss_tests.py web/backend/tests tests M2/models/tests -q`, verifier module ở trên và `python -B -m tmp.ss_checkpoint after`.
+
+Cổng GitHub mốc 1 được ghi riêng sau commit/push/remoteSHA/CI. Kết thúc lượt sau cổng này; mốc kế tiếp là CLI và ca tính tay, chỉ bắt đầu khi người dùng giao. Baseline 34,391350% chưa đạt mục tiêu làm việc45%; R07/T14 chưa nghiệm thu.

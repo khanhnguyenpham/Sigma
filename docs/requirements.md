@@ -260,3 +260,9 @@ Nghiệm thu dự kiến và lịch tại [06](../M3/docs/06-testing-delivery.md
 ### Cập nhật E90 — trạng thái triển khai, không thay tiêu chí
 
 Forecast46/ML36, phân bổ, policy/alert replay riêng, API/worker/React6màn hình và version/export đã thực thi. Fixed10 tổng7 H1–7 đạt10/10 hồi cứu; new36 chỉ2/36; ngày phân bổ top10 là0/10. Policy cơ sở fill90,4121%; early986/2867=34,3913%. Bằng chứng/giới hạn tại [M3/IMPLEMENTATION](../M3/IMPLEMENTATION.md). R05/R07/T14 giữ mở, không thay metric/split/top10 để nâng nghiệm thu. Các giới hạn auth/cloud/multiuser ngoài scope vẫn giữ.
+
+
+<a id="chg074-research"></a>
+### CHG-074 — Nghiên cứu song song, không thay nghiệm thu
+
+Người dùng giao27/10/2026: protocol A/B/C/D giữ báo trước≥7ngày/mục tiêu làm việc45%, công bố riêng mẫu số/đơn vị chấm/nhập can thiệp/thiếu nhãn. C/D đổi tồn hoặc chính sách nên không gọi tỷ lệ mới là cải thiện trên cùng mẫu. Giữ R07/T14 mở và baseline986/2867. [Kế hoạch](planning/PLAN.md#chg-074), [protocol](../M3/docs/research.md#inventory-alert-safety-v1).
