@@ -438,3 +438,42 @@ Cổng mã bước5 đã kiểm: commitdb6c1d5 đã push/remoteSHA khớp, [M3 i
 - TASK/PLAN/AGENTS/PROJECTMAP/README/requirements/đặc tả/kiểm M3 và review-log đồng bộ. Bước14 local đạt; cổng commit/push/SHA/CI kiểm trước thông điệp cuối. Bước15 chờ người dùng giao, cần protocol/cấu hình/nguồn khóa và đối soát mới để đánh giá mục tiêu45%.
 
 **Cổng GitHub bước14 đã kiểm:** commit `37c4525b90cb361d8eeabc23c46cfc82fb39f8dc` push thường m3-implementation, remoteSHA khớp; [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40258053765) và [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40258053731) completed/success, đủ4job test/frontend/backend/m2-regression. Bước12–14 đều hoàn tất cổng riêng theo thứ tự. Bước15 chưa bắt đầu; R07/T14 chưa nghiệm thu, chưa chứng minh45% bằng replay thật mới. Commit tài liệu bằng chứng sau mốc này được kiểm SHA/CI riêng trước bàn giao cuối.
+
+<a id="handoff-chg068-step15"></a>
+### CHG-068 bước 15 — Kiểm tích hợp và bàn giao, 27/10/2026 (Asia/Saigon)
+
+Người dùng giao bước15 và push GitHub từ checkpoint `256a3459d1d3c2b7f731278afe754eaf1eaaf6b1`; checkpoint này đã remoteSHA khớp và cả2workflowCI success trước replay mới. Đây là kiểm/bàn giao cuối15bước CHG-068, không đồng nghĩa nghiệm thu R07/T14. Không sửa code, dependency, model, tiêu chí hay policy/scenario cũ.
+
+**Protocol khóa trước kết quả:** source `89a6746a-0dd3-41c7-be24-335295110811`, forecast `8637b319-08f2-40a7-8d8f-1222719ff031`, 46tuyến/920item. SourceSHA `6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b`; forecast configSHA `c1e5d2abdc9db5761c39fe9e2d2d03d38216d0b1ddde49f7added134f0893ef1`, selectionSHA `edc541f020ea9a5195e43b5ca7abbe422e55b2dd9cd7f506d566aa0b4594ebec`. Đã verify lại cả hai cha với mã hiện hành, không fit/chọn lại. Scenario cơ sở ID1/v1: cover7, safety×1, receipts_declared=true, danh sách receipts rỗng; 920policy frozen days/forecast/lookback28/factor1/N7, floor/MOQ/safety_days riêng từng item giữ seed/version hiệu lực. L7/R1/H14, UTC; policy liên tục01/10–31/12/2025, alert6cửa sổ14ngày không chồng từ30/09 đến23/12, đuôi24–31/12 (8ngày) ngoài cửa sổ đủ nhãn. Alert không đặt mới; policy đặt/nhận mô phỏng bình thường. Không tuning cấu hình trên test.
+
+| Run mới local | Config SHA-256 | Kết quả đã đối soát |
+|---|---|---|
+| policy_replay `19621f2d-0347-43db-9746-702de6aa083e` | `7218e231b16344e39308f77ee14d8de8473b895452e7416f652cc156ae4cd40c` | complete/verified;85.560ledger/16.423events/3.245lô/113.630signals; đáp ứng14.437/15.968=90,412074%, thiếu1.531, đặt19.851, mean closing5,383637. |
+| alert_replay `cac7fa53-e35c-4793-9336-cd4d81b56149` | `2db146ee1b769c26e212e98050a778c6e2b58ee6e1a7538c47b544742db0c52c` | complete/verified;82.800ledger/16.395events/10.421signals;0lô đặt.5.520cặp item/cửa sổ, loại1.099đã cạn tại origin;4.421ca chấm. |
+
+**Depletion/R07:** TP2098/FP852/FN769/TN702; precision71,118644%, recall73,177537%, dateMAE4,287893ngày. Báo sớm≥7ngày986/2.867=34,391350%;1.112ca phát hiện muộn. Giữ1.550ca cạn D+1…D+6 trong mẫu số;1.317ca đủ thời gian, còn331ca bỏ sót. Cấu hình cơ sở mới **chưa đạt mục tiêu làm việc45%**, cùng counts với baseline cũ. Cần1.291ca sớm (thêm305) nếu giữ đúng tập sự kiện này; đây là đối chiếu số học, không kết quả cải thiện. Không chạy sweep, không tăng cover/đổi mẫu số để nhận đạt.
+
+**Xuống ROP riêng:** TP101/FP89/FN0/TN619;190signals/101events,809ca chấm,4.711ca dưới ROP tại origin loại riêng; precision53,157895%, recall100%, dateMAE2,425743ngày. Những số này không thay metric depletion hoặc chứng minh45%. Tại origin30/09:43projected items và920warning items duy nhất; nhiều tín hiệu vẫn tính một item.
+
+**Kiểm thực chạy:**245Python/0failure/error/skip với PostgreSQL test riêng, bao gồm BE/M2/9inventory golden/M2 parity1e-8/API/DDL/mode/biên/causal/snapshot/concurrency.50React/0failure/error/skip với1worker, TypeScript/Vite build, pipcheck, CLI/worker help đạt. Lượt Python đầu bị sandbox chặn loopback nên dừng đúng tiến trình và chạy lại có quyền local; PostgreSQL portable được khởi động lại đúng127.0.0.1:55432 sau khi phát hiện cổng mặc định5432. Lượt React đầu chạy đồng thời kiểm Python có1Back/reload timeout5000ms; chạy riêng50/50, không sửa mã/timeout. Starlette/httpx có cảnh báo deprecation hiện hữu, không thêm dependency.
+
+Worker thường verify trước complete; sau đó gọi verifier độc lập lại trên từng sealed run. Verifier tự đối soát168.360dòng ledger/ngưỡng,32.818events,3.245lô và124.051signals; manifest/config/source/hash khớp. Kiểm SQL độc lập xác nhận confusion/numerator/denominator/ca loại; API metrics/alert-opportunities khớp, diagnostic từ chối filter422. Filter bảng không đổi metric toàn lượt. API/CSV cùng run/ngày/tuyến18: mỗi run20inventory rows và40alert rows, export đủ dùpage_size1/page2, configSHA đúng. Filter projected origin đầu trả43rows có ngày threshold và null ngày cạn; monthly-summary409 giữ `monthly_not_prepared`.
+
+Browser IAB trên hai replay thật:6màn hình, cùng run/ngày/tuyến trong URL, bảng tồn/policy frozen, nhập hàng, filter43ROPsignals, drawer/lý do/projection/UTC, hai khối metric riêng34,4% vàTP101/FP89; Escape trả focus về row, reload giữ run/origin, console errors rỗng. Kiểm tại kích thước cửa sổ IAB khoảng713×615; không nhận vừa chạy lại390px (bằng chứng390px thuộc bước14). Tab và API kiểm riêng đã dừng, worker chạyonce đã thoát; PostgreSQL còn sẵn.
+
+**Bảo toàn:**1.038tệp protected (gồm4tệp data và source/test/config ngoài Markdown) nguyên SHA256.140artifact sealed của3run cũ khớp checksum DB manifest; hash hàng cũ theo primary key trong13bảng nghiệp vụ vàalembic_version nguyên, gồm672.520daily/2.382.800itemforecast/17.020routeforecast; hash SHA256 trên chuỗi MD5 từng row JSON được ghi rõ trong receipt, không gọi đó là dumpSHA. Schema0003_threshold/compare_metadata0diff. Chỉ thêm2run và kết quả mới; không sửa3run/policy/scenario/env cũ. CodeSHA giữ `2a02ba9e9069e83c25e0588da0b19c228ffbb550662b85644d6abcf872992dda`.
+
+Evidence private ignored: `outputs/step15/context.json`, `preservation.json`, `api-csv-checks.json`, `final-checks.json`, `runs/<UUID>/manifest.json` và receipt verifier; JUnit `outputs/step15-python.xml`, `outputs/step15-react.xml`, protected `outputs/step15-protected.json`. Run mới ở `outputs/step15/runs`, tách khỏi output root lịch sử trong env; không chuyển/copy run cũ hoặc push raw/run/DB/env/ảnh/log. Chỉ aggregate Markdown và hướng dẫn được commit.
+
+Kiểm lại run mới từ PowerShell root (dùng DB/env local hiện có, không worker nền khi chạy `simulate --wait`):
+
+```powershell
+. ./web/backend/scripts/load_env.ps1
+$env:M3_OUTPUT_ROOT = Join-Path (Get-Location) 'outputs/step15/runs'
+.\.venv-m3\Scripts\python.exe -m cli verify --run-id 19621f2d-0347-43db-9746-702de6aa083e
+.\.venv-m3\Scripts\python.exe -m cli verify --run-id cac7fa53-e35c-4793-9336-cd4d81b56149
+```
+
+Muốn tạo lượt tái lập khác: dùng `cli simulate --kind policy_replay` hoặc `alert_replay`, forecast/scenario/origin/period trên, request-key mới; giữ nguyên nguồn/forecast và ghi cấu hình trước chạy. Không dùng `prepare-monthly` khi thiếu bundle nguồn đã xác minh.
+
+**Giới hạn/bước tiếp:** hoàn tất kiểm kỹ thuật15bước CHG-068 sau cổng GitHub; R07/T14 giữ chưa nghiệm thu. R05/M05 tổng30 là bằng chứng hồi cứu E93, không được chạy lại/đổi thành kết quả mới trong bước15; máy local vẫn thiếu bundle tổng30. Chưa diễn tập trên máy nhóm khác hoặc có holdout độc lập; tồn/nhập/đối tác vẫn mô phỏng, A08 đề xuất. Nếu tiếp tục cải thiện45%, cần protocol chọn bằng quá khứ/validation và công khai trade-off trước đánh giá test hồi cứu; mentor còn làm rõ tính bắt buộc/phạm vi mục tiêu và nghiệm thu. Không tự mở bước16, merge hoặc deploy. Cổng commit/push/remoteSHA/CI sẽ ghi sau khi GitHub xác nhận.
