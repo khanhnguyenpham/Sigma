@@ -1,4 +1,4 @@
-"""Local A/B/C/D research. Milestone 2 outputs are calculated, never independently verified."""
+"""Local A/B/C/D research; calculations are sealed and independently checked by verify."""
 
 import argparse
 from collections import defaultdict
@@ -495,7 +495,7 @@ def verify_artifacts(folder):
                 metrics_status="unverified", artifacts_checked=len(artifacts))
 
 
-def read_selection_lock(path):
+def read_selection_lock(path, baseline_root=None):
     lock = read_json(path)
     validation = Path(lock["validation_run"]).resolve()
     verify_artifacts(validation)
@@ -509,6 +509,9 @@ def read_selection_lock(path):
         or manifest["application_code_sha256"] != code_digest()
         or manifest["protocol_sha256"] != lock["protocol_sha256"]):
         raise ValueError("Selection needs independently verified validation and matching code/protocol")
+    from web.backend.research.inventory_alert_verification import verify_run
+
+    verify_run(validation, write_receipt=False, baseline_root=baseline_root)
     selected = lock["selected_configs"]
     for key in ("source_sha256", "forecast_config_sha256", "selection_sha256"):
         if lock[key] != manifest["input_meta"][key]:
@@ -601,21 +604,28 @@ def main(argv=None):
         command.add_argument("--baseline-root", type=Path, default=PROJECT_ROOT / "outputs/step15/runs")
         if name == "evaluate":
             command.add_argument("--selection-lock", type=Path, required=True)
-    verify = commands.add_parser("verify", help="Artifact integrity only; independent verifier is milestone 3")
+    verify = commands.add_parser("verify", help="Independently reconstruct frozen inputs, outputs and metrics")
     verify.add_argument("--run-dir", type=Path, required=True)
+    verify.add_argument("--baseline-root", type=Path, default=PROJECT_ROOT / "outputs/step15/runs")
     args = parser.parse_args(argv)
     try:
         if args.command == "verify":
-            print(json.dumps(verify_artifacts(args.run_dir)))
+            from web.backend.research.inventory_alert_verification import verify_run
+
+            print(json.dumps(verify_run(args.run_dir, baseline_root=args.baseline_root)))
             return 0
-        lock, configs = read_selection_lock(args.selection_lock) if args.command == "evaluate" else (None, experiment_matrix())
+        lock, configs = read_selection_lock(args.selection_lock, args.baseline_root) if args.command == "evaluate" else (None, experiment_matrix())
         split = "test" if args.command == "evaluate" else "validation"
         if args.snapshot:
             snapshot = read_json(args.snapshot)
         else:
             from core.settings import Settings
 
+            if lock is not None and read_json(Path(lock["validation_run"])/"manifest.json")["input_meta"]["provenance"] != "local_frozen_db":
+                raise ValueError("Synthetic validation cannot authorize a real-data evaluation")
             snapshot = load_database_inputs(split, Settings.from_env(), args.baseline_root)
+        if lock is not None and snapshot["meta"]["provenance"] != read_json(Path(lock["validation_run"])/"manifest.json")["input_meta"]["provenance"]:
+            raise ValueError("Validation and evaluation evidence classes differ")
         if snapshot["split"] != split:
             raise ValueError("Input split differs from command")
         folder = calculate(snapshot, configs, args.output_root, lock)

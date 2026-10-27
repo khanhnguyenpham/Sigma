@@ -514,3 +514,18 @@ Người dùng giao riêng mốc2 từ checkpoint467c6a3 đã remoteSHA khớp/h
 Evidence private: outputs/research/ss-step2/{before.json,preservation.json,all-python.xml,targeted.xml,smoke.json,synthetic-input.json.gz,smoke/<UUID>/...}. Helper tmp.ss_tests nạp URL DB test riêng; tmp.ss_step2_preserve kiểm DB app chỉ đọc; tmp.ss_step2_smoke chỉ dùng fixture synthetic. Không đưa raw/output/DB/env lên Git. Cổng commit/push/SHA/CI đã xác nhận bên dưới; dừng sau mốc2, mốc3 chờ giao.
 
 **Cổng GitHub CHG-074 mốc 2 đã kiểm:** commit `8436eaabd502b6aaa078bde3e76ebe97960a953f` push thường lên `codex/alert-safety-stock-experiments`, remoteSHA khớp; [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40448786600) và [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40448786494) completed/success, đủ bốn job test/backend/frontend/m2-regression. Lượt này dừng sau mốc 2; mốc 3–5 chưa bắt đầu. Commit tài liệu xác nhận cổng được kiểm SHA/CI riêng trước thông điệp cuối. Không chạy validation/test dữ liệu thật hoặc nhận đạt45%; R07/T14 chưa nghiệm thu.
+
+
+<a id="handoff-chg074-step3"></a>
+### CHG-074 mốc 3 — Verifier độc lập, 27/10/2026
+
+Người dùng giao riêng mốc3 từ checkpoint253590b đã remoteSHA/hai CI success. Lượt này chỉ verifier và causal/tamper/episode/intervention/censor; mốc4–5 chờ giao tiếp. [Giao diện và nguyên tắc kiểm](../M3/docs/research.md#inventory-alert-safety-step3).
+
+- Sản phẩm: module verifier độc lập mới; CLI verify nối tới verifier và ghi sidecar receipt; evaluate kiểm lại proof toán học trước test và không nâng synthetic thành real-data. Chỉ sửa research/tests/docs, giữ nguyên backend src/FE/M2/model/schema/protocol/dependency. Không tạo selection lock hoặc replay run app mới.
+- Verifier tái dựng theo item/time, không gọi helper nghiệp vụ của producer làm kỳ vọng. Kiểm từng bảng, metric và HTML; trường nguyên/bool exact, float1e-8. Nguồn local được đối chiếu raw hash/parent artifacts và DB read-only; dùng chung audit A08 ở biên nguồn, không dùng nó để tính tồn/cảnh báo.
+- Kiểm thực:317Python BE/M2,0failure/error/skip,46ca mới;26ca mốc2 cập nhật để dùng proof độc lập. Targeted66ca đạt trước khi bổ sung6ca cuối; full317 đã gồm toàn bộ72ca research. pipcheck/help đạt. PostgreSQL test riêng sigma_m3_test; source audit/hash trong ca IO là biên synthetic được inject rõ.
+- CLI subprocess synthetic chạy19configs rồi verify2lần: receipt verified/synthetic,1.737ledger,1.653alarms,65events,1.668transactions,171orders,69initializations,60cases,1.392thresholdcases,30eventchanges,829alarm evaluations. Receipt giữ nguyên bytes khi kiểm lại; manifest và22artifact gốc không đổi. Không dùng các số synthetic làm bằng chứng đạt45%.
+- Bảo toàn: toàn bộ hàng14bảng app (13nghiệp vụ+Alembic) và1.231hash protected/protocol/artifact mốc2 nguyên; application code hash vẫn2a02ba9e9069e83c25e0588da0b19c228ffbb550662b85644d6abcf872992dda. Forecast và CSV gốc không đổi. Không chạy validation/test thật hoặc chọn cấu hình; baseline986/2867 và R07/T14 giữ.
+- Lượt targeted đầu4ca so sánh in-memory date với ISO trong JSON bị lỗi; đã sửa test so sánh đúng serialization boundary, không sửa công thức để qua test. Targeted66 và full317 sau đó đạt. Starlette/httpx có cảnh báo deprecation hiện hữu. Không có lỗi còn mở trong các ca đã kiểm; chất lượng trên dữ liệu thật vẫn chờ mốc4–5.
+
+Evidence private: outputs/research/ss-step3/{before.json,preservation.json,base-targeted.xml,targeted.xml,all-python.xml,smoke.json,synthetic-input.json.gz,smoke/<UUID>/...}. Các helper tmp.ss_tests/tmp.ss_step3_preserve/tmp.ss_step3_smoke chỉ phục vụ kiểm, không push output/raw/DB/env. Cổng commit/push/SHA/CI ghi sau kiểm GitHub; hoàn tất cổng mốc3 rồi dừng, mốc4 chờ giao.

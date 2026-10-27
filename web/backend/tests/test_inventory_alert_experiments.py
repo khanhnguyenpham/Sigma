@@ -206,7 +206,9 @@ def test_synthetic_cli_writes_unverified_results_and_checks_integrity(tmp_path, 
     assert len(research.read_json(folder / "metrics.json")) == 19
     assert not (folder / "selection_lock.json").exists()
     assert research.main(["verify", "--run-dir", str(folder)]) == 0
-    assert json.loads(capsys.readouterr().out)["status"] == "artifact_integrity_passed"
+    verified = json.loads(capsys.readouterr().out)
+    assert verified["status"] == "verified" and verified["independent_replay"] is True
+    assert verified["evidence_class"] == "synthetic"
     assert research.read_json(folder / "manifest.json")["status"] == "calculated_unverified"
     (folder / "metrics.json").write_text("[]", encoding="utf-8")
     assert research.main(["verify", "--run-dir", str(folder)]) == 1
@@ -232,10 +234,11 @@ def test_evaluate_honors_synthetic_selection_fixture_and_mandatory_controls(tmp_
     validation = fixture_snapshot(length=(date.fromisoformat(p["validation"]["end"]) - ORIGIN).days,
                                    score_start=date.fromisoformat(p["validation"]["score_start"]))
     folder = research.calculate(validation, research.experiment_matrix(), tmp_path / "validation")
-    # Inject a synthetic approval boundary, not an independently verified research result.
+    from web.backend.research.inventory_alert_verification import verify_run
+
+    # Actual independent verification, still explicitly synthetic rather than business evidence.
     manifest_hash = research.file_hash(folder / "manifest.json")
-    research.write_json(folder / "verification.json", dict(status="verified", independent_replay=True,
-                                                          manifest_sha256=manifest_hash, synthetic_fixture=True))
+    verify_run(folder)
     lock = dict(validation_run=str(folder), validation_manifest_sha256=manifest_hash,
         validation_verification_sha256=research.file_hash(folder / "verification.json"),
         protocol_sha256=digest(p), selected_configs=["C-cover3", "D-days-m0-cover7"],
@@ -354,3 +357,16 @@ def test_database_loader_freezes_only_bounded_validation_and_keeps_rows_unchange
         after = (session.scalar(select(func.count()).select_from(Run)),
                  session.scalar(select(func.count()).select_from(DailySales)))
     assert after == before
+    from pathlib import Path
+    from web.backend.research import inventory_alert_verification as verifier
+
+    # Corroborate the reader against actual test-DB rows; raw audit/hash are explicit synthetic boundaries.
+    original_sha = verifier.sha
+    raw_path = replace(settings(tmp_path), output_root=root).order_source("orders_snapshot").resolve()
+    monkeypatch.setattr(verifier, "sha", lambda path: "a"*64 if Path(path).resolve() == raw_path else original_sha(path))
+    assert verifier.check_provenance(loaded, p, replace(settings(tmp_path), output_root=root), root) == "original_csv_and_readonly_db"
+    for table, field, value in [("daily", "quantity", 99), ("forecasts", "forecast", [99]*14),
+                                 ("policies", "configured_rop_floor", 9999), ("sales", "quantity", 99)]:
+        tampered = deepcopy(loaded); tampered[table][0][field] = value
+        with pytest.raises(ValueError):
+            verifier.check_provenance(tampered, p, replace(settings(tmp_path), output_root=root), root)
