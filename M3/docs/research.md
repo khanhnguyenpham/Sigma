@@ -20,7 +20,7 @@ E91:28fits/95.760forecast/160nhóm metric. Lựa chọn validation H1–7 mean49
 <a id="inventory-alert-safety-v1"></a>
 ## CHG-074 — Thử cảnh báo hằng ngày và tồn an toàn
 
-Người dùng duyệt kế hoạch và giao thực hiện ngày 27/10/2026 trên nhánh `codex/alert-safety-stock-experiments`, từ `a2241dbe`. Người dùng yêu cầu làm từng bước nhỏ. Mốc 1–3 đã hoàn tất; lượt mới giao riêng **mốc 4**, qua local/commit/push/SHA/CI rồi dừng. Mốc 5 chờ giao tiếp.
+Người dùng duyệt kế hoạch và giao thực hiện ngày 27/10/2026 trên nhánh `codex/alert-safety-stock-experiments`, từ `a2241dbe`. Người dùng yêu cầu làm từng bước nhỏ. Mốc 1–4 đã hoàn tất; lượt mới giao **mốc 5**, chạy test hồi cứu đúng lock rồi kiểm local/commit/push/SHA/CI và bàn giao.
 
 Protocol máy đọc nằm tại `web/backend/configs/inventory-alert-experiments.json`. Mục tiêu nghiên cứu là xác định tác động riêng của cảnh báo hằng ngày, giả định tồn đầu và chính sách nhập hàng có SS. Giữ nguyên dự báo, mô hình và phân bổ; không đổi API, schema, run kind, React hoặc cài lịch tự chạy. Giữ baseline 986/2.867 = 34,391350% và trạng thái R07/T14 chưa nghiệm thu.
 
@@ -48,7 +48,7 @@ Protocol máy đọc nằm tại `web/backend/configs/inventory-alert-experiment
 
 ### CLI nghiên cứu ở mốc 2
 
-CLI tại `web/backend/research/inventory_alert_experiments.py` có ba lệnh từ mốc 2 dưới đây; mốc 4 bổ sung `select` tại phần bên dưới. Mốc 2–3 chỉ chạy synthetic; mốc 4 đã chạy validation từ dữ liệu frozen local và kiểm độc lập. Test hồi cứu thuộc mốc 5, chưa chạy.
+CLI tại `web/backend/research/inventory_alert_experiments.py` có ba lệnh từ mốc 2 dưới đây; mốc 4 bổ sung `select` tại phần bên dưới. Mốc 2–3 chỉ chạy synthetic; mốc 4 đã chạy validation từ dữ liệu frozen local và kiểm độc lập. Mốc 5 đã chạy test hồi cứu theo lock; kết quả ở phần bàn giao bên dưới.
 
 ```powershell
 python -m web.backend.research.inventory_alert_experiments validate
@@ -180,10 +180,89 @@ Can thiệp và thiếu nhãn là số item/ngày phát cảnh báo không đư�
 | C | C-days-m0.5-cover7 | C-volatility-m1.5-cover7 | C-cover3 |
 | D | D-days-m0-cover7 | D-volatility-m1.5-cover7 | D-days-m0-cover7 (trùng) |
 
-Tổng 5 đại diện; nếu người dùng giao mốc 5, evaluate sẽ chạy 9 cấu hình gồm 5 đại diện và 4 đối chứng A/B/C-days×1/D-days×1. Chưa gọi evaluate trên dữ liệu thật hoặc đọc kết quả test mới. Lock tạo lúc 07:36:16 UTC ngày 27/10/2026 sau kiểm độc lập validation; không chọn lại theo test.
+Tại checkpoint mốc 4: tổng 5 đại diện; nếu người dùng giao mốc 5, evaluate sẽ chạy 9 cấu hình gồm 5 đại diện và 4 đối chứng A/B/C-days×1/D-days×1. Chưa gọi evaluate trên dữ liệu thật hoặc đọc kết quả test mới. Lock tạo lúc 07:36:16 UTC ngày 27/10/2026 sau kiểm độc lập validation; không chọn lại theo test.
 
 - Manifest SHA256: `7508438701af4d1a404b78e55d9ff93e29477d3302ceb83a4fe168ea6a61aa32`.
 - Verification receipt SHA256: `0cbd8d65a1e824966fb87c4be2d514c5f64e54d9b5dd236b1402ddc92aa04f71`.
 - Selection lock SHA256: `69287d8dd46674b28943ef02308be5f5947c23ee9c0b9719bba334223e40aac8`.
 
 Private evidence tại outputs/research/ss-step4: code-lock.json (trước kết quả), all-python.xml, validate/select-command.json và stdout, validation-summary.json, sealed-validation-files.json, preservation.json; bundle validation chứa inputs/results/metrics/report/manifest, verification.json, selection_lock.json và validation-comparison.csv/html. Artifact gốc vẫn ghi calculated_unverified theo thời điểm tính; receipt xác nhận verified độc lập, không sửa lại manifest/metric cũ. R07/T14 chưa nghiệm thu.
+
+<a id="inventory-alert-safety-step5"></a>
+### CHG-074 mốc 5 — Test hồi cứu đã khóa và bàn giao
+
+Người dùng giao ngày 27/10/2026 sau checkpoint `c2595be`. Giữ nguyên code/rule/protocol, nguồn và forecast mốc 4. Chỉ chạy `evaluate --selection-lock <validation-run>/selection_lock.json --output-root outputs/research/ss-step5/test`, sau đó `verify --run-dir <test-run>`. Evaluate tự kiểm lại validation độc lập trước đọc test; verifier test kiểm lại cả parent validation và 9 cấu hình test. Không viết lại receipt/lock/manifest cũ, không chọn cấu hình mới từ test.
+
+Test chạy 01/10–31/12/2025; D chấm 29/10–31/12 sau 28 ngày chuẩn bị. Mọi kết quả vẫn là hồi cứu vì test đã từng được xem. Tồn/nhập/ETA đều mô phỏng; R07/T14 chưa nghiệm thu. Đã chạy native evaluate và verify; cả 19 cấu hình parent validation và 9 cấu hình test đều đạt kiểm độc lập. Kết quả dưới đây.
+
+#### Kết quả test hồi cứu đã kiểm độc lập
+
+Run local `inventory-alert-safety-v1-4b6dbc7b-760c-4bfb-83db-0912a288b349`; 920 mặt hàng, không có mặt hàng/doanh số ngoài cohort. A/B/C chấm 6 cửa sổ 14 ngày (01/10–23/12), loại đuôi 8 ngày. D chấm 29/10–31/12 sau warmup; các số thiếu/fill/tồn/đặt chính dưới đây thuộc kỳ chấm này, không so lượng tuyệt đối với A/B/C như cùng kỳ. Precision D theo item/ngày cảnh báo; early D theo episode cạn duy nhất.
+
+| Cấu hình test | Báo sớm/sự kiện | Early % | Fill % | Thiếu | Tồn cuối ngày BQ/item | Lượng đặt | Vai trò |
+|---|---:|---:|---:|---:|---:|---:|---|
+| A-base | 986/2867 | 34.3913 | 44.7975 | 7645 | 0.7247 | 0 | Đối chứng |
+| B-daily | 989/2867 | 34.4960 | 44.7975 | 7645 | 0.7247 | 0 | Đối chứng |
+| C-days-m0.5-cover7 | 686/2014 | 34.0616 | 60.1993 | 5512 | 1.3753 | 0 | Đại diện khóa |
+| C-days-m1-cover7 | 672/1960 | 34.2857 | 62.8132 | 5150 | 1.4543 | 0 | Đối chứng |
+| C-volatility-m1.5-cover7 | 303/1262 | 24.0095 | 74.9729 | 3466 | 2.3206 | 0 | Đại diện khóa |
+| C-cover3 | 829/3194 | 25.9549 | 29.7206 | 9733 | 0.4491 | 0 | Đại diện khóa |
+| D-days-m1-cover7 | 193/578 | 33.3910 | 91.9277 | 969 | 5.6142 | 11517 | Đối chứng |
+| D-volatility-m1.5-cover7 | 42/285 | 14.7368 | 96.4179 | 430 | 6.6507 | 12529 | Đại diện khóa |
+| D-days-m0-cover7 | 441/963 | 45.7944 | 85.3965 | 1753 | 4.7173 | 10895 | Đại diện khóa |
+
+A tái lập chính xác 986/2.867=34,391350%; B=989/2.867=34,495989%, tăng **3 ca/+0,1046 điểm phần trăm** trên cùng sự kiện/tồn/hàng về. Cả hai loại 1.099 ca đã cạn tại origin. 1.550 ca D+1…D+6 vẫn trong mẫu số; trần thời điểm 1.317/2.867=45,936519% không bị xóa bởi cập nhật hằng ngày. So với validation (+19 ca/+0,6209 điểm phần trăm), tác động quan sát được trên test nhỏ hơn. Không đổi forecast/model hoặc loại ca để đạt 45%.
+
+C có mẫu số riêng. Trong các cấu hình C đã khóa và đối chứng được chạy test, early đều dưới 45%; không chọn lại đại diện dù đối chứng days×1 có early nhỉnh hơn đại diện days×0,5. Đối chiếu với B:
+
+| Cấu hình C | Xuất hiện | Biến mất | Đổi ngày | Loại tại origin |
+|---|---:|---:|---:|---:|
+| C-days-m0.5-cover7 | 39 | 892 | 1243 | 1015 |
+| C-days-m1-cover7 | 39 | 946 | 1278 | 1015 |
+| C-volatility-m1.5-cover7 | 0 | 1605 | 1058 | 1099 |
+| C-cover3 | 327 | 0 | 899 | 1099 |
+
+C-days có thể làm một item từng bị loại vì tồn 0 tại origin trở thành ca được chấm khi cộng SS; vì thế xuất hiện thêm sự kiện trong tập đánh giá không có nghĩa thêm hàng gây ra nhiều thiếu hụt hơn. Tăng SS có sẵn giúp giảm thiếu nhưng không chứng minh forecast chính xác hơn; giả định có sẵn hàng phải được đọc cùng tồn bình quân.
+
+Chỉ **D-days-m0-cover7 (SS=0)** đạt mục tiêu làm việc early≥45% trên test trong 9 cấu hình đã khóa: **441/963=45,7944%**, so với validation 360/786=45,8015%. Đây là **protocol D liên tục**, không thay kết quả/tiêu chí của A hoặc tự nghiệm thu R07/T14. SS=0 đồng thời thiếu 1.753/fill85,3965%; days×1 thiếu969/fill91,9277%; volatility×1,5 thiếu430/fill96,4179% nhưng tồn BQ tăng4,7173→6,6507 và early còn42/285=14,7368%. Khi SS làm giảm và đổi ngày cạn, early rate trên các sự kiện còn lại có thể giảm. Không gọi SS=0 là lựa chọn tốt nhất chỉ vì early cao nhất, hoặc gọi volatility×1,5 tốt nhất khi chưa có ưu tiên chi phí/dịch vụ.
+
+| Cấu hình D | Episode cạn | Ngày-item tồn 0 | Precision % | Recall % | MAE ngày | Pending BQ | Đang về cuối kỳ | Có can thiệp/chưa chấm | Thiếu nhãn cuối kỳ |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| D-days-m1-cover7 | 578 | 5242 | 80.6202 | 81.1419 | 4.9808 | 1.1363 | 1690 | 1990 | 625 |
+| D-volatility-m1.5-cover7 | 285 | 3930 | 92.1225 | 65.2632 | 5.1989 | 1.2311 | 1796 | 1029 | 198 |
+| D-days-m0-cover7 | 963 | 7585 | 76.5855 | 77.7778 | 4.2470 | 1.0870 | 1445 | 1802 | 1196 |
+
+Can thiệp và thiếu nhãn là số item/ngày phát cảnh báo không được chấm precision; không tự quy thành FP hoặc nhận đã ngăn cạn. Sự kiện cạn đã quan sát vẫn được chấm. Pending BQ lấy tại quyết định trước đơn mới; đang về cuối kỳ gồm các đơn chưa nhận tại cuối kỳ.
+
+Để không che lượng đặt trong giai đoạn chuẩn bị, báo thêm toàn luồng D: tồn/bán từ 01/10–31/12 và đơn đặt từ origin30/09, gồm warmup. Không dùng bảng bổ sung để chọn lại cấu hình.
+
+| D toàn luồng | Đáp ứng/nhu cầu | Fill % | Thiếu | Tồn BQ | Lượng đặt | Số đơn | Đang về cuối kỳ |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| D-days-m0-cover7 | 13309/15968 | 83.3479 | 2659 | 4.2087 | 17790 | 2896 | 1445 |
+| D-days-m1-cover7 | 14437/15968 | 90.4121 | 1531 | 5.3836 | 19851 | 3245 | 1690 |
+| D-volatility-m1.5-cover7 | 15064/15968 | 94.3387 | 904 | 6.2467 | 21748 | 3530 | 1796 |
+
+D-days×1 toàn luồng tái lập policy cơ sở **14.437/15.968, thiếu1.531, fill90,412074%, 3.245 đơn**. Như vậy cả đối chứng A và policy cơ sở cũ vẫn khớp; khác biệt số kỳ chấm D được công khai thay vì ghi đè đối chứng.
+
+Precision/recall/MAE và metric xuống ROP N7 của từng cấu hình giữ trong metrics/results. Threshold có scope whole_alert_replay, không gộp với early depletion D chấm sau warmup. CSV/HTML dẫn xuất local có 28 dòng validation+test, unit/phân kỳ và dấu đại diện; artifact gốc giữ calculated_unverified, receipt xác nhận verified độc lập sau đó.
+
+#### Bằng chứng và tái lập
+
+```powershell
+# Nạp env local theo README, không sửa env hoặc dữ liệu cũ
+python -m web.backend.research.inventory_alert_experiments evaluate --selection-lock <validation-run>/selection_lock.json --output-root outputs/research/<thu-muc-moi>/test
+python -m web.backend.research.inventory_alert_experiments verify --run-dir <test-run>
+```
+
+Evaluate luôn kiểm lại validation trước đọc test; mỗi lần tạo UUID mới. Không dùng select trên test hoặc chọn lại đại diện sau kết quả. Nguồn/forecast và selection lock phải đúng các hash đã khóa. Dữ liệu/output vẫn local, không nằm trong Git.
+
+- Selection lock gốc SHA256: `69287d8dd46674b28943ef02308be5f5947c23ee9c0b9719bba334223e40aac8` (nguyên).
+- Test manifest SHA256: `e86670254c3c841faf0364a5b529ed44aecec713a5f1e6a35fd3d94180df2ab5`.
+- Test receipt SHA256: `ec681bb2ec041c5d4718a13e365b3795a2e023c8ab149723cc832bdb2854c363`.
+- Bản JSON lock trong bundle test SHA256: `777c706ed7fafcc8f4e1c541b80f9a6fe34f5ef399c5d6e22cf71abf4775184a`; JSON bằng lock gốc, khác CRLF/LF do serialization. Manifest seal đúng bản test; lock gốc và mọi binding giữ nguyên, không sửa artifact để ép bytes giống nhau.
+
+Evidence private outputs/research/ss-step5: code-lock/before/previous-gate, evaluate/verify-command và stdout, test/<UUID>/{inputs,results,metrics,report,manifest,selection_lock,verification}, test-summary.json, comparison.csv/html, handoff-manifest.json, preservation.json, all-python.xml, frontend-first/targeted/final XML, regression.json và api-csv-checks.json. Handoff manifest seal 27 tệp validation, 15 tệp test và 3 báo cáo/tổng hợp dẫn xuất. Không cần helper private để chạy lại phép tính/verify bằng CLI đã commit; helper chỉ hỗ trợ cổng và trình bày báo cáo bàn giao.
+
+325 Python BE/M2, 50 React, build/pipcheck và API/CSV/SQL đạt; giữ14bảng/1.296tệp protected, schema0003_threshold/0diff. React lượt đầu49/50, ca Back/reload timeout; targeted rồi full50/50 đạt, không sửa code/timeout hoặc bỏ test. Không nhận đã chạy lại browser UI trong mốc này; hồi quy giao diện bằng50React/build, API/CSV bằng GET/SQL read-only. Kiểm phụ report ban đầu so bytes lock CRLF/LF bị chặn; đã đối chiếu JSON và hash từng bản, không đổi code research hoặc kết quả.
+
+Đã đủ bằng chứng so tác động của tần suất và SS để thảo luận bước đưa vào ứng dụng. Chưa chọn phương án tối ưu, chưa chuyển web/API/schema/scheduler, không refit/merge/deploy. Giới hạn: dữ liệu bán frozen theo A08 và snapshot trạng thái, tồn/nhập/ETA giả định, chỉ hai kỳ hồi cứu, không phải vận hành tương lai hoặc tồn kho doanh nghiệp thực. **R07/T14 vẫn chưa nghiệm thu.**

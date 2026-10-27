@@ -792,7 +792,7 @@ T01/T10/T12/T14 ghi **early rate≥45% với báo trước≥7ngày** làm mục
 <a id="chg-074"></a>
 ## CHG-074 — Thử cảnh báo hằng ngày và tồn an toàn
 
-Người dùng duyệt và giao ngày 27/10/2026, nhánh `codex/alert-safety-stock-experiments` từ `a2241dbe`. Người dùng yêu cầu chia nhỏ theo mốc. Mốc 1–3 đã qua cổng; lượt mới ngày 27/10/2026 giao riêng mốc 4 rồi dừng, mốc 5 chờ giao tiếp. Chỉ nghiên cứu local, giữ forecast/model/phân bổ/API/schema/React; không scheduler/refit/merge/deploy. [Protocol đầy đủ](../../M3/docs/research.md#inventory-alert-safety-v1).
+Người dùng duyệt và giao ngày 27/10/2026, nhánh `codex/alert-safety-stock-experiments` từ `a2241dbe`. Người dùng yêu cầu chia nhỏ theo mốc. Mốc 1–4 đã qua cổng; lượt mới ngày 27/10/2026 giao mốc 5: test hồi cứu theo lock, kiểm độc lập và bàn giao. Chỉ nghiên cứu local, giữ forecast/model/phân bổ/API/schema/React; không scheduler/refit/merge/deploy. [Protocol đầy đủ](../../M3/docs/research.md#inventory-alert-safety-v1).
 
 | Mốc | Sản phẩm/cổng | Trạng thái |
 |---|---|---|
@@ -800,6 +800,6 @@ Người dùng duyệt và giao ngày 27/10/2026, nhánh `codex/alert-safety-sto
 | 2 | CLI validate/evaluate, verify toàn vẹn; A/B/C/D và ca tính tay | Hoàn tất local/commit/push/SHA/CI; mã8436eaa |
 | 3 | Verifier độc lập; causal/episode/intervention/censor/tamper | Hoàn tất local/commit/push/SHA/CI; mãad3ab88 |
 | 4 | Ma trận validation và selection lock | Hoàn tất local/commit/push/SHA/CI; mã78d5b95 |
-| 5 | Test hồi cứu đã khóa/báo cáo/bảo toàn/bàn giao | Chưa bắt đầu |
+| 5 | Test hồi cứu đã khóa/báo cáo/bảo toàn/bàn giao | Local đạt; chờ commit/push/SHA/CI |
 
 Mỗi mốc local→commit→push thường nhánh thử→remoteSHA khớp→2CI success trước mốc sau. Baseline34,391350% không ghi đè; R07/T14 chưa nghiệm thu; raw/run/DB/env private.
