@@ -1,2 +1,11 @@
 # Preserve byte hashes of the approved, sealed final report on every platform.
 M2/reports/final_m2_20261011/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Research manifests pin source bytes, including the recorded mixed line endings.
+web/backend/configs/forecast-postprocessing-v1.json -text
+web/backend/research/inventory_forecast_identity.py -text
+web/backend/research/forecast_postprocessing*.py -text whitespace=cr-at-eol
+web/backend/research/forecast_alarm_burden.py -text
+web/backend/tests/test_inventory_forecast_identity.py -text
+web/backend/tests/test_forecast_postprocessing*.py -text
+web/backend/tests/test_forecast_alarm_burden.py -text

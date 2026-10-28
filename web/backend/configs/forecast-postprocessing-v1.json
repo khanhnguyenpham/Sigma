@@ -1,0 +1,75 @@
+{
+  "id": "forecast-postprocessing-v1",
+  "horizon_days": 14,
+  "minimum_early_days": 7,
+  "warmup_days": 28,
+  "effective_from": "2025-07-29",
+  "calibration": {
+    "origin_start": "2025-06-30",
+    "origin_end": "2025-07-14",
+    "label_start": "2025-07-01",
+    "cutoff": "2025-07-28",
+    "parameter_updates_after_cutoff": false,
+    "demand_level": "route_mean_daily_demand_at_or_below_route_median_is_low",
+    "bias": "ratio_of_sums_actual_over_forecast",
+    "group_shrinkage_to_global": 0.5,
+    "zero_denominator_fallback": "final_parent_factor_without_additional_shrinkage",
+    "risk_scale": "max_item_mean_daily_demand_in_calibration_labels_or_1",
+    "quantile": "linear_interpolation_at_n_minus_1_times_q"
+  },
+  "allocation": {
+    "historical_weight": 0.5,
+    "include_origin_day": true,
+    "known_items_only": true,
+    "zero_history_fallback": "original_forecast",
+    "missing_actual": "reject",
+    "absolute_conservation_tolerance": 1e-8
+  },
+  "candidates": [
+    {"id": "C00", "family": "identity", "kind": "point"},
+    {"id": "S10", "family": "stress", "kind": "stress", "alpha": 1.10},
+    {"id": "S25", "family": "stress", "kind": "stress", "alpha": 1.25},
+    {"id": "S50", "family": "stress", "kind": "stress", "alpha": 1.50},
+    {"id": "B00", "family": "bias_global", "kind": "point"},
+    {"id": "B07", "family": "bias_block", "kind": "point"},
+    {"id": "BND", "family": "bias_level_block", "kind": "point"},
+    {"id": "I14", "family": "item_share", "kind": "point", "window_days": 14},
+    {"id": "I28", "family": "item_share", "kind": "point", "window_days": 28},
+    {"id": "D14", "family": "weekday", "kind": "point", "window_days": 14},
+    {"id": "D28", "family": "weekday", "kind": "point", "window_days": 28},
+    {"id": "R75", "family": "risk", "kind": "risk", "quantile": 0.75},
+    {"id": "R90", "family": "risk", "kind": "risk", "quantile": 0.90}
+  ],
+  "evaluation": {
+    "inventory_path": "frozen_D_days_m1_cover7",
+    "receipts": "future_eta_and_initial_or_ordered_strictly_before_decision",
+    "event_matching": "first_event_in_H14_earliest_valid_alarm_once_per_event",
+    "intervention_and_censoring": "unchanged_opportunity_audit_scorer",
+    "forecast_metric_mask": "origin_at_or_after_effective_and_target_within_score_start_and_end",
+    "missing_or_zero_denominator_metric": null,
+    "bias_sign": "forecast_minus_actual",
+    "validation_target": {"early_numerator": 219, "event_denominator": 486},
+    "test_target": {"early_numerator": 261, "event_denominator": 578},
+    "selection": ["early_at_least_45_percent_and_full_coverage_and_preservation", "highest_nonnull_precision", "fewest_alarm_item_days", "candidate_list_order"],
+    "accepted_false_alarm_limit": null,
+    "test_already_seen": true,
+    "no_validation_winner": "stop_before_test",
+    "test_reselection": false
+  },
+  "source_pins": {
+    "application_code_sha256": "2a02ba9e9069e83c25e0588da0b19c228ffbb550662b85644d6abcf872992dda",
+    "audit_manifest_sha256": "23ed307ea2e3fdf86d3f91c2759bc4c6f52deaccc6e199e1c1bb97ee928a35e9",
+    "audit_receipt_sha256": "5af9a8bf253d7fa6fe0973de2e77b6016fab226c2e9a167c36b34670a622b8d7",
+    "original_protocol_sha256": "caa57e2d16c20cb9013b7603e3001a75b3a9a090ed4df0ae5861b6cc99226530",
+    "f1_manifest_sha256": "06d3078e9a221fbf7e15df9a2b4da0b5bf26a8ce1414ed049d010ca584fb90e8",
+    "f1_summary_sha256": "6390df22c542108e1b6f850a1791e0a312d6645b56dfd15b4b32751a420f8d44"
+  },
+  "execution": {
+    "F2": "synthetic_only_no_real_candidate_run",
+    "F3_F4": "separate_user_assignment_required",
+    "refit_or_model_selection": false,
+    "recompute_orders_or_inventory": false,
+    "candidate_combinations": false,
+    "application_default_changes": false
+  }
+}

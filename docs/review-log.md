@@ -1,5 +1,104 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+<a id="chg075-publish49"></a>
+### CHG-075 — 28/10/2026, công bố mã nghiên cứu S25 chưa tích hợp ứng dụng
+
+Nguồn trực tiếp: người dùng yêu cầu đẩy phần49% và “chưa cần tích hợp BE/FE gì đâu vì chưa chốt nên lựa chọn cái nào”. Cho phép commit/push thường riêng nhánh nghiên cứu `codex/early-warning-opportunity-audit`; không merge/push nhánh ứng dụng, deploy, refit hoặc chọn lại theo test. Quyền mới thay giới hạn giữ local F1–F4/phân tích tải, không đổi kết quả/nghiệm thu.
+
+Gói gồm checker F1, protocol/hậu xử lý/verifier F2, runner/verifier F3/F4, phân tích tải và tests; sáu MD giữ lịch sử, thêm [hướng dẫn nhóm](../M3/docs/49-warning-study.md).115targeted synthetic mới đạt; [bàn giao](development.md#handoff-chg075-publish49) ghi cổng Git/SHA/CI và bảo toàn. Không công bố raw/run/DB/env/Word/ảnh. Clone đọc mã và chạy synthetic; native49% cần bundle frozen và lineage/path đã pin, không hứa chỉ pull là tái lập số thật. R07/T14 chưa nghiệm thu.
+
+**Hiện hành CHG-075 — 27/10/2026, phân tích tải cảnh báo hoàn tất local:** [nguồn/quyết định](#chg075-alarm-burden), [kết quả](../M3/docs/research.md#forecast-alarm-burden), [bàn giao](development.md#handoff-chg075-alarm-burden). 35 targeted/kiểm từng nhãn và bảng/bảo toàn đạt. Chưa dùng S25 thay phương án chính `m3-implementation`; không DB/refit/GitHub, R07/T14 chưa nghiệm thu. Các checkpoint dưới đây giữ lịch sử.
+
+<a id="chg075-alarm-burden"></a>
+### CHG-075 — 27/10/2026, đọc output phân tích đánh đổi, giữ phương án chính
+
+Nguồn trực tiếp: người dùng đồng ý bắt đầu và nói "chưa cần dùng nó làm phương án thay thế phương án chính bên m3-implementation". Phạm vi là phân tích FP/tần suất và tải theo tuyến/SKU/ngày từ C00/S25 frozen sau F4. Không đồng nghĩa quyền sửa model/default, tích hợp ứng dụng, chọn lại/hệ số mới hoặc thay đường tồn/nhập. Giữ local không GitHub; không chuyển nhánh/commit/push/merge/deploy/CI hoặc truy cập DB.
+
+Đã đọc trực tiếp manifest/receipt/artifact F3/F4 và audit/parent snapshot; kiểm hash, cùng fixed-input và chấm lại bằng scorer độc lập. Thêm bộ phân tích/tests, cập nhật sáu MD; code/protocol/parameters/selection/output F1–F4 nguyên. 35 targeted = 18 mới + 17 audit đạt sau sửa vị trí tmp local (không sửa source cũ). Bộ kiểm báo cáo riêng đối chiếu từng signal/nhãn bằng quét trực tiếp, scorer gốc, tổng bảng/ngày/chuỗi: hai kỳ × hai cấu hình/14 artifact đạt. 1.644 protected/239 tracked ngoài MD và app nguyên; không nhận kiểm lại DB hoặc remote mới.
+
+Test giữ 92 early mới/0 mất, nhưng thêm 933 FP và 3.603 signal item-ngày trong 64 ngày chấm; mức trung bình 75,125→131,421875/ngày. Có 236 item mang FP mới, top 5 tuyến 29,4748%; signal lặp dài nhất 64 ngày, chuỗi FP 17 ngày. Toàn kỳ tăng 4.729 signal/1.350 FP gồm pre_score; 14 early mới bắt đầu trước chấm. Không đánh đồng item-ngày/chuỗi với nhân sự, không gộp can thiệp/censor vào FP hoặc dùng bảng test để lọc/chọn lại. Chưa có mức FP/tải được nghiệp vụ chấp nhận; không gọi stress là tăng accuracy điểm.
+
+[Báo cáo và provenance](development.md#handoff-chg075-alarm-burden) lưu local; manifest SHA `dde1649d283e83c1257d6f894c4bcfdb658dc0ac4244c9b671af4d8a4bf30e5b`. Phân tích hoàn tất, S25 giữ riêng cho nghiên cứu; phương án chính `m3-implementation` và ref local/remote-tracking `86a0162` nguyên. Mọi kết quả vẫn hồi cứu/test đã xem/model gốc test-selected; chưa có quyền tích hợp hoặc nâng R07/T14.
+
+**Hiện hành CHG-075 F3/F4 — 27/10/2026, hoàn tất local:** [nguồn/quyết định F4](#chg075-f4), [kết quả](../M3/docs/research.md#forecast-postprocessing-f4), [bàn giao](development.md#handoff-chg075-f4).S25test285/578=49,3080%/validation228/486=46,9136%,không chọn lại theo test;precision/FP đánh đổi, không gọi accuracy điểm tăng.97targeted/verifier/bảo toàn đạt; app/model/default/DB/GitHub nguyên, R07/T14 chưa nghiệm thu.
+
+**Hiện hành CHG-075 F3 — 27/10/2026, hoàn tất local:** [nguồn F3](#chg075-f3), [kết quả](../M3/docs/research.md#forecast-postprocessing-f3), [bàn giao](development.md#handoff-chg075-f3).13/13verifier đạt, khóa S25 stress×1,25:228/486=46,9136% với đánh đổi precision/FP; không gọi accuracy điểm tăng.88targeted/bảo toàn đạt; không DB/refit/app/default/commit/push/CI, R07/T14 chưa nghiệm thu. Người dùng giao tiếp F4 sau F3, chưa chạy tại checkpoint này.
+
+<a id="chg075-f4"></a>
+### CHG-075 F4 — 27/10/2026, chỉ test C00+S25 sau F3
+
+Nguồn trực tiếp: người dùng giao "làm xong F3 thì làm luôn F4". Đã hoàn tất F3/bàn giao/kiểm bảo toàn rồi mới tạo checkpoint/mã F4; giữ selection S25 validation, tham số/protocol/hệ số nguyên. Chỉ thêm runner test/verifier/tests vàcập nhật6MD, không sửa F1/F2/F3/app/model/default/DB/policy hoặc mở grid. Không commit/push/CI theo phạm vi local.
+
+97targeted=9F4+88cũ đạt trước test,help/pipcheck/diffcheck đạt; code-lock trước native, pin F3 manifest/receipt/selection/parameters. Không fit/chọn lại theo test hoặc overridecandidate/alpha; verifier dùng nguồn validation tách riêng cho tham số. Run mới e5a6d3b2-5e9f-4a00-aff5-e4ba05652c5a và checkpoint ở outputs/research/forecast-postprocessing-f4*. **Đã hoàn tất native/verifier2/2lần đầu**:S25285/578=49,3080% soC00193/578=33,3910%;đạt ≥261trên test hồi cứu,không chọn lại theo test. Precision66,7646% so80,6202%,FP1.358 so425,alarm-item-days8.411 so4.808;gained92/lost0early (87late/5no-alarm cũ). ItemWAPE137,7015%→148,8596%,route49,7955%→51,3230%;không gọi model/point accuracy cải thiện. Source selection S25validation228/486=46,9136% giữ nguyên,parameters byteSHA58052b211c908e1b9c3f19c4e04f455d968d35ed285979c3afc1f07380bdd737 không cập nhật bằng test.
+
+[Bằng chứng/hash/bảo toàn](development.md#handoff-chg075-f4):testmanifest`c5df347726d4e446082c72bd7f1bf2f7ed7f505bdb4eb40b41bebaa16ed846da`,receipt`314794eb2fe75465cf78d5d58052ef0b108d0c4588222de3fd267c98bbc1a718`;16artifact kiểmđạt,171.120path/2.395.680bước.1.553protected/239tracked ngoàiMD/F1/F2/F3/app nguyên và3file F4khớp locktrước native;97targeted/0skip,không DB/refit/raw-source re-audit hoặc GitHub. Không sửa sealed output, không dùng trần hậu kiểm làm early rate.
+
+F3/F4 được giao hoàn tất local,đạt mục tiêu làm việc45% trên hai tập hồi cứu bằng stress×1,25 với đánh đổi đã báo;không bảo đảm tương lai/holdout độc lập hoặc tự nâng R07/T14. App/default/model/DB nguyên,không commit/push/CI/merge/deploy vàkhông tự chọn lại theo test hoặc triển khai ứng dụng.
+
+Kiểm kết thúc F4đạt27link nội bộ mới/7dòng bảng/fence/anchor/diff check; đúng3file mới+6MD so checkpoint F4, giữ nguyên F1/F2/F3.1.553protected/239tracked ngoàiMD vàmã F4khớp lock, HEAD/nhánh nguyên; tổng18path chưa commit gồm công việc các lượt trước, không private output. Bằng chứng docs-check.json tại checkpoint F4, không GitHub.
+
+<a id="chg075-f3"></a>
+### CHG-075 F3 — 27/10/2026, thực thi validation đã khóa
+
+Nguồn trực tiếp: người dùng yêu cầu "tiếp tục F3". Giữ quyền/ưu tiên local không GitHub từ lượt trước; không mở test F4 hoặc đổi model/nghiệp vụ/đường tồn/nhập. Trước sửa giữ backup6MD/diff và1.406protected/239tracked ngoàiMD, gồm toàn bộ F1/F2. Chỉ thêm adapter native/verifier báo cáo/tests và cập nhật6MD; không sửa code/protocol F1/F2 hoặc app/default.
+
+88targeted=16F3 mới+72F1/F2/audit đạt trước native; help/pipcheck/diff check đạt, code và định nghĩa báo cáo khóa trước tính tham số. Source gate audit/F1/F2/app pins; chỉ validation,15origin hiệu chỉnh đúng cutoff và tham số cố định trước đủ13ID. Giữ event cohort486, receipts trước quyết định mới, scoreboard/censor nguyên; kiểm forecast/route/item/horizon/cumulative và null/coverage, đồng thời báoFP/tần suất/common-date-pairs. Verifier scalar độc lập kiểm lại cả CSV/HTML; selection giữ chưa chấp nhận trước receipt. Không grid/tuning theo test cũ hoặc tự đặt mức FP được chấp nhận.
+
+Run `forecast-validation-v1-da6db434-8afa-40ac-a8ad-f5830924a44a` hoàn tất native vàverifier13/13,71artifact. Khóa S25:228/486=46,9136% so151/486;precision60,6383% so76,2585%,FP1.369 so382,alarms6.947 so3.606. Net+77early (68late/9no-alarm cũ), không mất early.4ứng viên đạt mục tiêu nhưng S25precision cao nhất, đúng quy tắc trước chạy; không chọn R90 dù80,2469%early vìFP10.511/precision31,3410%. Đây là stress×1,25, không gọi forecast điểm chính xác hơn: item WAPE143,8460%→156,5747%. Không đổi model, nghĩa vụ nghiệm thu hoặc tự chốt mức FP chấp nhận được.
+
+[Hash/bảng13/bảo toàn](development.md#handoff-chg075-f3):manifest`f53a99ad5e38929af10e5203a2110f38ad353ca0d68e19247bbce0d25c9fcf51`,receipt`a5bf676a77f03d0b566bb657791917df373173268a49ac53578f8b84b69799fd`;1.406protected/239tracked ngoàiMD/F1/F2/app nguyên,3file F3 khớp lock trước native.88targeted đạt, native/verifier lần đầu đạt; không DB/refit/app/default/commit/push/CI, không sửa sealed artifact. F3 hoàn tất local, R07/T14 chưa nghiệm thu.
+
+**Yêu cầu tiếp trong lúc bàn giao:** người dùng giao làm F4 ngay sau F3. Chỉ được chạy C00+S25 đã khóa, giữparameter/protocol/hệ số, không chọn lại hoặc sửa grid/tiêu chí theo test. Tại checkpoint F3 chưa chạy F4; kết quả cảhai split vẫn hồi cứu và model gốc test-selected, không holdout độc lập.
+
+**Hiện hành CHG-075 F2 — 27/10/2026, hoàn tất local:** [nguồn/quyết định F2](#chg075-f2), [triển khai/kiểm](../M3/docs/research.md#forecast-postprocessing-f2), [bàn giao](development.md#handoff-chg075-f2).72targeted đạt, chỉ synthetic; chưa tính tham số/chạy ứng viên thật, F3–F4 chưa bắt đầu. F1/app/model/default nguyên, không DB/refit/commit/push/CI; chưa có kết quả mới đạt45%, R07/T14 chưa nghiệm thu. Các mục F1 dưới đây là checkpoint trước F2.
+
+<a id="chg075-f2"></a>
+### CHG-075 F2 — 27/10/2026, protocol/hậu xử lý/verifier và synthetic
+
+Nguồn trực tiếp: người dùng giao "tiếp tục triển khai F2" sau F1. Tiếp tục local, không GitHub theo quyền/ưu tiên lượt trước; giữ nhánh audit/HEAD`ce738c4`, không commit/push/CI. Trước sửa backup6MD/diff chưa commit và pin F1 code/artifact, không làm mất nội dung hoặc đổi bằng chứng trước.
+
+Thêm protocol13ID, hậu xử lý thuần/evaluator trong bộ nhớ, verifier scalar độc lập và40test mới; cập nhật6MD. Không sửa code app/M2/model/default hoặc checker/test F1, không nạp env DB/refit/chạy ứng viên thật. Khóa cutoff/effective/window/fallback/quantile/selection và source pins trước F3; protocol canonical SHA256 `a4259ef7fbd1cfc7d484efdf757102a40298fca7a84c3f7a7d91ac3d18ff2410`. Giữ13ID, không ghép tổ hợp/mở grid, metric mask forecast đã ghi trước dữ liệu thật; stress/risk không được gọi là accuracy điểm hoặc xác suất cạn đã hiệu chỉnh.
+
+72targeted=40F2+32F1/audit đạt/0fail/error/skip, help/protocol check/pipcheck đạt. Kiểm độc lập đủ13ID, tham số/forecast/path/cases/metric; causal prefix/first_seen/missing/bool/zero/fallback/conservation; thiếu nhãn trưởng thành không điền0; reseal tham số/đổi forecast/path/numerator/order đều bị chặn. Verifier phải nhận calibration_inputs riêng, không fit từ snapshot test thiếu warmup; có ca kỳ sau synthetic cho yêu cầu này. Fixture lỗi effective_from ở lượt đầu được sửa metadata, XML35đạt/29lỗi setup giữ riêng; sau32F2 cơ sở/71mở rộng/72cuối đều lưu riêng, không tune bằng dữ liệu thật.
+
+Evidence/checkpoint mới `outputs/research/forecast-postprocessing-f2-checkpoint`, code-lock cuối SHA`deb5dcec7417a2134a6d58695d96bc50fe41156d34683666fa122030d668c934`;1.377protected/239tracked ngoàiMD/F1/app giữ hash. Không truy cập DB nên không nhận kiểm lại14bảng; không có tham số/thử nghiệm native thật. [Sản phẩm/lệnh/hash/giới hạn](development.md#handoff-chg075-f2).
+
+F2 hoàn tất local, chưa commit/push hoặc nâng R07/T14; F3–F4 chưa bắt đầu. F3 khi được giao mới nối reader/writer native/báo cáo và chạy đủ13validation với tham số warmup đã khóa; cần đủ219/486 và quy tắc precision→ít item-ngày→ID trước khi khóa tối đa1đại diện. Không có thì dừng trước test; chưa tự đặt mức FP, thay tiêu chí hay cam kết45%. Giữ test hồi cứu/model test-selected và kết quả F1 cũ, không gọi synthetic là kết quả dự báo mới.
+
+Kiểm tài liệu/phạm vi cuối F2 đạt31link nội bộ mới/7dòng bảng/fence/anchor/diff check; chỉ4file F2 mới+6MD, giữ2file F1 chưa tracked nguyên. Hash1.377protected/239tracked ngoàiMD và4file code-lock khớp sau cập nhật; HEAD/nhánh nguyên, không commit/push hoặc CI. Chi tiết trong docs-check.json của checkpoint F2 và bàn giao trên.
+
+**Hiện hành CHG-075 F1 — 27/10/2026, hoàn tất local:** [phạm vi/bằng chứng F1](#chg075-f1), [kết quả](../M3/docs/research.md#forecast-identity-f1), [bàn giao](development.md#handoff-chg075-f1). Chỉ checker identity, không có ứng viên hoặc kết quả mới đạt45%; F2–F4 chưa bắt đầu, R07/T14 chưa nghiệm thu. Theo yêu cầu mới không commit/push GitHub; các cổng GitHub/test cũ bên dưới giữ lịch sử.
+
+<a id="chg075-f1"></a>
+### CHG-075 F1 — 27/10/2026, kiểm đầu vào/identity và dừng local
+
+Nguồn trực tiếp: người dùng giao "tiến hành F1" và "không cần đẩy lên GitHub". Quyền lượt này chỉ F1 input/identity, không mở rộng sang F2–F4 hoặc ứng viên. Giữ nhánh audit/HEAD`ce738c4`, không commit/push/merge/deploy hoặc CI mới; không áp cổng GitHub lịch sử như điều kiện bắt buộc phải làm trong lượt này. Sáu MD chưa commit từ lượt trước được backup nguyên byte/diff trước F1, sau đó chỉ cập nhật tiến độ/bằng chứng.
+
+Thêm checker nghiên cứu/tests, không sửa app/model/config/default/protocol cũ/DB/API/schema/FE/requirements/AGENTS. Pin manifest/receipt audit và parent, kiểm coverage920item×93origin×H14, lịch sử actual đầy đủ; chỉ chiếu forecast gốc trên closing/receipts trước quyết định mới từ đường frozen, không policy replay/sinh đơn mới. Kiểm full path scalar độc lập và verifier audit cũ về vật lý/event-first, đối chiếu cảnh báo/cases/metric với bundle. Full path không tồn tại trong artifact cũ nên so path app với scalar reference rồi so ngày cạn/cases/metric đã lưu, không nhận so byte với path lịch sử.
+
+32targeted=15F1 mới+17audit cũ đạt/0skip, help/pipcheck đạt; XML lần đầu29đạt/2lỗi temp sandbox giữ riêng, chạy basetemp trong workspace31đạt, rồi thêm ca lượng lẻ chốt32đạt trước native. Code-lock lập trước native; không đổi mã sau kết quả. Native một lượt thành công: mỗi split85.560path/1.197.840bước; validation151/486 và test193/578 cùng toàn bộ metric khớp. Không có cải thiện early hoặc kết quả mới đạt45%; trần449/486 và524/578 vẫn chỉ hậu kiểm.
+
+Output local `forecast-identity-f1-00bc3bcc-7c2b-4f6f-a7ee-aef68ecc13b5`:7artifact sealed+manifest; SHA manifest`06d3078e9a221fbf7e15df9a2b4da0b5bf26a8ce1414ed049d010ca584fb90e8`. Kiểm sau native:hash output/path rows đạt,52file audit/parent,1.346file protected và239tracked ngoàiMD nguyên, apphash giữ nguyên;6MD nguyên byte trước đổi trạng thái F1. Không truy cập/ghi DB hoặc kiểm lại14bảng; không đọc raw như audit nguồn mới. [Chi tiết và đường bằng chứng](development.md#handoff-chg075-f1).
+
+F1 hoàn tất local; F2–F4 chưa bắt đầu, chưa có protocol ứng viên/refit/tuning hoặc thay mặc định. Bước tiếp khi được giao là F2 triển khai đã khóa và kiểm synthetic; không tự mở ma trận/chọn theo test. Giữ R07/T14 chưa nghiệm thu, test hồi cứu và lịch sử model test-selected; không tự đặt mức FP chấp nhận hoặc cam kết45%.
+
+Kiểm tài liệu F1 đạt34link nội bộ mới/5dòng bảng/fence/anchor cũ và diff check; phạm vi đúng6MD kế hoạch+2file checker/test mới, không có config/protocol/private output trong thay đổi Git. Tệp/hash protected và HEAD/nhánh nguyên; dừng local, không commit/push. Xem docs-check.json trong checkpoint và bàn giao trên.
+
+<a id="chg075-forecast-postprocessing-docs"></a>
+### CHG-075 — 27/10/2026, kế hoạch hậu xử lý forecast đã khóa, chỉ Markdown
+
+Nguồn: yêu cầu người dùng trong tệp đính kèm, lựa chọn khóa tham số sau warmup trong phiên lập kế hoạch và yêu cầu thực hiện bản kế hoạch đã duyệt. Lượt hiện tại chỉ tạo nội dung vào sáu MD sẵn có, không triển khai các mốc kỹ thuật. Checkout sạch từ`ce738c4`/`codex/early-warning-opportunity-audit`; không thay nhánh/refs, commit/push, merge hoặc deploy, không mở rộng quyền nhánh ứng dụng.
+
+Mở rộng kế hoạch chỉ thử bốn alpha thành13ID: đối chứng1, stress3, bias3, phân bổ item2/ngày2, risk2; không ghép tổ hợp. Khóa tham số bias/nhu cầu/scale/quantile từ15origin30/06–14/07 có đủ nhãn H14 đến28/07, áp từ29/07 và giữ qua test. Phân bổ đọc lịch sử14/28ngày đến origin theo công thức cố định. Giữ model gốc/raw/target/split/SS/ROP/nhập và cơ chế cảnh báo/chấm H14/L7/event-once; ứng viên sau này chỉ đi vào projection trên đường tồn/đơn/receipts/event frozen. Chưa có mức FP/tần suất được chấp nhận và không tự đặt.
+
+Bằng chứng đọc/đối chiếu trực tiếp trong phiên: code allocation/projection và runner/verifier audit; 8artifact sealed khớp manifest, manifest/receipt đúng hash đã công bố; manifest/receipt/input cả hai parent khớp pin. Cases/opportunities xác nhận test193early/276late/109no-alarm,331event còn cơ hội/2.508ngày; validation151/233/102. Trần524/578 và449/486 là hậu kiểm, không kết quả forecast mới; không đưa cờ/ngày cơ hội vào dự báo. Không tái chạy audit, fit hoặc kiểm nguồn DB/CSV mới. [Nguồn/hash và giới hạn](../M3/docs/research.md#forecast-postprocessing-v1).
+
+Sản phẩm: PLAN giữ mốc P/F1–F4, research giữ thiết kế/công thức/ma trận/metric/lựa chọn, TASK giữ trạng thái và bước kế, PROJECTMAP chỉ liên kết, development giữ cách kiểm/bảo toàn/bàn giao, mục này giữ nguồn quyết định. Không sửa requirements/AGENTS hoặc tạo hệ task mới. Đánh dấu hướng alpha cũ là kế hoạch trước đó, giữ nguyên anchor và kết quả audit.
+
+Chọn tối đa1đại diện bằng validation đạt219/486 và đủ coverage/bảo toàn, precision→ít item-ngày alarm→ID; nếu không có thì ghi chưa đạt và dừng trước test. Test chỉ C00+đại diện đã khóa, cần261/578, không mở grid/chọn lại theo test. Test đã xem, validation đã dùng và model gốc có lịch sử test-selected: không gọi holdout độc lập, không cam kết đạt45% hoặc nâng nghiệm thu R07/T14.
+
+Kiểm local đạt:29link nội bộ mới/84dòng bảng/fence/anchor cũ, diff chỉ6MD,239hash tracked ngoài MD nguyên,8artifact audit cùng manifest/receipt vẫn đúng hash. Chi tiết/phạm vi tại [bàn giao lượt này](development.md#handoff-chg075-forecast-postprocessing); không lấy262Python/17test hoặc CI audit cũ làm kiểm mới. Mốc P hoàn tất local, chưa commit/push; F1–F4 chưa bắt đầu. Bước đầu khi được giao là kiểm input/identity; nhánh nghiên cứu đề xuất sau này `codex/forecast-postprocessing-study`, chưa tạo hoặc chạy trong lượt MD.
+
 **CHG-048/E76 — 19/10/2026:** đã nhận yêu cầu chỉ tạo/sửa Markdown thiết kế M3 và commit/push nhánh riêng. [Bộ đặc tả](../M3/README.md) giữ nguồn thuật lại, phân biệt thực tế/dự kiến, không nhận đã chạy BE/FE/DB/ML mới. Chi tiết và bằng chứng ở [E76](#e76).
 
 **CHG-038/E66 — 11/10/2026:** thử nghiệm lịch local hoàn tất,10 ứng viên không thắng đối chứng LG U+ trên validation; không chấm test mới. [Protocol/CSV/bảng kết quả](calendar-experiment.md); chi tiết bằng chứng ở mục CHG-038/E66 cuối nhật ký. R05/R07/T14 giữ mở.
