@@ -11,6 +11,10 @@ Người dùng giao đẩy phần49% cho nhóm kéo, chưa tích hợp BE/FE ho�
 
 **Đóng gói:** `.gitattributes` tắt tự đổi newline chỉ cho các file nghiên cứu/tests/protocol mới, giữ đúng byte source đã khóa, gồm verifier F3 có CRLF. Không sửa các file đó hoặc app code; đối soát cả bytes trong index với working tree trước commit. Kiểm bảo toàn mới703file và app hash giữ nguyên; đối chiếu hash manifest/16artifact F4 có sẵn, không nhận vừa chạy lại verifier native.
 
+**Cổng công bố mã hoàn tất:** commit `1c0c63ca9f1e60c6961e96101305bc3b10ddc9c5` đã push thường lên `codex/early-warning-opportunity-audit`, remoteSHA=HEAD tại mốc mã. [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40655829465) và [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40655829637) đều completed/success; bốn job test/backend/frontend/m2-regression đạt. Gói22file, không private data;17link-anchor hướng dẫn/7Markdown fence và14file source bytes/syntax đạt. App SHA vẫn `2a02ba9e9069e83c25e0588da0b19c228ffbb550662b85644d6abcf872992dda`; ref remote `m3-implementation` vẫn `86a0162970bf45e4129ae61e14fe29185e7f32ed`. Bằng chứng `before.json`, `local-verification.json`, `docs-and-git-bytes.json`, `ci-code.jsonl` trong checkpoint công bố. Commit sau mốc mã chỉ cập nhật bàn giao Markdown; xác nhận SHA/CI của commit đó riêng khi kết thúc.
+
+**Bước tiếp theo:** nhóm đọc hướng dẫn và chạy synthetic để rà mã/đánh đổi; chưa cần native hoặc tích hợp. Chỉ thử thay phương án chính, xây đường chuyển bundle hoặc chốt mức FP khi được giao riêng. Không thay lựa chọn S25 sau test và không tự đóng R07/T14.
+
 **Hiện hành CHG-075 — 27/10/2026, hoàn tất phân tích tải cảnh báo local:** [bàn giao](#handoff-chg075-alarm-burden), [kết quả và cách hiểu](../M3/docs/research.md#forecast-alarm-burden). 35 targeted và kiểm riêng từng nhãn/tổng bảng/chuỗi đạt; 1.644 protected/239 tracked ngoài MD/F1–F4/app nguyên. Chưa dùng S25 thay phương án chính `m3-implementation`, không DB/refit/GitHub; R07/T14 chưa nghiệm thu. Các checkpoint F1–F4 bên dưới giữ lịch sử.
 
 <a id="handoff-chg075-alarm-burden"></a>

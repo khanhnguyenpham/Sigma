@@ -2,6 +2,8 @@
 
 Điểm bắt đầu cho nhóm trên nhánh `codex/early-warning-opportunity-audit`. Ngày 28/10/2026, người dùng cho phép đẩy riêng mã/protocol/tests/tài liệu nghiên cứu để nhóm kéo về. Quyền mới thay phạm vi chỉ local của các checkpoint F1–F4; chưa lựa chọn S25 thay phương án chính `m3-implementation`, chưa tích hợp BE/FE, merge hoặc deploy.
 
+**Mã đã công bố:** commit [`1c0c63c`](https://github.com/khanhnguyenpham/Sigma/commit/1c0c63ca9f1e60c6961e96101305bc3b10ddc9c5) đã push, remote SHA khớp; cả [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40655829465) và [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40655829637) completed/success, đủ bốn job test/backend/frontend/m2-regression. Commit bàn giao sau mốc mã chỉ cập nhật Markdown. Phương án chính giữ nguyên.
+
 ## Kết quả và đánh đổi
 
 S25 dùng `f' = 1,25 × f` cho đường cảnh báo H14. Mô hình gốc, tồn đầu, ledger, đơn nhập, receipts và episode của policy cơ sở giữ nguyên. Không đưa forecast stress trở lại tính Q hoặc sinh đơn nhập mới.

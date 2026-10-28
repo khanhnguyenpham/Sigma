@@ -7,6 +7,8 @@ Nguồn trực tiếp: người dùng yêu cầu đẩy phần49% và “chưa c
 
 Gói gồm checker F1, protocol/hậu xử lý/verifier F2, runner/verifier F3/F4, phân tích tải và tests; sáu MD giữ lịch sử, thêm [hướng dẫn nhóm](../M3/docs/49-warning-study.md).115targeted synthetic mới đạt; [bàn giao](development.md#handoff-chg075-publish49) ghi cổng Git/SHA/CI và bảo toàn. Không công bố raw/run/DB/env/Word/ảnh. Clone đọc mã và chạy synthetic; native49% cần bundle frozen và lineage/path đã pin, không hứa chỉ pull là tái lập số thật. R07/T14 chưa nghiệm thu.
 
+**Bằng chứng công bố mã:** `1c0c63ca9f1e60c6961e96101305bc3b10ddc9c5` push thường nhánh audit, remoteSHA khớp; [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40655829465) và [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40655829637) completed/success, đủ4job đạt.115tests mới/help/protocol/pip/17link-anchor/703protectedhash đạt;14file nghiên cứu/tests/config mới trong Git khớp byte working tree nhờ `.gitattributes` phạm vi hẹp. Nhánh `m3-implementation` remote vẫn `86a0162970bf45e4129ae61e14fe29185e7f32ed`; không đưa private data hoặc tích hợp ứng dụng. Bằng chứng local tại `outputs/research/publish49-checkpoint`.
+
 **Hiện hành CHG-075 — 27/10/2026, phân tích tải cảnh báo hoàn tất local:** [nguồn/quyết định](#chg075-alarm-burden), [kết quả](../M3/docs/research.md#forecast-alarm-burden), [bàn giao](development.md#handoff-chg075-alarm-burden). 35 targeted/kiểm từng nhãn và bảng/bảo toàn đạt. Chưa dùng S25 thay phương án chính `m3-implementation`; không DB/refit/GitHub, R07/T14 chưa nghiệm thu. Các checkpoint dưới đây giữ lịch sử.
 
 <a id="chg075-alarm-burden"></a>
