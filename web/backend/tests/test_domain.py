@@ -170,7 +170,7 @@ def test_dto_rejects_source_path_and_mutable_lead_time():
             supplier_id=1,
             effective_from=D,
             configured_rop_floor=100,
-            moq=50,
+            fixed_order_qty=50,
             safety_days=2,
             expected_version=0,
             lead_time_days=3,
@@ -181,7 +181,7 @@ def test_dto_rejects_source_path_and_mutable_lead_time():
             supplier_id=1,
             effective_from=D,
             configured_rop_floor=True,
-            moq=50,
+            fixed_order_qty=50,
             safety_days=2,
             expected_version=0,
         )
@@ -196,7 +196,7 @@ def test_arithmetic_overflow_does_not_produce_a_false_zero_recommendation():
             supplier_id=1,
             effective_from=D,
             configured_rop_floor=2**64,
-            moq=50,
+            fixed_order_qty=50,
             safety_days=2,
             expected_version=0,
         )

@@ -204,6 +204,7 @@ def pure_window(
                 safety_lookback_days=p.get("safety_lookback_days", 28),
                 safety_factor=p.get("safety_factor", 1.0),
                 safety_multiplier=scenario["safety_multiplier"],
+                fixed_order_qty=p.get("fixed_order_qty"),
             )
             pending = sum(
                 o["ordered_qty"]

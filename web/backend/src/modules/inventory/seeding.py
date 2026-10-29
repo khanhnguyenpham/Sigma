@@ -72,7 +72,7 @@ def seed_simulation(session, source_run_id, origin):
         )
         if existing:
             if (
-                existing.assumption_source != "synthetic_seed_v1"
+                existing.assumption_source not in {"synthetic_seed_v1", "synthetic_fixed_lot_seed_v1"}
                 or existing.effective_from != origin
                 or existing.supplier_id != supplier
                 or existing.configured_rop_floor != floor
@@ -91,12 +91,12 @@ def seed_simulation(session, source_run_id, origin):
             supplier_id=supplier,
             effective_from=origin,
             configured_rop_floor=floor,
-            moq=5 if item.product_type == "eSIM" else 10,
+            fixed_order_qty=5 if item.product_type == "eSIM" else 10,
             safety_days=safety,
             expected_version=0,
         )
         policy = create_policy(session, request)
-        policy.assumption_source = "synthetic_seed_v1"
+        policy.assumption_source = "synthetic_fixed_lot_seed_v1"
         created += 1
     for code, name, cover, multiplier in [
         ("base", "Cơ sở", 7, 1),

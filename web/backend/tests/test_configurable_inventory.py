@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, select, update, text
 
 from core.errors import DomainError
 from core.hashes import digest
@@ -203,7 +203,7 @@ def worker_fixture(sessions, tmp_path):
 
 def enqueue_fixture(c, source, forecast, item, safety, rop, kind, lookback=7):
     policy = request(item, 1).model_dump(mode="json")
-    policy.update(configured_rop_floor=10, moq=5)
+    policy.update(configured_rop_floor=10, fixed_order_qty=5)
     assert c.post("/api/v1/supplier-item-policies", json=policy).status_code == 201
     scenario = dict(name="Synthetic calculation", code="calculation", settings=dict(
         cover_days=7, safety_multiplier=1.5, receipts_declared=True,
@@ -244,6 +244,12 @@ def test_worker_verifies_all_modes_and_replay_kinds(pg, tmp_path, safety, rop, k
         assert manifest["status"] == "verified"
         rows = c.get(f"/api/v1/runs/{key}/inventory").json()["items"]
         first = rows[0]
+        assert first["fixed_order_qty"] == 5 and first["moq"] is None
+        with sessions() as s:
+            snapshot_policy = s.get(Run, key).config_snapshot["policies"][0]
+            assert snapshot_policy["fixed_order_qty"] == 5 and snapshot_policy["moq"] is None
+            orders = s.execute(text("SELECT ordered_qty FROM replenishment_orders WHERE run_id=:key AND NOT is_initial"), {"key":key}).scalars().all()
+            assert all(q == 5 for q in orders)
         expected_ss = 12 if safety == "days" else 16
         assert (first["ss"], first["rop_forecast"], first["rop"]) == (
             expected_ss, 14 + expected_ss, 10 if rop == "fixed" else 14 + expected_ss)
@@ -251,7 +257,18 @@ def test_worker_verifies_all_modes_and_replay_kinds(pg, tmp_path, safety, rop, k
         exported = c.get(f"/api/v1/runs/{key}/exports/inventory_daily")
         assert exported.status_code == 200
         csv_first = next(csv.DictReader(io.StringIO(exported.text.lstrip("\ufeff"))))
+        assert int(csv_first["fixed_order_qty"]) == 5
         assert int(csv_first["ss"]) == expected_ss and int(csv_first["rop"]) == first["rop"]
+        if (safety, rop, kind) == ("days", "forecast", "policy_replay"):
+            with sessions.begin() as s:
+                changed = s.scalar(select(InventoryDaily).where(InventoryDaily.run_id == key, InventoryDaily.recommended_qty > 0).order_by(InventoryDaily.date))
+                assert changed is not None
+                changed_id, original_qty = changed.id, changed.recommended_qty
+                changed.recommended_qty += 1
+            with pytest.raises(DomainError, match="thresholds differ"):
+                verify_run(cfg, sessions, key)
+            with sessions.begin() as s:
+                s.get(InventoryDaily, changed_id).recommended_qty = original_qty
         if (safety, rop, kind) == ("volatility", "fixed", "policy_replay"):
             with sessions.begin() as s:
                 record = s.scalar(select(InventoryDaily).where(InventoryDaily.run_id == key, InventoryDaily.date == D))

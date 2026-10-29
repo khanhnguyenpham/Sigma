@@ -433,7 +433,11 @@ def verify_inventory(s, run, settings):
             target = rop + math.ceil(float(f[7]))
             ip = r.closing_qty + int(pending)
             raw = max(0, target - ip) if r.closing_qty < rop else 0
-            q = max(math.ceil(raw), p["moq"]) if raw else 0
+            q = (
+                p["fixed_order_qty"]
+                if p.get("fixed_order_qty") is not None
+                else max(math.ceil(raw), p["moq"])
+            ) if raw else 0
             if (
                 r.ss,
                 r.rop_forecast,
