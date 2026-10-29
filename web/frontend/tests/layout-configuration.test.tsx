@@ -167,7 +167,7 @@ it("retains policy values after 409 and saves the same native fields on explicit
   fireEvent.change(dialog.getByLabelText("Ngưỡng nhập tối thiểu (ROP floor)"), {
     target: { value: "42" },
   });
-  fireEvent.change(dialog.getByLabelText("MOQ"), { target: { value: "9" } });
+  fireEvent.change(dialog.getByLabelText("Lượng nhập mỗi lần"), { target: { value: "9" } });
   fireEvent.change(dialog.getByLabelText("Số ngày tồn an toàn"), {
     target: { value: "1.5" },
   });
@@ -179,7 +179,7 @@ it("retains policy values after 409 and saves the same native fields on explicit
     expect(dialog.getByRole("alert")).toHaveTextContent("Cấu hình đã thay đổi"),
   );
   expect(changed).not.toHaveBeenCalled();
-  expect(dialog.getByLabelText("MOQ")).toHaveValue(9);
+  expect(dialog.getByLabelText("Lượng nhập mỗi lần")).toHaveValue(9);
   fireEvent.submit(form);
   await waitFor(() => expect(changed).toHaveBeenCalledTimes(1));
   expect(bodies).toEqual(
@@ -188,7 +188,7 @@ it("retains policy values after 409 and saves the same native fields on explicit
       supplier_id: 1,
       effective_from: "2026-01-01",
       configured_rop_floor: 42,
-      moq: 9,
+      fixed_order_qty: 9,
       safety_days: 1.5,
       safety_mode: "days",
       safety_lookback_days: 28,
@@ -240,7 +240,8 @@ it("keeps batched override field edits in the scenario payload", async () => {
       group.getByLabelText("Ngưỡng nhập tối thiểu (ROP floor)"),
       { target: { value: "43" } },
     );
-    fireEvent.change(group.getByLabelText("MOQ"), { target: { value: "11" } });
+    expect(group.queryByLabelText("Lượng nhập mỗi lần")).toBeNull();
+    expect(group.queryByLabelText("MOQ")).toBeNull();
     fireEvent.change(group.getByLabelText("Số ngày tồn an toàn"), {
       target: { value: "1.25" },
     });
@@ -250,7 +251,7 @@ it("keeps batched override field edits in the scenario payload", async () => {
   );
   await waitFor(() => expect(body).toBeDefined());
   expect(body?.settings.policy_overrides).toEqual([
-    { item_id: 341, configured_rop_floor: 43, moq: 11, safety_days: 1.25, safety_mode: "days" },
+    { item_id: 341, configured_rop_floor: 43, safety_days: 1.25, safety_mode: "days" },
   ]);
   expect(body?.settings.receipts_initial).toEqual([]);
   expect(body?.settings.receipts_declared).toBe(true);
@@ -265,6 +266,7 @@ async function newPolicy() {
   fireEvent.change(dialog.getByLabelText("Kho để chọn mặt hàng"), { target: { value: "18" } });
   await dialog.findByRole("option", { name: "SYNTHETIC-SKU · eSIM" });
   fireEvent.change(dialog.getByLabelText("Mặt hàng"), { target: { value: "341" } });
+  fireEvent.change(dialog.getByLabelText("Lượng nhập mỗi lần"), { target: { value: "17" } });
   return dialog;
 }
 
@@ -320,6 +322,9 @@ it("opens a historical policy with its exact modes and version and retains them 
   expect(dialog.getByLabelText("Hệ số biến động")).toHaveValue(2.5);
   expect(dialog.getByLabelText("Cách tính ngưỡng nhập (ROP)")).toHaveValue("fixed");
   expect(dialog.getByLabelText("Số ngày nhìn trước cảnh báo xuống ROP")).toHaveValue(1);
+  expect(dialog.getByLabelText("Lượng nhập mỗi lần")).toHaveValue(null);
+  expect(dialog.getByText(/không lấy MOQ cũ/)).toBeVisible();
+  fireEvent.change(dialog.getByLabelText("Lượng nhập mỗi lần"), { target: { value: "30" } });
   fireEvent.change(dialog.getByLabelText("Hiệu lực từ"), { target: { value: "2026-02-01" } });
   const form = dialog.getByRole("button", { name: "Lưu phiên bản mới" }).closest("form")!;
   fireEvent.submit(form);
@@ -332,6 +337,9 @@ it("opens a historical policy with its exact modes and version and retains them 
 });
 
 it.each([
+  ["Lượng nhập mỗi lần", ""],
+  ["Lượng nhập mỗi lần", "0"],
+  ["Lượng nhập mỗi lần", "1.5"],
   ["Số ngày nhìn trước cảnh báo xuống ROP", "0"],
   ["Số ngày nhìn trước cảnh báo xuống ROP", "15"],
   ["Số ngày nhìn trước cảnh báo xuống ROP", "1.5"],
