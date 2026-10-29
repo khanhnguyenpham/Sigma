@@ -1,5 +1,18 @@
 # SIGMA — React / FastAPI local
 
+## Cập nhật lượng nhập mỗi lần ngày 29 tháng 10
+
+Ứng dụng mới dùng một lượng nhập cố định theo mặt hàng thay công thức lượng biến đổi theo MOQ. Cấu hình “Lượng nhập mỗi lần” trong policy hiện có; kịch bản không thay lượng này. Khi cần bổ sung Q bằng đúng lượng cấu hình, ETA7ngày; nếu hàng đang về đã đủ mức S thì Q=0. Không có module quản lý hợp đồng mới.
+
+Máy thành viên sau khi kéo mã phải nâng schema trước khi chạy API:
+
+```powershell
+. web/backend/scripts/load_env.ps1
+.venv-m3/Scripts/python.exe -B -m alembic -c web/backend/alembic.ini upgrade head
+```
+
+Policy/run lịch sử vẫn giữ MOQ. Cần cấu hình lượng mỗi lần cho policy dùng bởi run mới; không tự chuyển MOQ thành số hợp đồng. Kết quả33%/49% nghiên cứu trước đó thuộc policy cũ, chưa chứng minh hiệu quả policy mới. Không refit hoặc tích hợp S25 trong thay đổi này.
+
 **CHG-068 bước 15 — 27/10/2026, hoàn tất:** đã chạy hai replay thật mới với cấu hình cơ sở khóa trước kết quả; worker và verifier độc lập đạt. Policy fill 90,4121%, thiếu 1.531/15.968; depletion báo sớm 986/2.867 = **34,391350%, chưa đạt mục tiêu làm việc 45%**. Metric xuống ROP giữ riêng (TP101/FP89/FN0/TN619). 245 Python, 50 React, build/pip check, API/CSV/browser đạt; 1.038 hash protected, 140 artifact sealed và hàng cũ của 13 bảng nghiệp vụ + Alembic nguyên. Schema 0003_threshold/0diff; chỉ thêm hai run local, không refit/tuning. R07/T14 chưa nghiệm thu. Commit `2658b8116accbed4354fdc18b55d7ed52f436f7c` đã push thường, remoteSHA khớp và2workflowCI completed/success. [Bằng chứng và cách kiểm lại](docs/development.md#handoff-chg068-step15). Các checkpoint bên dưới giữ vai trò lịch sử.
 
 **CHG-068 bước14 — 26/10/2026, hoàn tất:** sau cổng13 mã73d6f39/remoteSHA/2CI success, người dùng giao14. React hiển thị ROP/SS/mode/N, ngày xuống ROP riêng ngày cạn, lý do/đường projection/bảng UTC; filter/export và metric threshold riêng depletion. Workspace thêm warning_items/projected_below_rop_items đếm item duy nhất; inventory API/CSV đọc5tham số từ policy frozen, công thức fixed hiển thị đúng.245Python (3ca mới),50React (7ca mới,1worker)/build/pipcheck và browser desktop/mobile390px trên2run synthetic đạt;1027protectedhash và3app run nguyên, schema0003_threshold giữ. Commit mã37c4525b90cb361d8eeabc23c46cfc82fb39f8dc đã push thường, remoteSHA khớp và2workflowCI completed/success; bước15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật mới chứng minh45%.

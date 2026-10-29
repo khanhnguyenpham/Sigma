@@ -32,18 +32,21 @@ def vector14(forecast):
 @dataclass(frozen=True)
 class PolicyValues:
     configured_rop_floor: int
-    moq: int
+    moq: int | None
     safety_days: float
     safety_mode: str = "days"
     rop_mode: str = "forecast"
     safety_lookback_days: int = 28
     safety_factor: float = 1.0
     safety_multiplier: float = 1.0
+    fixed_order_qty: int | None = None
 
     def __post_init__(self):
         quantity(self.configured_rop_floor)
+        order_qty = self.moq if self.fixed_order_qty is None else self.fixed_order_qty
         if (
-            quantity(self.moq) < 1
+            quantity(order_qty) < 1
+            or (self.fixed_order_qty is not None and self.moq is not None)
             or self.safety_mode not in ("days", "volatility")
             or self.rop_mode not in ("fixed", "forecast")
         ):
@@ -133,7 +136,11 @@ def recommend(forecast, closing, pending, policy, history=None):
     ip = closing + pending
     trigger = closing < rop
     raw = max(0, target - ip) if trigger else 0
-    q = max(math.ceil(raw), policy.moq) if raw > 0 else 0
+    q = (
+        policy.fixed_order_qty
+        if policy.fixed_order_qty is not None
+        else max(math.ceil(raw), policy.moq)
+    ) if raw > 0 else 0
     if max(ss, rop_forecast, rop, target, ip, q) > 2**63 - 1:
         raise DomainError(
             "numeric_overflow", "Inventory decision exceeds bigint capacity"

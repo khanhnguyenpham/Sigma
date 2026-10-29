@@ -56,10 +56,11 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
             Tồn hiện có cộng hàng đã đặt, dùng tính lượng cần đặt. IP đủ có thể
             làm lượng đề xuất bằng 0 dù tồn dưới ngưỡng.
           </dd>
-          <dt>Lượng đặt tối thiểu (MOQ)</dt>
+          <dt>Lượng nhập mỗi lần</dt>
           <dd>
-            Chỉ áp dụng khi thực sự cần đặt. Ngày nhận dự kiến bằng ngày đặt
-            cộng 7 ngày.
+            Khi cần bổ sung, mỗi lô dùng đúng lượng đã cấu hình cho mặt hàng,
+            không tự tăng theo dự báo. Phương án cũ vẫn giữ cách tính MOQ cũ.
+            Ngày nhận dự kiến bằng ngày đặt cộng 7 ngày.
           </dd>
         </dl>
         <h3>Thử thay đổi</h3>

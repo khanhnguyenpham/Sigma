@@ -51,7 +51,9 @@ export function PurchasingDetails({
             </strong>
             <p>
               Tồn {fmt(focused.closing_qty)} thấp hơn ngưỡng {fmt(focused.rop)}.
-              Lượng đặt đã tính hàng đang về và lượng đặt tối thiểu.
+              {focused.fixed_order_qty != null
+                ? " Mỗi lần dùng đúng lượng đã cấu hình; mức tồn mục tiêu chỉ để tham chiếu."
+                : " Phương án cũ tính lượng theo nhu cầu và MOQ."}
             </p>
           </div>
           <dl className="drawer-fields">
@@ -72,8 +74,8 @@ export function PurchasingDetails({
               <dd>{fmt(focused.target_stock)}</dd>
             </div>
             <div>
-              <dt>Lượng đặt tối thiểu (MOQ)</dt>
-              <dd>{fmt(focused.moq)}</dd>
+              <dt>{focused.fixed_order_qty != null ? "Lượng nhập mỗi lần" : "MOQ của phương án cũ"}</dt>
+              <dd>{fmt(focused.fixed_order_qty ?? focused.moq)}</dd>
             </div>
             <div>
               <dt>Nhận nếu đặt tại mốc</dt>

@@ -62,7 +62,7 @@ def request(item, supplier, version=0, start=D):
         supplier_id=supplier,
         effective_from=start,
         configured_rop_floor=100,
-        moq=50,
+        fixed_order_qty=50,
         safety_days=2,
         expected_version=version,
     )

@@ -1,5 +1,11 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
+## Trường lượng nhập sau CHG 076
+
+Migration0004_fixed_qty thêm supplier_item_policies.fixed_order_qty bigint nullable, cho moq nullable và thêm ck_policy_order_quantity. Policy cũ giữ moq, fixed_order_qty=null; policy fixed có lượng nguyên dương, moq=null. Check buộc đúng một loại, không cập nhật dữ liệu hoặc JSON run cũ. Vẫn13bảng nghiệp vụ, không có bảng hợp đồng hay hệ thống phiên bản mới. Các cột version/effective date của policy đã có được tận dụng nguyên trạng.
+
+Downgrade từ0004 từ chối nếu còn policy fixed thay vì biến lượng cố định thành MOQ hoặc xóa dữ liệu. API tạo policy bắt buộc fixed_order_qty, form ghi “Lượng nhập mỗi lần”. Giá trị không được ghi đè ở scenario. Các mô tả moq bắt buộc và công thức MOQ dưới đây là hợp đồng lịch sử trước CHG076.
+
 **CHG-068 bước12 — 26/10/2026, hoàn tất:** cảnh báo projected_below_rop/threshold_warning với predicted_threshold_date đã qua hàm thuần/simulation/worker, DTO/filter/CSV và verifier độc lập. Giữ ROP tại decision origin, chỉ receipts đã biết trước Q mới, strict < trong N ngày; metric threshold riêng depletion.242Python BE/M2 (28ca mới),34React chạy1worker/build/pipcheck/API-worker smoke đạt;9inventory golden/M2 parity và1024protectedhash nguyên. DB app đã backup/nâng0003_threshold, hash mọi cột cũ13bảng/3run nguyên, schema0diff. Commit mã14b18415014ee2867fac436e6bd7530d74b12188 đã push thường, remoteSHA khớp và2workflowCI completed/success; bước13–15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật chứng minh45%.
 
 <a id="threshold-persistence-step12"></a>

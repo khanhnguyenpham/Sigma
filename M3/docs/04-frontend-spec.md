@@ -1,5 +1,11 @@
 # M3 — đặc tả frontend
 
+## Lượng nhập mỗi lần sau CHG 076
+
+Form policy dùng ô bắt buộc “Lượng nhập mỗi lần”, không điền sẵn bằng MOQ của policy cũ. Bảng policy hiển thị “Cần cấu hình” nếu chưa có lượng này. Scenario không có ô đổi lượng nhập. Khi cần nhập, mỗi lô dùng đúng lượng cấu hình; hệ thống không tự bù Q lên S.
+
+Chi tiết tồn/nhập và Help giải thích lượng fixed, S chỉ tham chiếu. Khi mở run cũ, hiển thị rõ “MOQ của phương án cũ” cùng kết quả cũ, không gán lại ý nghĩa cho dữ liệu lịch sử. Không thêm màn hình quản lý hợp đồng hoặc quy trình phiên bản mới.
+
 **CHG-068 bước14 — 26/10/2026, hoàn tất:** sau cổng13 mã73d6f39/remoteSHA/2CI success, người dùng giao14. React hiển thị ROP/SS/mode/N, ngày xuống ROP riêng ngày cạn, lý do/đường projection/bảng UTC; filter/export và metric threshold riêng depletion. Workspace thêm warning_items/projected_below_rop_items đếm item duy nhất; inventory API/CSV đọc5tham số từ policy frozen, công thức fixed hiển thị đúng.245Python (3ca mới),50React (7ca mới,1worker)/build/pipcheck và browser desktop/mobile390px trên2run synthetic đạt;1027protectedhash và3app run nguyên, schema0003_threshold giữ. Commit mã37c4525b90cb361d8eeabc23c46cfc82fb39f8dc đã push thường, remoteSHA khớp và2workflowCI completed/success; bước15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật mới chứng minh45%.
 
 <a id="warning-presentation-step14"></a>

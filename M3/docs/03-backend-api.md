@@ -1,5 +1,11 @@
 # M3 — backend, API và worker
 
+## Lượng cố định mỗi lần nhập sau CHG 076
+
+POST /api/v1/supplier-item-policies nhận fixed_order_qty nguyên dương thay moq. API và cột DB cũ moq chỉ dùng đọc lịch sử; API mới từ chối MOQ hoặc thiếu lượng fixed. POST /scenarios từ chối override moq/fixed_order_qty. Run mới dùng policy thiếu lượng fixed hoặc scenario cũ có override lượng trả missing_contract_quantity, không đoán lượng hợp đồng.
+
+Inventory/replenishments API và CSV trả fixed_order_qty từ snapshot của run; lịch sử không có giá trị này trả null và giữ moq cũ. Worker và verifier dùng fixed nếu snapshot đã khai báo; snapshot cũ giữ luật MOQ. Không sửa config_sha256/result_summary/manifest cũ.
+
 **CHG-068 bước14 — 26/10/2026, hoàn tất:** sau cổng13 mã73d6f39/remoteSHA/2CI success, người dùng giao14. React hiển thị ROP/SS/mode/N, ngày xuống ROP riêng ngày cạn, lý do/đường projection/bảng UTC; filter/export và metric threshold riêng depletion. Workspace thêm warning_items/projected_below_rop_items đếm item duy nhất; inventory API/CSV đọc5tham số từ policy frozen, công thức fixed hiển thị đúng.245Python (3ca mới),50React (7ca mới,1worker)/build/pipcheck và browser desktop/mobile390px trên2run synthetic đạt;1027protectedhash và3app run nguyên, schema0003_threshold giữ. Commit mã37c4525b90cb361d8eeabc23c46cfc82fb39f8dc đã push thường, remoteSHA khớp và2workflowCI completed/success; bước15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật mới chứng minh45%.
 
 <a id="warning-read-model-step14"></a>

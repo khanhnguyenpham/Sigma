@@ -46,6 +46,15 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
             properties = schema["components"]["schemas"][name]["properties"]
             for field in POLICY_COLUMNS:
                 properties.pop(field)
+        # CHG-076 replaces the new-policy input MOQ with one fixed quantity.
+        # Reconstruct only that historical request field for the old golden.
+        create = schema["components"]["schemas"]["PolicyCreate"]
+        create["properties"]["moq"] = create["properties"].pop("fixed_order_qty")
+        create["properties"]["moq"]["title"] = "Moq"
+        create["required"] = ["moq" if n == "fixed_order_qty" else n for n in create["required"]]
+        schema["components"]["schemas"]["PolicyOverride"]["properties"]["moq"] = {
+            "anyOf": [{"type":"integer", "maximum":float(2**63-1), "minimum":1.0}, {"type":"null"}], "title":"Moq",
+        }
         # Step12 adds only alert_type, threshold metric granularity and the
         # typed alert response. Keep the original API golden unchanged.
         for methods in schema["paths"].values():
@@ -76,7 +85,10 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
                 line for line in ddl.splitlines()
                 if not re.match(r"\s*(?:" + "|".join(POLICY_COLUMNS) + r")\s", line)
                 and not any(f"CONSTRAINT {name} " in line for name in POLICY_CHECKS)
+                and not re.match(r"\s*fixed_order_qty\s", line)
+                and "CONSTRAINT ck_policy_order_quantity " not in line
             )
+            ddl = ddl.replace("moq BIGINT,", "moq BIGINT NOT NULL,")
         if table.name == "alerts":
             ddl = "\n".join(line for line in ddl.splitlines()
                 if not re.match(r"\s*predicted_threshold_date\s", line)

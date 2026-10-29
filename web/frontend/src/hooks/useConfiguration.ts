@@ -81,7 +81,7 @@ export function useConfiguration(onChanged: () => void) {
           supplier_id: Number(form.get("supplier_id")),
           effective_from: String(form.get("effective_from")),
           configured_rop_floor: Number(form.get("configured_rop_floor")),
-          moq: Number(form.get("moq")),
+          fixed_order_qty: Number(form.get("fixed_order_qty")),
           safety_days: Number(form.get("safety_days")),
           safety_mode: String(form.get("safety_mode")),
           safety_lookback_days: Number(form.get("safety_lookback_days")),

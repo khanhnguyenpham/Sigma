@@ -45,7 +45,7 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
             { key: "effective_from", label: "Từ ngày" },
             { key: "effective_to", label: "Đến trước ngày" },
             { key: "configured_rop_floor", label: "Ngưỡng nhập tối thiểu" },
-            { key: "moq", label: "Lượng tối thiểu (MOQ)" },
+            { key: "fixed_order_qty", label: "Lượng nhập mỗi lần", render: (value: unknown) => value == null ? "Cần cấu hình" : String(value) },
             { key: "safety_days", label: "Số ngày tồn an toàn", render: (value: unknown, row: Record<string, unknown>) => row.safety_mode === "volatility" ? "—" : String(value ?? "—") },
             { key: "safety_mode", label: "Cách tính SS", render: (value: unknown) => value === "volatility" ? "Biến động số bán" : "Số ngày bán" },
             { key: "safety_lookback_days", label: "Ngày lịch sử", render: (value: unknown, row: Record<string, unknown>) => row.safety_mode === "volatility" ? String(value ?? "—") : "—" },

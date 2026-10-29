@@ -17,7 +17,7 @@ export function PolicyForm({
 }) {
   const { supplierData, itemOptions } = editor;
   const [values, setValues] = useState<Row>({
-    configured_rop_floor: 0, moq: 5, safety_days: 2,
+    configured_rop_floor: 0, safety_days: 2,
     ...POLICY_DEFAULTS, ...policy,
   });
   return (
@@ -69,6 +69,7 @@ export function PolicyForm({
           defaultValue="2026-01-01"
         />
       </label>
+      {policy.moq != null && policy.fixed_order_qty == null && <p className="caption">Cấu hình cũ chỉ có lượng tối thiểu. Hãy nhập lượng cố định mỗi lần; hệ thống không lấy MOQ cũ làm giá trị này.</p>}
       <PolicyFields policy={values} onChange={(key, value) =>
         setValues((previous) => ({ ...previous, [key]: value }))} />
 

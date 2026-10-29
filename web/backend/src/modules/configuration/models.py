@@ -15,7 +15,8 @@ class Policy(Base):
     effective_from = Column(Date, nullable=False)
     effective_to = Column(Date)
     configured_rop_floor = Column(BigInteger, nullable=False)
-    moq = Column(BigInteger, nullable=False)
+    moq = Column(BigInteger)  # Historical minimum-quantity policies only.
+    fixed_order_qty = Column(BigInteger)
     safety_days = Column(Numeric(8, 3), nullable=False)
     safety_mode = Column(Text, nullable=False, server_default="days")
     safety_lookback_days = Column(SmallInteger, nullable=False, server_default="28")
@@ -33,6 +34,11 @@ class Policy(Base):
             "configured_rop_floor>=0 AND moq>=1 AND safety_days>=0 AND version>=1"
         ),
         CheckConstraint("effective_to IS NULL OR effective_to>effective_from"),
+        CheckConstraint(
+            "(fixed_order_qty IS NULL AND moq IS NOT NULL) OR "
+            "(fixed_order_qty IS NOT NULL AND fixed_order_qty>=1 AND moq IS NULL)",
+            name="ck_policy_order_quantity",
+        ),
         CheckConstraint(
             "safety_mode IN ('days','volatility')", name="ck_policy_safety_mode"
         ),

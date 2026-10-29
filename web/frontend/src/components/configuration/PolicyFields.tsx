@@ -22,8 +22,9 @@ export function PolicyFields({
     <>
       <div className="form-grid">
         {number("configured_rop_floor", "Ngưỡng nhập tối thiểu (ROP floor)", 0, 1)}
-        {number("moq", "MOQ", 1, 1)}
+        {!override && number("fixed_order_qty", "Lượng nhập mỗi lần", 1, 1)}
       </div>
+      {!override && <p className="caption">Khi cần bổ sung, mỗi lô dùng đúng lượng này. Hệ thống không tự tăng lượng theo dự báo.</p>}
       <label>
         Cách tính tồn an toàn (SS)
         <select name="safety_mode" value={String(policy.safety_mode ?? "")}

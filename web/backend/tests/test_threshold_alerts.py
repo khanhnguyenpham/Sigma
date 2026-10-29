@@ -212,7 +212,7 @@ def test_threshold_migration_preserves_legacy_rows_and_checks_metadata(pg):
             assert c.scalar(text("SELECT (to_jsonb(t) - 'predicted_threshold_date') FROM alerts t")) == json.loads(before)
             assert c.execute(text("SELECT row_to_json(t)::text FROM runs t ORDER BY id")).scalars().all() == runs
             assert compare_metadata(MigrationContext.configure(c, opts={"compare_type": True, "compare_server_default": True}), Base.metadata) == []
-            assert c.scalar(text("SELECT version_num FROM alembic_version")) == "0003_threshold"
+            assert c.scalar(text("SELECT version_num FROM alembic_version")) == "0004_fixed_qty"
     finally:
         command.upgrade(cfg, "head")
 
@@ -237,7 +237,7 @@ def test_threshold_database_rejects_invalid_dates_states_and_duplicates(pg):
         command.downgrade(cfg, "0002_policy")
     with sessions() as s:
         assert s.scalar(select(Alert).where(Alert.alert_type == "projected_below_rop")) is not None
-        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0003_threshold"
+        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0004_fixed_qty"
 
 
 def test_two_items_apply_their_own_origin_rop_and_keep_first_crossing():
