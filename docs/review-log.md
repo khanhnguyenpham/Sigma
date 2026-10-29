@@ -1374,3 +1374,11 @@ Nguồn: người dùng yêu cầu SS days×1 vào m3-implementation, hỏi vì 
 Chỉ ghi kế hoạch stress cảnh báo trên đường D-days×1 cố định; alpha1/1,1/1,25/1,5, cùng episode, đánh đổi FP/tần suất, chọn validation và test hồi cứu có khóa. Không sửa forecast/SS/đơn nhập, không hạ7ngày hoặc đổi mẫu số để nhận45%. [Protocol đề xuất](../M3/docs/research.md#early-warning-risk-v1), [mốc/điểm dừng](planning/PLAN.md#chg-075), [bàn giao](development.md#handoff-chg075). Chưa có code/run/kết quả mới hoặc thay nghiệm thu R07/T14; kiểm bảo toàn và GitHub đã xác nhận bên dưới.
 
 **Cổng GitHub CHG-075 mốc1 đã kiểm:** commit `d501da9ce97016f0a4040918dd7128eadfa4c37c` push thường lên `m3-implementation`, remoteSHA khớp; [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40476216713) và [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40476216681) completed/success, đủ4job test/backend/frontend/m2-regression. Chỉ lập kế hoạch;14bảng/1.331hash protected và code/default giữ nguyên. Commit tài liệu xác nhận cổng được kiểm SHA/CI riêng trước bàn giao cuối. Dừng sau mốc1, chưa viết/chạy nghiên cứu mới hoặc thay mặc định; mốc2–4 chờ người dùng giao. R07/T14 chưa nghiệm thu, không nhận đạt45% từ kế hoạch.
+
+
+<a id="chg076-fixed-quantity"></a>
+## CHG 076 lượng nhập mỗi lần ngày 29 tháng 10 năm 2026
+
+Người dùng làm rõ mỗi lần nhập phải đúng lượng cấu hình theo hợp đồng, sau đó nhắc đây là project thực tập và không cần quản lý/phiên bản hợp đồng mới. Kiểm trực tiếp m3-implementation/86a0162 xác nhận policy dùng MOQ tối thiểu và Q biến đổi theo S−IP. Sửa một giá trị fixed_order_qty trong policy hiện có, API/FE không nhập MOQ hoặc override lượng ở scenario mới; Q fixed nếu trigger và IP<S. Không tự tăng lô, không gán số MOQ cũ là hợp đồng.
+
+Bản cuối261Python/55React/build/pipcheck/API-worker-verifier-CSV/browser synthetic đạt; baseline245/50. Migration test kiểm legacy/hash/idempotence/0diff/constraint và chặn downgrade mất ngữ nghĩa. App đã backup/nâng0004_fixed_qty,13bảng/cột cũ/run cũ nguyên; lượng mới còn null cho policy cũ để nhóm khai báo. Bằng chứng riêng tư outputs/chg076, chi tiết tại development#handoff-chg076. Kết quả33/49% và34,39% thuộc policy trước sửa; không công bố lại như hiệu quả fixed, không refit/integrateS25 hoặc nghiệm thu R07/T14. Cổng GitHub chờ xác nhận riêng.

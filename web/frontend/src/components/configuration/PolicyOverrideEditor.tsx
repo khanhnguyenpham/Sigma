@@ -18,6 +18,7 @@ export function PolicyOverrideEditor({
         Đổi kho phía trên để chọn mặt hàng. Điều chỉnh chỉ áp dụng trong kịch
         bản này.
         Để trống để kế thừa policy có hiệu lực khi chạy. Chọn cách tính SS để điều chỉnh tham số tương ứng.
+        Lượng nhập mỗi lần lấy từ cấu hình mặt hàng, không thay đổi tại đây.
       </p>
       {overrides.map((row, index) => (
         <div className="scenario-row" key={index}>

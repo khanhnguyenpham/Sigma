@@ -803,3 +803,18 @@ Ngày 27/10/2026, người dùng ban đầu giao đưa SS days×1 vào m3-implem
 | 4 | Nếu được giao: test hồi cứu đại diện+đối chứng, báo đánh đổi và quyết định có đưa vào app | Chưa bắt đầu |
 
 Từng mốc nhỏ theo yêu cầu người dùng; không chạy hết hoặc tự chuyển web/scheduler/refit. Không tự đặt mức FP chấp nhận được. Nếu không có cấu hình đạt45%, ghi chưa đạt; không hạ7ngày, xóa ca khó hoặc chọn lại từ test. Local→commit→push thường→remoteSHA→2CI success trước mốc kế tiếp. Giữ mọi raw/run/DB/env local.
+
+
+<a id="chg076-contract-lot"></a>
+## CHG-076 — Lượng cố định mỗi lần nhập theo hợp đồng
+
+Nguồn 29/10/2026: người dùng làm rõ lượng mỗi lần nhập đã cấu hình theo hợp đồng, không được tùy chọn Q. Yêu cầu kiểm nhánh m3-implementation và sửa khi sai. Đây là thay đổi ngữ nghĩa lượng nhập so với công thức MOQ tối thiểu trước đó; không gán số hợp đồng hoặc xác nhận mới cho mentor.
+
+- Chỉ thêm `fixed_order_qty` nguyên dương vào policy hiện có; không xây quản lý hợp đồng hoặc hệ thống phiên bản mới (người dùng nhắc giữ đơn giản). Policy mới bắt buộc giá trị này; MOQ giữ cho đọc lịch sử, không cho người dùng gửi MOQ hoặc ghi đè lượng hợp đồng ở scenario mới. Không tự biến MOQ cũ thành lượng hợp đồng.
+- Giữ trigger closing<ROP và kiểm IP<S. Khi còn cần bổ sung, Q bằng đúng fixed_order_qty, một lô/item/ngày quyết định; không tự nhân số lô hoặc bù Q lên S. Hàng đang về đủ S thì Q=0. S là mốc tham chiếu, không bảo đảm lô cố định sẽ đưa IP lên S.
+- Migration0004 thêm cột nullable, cho MOQ nullable và check loại policy. Hàng cũ giữ nguyên MOQ/fixed_order_qty=null; policy mới dùng fixed_order_qty và moq=null. Snapshot cũ vẫn tính/đối soát theo luật MOQ cũ, không đổi JSON/hash/metric. New run thiếu lượng hợp đồng hoặc chứa override MOQ cũ bị chặn rõ nguyên nhân.
+- Cập nhật hàm tính chung, worker, verifier độc lập, API/CSV và FE. Seed mới chỉ là lượng lô giả định minh họa, không hợp đồng doanh nghiệp; không overwrite seed/policy đã có.
+- Kiểm baseline BE/M2/FE trước sửa; unit ca cần ít/nhiều hơn lô, bằngROP, pending đủ/thiếu; migration/constraint/legacy snapshot; API→worker→verifier/CSV và UI. Bảo toàn raw, artifact sealed, nhánh nghiên cứu và các cột dữ liệu app cũ. Chỉ migrate app sau backup và kiểm test DB; không tạo run thật/refit hoặc chọn lại theo test.
+- Kết quả33/49% và34,39% giữ là bằng chứng policy cũ, không nhận áp dụng cho policy lượng cố định. Không tích hợp S25 hoặc nâng R07/T14. Quyền push thường m3-implementation và cổng local→commit→push→SHA→CI của project giữ; không merge/force/deploy.
+
+Trạng thái: local đạt261Python/55React/build/pipcheck/API-worker-verifier-CSV/browser synthetic; app backup/nâng0004/0diff và cột cũ nguyên. Chờ commit/push/SHA/CI. Policy cũ chưa có fixed quantity cần nhóm khai báo; không có run thật mới hoặc kết quả vận hành chứng minh hiệu quả fixed. [Bàn giao](../development.md#handoff-chg076).

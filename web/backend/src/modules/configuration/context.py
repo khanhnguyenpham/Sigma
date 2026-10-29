@@ -37,6 +37,11 @@ def freeze_inventory(session, request, source, scenario):
     ).all()
     policies = []
     overrides = {o["item_id"]: o for o in scenario.settings.get("policy_overrides", [])}
+    if any("moq" in o or "fixed_order_qty" in o for o in overrides.values()):
+        raise DomainError(
+            "missing_contract_quantity",
+            "Order quantity must be configured on the item policy, not the scenario",
+        )
     for p in rows:
         record = {
             name: getattr(p, name)
@@ -49,6 +54,7 @@ def freeze_inventory(session, request, source, scenario):
                 "effective_to",
                 "configured_rop_floor",
                 "moq",
+                "fixed_order_qty",
                 "safety_days",
                 "is_assumed",
                 "assumption_source",
@@ -84,6 +90,12 @@ def freeze_inventory(session, request, source, scenario):
                 raise DomainError(
                     "missing_partner_config",
                     "Exactly one effective policy is required",
+                    item_id=item["item_id"],
+                )
+            if effective[0]["fixed_order_qty"] is None:
+                raise DomainError(
+                    "missing_contract_quantity",
+                    "Configure the fixed quantity per order before creating a new run",
                     item_id=item["item_id"],
                 )
     supplier_ids = set(session.scalars(select(Supplier.id)))

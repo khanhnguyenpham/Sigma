@@ -1,5 +1,11 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+## Lượng nhập mỗi lần sau CHG 076
+
+Ngày29/10/2026: chỉ thêm một giá trị cấu hình fixed_order_qty nguyên dương cho item, tận dụng policy hiện có. Không thêm bảng hoặc chức năng quản lý hợp đồng. Khi closing<ROP và IP<S, Q=fixed_order_qty; nếu không Q=0. Một lô/item/ngày quyết định, ETA D+7. Không tự tăng Q hoặc nhân số lô để đưa IP lên S; S là mốc tham chiếu. Cảnh báo vẫn xem rủi ro theo đường tồn.
+
+Policy mới không nhận MOQ; scenario mới không được override MOQ hoặc fixed_order_qty. Các giá trị mẫu khi seed mới được ghi synthetic_fixed_lot_seed_v1, không phải số hợp đồng thật. Seed/policy cũ không bị ghi đè; cần nhập lượng mỗi lần cho policy trước khi tạo run mới. Luật MOQ và các ví dụ bên dưới chỉ còn dùng tái lập run/snapshot lịch sử. Các số34,39%/33,39%/49,31% chưa chứng minh hiệu quả policy fixed mới.
+
 **CHG-068 bước14 — 26/10/2026, hoàn tất:** sau cổng13 mã73d6f39/remoteSHA/2CI success, người dùng giao14. React hiển thị ROP/SS/mode/N, ngày xuống ROP riêng ngày cạn, lý do/đường projection/bảng UTC; filter/export và metric threshold riêng depletion. Workspace thêm warning_items/projected_below_rop_items đếm item duy nhất; inventory API/CSV đọc5tham số từ policy frozen, công thức fixed hiển thị đúng.245Python (3ca mới),50React (7ca mới,1worker)/build/pipcheck và browser desktop/mobile390px trên2run synthetic đạt;1027protectedhash và3app run nguyên, schema0003_threshold giữ. Commit mã37c4525b90cb361d8eeabc23c46cfc82fb39f8dc đã push thường, remoteSHA khớp và2workflowCI completed/success; bước15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật mới chứng minh45%.
 
 **CHG-068 bước12 — 26/10/2026, hoàn tất:** cảnh báo projected_below_rop/threshold_warning với predicted_threshold_date đã qua hàm thuần/simulation/worker, DTO/filter/CSV và verifier độc lập. Giữ ROP tại decision origin, chỉ receipts đã biết trước Q mới, strict < trong N ngày; metric threshold riêng depletion.242Python BE/M2 (28ca mới),34React chạy1worker/build/pipcheck/API-worker smoke đạt;9inventory golden/M2 parity và1024protectedhash nguyên. DB app đã backup/nâng0003_threshold, hash mọi cột cũ13bảng/3run nguyên, schema0diff. Commit mã14b18415014ee2867fac436e6bd7530d74b12188 đã push thường, remoteSHA khớp và2workflowCI completed/success; bước13–15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật chứng minh45%.

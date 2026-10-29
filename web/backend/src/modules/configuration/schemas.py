@@ -19,7 +19,7 @@ class PolicyCreate(DTO):
     supplier_id: int = Field(gt=0, strict=True)
     effective_from: date
     configured_rop_floor: int = Field(ge=0, le=2**63 - 1, strict=True)
-    moq: int = Field(ge=1, le=2**63 - 1, strict=True)
+    fixed_order_qty: int = Field(ge=1, le=2**63 - 1, strict=True)
     safety_days: Decimal = Field(ge=0, max_digits=8, decimal_places=3)
     safety_mode: Literal["days", "volatility"] = "days"
     safety_lookback_days: int = Field(default=28, ge=7, le=90, strict=True)
@@ -49,7 +49,6 @@ class PolicyOverride(DTO):
     configured_rop_floor: int | None = Field(
         default=None, ge=0, le=2**63 - 1, strict=True
     )
-    moq: int | None = Field(default=None, ge=1, le=2**63 - 1, strict=True)
     safety_days: Decimal | None = Field(
         default=None, ge=0, max_digits=8, decimal_places=3
     )

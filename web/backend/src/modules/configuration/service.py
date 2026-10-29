@@ -72,7 +72,7 @@ def create_policy(session, request):
         version=version + 1,
         effective_from=request.effective_from,
         configured_rop_floor=request.configured_rop_floor,
-        moq=request.moq,
+        fixed_order_qty=request.fixed_order_qty,
         safety_days=request.safety_days,
         **{name: getattr(request, name) for name in POLICY_DEFAULTS},
         is_assumed=True,

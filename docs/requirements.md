@@ -260,3 +260,11 @@ Nghiệm thu dự kiến và lịch tại [06](../M3/docs/06-testing-delivery.md
 ### Cập nhật E90 — trạng thái triển khai, không thay tiêu chí
 
 Forecast46/ML36, phân bổ, policy/alert replay riêng, API/worker/React6màn hình và version/export đã thực thi. Fixed10 tổng7 H1–7 đạt10/10 hồi cứu; new36 chỉ2/36; ngày phân bổ top10 là0/10. Policy cơ sở fill90,4121%; early986/2867=34,3913%. Bằng chứng/giới hạn tại [M3/IMPLEMENTATION](../M3/IMPLEMENTATION.md). R05/R07/T14 giữ mở, không thay metric/split/top10 để nâng nghiệm thu. Các giới hạn auth/cloud/multiuser ngoài scope vẫn giữ.
+
+
+<a id="r06-fixed-lot-chg076"></a>
+## CHG-076 — Làm rõ R06 lượng mỗi lần nhập
+
+Ngày29/10/2026 người dùng làm rõ: mỗi lần nhập phải đúng lượng cố định cấu hình theo hợp đồng đối tác/mặt hàng. MOQ tối thiểu và Q biến đổi trước đây không mô tả yêu cầu này. Policy mới lưu fixed_order_qty nguyên dương có version/hiệu lực; không nhập lượng tùy ý mỗi lần hoặc override lượng hợp đồng trong scenario. Khi closing<ROP và IP<S, một lô có Q=fixed_order_qty; ngược lại Q=0. Không tự tăng số lô hoặc Q khi dự báo cần nhiều hơn lượng đã ký.
+
+MOQ/công thức cũ chỉ còn để tái lập snapshot/run lịch sử. Thiếu lượng cố định phải yêu cầu cấu hình policy mới, không đoán từ MOQ. Tồn, receipts, seed và supplier tiếp tục có nhãn mô phỏng/giả định; chưa có số hợp đồng thật được cung cấp. Kết quả nghiên cứu policy cũ không nghiệm thu policy mới. R07/T14 giữ mở.
