@@ -1385,3 +1385,9 @@ Bản cuối261Python/55React/build/pipcheck/API-worker-verifier-CSV/browser syn
 
 
 **Cổng GitHub CHG-076 mã đã kiểm:** commit a38d79d1a3a3c419d11e4ed8e57be051fc1fd4da push thường m3-implementation, remoteSHA khớp. [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40833487755) và [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40833487676) completed/success, đủ4job test/backend/frontend/m2-regression. Đối soát1.678file protected và14bảng (13nghiệp vụ + Alembic) đạt; Alembic đổi0003→0004 theo migration đã backup, toàn bộ cột nghiệp vụ cũ nguyên. Không đưa raw/run/DB/env/Word/ảnh lên Git, không tích hợp nghiên cứu hoặc đổi nhánh audit. Commit tài liệu xác nhận sau mốc mã được kiểm SHA/CI riêng trước bàn giao.
+
+
+<a id="chg077-fixed-baseline"></a>
+## CHG-077 — 29/10/2026, chạy hướng cũ trên lô cố định trước
+
+Nguồn người dùng: yêu cầu chỉnh kịch bản cho policy mới và chạy hướng cũ trước,hướng49% để sau; giao tự quyết cao/thấp với lượng5/10,10/15. Đã khóa quy tắc trung vị quantity03–30/06/2025 theo product_type; eSIM ngưỡng6,physical_SIM2; giữ lượng item qua cả2split. [Protocol/phương pháp](../M3/docs/research.md#fixed-lot-baseline-chg077). Không đổi nghiệm thu,không ghi policy/appDB,không chọn bằng test hoặc chạyS25. Đã hoàn tất270Python và independent verifier10scenario/855.600dòng;1.720hash thực/14bảng nguyên. Cơ sở test129/400=32,25%;SS×0,5 184/456=40,3509%,cả5scenario chưa45%. Không cập nhật Word theo yêu cầu bổ sung;S25 giữ chưa chạy. [Bàn giao](development.md#handoff-chg077). R07/T14 mở.

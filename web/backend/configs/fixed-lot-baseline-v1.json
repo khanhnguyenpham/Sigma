@@ -1,0 +1,80 @@
+{
+  "id": "fixed-lot-baseline-v1",
+  "quantity_basis": {
+    "start": "2025-06-03",
+    "end": "2025-06-30",
+    "rule": "quantity_sum_by_item_gt_product_type_median",
+    "lots": {
+      "eSIM": {
+        "low": 5,
+        "high": 10
+      },
+      "physical_SIM": {
+        "low": 10,
+        "high": 15
+      }
+    }
+  },
+  "parents": {
+    "validation": {
+      "folder": "outputs/research/ss-step4/validation/inventory-alert-safety-v1-2c212e05-c5ef-4c43-a7a4-c08b7777fe18",
+      "files": {
+        "manifest.json": "7508438701af4d1a404b78e55d9ff93e29477d3302ceb83a4fe168ea6a61aa32",
+        "verification.json": "0cbd8d65a1e824966fb87c4be2d514c5f64e54d9b5dd236b1402ddc92aa04f71",
+        "inputs.json.gz": "23dc7c19f0aefd6f0e6c433fe9c6136ba20b42c68e0f2907082a83ccb5cccd7f",
+        "results\\D-days-m1-cover7.json.gz": "93e8fbf1b7c9d2fc6e4ddd07da229531d5a664432634a4038117f77314b86797"
+      }
+    },
+    "test": {
+      "folder": "outputs/research/ss-step5/test/inventory-alert-safety-v1-4b6dbc7b-760c-4bfb-83db-0912a288b349",
+      "files": {
+        "manifest.json": "e86670254c3c841faf0364a5b529ed44aecec713a5f1e6a35fd3d94180df2ab5",
+        "verification.json": "ec681bb2ec041c5d4718a13e365b3795a2e023c8ab149723cc832bdb2854c363",
+        "inputs.json.gz": "c40acf4ecbd3915f7a88d103d0347b6bb13fc97404d8a9462200fbd9fe58e09c",
+        "results\\D-days-m1-cover7.json.gz": "03dc873e77fc95d86df08cbfbe7807f23bd12b5ed6b7fc55a7e059a4f32a553b"
+      }
+    }
+  },
+  "scenarios": [
+    {
+      "id": "base",
+      "cover": 7,
+      "multiplier": 1
+    },
+    {
+      "id": "cover_3",
+      "cover": 3,
+      "multiplier": 1
+    },
+    {
+      "id": "cover_14",
+      "cover": 14,
+      "multiplier": 1
+    },
+    {
+      "id": "safety_05",
+      "cover": 7,
+      "multiplier": 0.5
+    },
+    {
+      "id": "safety_15",
+      "cover": 7,
+      "multiplier": 1.5
+    }
+  ],
+  "alarm_alpha": 1,
+  "early_days": 7,
+  "horizon": 14,
+  "legacy_expected": {
+    "validation": [
+      151,
+      486
+    ],
+    "test": [
+      193,
+      578
+    ]
+  },
+  "no_selection": true,
+  "is_simulated": true
+}

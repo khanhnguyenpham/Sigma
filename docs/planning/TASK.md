@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**CHG-077 — 29/10/2026, hoàn tất thử hướng cũ trên lô cố định:** đã chạy5scenario×2split trên input frozen, khóa nhóm doanh số03–30/06: eSIM thấp5/cao10,physical_SIM thấp10/cao15. Cơ sở test129/400=32,25%,đáp ứng94,2602%/thiếu689 trong kỳ chấm; SS×0,5 đạt184/456=40,3509% nhưng thiếu858/FP576. Chưa scenario nào đạt45%.270Python và verifier độc lập855.600dòng đạt;1.720hash dữ liệu/tài liệu thực cùng14bảng nguyên. Không refit/ghi appDB/đổi mặc định/cập nhật Word/chạyS25. [Bàn giao](../development.md#handoff-chg077); R07/T14 mở.
+
 **CHG-076 — 29/10/2026, hoàn tất mã:** đã sửa lượng mỗi lần thành fixed_order_qty trong policy hiện có, không thêm quản lý hợp đồng. Q cố định khi closing<ROP/IP<S; API/FE/worker/verifier/CSV cập nhật, MOQ chỉ để đọc snapshot cũ.261Python/55React/build/pipcheck và browser synthetic đạt. App backup/nâng0004_fixed_qty/0diff,13bảng/cột cũ/run giữ nguyên; policy cũ cần nhóm khai báo lượng fixed. Commit a38d79d đã push thường, SHAremote khớp và hai workflowCI success; không refit/tích hợp S25 hay nhận33/49% là kết quả policy mới, R07/T14 chưa nghiệm thu. [Bàn giao](../development.md#handoff-chg076).
 
 **CHG-075 — 27/10/2026, kế hoạch nghiên cứu báo sớm:** người dùng đổi hướng sau khi làm rõ SS days×1 đã có sẵn và không cải thiện policy cơ sở. Ưu tiên early≥45%, chỉ lập hướng thử tiếp, chưa thay mặc định. Giữ đường tồn/nhập D-days×1, thử riêng cảnh báo rủi ro trên cùng episode; chưa viết/chạy nghiên cứu mới, giữ model/app/DB và R07/T14 chưa nghiệm thu. [Chi tiết](PLAN.md#chg-075).

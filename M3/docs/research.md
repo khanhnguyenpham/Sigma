@@ -55,3 +55,30 @@ Nếu có đại diện, test chỉ alpha1 và đại diện đã khóa; mọi k
 Đầu ra dự kiến: thư mục local mới, protocol/source/code/selection hashes; đường cơ sở frozen; cảnh báo và đối chiếu episode từng alpha; metrics/CSV/HTML và verifier tính độc lập. Tái sử dụng hàm projection hiện có nhưng verifier không dùng helper sản xuất làm kỳ vọng. Không thêm dependency, API/schema/run kind hoặc cài lịch ở giai đoạn nghiên cứu. Công thức/đường stress phải mang nhãn nghiên cứu riêng, không thay forecast và các run cũ. Chỉ code/tests/docs không nhạy cảm được push nếu sau này được giao triển khai; raw/DB/run luôn local.
 
 Lượt này chỉ lập kế hoạch và bảo toàn; chưa tạo protocol máy đọc, viết runner/verifier, chạy validation/test mới hoặc thay mặc định. Giữ R07/T14 chưa nghiệm thu. [Kế hoạch từng mốc](../../docs/planning/PLAN.md#chg-075).
+
+
+<a id="fixed-lot-baseline-chg077"></a>
+## CHG-077 — Chạy lại hướng cũ với lượng mỗi lần cố định
+
+Phạm vi29/10/2026 thay giới hạn chưa chạy ở CHG-075 cho riêng lần thử mới được người dùng giao: chạy cảnh báo point-forecast gốc trước, giữ S25/49% để sau. Không refit hoặc sửa forecast phục vụ, không ghi appDB/policy; không áp số33/49% cũ cho lô mới. Runner `web/backend/research/fixed_lot_baseline.py` tái sử dụng pure_window/scoring nghiên cứu trước; verifier `fixed_lot_verification.py` tự dựng giao dịch,SS/ROP/IP/Q/ETA/pending và projection, chấm event-first không dùng helper sản xuất.
+
+Protocol `web/backend/configs/fixed-lot-baseline-v1.json` khóa nguồn CHG-074 đã verified và5scenario: base(cover7,SS×1),cover3,cover14,SS×0,5,SS×1,5. Chạy hết validation rồi test, không chọn model/scenario bằng test. Giữ period/warmup/scoring cũ: validation01/07–30/09,chấm29/07; test01/10–31/12,chấm29/10. Khởi tạo lại từng split như phép thử cũ, không nhận chuyển tồn validation→test liên tục.
+
+Người dùng giao tự chọn nhóm cao/thấp và lô5/10 hoặc10/15. Tổng quantity03–30/06/2025 tính theo item, trung vị riêng product_type gồm0; cao khi>trung vị,thấp khi≤. Khóa trước kết quả và giữ mỗi item qua validation/test. eSIM ngưỡng6:234thấp Q5,226cao Q10; physical_SIM ngưỡng2:252thấp Q10,208cao Q15. Đây là giả định mô phỏng, không hợp đồng thực. Không tự chuyển MOQ cũ thành fixed quantity hoặc sửa920policy hiện có.
+
+```powershell
+# Từ root, dùng môi trường .venv-m3 đã cài editable backend.
+& ./.venv-m3/Scripts/python.exe -B -m web.backend.research.fixed_lot_baseline run
+& ./.venv-m3/Scripts/python.exe -B -m web.backend.research.fixed_lot_baseline verify --run-dir RUN_DIR
+```
+
+Thay RUN_DIR bằng thư mục mới mà runner trả về. Không cần DB cho replay này: đọc input frozen đã đối soát trước; receipt ghi rõ không phải audit raw/DB mới. Mỗi lần run tạo thư mục mới và lock protocol/code/quantities trước kết quả. Legacy reference phải khớp151/486 và193/578 trước5scenario fixed; ledger/episode mới không bắt khớp mẫu số cũ. Báo early≥7theo episode,precision theo item/ngày,các ca can thiệp/right-censor,fill/thiếu/tồn/đơn cả toàn kỳ và kỳ chấm; trần cơ hội chỉ hậu kiểm,không đưa actual tương lai vào cảnh báo. Các scenario thay đường tồn/mẫu số nên không phải so alarm trên cùng sự kiện.
+
+Trạng thái: hoàn tất và verifier độc lập đã đạt855.600dòng/10scenario;270Python đạt. Test sau warmup: base129/400=32,25%,cover3 135/411=32,8467%,cover14 124/417=29,7362%,SS×0,5 184/456=40,3509%,SS×1,5 76/336=22,6190%. Cả5chưa45% ở validation/test. Base fixed đáp ứng94,2602%/thiếu689so91,9277%/969cũ trong kỳ chấm; tồn bình quân6,9416so5,6142tăng. Toàn kỳ basefixed92,5476%/thiếu1190so90,4121%/1531cũ. SS×0,5 có thiếu858/FP576so689/406của base,không tự chọn làm mặc định. Dữ liệu/Word/appDB giữ nguyên; S25 chưa chạy,R07/T14 chưa nghiệm thu. [Phạm vi](../../docs/planning/PLAN.md#chg077-fixed-baseline).
+
+
+Run local `outputs/research/fixed-lot-baseline/fixed-lot-baseline-v1-b98b58f9-553e-4bc3-b8d5-be7f526ea062`; manifest SHA256 `7fd760ed4713f09e106cb5d1d5384c6ecccc31e15be235648bc50b3535f93f34`, receipt `verification.json` có independent_replay/independent_decisions/independent_scoring=true. Báo cáo riêng HTML/MD/CSV ở reports/fixed_lot_baseline_20261029; không cập nhật Word theo yêu cầu mới.
+
+Runner dùng chỉ mục tra cứu history/policy trong process CLI riêng và phục hồi accessor bằng context manager; phép tính giữ pure_window.5fixture khớp native/indexed/independent; cả85.560dòng native cơ sở validation giữ riêng khớp byte với indexed và verifier. Lượt đầu bị dừng sau2kết quả validation chưa sealed vì runtime,giữ lock/output/trạng thái interrupted;không đổi tham số hoặc công thức theo kết quả. Lượt cuối tạo UUID mới và chạy lại đủ protocol; không sửa hoặc xóa lượt dở.
+
+Nếu sau này được giao thử S25,hãy khóa đường basefixed mới,cùng400episode test;45% cần180ca,tức thêm51so129. Không giữ578mẫu số cũ hoặc hứa49%; chọn validation trước,đánh giá FP/tần suất và không nhận holdout độc lập.

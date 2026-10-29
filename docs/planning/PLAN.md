@@ -818,3 +818,17 @@ Nguồn 29/10/2026: người dùng làm rõ lượng mỗi lần nhập đã c�
 - Kết quả33/49% và34,39% giữ là bằng chứng policy cũ, không nhận áp dụng cho policy lượng cố định. Không tích hợp S25 hoặc nâng R07/T14. Quyền push thường m3-implementation và cổng local→commit→push→SHA→CI của project giữ; không merge/force/deploy.
 
 Trạng thái: local đạt261Python/55React/build/pipcheck/API-worker-verifier-CSV/browser synthetic; app backup/nâng0004/0diff và cột cũ nguyên. Commit mã a38d79d đã push thường, SHAremote khớp và hai CI completed/success. Policy cũ chưa có fixed quantity cần nhóm khai báo; không có run thật mới hoặc kết quả vận hành chứng minh hiệu quả fixed. [Bàn giao](../development.md#handoff-chg076).
+
+
+<a id="chg077-fixed-baseline"></a>
+## CHG-077 — Thử kịch bản cũ trước với chính sách lượng nhập cố định
+
+Nguồn29/10/2026: người dùng yêu cầu chỉnh kịch bản cho policy mới, chạy hướng cũ trước, hướng đạt49% chạy sau. Người dùng cho phép quyết định thấp/cao: thấp5/10, cao10/15. Quy ước eSIM/SIM vật lý; ngưỡng trung vị tổng quantity28ngày03–30/06/2025 tính riêng từng product_type, gồm cả item0. Chỉ dùng lịch sử đã quan sát trước validation; cao khi lớn hơn trung vị. Khóa lượng mỗi item trước kết quả, giữ qua validation/test. Đây là giả định mô phỏng được người dùng giao, không hợp đồng doanh nghiệp hoặc chuyển MOQ cũ tự động.
+
+- Giữ nguyên forecast/actual/cohort/SS days/ROP forecast/L7/R1/H14 và nguồn frozen CHG-074; dùng pure_window hiện có, không refit hay phân bổ lại. Tái lập legacy days×1 để đối soát151/486 và193/578 trước so sánh. Thay Q bằng lô cố định, dựng lại ledger/đơn/ETA/episode thay vì dùng mẫu số cũ.
+- Khóa5scenario hiện có: base(cover7,SS×1),cover3,cover14,safety05,safety15; chạy toàn bộ validation trước test, không lựa chọn/tối ưu bằng test. Cảnh báo gốc alpha1; không chạy S25/alpha1,25 hoặc ứng viên hướng49%.
+- Khởi tạo lại độc lập từng split như protocol cũ; validation01/07–30/09,chấm29/07–30/09; test01/10–31/12,chấm29/10–31/12. Báo cả toàn kỳ và kỳ chấm; early≥7theo episode, precision theo item/ngày, can thiệp/right-censor giữ riêng; N7ROP không gộp. Các scenario có đường tồn/mẫu số khác nhau, không nhận thay cảnh báo tốt hơn trên cùng sự kiện.
+- Runner local mới + verifier độc lập kiểm nguồn/hash, tồn/giao dịch,SS/ROP/IP/Q/ETA,pending và projection trước đơn hôm nay; scoring event-first kiểm early/TP/FP. Tests ca lô/nhóm/ngưỡng/leakage/mẫu số/receipt/tamper, baseline suite cần thiết. Khóa protocol/code/policy trước chạy, không đưa raw/run lên Git.
+- Không ghi applicationDB,không đổi mặc định hoặc UI; giữ ref nghiên cứu,raw/run/snapshot cũ. R07/T14 mở. Code/tests/config/docs không nhạy cảm qua local→commit→push thường→remoteSHA→CI như quyền hiện có.
+
+Trạng thái: hoàn tất5scenario×2split và2legacy reference; verifier độc lập855.600dòng/270Python đạt. Cơ sở test129/400=32,25%; SS×0,5 cao nhất trong5scenario184/456=40,3509%,chưa45%,không chọn mặc định bằng test.1.720hash thực/14bảng nguyên; Word giữ nguyên,S25 chưa chạy. [Bàn giao/kết quả và giới hạn](../development.md#handoff-chg077).
