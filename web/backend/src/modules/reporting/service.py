@@ -242,6 +242,7 @@ def dataset(session, run, name, filters, paginate=True):
                 supplier_id=p["supplier_id"],
                 configured_rop_floor=p["configured_rop_floor"],
                 moq=p["moq"],
+                fixed_order_qty=p.get("fixed_order_qty"),
                 safety_days=float(p["safety_days"]),
                 policy_version=p["version"],
             )
