@@ -66,8 +66,8 @@ export function InventoryDetails({
         <div><dt>Cách tính ROP</dt><dd>{focused.rop_mode === "fixed" ? "Cố định" : "Theo dự báo"}</dd></div>
         <div><dt>N ngày cảnh báo xuống ROP</dt><dd>{fmt(focused.warning_horizon_days)}</dd></div>
         <div>
-          <dt>MOQ</dt>
-          <dd>{fmt(focused.moq)}</dd>
+          <dt>{focused.fixed_order_qty != null ? "Lượng nhập mỗi lần" : "MOQ của phương án cũ"}</dt>
+          <dd>{fmt(focused.fixed_order_qty ?? focused.moq)}</dd>
         </div>
         <div>
           <dt>ROP tối thiểu</dt>
@@ -109,7 +109,9 @@ export function InventoryDetails({
             <span>
               IP = tồn cuối + đang về = {fmt(focused.inventory_position)}
             </span>
-            <span>MOQ chỉ áp dụng khi cần đặt thêm.</span>
+            <span>{focused.fixed_order_qty != null
+              ? `Khi cần bổ sung: Q = ${fmt(focused.fixed_order_qty)} đơn vị mỗi lần, không tự tăng để bù đủ S.`
+              : "Phương án cũ tính lượng theo nhu cầu và MOQ."}</span>
           </div>
           <p className="caption">
             Chỉ đề xuất khi tồn cuối &lt; ROP. Có thể Q=0 khi hàng đang về đủ

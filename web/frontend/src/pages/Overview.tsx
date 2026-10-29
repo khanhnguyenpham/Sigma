@@ -358,7 +358,7 @@ export function Overview({
                 </span>
                 <span>
                   <strong>Thiết lập nhập hàng</strong>
-                  <small>ROP, MOQ và mức tồn an toàn</small>
+                  <small>ROP, lượng nhập mỗi lần và mức tồn an toàn</small>
                 </span>
                 <Icon name="chevron" size={16} />
               </button>

@@ -114,6 +114,20 @@ it("explains a fixed inventory ROP without displaying the forecast max formula",
   expect(screen.queryByText(/ROP = max/)).toBeNull();
 });
 
+it("explains a fixed quantity per order while keeping the target only as a reference", () => {
+  render(<InventoryDetails focused={{sku:"LOT",fixed_order_qty:25,moq:null,target_stock:110,inventory_position:80,recommended_qty:25}} onClose={()=>{}} />);
+  expect(screen.getByText("Lượng nhập mỗi lần").nextElementSibling).toHaveTextContent("25");
+  fireEvent.click(screen.getByText("Chi tiết sổ tồn & cách tính"));
+  expect(screen.getByText(/Q = 25 đơn vị mỗi lần, không tự tăng để bù đủ S/)).toBeVisible();
+  expect(screen.queryByText("MOQ của phương án cũ")).toBeNull();
+});
+
+it("labels historical MOQ explicitly without inventing a fixed quantity", () => {
+  render(<InventoryDetails focused={{sku:"OLD",moq:10}} onClose={()=>{}} />);
+  expect(screen.getByText("MOQ của phương án cũ").nextElementSibling).toHaveTextContent("10");
+  expect(screen.queryByText("Lượng nhập mỗi lần")).toBeNull();
+});
+
 it("keeps undefined threshold ratios as a dash when there are no events", async () => {
   vi.spyOn(globalThis,"fetch").mockImplementation(mockResults);
   const emptyRun={...run,result_summary:{threshold_metrics:{TP:0,FP:0,FN:0,TN:1,event_denominator:0,signal_count:0,evaluated_count:1,excluded_count:0,precision:null,recall:null,date_mae:null}}};
