@@ -82,3 +82,26 @@ Run local `outputs/research/fixed-lot-baseline/fixed-lot-baseline-v1-b98b58f9-55
 Runner dùng chỉ mục tra cứu history/policy trong process CLI riêng và phục hồi accessor bằng context manager; phép tính giữ pure_window.5fixture khớp native/indexed/independent; cả85.560dòng native cơ sở validation giữ riêng khớp byte với indexed và verifier. Lượt đầu bị dừng sau2kết quả validation chưa sealed vì runtime,giữ lock/output/trạng thái interrupted;không đổi tham số hoặc công thức theo kết quả. Lượt cuối tạo UUID mới và chạy lại đủ protocol; không sửa hoặc xóa lượt dở.
 
 Nếu sau này được giao thử S25,hãy khóa đường basefixed mới,cùng400episode test;45% cần180ca,tức thêm51so129. Không giữ578mẫu số cũ hoặc hứa49%; chọn validation trước,đánh giá FP/tần suất và không nhận holdout độc lập.
+
+
+<a id="fixed-lot-s25-chg078"></a>
+## CHG-078 — Chạy S25 trên đường tồn fixed đã khóa
+
+Người dùng29/10/2026 giao chạy ngay hướng từng đạt49%,sau baseline CHG-077. Giữ nguyên Word như yêu cầu trước. Protocol `web/backend/configs/fixed-lot-s25-v1.json`,runner/verifier `web/backend/research/fixed_lot_s25.py`: C00 forecast gốc,S25 forecast×1,25 từ29/07/2025 chỉ dùng projection phát cảnh báo. Không chạy lại nhập hàng theo đường stress,không refit hoặc biến đường stress thành forecast đã cải thiện.
+
+Pin manifest/receipt/lock/quantities/summary và mọi artifact parent CHG-077;ledger/transactions/initialization/orders/events giữ hash. Mỗi split chỉ đường base:366episode validation,400test;target45% là165/180ca. Giữ early≥7,H14,can thiệp/rightcensor/ROP tách riêng. Lô hôm nay chưa là known receipt;stock0 không là dự báo cạn tương lai. C00 phải tái lập104/366 và129/400,trước so S25 trên cùngID/ngày cạn. Legacy phương pháp phải tái lập151→228/486 và193→285/578trước so policy mới.
+
+Chỉ hệ số S25 đã được giao sẵn;không grid/chọn lại hoặc tăngalpha nếu chưa45%. Validation chạy trước test,mọi kết quả test hồi cứu vì đã xem lịch sử,không nhận holdout độc lập. Đây là đánh giá cặp cấu hình cố định theo yêu cầu trực tiếp,không phải lượt chọn đại diện mới. Nếu chưa đạt ởvalidation vẫn công bố diagnostic test của chính S25đã khóa,không lựa chọn lại.
+
+```powershell
+& ./.venv-m3/Scripts/python.exe -B -m web.backend.research.fixed_lot_s25 run
+& ./.venv-m3/Scripts/python.exe -B -m web.backend.research.fixed_lot_s25 verify --run-dir RUN_DIR
+```
+
+Chạy từ root,thayRUN_DIR bằng outputmới. Không cần DB cho tính toán này;sourcefrozen đã verified ở lượt trước,không nhận raw/DBreaudit. Verifier tự tính scalar projection,scorer event-first dùng bộ độc lập củaCHG-077;kiểmpaired cohort/metrics/cases/hash. Không sửa app/schema/default hoặc chạy nhiều policy/scenarioSSkhác trong lượtS25. R07/T14 mở. [Kế hoạch](../../docs/planning/PLAN.md#chg078-fixed-s25).
+
+Trạng thái: hoàn tất,276Python(6ca mới) và verifier342.240dòng cảnh báo đạt. Cùng366episode validation:104→172early(28,4153%→46,9945%);cùng400test:129→196(32,25%→49,00%),thêm67không mất early. Test precision1159/(1159+406)=74,0575%→1865/(1865+1263)=59,6228%;FP+857;signals3643→6601/64ngày,tức56,9219→103,1406/ngày. Cả2kỳ vượt mục tiêu làm việc45%,chưa tự nghiệm thuR07/T14/chọn mứcFPchấp nhận/đổi mặc định. Fill/thiếu/tồn/đơn giữ nguyênbasefixed,không chứng minh giảm thiếu từS25.
+
+Run local outputs/research/fixed-lot-s25/fixed-lot-s25-v1-ae1ddf5d-8f71-4acd-83e6-15da457d91dd;manifest73b9469245d38ab3bbb4f4d951ba5d6568400e94e6fc1ff108d694bc0e28dbf8. Receipt independent_scalar_projection/independent_event_scoring/same_physical_path/paired_cohort=true. Source frozen đã verified,không refit/reaudit rawDB. Báo cáo HTML/MD/CSV ở reports/fixed_lot_s25_20261029.
+
+Sau khi có kết quả,người dùng giao sửa Word và chỉ dùng số mới. File reports/mentor_prep_20261030_fixed/SIGMA_On_bao_cao_30_10_2026_Luong_nhap_co_dinh.docx đã cập nhật tại chỗ27trang,13ảnh/23bảng,không giữ bảng sốMOQ cũ. QA riêng qa_s25_20261029 giữ backup và render WordPDF→PNG vì thiếusoffice;đã xem27trang,và xem lại6trang thay sau sửa câu chữ. WordSHA6109fea81bec0eff3a0047dc64c30872a66363a478dc6ae15c2b3c227beb173e. Giới hạn không sửaWord ở đầu CHG-078 là yêu cầu trước đã được thay bằng giao việc mới.

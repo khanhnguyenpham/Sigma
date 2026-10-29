@@ -531,3 +531,25 @@ Bảo toàn sau chạy:14bảng app (13nghiệp vụ+Alembic0004) giữ count/ha
 Bằng chứng local:outputs/chg077/before.json,preservation.json,native-parity.json;outputs/chg077-release.xml;run outputs/research/fixed-lot-baseline/fixed-lot-baseline-v1-b98b58f9-553e-4bc3-b8d5-be7f526ea062 cólock/quantities/manifest/ledger/cases/opportunities/summary.csv/verification.json. Manifest SHA2567fd760ed4713f09e106cb5d1d5384c6ecccc31e15be235648bc50b3535f93f34. Báo cáo riêng reports/fixed_lot_baseline_20261029/Ket_qua.html,Ket_qua.md,So_lieu.csv;Word nguyên. Cổng local→commit→push→remoteSHA→2CI kiểm đúng commit trước thông điệp cuối;không merge/force/deploy.
 
 Bước sau chỉ khi người dùng giao:thử hướng49% trên đường basefixed đã khóa,cùng400episode test,45%cần180ca(tăng51). Chọn theo validation,giữ sốcảnhbáo/FP/canthiệp;test hồi cứu,R07/T14 chưa nghiệm thu. TASK/PLAN/PROJECTMAP/requirements/review-log/research đã đồng bộ.
+
+
+<a id="handoff-chg078"></a>
+## CHG-078 — Bàn giao S25 và Word kết quả mới ngày 29/10/2026
+
+Workspace Desktop/Sigma, nhánh m3-implementation từ 0fc91f4. Người dùng giao chạy S25 sau cơ sở lô cố định, sau đó yêu cầu cập nhật Word và chỉ trình bày số liệu mới. Quyền cập nhật Word thay yêu cầu giữ nguyên file lúc đầu; không mở rộng sang đổi ứng dụng.
+
+Đã thêm protocol fixed-lot-s25-v1.json, runner/verifier fixed_lot_s25.py và 6 tests. Khóa C00/S25 với hệ số 1/1,25, hiệu lực 29/07/2025; không refit, calibration, grid hoặc lựa chọn lại. Chạy validation trước test theo hai cấu hình được giao sẵn. Phương pháp nguồn đã tái lập trước khi so trên lô mới. Test vẫn là hồi cứu vì lịch sử đã được xem.
+
+Parent CHG-077 được pin manifest, receipt, lock, quantities, summary và mọi artifact. Giữ hash initialization/ledger/transactions/orders/events; không đổi Q, SS, ROP, ETA, receipts, episode hoặc forecast chính. Runner dùng production project; verifier tự chiếu scalar và chấm event-first bằng scorer độc lập. Các tests kiểm C00 identity, cặp sự kiện, bảo toàn, actual tương lai, receipts trước quyết định, stock0, ngày hiệu lực và tamper case. Mã ứng dụng BE/FE/M2, schema và mặc định giữ nguyên.
+
+Validation: C00 104/366 = 28,4153005%, S25 172/366 = 46,9945355%, thêm 68 early. Test: C00 129/400 = 32,25%, S25 196/400 = 49,00%, thêm 67 early và không mất ca đã early. Cùng ID, ngày và tập sự kiện. Mục tiêu làm việc 45% tương ứng 165 ca validation, 180 ca test đều đạt; chưa nghiệm thu R07/T14.
+
+Đánh đổi test: TP 1.159→1.865, FP 406→1.263 (thêm857, khoảng3,11 lần), precision 74,05750799%→59,62276215%. Tín hiệu 3.643→6.601 item-ngày trong64ngày, trung bình56,921875→103,140625/ngày. Recall 327/400=81,75%→345/400=86,25%. MAE ngày cạn5,0856→4,3275 trên tập có cảnh báo khác nhau, không gọi là so cùng cặp. S25 gồm1.865TP+1.263FP+2.305can thiệp+1.168right-censor=6.601; hai nhóm cuối giữ riêng. Đáp ứng/thiếu sau warmup vẫn11.315/12.004=94,2602%/689; toàn kỳ14.778/15.968=92,5476%/1.190. Không nhận S25 đã giảm thiếu kho hoặc cải thiện mô hình từ đường stress.
+
+Kiểm hiện tại: targeted6 và release276Python BE/M2, không failure/error/skip. Verifier kiểm4cấu hình-kỳ,342.240dòng cảnh báo, status verified và cùng physical path/cohort. Không chạy lại local FE/build vì không sửa; CI frontend/build kiểm đúng commit sau push. Fingerprint trước có1.770file và14bảng. Trước sửa Word mọi hash khớp; sau sửa chỉ đúng1file được người dùng yêu cầu thay, mọi dữ liệu/run và appDB còn lại giữ nguyên. Before fingerprint không sửa; backup/hash Word nằm trong QA riêng.
+
+Word hiện có ở reports/mentor_prep_20261030_fixed/SIGMA_On_bao_cao_30_10_2026_Luong_nhap_co_dinh.docx đã sửa tại chỗ:27trang,13ảnh,23bảng. Chỉ kết quả fixed mới32,25%/49,00%, thay bảng số MOQ cũ; giữ thuật ngữ, UI, ERD13bảng, công thức Q, kịch bản và câu hỏi mentor. Trang23–25 giải thích số mới, mẫu số400, precision/đánh đổi,5scenario và lô thấp/cao; trang26 hỏi đáp,27 bài nói. Canonical renderer thiếu soffice nên dùng Word COM ẩn mở read-only xuất PDF, bundled pypdfium2 tạo PNG. Đã xem27trang, xem lại8/23–27 sau sửa câu chữ; không clipping hoặc mất ERD,27tiêu đề đúng trang. SHA256 Word:6109fea81bec0eff3a0047dc64c30872a66363a478dc6ae15c2b3c227beb173e. Backup qa_s25_20261029/before_s25.docx giữ byte bản trước.
+
+Bằng chứng local: outputs/chg078/before.json,preservation.json; outputs/chg078-release.xml; run outputs/research/fixed-lot-s25/fixed-lot-s25-v1-ae1ddf5d-8f71-4acd-83e6-15da457d91dd có verification.json và manifest SHA25673b9469245d38ab3bbb4f4d951ba5d6568400e94e6fc1ff108d694bc0e28dbf8. Báo cáo riêng HTML/MD/CSV ở reports/fixed_lot_s25_20261029. Run, DB, raw và Word không push. Code/config/tests/docs không nhạy cảm qua local→commit→push thường→remoteSHA→CI đúng commit trước bàn giao; không merge/force/deploy.
+
+Giới hạn và bước sau: chưa đưa S25 vào mặc định web, không đặt mức FP chấp nhận hoặc nghiệm thu R07/T14. Cần người dùng giao riêng nếu muốn đưa vào ứng dụng hoặc thử can thiệp nhập hàng. TASK/PLAN/PROJECTMAP/research/review-log đã đồng bộ; requirements không đổi tiêu chí.
