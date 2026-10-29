@@ -1391,3 +1391,12 @@ Bản cuối261Python/55React/build/pipcheck/API-worker-verifier-CSV/browser syn
 ## CHG-077 — 29/10/2026, chạy hướng cũ trên lô cố định trước
 
 Nguồn người dùng: yêu cầu chỉnh kịch bản cho policy mới và chạy hướng cũ trước,hướng49% để sau; giao tự quyết cao/thấp với lượng5/10,10/15. Đã khóa quy tắc trung vị quantity03–30/06/2025 theo product_type; eSIM ngưỡng6,physical_SIM2; giữ lượng item qua cả2split. [Protocol/phương pháp](../M3/docs/research.md#fixed-lot-baseline-chg077). Không đổi nghiệm thu,không ghi policy/appDB,không chọn bằng test hoặc chạyS25. Đã hoàn tất270Python và independent verifier10scenario/855.600dòng;1.720hash thực/14bảng nguyên. Cơ sở test129/400=32,25%;SS×0,5 184/456=40,3509%,cả5scenario chưa45%. Không cập nhật Word theo yêu cầu bổ sung;S25 giữ chưa chạy. [Bàn giao](development.md#handoff-chg077). R07/T14 mở.
+
+
+<a id="chg078-fixed-s25"></a>
+## CHG-078 — 29/10/2026, giao chạy S25 sau baseline mới
+
+Nguồn người dùng: “Chạy xong rồi thì chạy hướng đạt49% luôn đi”. Quyền mới choS25cố định trênbaseCHG-077,không mở quyền refit/tuning/ghi app/đổi mặc định hoặc Word. [Phương pháp](../M3/docs/research.md#fixed-lot-s25-chg078). Giữ tấtcả physical tables/episode vàđối chứngC00;early/precision/cảnhbáo/ngày/canthiệp côngbố cùng nhau. R07/T14 giữ mở.
+
+
+Kết quả CHG-078:276Python và verifier342.240dòng đạt;validation172/366=46,9945%,test196/400=49,00%. Test tăng67early,cùng400episode;FP406→1263 vàprecision74,0575%→59,6228%. Physical state/fill/thiếu/appDB giữ nguyên. Người dùng tiếp tục yêu cầu cập nhật Word,chỉ bổ sung kết quả mới;đã sửa tại chỗ27trang và render/xem từng trang. MộtfileWord được sửa cóbackup/hash;mọi dữ liệu/run trước đó giữ nguyên. [Bàn giao](development.md#handoff-chg078). R07/T14 chưa nghiệm thu,default chưa đổi.

@@ -832,3 +832,18 @@ Nguồn29/10/2026: người dùng yêu cầu chỉnh kịch bản cho policy m�
 - Không ghi applicationDB,không đổi mặc định hoặc UI; giữ ref nghiên cứu,raw/run/snapshot cũ. R07/T14 mở. Code/tests/config/docs không nhạy cảm qua local→commit→push thường→remoteSHA→CI như quyền hiện có.
 
 Trạng thái: hoàn tất5scenario×2split và2legacy reference; verifier độc lập855.600dòng/270Python đạt. Cơ sở test129/400=32,25%; SS×0,5 cao nhất trong5scenario184/456=40,3509%,chưa45%,không chọn mặc định bằng test.1.720hash thực/14bảng nguyên; Word giữ nguyên,S25 chưa chạy. [Bàn giao/kết quả và giới hạn](../development.md#handoff-chg077).
+
+
+<a id="chg078-fixed-s25"></a>
+## CHG-078 — Chạy hướng S25 sau khi baseline fixed hoàn tất
+
+Nguồn29/10/2026: người dùng yêu cầu chạy ngay hướng từng đạt49%; tiếp tục giữ yêu cầu không cập nhật Word. Từ0fc91f4,m3-implementation; đây là quyền chạy mới thay điểm dừng trướcS25 của CHG-077. Dùng đúng S25 alpha1,25/effective_from29/07/2025 từ protocol lịch sử,không fit/calibration/grid hoặc tự đưa lên ứng dụng.
+
+- Khóa source và đường base CHG-077 đã verified(manifest7fd760ed4713f09e106cb5d1d5384c6ecccc31e15be235648bc50b3535f93f34). Không thay Q/SS/ROP/tồn/đơn/ETA/receipts/episode. Dùng tồn cuối ngày và lô đã biết trước quyết định;không dùng đơn mới hôm nay hoặc actual tương lai phát cảnh báo.
+- Chỉ C00 và S25,validation trước test,hệ số đã được giao sẵn,không lựa chọn lại trên tập mới hoặc mở rộng nếu chưa45%. Giữ warmup/scoring và split của CHG-077:366episode validation,400test;ghi target45% lần lượt165/180ca. Tái lập phương pháp cũ151→228/486 và193→285/578 trước so policy mới. Mọi số test là hồi cứu,không là holdout độc lập.
+- Runner riêng tối thiểu dùng project/scorer hiện có;verifier tự tính scalar projection và event-first scoring,kiểm hashes/preservation,causal/known receipts/zero stock/baseline identity/tamper. Báo early,precision/recall,TP/FP/can thiệp/rightcensor,alarms/day,ngày cạn,gained/lost early trên cùngID;fill/thiếu/đơn giữ y nguyên cơ sở.
+- Không đổi FE/API/schema/model/default,không ghi DB app. Code/tests/config/docs không nhạy cảm qua local→commit→push thường→remoteSHA→CI;raw/run/DB/Word giữ local. R07/T14 mở.
+
+Trạng thái: hoàn tất C00/S25×2split;276Python,verifier342.240alarm rows đạt. Validation104→172/366(28,4153%→46,9945%);test129→196/400(32,25%→49,00%). Test FP406→1263,precision74,0575%→59,6228%,alarms/ngày56,9219→103,1406;physical path/fill/thiếu/DB giữ nguyên. Không đổi mặc định;R07/T14 mở. [Bàn giao](../development.md#handoff-chg078).
+
+Yêu cầu bổ sung cùng lượt:người dùng sau đó giao cập nhật Word và không bổ sung kết quả cũ. Đã cập nhật đúng file hiện có thành27trang,chỉ số liệu fixed mới,thay phầnMOQ cũ;giữ UI/ERD/công thức/kịch bản và câu hỏi. Quyền mới này thay giới hạn giữ Word ở phần đầu,không mở quyền đổi app/schema/default. Bản trước được backup trongQA riêng,raw/run/appDB giữ nguyên.
