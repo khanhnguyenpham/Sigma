@@ -1,0 +1,57 @@
+{
+  "id": "fixed-lot-s25-v1",
+  "baseline_folder": "outputs/research/fixed-lot-baseline/fixed-lot-baseline-v1-b98b58f9-553e-4bc3-b8d5-be7f526ea062",
+  "baseline_files": {
+    "lock.json": "696e4730a7c144e66c56843b0251bcb03b2e23ae3965d80b64f8e082cc53062f",
+    "manifest.json": "7fd760ed4713f09e106cb5d1d5384c6ecccc31e15be235648bc50b3535f93f34",
+    "verification.json": "4e536871b00d8456b0d3a77ece843f8dcd4e2eb01a0500a98ea87453f175b3a1",
+    "quantities.json": "b221558fbea7e2237767002ac7bcd27867660dd010080a7223fdaf1992a2112d",
+    "summary.json": "417e9856356d58cfccc1f4794b5806d227d3d150ab24d76678ef67391480cc5c"
+  },
+  "candidates": {
+    "C00": 1,
+    "S25": 1.25
+  },
+  "effective_from": "2025-07-29",
+  "horizon_days": 14,
+  "minimum_early_days": 7,
+  "legacy_expected": {
+    "validation": {
+      "C00": [
+        151,
+        486
+      ],
+      "S25": [
+        228,
+        486
+      ]
+    },
+    "test": {
+      "C00": [
+        193,
+        578
+      ],
+      "S25": [
+        285,
+        578
+      ]
+    }
+  },
+  "fixed_expected": {
+    "validation": [
+      104,
+      366
+    ],
+    "test": [
+      129,
+      400
+    ]
+  },
+  "historical_method": {
+    "ref": "f2cdb150d48f6db339df7e18137e2e44c2c47f22",
+    "protocol_git_blob_sha256": "49a2ccacf44d09425cb08dcbdf0418ce5ceec6bd63641a714b7520b586df9b7f"
+  },
+  "selection": false,
+  "application_change": false,
+  "test_retrospective": true
+}
