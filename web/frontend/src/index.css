@@ -1795,3 +1795,50 @@ body:has([aria-modal="true"]) {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Warehouse directory and the products within one warehouse. */
+.context-bar.warehouse-context { grid-template-columns: minmax(220px, 1fr) minmax(180px, 260px); }
+.warehouse-scope, .warehouse-breadcrumb, .warehouse-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.warehouse-scope { margin: -6px 0 20px; color: #7c89a0; font-size: 11px; }
+.warehouse-scope strong { color: #3e4f72; font-weight: 600; }
+.warehouse-breadcrumb { margin: 3px 0 15px; color: var(--muted); font-size: 12px; }
+.warehouse-breadcrumb button { padding: 3px 0; }
+.warehouse-actions { gap: 8px; justify-content: flex-end; }
+.warehouse-toolbar { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin: 5px 0 17px; }
+.warehouse-toolbar .list-search { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 210px; border: 1px solid var(--border); border-radius: 8px; padding: 0 12px; color: #8c98ad; }
+.warehouse-toolbar .list-search input { border: 0; width: 100%; min-width: 0; padding: 11px 0; background: transparent; outline-offset: 4px; }
+.warehouse-toolbar > label:not(.list-search), .inventory-filters > label { display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: #7e8ba3; min-width: 165px; }
+.warehouse-toolbar select, .inventory-filters select { width: 100%; min-width: 0; padding: 10px; }
+.warehouse-list-meta { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 18px; font-size: 11px; color: #8895aa; }
+.warehouse-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+button.warehouse-card { display: block; width: 100%; min-width: 0; text-align: left; border: 1px solid #e4e9f3; border-radius: 12px; padding: 21px 20px 0; background: #fff; box-shadow: 0 2px 5px #243e6b03; font-weight: 400; }
+button.warehouse-card:hover { border-color: #a9b5f0; background: #fcfcff; box-shadow: 0 5px 18px #5366df0d; }
+.warehouse-card-heading { display: flex; align-items: center; gap: 12px; }
+.warehouse-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: #eff1ff; color: #6374dd; border-radius: 11px; flex-shrink: 0; }
+.warehouse-location { flex: 1; min-width: 0; }
+.warehouse-location h3 { font-size: 17px; color: #273653; margin: 0 0 3px; line-height: 1.4; }
+.warehouse-location > span { font-size: 11px; color: #8995ab; }
+.warehouse-card-heading > svg { flex-shrink: 0; color: #9ca8bf; }
+.carrier-chip { display: inline-flex; align-items: center; gap: 7px; border-radius: 5px; background: #f4f6fa; padding: 4px 8px; font-size: 10px; color: #929db0; margin-top: 14px; }
+.carrier-chip strong { color: #566684; font-weight: 550; }
+.warehouse-card-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin: 20px 0; }
+.warehouse-card-metrics dt { font-size: 10px; color: #8a96ab; margin-bottom: 6px; }
+.warehouse-card-metrics dd { font-size: 22px; font-weight: 650; color: #293b59; margin: 0; }
+.warehouse-card-metrics .stock-warning { color: #d79036; }
+.warehouse-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 13px 0; border-top: 1px solid #eef1f6; font-size: 10px; color: #919db0; }
+.warehouse-card-footer strong { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; color: var(--primary); font-weight: 550; white-space: nowrap; }
+.inventory-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 13px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eef1f6; }
+.inventory-filters > label { flex: 1; }
+@media (max-width: 1250px) { .warehouse-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) {
+  .context-bar.warehouse-context { grid-template-columns: minmax(0, 1fr); }
+  .warehouse-grid { grid-template-columns: minmax(0, 1fr); }
+  .warehouse-toolbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .warehouse-toolbar .list-search { grid-column: span 2; min-width: 0; }
+  .warehouse-toolbar > label:not(.list-search), .inventory-filters > label { min-width: 0; }
+  .warehouse-list-meta { flex-direction: column; gap: 3px; }
+  .warehouse-actions { justify-content: flex-start; }
+  .warehouse-actions button, .warehouse-actions a { font-size: 11px; }
+  .inventory-filters { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .warehouse-card-footer { font-size: 9px; }
+}

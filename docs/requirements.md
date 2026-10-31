@@ -280,3 +280,9 @@ Người dùng29/10/2026 giao tự phân nhóm doanh số thấp/cao. Theo từn
 ## CHG-079 — Làm rõ nhà cung cấp và tinh gọn schema
 
 Ngày 31/10/2026, người dùng xác định trực tiếp **nhà cung cấp chính là carrier**, ví dụ Vinaphone cung cấp sản phẩm Vinaphone, yêu cầu sửa DB thực và bỏ trường sai/dư thừa. Đây là yêu cầu người dùng, không tự gán cho mentor. R06: một carrier một supplier dùng chung các tuyến; policy/override chỉ dùng supplier khớp carrier item. Bỏ tên/mã SUP và nhãn supplier giả độc lập; bảng suppliers còn id/carrier/created_at. Kho/policy/tồn/receipts vẫn có giả định phù hợp. Giữ các khóa lịch sử, phiên bản, MOQ cũ và snapshot đã freeze; không đổi phép tính hay nghiệm thu R07/T14. [Thiết kế](../M3/docs/02-data-model.md#supplier-carrier-chg079), [bàn giao](development.md#handoff-chg079).
+
+
+<a id="warehouse-navigation-chg080"></a>
+## CHG-080 — Làm rõ R08: chọn kho trước, tên kho là thành phố
+
+31/10/2026, nguồn là yêu cầu trực tiếp của người dùng trong chat và ảnh UI: trang Tồn kho mở danh sách kho, chọn một kho mới xem sản phẩm; tên kho **chỉ là tên thành phố**, carrier/quốc gia là thông tin riêng. Cho tìm/lọc kho và lọc carrier/loại/SKU trong kho; hiện một carrier/kho, mở rộng nhiều carrier chỉ là hướng UI, chưa đổi schema/nghiệp vụ. Giữ ID kho, giả định vị trí, policy và run frozen; không coi city minh họa là vị trí tối ưu/thật. Có thể điều chỉnh Nhập hàng/Dự báo để giữ cùng phạm vi kho. Không thay M05/R05, policy mặc định hoặc nghiệm thu R07/T14. [Bàn giao](development.md#handoff-chg080).

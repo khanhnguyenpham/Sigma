@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 
 const paths: Record<string, React.ReactNode> = {
+  warehouse: <><path d="m3 9 9-6 9 6v12H3Z" /><path d="M7 21V11h10v10M7 15h10M7 18h10" /></>,
   grid: (
     <>
       <rect x="3" y="3" width="7" height="7" rx="1.5" />

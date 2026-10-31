@@ -222,3 +222,8 @@ Nguồn chuẩn schema mới: [13 bảng/ERD](../M3/docs/02-data-model.md), [API
 | Truy vết | scenarios, runs cùng config/policy/catalog snapshot/hash | Parent/source/target tương thích; complete gate; run cũ bất biến. |
 
 Không tạo bảng route/customer/invoice riêng; metric trong runs.result_summary, khuyến nghị trong inventory_daily. Giao diện/source/CLI mới chỉ là đặc tả; các schema E37/E39 và ledgerL3 trước đây giữ lịch sử và phải kiểm lại nếu chuyển sang M3L7.
+
+
+### CHG-080 — Read model danh mục kho
+
+Tên kho trên FE lấy từ city frozen, không dùng carrier làm tên hoặc ghép vào tên. Kho vẫn theo warehouse_id/(country,carrier); các ID trùng city không được gộp. API workspace thêm warehouse_stock đầy đủ theo run/ngày/filter, mỗi warehouse_id có số mặt hàng/tồn/cần bổ sung; không lấy mẫu route_stock8 hay inventory50dòng để suy tổng. Mảng rỗng là không có sổ tồn trong phạm vi, không chứng minh tồn0. Schema app0005_carrier và các snapshot/CSV cũ giữ nguyên. [Đặc tả](../M3/docs/03-backend-api.md).

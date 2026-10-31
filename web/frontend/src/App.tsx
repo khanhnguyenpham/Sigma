@@ -37,7 +37,12 @@ export default function App() {
     page === "forecast" ? (
       <Forecast run={run} ctx={ctx} />
     ) : page === "inventory" ? (
-      <Inventory {...props} />
+      <Inventory {...props}
+        catalog={app.catalog} itemOptions={app.items.data?.items ?? []}
+        supplierOptions={app.suppliers.data?.items ?? []}
+        onWarehouse={app.selectWarehouse}
+        onFilterChange={(patch) => app.setCtx((c) => ({ ...c, ...patch }))}
+        onNavigate={navigate} />
     ) : page === "replenishment" ? (
       <Replenishment
         {...props}

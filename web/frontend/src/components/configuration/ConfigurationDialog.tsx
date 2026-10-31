@@ -5,6 +5,7 @@ import { type ConfigurationState } from "../../hooks/useConfiguration";
 import { PolicyForm } from "./PolicyForm";
 
 import { ScenarioForm } from "./ScenarioForm";
+import { warehouseName } from "../../utils/warehouse";
 
 export function ConfigurationDialog({
   editor,
@@ -66,7 +67,7 @@ export function ConfigurationDialog({
                 <option value="">Chọn kho / tuyến</option>
                 {warehouses.data?.items.map((w) => (
                   <option key={String(w.id)} value={String(w.id)}>
-                    {String(w.destination_country)} / {String(w.carrier)}
+                    {warehouseName(w)}
                   </option>
                 ))}
               </select>

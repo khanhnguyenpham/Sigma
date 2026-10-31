@@ -1406,3 +1406,9 @@ Kết quả CHG-078:276Python và verifier342.240dòng đạt;validation172/366=
 ## CHG-079 — Nhà cung cấp là carrier (31/10/2026)
 
 Nguồn: yêu cầu trực tiếp trong chat: Vinaphone cung cấp sản phẩm Vinaphone; “để nhà cung cấp là carrier luôn và sửa lại DB luôn”; tiếp theo yêu cầu sửa trường sai/dư thừa. Thay mô hình supplier SUP giả theo tuyến bằng carrier nguồn; bỏ ba trường display_name/is_assumed/assumption_source trên supplier và đổi code→carrier. Không thay nguồn mentor hoặc nhận có hợp đồng supplier. Kiểm trực tiếp trước sửa: DB app0004_fixed_qty có46kho/46carrier/46supplier,5run complete; mỗi supplier chỉ gắn một carrier, không phải gộp/xóa ID. Giữ ID/FK và dữ liệu run, thêm ràng buộc khớp carrier, đồng bộ backend/FE/tài liệu. [Bằng chứng bàn giao](development.md#handoff-chg079).
+
+
+<a id="chg080"></a>
+## CHG-080 — Danh sách kho trước sản phẩm, tên city (31/10/2026)
+
+Người dùng đưa ảnh trang Tồn kho đang trộn920sản phẩm, yêu cầu kho→sản phẩm, tên thành phố trong quốc gia và lọc carrier; làm rõ lần2 “tên thành phố thôi… không thêm carrier vào tên kho”. Thực hiện FE theo city hiện có và metadata riêng, giữ46ID kho/920item, một carrier/kho. API chỉ thêm aggregate read-only đủ từng ID để tránh tổng bị giới hạn8tuyến/50dòng. Kho trùng city không gộp, bộ lọc không làm thay dữ liệu frozen.256BE/59React suite,29target và6target mới nhất/build/browser390px/API/CSV đạt. Đối chiếu trực tiếp SHA256 runs/warehouses/items/policies khớp evidence CHG079; schema0005/5run giữ nguyên. Đây là yêu cầu UI của người dùng, không là xác nhận mentor hoặc kết quả mô hình mới. [Bàn giao](development.md#handoff-chg080).

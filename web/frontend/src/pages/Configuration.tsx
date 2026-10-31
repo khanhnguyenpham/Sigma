@@ -31,10 +31,10 @@ export function Configuration({ onChanged }: { onChanged: () => void }) {
   const columns =
     tab === "warehouses"
       ? [
-          { key: "code", label: "Kho" },
+          { key: "city", label: "Tên kho" },
+          { key: "code", label: "Mã kho" },
           { key: "destination_country", label: "Điểm đến" },
           { key: "carrier", label: "Nhà mạng" },
-          { key: "city", label: "Thành phố giả định" },
           { key: "version", label: "Phiên bản" },
         ]
       : tab === "policies"

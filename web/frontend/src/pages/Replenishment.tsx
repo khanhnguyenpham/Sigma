@@ -16,6 +16,7 @@ import { PlanRequired } from "../components/ui/PlanRequired";
 import { Card } from "../components/ui/Card";
 
 import { Icon } from "../components/ui/Icon";
+import { warehouseName } from "../utils/warehouse";
 
 interface PurchasingData extends Page {
   summary: Row;
@@ -251,15 +252,16 @@ export function Replenishment({
                   ),
                 },
                 {
-                  key: "carrier",
-                  label: "Kho / tuyến",
-                  render: (v, r) => (
+                  key: "city",
+                  label: "Kho nhận hàng",
+                  render: (_v, r) => (
                     <div className="cell-product">
-                      <strong>{String(v)}</strong>
+                      <strong>{warehouseName(r)}</strong>
                       <small>{String(r.destination_country)}</small>
                     </div>
                   ),
                 },
+                { key: "carrier", label: "Nhà mạng" },
                 ...(view === "recommendations"
                   ? [
                       { key: "closing_qty", label: "Tồn hiện có" },

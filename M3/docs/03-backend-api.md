@@ -1,5 +1,10 @@
 # M3 — backend, API và worker
 
+## CHG-080 — Aggregate cho danh mục kho
+
+GET /api/v1/runs/{id}/workspace bổ sung warehouse_stock: danh sách đầy đủ warehouse_id/city/destination_country/carrier/item_count/on_hand_units/low_stock_items/replenish_items/recommended_units. Nhóm theo warehouse_id từ toàn bộ inventory cùng run/ngày/filter, không gộp theo city, không phân trang hoặc cắt8dòng. City lấy từ snapshot frozen. Không có inventory trong phạm vi thì trả mảng rỗng; FE không coi là tồn0. Các totals, route_stock tối đa8, policy/worker/CSV cũ không đổi. Không thêm schema/migration/endpoint mutation. [Luồng FE](04-frontend-spec.md#warehouse-navigation-chg080).
+
+
 ## CHG-079 — Supplier là carrier
 
 `GET /api/v1/suppliers` trả các trường `id`, `carrier`, `created_at`; bỏ code/display_name/is_assumed/assumption_source của supplier. API policy giữ supplier_id để bảo toàn FK và snapshot cũ; `supplier_code` trong read model là tên carrier, thêm `carrier` để form xác định nhà cung cấp. POST policy/scenario trả 422 `supplier_carrier_mismatch` nếu chọn sai carrier; run mới cũng kiểm scenario cũ khi freeze. Import/seed dùng carrier làm khóa, không còn SUP theo ordinal tuyến. [Schema](02-data-model.md#supplier-carrier-chg079).

@@ -4,6 +4,7 @@ import { fmt, text } from "../../utils/format";
 import { badge } from "../ui/Badge";
 import { DetailDrawer } from "../ui/DetailDrawer";
 import { Icon } from "../ui/Icon";
+import { warehouseName } from "../../utils/warehouse";
 
 export function PurchasingDetails({
   focused,
@@ -40,6 +41,7 @@ export function PurchasingDetails({
             {text(focused.carrier)} · {text(focused.destination_country)} ·{" "}
             {text(focused.product_type)}
           </p>
+          <p>Kho nhận hàng: <strong>{warehouseName(focused)}</strong></p>
         </div>
       </div>
       {view === "recommendations" ? (

@@ -193,7 +193,7 @@ export function MonthlyForecast({ run, ctx }: { run?: Run; ctx: Context }) {
               columns={[
                 {
                   key: "carrier",
-                  label: "Kho / tuyến",
+                  label: "Nhà mạng / quốc gia",
                   render: (v, r) => (
                     <div className="cell-product">
                       <strong>{String(v)}</strong>

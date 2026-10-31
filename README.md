@@ -1,5 +1,10 @@
 # SIGMA — React / FastAPI local
 
+## Xem tồn kho theo kho — CHG-080
+
+Mở **Tồn kho → chọn thẻ thành phố → xem sản phẩm**. Tên kho chỉ là city; quốc gia/carrier ở thông tin riêng. Trong kho có lọc nhà mạng/loại/SKU và nút mở Nhập hàng/Dự báo cùng phạm vi. [Chi tiết và kiểm tra](docs/development.md#handoff-chg080).
+
+
 ## Cập nhật lượng nhập mỗi lần ngày 29 tháng 10
 
 Ứng dụng mới dùng một lượng nhập cố định theo mặt hàng thay công thức lượng biến đổi theo MOQ. Cấu hình “Lượng nhập mỗi lần” trong policy hiện có; kịch bản không thay lượng này. Khi cần bổ sung Q bằng đúng lượng cấu hình, ETA7ngày; nếu hàng đang về đã đủ mức S thì Q=0. Không có module quản lý hợp đồng mới.

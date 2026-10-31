@@ -20,6 +20,7 @@ import type { PurchasingView } from "../types/context";
 import { Icon } from "../components/ui/Icon";
 import type { WorkspaceData } from "../types/api";
 import { alertTypeLabel } from "../utils/labels";
+import { warehouseName } from "../utils/warehouse";
 export function Alerts({
   run,
   ctx,
@@ -156,15 +157,16 @@ export function Alerts({
                     ),
                   },
                   {
-                    key: "carrier",
-                    label: "Kho / tuyến",
-                    render: (v, r) => (
+                    key: "city",
+                    label: "Kho",
+                    render: (_v, r) => (
                       <div className="cell-product">
-                        <strong>{String(v)}</strong>
+                        <strong>{warehouseName(r)}</strong>
                         <small>{String(r.destination_country)}</small>
                       </div>
                     ),
                   },
+                  { key: "carrier", label: "Nhà mạng" },
                   {
                     key: "alert_type",
                     label: "Tín hiệu",

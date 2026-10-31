@@ -21,16 +21,15 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
         <h3>Bắt đầu một kế hoạch</h3>
         <ol>
           <li>
-            Chọn phương án, ngày kế hoạch và kho ở thanh bộ lọc. Ngày nghiệp vụ
-            theo UTC.
+            Chọn phương án và ngày kế hoạch ở thanh bộ lọc. Ngày nghiệp vụ theo UTC.
           </li>
           <li>
             Xem Dự báo nhu cầu: tổng 30 dùng lập nhu cầu dài hơn; dự báo hai
             khối 7 ngày được phân bổ thành 14 ngày để tính tồn.
           </li>
           <li>
-            Mở Tồn kho và chọn một mặt hàng để xem ngưỡng nhập, hàng đang về và
-            lượng cần đặt.
+            Mở Tồn kho, chọn kho theo tên thành phố rồi chọn sản phẩm để xem
+            ngưỡng nhập, hàng đang về và lượng cần đặt. Trong kho có bộ lọc nhà mạng, loại và mã sản phẩm.
           </li>
           <li>
             Trong Nhập hàng, rà Cần bổ sung, Đang về và Lịch sử. Đề xuất chưa

@@ -159,12 +159,16 @@ def test_workspace_pending_counts_are_as_of_and_alert_items_not_double_counted(
             data["incoming"][0]["ordered_qty"] == 20
         )  # Final status received must not hide this lot at D.
         assert data["route_stock"][0]["closing_qty"] == 7
+        assert data["warehouse_stock"] == [dict(warehouse_id=1, city="Frozen City",
+            destination_country="DemoLand", carrier="DemoCarrier", item_count=1,
+            on_hand_units=7, low_stock_items=1, replenish_items=0, recommended_units=0)]
         empty = client.get(path + "&item_id=999").json()
         assert (
             empty["summary"]["item_count"] == 0
             and empty["summary"]["on_hand_units"] is None
         )
         assert not empty["summary"]["inventory_available"] and not empty["incoming"]
+        assert empty["warehouse_stock"] == []
         other = client.get(path + "&product_type=physical_SIM").json()
         assert not other["summary"]["inventory_available"]
         missing_day = client.get(
@@ -172,6 +176,57 @@ def test_workspace_pending_counts_are_as_of_and_alert_items_not_double_counted(
         ).json()
         assert missing_day["summary"]["on_hand_units"] is None
         assert missing_day["context"]["run_id"] == str(key)
+        assert missing_day["warehouse_stock"] == []
+
+
+def test_warehouse_directory_aggregates_all_ids_and_uses_frozen_cities(pg, tmp_path):
+    from copy import deepcopy
+    from sqlalchemy import select
+    from modules.catalog.models import Warehouse, Item
+    _, sessions = pg
+    key, _, item = workspace_fixture(sessions, pending=False)
+    with sessions.begin() as session:
+        run = session.get(Run, key)
+        snapshot = deepcopy(run.config_snapshot)
+        original = session.scalar(select(InventoryDaily).where(InventoryDaily.run_id == key))
+        original_policy = session.get(Policy, original.policy_id)
+        ledger_values = {c.name: getattr(original, c.name) for c in InventoryDaily.__table__.columns
+                         if c.name not in {"id", "item_id", "policy_id"}}
+        policy_values = {c.name: getattr(original_policy, c.name) for c in Policy.__table__.columns
+                         if c.name not in {"id", "item_id", "created_at"}}
+        for index in range(10):
+            warehouse = Warehouse(code=f"SYN-{index}", city="Shared City", destination_country=f"Country-{index}",
+                                  carrier="DemoCarrier", assumption_source="synthetic")
+            session.add(warehouse)
+            session.flush()
+            extra = Item(warehouse_id=warehouse.id, sku="SYNTHETIC", product_type="eSIM", first_seen_date=D)
+            session.add(extra)
+            session.flush()
+            policy = Policy(item_id=extra.id, **policy_values)
+            session.add(policy)
+            session.flush()
+            session.add(InventoryDaily(item_id=extra.id, policy_id=policy.id, **ledger_values))
+            snapshot["warehouse_snapshot"].append(dict(id=warehouse.id, code=warehouse.code,
+                city=warehouse.city, destination_country=warehouse.destination_country, carrier=warehouse.carrier))
+            snapshot["catalog_snapshot"].append(dict(item_id=extra.id, sku=extra.sku, product_type=extra.product_type,
+                first_seen_date=str(D), destination_country=warehouse.destination_country, carrier=warehouse.carrier))
+            snapshot["policies"].append({**snapshot["policies"][0], "id": policy.id, "item_id": extra.id})
+        run.config_snapshot = snapshot
+        run.config_sha256 = digest(snapshot)
+        warehouse.city = "Changed live city"
+        last_warehouse = warehouse.id
+    with TestClient(create_app(settings(tmp_path))) as client:
+        path = f"/api/v1/runs/{key}/workspace?as_of_date={D}"
+        data = client.get(path).json()
+        assert len(data["warehouse_stock"]) == 11 and len(data["route_stock"]) == 8
+        assert sum(w["on_hand_units"] for w in data["warehouse_stock"]) == data["summary"]["on_hand_units"] == 77
+        assert sum(w["item_count"] for w in data["warehouse_stock"]) == data["summary"]["item_count"] == 11
+        assert sum(w["recommended_units"] for w in data["warehouse_stock"]) == data["summary"]["recommended_units"] == 154
+        assert len({w["warehouse_id"] for w in data["warehouse_stock"]}) == 11
+        selected = client.get(path + f"&warehouse_id={last_warehouse}").json()["warehouse_stock"]
+        assert len(selected) == 1 and selected[0]["city"] == "Shared City"
+        assert selected[0]["item_count"] == 1 and selected[0]["replenish_items"] == 1
+        assert client.get(path + "&product_type=physical_SIM").json()["warehouse_stock"] == []
 
 
 def test_workspace_attention_and_guardrails(pg, tmp_path):

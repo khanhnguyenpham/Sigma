@@ -3,14 +3,17 @@ import { label } from "../utils/labels";
 import { text } from "../utils/format";
 import { badge } from "../components/ui/Badge";
 import { Icon } from "../components/ui/Icon";
+import { warehouseName } from "../utils/warehouse";
 
 import { type AppContextState } from "../hooks/useAppContext";
 
 export function ContextFilters({ app }: { app: AppContextState }) {
   const { ctx, setCtx, runs, selectRun, catalog, items, run, suppliers } = app;
+  const inventoryPage = app.page === "inventory";
+  const warehouse = catalog.data?.items.find((w) => String(w.id) === ctx.warehouseId);
   return (
     <>
-      <section className="context-bar" aria-label="Bộ lọc cùng lượt chạy">
+      <section className={"context-bar" + (inventoryPage ? " warehouse-context" : "")} aria-label="Bộ lọc cùng lượt chạy">
         <label className="plan-filter">
           Phương án
           <select
@@ -27,8 +30,8 @@ export function ContextFilters({ app }: { app: AppContextState }) {
             ))}
           </select>
         </label>
-        <label>
-          Kho / tuyến
+        {!inventoryPage && <><label>
+          Kho
           <select
             aria-label="Kho / tuyến"
             value={ctx.warehouseId}
@@ -43,7 +46,7 @@ export function ContextFilters({ app }: { app: AppContextState }) {
             <option value="">Tất cả kho</option>
             {catalog.data?.items.map((w) => (
               <option key={String(w.id)} value={String(w.id)}>
-                {String(w.destination_country)} / {String(w.carrier)}
+                {warehouseName(w)}
               </option>
             ))}
           </select>
@@ -66,6 +69,7 @@ export function ContextFilters({ app }: { app: AppContextState }) {
             ))}
           </select>
         </label>
+        </>}
         <label>
           Ngày kế hoạch · UTC
           <input
@@ -75,7 +79,7 @@ export function ContextFilters({ app }: { app: AppContextState }) {
             onChange={(e) => setCtx((c) => ({ ...c, origin: e.target.value }))}
           />
         </label>
-        <details className="extra-filters">
+        {!inventoryPage && <details className="extra-filters">
           <summary>
             <Icon name="filter" size={16} /> Bộ lọc
           </summary>
@@ -99,7 +103,7 @@ export function ContextFilters({ app }: { app: AppContextState }) {
               </select>
             </label>
             <label>
-              Nhà cung cấp
+              Nhà mạng (carrier)
               <select
                 aria-label="Nhà cung cấp"
                 disabled={!run || !inventoryKinds.includes(run.kind)}
@@ -131,8 +135,12 @@ export function ContextFilters({ app }: { app: AppContextState }) {
               Xóa bộ lọc
             </button>
           </div>
-        </details>
+        </details>}
       </section>
+      {!inventoryPage && warehouse && <div className="warehouse-scope" aria-label="Kho đang chọn">
+        <Icon name="warehouse" size={17} /><span>Kho <strong>{warehouseName(warehouse)}</strong></span>
+        <span>{String(warehouse.destination_country)}</span><span>Nhà mạng <strong>{String(warehouse.carrier)}</strong></span>
+      </div>}
       <div className="context-meta">
         {run && (
           <>

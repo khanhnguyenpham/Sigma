@@ -157,6 +157,12 @@ export function useAppContext() {
     }));
     navigate(target, view);
   }
+  function selectWarehouse(id: string) {
+    const next = { ...ctx, warehouseId: id, itemId: "", supplierId: "", productType: "" };
+    history.pushState(null, "", "?" + contextUrl(next) + "#" + page);
+    setCtx(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
   const chooseInventory = compatible
     ? () => selectRun(compatible.id)
     : undefined;
@@ -188,6 +194,7 @@ export function useAppContext() {
     selectRun,
     navigate,
     openItem,
+    selectWarehouse,
     chooseInventory,
   };
 }

@@ -33,4 +33,5 @@ export interface WorkspaceData {
   attention: Row[];
   incoming: Row[];
   route_stock: Row[];
+  warehouse_stock?: Row[];
 }

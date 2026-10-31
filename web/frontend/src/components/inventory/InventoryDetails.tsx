@@ -6,6 +6,7 @@ import { DetailDrawer } from "../ui/DetailDrawer";
 import { badge } from "../ui/Badge";
 import type { PurchasingView } from "../../types/context";
 import { Icon } from "../ui/Icon";
+import { warehouseName } from "../../utils/warehouse";
 
 export function InventoryDetails({
   focused,
@@ -20,11 +21,10 @@ export function InventoryDetails({
     <DetailDrawer title={text(focused.sku)} onClose={onClose}>
       <dl className="drawer-fields">
         <div>
-          <dt>Kho / tuyến</dt>
-          <dd>
-            {text(focused.destination_country)} / {text(focused.carrier)}
-          </dd>
+          <dt>Kho</dt><dd>{warehouseName(focused)}</dd>
         </div>
+        <div><dt>Quốc gia</dt><dd>{text(focused.destination_country)}</dd></div>
+        <div><dt>Nhà mạng</dt><dd>{text(focused.carrier)}</dd></div>
         <div>
           <dt>Loại sản phẩm</dt>
           <dd>{text(focused.product_type)}</dd>

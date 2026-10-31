@@ -23,8 +23,8 @@ import { type Context } from "../types/context";
 import { resultQuery } from "../utils/url";
 import { fmt } from "../utils/format";
 export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
-  const [mode, setMode] = useState<"monthly" | "operational">("monthly");
-  const [daily, setDaily] = useState(false),
+  const [mode, setMode] = useState<"monthly" | "operational">(ctx.warehouseId ? "operational" : "monthly");
+  const [daily, setDaily] = useState(!!ctx.warehouseId),
     [block, setBlock] = useState("1"),
     [page, setPage] = useState(1);
   const id = run?.kind === "forecast" ? run.id : run?.forecast_run_id;

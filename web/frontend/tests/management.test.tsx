@@ -128,10 +128,10 @@ it("closes item details on context change before any old result can be reused", 
             : { items: workspace.attention, total: 1 },
         ),
   );
-  const view = render(<Inventory run={run()} ctx={ctx} />);
+  const view = render(<Inventory run={run()} ctx={{ ...ctx, warehouseId: "18" }} />);
   fireEvent.click(await screen.findByText("TEST-SKU"));
   expect(screen.getByRole("dialog")).toBeVisible();
-  view.rerender(<Inventory run={run("new")} ctx={{ ...ctx, runId: "new" }} />);
+  view.rerender(<Inventory run={run("new")} ctx={{ ...ctx, runId: "new", warehouseId: "18" }} />);
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(screen.queryByText("TEST-SKU")).toBeNull();
 });

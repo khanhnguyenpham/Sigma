@@ -121,8 +121,10 @@ it("restores run/date/purchasing view through Back and reload and clears incompa
       "2025-11-02",
     ),
   );
-  expect(screen.getByLabelText("Kho / tuyến")).toHaveValue("");
-  expect(screen.getByLabelText("SKU")).toBeDisabled();
+  expect(screen.queryByLabelText("Kho / tuyến")).toBeNull();
+  expect(screen.queryByLabelText("SKU")).toBeNull();
+  await screen.findByRole("heading", { name: "Danh sách kho" });
+  expect(location.search).not.toContain("warehouse_id");
   await waitFor(() => expect(location.search).not.toContain("item_id"));
   fireEvent.click(
     screen.getByRole("button", { name: "Nhập hàng" }),

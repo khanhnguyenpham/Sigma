@@ -1,5 +1,10 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+## CHG-080 — Tổ chức trang tồn kho theo kho
+
+Người dùng yêu cầu ngày31/10/2026: xem danh sách kho trước rồi mở kho để xem sản phẩm; tên kho chỉ là một thành phố trong quốc gia đó, không ghép carrier. Dùng city đã khai báo; quốc gia/carrier hiển thị riêng. Hiện mỗi kho vẫn chứa sản phẩm của một carrier; có bộ lọc carrier trong kho cho giao diện mở rộng sau, chưa thay quan hệ kho1–1tuyến hoặc cho trộn carrier ở DB. Không gộp các kho trùng thành phố. [Thiết kế/kiểm](04-frontend-spec.md#warehouse-navigation-chg080).
+
+
 ## Lượng nhập mỗi lần sau CHG 076
 
 Ngày29/10/2026: chỉ thêm một giá trị cấu hình fixed_order_qty nguyên dương cho item, tận dụng policy hiện có. Không thêm bảng hoặc chức năng quản lý hợp đồng. Khi closing<ROP và IP<S, Q=fixed_order_qty; nếu không Q=0. Một lô/item/ngày quyết định, ETA D+7. Không tự tăng Q hoặc nhân số lô để đưa IP lên S; S là mốc tham chiếu. Cảnh báo vẫn xem rủi ro theo đường tồn.

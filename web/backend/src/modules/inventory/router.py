@@ -64,9 +64,21 @@ def workspace(
         projected = {r["item_id"] for r in signals if r["alert_type"] == "projected_below_rop"}
         warnings = {r["item_id"] for r in signals if r["state"] != "not_within_horizon"}
         routes = {}
+        warehouse_stock = {}
         for row in inventory:
             route = (row["destination_country"], row["carrier"])
             routes[route] = routes.get(route, 0) + row["closing_qty"]
+            stock = warehouse_stock.setdefault(row["warehouse_id"], dict(
+                warehouse_id=row["warehouse_id"], city=row["city"],
+                destination_country=row["destination_country"], carrier=row["carrier"],
+                item_count=0, on_hand_units=0, low_stock_items=0,
+                replenish_items=0, recommended_units=0,
+            ))
+            stock["item_count"] += 1
+            stock["on_hand_units"] += row["closing_qty"]
+            stock["low_stock_items"] += bool(row.get("needs_replenishment"))
+            stock["replenish_items"] += (row.get("recommended_qty") or 0) > 0
+            stock["recommended_units"] += row.get("recommended_qty") or 0
         totals = dict(
             inventory_available=bool(inventory),
             item_count=len(inventory),
@@ -99,6 +111,7 @@ def workspace(
                 attention=action[:6],
                 incoming=sorted(incoming, key=lambda r: (r["eta"], r["item_id"]))[:5],
                 route_stock=route_stock[:8],
+                warehouse_stock=sorted(warehouse_stock.values(), key=lambda w: w["warehouse_id"]),
             )
         )
 

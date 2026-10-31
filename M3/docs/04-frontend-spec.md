@@ -1,5 +1,15 @@
 # M3 — đặc tả frontend
 
+<a id="warehouse-navigation-chg080"></a>
+## CHG-080 — Danh sách kho → sản phẩm trong kho
+
+Tồn kho chưa chọn warehouse_id hiển thị thẻ của toàn bộ kho thuộc catalog frozen của phương án. **Tên kho chỉ là city**; quốc gia và carrier là metadata riêng, không ghép vào tiêu đề. Các kho trùng city vẫn là những ID riêng; hiện mỗi kho chứa sản phẩm của một carrier. Dùng city hiện có, không chỉnh DB hoặc snapshot để đổi nhãn. Thẻ có số mặt hàng, tổng tồn và mặt hàng cần đặt; số liệu lấy từ warehouse_stock đầy đủ của workspace, không từ8tuyến hay50dòng đầu. Không có sổ tồn ngày chọn hiển thị “—”, không suy thiếu dữ liệu thành0.
+
+Danh sách kho có tìm thành phố/quốc gia, lọc quốc gia và carrier. Nhấp thẻ đặt warehouse_id, xóa SKU/carrier/loại cũ; trong kho có breadcrumb quay lại, tổng cùng phạm vi, bộ lọc carrier/loại/SKU/trạng thái, chi tiết sản phẩm và CSV. Chọn kho tạo entry history để Back/forward/reload hoạt động. Thanh chung ở Tồn kho chỉ giữ phương án/ngày, tránh bộ chọn SKU trước khi mở kho. Các trang khác hiển thị tên city trong bộ chọn và một dòng quốc gia/carrier riêng.
+
+Nhập hàng giữ kho/loại/SKU/carrier khi mở từ chi tiết kho, bảng tách Kho nhận hàng và Nhà mạng. Từ kho mở Dự báo nhu cầu ưu tiên phân bổ theo ngày H14 của kho; không chọn kho vẫn ưu tiên Tổng30 như trước. Các tab Tổng30/Tổng7/Phân bổ và M05/R05 giữ nghĩa, không thay forecast/model. Cấu hình và drawer phân biệt tên kho(city), mã kho và carrier. Responsive390px: thẻ một cột, filters xếp dọc, bảng sản phẩm cuộn ngang trong vùng bảng. [Kiểm tra](../../docs/development.md#handoff-chg080).
+
+
 ## CHG-079 — Chọn nhà cung cấp theo carrier
 
 Form policy chỉ có nhà cung cấp khớp carrier của kho/item; đổi kho xóa lựa chọn item cũ, chưa có carrier hợp lệ thì không lưu được. Không mặc định supplier đầu tiên hoặc cho đổi sang carrier khác. Bộ lọc nhà cung cấp và chi tiết lô nhập hiển thị carrier. Run cũ tiếp tục đọc supplier_id và các tham số đã freeze, không tính lại kết quả. [Schema](02-data-model.md#supplier-carrier-chg079).
