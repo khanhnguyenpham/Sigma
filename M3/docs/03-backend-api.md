@@ -1,5 +1,10 @@
 # M3 — backend, API và worker
 
+## CHG-079 — Supplier là carrier
+
+`GET /api/v1/suppliers` trả các trường `id`, `carrier`, `created_at`; bỏ code/display_name/is_assumed/assumption_source của supplier. API policy giữ supplier_id để bảo toàn FK và snapshot cũ; `supplier_code` trong read model là tên carrier, thêm `carrier` để form xác định nhà cung cấp. POST policy/scenario trả 422 `supplier_carrier_mismatch` nếu chọn sai carrier; run mới cũng kiểm scenario cũ khi freeze. Import/seed dùng carrier làm khóa, không còn SUP theo ordinal tuyến. [Schema](02-data-model.md#supplier-carrier-chg079).
+
+
 ## Lượng cố định mỗi lần nhập sau CHG 076
 
 POST /api/v1/supplier-item-policies nhận fixed_order_qty nguyên dương thay moq. API và cột DB cũ moq chỉ dùng đọc lịch sử; API mới từ chối MOQ hoặc thiếu lượng fixed. POST /scenarios từ chối override moq/fixed_order_qty. Run mới dùng policy thiếu lượng fixed hoặc scenario cũ có override lượng trả missing_contract_quantity, không đoán lượng hợp đồng.

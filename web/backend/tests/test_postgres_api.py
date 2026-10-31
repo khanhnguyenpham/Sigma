@@ -33,17 +33,11 @@ def seed(sessions):
             city="Demo City",
             assumption_source="synthetic_fixture",
         )
-        a = Supplier(
-            code="DEMO-S1",
-            display_name="Demo supplier",
-            assumption_source="synthetic_fixture",
-        )
-        b = Supplier(
-            code="DEMO-S2",
-            display_name="Other supplier",
-            assumption_source="synthetic_fixture",
-        )
-        s.add_all([w, a, b])
+        a = Supplier(carrier="DemoCarrier")
+        b = Supplier(carrier="OtherCarrier")
+        s.add_all([a, b])
+        s.flush()
+        s.add(w)
         s.flush()
         item = Item(
             warehouse_id=w.id,
@@ -68,6 +62,20 @@ def request(item, supplier, version=0, start=D):
     )
 
 
+def seed_legacy(sessions):
+    """Insert the pre-carrier schema explicitly for migration tests."""
+    with sessions.begin() as s:
+        supplier = s.scalar(text("""INSERT INTO suppliers(code,display_name,is_assumed,assumption_source)
+            VALUES ('DEMO-S1','Old simulated supplier',true,'synthetic_fixture') RETURNING id"""))
+        other = s.scalar(text("""INSERT INTO suppliers(code,display_name,is_assumed,assumption_source)
+            VALUES ('OtherCarrier','Other supplier',true,'synthetic_fixture') RETURNING id"""))
+        warehouse = s.scalar(text("""INSERT INTO warehouses(code,destination_country,carrier,city,is_assumed,assumption_source,version)
+            VALUES ('DEMO-W1','DemoLand','DemoCarrier','Demo City',true,'synthetic_fixture',1) RETURNING id"""))
+        item = s.scalar(text("""INSERT INTO items(warehouse_id,sku,product_type,first_seen_date)
+            VALUES (:warehouse,'DEMO-ESIM-01','eSIM','2024-01-01') RETURNING id"""), dict(warehouse=warehouse))
+        return item, supplier, other
+
+
 def settings(tmp_path):
     return Settings(os.environ["M3_TEST_DATABASE_URL"], tmp_path, tmp_path / "outputs")
 
@@ -85,16 +93,19 @@ def test_real_postgres_migration_and_role(pg):
         )
 
 
-def test_policy_version_intervals_across_suppliers(pg):
+def test_policy_versions_keep_item_carrier(pg):
     _, sessions = pg
     i, a, b = seed(sessions)
     with sessions.begin() as s:
         first = create_policy(s, request(i, a))
     with sessions.begin() as s:
-        second = create_policy(s, request(i, b, 1, date(2025, 11, 7)))
+        second = create_policy(s, request(i, a, 1, date(2025, 11, 7)))
     with sessions() as s:
         assert s.get(Policy, first.id).effective_to == date(2025, 11, 7)
-        assert s.get(Policy, second.id).supplier_id == b
+        assert s.get(Policy, second.id).supplier_id == a
+    with pytest.raises(DomainError, match="carrier"):
+        with sessions.begin() as s:
+            create_policy(s, request(i, b, 2, date(2025, 11, 8)))
     with pytest.raises(DomainError, match="reload"):
         with sessions.begin() as s:
             create_policy(s, request(i, a, 1, date(2025, 11, 8)))
@@ -118,7 +129,7 @@ def test_concurrent_policy_edits_one_wins(pg):
             return exc.code
 
     with ThreadPoolExecutor(2) as pool:
-        results = list(pool.map(save, [a, b]))
+        results = list(pool.map(save, [a, a]))
     assert sorted(results) == ["created", "version_conflict"]
     with sessions() as s:
         policies = s.scalars(select(Policy)).all()
@@ -144,7 +155,7 @@ def test_frozen_run_prevents_retroactive_policy_close(pg):
         r.config_snapshot = {**r.config_snapshot, "policy_ids": [p.id]}
     with pytest.raises(DomainError, match="frozen"):
         with sessions.begin() as s:
-            create_policy(s, request(i, b, 1, date(2025, 11, 7)))
+            create_policy(s, request(i, a, 1, date(2025, 11, 7)))
 
 
 def test_database_blocks_nan_infinity_and_missing_actual(pg):

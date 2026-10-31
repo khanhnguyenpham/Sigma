@@ -104,7 +104,8 @@ def test_migration_preserves_legacy_rows_and_refuses_lossy_downgrade(pg):
     cfg.attributes['database_url']=engine.url.render_as_string(hide_password=False)
     command.downgrade(cfg,'0003_threshold')
     try:
-        item,supplier,_=seed(sessions)
+        from test_postgres_api import seed_legacy
+        item,supplier,_=seed_legacy(sessions)
         with engine.begin() as c:
             c.execute(text("INSERT INTO supplier_item_policies(item_id,supplier_id,version,effective_from,configured_rop_floor,moq,safety_days,is_assumed,assumption_source) VALUES (:item,:supplier,1,:day,100,50,2,true,'synthetic_legacy')"),dict(item=item,supplier=supplier,day=D))
             before=c.scalar(text('SELECT to_jsonb(t) FROM supplier_item_policies t'))
@@ -120,6 +121,6 @@ def test_migration_preserves_legacy_rows_and_refuses_lossy_downgrade(pg):
                 s.execute(Policy.__table__.update().where(Policy.id==key).values(**values))
         with pytest.raises(IntegrityError):command.downgrade(cfg,'0003_threshold')
         with engine.connect() as c:
-            assert c.scalar(text('SELECT version_num FROM alembic_version'))=='0004_fixed_qty'
+            assert c.scalar(text('SELECT version_num FROM alembic_version'))=='0005_carrier'
             assert c.scalar(text('SELECT fixed_order_qty FROM supplier_item_policies WHERE id=:key'),dict(key=key))==50
     finally:command.upgrade(cfg,'head')

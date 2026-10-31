@@ -114,8 +114,13 @@ def import_snapshot(settings, sessions, run_id):
             (w.destination_country, w.carrier): w
             for w in session.scalars(select(Warehouse))
         }
-        suppliers = {s.code: s for s in session.scalars(select(Supplier))}
+        suppliers = {s.carrier: s for s in session.scalars(select(Supplier))}
         for ordinal, route in enumerate(routes, 1):
+            if route[1] not in suppliers:
+                supplier = Supplier(carrier=route[1])
+                session.add(supplier)
+                session.flush()
+                suppliers[route[1]] = supplier
             if route not in warehouses:
                 w = Warehouse(
                     code=f"WH-{ordinal:03}",
@@ -128,17 +133,6 @@ def import_snapshot(settings, sessions, run_id):
                 session.add(w)
                 session.flush()
                 warehouses[route] = w
-            supplier_code = f"SUP-{ordinal:03}"
-            if supplier_code not in suppliers:
-                s = Supplier(
-                    code=supplier_code,
-                    display_name=f"Simulated supplier {ordinal:03}",
-                    is_assumed=True,
-                    assumption_source="route_supplier_seed_v1",
-                )
-                session.add(s)
-                session.flush()
-                suppliers[supplier_code] = s
         known = {
             (i.warehouse_id, i.sku, i.product_type): i
             for i in session.scalars(select(Item))

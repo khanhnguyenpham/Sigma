@@ -20,5 +20,8 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
     assert set(Base.metadata.tables) == set(baseline['tables'])
     assert len(Base.metadata.tables) == 13
     for name, columns in baseline['tables'].items():
+        if name == 'suppliers':
+            columns = [c for c in columns if c not in {'code', 'display_name', 'is_assumed', 'assumption_source'}]
+            assert set(Base.metadata.tables[name].columns.keys()) == {'id', 'carrier', 'created_at'}
         assert set(columns) <= set(Base.metadata.tables[name].columns.keys())
     app.state.engine.dispose()

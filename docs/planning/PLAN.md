@@ -847,3 +847,11 @@ Nguồn29/10/2026: người dùng yêu cầu chạy ngay hướng từng đạt4
 Trạng thái: hoàn tất C00/S25×2split;276Python,verifier342.240alarm rows đạt. Validation104→172/366(28,4153%→46,9945%);test129→196/400(32,25%→49,00%). Test FP406→1263,precision74,0575%→59,6228%,alarms/ngày56,9219→103,1406;physical path/fill/thiếu/DB giữ nguyên. Không đổi mặc định;R07/T14 mở. [Bàn giao](../development.md#handoff-chg078).
 
 Yêu cầu bổ sung cùng lượt:người dùng sau đó giao cập nhật Word và không bổ sung kết quả cũ. Đã cập nhật đúng file hiện có thành27trang,chỉ số liệu fixed mới,thay phầnMOQ cũ;giữ UI/ERD/công thức/kịch bản và câu hỏi. Quyền mới này thay giới hạn giữ Word ở phần đầu,không mở quyền đổi app/schema/default. Bản trước được backup trongQA riêng,raw/run/appDB giữ nguyên.
+
+
+<a id="chg-079"></a>
+## CHG-079 — Sửa nhà cung cấp thành carrier và bỏ trường dư thừa
+
+31/10/2026, người dùng yêu cầu sửa thiết kế và DB local: supplier chính là carrier, sau đó giao rà các trường sai/dư thừa. T10–T12: đổi bảng suppliers từ id/code/display_name/is_assumed/assumption_source/created_at thành id/carrier/created_at; giữ ID và liên kết policy. FK carrier ở warehouse và trigger DB/API/scenario/run chặn ghép sai. Import/seed dùng carrier, FE chọn theo carrier item. Rà schema còn lại: giữ MOQ lịch sử, policy version/effective interval, run hashes/snapshot và các trường ledger cần để đối soát; không xóa vì chỉ nhìn giống dữ liệu lặp.
+
+Thực hiện migration0005_carrier sau backup; đối chiếu đủ12bảng khác, supplier ID/created_at, run/snapshot và file dữ liệu/artifact. Kiểm PostgreSQL thực, synthetic import/seed nhiều nước cùng carrier, policy/scenario, DB guard, migration/metadata, Python regression, React/build và API app. Không refit/replay mới, không đổi mặc định hoặc nâng R07/T14. Phạm vi sửa trên final-report. Yêu cầu bổ sung ngày31/10/2026 cho phép commit/push thường lên final-report; kiểm remoteSHA=HEAD và CI, không merge/force-push/deploy hoặc đưa raw/run/DB/env lên Git. [Bàn giao](../development.md#handoff-chg079).

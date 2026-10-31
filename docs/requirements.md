@@ -267,10 +267,16 @@ Forecast46/ML36, phân bổ, policy/alert replay riêng, API/worker/React6màn h
 
 Ngày29/10/2026 người dùng làm rõ: mỗi lần nhập phải đúng lượng cố định cấu hình theo hợp đồng đối tác/mặt hàng. MOQ tối thiểu và Q biến đổi trước đây không mô tả yêu cầu này. Policy mới lưu fixed_order_qty nguyên dương có version/hiệu lực; không nhập lượng tùy ý mỗi lần hoặc override lượng hợp đồng trong scenario. Khi closing<ROP và IP<S, một lô có Q=fixed_order_qty; ngược lại Q=0. Không tự tăng số lô hoặc Q khi dự báo cần nhiều hơn lượng đã ký.
 
-MOQ/công thức cũ chỉ còn để tái lập snapshot/run lịch sử. Thiếu lượng cố định phải yêu cầu cấu hình policy mới, không đoán từ MOQ. Tồn, receipts, seed và supplier tiếp tục có nhãn mô phỏng/giả định; chưa có số hợp đồng thật được cung cấp. Kết quả nghiên cứu policy cũ không nghiệm thu policy mới. R07/T14 giữ mở.
+MOQ/công thức cũ chỉ còn để tái lập snapshot/run lịch sử. Thiếu lượng cố định phải yêu cầu cấu hình policy mới, không đoán từ MOQ. Tồn, receipts và seed tiếp tục có nhãn mô phỏng/giả định; CHG-079 xác định supplier chính là carrier nguồn; chưa có số hợp đồng thật được cung cấp. Kết quả nghiên cứu policy cũ không nghiệm thu policy mới. R07/T14 giữ mở.
 
 
 <a id="r06-fixed-research-chg077"></a>
 ## CHG-077 — Giả định lô cho thử nghiệm
 
 Người dùng29/10/2026 giao tự phân nhóm doanh số thấp/cao. Theo từng product_type lấy trung vị quantity03–30/06/2025; cao>trung vị,thấp≤trung vị. eSIM thấp5/cao10; physical_SIM thấp10/cao15. Khóa theo item qua validation/test,không nhận đây là hợp đồng thực. Không ghi đè policy cũ; kết quả mới phải tính lại episode/mẫu số. Chạy hướng cảnh báo gốc trước,đểS25 sau; R07/T14 chưa nghiệm thu.
+
+
+<a id="supplier-carrier-chg079"></a>
+## CHG-079 — Làm rõ nhà cung cấp và tinh gọn schema
+
+Ngày 31/10/2026, người dùng xác định trực tiếp **nhà cung cấp chính là carrier**, ví dụ Vinaphone cung cấp sản phẩm Vinaphone, yêu cầu sửa DB thực và bỏ trường sai/dư thừa. Đây là yêu cầu người dùng, không tự gán cho mentor. R06: một carrier một supplier dùng chung các tuyến; policy/override chỉ dùng supplier khớp carrier item. Bỏ tên/mã SUP và nhãn supplier giả độc lập; bảng suppliers còn id/carrier/created_at. Kho/policy/tồn/receipts vẫn có giả định phù hợp. Giữ các khóa lịch sử, phiên bản, MOQ cũ và snapshot đã freeze; không đổi phép tính hay nghiệm thu R07/T14. [Thiết kế](../M3/docs/02-data-model.md#supplier-carrier-chg079), [bàn giao](development.md#handoff-chg079).

@@ -50,7 +50,7 @@ function readReply(input: RequestInfo | URL) {
       : url.includes("/items")
         ? [{ id: 341, sku: "SYNTHETIC-SKU", product_type: "eSIM" }]
         : url.includes("/suppliers")
-          ? [{ id: 1, code: "SUP-018", display_name: "Synthetic supplier" }]
+          ? [{ id: 1, carrier: "DemoNet" }]
           : [];
   return reply({
     items,
@@ -65,6 +65,36 @@ function readReply(input: RequestInfo | URL) {
 }
 beforeEach(() => {
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+});
+
+it("assigns only the selected route carrier as supplier and clears the item when the route changes", async () => {
+  vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+    const url = String(input);
+    if (url.includes('/warehouses')) return reply({ items: [
+      { id: 18, code: 'WH-018', carrier: 'Vinaphone', destination_country: 'Vietnam' },
+      { id: 19, code: 'WH-019', carrier: 'OtherCarrier', destination_country: 'Elsewhere' },
+    ], total: 2 });
+    if (url.includes('/suppliers')) return reply({ items: [
+      { id: 2, carrier: 'OtherCarrier' }, { id: 1, carrier: 'Vinaphone' },
+    ], total: 2 });
+    return readReply(input);
+  });
+  render(<Configuration onChanged={() => {}} />);
+  await screen.findByText('WH-018');
+  fireEvent.click(screen.getByRole('button', { name: 'Chính sách nhập hàng' }));
+  fireEvent.click(screen.getByRole('button', { name: /Policy cho mặt hàng chưa cấu hình/ }));
+  const dialog = within(screen.getByRole('dialog'));
+  const supplier = dialog.getByLabelText('Nhà cung cấp');
+  expect(supplier).toHaveValue('');
+  fireEvent.change(dialog.getByLabelText('Kho để chọn mặt hàng'), { target: { value: '18' } });
+  await dialog.findByRole('option', { name: 'SYNTHETIC-SKU · eSIM' });
+  fireEvent.change(dialog.getByLabelText('Mặt hàng'), { target: { value: '341' } });
+  expect(supplier).toHaveValue('1');
+  expect(within(supplier).queryByRole('option', { name: 'OtherCarrier' })).toBeNull();
+  fireEvent.change(dialog.getByLabelText('Kho để chọn mặt hàng'), { target: { value: '19' } });
+  expect(dialog.getByLabelText('Mặt hàng')).toHaveValue('');
+  expect(supplier).toHaveValue('2');
+  expect(within(supplier).queryByRole('option', { name: 'Vinaphone' })).toBeNull();
 });
 afterEach(() => {
   cleanup();
@@ -305,7 +335,7 @@ it("opens a historical policy with its exact modes and version and retains them 
       return reply({ error: { code: "version_conflict", message: "synthetic" } }, false, 409);
     }
     if (String(input).includes("/supplier-item-policies")) return reply({ items: [{
-      id: 11, item_id: 341, item_label: "Historical SKU", supplier_id: 1, supplier_code: "SUP-018", version: 4,
+      id: 11, item_id: 341, item_label: "Historical SKU", carrier: "DemoNet", supplier_id: 1, supplier_code: "DemoNet", version: 4,
       effective_from: "2025-11-01", effective_to: "2026-01-01", configured_rop_floor: 20, moq: 9,
       safety_mode: "volatility", safety_days: 2, safety_lookback_days: 7, safety_factor: 2.5,
       rop_mode: "fixed", warning_horizon_days: 1,

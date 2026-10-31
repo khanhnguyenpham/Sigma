@@ -27,7 +27,7 @@ def seed_simulation(session, source_run_id, origin):
         .where(Item.first_seen_date <= origin)
         .order_by(Item.id)
     ).all()
-    suppliers = {s.code: s.id for s in session.scalars(select(Supplier))}
+    suppliers = {s.carrier: s.id for s in session.scalars(select(Supplier))}
     start = origin - timedelta(days=27)
     stats = {
         i: (count, available, qty)
@@ -57,7 +57,7 @@ def seed_simulation(session, source_run_id, origin):
         ordinal = int(warehouse.code.split("-")[-1])
         floor = math.ceil((6 if ordinal % 2 else 8) * avg)
         safety = 2 if ordinal % 2 else 3
-        supplier = suppliers.get(f"SUP-{ordinal:03}")
+        supplier = suppliers.get(warehouse.carrier)
         if not supplier:
             raise DomainError(
                 "missing_partner_config",

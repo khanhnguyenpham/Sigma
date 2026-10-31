@@ -81,7 +81,7 @@ def test_policy_http_versions_modes_intervals_and_safe_validation(pg, tmp_path):
             ("days", "fixed"), ("volatility", "forecast"), ("volatility", "fixed"),
         ], 1):
             body.update(expected_version=version, effective_from=str(D + timedelta(days=version)),
-                        supplier_id=other, safety_mode=safety, rop_mode=rop,
+                        supplier_id=supplier, safety_mode=safety, rop_mode=rop,
                         safety_lookback_days=7 if version == 1 else 90,
                         safety_factor=0 if version == 1 else 2.5,
                         warning_horizon_days=1 if version == 1 else 14)
@@ -135,7 +135,7 @@ def test_scenario_override_freezes_all_fields_and_keeps_old_runs(pg, tmp_path):
             assert frozen["scenario"]["settings"] == scenario["settings"]
             assert digest(frozen) == checksum
         # Version changes affect a later run only, never an existing snapshot.
-        later = request(item, 2, 1, D + timedelta(days=1)).model_dump(mode="json")
+        later = request(item, 1, 1, D + timedelta(days=1)).model_dump(mode="json")
         later.update(safety_factor=4, warning_horizon_days=1)
         assert c.post("/api/v1/supplier-item-policies", json=later).status_code == 201
         changed = scenario_body([dict(item_id=item, safety_factor=0)])
@@ -152,7 +152,7 @@ def test_scenario_override_freezes_all_fields_and_keeps_old_runs(pg, tmp_path):
         with sessions() as s:
             run = s.get(Run, uuid.UUID(new.json()["run_id"]))
             p = next(p for p in run.config_snapshot["policies"] if p["version"] == 2)
-            assert p["version"] == 2 and p["supplier_id"] == 2
+            assert p["version"] == 2 and p["supplier_id"] == 1
             assert p["safety_factor"] == 0 and p["warning_horizon_days"] == 1
             assert p["safety_mode"] == "days" and p["rop_mode"] == "forecast"
         retroactive = {**later, "expected_version": 2, "effective_from": str(D + timedelta(days=1))}
@@ -184,7 +184,8 @@ def test_upgrade_preserves_legacy_snapshot_scenario_and_defaults(pg):
     # pg is guarded by conftest: destructive migration exercise is test DB only.
     command.downgrade(cfg, "0001_m3")
     try:
-        item, supplier, _ = seed(sessions)
+        from test_postgres_api import seed_legacy
+        item, supplier, _ = seed_legacy(sessions)
         with sessions.begin() as s:
             key = s.scalar(text("""INSERT INTO supplier_item_policies
                 (item_id,supplier_id,version,effective_from,configured_rop_floor,moq,safety_days,is_assumed,assumption_source)

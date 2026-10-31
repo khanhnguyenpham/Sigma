@@ -1400,3 +1400,9 @@ Nguồn người dùng: “Chạy xong rồi thì chạy hướng đạt49% luô
 
 
 Kết quả CHG-078:276Python và verifier342.240dòng đạt;validation172/366=46,9945%,test196/400=49,00%. Test tăng67early,cùng400episode;FP406→1263 vàprecision74,0575%→59,6228%. Physical state/fill/thiếu/appDB giữ nguyên. Người dùng tiếp tục yêu cầu cập nhật Word,chỉ bổ sung kết quả mới;đã sửa tại chỗ27trang và render/xem từng trang. MộtfileWord được sửa cóbackup/hash;mọi dữ liệu/run trước đó giữ nguyên. [Bàn giao](development.md#handoff-chg078). R07/T14 chưa nghiệm thu,default chưa đổi.
+
+
+<a id="chg079"></a>
+## CHG-079 — Nhà cung cấp là carrier (31/10/2026)
+
+Nguồn: yêu cầu trực tiếp trong chat: Vinaphone cung cấp sản phẩm Vinaphone; “để nhà cung cấp là carrier luôn và sửa lại DB luôn”; tiếp theo yêu cầu sửa trường sai/dư thừa. Thay mô hình supplier SUP giả theo tuyến bằng carrier nguồn; bỏ ba trường display_name/is_assumed/assumption_source trên supplier và đổi code→carrier. Không thay nguồn mentor hoặc nhận có hợp đồng supplier. Kiểm trực tiếp trước sửa: DB app0004_fixed_qty có46kho/46carrier/46supplier,5run complete; mỗi supplier chỉ gắn một carrier, không phải gộp/xóa ID. Giữ ID/FK và dữ liệu run, thêm ràng buộc khớp carrier, đồng bộ backend/FE/tài liệu. [Bằng chứng bàn giao](development.md#handoff-chg079).

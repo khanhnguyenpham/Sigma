@@ -8,13 +8,28 @@ from modules.configuration.models import Policy, Scenario
 from modules.configuration.schemas import POLICY_DEFAULTS
 
 
+def validate_supplier(session, item_id, supplier_id):
+    row = session.execute(
+        select(Warehouse.carrier, Supplier.carrier)
+        .select_from(Item)
+        .join(Warehouse, Warehouse.id == Item.warehouse_id)
+        .join(Supplier, Supplier.id == supplier_id)
+        .where(Item.id == item_id)
+    ).one_or_none()
+    if row is None:
+        raise DomainError("not_found", "Item or supplier does not exist", 404)
+    if row[0] != row[1]:
+        raise DomainError("supplier_carrier_mismatch", "Supplier must be the item's carrier", 422, item_id=item_id)
+
+
 def create_policy(session, request):
-    # Lock the common item, not a supplier: changing suppliers must serialize too.
+    # Serialize policy versions on the item.
     item = session.scalar(
         select(Item).where(Item.id == request.item_id).with_for_update()
     )
-    if item is None or session.get(Supplier, request.supplier_id) is None:
+    if item is None:
         raise DomainError("not_found", "Item or supplier does not exist", 404)
+    validate_supplier(session, item.id, request.supplier_id)
     latest = session.scalar(
         select(Policy)
         .where(Policy.item_id == item.id)
@@ -116,7 +131,8 @@ def list_policies(sessions, item_id, supplier_id, effective_on, page, page_size)
                 {
                     **record(p),
                     "item_label": f"{w.destination_country} / {w.carrier} · {i.sku} · {i.product_type}",
-                    "supplier_code": supplier.code,
+                    "supplier_code": supplier.carrier,
+                    "carrier": w.carrier,
                 }
                 for p, i, w, supplier in rows
             ],
@@ -141,6 +157,9 @@ def create_scenario(s, request):
     }
     if ids - set(s.scalars(select(Item.id).where(Item.id.in_(ids)))):
         raise DomainError("not_found", "Scenario contains an unknown item", 404)
+    for override in request.settings.policy_overrides:
+        if override.supplier_id is not None:
+            validate_supplier(s, override.item_id, override.supplier_id)
     version = (
         s.scalar(
             select(func.max(Scenario.version)).where(

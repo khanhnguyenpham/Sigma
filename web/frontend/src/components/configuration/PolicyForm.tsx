@@ -15,7 +15,11 @@ export function PolicyForm({
   editor: ConfigurationState;
   policy: Row;
 }) {
-  const { supplierData, itemOptions } = editor;
+  const { supplierData, itemOptions, warehouse, warehouses } = editor;
+  const carrier = policy.carrier ?? warehouses.data?.items.find(
+    (w) => String(w.id) === warehouse,
+  )?.carrier;
+  const supplier = supplierData.data?.items.find((s) => s.carrier === carrier);
   const [values, setValues] = useState<Row>({
     configured_rop_floor: 0, safety_days: 2,
     ...POLICY_DEFAULTS, ...policy,
@@ -38,6 +42,7 @@ export function PolicyForm({
           </>
         ) : (
           <ItemSelect
+            key={warehouse}
             name={"item_id"}
             value={undefined}
             itemOptions={itemOptions}
@@ -48,18 +53,15 @@ export function PolicyForm({
         Nhà cung cấp
         <select
           name="supplier_id"
-          defaultValue={String(
-            policy.supplier_id ?? supplierData.data?.items[0]?.id ?? "",
-          )}
+          value={String(supplier?.id ?? "")}
+          onChange={() => {}}
           required
         >
-          {supplierData.data?.items.map((s) => (
-            <option key={String(s.id)} value={String(s.id)}>
-              {String(s.code)} · {String(s.display_name)}
-            </option>
-          ))}
+          <option value="">Chọn kho có nhà mạng đã khai báo</option>
+          {supplier && <option value={String(supplier.id)}>{String(supplier.carrier)}</option>}
         </select>
       </label>
+      <p className="caption">Nhà cung cấp là nhà mạng (carrier) của mặt hàng.</p>
       <label>
         Hiệu lực từ
         <input

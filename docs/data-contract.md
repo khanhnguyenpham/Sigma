@@ -212,8 +212,8 @@ Nguồn chuẩn schema mới: [13 bảng/ERD](../M3/docs/02-data-model.md), [API
 
 | Lớp dữ liệu | Khóa/hợp đồng mới | Phân loại và kiểm |
 |---|---|---|
-| Catalog | warehouse UNIQUE(destination_country, carrier); item UNIQUE(warehouse_id, sku, product_type), first_seen_date | 46/920 là kiểm đếm hiện tại; không dùng item tương lai ở origin cũ; city/supplier mô phỏng. |
-| Policy | supplier_item_policies theo item/version/[effective_from, effective_to) | Một supplier/item/ngày; floor≥0, MOQ≥1, safety≥0; L7/R1 ở profile; không fallback khi thiếu. |
+| Catalog | warehouse UNIQUE(destination_country, carrier); item UNIQUE(warehouse_id, sku, product_type), first_seen_date | 46/920 là kiểm đếm hiện tại; không dùng item tương lai ở origin cũ; city mô phỏng; supplier chính là carrier nguồn theo CHG-079. |
+| Policy | supplier_item_policies theo item/version/[effective_from, effective_to) | Supplier phải khớp carrier của item; một supplier/item/ngày; floor≥0, MOQ≥1, safety≥0; L7/R1 ở profile; không fallback khi thiếu. |
 | Nguồn dẫn xuất | daily_sales theo source_import_run, item, date, actual_available | Thiếu nguồn≠0; order_count khác quantity; chỉ aggregate không ID nguồn. |
 | Forecast tuyến | route_forecasts theo run, warehouse, as_of, block | Tổng7 riêngD+1…7/D+8…14; target_date là cuối khối; actual chỉ đủ 7 nhãn. |
 | Forecast item | item_forecasts theo run, item, as_of, target_date | NgàyD+1…14, weekday90/item30–90; bảo toàn1e-8; actual thiếu null. |

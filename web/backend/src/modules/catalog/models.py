@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, CheckConstraint, Column, Date, Index, Integer, Text, UniqueConstraint
+from sqlalchemy import Boolean, CheckConstraint, Column, Date, ForeignKey, Index, Integer, Text, UniqueConstraint
 from core.db import Base, created, fk, identity
 
 
@@ -7,7 +7,7 @@ class Warehouse(Base):
     id = identity()
     code = Column(Text, nullable=False, unique=True)
     destination_country = Column(Text, nullable=False)
-    carrier = Column(Text, nullable=False)
+    carrier = Column(Text, ForeignKey("suppliers.carrier", name="fk_warehouse_carrier", ondelete="RESTRICT"), nullable=False)
     city = Column(Text, nullable=False)
     is_assumed = Column(Boolean, nullable=False, default=True)
     assumption_source = Column(Text, nullable=False)
@@ -38,8 +38,9 @@ class Item(Base):
 class Supplier(Base):
     __tablename__ = "suppliers"
     id = identity()
-    code = Column(Text, nullable=False, unique=True)
-    display_name = Column(Text, nullable=False)
-    is_assumed = Column(Boolean, nullable=False, default=True)
-    assumption_source = Column(Text, nullable=False)
+    carrier = Column(Text, nullable=False)
     created_at = created()
+    __table_args__ = (
+        UniqueConstraint("carrier", name="uq_suppliers_carrier"),
+        CheckConstraint("length(btrim(carrier))>0 AND carrier=btrim(carrier)", name="ck_supplier_carrier"),
+    )

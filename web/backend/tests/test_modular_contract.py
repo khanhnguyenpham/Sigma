@@ -80,6 +80,16 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
     statements = []
     for _, table in sorted(Base.metadata.tables.items()):
         ddl = str(CreateTable(table).compile(dialect=dialect())).strip()
+        if table.name == "suppliers":
+            # CHG-079 replaces four vendor labels with the source carrier.
+            ddl = "\n".join(line for line in ddl.splitlines()
+                if "CONSTRAINT uq_suppliers_carrier " not in line
+                and "CONSTRAINT ck_supplier_carrier " not in line)
+            ddl = ddl.replace("carrier TEXT NOT NULL,", "code TEXT NOT NULL,\n\tdisplay_name TEXT NOT NULL,\n\tis_assumed BOOLEAN NOT NULL,\n\tassumption_source TEXT NOT NULL,")
+            ddl = ddl.replace("PRIMARY KEY (id),", "PRIMARY KEY (id),\n\tUNIQUE (code)")
+        if table.name == "warehouses":
+            ddl = "\n".join(line for line in ddl.splitlines() if "CONSTRAINT fk_warehouse_carrier " not in line)
+            ddl = ddl.replace("UNIQUE (code),", "UNIQUE (code)")
         if table.name == "supplier_item_policies":
             ddl = "\n".join(
                 line for line in ddl.splitlines()
@@ -179,8 +189,7 @@ def test_shared_router_uses_each_application_session(tmp_path):
             session = MagicMock()
             session.scalar.return_value = 1
             session.scalars.return_value.all.return_value = [
-                Supplier(id=1, code=label, display_name=label,
-                         assumption_source="synthetic", is_assumed=True)
+                Supplier(id=1, carrier=label)
             ]
             yield session
         return scope
@@ -191,4 +200,4 @@ def test_shared_router_uses_each_application_session(tmp_path):
         for client, label in ((a, "SYN-A"), (b, "SYN-B"), (a, "SYN-A")):
             response = client.get("/api/v1/suppliers")
             assert response.status_code == 200
-            assert response.json()["items"][0]["code"] == label
+            assert response.json()["items"][0]["carrier"] == label

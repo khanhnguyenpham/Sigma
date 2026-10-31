@@ -98,11 +98,14 @@ def freeze_inventory(session, request, source, scenario):
                     "Configure the fixed quantity per order before creating a new run",
                     item_id=item["item_id"],
                 )
-    supplier_ids = set(session.scalars(select(Supplier.id)))
-    if any(p["supplier_id"] not in supplier_ids for p in policies):
+    supplier_carriers = dict(session.execute(select(Supplier.id, Supplier.carrier)).all())
+    if any(p["supplier_id"] not in supplier_carriers for p in policies):
         raise DomainError(
             "missing_partner_config", "Scenario contains an unknown supplier"
         )
+    item_carriers = {i["item_id"]: i["carrier"] for i in catalog}
+    if any(supplier_carriers[p["supplier_id"]] != item_carriers[p["item_id"]] for p in policies):
+        raise DomainError("supplier_carrier_mismatch", "Supplier must be the item's carrier", 422)
     for lot in scenario.settings.get("receipts_initial", []):
         if (
             lot["item_id"] not in ids

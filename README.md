@@ -82,6 +82,6 @@ Integration chỉ dùng DB test riêng; CI chỉ dữ liệu giả. Log/credenti
 
 [M2 final](M2/README.md) giữ model, CLI fit/verify/export, [notebook](M2/notebooks/final_report.ipynb) và [HTML offline](M2/reports/final_m2_20261011/index.html). [Hướng dẫn M2](M2/README.md) ghi cấu hình và giới hạn hồi cứu. Dashboard/launcher Streamlit đã gỡ.
 
-R05 theo **M05 tổng30**; H14/L7/R1 phục vụ tồn. Không đổi model/target/split hoặc chọn lại bằng test. Thiếu bundle tổng30 đã kiểm thì giữ `monthly_not_prepared`; không lấy số trong Markdown thay dữ liệu. Tồn/nhập/supplier có nhãn mô phỏng; A08–A17 không tự thành mentor xác nhận, R07/T14 chưa nghiệm thu.
+R05 theo **M05 tổng30**; H14/L7/R1 phục vụ tồn. Không đổi model/target/split hoặc chọn lại bằng test. Thiếu bundle tổng30 đã kiểm thì giữ `monthly_not_prepared`; không lấy số trong Markdown thay dữ liệu. Nhà cung cấp chính là carrier theo [CHG-079](M3/docs/02-data-model.md#supplier-carrier-chg079); tồn/nhập có nhãn mô phỏng; A08–A17 không tự thành mentor xác nhận, R07/T14 chưa nghiệm thu.
 
 Các bản sao README, hướng dẫn Streamlit và demo cũ đã bỏ; [tra cứu lịch sử Git](docs/review-log.md#removed-docs-chg070).

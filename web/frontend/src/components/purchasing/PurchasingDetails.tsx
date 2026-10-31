@@ -115,7 +115,7 @@ export function PurchasingDetails({
             <div>
               <dt>Nhà cung cấp</dt>
               <dd>
-                {focused.supplier_id ? `NCC #${focused.supplier_id}` : "—"}
+                {focused.carrier ? String(focused.carrier) : "—"}
               </dd>
             </div>
             <div>

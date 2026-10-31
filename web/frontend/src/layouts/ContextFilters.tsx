@@ -111,7 +111,7 @@ export function ContextFilters({ app }: { app: AppContextState }) {
                 <option value="">Tất cả</option>
                 {suppliers.data?.items.map((s) => (
                   <option key={String(s.id)} value={String(s.id)}>
-                    {String(s.code)}
+                    {String(s.carrier)}
                   </option>
                 ))}
               </select>

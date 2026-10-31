@@ -1,5 +1,15 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
+<a id="supplier-carrier-chg079"></a>
+## CHG-079 — Nhà cung cấp chính là carrier, 31/10/2026
+
+Theo yêu cầu trực tiếp của người dùng, mỗi carrier là một nhà cung cấp duy nhất, dùng chung qua các quốc gia/tuyến có cùng carrier. Ví dụ carrier Vinaphone cung cấp các item Vinaphone. Bảng `suppliers` chỉ giữ `id`, `carrier` UNIQUE/NOT NULL/không trắng, `created_at`. Đổi `code` thành `carrier`; bỏ `display_name`, `is_assumed`, `assumption_source` vì tên nhà cung cấp lấy trực tiếp từ carrier nguồn, không còn danh mục nhà cung cấp giả độc lập.
+
+Migration `0005_carrier` ánh xạ supplier hiện có từ policy → item → warehouse/carrier và seed tuyến cũ nếu có, giữ nguyên supplier ID/created_at và FK policy. Nếu một ID gắn nhiều carrier hoặc nhiều ID cùng carrier, migration dừng trong transaction để tránh tự gộp/xóa lịch sử. Thêm FK `warehouses.carrier → suppliers.carrier`; trigger chặn policy sai carrier và chặn đổi kho/carrier làm hỏng liên kết. Một carrier có thể có nhiều kho/tuyến; warehouse vẫn UNIQUE(country,carrier), item vẫn theo warehouse×sku×product_type.
+
+Không xóa MOQ lịch sử, version/effective date, dấu vết giả định của kho/policy hoặc số liệu dẫn xuất trong ledger: các trường đó phục vụ tái lập và đối soát. Không đổi JSON, checksum, manifest hay kết quả run cũ. Downgrade chỉ dựng lại dạng schema cũ với nhãn lấy từ carrier; tên SUP/nhãn giả ban đầu chỉ có thể khôi phục chính xác từ backup trước migration. [Kiểm tra và bàn giao](../../docs/development.md#handoff-chg079).
+
+
 ## Trường lượng nhập sau CHG 076
 
 Migration0004_fixed_qty thêm supplier_item_policies.fixed_order_qty bigint nullable, cho moq nullable và thêm ck_policy_order_quantity. Policy cũ giữ moq, fixed_order_qty=null; policy fixed có lượng nguyên dương, moq=null. Check buộc đúng một loại, không cập nhật dữ liệu hoặc JSON run cũ. Vẫn13bảng nghiệp vụ, không có bảng hợp đồng hay hệ thống phiên bản mới. Các cột version/effective date của policy đã có được tận dụng nguyên trạng.
@@ -68,6 +78,7 @@ Catalog toàn nguồn có 920 item; `first_seen_date` chặn dùng item tương 
 
 ```mermaid
 erDiagram
+    suppliers ||--o{ warehouses : carrier
     warehouses ||--o{ items : contains
     suppliers ||--o{ supplier_item_policies : supplies
     items ||--o{ supplier_item_policies : has_versions
@@ -96,10 +107,10 @@ erDiagram
 
 | Bảng | Cột chính và kiểu | Ràng buộc, chỉ mục, mục đích |
 |---|---|---|
-| `warehouses` | id; code text; destination_country text; carrier text; city text; is_assumed bool=true; assumption_source text; version int; created_at | UNIQUE(code), UNIQUE(destination_country,carrier). Một route một kho; city bắt buộc nhưng không được coi tối ưu. |
+| `warehouses` | id; code text; destination_country text; carrier text; city text; is_assumed bool=true; assumption_source text; version int; created_at | UNIQUE(code), UNIQUE(destination_country,carrier), FK carrier→suppliers.carrier. Một route một kho; city bắt buộc nhưng không được coi tối ưu. |
 | `items` | id; warehouse_id FK; sku text; product_type text; first_seen_date date; created_at | UNIQUE(warehouse_id,sku,product_type); CHECK product_type IN ('eSIM','physical_SIM'). Index warehouse_id. Không giả định sku duy nhất toàn hệ thống. |
-| `suppliers` | id; code text; display_name text; is_assumed bool=true; assumption_source text; created_at | UNIQUE(code). Một supplier có nhiều policy; v1 không lưu thông tin liên hệ, tài khoản ngân hàng hay hợp đồng đính kèm. |
-| `supplier_item_policies` | id; item_id FK; supplier_id FK; version int; effective_from date; effective_to date?; configured_rop_floor bigint; moq bigint; safety_days numeric(8,3); safety_mode text; safety_lookback_days smallint; safety_factor double precision; rop_mode text; warning_horizon_days smallint; is_assumed bool=true; assumption_source text; created_at | UNIQUE(item_id,version), UNIQUE(item_id,effective_from), UNIQUE(id,item_id); CHECK floor≥0, moq≥1, safety≥0, end>start nếu có. Index(item_id,effective_from,effective_to). Một policy hiệu lực/item/ngày, kể cả đổi supplier. |
+| `suppliers` | id; carrier text; created_at | UNIQUE(carrier), NOT NULL, không trắng/không khoảng trắng đầu cuối. Nhà cung cấp chính là carrier; nhiều kho/tuyến có thể dùng cùng carrier. |
+| `supplier_item_policies` | id; item_id FK; supplier_id FK; version int; effective_from date; effective_to date?; configured_rop_floor bigint; moq bigint; safety_days numeric(8,3); safety_mode text; safety_lookback_days smallint; safety_factor double precision; rop_mode text; warning_horizon_days smallint; is_assumed bool=true; assumption_source text; created_at | UNIQUE(item_id,version), UNIQUE(item_id,effective_from), UNIQUE(id,item_id); CHECK floor≥0, moq≥1, safety≥0, end>start nếu có. Index(item_id,effective_from,effective_to). Một policy hiệu lực/item/ngày; supplier phải khớp carrier của item. |
 
 Không lưu lead_time_days tùy chỉnh ở policy: profile M3 khóa L7/R1 trong run config; API từ chối giá trị khác. Không có fallback policy chung. Chặn chồng khoảng bằng transaction khóa dòng items tương ứng, kiểm `[from,to)` trước insert/đóng khoảng; UNIQUE chặn trùng đầu khoảng. Không dùng CHECK tham chiếu dòng khác. Chỉ một đường mutation policy trong API/CLI để giữ kiểm này, tài khoản DB ứng dụng không được dùng tùy tiện ngoài dịch vụ.
 

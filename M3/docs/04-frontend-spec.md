@@ -1,5 +1,10 @@
 # M3 — đặc tả frontend
 
+## CHG-079 — Chọn nhà cung cấp theo carrier
+
+Form policy chỉ có nhà cung cấp khớp carrier của kho/item; đổi kho xóa lựa chọn item cũ, chưa có carrier hợp lệ thì không lưu được. Không mặc định supplier đầu tiên hoặc cho đổi sang carrier khác. Bộ lọc nhà cung cấp và chi tiết lô nhập hiển thị carrier. Run cũ tiếp tục đọc supplier_id và các tham số đã freeze, không tính lại kết quả. [Schema](02-data-model.md#supplier-carrier-chg079).
+
+
 ## Lượng nhập mỗi lần sau CHG 076
 
 Form policy dùng ô bắt buộc “Lượng nhập mỗi lần”, không điền sẵn bằng MOQ của policy cũ. Bảng policy hiển thị “Cần cấu hình” nếu chưa có lượng này. Scenario không có ô đổi lượng nhập. Khi cần nhập, mỗi lô dùng đúng lượng cấu hình; hệ thống không tự bù Q lên S.

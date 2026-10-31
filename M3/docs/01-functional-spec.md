@@ -92,7 +92,7 @@ Seed kho lấy tuyến xuất hiện trong train, sắp thứ tự tên tuyến 
 | Thailand | Bangkok | UAE | Dubai |
 | USA | Los Angeles | Vietnam | Ho Chi Minh City |
 
-Tạo supplier mô phỏng `SUP-001`…`SUP-046`, mỗi tuyến một supplier ban đầu; không coi tên carrier là bằng chứng supplier thật. Cấu hình cho phép đổi supplier từng item qua policy mới; không chọn nhiều nguồn cho cùng item tại một ngày. Một supplier có thể phục vụ nhiều item/kho.
+CHG-079 (31/10/2026, người dùng xác định trực tiếp): nhà cung cấp chính là carrier. Danh mục lấy carrier từ nguồn, một carrier một supplier, dùng chung nhiều tuyến/quốc gia nếu trùng carrier; không sinh SUP theo tuyến. Policy và scenario không được gán supplier khác carrier của item. Giá trị ngưỡng/lượng nhập và tồn/receipts tiếp tục là giả định/mô phỏng, chưa phải hợp đồng thật.
 
 ## 3. Target, mô hình và thời gian
 
@@ -170,4 +170,4 @@ Sales metric error=forecast−actual; MAPE chỉ actual>0, MAE/bias mọi cặp 
 
 ## 9. Hiển thị và thay đổi
 
-Chỉ complete khi đủ thành phần và đối soát đạt; lỗi giữ failed cùng mã lỗi không chứa dòng nguồn. FE không ghép forecast mới với tồn cũ. Thay b/floor/MOQ/city/supplier tạo version/run mới; forecast độc lập được tái dùng, ledger/cảnh báo tính lại. Thay target/source tính lại mọi đầu ra phụ thuộc. Mọi thao tác nhập là mô phỏng, không gửi nhà cung cấp.
+Chỉ complete khi đủ thành phần và đối soát đạt; lỗi giữ failed cùng mã lỗi không chứa dòng nguồn. FE không ghép forecast mới với tồn cũ. Thay b/floor/lượng nhập/city tạo version/run mới; supplier luôn theo carrier của item; forecast độc lập được tái dùng, ledger/cảnh báo tính lại. Thay target/source tính lại mọi đầu ra phụ thuộc. Mọi thao tác nhập là mô phỏng, không gửi nhà cung cấp.
