@@ -5,13 +5,16 @@ from pydantic import Field, model_validator
 from core.schemas import DTO
 
 
-POLICY_DEFAULTS = dict(
+LEGACY_POLICY_DEFAULTS = dict(
     safety_mode="days",
     safety_lookback_days=28,
     safety_factor=1.0,
     rop_mode="forecast",
     warning_horizon_days=7,
 )
+
+# The live contract has one policy: fixed ROP and sales-day safety stock.
+POLICY_DEFAULTS = dict(warning_horizon_days=7)
 
 
 class PolicyCreate(DTO):
@@ -21,10 +24,6 @@ class PolicyCreate(DTO):
     configured_rop_floor: int = Field(ge=0, le=2**63 - 1, strict=True)
     fixed_order_qty: int = Field(ge=1, le=2**63 - 1, strict=True)
     safety_days: Decimal = Field(ge=0, max_digits=8, decimal_places=3)
-    safety_mode: Literal["days", "volatility"] = "days"
-    safety_lookback_days: int = Field(default=28, ge=7, le=90, strict=True)
-    safety_factor: float = Field(default=1.0, ge=0, strict=True)
-    rop_mode: Literal["fixed", "forecast"] = "forecast"
     warning_horizon_days: int = Field(default=7, ge=1, le=14, strict=True)
     expected_version: int = Field(ge=0, strict=True)
 
@@ -52,10 +51,6 @@ class PolicyOverride(DTO):
     safety_days: Decimal | None = Field(
         default=None, ge=0, max_digits=8, decimal_places=3
     )
-    safety_mode: Literal["days", "volatility"] | None = None
-    safety_lookback_days: int | None = Field(default=None, ge=7, le=90, strict=True)
-    safety_factor: float | None = Field(default=None, ge=0, strict=True)
-    rop_mode: Literal["fixed", "forecast"] | None = None
     warning_horizon_days: int | None = Field(default=None, ge=1, le=14, strict=True)
 
 

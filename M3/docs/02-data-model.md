@@ -1,5 +1,11 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
+## CHG-083 — Schema0006_fixed_days
+
+Migration bỏ4cột safety_mode/rop_mode/safety_lookback_days/safety_factor và4check tương ứng khỏi supplier_item_policies; giữ safety_days,configured_rop_floor(ngưỡngROP cố định),fixed_order_qty,warning_horizon_days, phiên bản/hiệu lực/FK. MOQ nullable chỉ để đọc/nâng dữ liệu lịch sử, không làm lượng cố định cho policy mới. Scenario editable bỏ4trường trong override, giữ các số khác và thứ tự; không sửa runs.config_snapshot/hash.
+
+Newrun freeze rõsafety_mode=days/rop_mode=fixed vàinventory_policy_profile=fixed_rop_days_ss_v1 để worker/verifier đọc cùng nghĩa. Những tên trường trong JSON lịch sử không phải lựa chọn cấu hình live. Downgrade0006 chỉ khôi phục hình dạng/defaults0005, không tự phục hồi giá trị đã bỏ; dùng backup khi cần phục hồi đầy đủ. [Bàn giao](../../docs/development.md#handoff-chg083).
+
 <a id="supplier-carrier-chg079"></a>
 ## CHG-079 — Nhà cung cấp chính là carrier, 31/10/2026
 
@@ -110,7 +116,7 @@ erDiagram
 | `warehouses` | id; code text; destination_country text; carrier text; city text; is_assumed bool=true; assumption_source text; version int; created_at | UNIQUE(code), UNIQUE(destination_country,carrier), FK carrier→suppliers.carrier. Một route một kho; city bắt buộc nhưng không được coi tối ưu. |
 | `items` | id; warehouse_id FK; sku text; product_type text; first_seen_date date; created_at | UNIQUE(warehouse_id,sku,product_type); CHECK product_type IN ('eSIM','physical_SIM'). Index warehouse_id. Không giả định sku duy nhất toàn hệ thống. |
 | `suppliers` | id; carrier text; created_at | UNIQUE(carrier), NOT NULL, không trắng/không khoảng trắng đầu cuối. Nhà cung cấp chính là carrier; nhiều kho/tuyến có thể dùng cùng carrier. |
-| `supplier_item_policies` | id; item_id FK; supplier_id FK; version int; effective_from date; effective_to date?; configured_rop_floor bigint; moq bigint; safety_days numeric(8,3); safety_mode text; safety_lookback_days smallint; safety_factor double precision; rop_mode text; warning_horizon_days smallint; is_assumed bool=true; assumption_source text; created_at | UNIQUE(item_id,version), UNIQUE(item_id,effective_from), UNIQUE(id,item_id); CHECK floor≥0, moq≥1, safety≥0, end>start nếu có. Index(item_id,effective_from,effective_to). Một policy hiệu lực/item/ngày; supplier phải khớp carrier của item. |
+| `supplier_item_policies` | id; item_id FK; supplier_id FK; version int; effective_from date; effective_to date?; configured_rop_floor bigint(ROP cố định); moq bigint?(lịch sử); fixed_order_qty bigint?; safety_days numeric(8,3); warning_horizon_days smallint; is_assumed bool; assumption_source text; created_at | UNIQUE(item_id,version), UNIQUE(item_id,effective_from), UNIQUE(id,item_id); ROP≥0, SSdays≥0, N1–14; fixed quantity≥1/moqnull hoặc legacyMOQ; version/date/FK theo schema0006. Policy mới phải khai báo fixed_order_qty. |
 
 Không lưu lead_time_days tùy chỉnh ở policy: profile M3 khóa L7/R1 trong run config; API từ chối giá trị khác. Không có fallback policy chung. Chặn chồng khoảng bằng transaction khóa dòng items tương ứng, kiểm `[from,to)` trước insert/đóng khoảng; UNIQUE chặn trùng đầu khoảng. Không dùng CHECK tham chiếu dòng khác. Chỉ một đường mutation policy trong API/CLI để giữ kiểm này, tài khoản DB ứng dụng không được dùng tùy tiện ngoài dịch vụ.
 

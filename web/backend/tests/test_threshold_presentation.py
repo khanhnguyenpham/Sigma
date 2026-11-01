@@ -45,7 +45,6 @@ def test_workspace_counts_unique_items_with_threshold_and_depletion_and_csv(pg, 
         # Editing the live catalog cannot reinterpret this complete run.
         with sessions.begin() as s:
             policy = s.scalar(select(Policy).where(Policy.item_id == item))
-            policy.rop_mode = "forecast"
             policy.warning_horizon_days = 14
             policy.configured_rop_floor = 999
         inventory = c.get(path + "/inventory").json()["items"][0]

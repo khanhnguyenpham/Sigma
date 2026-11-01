@@ -123,7 +123,7 @@ def test_separate_threshold_confusion_exclusions_and_null_denominators():
 
 def enqueue_threshold(client, source, forecast, item, kind, n=7):
     body = request(item, 1).model_dump(mode="json")
-    body.update(rop_mode="fixed", configured_rop_floor=20, warning_horizon_days=n)
+    body.update(configured_rop_floor=20, warning_horizon_days=n)
     assert client.post("/api/v1/supplier-item-policies", json=body).status_code == 201
     scenario = client.post("/api/v1/scenarios", json=dict(name="Threshold fixture", code="threshold", settings=dict(
         cover_days=7, safety_multiplier=1, policy_overrides=[], receipts_initial=[], receipts_declared=True))).json()
@@ -212,7 +212,7 @@ def test_threshold_migration_preserves_legacy_rows_and_checks_metadata(pg):
             assert c.scalar(text("SELECT (to_jsonb(t) - 'predicted_threshold_date') FROM alerts t")) == json.loads(before)
             assert c.execute(text("SELECT row_to_json(t)::text FROM runs t ORDER BY id")).scalars().all() == runs
             assert compare_metadata(MigrationContext.configure(c, opts={"compare_type": True, "compare_server_default": True}), Base.metadata) == []
-            assert c.scalar(text("SELECT version_num FROM alembic_version")) == "0005_carrier"
+            assert c.scalar(text("SELECT version_num FROM alembic_version")) == "0006_fixed_days"
     finally:
         command.upgrade(cfg, "head")
 
@@ -237,7 +237,7 @@ def test_threshold_database_rejects_invalid_dates_states_and_duplicates(pg):
         command.downgrade(cfg, "0002_policy")
     with sessions() as s:
         assert s.scalar(select(Alert).where(Alert.alert_type == "projected_below_rop")) is not None
-        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0005_carrier"
+        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0006_fixed_days"
 
 
 def test_two_items_apply_their_own_origin_rop_and_keep_first_crossing():

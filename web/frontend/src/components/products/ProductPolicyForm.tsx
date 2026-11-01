@@ -19,9 +19,8 @@ export function ProductPolicyForm({ product, onSaved, onReload }: { product: Row
     const form = new FormData(event.currentTarget);
     const body: Row = { item_id: Number(product.id), supplier_id: Number(product.supplier_id),
       expected_version: Number(policy?.version ?? 0), effective_from: String(form.get("effective_from")) };
-    for (const key of ["configured_rop_floor", "fixed_order_qty", "safety_days", "safety_lookback_days", "safety_factor", "warning_horizon_days"])
+    for (const key of ["configured_rop_floor", "fixed_order_qty", "safety_days", "warning_horizon_days"])
       body[key] = Number(form.get(key));
-    for (const key of ["safety_mode", "rop_mode"]) body[key] = String(form.get(key));
     sending.current = true; setBusy(true); setError(undefined);
     try {
       await api("/supplier-item-policies", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });

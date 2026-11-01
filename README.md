@@ -1,5 +1,11 @@
 # SIGMA — React / FastAPI local
 
+## ROP cố định và SS theo ngày bán — CHG-083
+
+Cấu hình sản phẩm chỉ nhập **ngưỡng nhập cố định (ROP)**, lượng nhập mỗi lần, số ngày tồn an toàn và N ngày cảnh báo; không còn chọn cách tính. ROP bằng ngưỡng đã khai báo, SS theo số ngày bán và không cộng vào ROP. Máy đã cóDB cần backup rồi nâng Alembic lên`head` trước khi chạy API. Không tự dùngMOQ để điền lượng cố định.
+
+App local đã điền lượng trống bằng lô giả định CHG077 theo lựa chọn người dùng, lưu trữ3run không còn dùng và tạo1kế hoạch tồn mới; nguồn/dự báo giữ nguyên. Các số nghiên cứu trước thay đổi vẫn là lịch sử, chưa nghiệm thuR07/T14. [Backup, migration và kiểm tra](docs/development.md#handoff-chg083).
+
 ## Quản lý sản phẩm và kho — CHG-082
 
 Mở **Sản phẩm → chọn sản phẩm** để xem thông tin và chỉnh lượng nhập mỗi lần, SS, ROP, ngày áp dụng. Trong **Tồn kho**, nhấp sản phẩm cũng mở trang này; nút **Chỉnh sửa kho** nằm ngay trong kho. Tên46kho là46địa danh riêng theoCHG081. Thiết lập tính toán và hàng đang về nằm trong tùy chọn nâng cao của màn hình tạo kế hoạch. Cấu hình lưu theo phiên bản; lưu không tính lại số liệu kế hoạch đã ghi. [Bằng chứng và bàn giao](docs/development.md#handoff-chg082).

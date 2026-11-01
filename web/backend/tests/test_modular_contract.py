@@ -49,7 +49,7 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
         for name in ("PolicyCreate", "PolicyOverride"):
             properties = schema["components"]["schemas"][name]["properties"]
             for field in POLICY_COLUMNS:
-                properties.pop(field)
+                properties.pop(field, None)
         # CHG-076 replaces the new-policy input MOQ with one fixed quantity.
         # Reconstruct only that historical request field for the old golden.
         create = schema["components"]["schemas"]["PolicyCreate"]

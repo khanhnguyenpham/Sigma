@@ -1,5 +1,9 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+## CHG-083 — Hợp đồng tồn kho hiện tại
+
+Từ01/11/2026 người dùng chọn duy nhất ROP cố định và SS theo ngày bán. ROP=configured_rop_floor đã khai báo, SS=ceil(safety_days×mean(forecast14)×safety_multiplier); SS không cộng lại vào ROP. S=ROP+ceil(f8), IP=closing+pending; strictclosing<ROP, Q=fixed_order_qty khiIP<S, ngược lạiQ=0. H14/L7/R1 và việc phân biệt cảnh báo xuốngROP/cạn giữ nguyên. API/DB cấu hình không cònmode/biến động/lookback/factor; JSON lịch sử chỉ đọc để kiểm chứng bản lưu trữ. Các đoạn đa mode bên dưới giữ vai trò thiết kế/lịch sử trướcCHG083. [Yêu cầu](../../docs/requirements.md#fixed-days-chg083).
+
 ## CHG-080 — Tổ chức trang tồn kho theo kho
 
 Người dùng yêu cầu ngày31/10/2026: xem danh sách kho trước rồi mở kho để xem sản phẩm; tên kho chỉ là một thành phố trong quốc gia đó, không ghép carrier. Dùng city đã khai báo; quốc gia/carrier hiển thị riêng. Hiện mỗi kho vẫn chứa sản phẩm của một carrier; có bộ lọc carrier trong kho cho giao diện mở rộng sau, chưa thay quan hệ kho1–1tuyến hoặc cho trộn carrier ở DB. Không gộp các kho trùng thành phố. [Thiết kế/kiểm](04-frontend-spec.md#warehouse-navigation-chg080).

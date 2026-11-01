@@ -65,15 +65,7 @@ export function useConfiguration(onChanged: () => void) {
           settings: {
             cover_days: Number(form.get("cover_days")),
             safety_multiplier: Number(form.get("safety_multiplier")),
-            policy_overrides: overrides.map((row) => {
-              const active = { ...row };
-              if (row.safety_mode !== "days") delete active.safety_days;
-              if (row.safety_mode !== "volatility") {
-                delete active.safety_lookback_days;
-                delete active.safety_factor;
-              }
-              return active;
-            }),
+            policy_overrides: overrides,
             receipts_initial: receipts,
             receipts_declared: true,
           },

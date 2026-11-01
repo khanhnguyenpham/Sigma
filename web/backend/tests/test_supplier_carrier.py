@@ -145,7 +145,7 @@ def test_migration_preserves_all_other_tables_and_supplier_ids(pg):
         with engine.begin() as connection:
             connection.execute(text("UPDATE suppliers SET code='SUP-001',display_name='Simulated supplier 001',assumption_source='route_supplier_seed_v1' WHERE id=1"))
             connection.execute(text("UPDATE warehouses SET code='WH-001' WHERE id=1"))
-            before = {name: deepcopy(connection.execute(text(f'SELECT to_jsonb(t) FROM "{name}" t ORDER BY to_jsonb(t)::text')).scalars().all())
+            before = {name: deepcopy(connection.execute(text(f"SELECT to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor'] FROM \"{name}\" t ORDER BY to_jsonb(t)::text")).scalars().all())
                       for name in Base.metadata.tables if name != 'suppliers'}
             identity = connection.execute(text('SELECT id,created_at FROM suppliers ORDER BY id')).all()
         command.upgrade(cfg, 'head')
@@ -154,7 +154,7 @@ def test_migration_preserves_all_other_tables_and_supplier_ids(pg):
             assert connection.execute(text('SELECT id,created_at FROM suppliers ORDER BY id')).all() == identity
             assert connection.scalar(text('SELECT carrier FROM suppliers WHERE id=1')) == 'DemoCarrier'
             for name, rows in before.items():
-                assert connection.execute(text(f'SELECT to_jsonb(t) FROM "{name}" t ORDER BY to_jsonb(t)::text')).scalars().all() == rows
+                assert connection.execute(text(f"SELECT to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor'] FROM \"{name}\" t ORDER BY to_jsonb(t)::text")).scalars().all() == rows
             assert compare_metadata(MigrationContext.configure(connection, opts={'compare_type': True, 'compare_server_default': True}), Base.metadata) == []
     finally:
         command.upgrade(cfg, 'head')

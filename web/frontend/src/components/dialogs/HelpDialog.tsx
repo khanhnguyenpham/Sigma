@@ -47,8 +47,8 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
           </dd>
           <dt>Ngưỡng nhập (ROP)</dt>
           <dd>
-            Cảnh báo khi tồn hiện có nhỏ hơn ngưỡng. Ngưỡng xét nhu cầu và mức
-            tối thiểu cấu hình theo đối tác.
+            Cảnh báo khi tồn hiện có nhỏ hơn ngưỡng cố định đã khai báo cho sản phẩm.
+            SS tính theo số ngày bán, không cộng thêm vào ngưỡng này.
           </dd>
           <dt>Vị thế tồn (IP)</dt>
           <dd>

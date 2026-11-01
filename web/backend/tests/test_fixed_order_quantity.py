@@ -108,7 +108,7 @@ def test_migration_preserves_legacy_rows_and_refuses_lossy_downgrade(pg):
         item,supplier,_=seed_legacy(sessions)
         with engine.begin() as c:
             c.execute(text("INSERT INTO supplier_item_policies(item_id,supplier_id,version,effective_from,configured_rop_floor,moq,safety_days,is_assumed,assumption_source) VALUES (:item,:supplier,1,:day,100,50,2,true,'synthetic_legacy')"),dict(item=item,supplier=supplier,day=D))
-            before=c.scalar(text('SELECT to_jsonb(t) FROM supplier_item_policies t'))
+            before=c.scalar(text("SELECT to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor'] FROM supplier_item_policies t"))
         command.upgrade(cfg,'head');command.upgrade(cfg,'head')
         with engine.connect() as c:
             assert c.scalar(text("SELECT to_jsonb(t)-'fixed_order_qty' FROM supplier_item_policies t"))==before
@@ -121,6 +121,6 @@ def test_migration_preserves_legacy_rows_and_refuses_lossy_downgrade(pg):
                 s.execute(Policy.__table__.update().where(Policy.id==key).values(**values))
         with pytest.raises(IntegrityError):command.downgrade(cfg,'0003_threshold')
         with engine.connect() as c:
-            assert c.scalar(text('SELECT version_num FROM alembic_version'))=='0005_carrier'
+            assert c.scalar(text('SELECT version_num FROM alembic_version'))=='0006_fixed_days'
             assert c.scalar(text('SELECT fixed_order_qty FROM supplier_item_policies WHERE id=:key'),dict(key=key))==50
     finally:command.upgrade(cfg,'head')

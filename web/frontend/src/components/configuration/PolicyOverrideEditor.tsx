@@ -17,7 +17,7 @@ export function PolicyOverrideEditor({
       <p className="caption">
         Đổi kho phía trên để chọn mặt hàng. Điều chỉnh chỉ áp dụng trong kịch
         bản này.
-        Để trống để kế thừa policy có hiệu lực khi chạy. Chọn cách tính SS để điều chỉnh tham số tương ứng.
+        Để trống để kế thừa cấu hình sản phẩm có hiệu lực khi tính kế hoạch. ROP cố định và SS theo số ngày bán.
         Lượng nhập mỗi lần lấy từ cấu hình mặt hàng, không thay đổi tại đây.
       </p>
       {overrides.map((row, index) => (

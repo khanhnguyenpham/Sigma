@@ -1422,3 +1422,8 @@ Nguồn là yêu cầu trực tiếp và ảnh bộ chọn lặpSydney/Frankfurt
 ## CHG-082 — Luồng quản lý sản phẩm/kho (01/11/2026)
 
 Người dùng gửi ảnh thanh lọc/dòng kho sát nhau, lời dẫnMOQ/phương án cũ và bảng Cấu hình gom kho/chính sách/kịch bản; yêu cầu cấu hình kho tại Tồn kho và sản phẩm có trang xem/chỉnh riêng. Bổ sung làm như web quản lý thông thường, rồi giao kiểm tra xong pushGitHub. Đây là yêu cầu UI/nghiệp vụ của người dùng, không là xác nhận mentor hoặc thay nghiệm thu. Giữ nguồn/order/model/tính toán và run; thiếu lượng cố định hiện rõ chứ không dùngMOQ thay thế.262BE/65React/build/pipcheck và browser desktop/mobile/save-reload test riêng đạt; đối soát app13bảng/1.043file nguyên so sauCHG081. [Bàn giao](development.md#handoff-chg082).
+
+<a id="chg083"></a>
+## CHG-083 — Bỏ lựa chọn mode và dọn run (01/11/2026)
+
+Nguồn: người dùng gửi ảnh bộ chọn ROP/SS, chốt cố địnhROP và SSngày, yêu cầu sửa BE/FE/DB và bỏ run không cần; tiếp tục giao pushGitHub khi hoàn tất. Kiểm trực tiếp trước sửa: app5run complete,921policy/920item, latest919item thiếufixed_order_qty,1lượng đã khai báo. Đã thông báo giữ source+forecast và lưu trữ3runstock/policy/alert; người dùng chọn điền các lượng trống bằng lô giả định đã nghiên cứuCHG077. Không suy từMOQ và không thay lượng đã khai báo. [Bàn giao](development.md#handoff-chg083).

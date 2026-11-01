@@ -296,3 +296,10 @@ Ngày 31/10/2026, người dùng xác định trực tiếp **nhà cung cấp ch
 ## CHG-082 — R08: trang sản phẩm và cấu hình trong luồng quản lý
 
 Nguồn trực tiếp01/11/2026: người dùng muốn web quản lý thông thường, bỏ cách diễn đạt “phương án cũ”; quản lý kho ngay ở Tồn kho, cấu hình nhập riêng trong từng sản phẩm. Menu Sản phẩm có danh sách và trang chi tiết; nhấp sản phẩm trong kho mở đúng item_id, xem thông tin và chỉnh lượng nhập mỗi lần, SS, ROP cùng ngày áp dụng. Giữ kho/carrier/SKU/loại và phiên bản/ngày hiệu lực, không tự lấyMOQ thànhfixed_order_qty hoặc tính lại dữ liệu đã ghi. Lưu kho cập nhật tên hiển thị hiện tại, thông tin frozen vẫn giữ riêng. Thiết lập kịch bản chuyển vào phần nâng cao. Không đổi M05/model hoặc nâng R07/T14. [PLAN](planning/PLAN.md#chg-082), [bàn giao](development.md#handoff-chg082).
+
+<a id="fixed-days-chg083"></a>
+## CHG-083 — R06: duy nhất ROP cố định và SS theo số ngày bán
+
+Nguồn trực tiếp người dùng01/11/2026 và ảnh hai bộ chọn: không chọnmode nữa. ROP bằng configured_rop_floor đã khai báo; SS bằngceil(safety_days×mức bán dự báo bình quân ngày×hệ số scenario), không cộng SS vào ROP cố định. L7/R1/H14, strict closing<ROP, IP và lôfixed mỗi lần giữ nguyên. FE/API mới chỉ nhập trị sốROP, lượng mỗi lần, SSngày, N cảnh báo/ngày hiệu lực; không nhậnsafety_mode/rop_mode/safety_lookback_days/safety_factor. DB live bỏ4cột, run mới đóng băngfixed/days; backup/run lịch sử không sửa JSON/hash.
+
+Người dùng đồng ý điền phần lượng nhập trống theo nhóm giả định CHG077 (eSIM5/10,physical_SIM10/15; quantity03–30/06/2025, cao>trung vị theo từngloại), giữ lượng người dùng đã khai báo. Dọn đúng3run tồn/nhập/cảnh báo đã xác định sau backup/restore thử và lưu artifact, giữ nguồn/dự báo rồi tạo1kế hoạch tồn theo profile mới. Đây là thay đổi yêu cầu do người dùng, không là mentor xác nhận hoặc nghiệm thu kết quả R07/T14. [PLAN](planning/PLAN.md#chg-083).

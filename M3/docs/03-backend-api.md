@@ -1,5 +1,9 @@
 # M3 — backend, API và worker
 
+## CHG-083 — Không nhận lựa chọn mode
+
+PolicyCreate/PolicyOverride bỏsafety_mode,rop_mode,safety_lookback_days,safety_factor; gửi lại bất kỳ trường nào trong4trường này(ngay cảdays/fixed hợp lệ trước đây) bị422extra_forbidden. Payload mới chỉ trị sốROP/lượng nhập/SSngày/Ncảnh báo/ngày hiệu lực cùngID/version. Freeze chặn cả override mode được ghi thẳng vào scenarioDB, luôn đóng băngfixed/days vàprofile mới. Policy GET trả livecolumns0006, không có4trường đã bỏ. Inventory/CSV mô tả cấu hình frozen nên vẫn có metadatafixed/days; legacy defaults chỉ dùng đọc lịch sử. Không tự chuyểnMOQ thànhfixed quantity. [Bàn giao](../../docs/development.md#handoff-chg083).
+
 ## CHG-082 — API đọc cho quản lý sản phẩm
 
 GET`/api/v1/products`: page≥1/page_size1–100, warehouse_id/product_type/searchSKU; lọc trước phân trang, mỗiitem đúng1lần cùngwarehouse/supplier_id vàpolicy mới nhất theo version hoặcnull. GET`/api/v1/products/{key}` trả chi tiết/404; GET`/api/v1/warehouses/{key}` trả bảnlive/version/404. Lưu dùngPOSTsupplier-item-policies/PATCHwarehouse hiện có; giữ validation/version/effective date/frozen guard, không thêm bảng/migration hoặc tự chuyểnMOQ sangfixed quantity.

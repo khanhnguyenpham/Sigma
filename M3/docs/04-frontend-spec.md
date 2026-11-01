@@ -1,5 +1,9 @@
 # M3 — đặc tả frontend
 
+## CHG-083 — Form số, không còn bộ chọn mode
+
+Form sản phẩm và override nâng cao chỉ có Ngưỡng nhập cố định(ROP), lượng nhập mỗi lần(chỉ sản phẩm), số ngày tồn an toàn và N cảnh báo; không còn select/hiddeninput mode/lookback/factor. Payload whitelist trị số vàID/version/date; bỏ nhánh bật/tắt trường và nội suy theo volatility. SS0/ROP0 giữ đúng, blankoverride vẫn kế thừa. Caption giải thích SSngày không cộng vào ROPcố định. Các mô tả chọn mode ởCHG082 và các phần bên dưới là lịch sử, không phải UI hiện tại. Danh sách run app chỉ còn nguồn/dự báo và kế hoạch tồn mới sauarchive cóbackup. [Bàn giao](../../docs/development.md#handoff-chg083).
+
 ## CHG-082 — Trang sản phẩm và cấu hình tại chỗ
 
 Điều hướng chính gồm Tổng quan, Tồn kho, Sản phẩm, Dự báo nhu cầu, Nhập hàng, Cảnh báo. `#products` là danh sách catalog hiện tại, tìmSKU/lọc kho/loại trước phân trang, không cần chọn run. `#product` vớiitem_id mở metadata sản phẩm/kho/carrier và form riêng cho lượng nhập mỗi lần, SS ngày hoặc biến động, ROP, N ngày cảnh báo, ngày hiệu lực. Nhấp hàng trong kho đi thẳng trang này. Breadcrumb/quay kho/Back/reload giữ ID; liên kết sâu không bị xóa chỉ vì item chưa có trong100option đầu. Form dùng latestpolicy/expected_version, không lấyMOQ làm fixed_order_qty;409giữ giá trị, có nút tải lại. Tồn theo run/ngày trình bày riêng, lưu không tự sửa kết quả đã ghi.

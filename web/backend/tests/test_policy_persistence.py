@@ -59,7 +59,7 @@ def test_omitted_policy_defaults_and_partial_override_inheritance():
     p = request(1, 1)
     assert {k: getattr(p, k) for k in POLICY_DEFAULTS} == POLICY_DEFAULTS
     assert PolicyOverride(item_id=1).model_dump(exclude_none=True) == {"item_id": 1}
-    assert PolicyOverride(item_id=1, safety_mode=None, safety_factor=0).model_dump(exclude_none=True) == {"item_id": 1, "safety_factor": 0}
+    assert PolicyOverride(item_id=1, warning_horizon_days=None, safety_days=0).model_dump(exclude_none=True) == {"item_id": 1, "safety_days": 0}
     for field in POLICY_DEFAULTS:
         with pytest.raises(ValidationError):
             PolicyCreate.model_validate({**p.model_dump(), field: None})
@@ -81,9 +81,7 @@ def test_policy_http_versions_modes_intervals_and_safe_validation(pg, tmp_path):
             ("days", "fixed"), ("volatility", "forecast"), ("volatility", "fixed"),
         ], 1):
             body.update(expected_version=version, effective_from=str(D + timedelta(days=version)),
-                        supplier_id=supplier, safety_mode=safety, rop_mode=rop,
-                        safety_lookback_days=7 if version == 1 else 90,
-                        safety_factor=0 if version == 1 else 2.5,
+                        supplier_id=supplier, safety_days=0 if version == 1 else 2.5,
                         warning_horizon_days=1 if version == 1 else 14)
             response = c.post(path, json=body)
             assert response.status_code == 201
@@ -104,59 +102,36 @@ def test_policy_http_versions_modes_intervals_and_safe_validation(pg, tmp_path):
         assert c.post("/api/v1/scenarios", json=bad_scenario).status_code == 422
 
 
-def test_scenario_override_freezes_all_fields_and_keeps_old_runs(pg, tmp_path):
+def test_scenario_override_freezes_fixed_profile_and_keeps_existing_runs(pg, tmp_path):
     _, sessions = pg
     source, forecast, item = result_fixture(sessions)
-    with sessions.begin() as s:
-        policy = create_policy(s, request(item, 1))
-        policy.safety_factor = 2.5
-    with TestClient(create_app(settings(tmp_path))) as c:
-        partial = dict(item_id=item, safety_mode="volatility", rop_mode="fixed",
-                       safety_lookback_days=90, warning_horizon_days=14, safety_factor=None)
-        created = c.post("/api/v1/scenarios", json=scenario_body([partial]))
-        assert created.status_code == 201
-        scenario = created.json()
-        assert "safety_factor" not in scenario["settings"]["policy_overrides"][0]
-        body = dict(kind="stock_projection", source_import_run_id=str(source),
-                    forecast_run_id=str(forecast), scenario_id=scenario["id"], as_of_date=str(D))
-        response = c.post("/api/v1/runs", json=body, headers={"Idempotency-Key": "frozen-policy"})
-        assert response.status_code == 202
-        key = uuid.UUID(response.json()["run_id"])
-        with sessions() as s:
-            run = s.get(Run, key)
-            frozen = deepcopy(run.config_snapshot)
-            checksum = run.config_sha256
-            p = frozen["policies"][0]
-            assert {k: p[k] for k in POLICY_DEFAULTS} == dict(
-                safety_mode="volatility", rop_mode="fixed", safety_lookback_days=90,
-                safety_factor=2.5, warning_horizon_days=14,
-            )
-            assert p["scenario_override"] is True
-            assert frozen["scenario"]["settings"] == scenario["settings"]
-            assert digest(frozen) == checksum
-        # Version changes affect a later run only, never an existing snapshot.
-        later = request(item, 1, 1, D + timedelta(days=1)).model_dump(mode="json")
-        later.update(safety_factor=4, warning_horizon_days=1)
-        assert c.post("/api/v1/supplier-item-policies", json=later).status_code == 201
-        changed = scenario_body([dict(item_id=item, safety_factor=0)])
-        new_scenario = c.post("/api/v1/scenarios", json=changed).json()
-        assert new_scenario["version"] == 2
-        assert c.post("/api/v1/runs", json=body, headers={"Idempotency-Key": "frozen-policy"}).json()["run_id"] == str(key)
-        with sessions() as s:
-            old = s.get(Run, key)
-            assert old.config_snapshot == frozen and old.config_sha256 == checksum
-            assert s.get(Scenario, scenario["id"]).settings == scenario["settings"]
-        body.update(scenario_id=new_scenario["id"], as_of_date=str(D + timedelta(days=1)))
-        new = c.post("/api/v1/runs", json=body, headers={"Idempotency-Key": "new-policy"})
-        assert new.status_code == 202
-        with sessions() as s:
-            run = s.get(Run, uuid.UUID(new.json()["run_id"]))
-            p = next(p for p in run.config_snapshot["policies"] if p["version"] == 2)
-            assert p["version"] == 2 and p["supplier_id"] == 1
-            assert p["safety_factor"] == 0 and p["warning_horizon_days"] == 1
-            assert p["safety_mode"] == "days" and p["rop_mode"] == "forecast"
-        retroactive = {**later, "expected_version": 2, "effective_from": str(D + timedelta(days=1))}
-        assert c.post("/api/v1/supplier-item-policies", json=retroactive).status_code == 409
+    with sessions.begin() as session:
+        create_policy(session, request(item, 1))
+    with TestClient(create_app(settings(tmp_path))) as client:
+        override = dict(item_id=item, configured_rop_floor=0, safety_days=0, warning_horizon_days=14)
+        scenario = client.post('/api/v1/scenarios', json=scenario_body([override])).json()
+        body = dict(kind='stock_projection', source_import_run_id=str(source), forecast_run_id=str(forecast), scenario_id=scenario['id'], as_of_date=str(D))
+        response = client.post('/api/v1/runs', json=body, headers={'Idempotency-Key':'fixed-profile'})
+        assert response.status_code == 202, response.text
+        key = uuid.UUID(response.json()['run_id'])
+        with sessions() as session:
+            run = session.get(Run, key)
+            frozen, checksum = deepcopy(run.config_snapshot), run.config_sha256
+            assert frozen['inventory_policy_profile'] == 'fixed_rop_days_ss_v1'
+            policy = frozen['policies'][0]
+            assert (policy['rop_mode'], policy['safety_mode'], policy['configured_rop_floor'], policy['safety_days']) == ('fixed','days',0,0)
+            assert policy['warning_horizon_days'] == 14 and policy['scenario_override']
+        later = request(item, 1, 1, D+timedelta(days=1)).model_dump(mode='json')
+        assert client.post('/api/v1/supplier-item-policies', json=later).status_code == 201
+        assert client.post('/api/v1/runs', json=body, headers={'Idempotency-Key':'fixed-profile'}).json()['run_id'] == str(key)
+        with sessions() as session:
+            run = session.get(Run, key)
+            assert run.config_snapshot == frozen and run.config_sha256 == checksum
+        # Raw persisted overrides cannot restore a mode removed from the HTTP contract.
+        with sessions.begin() as session:
+            row=session.get(Scenario,scenario['id'])
+            row.settings={**row.settings,'policy_overrides':[{'item_id':item,'rop_mode':'forecast'}]}
+        assert client.post('/api/v1/runs', json=body, headers={'Idempotency-Key':'forbidden-mode'}).status_code == 422
 
 
 def test_database_constraints_reject_invalid_policy_parameters(pg):
@@ -164,14 +139,8 @@ def test_database_constraints_reject_invalid_policy_parameters(pg):
     item, supplier, _ = seed(sessions)
     with sessions.begin() as s:
         key = create_policy(s, request(item, supplier)).id
-    for field, value in [
-        ("safety_mode", "bad"), ("rop_mode", "bad"),
-        ("safety_lookback_days", 6), ("safety_lookback_days", 91),
-        ("warning_horizon_days", 0), ("warning_horizon_days", 15),
-        ("safety_factor", -1), ("safety_factor", float("nan")),
-        ("safety_factor", float("inf")), ("safety_factor", float("-inf")),
-        *[(k, None) for k in POLICY_DEFAULTS],
-    ]:
+    assert not {'safety_mode','rop_mode','safety_lookback_days','safety_factor'} & set(Policy.__table__.columns.keys())
+    for field, value in [('warning_horizon_days',0),('warning_horizon_days',15),('warning_horizon_days',None),('safety_days',-1)]:
         with pytest.raises((IntegrityError, DataError)):
             with engine.begin() as connection:
                 connection.execute(Policy.__table__.update().where(Policy.id == key).values(**{field: value}))

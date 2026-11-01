@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    BigInteger, Boolean, CheckConstraint, Column, Date, Double, Index, Integer, Numeric,
+    BigInteger, Boolean, CheckConstraint, Column, Date, Index, Integer, Numeric,
     SmallInteger, Text, UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import JSONB
@@ -18,10 +18,6 @@ class Policy(Base):
     moq = Column(BigInteger)  # Historical minimum-quantity policies only.
     fixed_order_qty = Column(BigInteger)
     safety_days = Column(Numeric(8, 3), nullable=False)
-    safety_mode = Column(Text, nullable=False, server_default="days")
-    safety_lookback_days = Column(SmallInteger, nullable=False, server_default="28")
-    safety_factor = Column(Double, nullable=False, server_default="1")
-    rop_mode = Column(Text, nullable=False, server_default="forecast")
     warning_horizon_days = Column(SmallInteger, nullable=False, server_default="7")
     is_assumed = Column(Boolean, nullable=False, default=True)
     assumption_source = Column(Text, nullable=False)
@@ -39,17 +35,6 @@ class Policy(Base):
             "(fixed_order_qty IS NOT NULL AND fixed_order_qty>=1 AND moq IS NULL)",
             name="ck_policy_order_quantity",
         ),
-        CheckConstraint(
-            "safety_mode IN ('days','volatility')", name="ck_policy_safety_mode"
-        ),
-        CheckConstraint(
-            "safety_lookback_days BETWEEN 7 AND 90", name="ck_policy_safety_lookback"
-        ),
-        CheckConstraint(
-            "safety_factor>=0 AND safety_factor<'Infinity'::float8",
-            name="ck_policy_safety_factor",
-        ),
-        CheckConstraint("rop_mode IN ('fixed','forecast')", name="ck_policy_rop_mode"),
         CheckConstraint(
             "warning_horizon_days BETWEEN 1 AND 14", name="ck_policy_warning_horizon"
         ),

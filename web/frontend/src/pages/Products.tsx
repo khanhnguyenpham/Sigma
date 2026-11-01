@@ -32,7 +32,7 @@ export function Products({ onOpen }: { onOpen: (row: Row) => void }) {
         { key: "sku", label: "Mã sản phẩm", render: (v) => <strong>{String(v)}</strong> },
         { key: "product_type", label: "Loại" }, { key: "city", label: "Kho" }, { key: "carrier", label: "Nhà mạng" },
         { key: "policy", label: "Lượng nhập mỗi lần", render: (v) => (v as Row | null)?.fixed_order_qty == null ? "Chưa cấu hình" : fmt((v as Row).fixed_order_qty) },
-        { key: "safety_days", label: "Tồn an toàn", render: (_, r) => { const p = r.policy as Row | null; return !p ? "Chưa cấu hình" : p.safety_mode === "volatility" ? "Theo biến động số bán" : `${fmt(p.safety_days)} ngày`; } },
+        { key: "safety_days", label: "Tồn an toàn", render: (_, r) => { const p = r.policy as Row | null; return !p ? "Chưa cấu hình" : `${fmt(p.safety_days)} ngày`; } },
       ]} /><Pager page={page} total={data.data.total} onChange={setPage} /></>}
     </Panel>
   </>;

@@ -879,3 +879,10 @@ Sửa seed theo tuyến, độc lập thứ tự/subset nhập; import từ ch�
 01/11/2026, người dùng yêu cầu sửa UI theo ba ảnh, bỏ lời dẫn “phương án cũ”, dùng cấu hình từng sản phẩm; tách cấu hình kho vào Tồn kho, thêm trang sản phẩm và nhấp sản phẩm trong kho mở thẳng trang chi tiết có chỉnh lượng nhập mỗi lần/SS/ROP. Người dùng bổ sung “như web quản lý thông thường”, sau đó giao kiểm tra xong đẩy GitHub.
 
 T11/T12 hoàn tất local: thêm ba API đọc, trang sản phẩm, form inline và sửa kho tại chỗ; cấu hình phiên bản/ngày hiệu lực/409/frozen guards giữ nguyên, không lấyMOQ làm lượng cố định. display_city tách tên hiện tại với city frozen.262BE/65React/build/pipcheck/browser desktop/390px/save-reload DBtest đạt; app13bảng/1.043file nguyên so sauCHG081. Cho phép commit/push thường cảCHG081–082 trên final-report, kiểm SHAremote/CI saucommit; không merge/force-push/deploy hoặc pushraw/run/DB/env. [Bàn giao](../development.md#handoff-chg082).
+
+<a id="chg-083"></a>
+## CHG-083 — Cố định ROP, SS theo ngày bán và lưu trữ run không còn dùng
+
+01/11/2026: người dùng chọn duy nhất ROP ngưỡng cố định và SS theo số ngày bán, yêu cầu sửa BE/FE/DB, bỏ run không cần thiết và giao pushGitHub sau kiểm tra. Người dùng đã chọn điền lượng nhập còn thiếu bằng nhóm lô giả định CHG077: eSIM thấp5/cao10, physical_SIM thấp10/cao15, nhóm cao khi tổng quantity03–30/06/2025 lớn hơn trung vị riêng loại sản phẩm. Giữ lượng đã khai báo, không lấyMOQ thay thế.
+
+T10–T12 hoàn tất local: bỏ bốn trường mode/lookback/factor khỏi livepolicy/API/FE; DB0006_fixed_days bỏ cột và dọn các mode trong scenario editable. Newrun freeze rõfixed/days/profile, không cho override chọn lại mode. Giữ reader/verifier lịch sử để đối chiếu bản lưu trữ. Backup và restore thử riêng trước khi dọn đúng3inventoryrun được liệt kê; giữ nguyên source/forecast parent và chuyển artifact sang archive có hash. Sau đó tạo1stock_projection theo cấu hình mới, không refit hoặc chạy lại toàn replay. Không nâng R07/T14 bằng số của run đã lưu trữ. [Yêu cầu](../requirements.md#fixed-days-chg083), [bàn giao](../development.md#handoff-chg083).

@@ -209,7 +209,7 @@ def enqueue_fixture(c, source, forecast, item, safety, rop, kind, lookback=7):
         cover_days=7, safety_multiplier=1.5, receipts_declared=True,
         receipts_initial=[dict(item_id=item, ordered_on=str(D - timedelta(days=3)), eta=str(D + timedelta(days=4)),
                                ordered_qty=20, lot_key="synthetic-incoming")],
-        policy_overrides=[dict(item_id=item, safety_mode=safety, rop_mode=rop, safety_lookback_days=lookback, safety_factor=2)],
+        policy_overrides=[],
     ))
     response = c.post("/api/v1/scenarios", json=scenario)
     assert response.status_code == 201
@@ -219,7 +219,19 @@ def enqueue_fixture(c, source, forecast, item, safety, rop, kind, lookback=7):
         body.update(period_start=str(D + timedelta(days=1)), period_end=str(D + timedelta(days=14)))
     response = c.post("/api/v1/runs", json=body, headers={"Idempotency-Key": "synthetic-calculation"})
     assert response.status_code == 202
-    return uuid.UUID(response.json()["run_id"])
+    key = uuid.UUID(response.json()["run_id"])
+    if (safety,rop) != ('days','fixed'):
+        # Legacy-only fixture injection preserves historical worker/verifier regression.
+        # The current API above never accepts a mode choice.
+        with c.app.state.sessions.begin() as session:
+            run=session.get(Run,key)
+            snapshot=deepcopy(run.config_snapshot)
+            snapshot.pop('inventory_policy_profile')
+            for policy in snapshot['policies']:
+                policy.update(safety_mode=safety,rop_mode=rop,safety_lookback_days=lookback,safety_factor=2)
+            run.config_snapshot=snapshot
+            run.config_sha256=digest(snapshot)
+    return key
 
 
 @pytest.mark.parametrize("safety,rop", [("days", "fixed"), ("days", "forecast"), ("volatility", "fixed"), ("volatility", "forecast")])

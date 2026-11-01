@@ -12,7 +12,7 @@ from modules.catalog.service import warehouse_labels
 from core.run_context import required_run, source_data_id, snapshot_maps
 from core.serialization import clean_json
 from core.errors import DomainError
-from modules.configuration.schemas import POLICY_DEFAULTS
+from modules.configuration.schemas import LEGACY_POLICY_DEFAULTS
 from src.evaluation import score
 
 _ALLOCATED_METRICS = {}
@@ -250,7 +250,7 @@ def dataset(session, run, name, filters, paginate=True):
                 policy_version=p["version"],
             )
             if model is InventoryDaily:
-                r.update({name: p.get(name, default) for name, default in POLICY_DEFAULTS.items()})
+                r.update({name: p.get(name, default) for name, default in LEGACY_POLICY_DEFAULTS.items()})
         if model is InventoryDaily:
             r["eta_if_ordered"] = (
                 r["date"] + timedelta(days=7) if r["recommended_qty"] else None

@@ -169,7 +169,7 @@ it("retains policy values after 409 and saves the same native fields on explicit
   });
   render(<ProductPolicyForm product={{ id: 341, supplier_id: 1, policy: null }} onSaved={changed} onReload={() => {}} />);
   const dialog = within(screen.getByRole("form", { name: "Cấu hình nhập hàng sản phẩm" }));
-  fireEvent.change(dialog.getByLabelText("Ngưỡng nhập tối thiểu (ROP floor)"), {
+  fireEvent.change(dialog.getByLabelText("Ngưỡng nhập cố định (ROP)"), {
     target: { value: "42" },
   });
   fireEvent.change(dialog.getByLabelText("Lượng nhập mỗi lần"), { target: { value: "9" } });
@@ -195,10 +195,6 @@ it("retains policy values after 409 and saves the same native fields on explicit
       configured_rop_floor: 42,
       fixed_order_qty: 9,
       safety_days: 1.5,
-      safety_mode: "days",
-      safety_lookback_days: 28,
-      safety_factor: 1,
-      rop_mode: "forecast",
       warning_horizon_days: 7,
       expected_version: 0,
     }),
@@ -236,12 +232,9 @@ it("keeps batched override field edits in the scenario payload", async () => {
   const group = within(
     dialog.getByRole("group", { name: "Điều chỉnh riêng mặt hàng" }),
   );
-  fireEvent.change(group.getByLabelText("Cách tính tồn an toàn (SS)"), {
-    target: { value: "days" },
-  });
   act(() => {
     fireEvent.change(
-      group.getByLabelText("Ngưỡng nhập tối thiểu (ROP floor)"),
+      group.getByLabelText("Ngưỡng nhập cố định (ROP)"),
       { target: { value: "43" } },
     );
     expect(group.queryByLabelText("Lượng nhập mỗi lần")).toBeNull();
@@ -255,7 +248,7 @@ it("keeps batched override field edits in the scenario payload", async () => {
   );
   await waitFor(() => expect(body).toBeDefined());
   expect(body?.settings.policy_overrides).toEqual([
-    { item_id: 341, configured_rop_floor: 43, safety_days: 1.25, safety_mode: "days" },
+    { item_id: 341, configured_rop_floor: 43, safety_days: 1.25 },
   ]);
   expect(body?.settings.receipts_initial).toEqual([]);
   expect(body?.settings.receipts_declared).toBe(true);
@@ -268,60 +261,38 @@ async function newPolicy() {
   return dialog;
 }
 
-it("saves volatility and fixed ROP while preserving inactive parameters across mode changes", async () => {
-  let body: Record<string, any> | undefined;
-  vi.spyOn(globalThis, "fetch").mockImplementation((input, options) => {
-    if (options?.method !== "POST") return readReply(input);
-    body = JSON.parse(String(options.body));
-    return reply({ id: 1 });
-  });
-  const dialog = await newPolicy();
-  fireEvent.change(dialog.getByLabelText("Số ngày tồn an toàn"), { target: { value: "3.5" } });
-  fireEvent.change(dialog.getByLabelText("Cách tính tồn an toàn (SS)"), { target: { value: "volatility" } });
-  expect(dialog.queryByLabelText("Số ngày tồn an toàn")).toBeNull();
-  fireEvent.change(dialog.getByLabelText("Số ngày lịch sử quan sát"), { target: { value: "90" } });
-  fireEvent.change(dialog.getByLabelText("Hệ số biến động"), { target: { value: "0" } });
-  fireEvent.change(dialog.getByLabelText("Cách tính ngưỡng nhập (ROP)"), { target: { value: "fixed" } });
-  expect(dialog.getByText(/không cộng tồn an toàn lần nữa/)).toBeVisible();
-  fireEvent.change(dialog.getByLabelText("Số ngày nhìn trước cảnh báo xuống ROP"), { target: { value: "14" } });
-  fireEvent.change(dialog.getByLabelText("Cách tính tồn an toàn (SS)"), { target: { value: "days" } });
-  expect(dialog.getByLabelText("Số ngày tồn an toàn")).toHaveValue(3.5);
-  expect(dialog.queryByLabelText("Hệ số biến động")).toBeNull();
-  fireEvent.change(dialog.getByLabelText("Cách tính tồn an toàn (SS)"), { target: { value: "volatility" } });
-  expect(dialog.getByLabelText("Hệ số biến động")).toHaveValue(0);
-  fireEvent.submit(dialog.getByRole("button", { name: "Lưu cấu hình sản phẩm" }).closest("form")!);
-  await waitFor(() => expect(body).toBeDefined());
-  expect(body).toMatchObject({ safety_mode: "volatility", safety_days: 3.5, safety_lookback_days: 90,
-    safety_factor: 0, rop_mode: "fixed", warning_horizon_days: 14, expected_version: 0 });
+it("uses fixed ROP and days SS without selectors or retired request fields", async () => {
+  let body: Record<string, unknown> | undefined;
+  vi.spyOn(globalThis, "fetch").mockImplementation((_input, options) => { body=JSON.parse(String(options?.body)); return reply({id:1}); });
+  const form=await newPolicy();
+  expect(form.queryByLabelText("Cách tính tồn an toàn (SS)")).toBeNull();
+  expect(form.queryByLabelText("Cách tính ngưỡng nhập (ROP)")).toBeNull();
+  expect(form.queryByLabelText("Hệ số biến động")).toBeNull();
+  fireEvent.change(form.getByLabelText("Số ngày tồn an toàn"),{target:{value:"0"}});
+  fireEvent.change(form.getByLabelText("Ngưỡng nhập cố định (ROP)"),{target:{value:"0"}});
+  fireEvent.submit(form.getByRole("button",{name:"Lưu cấu hình sản phẩm"}).closest('form')!);
+  await waitFor(()=>expect(body).toBeDefined());
+  expect(body).toMatchObject({configured_rop_floor:0,safety_days:0,fixed_order_qty:17});
+  for(const key of ['safety_mode','rop_mode','safety_lookback_days','safety_factor']) expect(body).not.toHaveProperty(key);
 });
 
-it("opens exact product modes and version and retains them after a conflict", async () => {
-  const bodies: Record<string, any>[] = [];
-  vi.spyOn(globalThis, "fetch").mockImplementation((_input, options) => {
+it("retains saved SS days and entered quantity after a version conflict", async () => {
+  const bodies: Record<string, any>[]=[];
+  vi.spyOn(globalThis,"fetch").mockImplementation((_input,options)=>{
     bodies.push(JSON.parse(String(options?.body)));
-    return reply({ error: { code: "version_conflict", message: "synthetic" } }, false, 409);
+    return reply({error:{code:'version_conflict',message:'synthetic'}},false,409);
   });
-  render(<ProductPolicyForm product={{ id: 341, supplier_id: 1, policy: {
-    version: 4, effective_from: "2025-11-01", configured_rop_floor: 20, moq: 9,
-    safety_mode: "volatility", safety_days: 2, safety_lookback_days: 7, safety_factor: 2.5,
-    rop_mode: "fixed", warning_horizon_days: 1,
-  } }} onSaved={() => {}} onReload={() => {}} />);
-  const dialog = within(screen.getByRole("form", { name: "Cấu hình nhập hàng sản phẩm" }));
-  expect(dialog.getByLabelText("Cách tính tồn an toàn (SS)")).toHaveValue("volatility");
-  expect(dialog.getByLabelText("Số ngày lịch sử quan sát")).toHaveValue(7);
-  expect(dialog.getByLabelText("Hệ số biến động")).toHaveValue(2.5);
-  expect(dialog.getByLabelText("Cách tính ngưỡng nhập (ROP)")).toHaveValue("fixed");
-  expect(dialog.getByLabelText("Số ngày nhìn trước cảnh báo xuống ROP")).toHaveValue(1);
-  expect(dialog.getByLabelText("Lượng nhập mỗi lần")).toHaveValue(null);
-  fireEvent.change(dialog.getByLabelText("Lượng nhập mỗi lần"), { target: { value: "30" } });
-  const form = dialog.getByRole("button", { name: "Lưu cấu hình sản phẩm" }).closest("form")!;
-  fireEvent.submit(form);
-  await waitFor(() => expect(dialog.getByRole("alert")).toBeVisible());
-  expect(dialog.getByLabelText("Hệ số biến động")).toHaveValue(2.5);
-  fireEvent.submit(form);
-  await waitFor(() => expect(bodies).toHaveLength(2));
+  render(<ProductPolicyForm product={{id:341,supplier_id:1,policy:{version:4,effective_from:'2025-11-01',configured_rop_floor:20,safety_days:2,warning_horizon_days:1}}} onSaved={()=>{}} onReload={()=>{}} />);
+  const form=within(screen.getByRole('form',{name:'Cấu hình nhập hàng sản phẩm'}));
+  expect(form.getByLabelText('Số ngày tồn an toàn')).toHaveValue(2);
+  fireEvent.change(form.getByLabelText('Lượng nhập mỗi lần'),{target:{value:'30'}});
+  fireEvent.change(form.getByLabelText('Số ngày tồn an toàn'),{target:{value:'3.5'}});
+  const node=form.getByRole('button',{name:'Lưu cấu hình sản phẩm'}).closest('form')!;
+  fireEvent.submit(node); await form.findByRole('alert');
+  expect(form.getByLabelText('Số ngày tồn an toàn')).toHaveValue(3.5);
+  fireEvent.submit(node); await waitFor(()=>expect(bodies).toHaveLength(2));
   expect(bodies[0]).toEqual(bodies[1]);
-  expect(bodies[0]).toMatchObject({ expected_version: 4, safety_mode: "volatility", safety_lookback_days: 7, safety_factor: 2.5, rop_mode: "fixed", warning_horizon_days: 1 });
+  expect(bodies[0]).toMatchObject({expected_version:4,fixed_order_qty:30,safety_days:3.5,configured_rop_floor:20,warning_horizon_days:1});
 });
 
 it.each([
@@ -331,9 +302,9 @@ it.each([
   ["Số ngày nhìn trước cảnh báo xuống ROP", "0"],
   ["Số ngày nhìn trước cảnh báo xuống ROP", "15"],
   ["Số ngày nhìn trước cảnh báo xuống ROP", "1.5"],
-  ["Số ngày lịch sử quan sát", "6"],
-  ["Số ngày lịch sử quan sát", "91"],
-  ["Hệ số biến động", "-1"],
+  ["Số ngày tồn an toàn", "-1"],
+  ["Ngưỡng nhập cố định (ROP)", "-1"],
+  ["Ngưỡng nhập cố định (ROP)", "1.5"],
 ])("blocks an invalid native field before POST: %s=%s", async (label, value) => {
   const post = vi.fn();
   vi.spyOn(globalThis, "fetch").mockImplementation((input, options) => {
@@ -341,7 +312,6 @@ it.each([
     return readReply(input);
   });
   const dialog = await newPolicy();
-  fireEvent.change(dialog.getByLabelText("Cách tính tồn an toàn (SS)"), { target: { value: "volatility" } });
   fireEvent.change(dialog.getByLabelText(label), { target: { value } });
   const form = dialog.getByRole("button", { name: "Lưu cấu hình sản phẩm" }).closest("form")!;
   expect(form.checkValidity()).toBe(false);
@@ -349,7 +319,7 @@ it.each([
   expect(post).not.toHaveBeenCalled();
 });
 
-it("keeps blank override fields inherited, preserves zero and omits inactive mode parameters", async () => {
+it("keeps blank numeric overrides inherited and preserves zero SS days", async () => {
   let body: Record<string, any> | undefined;
   vi.spyOn(globalThis, "fetch").mockImplementation((input, options) => {
     if (options?.method !== "POST") return readReply(input);
@@ -365,15 +335,12 @@ it("keeps blank override fields inherited, preserves zero and omits inactive mod
   const add = dialog.getByRole("button", { name: "＋ Điều chỉnh mặt hàng" });
   await waitFor(() => expect(add).toBeEnabled()); fireEvent.click(add);
   const group = within(dialog.getByRole("group", { name: "Điều chỉnh riêng mặt hàng" }));
-  expect(group.getByLabelText("Cách tính tồn an toàn (SS)")).toHaveValue("");
-  fireEvent.change(group.getByLabelText("Ngưỡng nhập tối thiểu (ROP floor)"), { target: { value: "12" } });
-  fireEvent.change(group.getByLabelText("Ngưỡng nhập tối thiểu (ROP floor)"), { target: { value: "" } });
-  fireEvent.change(group.getByLabelText("Cách tính tồn an toàn (SS)"), { target: { value: "days" } });
-  fireEvent.change(group.getByLabelText("Số ngày tồn an toàn"), { target: { value: "3" } });
-  fireEvent.change(group.getByLabelText("Cách tính tồn an toàn (SS)"), { target: { value: "volatility" } });
-  fireEvent.change(group.getByLabelText("Hệ số biến động"), { target: { value: "0" } });
+  expect(group.queryByLabelText("Cách tính tồn an toàn (SS)")).toBeNull();
+  fireEvent.change(group.getByLabelText("Ngưỡng nhập cố định (ROP)"), { target: { value: "12" } });
+  fireEvent.change(group.getByLabelText("Ngưỡng nhập cố định (ROP)"), { target: { value: "" } });
+  fireEvent.change(group.getByLabelText("Số ngày tồn an toàn"), { target: { value: "0" } });
   fireEvent.change(group.getByLabelText("Số ngày nhìn trước cảnh báo xuống ROP"), { target: { value: "1" } });
   fireEvent.submit(dialog.getByRole("button", { name: "Lưu phiên bản mới" }).closest("form")!);
   await waitFor(() => expect(body).toBeDefined());
-  expect(body?.settings.policy_overrides).toEqual([{ item_id: 341, safety_mode: "volatility", safety_factor: 0, warning_horizon_days: 1 }]);
+  expect(body?.settings.policy_overrides).toEqual([{ item_id: 341, safety_days: 0, warning_horizon_days: 1 }]);
 });
