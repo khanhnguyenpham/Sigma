@@ -12,7 +12,7 @@ export function State({
   if (loading)
     return (
       <div className="skeleton" role="status">
-        Đang tải dữ liệu cùng lượt chạy…
+        Đang tải dữ liệu…
       </div>
     );
   if (error)

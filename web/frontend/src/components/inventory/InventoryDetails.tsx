@@ -18,7 +18,13 @@ export function InventoryDetails({
   onItem?: (row: Row, page?: string, view?: PurchasingView) => void;
 }) {
   return (
-    <DetailDrawer title={text(focused.sku)} onClose={onClose}>
+    <DetailDrawer title={text(focused.sku)} onClose={onClose}><InventoryInformation focused={focused} onItem={onItem} /></DetailDrawer>
+  );
+}
+
+export function InventoryInformation({ focused, onItem }: { focused: Row; onItem?: (row: Row, page?: string, view?: PurchasingView) => void }) {
+  return (
+    <>
       <dl className="drawer-fields">
         <div>
           <dt>Kho</dt><dd>{warehouseName(focused)}</dd>
@@ -66,8 +72,8 @@ export function InventoryDetails({
         <div><dt>Cách tính ROP</dt><dd>{focused.rop_mode === "fixed" ? "Cố định" : "Theo dự báo"}</dd></div>
         <div><dt>N ngày cảnh báo xuống ROP</dt><dd>{fmt(focused.warning_horizon_days)}</dd></div>
         <div>
-          <dt>{focused.fixed_order_qty != null ? "Lượng nhập mỗi lần" : "MOQ của phương án cũ"}</dt>
-          <dd>{fmt(focused.fixed_order_qty ?? focused.moq)}</dd>
+          <dt>Lượng nhập mỗi lần</dt>
+          <dd>{focused.fixed_order_qty == null ? "Chưa cấu hình" : fmt(focused.fixed_order_qty)}</dd>
         </div>
         <div>
           <dt>ROP tối thiểu</dt>
@@ -111,7 +117,7 @@ export function InventoryDetails({
             </span>
             <span>{focused.fixed_order_qty != null
               ? `Khi cần bổ sung: Q = ${fmt(focused.fixed_order_qty)} đơn vị mỗi lần, không tự tăng để bù đủ S.`
-              : "Phương án cũ tính lượng theo nhu cầu và MOQ."}</span>
+              : "Thiết lập lượng nhập mỗi lần trong cấu hình sản phẩm."}</span>
           </div>
           <p className="caption">
             Chỉ đề xuất khi tồn cuối &lt; ROP. Có thể Q=0 khi hàng đang về đủ
@@ -146,6 +152,6 @@ export function InventoryDetails({
           </button>
         </div>
       )}
-    </DetailDrawer>
+    </>
   );
 }

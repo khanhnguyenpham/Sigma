@@ -86,16 +86,17 @@ export function useAppContext() {
       setPage(location.hash.slice(1) || "overview");
     };
     window.addEventListener("popstate", pop);
-    return () => window.removeEventListener("popstate", pop);
+    window.addEventListener("hashchange", pop);
+    return () => { window.removeEventListener("popstate", pop); window.removeEventListener("hashchange", pop); };
   }, []);
   useEffect(() => {
     if (
-      ctx.itemId &&
+      page !== "product" && ctx.itemId &&
       items.data &&
       !items.data.items.some((i) => String(i.id) === ctx.itemId)
     )
       setCtx((c) => ({ ...c, itemId: "" }));
-  }, [items.data]);
+  }, [items.data, page]);
   useEffect(() => {
     if (run && !ctx.origin)
       setCtx((c) => ({
@@ -159,8 +160,9 @@ export function useAppContext() {
   }
   function selectWarehouse(id: string) {
     const next = { ...ctx, warehouseId: id, itemId: "", supplierId: "", productType: "" };
-    history.pushState(null, "", "?" + contextUrl(next) + "#" + page);
+    history.pushState(null, "", "?" + contextUrl(next) + "#inventory");
     setCtx(next);
+    setPage("inventory");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   const chooseInventory = compatible

@@ -29,6 +29,7 @@ class AlertRow(DTO):
     destination_country: str
     carrier: str
     city: str | None
+    display_city: str | None = None
 
 
 class AlertPage(DTO):

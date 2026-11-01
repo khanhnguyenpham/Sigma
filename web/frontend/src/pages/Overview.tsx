@@ -352,12 +352,12 @@ export function Overview({
                 </span>
                 <Icon name="chevron" size={16} />
               </button>
-              <button onClick={() => onNavigate("configuration")}>
+              <button onClick={() => onNavigate("products")}>
                 <span className="quick-icon teal">
                   <Icon name="settings" />
                 </span>
                 <span>
-                  <strong>Thiết lập nhập hàng</strong>
+                  <strong>Quản lý sản phẩm</strong>
                   <small>ROP, lượng nhập mỗi lần và mức tồn an toàn</small>
                 </span>
                 <Icon name="chevron" size={16} />

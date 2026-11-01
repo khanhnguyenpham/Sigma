@@ -1,5 +1,9 @@
 # SIGMA — React / FastAPI local
 
+## Quản lý sản phẩm và kho — CHG-082
+
+Mở **Sản phẩm → chọn sản phẩm** để xem thông tin và chỉnh lượng nhập mỗi lần, SS, ROP, ngày áp dụng. Trong **Tồn kho**, nhấp sản phẩm cũng mở trang này; nút **Chỉnh sửa kho** nằm ngay trong kho. Tên46kho là46địa danh riêng theoCHG081. Thiết lập tính toán và hàng đang về nằm trong tùy chọn nâng cao của màn hình tạo kế hoạch. Cấu hình lưu theo phiên bản; lưu không tính lại số liệu kế hoạch đã ghi. [Bằng chứng và bàn giao](docs/development.md#handoff-chg082).
+
 ## Xem tồn kho theo kho — CHG-080
 
 Mở **Tồn kho → chọn thẻ thành phố → xem sản phẩm**. Tên kho chỉ là city; quốc gia/carrier ở thông tin riêng. Trong kho có lọc nhà mạng/loại/SKU và nút mở Nhập hàng/Dự báo cùng phạm vi. [Chi tiết và kiểm tra](docs/development.md#handoff-chg080).

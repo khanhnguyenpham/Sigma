@@ -4,7 +4,7 @@ import App from "../src/App";
 
 const warehouses = [
   { id: 1, city: "Sydney", destination_country: "Australia", carrier: "Optus" },
-  { id: 2, city: "Sydney", destination_country: "Australia", carrier: "Telstra" },
+  { id: 2, city: "Melbourne", destination_country: "Australia", carrier: "Telstra" },
   { id: 3, city: "Tokyo", destination_country: "Japan", carrier: "NTT Docomo" },
 ];
 const stocks = warehouses.map((w, index) => ({ ...w, warehouse_id: w.id, item_count: index ? 20 : 63,
@@ -44,12 +44,13 @@ it('starts with distinct warehouse cards named only by city and complete warehou
   render(<App />);
   const optus = await screen.findByRole('button', { name: 'Mở kho Sydney tại Australia, nhà mạng Optus' });
   await waitFor(() => expect(within(optus).getByText('63')).toBeVisible());
-  expect(screen.getAllByRole('heading', { level: 3, name: 'Sydney' })).toHaveLength(2);
+  expect(screen.getAllByRole('heading', { level: 3, name: 'Sydney' })).toHaveLength(1);
+  expect(screen.getByRole('heading', { level: 3, name: 'Melbourne' })).toBeVisible();
   expect(within(optus).getByText('Optus')).toBeVisible();
   expect(screen.queryByRole('heading', { name: 'Sydney · Optus' })).toBeNull();
   expect(calls.some((u) => u.includes('/inventory?'))).toBe(false);
   expect(screen.queryByLabelText('SKU')).toBeNull();
-  const telstra = screen.getByRole('button', { name: 'Mở kho Sydney tại Australia, nhà mạng Telstra' });
+  const telstra = screen.getByRole('button', { name: 'Mở kho Melbourne tại Australia, nhà mạng Telstra' });
   expect(within(telstra).getByText('0')).toBeVisible();
   fireEvent.change(screen.getByLabelText('Quốc gia của kho'), { target: { value: 'Japan' } });
   expect(screen.getByRole('heading', { level: 3, name: 'Tokyo' })).toBeVisible();
@@ -59,7 +60,7 @@ it('starts with distinct warehouse cards named only by city and complete warehou
   fireEvent.click(screen.getByRole('button', { name: 'Xóa bộ lọc kho' }));
   fireEvent.change(screen.getByLabelText('Nhà mạng của kho'), { target: { value: 'Telstra' } });
   expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(1);
-  expect(screen.getByRole('button', { name: 'Mở kho Sydney tại Australia, nhà mạng Telstra' })).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Mở kho Melbourne tại Australia, nhà mạng Telstra' })).toBeVisible();
 });
 
 it('opens one warehouse, scopes filters and CSV, resets pagination and preserves the warehouse in purchasing', async () => {
@@ -83,24 +84,26 @@ it('opens one warehouse, scopes filters and CSV, resets pagination and preserves
   await screen.findByRole('heading', { name: 'Kế hoạch nhập hàng' });
   expect(location.hash).toBe('#replenishment');
   expect(screen.getByLabelText('Kho / tuyến')).toHaveValue('1');
-  expect(within(screen.getByLabelText('Kho / tuyến')).getAllByRole('option', { name: 'Sydney' })).toHaveLength(2);
+  const locations = within(screen.getByLabelText('Kho / tuyến'));
+  expect(locations.getAllByRole('option', { name: 'Sydney' })).toHaveLength(1);
+  expect(locations.getAllByRole('option', { name: 'Melbourne' })).toHaveLength(1);
   await waitFor(() => expect(calls.some((u) => u.includes('/purchasing?') && u.includes('warehouse_id=1'))).toBe(true));
 });
 
 it('supports the directory breadcrumb, browser Back and reloading a warehouse deep link', async () => {
   let view = render(<App />);
-  fireEvent.click(await screen.findByRole('button', { name: 'Mở kho Sydney tại Australia, nhà mạng Telstra' }));
-  await screen.findByRole('heading', { level: 1, name: 'Sydney' });
+  fireEvent.click(await screen.findByRole('button', { name: 'Mở kho Melbourne tại Australia, nhà mạng Telstra' }));
+  await screen.findByRole('heading', { level: 1, name: 'Melbourne' });
   expect(location.search).toContain('warehouse_id=2');
   view.unmount();
   view = render(<App />);
-  await screen.findByRole('heading', { level: 1, name: 'Sydney' });
+  await screen.findByRole('heading', { level: 1, name: 'Melbourne' });
   fireEvent.click(screen.getByRole('button', { name: 'Danh sách kho' }));
-  await screen.findByRole('button', { name: 'Mở kho Sydney tại Australia, nhà mạng Telstra' });
+  await screen.findByRole('button', { name: 'Mở kho Melbourne tại Australia, nhà mạng Telstra' });
   expect(location.search).not.toContain('warehouse_id');
   act(() => history.back());
   await waitFor(() => expect(location.search).toContain('warehouse_id=2'));
-  expect(await screen.findByRole('heading', { level: 1, name: 'Sydney' })).toBeVisible();
+  expect(await screen.findByRole('heading', { level: 1, name: 'Melbourne' })).toBeVisible();
   view.unmount();
 });
 

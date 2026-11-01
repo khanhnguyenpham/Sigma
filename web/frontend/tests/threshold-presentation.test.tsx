@@ -122,10 +122,10 @@ it("explains a fixed quantity per order while keeping the target only as a refer
   expect(screen.queryByText("MOQ của phương án cũ")).toBeNull();
 });
 
-it("labels historical MOQ explicitly without inventing a fixed quantity", () => {
+it("shows unconfigured fixed quantity without presenting MOQ as the order quantity", () => {
   render(<InventoryDetails focused={{sku:"OLD",moq:10}} onClose={()=>{}} />);
-  expect(screen.getByText("MOQ của phương án cũ").nextElementSibling).toHaveTextContent("10");
-  expect(screen.queryByText("Lượng nhập mỗi lần")).toBeNull();
+  expect(screen.getByText("Lượng nhập mỗi lần").nextElementSibling).toHaveTextContent("Chưa cấu hình");
+  expect(screen.queryByText("MOQ của phương án cũ")).toBeNull();
 });
 
 it("keeps undefined threshold ratios as a dash when there are no events", async () => {

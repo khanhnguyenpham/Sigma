@@ -1,4 +1,4 @@
-import { InventoryDetails } from "../components/inventory/InventoryDetails";
+import { WarehouseEditor } from "../components/inventory/WarehouseEditor";
 import { useEffect, useState } from "react";
 import { type Run, type Page, type Row } from "../types/api";
 import { type Context } from "../types/context";
@@ -44,9 +44,8 @@ export function Inventory({
 }) {
   const [page, setPage] = useState(1),
     [status, setStatus] = useState(""),
-    [selection, setSelection] = useState<{ key: string; row: Row }>();
+    [editingWarehouse, setEditingWarehouse] = useState(false);
   const key = JSON.stringify([ctx, status]);
-  const focused = selection?.key === key ? selection.row : undefined;
   useEffect(() => setPage(1), [key]);
   useEffect(() => setStatus(""), [ctx.runId, ctx.warehouseId]);
   const ready =
@@ -88,18 +87,19 @@ export function Inventory({
           </p>
           {insideWarehouse && warehouse && <span className="carrier-chip">Nhà mạng <strong>{String(warehouse.carrier)}</strong></span>}
         </div>
-        {ready && insideWarehouse && <div className="warehouse-actions">
-          {onNavigate && <><button onClick={() => onNavigate("forecast")}><Icon name="chart" size={16} /> Dự báo nhu cầu</button>
+        {insideWarehouse && <div className="warehouse-actions">
+          <button onClick={() => setEditingWarehouse(true)}><Icon name="settings" size={16} /> Chỉnh sửa kho</button>
+          {ready && onNavigate && <><button onClick={() => onNavigate("forecast")}><Icon name="chart" size={16} /> Dự báo nhu cầu</button>
             <button onClick={() => onNavigate("replenishment")}><Icon name="truck" size={16} /> Nhập hàng</button></>}
-          <ExportButton url={`/runs/${run.id}/exports/inventory_daily?${q}`} />
+          {ready && <ExportButton url={`/runs/${run.id}/exports/inventory_daily?${q}`} />}
         </div>}
       </div>
-      {!ready ? (
+      {!ready && insideWarehouse ? (
         <PlanRequired onChoose={onChoose} />
       ) : (
         <>
           {!insideWarehouse ? <div className="stats">
-            <Card label="Kho đang quản lý" value={catalog?.data ? fmt(warehouses.length) : "—"} note="Mỗi kho đặt tại một thành phố" icon="warehouse" />
+            <Card label="Kho đang quản lý" value={catalog?.data ? fmt(warehouses.length) : "—"} note="Mỗi kho có một địa danh riêng" icon="warehouse" />
             <Card label="Mặt hàng đang quản lý" value={fmt(s?.item_count)} note="Tổng mặt hàng trong ngày đang chọn" icon="box" />
             <Card label="Tồn hiện có" value={fmt(s?.on_hand_units)} note="Tổng tồn của các kho trong phương án" icon="grid" />
             <Card label="Kho cần bổ sung" value={summary.data?.warehouse_stock ? fmt(summary.data.warehouse_stock.filter((w) => Number(w.replenish_items) > 0).length) : "—"} note="Có ít nhất một mặt hàng cần đặt thêm" icon="truck" tone="orange" />
@@ -132,7 +132,7 @@ export function Inventory({
             />
           </div>}
           <State loading={summary.loading} error={summary.error} />
-          {!insideWarehouse ? <WarehouseDirectory key={run.id} warehouses={warehouses} stock={summary.data?.warehouse_stock}
+          {!insideWarehouse ? <WarehouseDirectory key={run?.id} warehouses={warehouses} stock={summary.data?.warehouse_stock}
             loading={catalog?.loading} error={catalog?.error} onChoose={onWarehouse} /> :
           catalog?.data && !warehouse ? <div className="notice error" role="alert">Không tìm thấy kho trong phương án này. Hãy quay lại danh sách kho.</div> : <Panel
             title="Sản phẩm trong kho"
@@ -177,7 +177,7 @@ export function Inventory({
             {!data.loading && !data.error && rows.length > 0 && (
               <Table
                 rows={rows}
-                onRow={(row) => setSelection({ key, row })}
+                onRow={(row) => onItem?.(row, "product")}
                 columns={[
                   {
                     key: "sku",
@@ -229,7 +229,7 @@ export function Inventory({
               onChange={setPage}
             />
           </Panel>}
-          {insideWarehouse && run.kind === "stock_projection" && (
+          {insideWarehouse && run?.kind === "stock_projection" && (
             <p className="caption">
               Số tồn tại mốc chốt được khởi tạo theo phương án mô phỏng. Các
               ngày sau mốc chốt là dự kiến; chưa ghi nhận là tồn thực tế.
@@ -237,13 +237,7 @@ export function Inventory({
           )}
         </>
       )}
-      {focused && (
-        <InventoryDetails
-          focused={focused}
-          onClose={() => setSelection(undefined)}
-          onItem={onItem}
-        />
-      )}
+      {editingWarehouse && <WarehouseEditor key={ctx.warehouseId} id={ctx.warehouseId} onClose={() => setEditingWarehouse(false)} />}
     </>
   );
 }

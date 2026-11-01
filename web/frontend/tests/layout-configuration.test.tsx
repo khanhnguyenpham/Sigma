@@ -10,6 +10,7 @@ import {
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import App from "../src/App";
 import { Configuration } from "../src/pages/Configuration";
+import { ProductPolicyForm } from "../src/components/products/ProductPolicyForm";
 import type { Run } from "../src/types/api";
 
 const reply = (body: unknown, ok = true, status = 200) =>
@@ -67,35 +68,19 @@ beforeEach(() => {
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
 });
 
-it("assigns only the selected route carrier as supplier and clears the item when the route changes", async () => {
-  vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
-    const url = String(input);
-    if (url.includes('/warehouses')) return reply({ items: [
-      { id: 18, code: 'WH-018', carrier: 'Vinaphone', destination_country: 'Vietnam' },
-      { id: 19, code: 'WH-019', carrier: 'OtherCarrier', destination_country: 'Elsewhere' },
-    ], total: 2 });
-    if (url.includes('/suppliers')) return reply({ items: [
-      { id: 2, carrier: 'OtherCarrier' }, { id: 1, carrier: 'Vinaphone' },
-    ], total: 2 });
-    return readReply(input);
+it("uses the selected product supplier without offering unrelated carriers", async () => {
+  const bodies: Record<string, unknown>[] = [];
+  vi.spyOn(globalThis, "fetch").mockImplementation((_input, options) => {
+    bodies.push(JSON.parse(String(options?.body))); return reply({ id: 1 });
   });
-  render(<Configuration onChanged={() => {}} />);
-  await screen.findByText('WH-018');
-  fireEvent.click(screen.getByRole('button', { name: 'Chính sách nhập hàng' }));
-  fireEvent.click(screen.getByRole('button', { name: /Policy cho mặt hàng chưa cấu hình/ }));
-  const dialog = within(screen.getByRole('dialog'));
-  const supplier = dialog.getByLabelText('Nhà cung cấp');
-  expect(supplier).toHaveValue('');
-  fireEvent.change(dialog.getByLabelText('Kho để chọn mặt hàng'), { target: { value: '18' } });
-  await dialog.findByRole('option', { name: 'SYNTHETIC-SKU · eSIM' });
-  fireEvent.change(dialog.getByLabelText('Mặt hàng'), { target: { value: '341' } });
-  expect(supplier).toHaveValue('1');
-  expect(within(supplier).queryByRole('option', { name: 'OtherCarrier' })).toBeNull();
-  fireEvent.change(dialog.getByLabelText('Kho để chọn mặt hàng'), { target: { value: '19' } });
-  expect(dialog.getByLabelText('Mặt hàng')).toHaveValue('');
-  expect(supplier).toHaveValue('2');
-  expect(within(supplier).queryByRole('option', { name: 'Vinaphone' })).toBeNull();
+  render(<ProductPolicyForm product={{ id: 341, supplier_id: 1, policy: null }} onSaved={() => {}} onReload={() => {}} />);
+  expect(screen.queryByLabelText("Nhà cung cấp")).toBeNull();
+  fireEvent.change(screen.getByLabelText("Lượng nhập mỗi lần"), { target: { value: "12" } });
+  fireEvent.submit(screen.getByRole("form", { name: "Cấu hình nhập hàng sản phẩm" }));
+  await waitFor(() => expect(bodies).toHaveLength(1));
+  expect(bodies[0]).toMatchObject({ item_id: 341, supplier_id: 1, expected_version: 0 });
 });
+
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
@@ -182,20 +167,8 @@ it("retains policy values after 409 and saves the same native fields on explicit
         )
       : reply({ id: 1 });
   });
-  render(<Configuration onChanged={changed} />);
-  await screen.findByText("WH-018");
-  fireEvent.click(screen.getByRole("button", { name: "Chính sách nhập hàng" }));
-  fireEvent.click(
-    screen.getByRole("button", { name: /Policy cho mặt hàng chưa cấu hình/ }),
-  );
-  const dialog = within(screen.getByRole("dialog"));
-  fireEvent.change(dialog.getByLabelText("Kho để chọn mặt hàng"), {
-    target: { value: "18" },
-  });
-  await dialog.findByRole("option", { name: "SYNTHETIC-SKU · eSIM" });
-  fireEvent.change(dialog.getByLabelText("Mặt hàng"), {
-    target: { value: "341" },
-  });
+  render(<ProductPolicyForm product={{ id: 341, supplier_id: 1, policy: null }} onSaved={changed} onReload={() => {}} />);
+  const dialog = within(screen.getByRole("form", { name: "Cấu hình nhập hàng sản phẩm" }));
   fireEvent.change(dialog.getByLabelText("Ngưỡng nhập tối thiểu (ROP floor)"), {
     target: { value: "42" },
   });
@@ -204,7 +177,7 @@ it("retains policy values after 409 and saves the same native fields on explicit
     target: { value: "1.5" },
   });
   const form = dialog
-    .getByRole("button", { name: "Lưu phiên bản mới" })
+    .getByRole("button", { name: "Lưu cấu hình sản phẩm" })
     .closest("form")!;
   fireEvent.submit(form);
   await waitFor(() =>
@@ -218,7 +191,7 @@ it("retains policy values after 409 and saves the same native fields on explicit
     Array(2).fill({
       item_id: 341,
       supplier_id: 1,
-      effective_from: "2026-01-01",
+      effective_from: new Date().toISOString().slice(0, 10),
       configured_rop_floor: 42,
       fixed_order_qty: 9,
       safety_days: 1.5,
@@ -240,10 +213,9 @@ it("keeps batched override field edits in the scenario payload", async () => {
     return reply({ id: 1 });
   });
   render(<Configuration onChanged={() => {}} />);
-  await screen.findByText("WH-018");
-  fireEvent.click(screen.getByRole("button", { name: "Kịch bản" }));
   fireEvent.click(screen.getByRole("button", { name: "＋ Kịch bản mới" }));
   const dialog = within(screen.getByRole("dialog"));
+  await dialog.findByRole("option", { name: "Synthetic" });
   fireEvent.change(dialog.getByLabelText("Tên kịch bản"), {
     target: { value: "Synthetic override" },
   });
@@ -290,14 +262,8 @@ it("keeps batched override field edits in the scenario payload", async () => {
 });
 
 async function newPolicy() {
-  render(<Configuration onChanged={() => {}} />);
-  await screen.findByText("WH-018");
-  fireEvent.click(screen.getByRole("button", { name: "Chính sách nhập hàng" }));
-  fireEvent.click(screen.getByRole("button", { name: /Policy cho mặt hàng chưa cấu hình/ }));
-  const dialog = within(screen.getByRole("dialog"));
-  fireEvent.change(dialog.getByLabelText("Kho để chọn mặt hàng"), { target: { value: "18" } });
-  await dialog.findByRole("option", { name: "SYNTHETIC-SKU · eSIM" });
-  fireEvent.change(dialog.getByLabelText("Mặt hàng"), { target: { value: "341" } });
+  render(<ProductPolicyForm product={{ id: 341, supplier_id: 1, policy: null }} onSaved={() => {}} onReload={() => {}} />);
+  const dialog = within(screen.getByRole("form", { name: "Cấu hình nhập hàng sản phẩm" }));
   fireEvent.change(dialog.getByLabelText("Lượng nhập mỗi lần"), { target: { value: "17" } });
   return dialog;
 }
@@ -323,49 +289,39 @@ it("saves volatility and fixed ROP while preserving inactive parameters across m
   expect(dialog.queryByLabelText("Hệ số biến động")).toBeNull();
   fireEvent.change(dialog.getByLabelText("Cách tính tồn an toàn (SS)"), { target: { value: "volatility" } });
   expect(dialog.getByLabelText("Hệ số biến động")).toHaveValue(0);
-  fireEvent.submit(dialog.getByRole("button", { name: "Lưu phiên bản mới" }).closest("form")!);
+  fireEvent.submit(dialog.getByRole("button", { name: "Lưu cấu hình sản phẩm" }).closest("form")!);
   await waitFor(() => expect(body).toBeDefined());
   expect(body).toMatchObject({ safety_mode: "volatility", safety_days: 3.5, safety_lookback_days: 90,
     safety_factor: 0, rop_mode: "fixed", warning_horizon_days: 14, expected_version: 0 });
 });
 
-it("opens a historical policy with its exact modes and version and retains them after a conflict", async () => {
+it("opens exact product modes and version and retains them after a conflict", async () => {
   const bodies: Record<string, any>[] = [];
-  vi.spyOn(globalThis, "fetch").mockImplementation((input, options) => {
-    if (options?.method === "POST") {
-      bodies.push(JSON.parse(String(options.body)));
-      return reply({ error: { code: "version_conflict", message: "synthetic" } }, false, 409);
-    }
-    if (String(input).includes("/supplier-item-policies")) return reply({ items: [{
-      id: 11, item_id: 341, item_label: "Historical SKU", carrier: "DemoNet", supplier_id: 1, supplier_code: "DemoNet", version: 4,
-      effective_from: "2025-11-01", effective_to: "2026-01-01", configured_rop_floor: 20, moq: 9,
-      safety_mode: "volatility", safety_days: 2, safety_lookback_days: 7, safety_factor: 2.5,
-      rop_mode: "fixed", warning_horizon_days: 1,
-    }], total: 1, page: 1, page_size: 50 });
-    return readReply(input);
+  vi.spyOn(globalThis, "fetch").mockImplementation((_input, options) => {
+    bodies.push(JSON.parse(String(options?.body)));
+    return reply({ error: { code: "version_conflict", message: "synthetic" } }, false, 409);
   });
-  render(<Configuration onChanged={() => {}} />);
-  await screen.findByText("WH-018");
-  fireEvent.click(screen.getByRole("button", { name: "Chính sách nhập hàng" }));
-  fireEvent.click(await screen.findByText("Historical SKU"));
-  const dialog = within(screen.getByRole("dialog"));
+  render(<ProductPolicyForm product={{ id: 341, supplier_id: 1, policy: {
+    version: 4, effective_from: "2025-11-01", configured_rop_floor: 20, moq: 9,
+    safety_mode: "volatility", safety_days: 2, safety_lookback_days: 7, safety_factor: 2.5,
+    rop_mode: "fixed", warning_horizon_days: 1,
+  } }} onSaved={() => {}} onReload={() => {}} />);
+  const dialog = within(screen.getByRole("form", { name: "Cấu hình nhập hàng sản phẩm" }));
   expect(dialog.getByLabelText("Cách tính tồn an toàn (SS)")).toHaveValue("volatility");
   expect(dialog.getByLabelText("Số ngày lịch sử quan sát")).toHaveValue(7);
   expect(dialog.getByLabelText("Hệ số biến động")).toHaveValue(2.5);
   expect(dialog.getByLabelText("Cách tính ngưỡng nhập (ROP)")).toHaveValue("fixed");
   expect(dialog.getByLabelText("Số ngày nhìn trước cảnh báo xuống ROP")).toHaveValue(1);
   expect(dialog.getByLabelText("Lượng nhập mỗi lần")).toHaveValue(null);
-  expect(dialog.getByText(/không lấy MOQ cũ/)).toBeVisible();
   fireEvent.change(dialog.getByLabelText("Lượng nhập mỗi lần"), { target: { value: "30" } });
-  fireEvent.change(dialog.getByLabelText("Hiệu lực từ"), { target: { value: "2026-02-01" } });
-  const form = dialog.getByRole("button", { name: "Lưu phiên bản mới" }).closest("form")!;
+  const form = dialog.getByRole("button", { name: "Lưu cấu hình sản phẩm" }).closest("form")!;
   fireEvent.submit(form);
   await waitFor(() => expect(dialog.getByRole("alert")).toBeVisible());
   expect(dialog.getByLabelText("Hệ số biến động")).toHaveValue(2.5);
   fireEvent.submit(form);
   await waitFor(() => expect(bodies).toHaveLength(2));
   expect(bodies[0]).toEqual(bodies[1]);
-  expect(bodies[0]).toMatchObject({ expected_version: 4, effective_from: "2026-02-01", safety_mode: "volatility", safety_lookback_days: 7, safety_factor: 2.5, rop_mode: "fixed", warning_horizon_days: 1 });
+  expect(bodies[0]).toMatchObject({ expected_version: 4, safety_mode: "volatility", safety_lookback_days: 7, safety_factor: 2.5, rop_mode: "fixed", warning_horizon_days: 1 });
 });
 
 it.each([
@@ -387,7 +343,7 @@ it.each([
   const dialog = await newPolicy();
   fireEvent.change(dialog.getByLabelText("Cách tính tồn an toàn (SS)"), { target: { value: "volatility" } });
   fireEvent.change(dialog.getByLabelText(label), { target: { value } });
-  const form = dialog.getByRole("button", { name: "Lưu phiên bản mới" }).closest("form")!;
+  const form = dialog.getByRole("button", { name: "Lưu cấu hình sản phẩm" }).closest("form")!;
   expect(form.checkValidity()).toBe(false);
   fireEvent.submit(form);
   expect(post).not.toHaveBeenCalled();
@@ -400,10 +356,9 @@ it("keeps blank override fields inherited, preserves zero and omits inactive mod
     body = JSON.parse(String(options.body)); return reply({ id: 1 });
   });
   render(<Configuration onChanged={() => {}} />);
-  await screen.findByText("WH-018");
-  fireEvent.click(screen.getByRole("button", { name: "Kịch bản" }));
   fireEvent.click(screen.getByRole("button", { name: "＋ Kịch bản mới" }));
   const dialog = within(screen.getByRole("dialog"));
+  await dialog.findByRole("option", { name: "Synthetic" });
   fireEvent.change(dialog.getByLabelText("Tên kịch bản"), { target: { value: "Inherited" } });
   fireEvent.change(dialog.getByLabelText("Mã kịch bản"), { target: { value: "inherited" } });
   fireEvent.change(dialog.getByLabelText("Kho để chọn mặt hàng"), { target: { value: "18" } });

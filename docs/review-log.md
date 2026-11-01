@@ -1412,3 +1412,13 @@ Nguồn: yêu cầu trực tiếp trong chat: Vinaphone cung cấp sản phẩm 
 ## CHG-080 — Danh sách kho trước sản phẩm, tên city (31/10/2026)
 
 Người dùng đưa ảnh trang Tồn kho đang trộn920sản phẩm, yêu cầu kho→sản phẩm, tên thành phố trong quốc gia và lọc carrier; làm rõ lần2 “tên thành phố thôi… không thêm carrier vào tên kho”. Thực hiện FE theo city hiện có và metadata riêng, giữ46ID kho/920item, một carrier/kho. API chỉ thêm aggregate read-only đủ từng ID để tránh tổng bị giới hạn8tuyến/50dòng. Kho trùng city không gộp, bộ lọc không làm thay dữ liệu frozen.256BE/59React suite,29target và6target mới nhất/build/browser390px/API/CSV đạt. Đối chiếu trực tiếp SHA256 runs/warehouses/items/policies khớp evidence CHG079; schema0005/5run giữ nguyên. Đây là yêu cầu UI của người dùng, không là xác nhận mentor hoặc kết quả mô hình mới. [Bàn giao](development.md#handoff-chg080).
+
+<a id="chg081"></a>
+## CHG-081 — Địa danh riêng cho từng kho (01/11/2026)
+
+Nguồn là yêu cầu trực tiếp và ảnh bộ chọn lặpSydney/Frankfurt/Tokyo: “Mỗi kho nên là tên1thành phố riêng”. Người dùng đồng ý dùng khu đô thị riêng ởSingapore/HongKong; các tên đó không được mô tả thành nhiều thành phố độc lập. Danh mục khu vựcSingapore đối chiếu [OneMap](https://www.onemap.gov.sg/apidocs/planningarea); ShaTin/TsuenWan vàKowloon đối chiếu [CEDD](https://www.cedd.gov.hk/eng/about-us/achievements/land/regional-development/). Đây chỉ là chọn địa danh minh họa, không xác nhận địa chỉ kho/carrier thực. Thay phần cho phép tên trùng củaCHG080, giữ46ID và tuyến/sản phẩm. Backup rồi đổi30nhãn seed cũ; read model áp dụng cùng bảng tên cho run cũ trong bản sao. Giữ schema0005_carrier,12bảng khác và snapshot/artifact; không refit/replay hoặc nâng nghiệm thu. [Bằng chứng](development.md#handoff-chg081).
+
+<a id="chg082"></a>
+## CHG-082 — Luồng quản lý sản phẩm/kho (01/11/2026)
+
+Người dùng gửi ảnh thanh lọc/dòng kho sát nhau, lời dẫnMOQ/phương án cũ và bảng Cấu hình gom kho/chính sách/kịch bản; yêu cầu cấu hình kho tại Tồn kho và sản phẩm có trang xem/chỉnh riêng. Bổ sung làm như web quản lý thông thường, rồi giao kiểm tra xong pushGitHub. Đây là yêu cầu UI/nghiệp vụ của người dùng, không là xác nhận mentor hoặc thay nghiệm thu. Giữ nguồn/order/model/tính toán và run; thiếu lượng cố định hiện rõ chứ không dùngMOQ thay thế.262BE/65React/build/pipcheck và browser desktop/mobile/save-reload test riêng đạt; đối soát app13bảng/1.043file nguyên so sauCHG081. [Bàn giao](development.md#handoff-chg082).

@@ -865,3 +865,17 @@ T11/T12: FE danh mục kho dạng thẻ, tìm thành phố/quốc gia và lọc;
 
 
 CHG-080 hoàn tất local:256BE,59React toàn suite;29ca nhãn/help và6ca warehouse/forecast sau chỉnh cuối đạt; build và browser desktop/390px/API/CSV đạt. Trong kho mở tab Phân bổ theo ngày H14 để phục vụ vận hành, vẫn có Tổng30; không đổi mặc định policy/model hoặc tiêu chí M05. Hash5run/46warehouse/920item/920policy và schema0005_carrier giữ nguyên; API đủ46kho/920item/1.314đơn vị tại31/10/2025. Yêu cầu bổ sung31/10/2026 cho phép commit/push thường phần FE/API read model/tests/docs CHG-080 lên final-report; đối chiếu remoteSHA=HEAD và hai workflow CI, không merge/force-push/deploy hoặc đưa raw/run/DB/env lên Git. [Bàn giao](../development.md#handoff-chg080).
+
+<a id="chg-081"></a>
+## CHG-081 — Mỗi kho một địa danh riêng
+
+01/11/2026, người dùng yêu cầu mỗi kho mang tên một thành phố riêng, thay yêu cầu CHG-080 cho phép trùng city. Người dùng đồng ý dùng khu đô thị riêng cho Singapore/Hong Kong. Giữ46ID kho và khóa tuyến(country,carrier); không gộp kho, di chuyển mặt hàng hoặc đổi quốc gia/carrier. Đây là vị trí giả định phục vụ demo, không phải địa điểm doanh nghiệp đã cung cấp.
+
+Sửa seed theo tuyến, độc lập thứ tự/subset nhập; import từ chối cấu hình thiếu/trùng địa danh. Backup DB trước khi sửa riêng city/provenance/version của seed v1 bằng script có preview và chạy lặp an toàn. Read model của phương án cũ áp dụng đúng bảng đổi tên seed trong bản sao, dùng thống nhất cho danh mục/tồn/dự báo/nhập/cảnh báo/CSV; giữ nguyên JSON/hash/snapshot, phép tính và artifact cũ. Không lấy tên catalog live tùy ý để viết lại lịch sử. Không cần đổi schema. Kiểm BE/React, DB/bảo toàn, API/CSV và browser rồi mở bản local cho người dùng xem. [Yêu cầu](../requirements.md#warehouse-cities-chg081), [bàn giao](../development.md#handoff-chg081).
+
+<a id="chg-082"></a>
+## CHG-082 — Quản lý sản phẩm và cấu hình tại chỗ
+
+01/11/2026, người dùng yêu cầu sửa UI theo ba ảnh, bỏ lời dẫn “phương án cũ”, dùng cấu hình từng sản phẩm; tách cấu hình kho vào Tồn kho, thêm trang sản phẩm và nhấp sản phẩm trong kho mở thẳng trang chi tiết có chỉnh lượng nhập mỗi lần/SS/ROP. Người dùng bổ sung “như web quản lý thông thường”, sau đó giao kiểm tra xong đẩy GitHub.
+
+T11/T12 hoàn tất local: thêm ba API đọc, trang sản phẩm, form inline và sửa kho tại chỗ; cấu hình phiên bản/ngày hiệu lực/409/frozen guards giữ nguyên, không lấyMOQ làm lượng cố định. display_city tách tên hiện tại với city frozen.262BE/65React/build/pipcheck/browser desktop/390px/save-reload DBtest đạt; app13bảng/1.043file nguyên so sauCHG081. Cho phép commit/push thường cảCHG081–082 trên final-report, kiểm SHAremote/CI saucommit; không merge/force-push/deploy hoặc pushraw/run/DB/env. [Bàn giao](../development.md#handoff-chg082).

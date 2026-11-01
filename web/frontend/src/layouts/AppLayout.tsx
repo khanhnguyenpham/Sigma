@@ -38,6 +38,7 @@ export function AppLayout({
     setRefresh,
     navigate,
   } = app;
+  const managementPage = ["configuration", "products", "product"].includes(page);
   return (
     <div className={"shell " + (navOpen ? "nav-open" : "")}>
       <a
@@ -61,16 +62,16 @@ export function AppLayout({
       <main>
         <Header app={app} />
         <div className="workspace" id="workspace-content" tabIndex={-1}>
-          {page !== "configuration" && <ContextFilters app={app} />}
+          {!managementPage && <ContextFilters app={app} />}
           <State
             loading={runsResource.loading && !runsResource.data}
             error={runsResource.error}
           />
-          {ctx.runId &&
+          {!managementPage && ctx.runId &&
           !run &&
           (runsResource.loading || selectedResource.loading) ? (
             <State loading />
-          ) : ctx.runId && runsResource.data && !run ? (
+          ) : !managementPage && ctx.runId && runsResource.data && !run ? (
             <div className="notice error" role="alert">
               Không tìm thấy phương án trong liên kết. Hãy chọn lại phương án;
               dữ liệu không được tự đổi sang kế hoạch khác.

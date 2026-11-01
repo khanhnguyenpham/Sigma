@@ -55,7 +55,7 @@ export function PurchasingDetails({
               Tồn {fmt(focused.closing_qty)} thấp hơn ngưỡng {fmt(focused.rop)}.
               {focused.fixed_order_qty != null
                 ? " Mỗi lần dùng đúng lượng đã cấu hình; mức tồn mục tiêu chỉ để tham chiếu."
-                : " Phương án cũ tính lượng theo nhu cầu và MOQ."}
+                : " Xem thông tin sản phẩm để thiết lập lượng nhập mỗi lần."}
             </p>
           </div>
           <dl className="drawer-fields">
@@ -76,8 +76,8 @@ export function PurchasingDetails({
               <dd>{fmt(focused.target_stock)}</dd>
             </div>
             <div>
-              <dt>{focused.fixed_order_qty != null ? "Lượng nhập mỗi lần" : "MOQ của phương án cũ"}</dt>
-              <dd>{fmt(focused.fixed_order_qty ?? focused.moq)}</dd>
+              <dt>Lượng nhập mỗi lần</dt>
+              <dd>{focused.fixed_order_qty == null ? "Chưa cấu hình" : fmt(focused.fixed_order_qty)}</dd>
             </div>
             <div>
               <dt>Nhận nếu đặt tại mốc</dt>
@@ -133,6 +133,7 @@ export function PurchasingDetails({
       )}
       {onItem && (
         <div className="drawer-actions">
+          <button className="secondary" onClick={() => onItem(focused, "product")}>Thông tin sản phẩm</button>
           <button
             className="primary"
             onClick={() => onItem(focused, "inventory")}

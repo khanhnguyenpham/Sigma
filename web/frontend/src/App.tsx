@@ -2,6 +2,7 @@ import { lazy } from "react";
 import { Inventory } from "./pages/Inventory";
 import { Replenishment } from "./pages/Replenishment";
 import { Configuration } from "./pages/Configuration";
+import { Products, ProductDetail } from "./pages/Products";
 
 import { useAppContext } from "./hooks/useAppContext";
 
@@ -34,7 +35,12 @@ export default function App() {
   } = app;
   const props = { run, ctx, onChoose: chooseInventory, onItem: openItem };
   const node =
-    page === "forecast" ? (
+    page === "products" ? (
+      <Products onOpen={(row) => openItem(row, "product")} />
+    ) : page === "product" ? (
+      <ProductDetail run={run} ctx={ctx} onNavigate={navigate} onItem={openItem}
+        onWarehouse={(row) => app.selectWarehouse(String(row.warehouse_id))} />
+    ) : page === "forecast" ? (
       <Forecast run={run} ctx={ctx} />
     ) : page === "inventory" ? (
       <Inventory {...props}

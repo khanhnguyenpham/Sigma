@@ -49,14 +49,11 @@ it("preserves receipt date and quantity when inputs change in the same batch", a
     } as Response);
   });
   render(<Configuration onChanged={() => {}} />);
-  await screen.findByText("WH-018");
-  fireEvent.click(
-    screen.getByRole("button", { name: "Kịch bản" }),
-  );
   fireEvent.click(
     screen.getByRole("button", { name: "＋ Kịch bản mới" }),
   );
   const dialog = within(screen.getByRole("dialog"));
+  await dialog.findByRole("option", { name: "Tokyo" });
   fireEvent.change(
     dialog.getByRole("textbox", { name: "Tên kịch bản" }),
     { target: { value: "Receipt fixture" } },

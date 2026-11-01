@@ -4,7 +4,8 @@ from fastapi.encoders import jsonable_encoder
 from core.http import listing, record
 from modules.catalog.models import Supplier
 from modules.catalog.schemas import WarehouseUpdate
-from modules.catalog.service import list_warehouses, list_items, update_warehouse
+from modules.catalog.service import list_warehouses, list_items, update_warehouse, get_warehouse, list_products
+from core.errors import DomainError
 
 router = APIRouter(prefix="/api/v1")
 
@@ -24,6 +25,27 @@ def warehouses(
 def warehouse_patch(http: Request, key: int, request: WarehouseUpdate):
     with http.app.state.sessions.begin() as session:
         return jsonable_encoder(record(update_warehouse(session, key, request)))
+
+
+@router.get("/warehouses/{key}")
+def warehouse_detail(http: Request, key: int):
+    with http.app.state.sessions() as session:
+        return jsonable_encoder(get_warehouse(session, key))
+
+
+@router.get("/products")
+def products(http: Request, page: int = Query(1, ge=1), page_size: int = Query(50, ge=1, le=100),
+             warehouse_id: int | None = Query(None, gt=0), product_type: str | None = None,
+             search: str | None = None):
+    return jsonable_encoder(list_products(http.app.state.sessions, page, page_size, warehouse_id, product_type, search))
+
+
+@router.get("/products/{key}")
+def product_detail(http: Request, key: int):
+    result = list_products(http.app.state.sessions, item_id=key)
+    if not result["items"]:
+        raise DomainError("not_found", "Product does not exist", 404)
+    return jsonable_encoder(result["items"][0])
 
 
 @router.get("/items")

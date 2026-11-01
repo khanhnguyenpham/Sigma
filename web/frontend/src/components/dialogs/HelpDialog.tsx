@@ -29,7 +29,7 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
           </li>
           <li>
             Mở Tồn kho, chọn kho theo tên thành phố rồi chọn sản phẩm để xem
-            ngưỡng nhập, hàng đang về và lượng cần đặt. Trong kho có bộ lọc nhà mạng, loại và mã sản phẩm.
+            thông tin và cấu hình nhập hàng. Nút Chỉnh sửa kho nằm ngay trong trang kho.
           </li>
           <li>
             Trong Nhập hàng, rà Cần bổ sung, Đang về và Lịch sử. Đề xuất chưa
@@ -58,14 +58,14 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
           <dt>Lượng nhập mỗi lần</dt>
           <dd>
             Khi cần bổ sung, mỗi lô dùng đúng lượng đã cấu hình cho mặt hàng,
-            không tự tăng theo dự báo. Phương án cũ vẫn giữ cách tính MOQ cũ.
+            không tự tăng theo dự báo.
             Ngày nhận dự kiến bằng ngày đặt cộng 7 ngày.
           </dd>
         </dl>
         <h3>Thử thay đổi</h3>
         <p>
-          Tạo kịch bản trong Cấu hình, khai báo rõ lô đang về, rồi bấm Tạo
-          phương án. Lưu cấu hình không sửa kết quả của phương án cũ.
+          Mở Sản phẩm, chọn mặt hàng và chỉnh lượng nhập mỗi lần, số ngày tồn an toàn hoặc ngưỡng nhập.
+          Lưu cấu hình rồi tạo kế hoạch để tính kết quả theo ngày hiệu lực.
         </p>
 
         <h3>Tải dữ liệu và xử lý lỗi</h3>

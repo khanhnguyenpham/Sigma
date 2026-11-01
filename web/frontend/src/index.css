@@ -1799,8 +1799,25 @@ body:has([aria-modal="true"]) {
 /* Warehouse directory and the products within one warehouse. */
 .context-bar.warehouse-context { grid-template-columns: minmax(220px, 1fr) minmax(180px, 260px); }
 .warehouse-scope, .warehouse-breadcrumb, .warehouse-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.warehouse-scope { margin: -6px 0 20px; color: #7c89a0; font-size: 11px; }
+.warehouse-scope { margin: 12px 0 6px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: #7c89a0; font-size: 11px; }
 .warehouse-scope strong { color: #3e4f72; font-weight: 600; }
+.context-bar > label { min-width: 0; }
+.context-meta { min-height: 36px; margin: 4px 0 16px; }
+.product-filters { display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
+.product-filters label { min-width: 0; font-size: 12px; gap: 7px; }
+.product-filters input, .product-filters select { width: 100%; min-width: 0; }
+.product-layout { display: grid; grid-template-columns: minmax(230px, 0.75fr) minmax(0, 1.5fr); gap: 22px; align-items: start; }
+.product-layout > .panel { min-width: 0; }
+.product-information { display: grid; gap: 18px; margin: 0 0 24px; }
+.product-information dt { font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+.product-information dd { margin: 0; color: #344560; font-size: 13px; overflow-wrap: anywhere; }
+.product-policy-form fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.product-policy-form label { margin: 0 0 18px; font-size: 12px; gap: 7px; }
+.product-policy-form input, .product-policy-form select { width: 100%; min-width: 0; }
+.product-policy-form .caption { line-height: 1.7; }
+.form-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; padding-top: 18px; }
+@media (max-width: 950px) { .product-layout { grid-template-columns: minmax(0, 1fr); } .product-information { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .product-filters, .product-policy-form .form-grid { grid-template-columns: minmax(0, 1fr); } .warehouse-scope { gap: 8px 12px; } .form-actions .primary { flex: 1; } }
 .warehouse-breadcrumb { margin: 3px 0 15px; color: var(--muted); font-size: 12px; }
 .warehouse-breadcrumb button { padding: 3px 0; }
 .warehouse-actions { gap: 8px; justify-content: flex-end; }

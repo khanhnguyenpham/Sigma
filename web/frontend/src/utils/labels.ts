@@ -32,11 +32,11 @@ export function errorLabel(error: Error) {
         parent_mismatch:
           "Nguồn, phiên bản hoặc lượt dự báo chưa tương thích. Vui lòng chọn lại.",
         missing_partner_config:
-          "Thiếu policy hiệu lực hoặc cấu hình nhập. Kiểm tra Cấu hình.",
+          "Chưa đủ cấu hình nhập hàng có hiệu lực. Hãy kiểm tra thông tin sản phẩm.",
         supplier_carrier_mismatch:
           "Nhà cung cấp phải là nhà mạng (carrier) của mặt hàng.",
         missing_contract_quantity:
-          "Hãy cấu hình lượng nhập mỗi lần cho mặt hàng. Kịch bản không được đổi lượng này.",
+          "Hãy khai báo lượng nhập mỗi lần trong thông tin sản phẩm.",
         insufficient_forecast: "Thiếu đủ 14 ngày dự báo cho mặt hàng.",
         version_conflict: "Cấu hình đã thay đổi. Tải lại trước khi lưu.",
         database_unavailable:

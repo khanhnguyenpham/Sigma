@@ -1,9 +1,15 @@
 # M3 — đặc tả frontend
 
+## CHG-082 — Trang sản phẩm và cấu hình tại chỗ
+
+Điều hướng chính gồm Tổng quan, Tồn kho, Sản phẩm, Dự báo nhu cầu, Nhập hàng, Cảnh báo. `#products` là danh sách catalog hiện tại, tìmSKU/lọc kho/loại trước phân trang, không cần chọn run. `#product` vớiitem_id mở metadata sản phẩm/kho/carrier và form riêng cho lượng nhập mỗi lần, SS ngày hoặc biến động, ROP, N ngày cảnh báo, ngày hiệu lực. Nhấp hàng trong kho đi thẳng trang này. Breadcrumb/quay kho/Back/reload giữ ID; liên kết sâu không bị xóa chỉ vì item chưa có trong100option đầu. Form dùng latestpolicy/expected_version, không lấyMOQ làm fixed_order_qty;409giữ giá trị, có nút tải lại. Tồn theo run/ngày trình bày riêng, lưu không tự sửa kết quả đã ghi.
+
+Chỉnh kho ngay trong Tồn kho: GETlive lấy version rồiPATCH; tên hiện tại dùngdisplay_city, city/snapshot frozen giữ riêng. Configuration không còn bảng kho/policy, chỉ là thiết lập tính toán nâng cao trong hộp tạo kế hoạch. Bỏ nhãn “phương án cũ”/MOQ khỏi UI phổ thông; thiếu lượng cố định hiệnChưa cấu hình. Sửa khoảng cách dòng kho/quốc gia/carrier dưới thanh lọc; form một cột ở390px. Các phầnCHG080 bên dưới giữ lịch sử, luồng drawer sản phẩm và nơi cấu hình được thay bằngCHG082. [Bàn giao](../../docs/development.md#handoff-chg082).
+
 <a id="warehouse-navigation-chg080"></a>
 ## CHG-080 — Danh sách kho → sản phẩm trong kho
 
-Tồn kho chưa chọn warehouse_id hiển thị thẻ của toàn bộ kho thuộc catalog frozen của phương án. **Tên kho chỉ là city**; quốc gia và carrier là metadata riêng, không ghép vào tiêu đề. Các kho trùng city vẫn là những ID riêng; hiện mỗi kho chứa sản phẩm của một carrier. Dùng city hiện có, không chỉnh DB hoặc snapshot để đổi nhãn. Thẻ có số mặt hàng, tổng tồn và mặt hàng cần đặt; số liệu lấy từ warehouse_stock đầy đủ của workspace, không từ8tuyến hay50dòng đầu. Không có sổ tồn ngày chọn hiển thị “—”, không suy thiếu dữ liệu thành0.
+Tồn kho chưa chọn warehouse_id hiển thị thẻ của toàn bộ kho thuộc catalog của phương án. **Tên kho chỉ là địa danh**; quốc gia và carrier là metadata riêng, không ghép vào tiêu đề. CHG-081 ngày01/11/2026 thay yêu cầu tên trùng của CHG-080:46kho mang46địa danh riêng; Singapore/Hong Kong dùng khu đô thị theo lựa chọn người dùng. Giữ46ID riêng, hiện mỗi kho chứa sản phẩm của một carrier. Backend đổi nhãn seed cũ trong bản sao read model; DB catalog live đổi riêng tên/provenance/version sau backup, không sửa snapshot. Thẻ có số mặt hàng, tổng tồn và mặt hàng cần đặt; số liệu lấy từ warehouse_stock đầy đủ của workspace, không từ8tuyến hay50dòng đầu. Không có sổ tồn ngày chọn hiển thị “—”, không suy thiếu dữ liệu thành0.
 
 Danh sách kho có tìm thành phố/quốc gia, lọc quốc gia và carrier. Nhấp thẻ đặt warehouse_id, xóa SKU/carrier/loại cũ; trong kho có breadcrumb quay lại, tổng cùng phạm vi, bộ lọc carrier/loại/SKU/trạng thái, chi tiết sản phẩm và CSV. Chọn kho tạo entry history để Back/forward/reload hoạt động. Thanh chung ở Tồn kho chỉ giữ phương án/ngày, tránh bộ chọn SKU trước khi mở kho. Các trang khác hiển thị tên city trong bộ chọn và một dòng quốc gia/carrier riêng.
 

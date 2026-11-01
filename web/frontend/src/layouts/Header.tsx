@@ -14,7 +14,7 @@ export function Header({ app }: { app: AppContextState }) {
     setHelp,
     setDialog,
   } = app;
-  const selectedTitle = PAGES.find((p) => p[0] === page)?.[2] ?? "Tổng quan";
+  const selectedTitle = page === "product" ? "Thông tin sản phẩm" : PAGES.find((p) => p[0] === page)?.[2] ?? "Tổng quan";
   return (
     <header className="topbar">
       <div className="breadcrumb">

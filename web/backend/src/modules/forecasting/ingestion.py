@@ -6,30 +6,11 @@ from sqlalchemy import select, func
 from core.errors import DomainError
 from core.settings import PROJECT_ROOT
 from modules.catalog.models import Warehouse, Item, Supplier
+from modules.catalog.locations import seed_cities
 from modules.runs.models import Run
 from modules.forecasting.models import DailySales
 from src.data import audit_orders, daily_sales, route_top
 from src.common import ROUTE, ITEM, sha256
-
-CITIES = dict(
-    Australia="Sydney",
-    Cambodia="Phnom Penh",
-    China="Shanghai",
-    **{"Europe (EU)": "Frankfurt", "Hong Kong": "Hong Kong", "South Korea": "Seoul"},
-    India="Mumbai",
-    Indonesia="Jakarta",
-    Japan="Tokyo",
-    Laos="Vientiane",
-    Malaysia="Kuala Lumpur",
-    Philippines="Manila",
-    Singapore="Singapore",
-    Taiwan="Taipei",
-    Thailand="Bangkok",
-    UAE="Dubai",
-    USA="Los Angeles",
-    Vietnam="Ho Chi Minh City",
-)
-
 
 def import_snapshot(settings, sessions, run_id):
     with sessions() as session:
@@ -94,7 +75,8 @@ def import_snapshot(settings, sessions, run_id):
         raise DomainError(
             "catalog_mismatch", "A source route is not in the declared train population"
         )
-    if sales.empty or any(country not in CITIES for country, _ in routes):
+    cities = seed_cities(routes)
+    if sales.empty:
         raise DomainError(
             "missing_partner_config", "Warehouse city assumptions are incomplete"
         )
@@ -126,9 +108,9 @@ def import_snapshot(settings, sessions, run_id):
                     code=f"WH-{ordinal:03}",
                     destination_country=route[0],
                     carrier=route[1],
-                    city=CITIES[route[0]],
+                    city=cities[route],
                     is_assumed=True,
-                    assumption_source="route_city_seed_v1",
+                    assumption_source="route_city_seed_v2",
                 )
                 session.add(w)
                 session.flush()

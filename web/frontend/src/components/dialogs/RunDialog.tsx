@@ -116,6 +116,7 @@ export function RunDialog({
         </button>
         <span className="eyebrow">PHƯƠNG ÁN MỚI</span>
         <h2 id="run-title">Tạo phương án</h2>
+        <p className="caption">Dùng cấu hình nhập hàng có hiệu lực của từng sản phẩm.</p>
         <form onSubmit={submit}>
           <label>
             Loại công việc
@@ -171,8 +172,9 @@ export function RunDialog({
                   ))}
                 </select>
               </label>
+              <details className="advanced-section"><summary>Tùy chọn tính toán</summary>
               <label>
-                Kịch bản
+                Thiết lập
                 <select name="scenario_id" required>
                   {scenarios.data?.items.map((r) => (
                     <option value={String(r.id)} key={String(r.id)}>
@@ -181,6 +183,8 @@ export function RunDialog({
                   ))}
                 </select>
               </label>
+              <a href="#configuration" onClick={onClose}>Thiết lập tính toán và hàng đang về</a>
+              </details>
               <State loading={scenarios.loading} error={scenarios.error} />
             </>
           )}

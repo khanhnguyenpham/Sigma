@@ -16,6 +16,10 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
         path: sorted(k for k in methods if k in {'get', 'post', 'patch', 'delete', 'put'})
         for path, methods in app.openapi()['paths'].items()
     }
+    # CHG-082 adds product management and a live warehouse read; retain the golden for all existing operations.
+    assert routes.pop('/api/v1/products') == ['get']
+    assert routes.pop('/api/v1/products/{key}') == ['get']
+    routes['/api/v1/warehouses/{key}'].remove('get')
     assert routes == baseline['routes']
     assert set(Base.metadata.tables) == set(baseline['tables'])
     assert len(Base.metadata.tables) == 13

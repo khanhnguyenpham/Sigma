@@ -27,7 +27,7 @@ export function Sidebar({ app }: { app: AppContextState }) {
       </a>
       <div className="nav-label">QUẢN LÝ KHO</div>
       <nav aria-label="Điều hướng chính">
-        {PAGES.slice(0, 5).map(([id, icon, name]) => (
+        {PAGES.slice(0, 6).map(([id, icon, name]) => (
           <button
             key={id}
             title={name}
@@ -40,17 +40,6 @@ export function Sidebar({ app }: { app: AppContextState }) {
             {page === id && <i />}
           </button>
         ))}
-      </nav>
-      <div className="nav-label settings-label">THIẾT LẬP</div>
-      <nav aria-label="Thiết lập">
-        <button
-          className={page === "configuration" ? "selected" : ""}
-          aria-current={page === "configuration" ? "page" : undefined}
-          onClick={() => navigate("configuration")}
-        >
-          <Icon name="settings" />
-          <span>Cấu hình</span>
-        </button>
       </nav>
       <div className="side-note">
         <div className="workspace-icon">

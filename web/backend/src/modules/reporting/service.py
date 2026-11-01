@@ -8,6 +8,7 @@ from modules.inventory.models import InventoryDaily
 from modules.purchasing.models import Replenishment
 from modules.alerts.models import Alert
 from modules.catalog.models import Item
+from modules.catalog.service import warehouse_labels
 from core.run_context import required_run, source_data_id, snapshot_maps
 from core.serialization import clean_json
 from core.errors import DomainError
@@ -75,6 +76,7 @@ def permitted_items(items, policies, filters, as_of):
 
 def dataset(session, run, name, filters, paginate=True):
     warehouses, items, policies = snapshot_maps(session, run)
+    warehouses = warehouse_labels(session, warehouses)
     if filters.date_from and filters.date_to and filters.date_to < filters.date_from:
         raise DomainError("invalid_input", "Date interval is reversed")
     selected = permitted_items(
@@ -234,6 +236,7 @@ def dataset(session, run, name, filters, paginate=True):
             )
         w = warehouses.get(r.get("warehouse_id"))
         r["city"] = w["city"] if w else None
+        r["display_city"] = w["display_city"] if w else None
         if w:
             r.update(destination_country=w["destination_country"], carrier=w["carrier"])
         p = policies.get(r.get("policy_id"))

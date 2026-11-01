@@ -286,3 +286,13 @@ Ngày 31/10/2026, người dùng xác định trực tiếp **nhà cung cấp ch
 ## CHG-080 — Làm rõ R08: chọn kho trước, tên kho là thành phố
 
 31/10/2026, nguồn là yêu cầu trực tiếp của người dùng trong chat và ảnh UI: trang Tồn kho mở danh sách kho, chọn một kho mới xem sản phẩm; tên kho **chỉ là tên thành phố**, carrier/quốc gia là thông tin riêng. Cho tìm/lọc kho và lọc carrier/loại/SKU trong kho; hiện một carrier/kho, mở rộng nhiều carrier chỉ là hướng UI, chưa đổi schema/nghiệp vụ. Giữ ID kho, giả định vị trí, policy và run frozen; không coi city minh họa là vị trí tối ưu/thật. Có thể điều chỉnh Nhập hàng/Dự báo để giữ cùng phạm vi kho. Không thay M05/R05, policy mặc định hoặc nghiệm thu R07/T14. [Bàn giao](development.md#handoff-chg080).
+
+<a id="warehouse-cities-chg081"></a>
+## CHG-081 — R06/R08: địa danh riêng cho từng kho
+
+01/11/2026, người dùng chỉ ra bộ chọn lặp2–3kho cùng thành phố và yêu cầu **mỗi kho là một thành phố riêng**. Người dùng đồng ý ngoại lệ dùng khu đô thị riêng tại Singapore/Hong Kong. Thay phần CHG-080 cho phép trùngcity; vẫn một carrier/kho,46ID/tuyến riêng, không gộp hoặc thay nguồn doanh số. Tên chỉ địa danh, quốc gia/carrier hiện riêng; vị trí vẫn giả định. Danh mục và các view/CSV của phương án đang mở phải dùng cùng tên mới, số liệu và snapshot khóa giữ nguyên. Không đổi tiêu chí M05/R05/R07/T14. [Kế hoạch](planning/PLAN.md#chg-081), [bàn giao](development.md#handoff-chg081).
+
+<a id="product-management-chg082"></a>
+## CHG-082 — R08: trang sản phẩm và cấu hình trong luồng quản lý
+
+Nguồn trực tiếp01/11/2026: người dùng muốn web quản lý thông thường, bỏ cách diễn đạt “phương án cũ”; quản lý kho ngay ở Tồn kho, cấu hình nhập riêng trong từng sản phẩm. Menu Sản phẩm có danh sách và trang chi tiết; nhấp sản phẩm trong kho mở đúng item_id, xem thông tin và chỉnh lượng nhập mỗi lần, SS, ROP cùng ngày áp dụng. Giữ kho/carrier/SKU/loại và phiên bản/ngày hiệu lực, không tự lấyMOQ thànhfixed_order_qty hoặc tính lại dữ liệu đã ghi. Lưu kho cập nhật tên hiển thị hiện tại, thông tin frozen vẫn giữ riêng. Thiết lập kịch bản chuyển vào phần nâng cao. Không đổi M05/model hoặc nâng R07/T14. [PLAN](planning/PLAN.md#chg-082), [bàn giao](development.md#handoff-chg082).

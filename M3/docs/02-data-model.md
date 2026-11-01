@@ -156,7 +156,7 @@ Mỗi đợt alert replay lưu một dòng depletion/item kể cả không dự 
 
 Không xóa dây chuyền parent, policy, item hoặc run đã có kết quả; FK RESTRICT. Một run failed có thể có phần dữ liệu trung gian, readers từ chối đọc như kết quả hợp lệ. Retry tạo run mới và retry_of, không sửa lại run đã đóng. Viết theo batch trong run running; bước cuối transaction kiểm counters/hash/invariants rồi chuyển complete. Lần request trùng trả lại cùng run, không tạo thêm lô.
 
-Run con kiểm source_import/forecast parent cùng target/source hash/cutoff phù hợp. Filter city và supplier cho run cũ dùng snapshot của run, tránh catalog hiện tại thay nhãn quá khứ. Không dùng config mới diễn giải ledger cũ. Export chỉ các view tổng hợp được cho phép, không có raw/event source identifiers.
+Run con kiểm source_import/forecast parent cùng target/source hash/cutoff phù hợp. Filter city và supplier cho run cũ dùng snapshot của run, tránh catalog hiện tại thay nhãn quá khứ. CHG-081 chỉ đổi tên seed v1 đã khai báo trong bản sao read model để46kho có46địa danh riêng; không đọc city live tùy ý hoặc sửa JSON/hash frozen. CSV xuất mới dùng nhãn mới; CSV sealed cũ không đổi. Không dùng config mới diễn giải ledger cũ. Export chỉ các view tổng hợp được cho phép, không có raw/event source identifiers.
 
 Forecast phải hữu hạn; app kiểm isfinite, DB CHECK `forecast_qty >= 0 AND forecast_qty < 'Infinity'::float8` chặn âm/NaN/Infinity. Float kiểm tổng trong 1e-8; quantity nguyên khớp tuyệt đối. Metric null được giữ nguyên, không COALESCE0. Không tạo index riêng mọi cột, chỉ index theo route/item/run/date/filter thực dùng.
 

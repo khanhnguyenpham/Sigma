@@ -6,25 +6,20 @@ import { useResource } from "./useResource";
 import { useDialogFocus } from "./useDialogFocus";
 
 export function useConfiguration(onChanged: () => void) {
-  const [tab, setTab] = useState("warehouses"),
-    [page, setPage] = useState(1),
+  const [page, setPage] = useState(1),
     [version, setVersion] = useState(0),
     [message, setMessage] = useState(""),
     [error, setError] = useState<Error>(),
     [busy, setBusy] = useState(false);
-  const [city, setCity] = useState<Row>(),
-    [policy, setPolicy] = useState<Row>(),
-    [newScenario, setNewScenario] = useState(false),
+  const [newScenario, setNewScenario] = useState(false),
     [warehouse, setWarehouse] = useState(""),
     [overrides, setOverrides] = useState<Row[]>([]),
     [receipts, setReceipts] = useState<Row[]>([]);
-  useDialogFocus(!!city || !!policy || newScenario, () => {
-    setCity(undefined);
-    setPolicy(undefined);
+  useDialogFocus(newScenario, () => {
     setNewScenario(false);
   });
   const data = useResource<Page>(
-    `/${tab === "policies" ? "supplier-item-policies" : tab}?${query({ page, page_size: 50, refresh: undefined })}&v=${version}`,
+    `/scenarios?${query({ page, page_size: 50 })}&v=${version}`,
   );
   const supplierData = useResource<Page>("/suppliers?page_size=100");
   const warehouses = useResource<Page>("/warehouses?page_size=100");
@@ -54,7 +49,7 @@ export function useConfiguration(onChanged: () => void) {
       ),
     );
   }
-  async function save(event: React.FormEvent<HTMLFormElement>, kind: string) {
+  async function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!event.currentTarget.reportValidity()) return;
     if (busy) return;
@@ -63,37 +58,7 @@ export function useConfiguration(onChanged: () => void) {
     setMessage("");
     const form = new FormData(event.currentTarget);
     try {
-      let path = "",
-        method = "POST",
-        body: Row = {};
-      if (kind === "city") {
-        path = `/warehouses/${city?.id}`;
-        method = "PATCH";
-        body = {
-          city: String(form.get("city")),
-          expected_version: city?.version,
-        };
-      }
-      if (kind === "policy") {
-        path = "/supplier-item-policies";
-        body = {
-          item_id: Number(form.get("item_id")),
-          supplier_id: Number(form.get("supplier_id")),
-          effective_from: String(form.get("effective_from")),
-          configured_rop_floor: Number(form.get("configured_rop_floor")),
-          fixed_order_qty: Number(form.get("fixed_order_qty")),
-          safety_days: Number(form.get("safety_days")),
-          safety_mode: String(form.get("safety_mode")),
-          safety_lookback_days: Number(form.get("safety_lookback_days")),
-          safety_factor: Number(form.get("safety_factor")),
-          rop_mode: String(form.get("rop_mode")),
-          warning_horizon_days: Number(form.get("warning_horizon_days")),
-          expected_version: policy?.version ?? 0,
-        };
-      }
-      if (kind === "scenario") {
-        path = "/scenarios";
-        body = {
+      const body: Row = {
           name: String(form.get("name")),
           code: String(form.get("code")),
           description: String(form.get("description") ?? ""),
@@ -113,18 +78,15 @@ export function useConfiguration(onChanged: () => void) {
             receipts_declared: true,
           },
         };
-      }
-      await api(path, {
-        method,
+      await api("/scenarios", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      setCity(undefined);
-      setPolicy(undefined);
       setNewScenario(false);
       setVersion((v) => v + 1);
       setMessage(
-        "Đã lưu phiên bản mới. Phương án đang xem vẫn giữ dữ liệu và cấu hình cũ.",
+        "Đã lưu thiết lập tính toán.",
       );
       onChanged();
     } catch (e) {
@@ -134,18 +96,12 @@ export function useConfiguration(onChanged: () => void) {
     }
   }
   return {
-    tab,
-    setTab,
     page,
     setPage,
     message,
     error,
     setError,
     busy,
-    city,
-    setCity,
-    policy,
-    setPolicy,
     newScenario,
     setNewScenario,
     warehouse,

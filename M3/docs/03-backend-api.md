@@ -1,5 +1,11 @@
 # M3 — backend, API và worker
 
+## CHG-082 — API đọc cho quản lý sản phẩm
+
+GET`/api/v1/products`: page≥1/page_size1–100, warehouse_id/product_type/searchSKU; lọc trước phân trang, mỗiitem đúng1lần cùngwarehouse/supplier_id vàpolicy mới nhất theo version hoặcnull. GET`/api/v1/products/{key}` trả chi tiết/404; GET`/api/v1/warehouses/{key}` trả bảnlive/version/404. Lưu dùngPOSTsupplier-item-policies/PATCHwarehouse hiện có; giữ validation/version/effective date/frozen guard, không thêm bảng/migration hoặc tự chuyểnMOQ sangfixed quantity.
+
+Catalog run/dataset bổ sungdisplay_city tên kho hiện tại theoID;city vẫn là nhãn frozen có aliasseedCHG081. FE ưu tiêndisplay_city; CSV xuất mới chứa cả hai trường, không ghi lạiCSV sealed. AlertRow khai báo thêmdisplay_city optional để giữ response validation nghiêm ngặt. Các phép tính và dữ liệu run không đổi. [Bàn giao](../../docs/development.md#handoff-chg082).
+
 ## CHG-080 — Aggregate cho danh mục kho
 
 GET /api/v1/runs/{id}/workspace bổ sung warehouse_stock: danh sách đầy đủ warehouse_id/city/destination_country/carrier/item_count/on_hand_units/low_stock_items/replenish_items/recommended_units. Nhóm theo warehouse_id từ toàn bộ inventory cùng run/ngày/filter, không gộp theo city, không phân trang hoặc cắt8dòng. City lấy từ snapshot frozen. Không có inventory trong phạm vi thì trả mảng rỗng; FE không coi là tồn0. Các totals, route_stock tối đa8, policy/worker/CSV cũ không đổi. Không thêm schema/migration/endpoint mutation. [Luồng FE](04-frontend-spec.md#warehouse-navigation-chg080).
