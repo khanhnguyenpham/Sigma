@@ -1,5 +1,7 @@
 # Hợp đồng dữ liệu SIGMA
 
+**CHG-084 bước3 — 02/11/2026:** inventory config_snapshot mới có supply_lifecycle_profile=notice7_sellthrough_v1 và supply_lifecycle_snapshot JSON-safe; cutoff là origin stock hoặc origin quyết định cuối của replay. Sự kiện sau cutoff không được lấy, helper theo từng origin vẫn lọc prefix; retry cùng key giữ snapshot ban đầu. Run cũ không backfill. [API thực có/giới hạn](../M3/docs/07-product-supply-lifecycle.md#step3-implemented), [bàn giao](development.md#handoff-chg084-step3).
+
 **CHG-084 bước2 — 02/11/2026:** model/migration0007 và hàm thuần cho timeline đã được triển khai theo hợp đồng cung cấp; metadata14bảng, migration chỉ chạy DBtest. Chưa freeze vào run hoặc nối API/worker/FE, không thay actual/forecast hoặc nâng DBứng dụng. [Bàn giao](development.md#handoff-chg084-step2).
 
 <a id="supply-lifecycle-chg084"></a>

@@ -1,5 +1,7 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+**CHG-084 bước3 — 02/11/2026:** supply_service nối model/resolver qua khóa item/version, router/DTO cung cấp và product filter; configuration/context freeze JSON-safe timeline. Guard worker tránh chạy simulation chưa hỗ trợ supply event; chưa thêm phép tính bước4. [Bàn giao](../../docs/development.md#handoff-chg084-step3).
+
 **CHG-084 bước2 — 02/11/2026:** catalog có model ItemSupplyChange và supply.py chứa hàm thuần supply_state/validate_supply_change; registry đăng ký bảng thứ14. Chưa có service ghi/khóa version, HTTP route, freeze hoặc thay đổi worker/FE; các phần đó thuộc bước3–7. [Bàn giao](../../docs/development.md#handoff-chg084-step2).
 
 ## CHG-084 — Tích hợp dự kiến vào module hiện có

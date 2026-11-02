@@ -901,3 +901,9 @@ Người dùng bổ sung giao kiểm xong bước1 thì commit/push thường MD
 ## CHG-084 bước2 — DB và nghiệp vụ cung cấp
 
 02/11/2026, người dùng giao bắt đầu bước2 rồi push GitHub. Đã thêm migration0007/model bảng lịch sử và resolver/validator thuần, cập nhật contract cho đúng bảng mới nhưng giữ golden cũ. Chỉ chạy migration DBtest, không nâng DBapp hoặc triển khai API/snapshot/worker/FE. Cổng kiểm local→commit/push thường final-report→SHAremote→CI rồi dừng sau bước2; bước3–7 chưa được giao. [Bàn giao](../development.md#handoff-chg084-step2), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). R07/T14 giữ mở.
+
+
+<a id="chg-084-step3"></a>
+## CHG-084 bước3 — API và snapshot
+
+02/11/2026, người dùng giao riêng bước3 rồi pushGitHub. API lịch sử/thao tác, DTO, khóa/version, product filter và freeze timeline đã triển khai trên DBtest. Snapshot idempotent/causal, không sửa run cũ. Worker có guard tạm cho sự kiện cung cấp tới bước4; không nâng DBapp, không triển khai simulation bán tồn/FE/CSV. Cổng kiểm→commit/push thường final-report→SHAremote/CI, dừng sau bước3. [Bàn giao](../development.md#handoff-chg084-step3), [hợp đồng](../../M3/docs/07-product-supply-lifecycle.md#step3-implemented). R07/T14 giữ mở.

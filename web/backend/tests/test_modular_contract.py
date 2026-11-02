@@ -43,6 +43,8 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
         # CHG-082 adds three reads only; every pre-existing API contract stays unchanged.
         schema["paths"].pop("/api/v1/products")
         schema["paths"].pop("/api/v1/products/{key}")
+        schema["paths"].pop("/api/v1/products/{key}/supply-changes")
+        schema["components"]["schemas"].pop("SupplyChangeCreate")
         schema["paths"]["/api/v1/warehouses/{key}"].pop("get")
         # CHG-068 step10 explicitly adds these optional request fields only.
         # Keep the original golden intact and compare the rest byte-for-byte.

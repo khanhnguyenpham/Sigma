@@ -1,5 +1,7 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
+**CHG-084 bước3 — 02/11/2026:** test_supply_api.py kiểm HTTP/validation/trạng thái/lịch sử, ghi đồng thời, lọc trước pagination, idempotency/cutoff/frozen và schema0006 tương thích. Guard worker được kiểm để không verify nhầm run có lịch sử. Kết quả thực tại [bàn giao](../../docs/development.md#handoff-chg084-step3); không coi API/snapshot là đã có FE hoặc simulation cung cấp.
+
 **CHG-084 bước2 — 02/11/2026:** thêm test_supply_lifecycle.py kiểm timeline, biên ngày, nhân quả, constraint/migration/bảo toàn và chặn downgrade có dữ liệu. Golden13bảng/OpenAPI cũ giữ; contract chỉ loại đúng bảng mới khi đối chiếu DDL lịch sử. Chạy trên sigma_m3_test, không trên DBứng dụng. Kết quả thực tại [bàn giao bước2](../../docs/development.md#handoff-chg084-step2); ma trận FE/API/worker vẫn là kiểm dự kiến cho bước sau.
 
 ## CHG-084 — Cổng kiểm và điểm dừng

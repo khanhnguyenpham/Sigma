@@ -40,7 +40,7 @@ def supply_state(changes, item_id, decision_origin, target_date=None):
 
 
 def validate_supply_change(changes, *, item_id, action, known_on, effective_on, target_change_id=None):
-    """Validate a proposed append; locking/version persistence belongs to step 3."""
+    """Validate a proposed append before the persistence service writes it."""
     known, effective = day(known_on), day(effective_on)
     rows = [r for r in changes if r["item_id"] == item_id]
     if rows and known < max(day(r["known_on"]) for r in rows):
@@ -48,7 +48,7 @@ def validate_supply_change(changes, *, item_id, action, known_on, effective_on, 
     if action not in {"stop", "cancel_stop", "resume"}:
         raise DomainError("invalid_input", "Unknown supply action")
     if action == "stop":
-        if target_change_id is not None or effective < known + timedelta(days=7):
+        if target_change_id is not None or effective - known < timedelta(days=7):
             raise DomainError("invalid_input", "Stop requires at least seven days notice and no target")
     elif target_change_id is None or effective != known:
         raise DomainError("invalid_input", "Cancel/resume requires a target and takes effect on known_on")

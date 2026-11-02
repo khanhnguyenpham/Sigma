@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**CHG-084 bước3 — 02/11/2026, T10/T12:** API lịch sử/thao tác, khóa/version, lọc trạng thái SQL trước count/page và freeze timeline đã có; chưa FE/CSV/simulation cung cấp. Chỉ DBtest, không nâng DBapp. [Bàn giao](../development.md#handoff-chg084-step3), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). Người dùng giao push final-report; dừng sau bước3, bước4–7 chưa bắt đầu.
+
 **CHG-084 bước2 — 02/11/2026, T10/T12:** đã thêm migration/model lịch sử cung cấp và hàm thuần kiểm ngày/chuyển trạng thái/knowledge cutoff; bước3API/snapshot và các bước sau chưa bắt đầu. Chỉ nâng DBtest, không nâng DBứng dụng hoặc chạy model. Người dùng giao kiểm rồi push final-report, SHAremote/CI và dừng sau bước2. [Bàn giao](../development.md#handoff-chg084-step2), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps).
 
 <a id="supply-lifecycle-chg084"></a>

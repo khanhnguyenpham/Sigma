@@ -3,6 +3,15 @@
 <a id="status"></a>
 ## 1. Trạng thái đặc tả
 
+<a id="step3-implemented"></a>
+**Cập nhật bước3, 02/11/2026:** GET/POST `/api/v1/products/{key}/supply-changes`, product list/detail theo as_of_date, supply_status/filter và freeze profile/timeline đã triển khai trên DBtest. Chưa nâng DBapp, chưa có sell-through API/CSV/FE hoặc simulation cung cấp. Worker trả stage_not_implemented nếu snapshot chứa sự kiện cung cấp cho tới bước4, tránh xác nhận kết quả tính theo policy cũ.
+
+POST nhận action/known_on/effective_on/reason/expected_version/target_change_id; reason trim, int version/target strict, không nhận extra. Ngày cực đại không đủ7ngày vẫn trả422, không overflow. Service khóa Item, kiểm latest version rồi validate timeline trước append; version cũ409, item thiếu404, chuyển trạng thái sai409. Trả201 gồm sự kiện mới, supply_version và state tại known_on. GET lịch sử trả items/total/page/page_size/supply_version/as_of_date/state; state null nếu thiếu ngày, version luôn mới nhất, lịch sử giảm theo version.
+
+Product row thêm supply_status/stop_on/supply_version/supply_schema_ready. Không có ngày thì trạng thái null; supply_status filter thiếu ngày422. Filter SQL thực hiện trước count/offset/limit, lịch sử chỉ đọc theo batch item trong trang. DB chưa có bảng: đọc sản phẩm cũ không ngày vẫn được, các trường supply null và supply_schema_ready=false; yêu cầu mới theo ngày/POST/history/enqueue inventory trả503 supply_schema_required, không tự migrate hoặc giả định active.
+
+Snapshot JSON-safe lấy sự kiện có known_on≤origin quyết định cuối và tồn tại lúc freeze; retry cùng Idempotency-Key trả snapshot đã lưu, không lấy lại live. Stock dùng origin, policy dùng period_end, alert dùng origin cuối có đủ14ngày. Source/forecast parent, snapshot/hash cũ giữ nguyên. [Bàn giao thực](../../docs/development.md#handoff-chg084-step3). Các phần bước1/2 và thiết kế bước4–7 bên dưới giữ mốc lịch sử/dự kiến.
+
 **Cập nhật bước2, 02/11/2026:** migration0007_supply_lifecycle, ItemSupplyChange, supply_state và validate_supply_change đã có trong mã nguồn. Chỉ migrate DBtest; chưa nâng DBứng dụng hoặc triển khai API/ghi version/freeze/worker/FE bước3–7. Các đoạn dự kiến bên dưới giữ thiết kế đầy đủ và mốc bước1. [Bàn giao bước2](../../docs/development.md#handoff-chg084-step2).
 
 Giao diện hàm thuần: supply_state(changes, item_id, decision_origin, target_date=None) nhận timeline dict với date hoặc ISOdate, chỉ lấy item và known_on≤origin, trả supply_status/replenishment_allowed/stop_change_id/stop_on/version của prefix đã biết. target_date mặc định origin và không được trước origin. validate_supply_change kiểm action/ngày/target/chuyển trạng thái của append, chưa ghi DB hoặc kiểm expected_version. Service khóa item/version và HTTP DTO thuộc bước3.

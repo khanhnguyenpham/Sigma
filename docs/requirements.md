@@ -1,5 +1,7 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**CHG-084 bước3 — 02/11/2026:** đã triển khai API/version/lịch sử và snapshot theo thiết kế; chưa bổ sung yêu cầu nghiệm thu hoặc nâng R07/T14. Khả năng khóa nhập/bán tồn của simulation còn ở bước4, API mới chỉ kiểm trên DBtest, chưa nâng DBứng dụng. [Bàn giao](development.md#handoff-chg084-step3).
+
 <a id="supply-lifecycle-chg084"></a>
 ## CHG-084 — Bổ sung R06/R08/R09: ngừng nhập và bán tồn (thiết kế được duyệt)
 

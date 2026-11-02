@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-084 bước3 — 02/11/2026:** catalog/schemas.py/router.py/supply_service.py triển khai DTO/HTTP/service cung cấp; service.py thêm lọc/metadata sản phẩm; configuration/context.py freeze timeline/profile. Worker chỉ thêm guard tạm chặn lịch sử khác rỗng tới bước4. [Bàn giao](../development.md#handoff-chg084-step3). API mới kiểm trên DBtest; DBapp chưa nâng, FE/model/engine không đổi.
+
 **CHG-084 bước2 — 02/11/2026:** code mới tại catalog/models.py (ItemSupplyChange), catalog/supply.py (resolver/validator thuần), registry models.py và migration0007_product_supply_lifecycle.py. Một bảng mới, metadata14bảng; DBapp chưa nâng, API/worker/FE không thay đổi. [Kiểm và giới hạn](../development.md#handoff-chg084-step2); bước3–7 chưa triển khai.
 
 **CHG-084 — 02/11/2026, bản đồ thiết kế, bước 1 chỉ MD:** [PRODUCT_SUPPLY_LIFECYCLE_PLAN](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md) giữ lộ trình/quyết định/điểm dừng; [đặc tả07](../../M3/docs/07-product-supply-lifecycle.md) giữ DB/API/FE/worker/kiểm thử dự kiến. Bước sau dự kiến mở rộng catalog (lịch cung cấp), configuration/runs (freeze), inventory/purchasing/alerts/reporting và trang Products/Forecast tại web; chưa có code, migration0007 hoặc bảng mới. Model nhu cầu tuyến/phân bổ giữ, bổ sung dự kiến bán theo tồn ở inventory run mới. T01/T10/T11/T12, R07/T14 giữ mở; kiểm/push MD bước1 rồi chờ duyệt bước2. [Bàn giao](../development.md#handoff-chg084).

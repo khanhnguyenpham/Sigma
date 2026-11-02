@@ -1,8 +1,12 @@
 from sqlalchemy import select, func
+from sqlalchemy.orm import aliased
+from collections import defaultdict
 from core.errors import DomainError
 from core.http import listing
 from core.run_context import required_run, snapshot_maps
-from modules.catalog.models import Warehouse, Item, Supplier
+from modules.catalog.models import Warehouse, Item, Supplier, ItemSupplyChange
+from modules.catalog.supply import supply_state
+from modules.catalog.supply_service import supply_rows, supply_schema_ready, require_supply_schema
 from modules.configuration.models import Policy
 from core.http import record
 from modules.catalog.locations import display_warehouse
@@ -44,7 +48,10 @@ def get_warehouse(session, key):
     return record(row)
 
 
-def list_products(sessions, page=1, page_size=50, warehouse_id=None, product_type=None, search=None, item_id=None):
+def list_products(sessions, page=1, page_size=50, warehouse_id=None, product_type=None, search=None, item_id=None,
+                  as_of_date=None, supply_status=None):
+    if supply_status and as_of_date is None:
+        raise DomainError("invalid_input", "Supply status filtering requires as_of_date")
     latest = (select(Policy.id).where(Policy.item_id == Item.id)
               .order_by(Policy.version.desc()).limit(1).correlate(Item).scalar_subquery())
     query = (select(Item, Warehouse, Supplier.id, Policy)
@@ -60,9 +67,35 @@ def list_products(sessions, page=1, page_size=50, warehouse_id=None, product_typ
     if item_id:
         query = query.where(Item.id == item_id)
     with sessions() as session:
+        ready = supply_schema_ready(session)
+        if as_of_date is not None:
+            require_supply_schema(session)
+        if supply_status:
+            stop, resolution = aliased(ItemSupplyChange), aliased(ItemSupplyChange)
+            resolved = select(resolution.id).where(resolution.target_change_id == stop.id,
+                resolution.known_on <= as_of_date).correlate(stop).exists()
+            pending = select(stop.id).where(stop.item_id == Item.id, stop.action == "stop",
+                stop.known_on <= as_of_date, ~resolved)
+            if supply_status == "stopped":
+                pending = pending.where(stop.effective_on <= as_of_date)
+            elif supply_status == "scheduled_stop":
+                pending = pending.where(stop.effective_on > as_of_date)
+            predicate = pending.correlate(Item).exists()
+            query = query.where(~predicate if supply_status == "active" else predicate)
         total = session.scalar(select(func.count()).select_from(query.subquery()))
         rows = session.execute(query.order_by(Item.id).offset((page - 1) * page_size).limit(page_size)).all()
-        return dict(items=[{**record(item), "item_id": item.id, "warehouse": record(warehouse),
+        histories = defaultdict(list)
+        if ready:
+            for change in supply_rows(session, [r[0].id for r in rows]):
+                histories[change["item_id"]].append(change)
+        def supply_fields(item):
+            history = histories[item.id]
+            state = supply_state(history, item.id, as_of_date) if as_of_date else None
+            return dict(supply_status=state["supply_status"] if state else None,
+                        stop_on=state["stop_on"] if state else None,
+                        supply_version=(history[-1]["version"] if history else 0) if ready else None,
+                        supply_schema_ready=ready)
+        return dict(items=[{**record(item), **supply_fields(item), "item_id": item.id, "warehouse": record(warehouse),
                            "city": warehouse.city, "destination_country": warehouse.destination_country,
                            "carrier": warehouse.carrier, "supplier_id": supplier,
                            "policy": record(policy) if policy else None}

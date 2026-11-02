@@ -1,5 +1,7 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
+**CHG-084 bước3 — 02/11/2026:** API lịch sử cung cấp và freeze snapshot đã có, được kiểm trên DBtest; chưa nâng DBapp hoặc có FE mới. Run có sự kiện cung cấp bị worker chặn bằng stage_not_implemented tới bước4; không dùng nó như kế hoạch đã tính ngừng nhập. Schema0006 vẫn đọc sản phẩm cũ không ngày; tính năng mới yêu cầu schema0007 và trả503 khi chưa nâng. [Bàn giao](../docs/development.md#handoff-chg084-step3).
+
 **CHG-084 bước2 — 02/11/2026:** đã thêm DB/model và resolver thuần, chỉ kiểm/migrate DBtest. Chưa có API/snapshot/worker/FE cho ngừng nhập, chưa nâng DBứng dụng; không chạy lệnh upgrade head trên DBapp ở giai đoạn này. [Bàn giao](../docs/development.md#handoff-chg084-step2), [lộ trình](../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps).
 
 **CHG-084 — 02/11/2026, bước1 chỉ Markdown:** [lộ trình ngừng nhập/bán tồn](../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md) và [đặc tả07 DB/API/FE/worker](docs/07-product-supply-lifecycle.md) là thiết kế được duyệt, chưa triển khai bảng/migration/profile/API/UI mới. Kiểm/push MD riêng bước1 rồi dừng chờ duyệt bước2; giữ schema0006_fixed_days và trạng thái R07/T14. [Bàn giao](../docs/development.md#handoff-chg084). Các checkpoint ứng dụng bên dưới là lịch sử, không là bằng chứng tính năng CHG-084 đã chạy.

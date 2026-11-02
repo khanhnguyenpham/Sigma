@@ -1,5 +1,7 @@
 # M3 — backend, API và worker
 
+**CHG-084 bước3 — 02/11/2026:** GET/POSTproducts/{key}/supply-changes, as_of_date/supply_status ở products và as_of_date ở detail đã triển khai. POST201, lỗi404/409/422, history version giảm dần; latest supply_version độc lập ngày xem/policy. Inventory enqueue đóng băng profile/timeline; chưa endpoint bán tồn/CSV. [Hợp đồng và giới hạn](07-product-supply-lifecycle.md#step3-implemented), [bàn giao](../../docs/development.md#handoff-chg084-step3).
+
 ## CHG-084 — API và snapshot dự kiến
 
 02/11/2026, bước1 chỉ MD: dự kiến GET/POSTproducts/{id}/supply-changes, trạng thái sản phẩm theo as_of_date và lọc trước phân trang; expected_version riêng cung cấp, lỗi404/409/422. Inventory run mới freezeprofile notice7_sellthrough_v1 và lịch sử, resolver theo knowledge cutoff; run cũ không đọc lifecycle live. Thêm sell-through API/CSV từ projection đã lưu, không refit forecast parent. [Hợp đồng API](07-product-supply-lifecycle.md#api), [nhân quả](07-product-supply-lifecycle.md#snapshots-and-causality), [worker](07-product-supply-lifecycle.md#forecast-and-worker). Tất cả endpoint/profile mới chưa triển khai, không phải API hiện có.

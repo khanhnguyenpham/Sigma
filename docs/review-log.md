@@ -1440,3 +1440,9 @@ Nguồn: người dùng gửi ảnh bộ chọn ROP/SS, chốt cố địnhROP v
 ## CHG-084 bước2 — giao riêng DB/nghiệp vụ (02/11/2026)
 
 Nguồn trực tiếp: người dùng yêu cầu bắt đầu bước2 và xong thì đẩy GitHub. Quyền mới thay điểm dừng chờ bước2, không mở rộng sang bước3–7. Triển khai schema/model và hàm thuần theo đặc tả đã duyệt; không nâng DBứng dụng, không thêm HTTP route/freeze/worker/FE hoặc chạy model. [Kết quả kiểm/publish](development.md#handoff-chg084-step2). Đây không phải nghiệm thu R07/T14 hoặc bằng chứng ngừng cung cấp thực.
+
+
+<a id="chg084-step3"></a>
+## CHG-084 bước3 — 02/11/2026, giao API/snapshot rồi push
+
+Người dùng yêu cầu tiếp tục bước3 và đẩyGitHub. Cho phép API/version/filter/freeze trên DBtest và commit/push thường final-report; không mở bước4–7 hoặc nâng DBapp. Guard worker tạm chặn run có supply event là biện pháp tránh verify sai khi simulation chưa hỗ trợ; không tự nhận bước4 đã triển khai. Legacy products không ngày vẫn đọc được schema0006, tính năng mới báo503 khi thiếu schema. [Kết quả kiểm/publish](development.md#handoff-chg084-step3). Không đổi M05/R05 hoặc nghiệm thu R07/T14.

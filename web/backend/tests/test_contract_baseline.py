@@ -19,6 +19,7 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
     # CHG-082 adds product management and a live warehouse read; retain the golden for all existing operations.
     assert routes.pop('/api/v1/products') == ['get']
     assert routes.pop('/api/v1/products/{key}') == ['get']
+    assert routes.pop('/api/v1/products/{key}/supply-changes') == ['get', 'post']
     routes['/api/v1/warehouses/{key}'].remove('get')
     assert routes == baseline['routes']
     assert set(Base.metadata.tables) == set(baseline['tables']) | {'item_supply_changes'}

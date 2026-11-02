@@ -6,6 +6,8 @@ from modules.configuration.models import Policy
 from modules.configuration.schemas import POLICY_DEFAULTS
 from modules.catalog.models import Item, Warehouse, Supplier
 from core.errors import DomainError
+from fastapi.encoders import jsonable_encoder
+from modules.catalog.supply_service import require_supply_schema, supply_rows
 
 
 def freeze_inventory(session, request, source, scenario):
@@ -141,7 +143,11 @@ def freeze_inventory(session, request, source, scenario):
             )
         )
     ]
+    require_supply_schema(session)
+    supply_history = jsonable_encoder(supply_rows(session, ids, max(dates)))
     return dict(
+        supply_lifecycle_profile="notice7_sellthrough_v1",
+        supply_lifecycle_snapshot=supply_history,
         inventory_policy_profile="fixed_rop_days_ss_v1",
         policies=policies,
         policy_ids=sorted({p["id"] for p in policies}),
