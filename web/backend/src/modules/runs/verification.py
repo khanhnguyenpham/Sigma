@@ -10,6 +10,7 @@ from modules.runs.models import Run
 from core.errors import DomainError
 from core.hashes import digest
 from core.serialization import clean_json
+from modules.runs.supply_verification import verify_supply_snapshot, supply_metadata, projection_path
 
 
 def verify_run(settings, sessions, key, allow_running=False):
@@ -354,6 +355,8 @@ def verify_inventory(s, run, settings):
                 raise DomainError(
                     "verification_failed", "Pending order already received"
                 )
+    supply_histories = verify_supply_snapshot(run)
+    supply_stopped = 0
     threshold_count = 0
     for (window, item), group in ledger.groupby(["window_origin", "item_id"]):
         initial_history = matrix.reindex(
@@ -438,6 +441,11 @@ def verify_inventory(s, run, settings):
                 if p.get("fixed_order_qty") is not None
                 else max(math.ceil(raw), p["moq"])
             ) if raw else 0
+            info = supply_metadata(supply_histories, int(item), expected_origin, r.date, r.closing_qty, pending, rop)
+            allowed = info.get("replenishment_allowed", True)
+            supply_stopped += not allowed
+            if not allowed:
+                q = 0
             if (
                 r.ss,
                 r.rop_forecast,
@@ -447,7 +455,7 @@ def verify_inventory(s, run, settings):
                 r.inventory_position,
                 bool(r.needs_replenishment),
                 r.recommended_qty,
-            ) != (ss, rf, rop, target, int(pending), ip, r.closing_qty < rop, q):
+            ) != (ss, rf, rop, target, int(pending), ip, r.closing_qty < rop and allowed, q):
                 raise DomainError(
                     "verification_failed", "Independent policy thresholds differ"
                 )
@@ -461,6 +469,11 @@ def verify_inventory(s, run, settings):
                 )
             previous = r.closing_qty
             threshold_count += 1
+    if supply_histories is not None and (
+        run.result_summary.get("supply_lifecycle_profile") != "notice7_sellthrough_v1"
+        or run.result_summary.get("supply_stopped_decisions") != supply_stopped
+    ):
+        raise DomainError("verification_failed", "Supply summary differs")
     event_balance_count = 0
     from modules.forecasting.m2_adapter import configuration
     from src.data import audit_orders
@@ -556,6 +569,7 @@ def verify_inventory(s, run, settings):
     }
     confusion = dict(TP=0, FP=0, FN=0, TN=0)
     early = denominator = excluded = 0
+    ledger_rows = {(r.window_origin, r.item_id, r.date): r for r in ledger.itertuples()}
     for row in alerts.loc[alerts.alert_type.eq("depletion")].itertuples():
         exp = row.explanation
         balance = float(exp["origin_on_hand"])
@@ -568,6 +582,24 @@ def verify_inventory(s, run, settings):
             balance = max(0, balance + receipts.get(d, 0) - quantity)
             if predicted is None and balance == 0:
                 predicted = d
+        if supply_histories is not None:
+            daily_row = ledger_rows[(row.window_origin, row.item_id, row.as_of_date)]
+            lots = order_groups.get((row.window_origin, int(row.item_id)), empty_orders)
+            known_receipts = {}
+            for lot in lots.itertuples():
+                if lot.eta > row.as_of_date and (lot.is_initial or lot.ordered_on < row.as_of_date):
+                    known_receipts[lot.eta] = known_receipts.get(lot.eta, 0) + lot.ordered_qty
+            expected_path = projection_path(supply_histories, int(row.item_id), row.as_of_date,
+                                            daily_row.closing_qty, f, known_receipts)
+            info = supply_metadata(supply_histories, int(row.item_id), daily_row.forecast_as_of_date,
+                                   row.as_of_date, daily_row.closing_qty, daily_row.pending_qty, daily_row.rop)
+            if (exp.get("projection") != expected_path or exp.get("origin_on_hand") != daily_row.closing_qty
+                or exp.get("receipts") != [dict(eta=d.date().isoformat(), quantity=q) for d, q in sorted(known_receipts.items())]
+                or any(exp.get(k) != v for k, v in info.items())
+                or exp.get("policy") != policies[daily_row.policy_id]
+                or exp.get("thresholds", {}).get("recommended_qty") != daily_row.recommended_qty
+                or exp.get("thresholds", {}).get("needs_replenishment") != bool(daily_row.needs_replenishment)):
+                raise DomainError("verification_failed", "Sell-through explanation differs")
         if (pd.isna(row.predicted_depletion_date) and predicted is not None) or (
             pd.notna(row.predicted_depletion_date)
             and row.predicted_depletion_date != predicted
@@ -613,7 +645,7 @@ def verify_inventory(s, run, settings):
         ):
             raise DomainError("verification_failed", "Alert metric denominator differs")
     if run.result_summary.get("threshold_warning_version") == 1:
-        verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, policies)
+        verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, policies, supply_histories)
     return dict(
         status="verified",
         kind=run.kind,
@@ -628,7 +660,7 @@ def verify_inventory(s, run, settings):
     )
 
 
-def verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, policies):
+def verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, policies, supply_histories=None):
     """Independently rebuild crossings and confusion counts from frozen inputs."""
     expected_keys, cases = set(), []
     actual_rows = {(r.window_origin, r.item_id, r.as_of_date, r.alert_type): r
@@ -655,6 +687,19 @@ def verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, 
                 path.append(dict(date=day.date().isoformat(), closing_forecast=stock, receipts_qty=receipts.get(day, 0)))
                 if row.closing_qty >= row.rop and first is None and h <= n and stock < row.rop:
                     first = day
+            if supply_histories is not None:
+                path = projection_path(supply_histories, int(item), row.date, row.closing_qty, f, receipts)
+                info = supply_metadata(supply_histories, int(item), row.forecast_as_of_date, row.date,
+                                       row.closing_qty, row.pending_qty, row.rop)
+                for alert_type in ("depletion", "below_rop", "projected_below_rop"):
+                    diagnostic = actual_rows.get((*key, alert_type))
+                    if diagnostic is not None and (
+                        any(diagnostic.explanation.get(k) != v for k, v in info.items())
+                        or diagnostic.explanation.get("policy") != p
+                        or diagnostic.explanation.get("thresholds", {}).get("recommended_qty") != row.recommended_qty
+                        or diagnostic.explanation.get("thresholds", {}).get("needs_replenishment") != bool(row.needs_replenishment)
+                    ):
+                        raise DomainError("verification_failed", "Supply diagnostic differs")
             if row.closing_qty < row.rop:
                 expected_keys.add((*key, "below_rop"))
             if first is not None:

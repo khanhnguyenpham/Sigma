@@ -1,5 +1,7 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+**CHG-084 bước4 — 02/11/2026:** phép tính nhu cầu/ROP/SS giữ; khi stopped, Q=0 và needs_replenishment=false, không tạo lô mới. Raw belowROP/depletion vẫn là chẩn đoán, có metadata không cho nhập. Receipts cũ/actual/shortage và mẫu số vẫn giữ, projected_sales=min(demand,stock+known_receipts). [Hợp đồng thực có](07-product-supply-lifecycle.md#step4-implemented), [bàn giao](../../docs/development.md#handoff-chg084-step4).
+
 ## CHG-084 — Ngừng nhập và bán tồn: đặc tả dự kiến
 
 02/11/2026, bước1 chỉ MD: thêm nghiệp vụ dừng nhập từng item sau thông báo ít nhất7ngày mô phỏng UTC, nhận tiếp lô đã đặt, bán tồn, hủy lịch/mở lại có lịch sử. Phân biệt trạng thái cung cấp với trạng thái tồn theo run; nhu cầu vẫn được ước tính, dự kiến bán bị chặn theo hàng có thể bán. [Nguồn quy tắc/trạng thái/thời gian](07-product-supply-lifecycle.md#states-and-time), [phép tính và worker dự kiến](07-product-supply-lifecycle.md#forecast-and-worker). Chưa triển khai, không đổi công thức CHG-083 hoặc nghiệm thu R07/T14 ở lượt MD này.

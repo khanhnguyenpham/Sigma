@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-084 bước4 — 02/11/2026:** inventory/service.py nhận replenishment_allowed, simulation.py áp timeline theo decision origin/ngày, alerts/service.py mở rộng projection theo profile; runs/supply_verification.py kiểm độc lập và verification.py đối soát ledger/orders/explanation/metric. Worker bỏ guard stage3. Chưa read model/CSV/FE hoặc cutover DBapp. [Bàn giao](../development.md#handoff-chg084-step4).
+
 **CHG-084 bước3 — 02/11/2026:** catalog/schemas.py/router.py/supply_service.py triển khai DTO/HTTP/service cung cấp; service.py thêm lọc/metadata sản phẩm; configuration/context.py freeze timeline/profile. Worker chỉ thêm guard tạm chặn lịch sử khác rỗng tới bước4. [Bàn giao](../development.md#handoff-chg084-step3). API mới kiểm trên DBtest; DBapp chưa nâng, FE/model/engine không đổi.
 
 **CHG-084 bước2 — 02/11/2026:** code mới tại catalog/models.py (ItemSupplyChange), catalog/supply.py (resolver/validator thuần), registry models.py và migration0007_product_supply_lifecycle.py. Một bảng mới, metadata14bảng; DBapp chưa nâng, API/worker/FE không thay đổi. [Kiểm và giới hạn](../development.md#handoff-chg084-step2); bước3–7 chưa triển khai.

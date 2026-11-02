@@ -1446,3 +1446,9 @@ Nguồn trực tiếp: người dùng yêu cầu bắt đầu bước2 và xong 
 ## CHG-084 bước3 — 02/11/2026, giao API/snapshot rồi push
 
 Người dùng yêu cầu tiếp tục bước3 và đẩyGitHub. Cho phép API/version/filter/freeze trên DBtest và commit/push thường final-report; không mở bước4–7 hoặc nâng DBapp. Guard worker tạm chặn run có supply event là biện pháp tránh verify sai khi simulation chưa hỗ trợ; không tự nhận bước4 đã triển khai. Legacy products không ngày vẫn đọc được schema0006, tính năng mới báo503 khi thiếu schema. [Kết quả kiểm/publish](development.md#handoff-chg084-step3). Không đổi M05/R05 hoặc nghiệm thu R07/T14.
+
+
+<a id="chg084-step4"></a>
+## CHG-084 bước4 — 02/11/2026, giao tiếp worker/bán tồn
+
+Nguồn trực tiếp: người dùng yêu cầu tiếp tục bước4 sau khi bước3 đã push/SHA/CI thành công. Guard worker tạm được thay bằng tính toán và kiểm thực, chỉ dùng snapshot; không mở bước5–7 hoặc nâng DBapp. Giữ cảnh báo toán học và mẫu số, thêm tính có thể nhập riêng; không coi khóa nhập là đã đủ hàng hoặc tự nâng R07/T14. Tiếp tục cổng kiểm/commit/push/SHA/CI của chuỗi bước hiện hành, rồi dừng sau bước4. [Bàn giao](development.md#handoff-chg084-step4).

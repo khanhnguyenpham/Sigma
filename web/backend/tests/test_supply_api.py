@@ -128,9 +128,7 @@ def test_snapshot_is_frozen_causal_and_retry_does_not_refreeze(pg,tmp_path):
         # The cancellation known tomorrow is absent from a fresh origin-D snapshot too.
         fresh=c.post('/api/v1/runs',json=args,headers={'Idempotency-Key':'supply-freeze-new'})
         with sessions() as s:assert len(s.get(Run,uuid.UUID(fresh.json()['run_id'])).config_snapshot['supply_lifecycle_snapshot'])==1
-        from worker import process_one
-        process_one(settings(tmp_path),sessions)
-        with sessions() as s:assert s.get(Run,key).error_code=="stage_not_implemented"
+
 
 
 def test_legacy_schema_keeps_product_read_and_rejects_new_features(pg,tmp_path):

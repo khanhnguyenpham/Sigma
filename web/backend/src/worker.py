@@ -64,10 +64,6 @@ def process_one(settings, sessions):
 
             summary = forecast_run(settings, sessions, key)
         else:
-            with sessions() as session:
-                supply_history = session.get(Run, key).config_snapshot.get("supply_lifecycle_snapshot", [])
-            if supply_history:
-                raise DomainError("stage_not_implemented", "Supply-aware simulation is pending CHG-084 step 4", 409)
             from modules.inventory.simulation import simulate_run
 
             summary = simulate_run(settings, sessions, key)

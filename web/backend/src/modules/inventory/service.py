@@ -99,7 +99,7 @@ def history_quantities(history, days):
     return counts
 
 
-def recommend(forecast, closing, pending, policy, history=None):
+def recommend(forecast, closing, pending, policy, history=None, *, replenishment_allowed=True):
     f = vector14(forecast)
     closing, pending = quantity(closing), quantity(pending)
     with np.errstate(over="ignore", invalid="ignore"):
@@ -141,6 +141,9 @@ def recommend(forecast, closing, pending, policy, history=None):
         if policy.fixed_order_qty is not None
         else max(math.ceil(raw), policy.moq)
     ) if raw > 0 else 0
+    raw_q = q
+    if not replenishment_allowed:
+        q = 0
     if max(ss, rop_forecast, rop, target, ip, q) > 2**63 - 1:
         raise DomainError(
             "numeric_overflow", "Inventory decision exceeds bigint capacity"
@@ -152,10 +155,10 @@ def recommend(forecast, closing, pending, policy, history=None):
         target_stock=target,
         inventory_position=ip,
         pending_qty=pending,
-        needs_replenishment=trigger,
+        needs_replenishment=trigger and replenishment_allowed,
         recommended_qty=q,
         state="pending_covers"
-        if trigger and q == 0
+        if trigger and raw_q == 0
         else "low_stock"
         if trigger
         else "sufficient",

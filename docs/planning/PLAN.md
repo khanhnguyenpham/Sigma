@@ -907,3 +907,9 @@ Người dùng bổ sung giao kiểm xong bước1 thì commit/push thường MD
 ## CHG-084 bước3 — API và snapshot
 
 02/11/2026, người dùng giao riêng bước3 rồi pushGitHub. API lịch sử/thao tác, DTO, khóa/version, product filter và freeze timeline đã triển khai trên DBtest. Snapshot idempotent/causal, không sửa run cũ. Worker có guard tạm cho sự kiện cung cấp tới bước4; không nâng DBapp, không triển khai simulation bán tồn/FE/CSV. Cổng kiểm→commit/push thường final-report→SHAremote/CI, dừng sau bước3. [Bàn giao](../development.md#handoff-chg084-step3), [hợp đồng](../../M3/docs/07-product-supply-lifecycle.md#step3-implemented). R07/T14 giữ mở.
+
+
+<a id="chg-084-step4"></a>
+## CHG-084 bước4 — Worker, bán tồn và verifier
+
+02/11/2026, người dùng giao tiếp bước4. Đã nối supply timeline frozen vào worker/simulation, chặn Q/lô mới đúng ngày, giữ receipts/actual/metric, mở rộng projection bán tồn và verifier độc lập. Không đổi model/schema/DBapp hoặc làm read model/CSV/FE bước5–7. [Bàn giao](../development.md#handoff-chg084-step4), [hợp đồng](../../M3/docs/07-product-supply-lifecycle.md#step4-implemented). Tiếp tục cổng kiểm→commit/push thường final-report→SHAremote/CI như các bước trước rồi dừng sau bước4; R07/T14 giữ mở.

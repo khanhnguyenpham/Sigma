@@ -3,6 +3,15 @@
 <a id="status"></a>
 ## 1. Trạng thái đặc tả
 
+<a id="step4-implemented"></a>
+**Cập nhật bước4, 02/11/2026:** worker đã bỏ guard stage_not_implemented; simulation chỉ đọc supply_lifecycle_snapshot đã freeze, không truy vấn lifecycle live. Profile notice7_sellthrough_v1 mở khóa xử lý cung cấp; profile lạ hoặc thiếu timeline bị từ chối. Legacy không có profile giữ nghĩa/đầu ra cũ, không suy lifecycle từ danh mục live. Chỉ kiểm DBtest; read model/CSV/FE/cutover chưa triển khai. [Bàn giao](../../docs/development.md#handoff-chg084-step4).
+
+recommend nhận keyword replenishment_allowed (mặc định true cho caller cũ); khi false Q=0/needs_replenishment=false, các ngưỡng/IP giữ nguyên. Nhánh tạo lô policy kiểm allowed riêng. Cảnh báo raw belowROP và threshold/depletion giữ để không thay mẫu số, có supply_status/replenishment_allowed/replenishment_block_reason/stock_below_rop/sell_through_state trong explanation. Trạng thái diagnostic cũ không được coi là lời thúc nhập; bước5/6 sẽ tích hợp read model/CTA, chưa mở trên app ở bước4.
+
+Mỗi projection H14 của profile mới lưu forecast_demand_qty/projected_sales_qty/unserved_demand_qty bên cạnh date/receipts_qty/closing_forecast, thêm supply_status/replenishment_allowed theo ngày mục tiêu và thông tin đã biết tại origin. Chỉ cộng receipts đã biết trước Q mới; không dự đoán phần demand thiếu sang SKU khác hoặc sửa actual. Tồn0 có pending là waiting_receipts, có thể bán tiếp khi lô cũ về; ngày cạn đầu tiên khác trạng thái sold_out không còn pending. simulation_summary artifact hiện có bổ sung profile và số quyết định bị khóa; chi tiết projection nằm trong alerts.explanation, không có bảng/API/CSV mới ở bước4.
+
+Verifier runs/supply_verification kiểm profile/timeline/version/action/ngày/provenance/cutoff, tự giải trạng thái và tính đường bán tồn; verification kiểm Q/needs/lô, origin/receipts/policy/path/metadata của explanation, counter và coverage/metric. Không gọi lại supply_state/recommend/project để tự xác nhận producer. Hàm pure_window thêm supply_changes=None: None là legacy, danh sách (kể cả rỗng) bật metadata profile mới. Các mục bước1–3 bên dưới là lịch sử.
+
 <a id="step3-implemented"></a>
 **Cập nhật bước3, 02/11/2026:** GET/POST `/api/v1/products/{key}/supply-changes`, product list/detail theo as_of_date, supply_status/filter và freeze profile/timeline đã triển khai trên DBtest. Chưa nâng DBapp, chưa có sell-through API/CSV/FE hoặc simulation cung cấp. Worker trả stage_not_implemented nếu snapshot chứa sự kiện cung cấp cho tới bước4, tránh xác nhận kết quả tính theo policy cũ.
 

@@ -3,14 +3,16 @@ from modules.inventory.service import quantity, vector14
 from core.errors import DomainError
 
 
-def project(origin, on_hand, forecast, receipts):
+def project(origin, on_hand, forecast, receipts, *, sell_through=False):
     f = vector14(forecast)
     stock = float(quantity(on_hand))
     lots = {day: quantity(q) for day, q in receipts.items()}
     rows, depletion = [], None
     for h, demand in enumerate(f, 1):
         day = origin + timedelta(days=h)
-        stock = max(0.0, stock + lots.get(day, 0) - float(demand))
+        available = stock + lots.get(day, 0)
+        sales = min(float(demand), available)
+        stock = max(0.0, available - float(demand))
         rows.append(
             dict(
                 date=day.isoformat(),
@@ -18,6 +20,9 @@ def project(origin, on_hand, forecast, receipts):
                 receipts_qty=lots.get(day, 0),
             )
         )
+        if sell_through:
+            rows[-1].update(forecast_demand_qty=float(demand), projected_sales_qty=sales,
+                            unserved_demand_qty=float(demand)-sales)
         if depletion is None and stock == 0:
             depletion = day
     if on_hand == 0:

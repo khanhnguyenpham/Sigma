@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from sqlalchemy import select, text
 from core.errors import DomainError
+from modules.catalog.supply import supply_state
 from modules.runs.models import Run
 from modules.forecasting.models import DailySales, ItemForecast
 from modules.purchasing.models import Replenishment
@@ -49,7 +50,7 @@ def history_at(matrix, item, origin, days):
 
 
 def pure_window(
-    matrix, sales_events, catalog, forecasts, policies, scenario, kind, origin, end
+    matrix, sales_events, catalog, forecasts, policies, scenario, kind, origin, end, supply_changes=None
 ):
     known = [i for i in catalog if date.fromisoformat(i["first_seen_date"]) <= origin]
     ids = [i["item_id"] for i in known]
@@ -73,6 +74,11 @@ def pure_window(
     ledger = []
     alerts = []
     threshold_cases = []
+    supply_stopped_decisions = 0
+    changes_by_item = {i: [] for i in ids}
+    for change in supply_changes or []:
+        if change["item_id"] in changes_by_item:
+            changes_by_item[change["item_id"]].append(change)
 
     def add_order(record):
         orders.append(record)
@@ -216,7 +222,10 @@ def pure_window(
                 if values.safety_mode == "volatility"
                 else None
             )
-            decision = recommend(vector, stock[item], pending, values, history)
+            supply = supply_state(changes_by_item[item], item, decision_origin, day) if supply_changes is not None else None
+            allowed = supply["replenishment_allowed"] if supply else True
+            supply_stopped_decisions += not allowed
+            decision = recommend(vector, stock[item], pending, values, history, replenishment_allowed=allowed)
             ledger.append(
                 dict(
                     window_origin=origin,
@@ -249,7 +258,7 @@ def pure_window(
                         receipts[lot["eta"]] = (
                             receipts.get(lot["eta"], 0) + lot["ordered_qty"]
                         )
-                projection = project(day, stock[item], vector, receipts)
+                projection = project(day, stock[item], vector, receipts, sell_through=supply is not None)
                 threshold_date = project_threshold(
                     day, stock[item], decision["rop"], p.get("warning_horizon_days", 7),
                     projection["projection"],
@@ -266,6 +275,17 @@ def pure_window(
                     projection=projection["projection"],
                     basis="known_receipts_before_new_recommendation",
                 )
+                supply_info = {}
+                if supply is not None:
+                    supply_info = dict(supply_status=supply["supply_status"], replenishment_allowed=allowed,
+                        replenishment_block_reason=None if allowed else "supply_stopped",
+                        stock_below_rop=stock[item] < decision["rop"],
+                        sell_through_state=("selling_remaining" if stock[item] > 0 else "waiting_receipts" if pending else "sold_out")
+                            if not allowed else None)
+                    explanation.update(supply_info)
+                    for projected in projection["projection"]:
+                        status = supply_state(changes_by_item[item], item, decision_origin, date.fromisoformat(projected["date"]))
+                        projected.update(supply_status=status["supply_status"], replenishment_allowed=status["replenishment_allowed"])
                 alerts.append(
                     dict(
                         window_origin=origin,
@@ -284,7 +304,7 @@ def pure_window(
                         is_simulated=True,
                     )
                 )
-                if decision["needs_replenishment"]:
+                if stock[item] < decision["rop"]:
                     alerts.append(
                         dict(
                             window_origin=origin,
@@ -299,7 +319,7 @@ def pure_window(
                             is_evaluable=False,
                             evaluation_class=None,
                             exclusion_reason=None,
-                            explanation=dict(policy=p, thresholds=decision),
+                            explanation=dict(policy=p, thresholds=decision, **supply_info),
                             is_simulated=True,
                         )
                     )
@@ -320,7 +340,7 @@ def pure_window(
                         is_evaluable=stock[item] >= decision["rop"],
                         exclusion_reason="already_below_rop_at_origin" if stock[item] < decision["rop"] else None,
                     ))
-            if kind == "policy_replay" and decision["recommended_qty"] > 0:
+            if kind == "policy_replay" and allowed and decision["recommended_qty"] > 0:
                 add_order(
                     dict(
                         window_origin=origin,
@@ -406,6 +426,8 @@ def pure_window(
         items=len(ids),
         already_depleted_count=sum(initial_zero.values()),
     )
+    if supply_changes is not None:
+        summary["supply_stopped_decisions"] = supply_stopped_decisions
     return dict(
         ledger=ledger,
         events=events,
@@ -423,6 +445,12 @@ def simulate_run(settings, sessions, key):
         source = s.get(Run, run.source_import_run_id)
         forecast_parent = s.get(Run, run.forecast_run_id)
         snapshot = run.config_snapshot
+        profile = snapshot.get("supply_lifecycle_profile")
+        if profile not in (None, "notice7_sellthrough_v1") or (profile is None and snapshot.get("supply_lifecycle_snapshot")):
+            raise DomainError("invalid_supply_history", "Unsupported supply lifecycle profile")
+        supply_changes = snapshot.get("supply_lifecycle_snapshot") if profile else None
+        if profile and not isinstance(supply_changes, list):
+            raise DomainError("invalid_supply_history", "Supply snapshot is missing")
         catalog = snapshot["catalog_snapshot"]
         policies = snapshot["policies"]
         scenario = snapshot["scenario"]["settings"]
@@ -525,7 +553,7 @@ def simulate_run(settings, sessions, key):
             total_windows=len(windows),
         )
         result = pure_window(
-            matrix, grouped, catalog, vectors, policies, scenario, kind, start, finish
+            matrix, grouped, catalog, vectors, policies, scenario, kind, start, finish, supply_changes
         )
         for name in combined:
             combined[name].extend(result[name])
@@ -639,6 +667,9 @@ def simulate_run(settings, sessions, key):
         ] + ([dict(granularity="threshold", **threshold_metrics(combined["threshold_cases"]))]
              if kind == "alert_replay" else []),
     )
+    if profile:
+        summary.update(supply_lifecycle_profile=profile,
+                       supply_stopped_decisions=sum(s["supply_stopped_decisions"] for s in summaries))
     folder = settings.output_root / str(key)
     folder.mkdir(parents=True, exist_ok=False)
     payload = json.dumps(

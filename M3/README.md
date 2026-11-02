@@ -1,5 +1,7 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
+**CHG-084 bước4 — 02/11/2026:** worker/simulation đã hỗ trợ supply event frozen và bán tồn, guard bước3 được gỡ; verifier kiểm độc lập. Chỉ kiểm DBtest; DBapp vẫn chưa nâng/mở chức năng cung cấp. Read model/CSV/FE chưa tích hợp ở bước4, không coi các nhãn hiện tại của web là luồng bán tồn đã hoàn tất. [Bàn giao](../docs/development.md#handoff-chg084-step4).
+
 **CHG-084 bước3 — 02/11/2026:** API lịch sử cung cấp và freeze snapshot đã có, được kiểm trên DBtest; chưa nâng DBapp hoặc có FE mới. Run có sự kiện cung cấp bị worker chặn bằng stage_not_implemented tới bước4; không dùng nó như kế hoạch đã tính ngừng nhập. Schema0006 vẫn đọc sản phẩm cũ không ngày; tính năng mới yêu cầu schema0007 và trả503 khi chưa nâng. [Bàn giao](../docs/development.md#handoff-chg084-step3).
 
 **CHG-084 bước2 — 02/11/2026:** đã thêm DB/model và resolver thuần, chỉ kiểm/migrate DBtest. Chưa có API/snapshot/worker/FE cho ngừng nhập, chưa nâng DBứng dụng; không chạy lệnh upgrade head trên DBapp ở giai đoạn này. [Bàn giao](../docs/development.md#handoff-chg084-step2), [lộ trình](../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps).
