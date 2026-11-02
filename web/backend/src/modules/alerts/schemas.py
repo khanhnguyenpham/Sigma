@@ -35,6 +35,35 @@ class AlertRow(DTO):
     replenishment_block_reason: str | None = None
     stock_below_rop: bool | None = None
     sell_through_state: Literal["selling_remaining", "waiting_receipts", "sold_out"] | None = None
+    trade_lifecycle_profile: str | None = None
+    internal_status: str | None = None
+    internal_reason: str | None = None
+    internal_stop_change_id: int | None = None
+    internal_version: int | None = None
+    provider_status: str | None = None
+    provider_blockers: list[dict[str,Any]] | None = None
+    provider_restrictions: list[dict[str,Any]] | None = None
+    sales_allowed: bool | None = None
+    provider_notice_ids: list[int] | None = None
+    provider_reasons: list[str] | None = None
+    provider_sources: list[dict[str,Any]] | None = None
+    replenishment_block_reasons: list[str] | None = None
+    decision_origin: date | None = None
+    rights_on: date | None = None
+    q_policy: int | None = None
+    q_final: int | None = None
+    cap_reason: str | None = None
+    sellable_budget: int | None = None
+    provider_stop_on: date | None = None
+    cap_eta: date | None = None
+    forecast_coverage_complete: bool | None = None
+    quantity_diagnostics_available: bool | None = None
+    total_qty: int | None = None
+    sellable_qty: int | None = None
+    blocked_qty: int | None = None
+    needs_supplier_action: bool | None = None
+    actionable: bool | None = None
+    metric_basis: str | None = None
 
 
 class AlertPage(DTO):

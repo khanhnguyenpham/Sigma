@@ -1,5 +1,11 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**CHG-085 giai đoạn 6 — 02/11/2026:** giao diện hai nghiệp vụ đã triển khai/kiểm local trên synthetic, gồm multi-warehouse scope, ngày cùng ngày, hai quyền, preview/save/refetch/409 và tồn bị chặn/CTA. Không thay R05/M05 hoặc nghiệm thu R07/T14. Bước7cutover và8run bản sao chưa thực hiện. [Bàn giao/giới hạn](development.md#handoff-chg085-phase6).
+
+**CHG-085 giai đoạn 5 — 02/11/2026:** đã kiểm synthetic read model/API/CSV frozen cho hai quyền, tồn blocked, cap/Q, source/scenario/blocked và mẫu số/exclusions; filter/tổng đúng trước page. Không thay tiêu chí M05/R05 hoặc nâng R07/T14. UI6, cutover7 và run bản sao8 chưa làm; số synthetic không chứng minh nghiệm thu mục tiêu cảnh báo. [Bàn giao/giới hạn](development.md#handoff-chg085-phase5).
+
+**CHG-085 giai đoạn 4 — 02/11/2026:** đã kiểm synthetic worker/verifier cho hai nguồn quyền, cap Q trước hạn, tồn bị chặn/lô cũ, source/scenario/blocked và metric exclusions. Không đổi tiêu chí M05/R05 hoặc lấy việc giảm mẫu số sau chặn bán làm cải thiện forecast/cảnh báo; R07/T14 vẫn chưa nghiệm thu. Read model/CSV, FE, cutover và run bản sao mới thuộc 5–8. [Bằng chứng/giới hạn](development.md#handoff-chg085-phase4).
+
 **CHG-085 giai đoạn3 — 02/11/2026:** đã có API/preview/phạm vi/version và snapshot2nguồn trên DBtest. Chưa có kết quả worker ngừng bán/actual/Q-cap hoặc FE mới; guard không cho xác nhận runtrade_v2 theo quy tắc cũ. [Phần thực và giới hạn](../M3/docs/07-product-supply-lifecycle.md#phase3-implemented), [kiểm](development.md#handoff-chg085-phase3). Không đổi M05/R05 hoặc nâng R07/T14; dữ liệu thông báo vẫn giả định/khai báo.
 
 **CHG-085 giai đoạn2 — 02/11/2026:** đã có DB/nghiệp vụ thuần hai nguồn và kiểm DBtest, chưa có hành vi nhà mạng ngừng bán trên API/worker/FE ứng dụng. [Phạm vi thực và giới hạn](../M3/docs/07-product-supply-lifecycle.md#phase2-implemented), [bàn giao](development.md#handoff-chg085-phase2). Không đổi yêu cầu nghiệm thu, M05/R05 hoặc trạng thái R07/T14; các mốc chỉMD bên dưới là lịch sử giai đoạn1.

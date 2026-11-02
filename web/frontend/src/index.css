@@ -1861,6 +1861,31 @@ button.warehouse-card:hover { border-color: #a9b5f0; background: #fcfcff; box-sh
 }
 
 /* Supply forms share existing cards and table scrolling. */
+.provider-editor { max-width:1100px; background:#fff; padding:28px; border:1px solid var(--border); border-radius:12px; margin:0 auto; min-width:0; }
+.provider-editor label, .trade-modal label, .provider-filters label { display:flex; flex-direction:column; gap:7px; margin:12px 0; font-size:12px; min-width:0; }
+.provider-editor input, .provider-editor select, .provider-editor textarea, .trade-modal input, .trade-modal select, .trade-modal textarea, .provider-filters input, .provider-filters select { width:100%; min-width:0; box-sizing:border-box; }
+.provider-editor textarea, .trade-modal textarea { min-height:90px; font:inherit; padding:10px; resize:vertical; border:1px solid var(--border); border-radius:8px; }
+.provider-editor fieldset, .trade-modal fieldset, .trade-result-filters fieldset { min-width:0; border:0; margin:0; padding:0; }
+.trade-modal { max-width:920px; width:calc(100% - 32px); max-height:90vh; overflow:auto; overflow-wrap:anywhere; }
+.provider-filters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px 18px; }
+.scope-product { margin:18px 0; padding:18px; border:1px solid var(--border); border-radius:10px; background:#fafbff; min-width:0; }
+.scope-product legend { font-size:12px; font-weight:600; margin-top:12px; }
+.scope-choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 18px; }
+.scope-choices label { flex-direction:row; align-items:center; gap:8px; margin:7px 0; overflow-wrap:anywhere; }
+.scope-choices input[type="checkbox"] { width:17px; height:17px; flex:0 0 17px; }
+.trade-preview { padding:18px; border:1px solid #cbd4f4; border-radius:10px; margin:22px 0; background:#f8faff; min-width:0; overflow-wrap:anywhere; }
+.trade-rights { line-height:1.65; overflow-wrap:anywhere; }
+.trade-rights p { margin:6px 0; }
+.trade-totals { display:flex; flex-wrap:wrap; gap:12px 24px; padding:16px 20px; border-radius:10px; background:#f4f6ff; margin:16px 0; font-size:12px; }
+.trade-totals strong { margin-left:8px; font-size:17px; }
+.badge.provider_blocked, .badge.internal_stopped { background:#f7eceb; color:#9c4743; }
+.badge.purchase_limited { background:#fff3df; color:#986820; }
+.sidebar nav button span { white-space:normal; text-align:left; min-width:0; }
+.sidebar nav button > svg { flex-shrink:0; }
+.provider-heading > button { flex-shrink:0; }
+.provider-heading > div { min-width:0; max-width:100%; }
+@media(max-width:760px) { .provider-heading { flex-direction:column; gap:12px; } .provider-heading > .secondary { font-size:12px; } }
+@media(max-width:760px) { .provider-filters, .scope-choices, .trade-modal .form-grid, .provider-editor .form-grid { grid-template-columns:minmax(0,1fr); } .provider-editor { padding:16px; } .trade-modal { width:calc(100% - 16px); max-height:94dvh; padding:20px 16px; } .scope-product { padding:12px; } .trade-totals { display:grid; grid-template-columns:minmax(0,1fr); } .trade-totals span { display:flex; justify-content:space-between; gap:12px; } .provider-editor .form-actions, .trade-modal .form-actions { display:grid; grid-template-columns:minmax(0,1fr); } }
 .supply-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-bottom:20px; }
 .supply-filters label, .supply-date, .supply-form label { display:flex; flex-direction:column; gap:7px; font-size:12px; margin-bottom:16px; min-width:0; }
 .supply-date { max-width:300px; }

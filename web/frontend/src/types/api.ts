@@ -1,6 +1,7 @@
 export type Row = Record<string, unknown>;
 
 export interface Run {
+  trade_lifecycle_profile?: string | null;
   id: string;
   kind: string;
   status: string;

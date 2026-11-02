@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { AlertOpportunity } from "../components/alerts/AlertOpportunity";
 import { type Run, type Page, type Row } from "../types/api";
 import { type Context } from "../types/context";
+import { isTradeRun, providerLabel, internalLabel } from "../utils/trade";
+import { TradeTotals } from "../components/products/TradePresentation";
 import { resultQuery } from "../utils/url";
 import { fmt, pct, text } from "../utils/format";
 import { useResource } from "../hooks/useResource";
@@ -106,6 +108,7 @@ export function Alerts({
             />
           </div>
           <State error={summary.error} loading={summary.loading} />
+          <TradeTotals summary={summary.data?.summary} />
           <Panel
             title="Danh sách cảnh báo"
             note={`Ngày ${ctx.origin} · Nhấn một dòng để xem diễn biến tồn dự kiến.`}
@@ -172,7 +175,8 @@ export function Alerts({
                     label: "Tín hiệu",
                     render: alertTypeLabel,
                   },
-                  { key: "state", label: "Trạng thái", render: (v, row) => row.replenishment_allowed === false ? badge(row.sell_through_state ?? "stopped") : badge(v) },
+                  ...(isTradeRun(run)?[{key:"internal_status",label:"Nhập nội bộ",render:internalLabel},{key:"provider_status",label:"Nhà mạng",render:providerLabel}]:[]),
+                  { key: "state", label: "Trạng thái", render: (v, row) => row.sales_allowed===false?badge("provider_blocked"):row.replenishment_allowed === false ? badge(row.sell_through_state ?? "stopped") : badge(v) },
                   { key: "rop", label: "ROP tại quyết định", render: (_, row) => fmt((((row.explanation as Row)?.thresholds) as Row)?.rop) },
                   { key: "warning_horizon_days", label: "N ngày", render: (_, row) => fmt((((row.explanation as Row)?.policy) as Row)?.warning_horizon_days ?? 7) },
                   { key: "predicted_threshold_date", label: "Xuống ROP dự kiến" },
@@ -209,6 +213,7 @@ export function Alerts({
               <p className="caption">
                 Metric depletion toàn lượt replay; không áp dụng bộ lọc bảng. Mục tiêu làm việc ≥45% với báo trước ≥7 ngày theo lời mentor được thuật lại; tính bắt buộc/phạm vi nghiệm thu còn cần làm rõ.
               </p>
+              {isTradeRun(run) && <p className="notice">Chỉ chấm cửa sổ không bị nhà mạng chặn bán. Nguồn {fmt(run.result_summary.source_sales_qty)} · Được bán theo kịch bản {fmt(run.result_summary.scenario_sales_qty)} · Bị chặn {fmt(run.result_summary.actual_blocked_qty)}. Loại cả {fmt(run.result_summary.excluded_item_windows)} cửa sổ có hạn chế bán; không tính blocked là shortage hoặc coi giảm mẫu số là cải thiện cảnh báo.</p>}
               <AlertOpportunity run={run} />
             </details>
           )}
@@ -218,7 +223,7 @@ export function Alerts({
               <Card label="Sự kiện xuống ROP" value={fmt(thresholdMetric.event_denominator)} note={`${fmt(thresholdMetric.signal_count)} tín hiệu · ${fmt(thresholdMetric.evaluated_count)} ca hợp lệ`} />
               <Card label="Precision xuống ROP" value={pct(thresholdMetric.precision)} />
               <Card label="Recall xuống ROP" value={pct(thresholdMetric.recall)} />
-              <Card label="Ca đã dưới ROP tại origin" value={fmt(thresholdMetric.excluded_count)} />
+              <Card label={isTradeRun(run)?"Ca không chấm (gồm hạn chế bán)":"Ca đã dưới ROP tại origin"} value={fmt(thresholdMetric.excluded_count)} />
             </div>
             <p className="caption">Metric toàn alert replay, dùng ROP tại origin và N của từng policy; không áp dụng bộ lọc bảng, không cộng vào tỷ lệ báo trước ngày cạn ≥7 ngày. Sai số ngày xuống ROP: {fmt(thresholdMetric.date_mae, 2)} ngày.</p>
             <p className="caption">TP {fmt(thresholdMetric.TP)} · FP {fmt(thresholdMetric.FP)} · FN {fmt(thresholdMetric.FN)} · TN {fmt(thresholdMetric.TN)}</p>

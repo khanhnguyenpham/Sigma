@@ -1,5 +1,13 @@
 # SIGMA — Vòng đời mua bán SIM/eSIM: CHG-085
 
+**CHG-085 publish4–6 — 02/11/2026:** Người dùng giao “Đẩy hết mấy cái vừa làm lên github đi”: cho phép commit/push thường toàn bộ code/tests/docs CHG-085 giai đoạn4–6 lên final-report. Quyền này thay điểm dừng chưa publish của các checkpoint4–6 bên dưới; không mở giai đoạn7–8. Kiểm publish hiện tại: 478Python BE/M2 chạy lại đạt; 88React của bản FE giữ nguyên hash đã đạt, build TypeScript/Vite và pipcheck chạy lại đạt. Browser1440/390px và hash DB/tệp bảo vệ đã kiểm ở6; không dùng số này làm nghiệm thu R07/T14. Phạm vi commit là75tệp trong manifest code/tests/docs đã kiểm; COMMIT_BLOCK_PLAN.md vẫn untracked/nguyên nội dung, không stage raw/run/DB/env/build/output local. DBapp0007 và hai bản sao giữ nguyên, không cutover/chạy nguồn thật. Cổng: local → commit tên theo thay đổi → push thường → SHAremote khớp → hai workflow CI success; sau đó dừng trước7, R07/T14 giữ mở. [Bàn giao](../development.md#handoff-chg085-publish).
+
+**CHG-085 giai đoạn 6 — 02/11/2026, hoàn tất local FE:** modal ngừng nhập nội bộ cùng ngày, trang thông báo nhà mạng/phạm vi nhiều kho, preview và hai quyền riêng; vận hành hiển thị lượng bán/tồn bị chặn/Q/cap từ frozen. Baseline74, suite cuối88React (gồm22ca liên quan), 37ca hợp đồng BE, build/pipcheck và browser1440/390px synthetic đạt. DBapp vẫn0007; không cutover/nguồn thật/bước8 cũ. Bước4–6cònlocal, chưa commit/push; dừng trước7, R07/T14 giữ mở. [FE thực](../../M3/docs/07-product-supply-lifecycle.md#phase6-implemented), [bàn giao](../development.md#handoff-chg085-phase6). Các điểm dừng1–5phía dưới là lịch sử.
+
+**CHG-085 giai đoạn 5 — 02/11/2026, hoàn tất local:** đã mở API kết quả/CSV trade_v2 từ ledger, projection và snapshot frozen; lọc hai quyền/trạng thái trước count/page/aggregate, counters riêng và metric có scope/exclusions. Baseline11/targeted62/suite478 Python BE/M2 và pip check đạt. DB ứng dụng vẫn 0007, hai bản sao/bằng chứng cũ giữ nguyên; không FE/cutover/nguồn thật. Chưa commit/push bước 4–5; dừng trước 6. R07/T14 giữ mở. [Read model thực](../../M3/docs/07-product-supply-lifecycle.md#phase5-implemented), [bàn giao](../development.md#handoff-chg085-phase5). Các điểm dừng1–4bên dưới là lịch sử.
+
+**CHG-085 giai đoạn 4 — 02/11/2026, hoàn tất local:** worker/projection và verifier độc lập đã thực thi trade_v2; 40 ca trade mới, 152 ca targeted và toàn suite 459 Python BE/M2 đạt, pip check đạt. Tồn tổng được giữ, sale bị chặn ghi riêng, Q áp cap nguyên lô/ETA/coverage và metric loại cả item-window bị chặn. DB ứng dụng/bản sao cũ chỉ đọc, không cutover hoặc chạy nguồn thật. Bước 5–8 chưa làm; chưa commit/push bước 4 trong lượt này. R07/T14 giữ mở. [Phần thực](../../M3/docs/07-product-supply-lifecycle.md#phase4-implemented), [bàn giao](../development.md#handoff-chg085-phase4). Các điểm dừng bước 1–3 dưới đây là lịch sử.
+
 <a id="status"></a>
 ## 1. Phạm vi hiện tại và bằng chứng đối chiếu
 
@@ -81,16 +89,16 @@ Model đầu vào vẫn dự báo quantity bán từ lịch sử quan sát; dự
 <a id="steps"></a>
 ## 6. Lộ trình CHG-085 và điểm dừng
 
-Đây là lộ trình mới, không reset trạng thái CHG-084. Giai đoạn1đã push;2–3hoàn tất local và được giao publish tích hợp;4–8chưa được giao.
+Đây là lộ trình mới, không reset trạng thái CHG-084. Giai đoạn1đã push;2–3đã publish tại 6efadcd/SHAremote/CI đạt;4–6hoàn tất local,7–8chưa được giao.
 
 | Giai đoạn | Phạm vi/sản phẩm bàn giao | Kiểm bắt buộc khi được giao | Điểm dừng |
 |---|---|---|---|
 | 1. Tài liệu và chốt thiết kế | Hai đặc tả chính và bộ MD đồng bộ, kiểm kê mã/bằng chứng/giới hạn DB | Link/anchor, bảng/fence/sơ đồ, thuật ngữ/causal/profile, diff MD | Kiểm MD → commit/push thường → SHA remote/CI → dừng chờ duyệt triển khai |
-| 2. DB và nghiệp vụ | Đã có0008/domain hai nguồn/scope/service khóa-version, chỉ DBtest; API cũ chưa mở min0 | Kiểm kê3DB chỉ đọc; constraint/overlap/phạm vi/concurrency, upgrade/rollback có ledger và lịch sử cũ; kết quả tại bàn giao | Không nâng DBapp, chưa commit/push; dừng chờ giao3 |
-| 3. API, snapshot, tương thích | Đã có API/preview/version/filter, snapshottrade_v2/rules/scope identity; guard worker/result | Baseline65/targeted83/full419Python, pipcheck;18ca mới về lỗi/stale/race/cutoff/legacy/idempotence | Publish code2–3/SHAremote/CI; worker guard; dừng trước4 |
-| 4. Worker, projection, verifier | Quyền nhập/bán, lô cũ/tồn bị chặn, cap Q, replay actual và metric riêng | Tính tay/balance/biên ngày/known late, fixed lot/coverage; verifier không dùng producer | Chỉ DBtest; chờ giao5 |
-| 5. Read model và CSV | Cùng kết quả frozen, bộ lọc/tổng/pagination, reason/counter và schema export | API=CSV=stored; tổng toàn scope; legacy không giả0 hoặc nối live | Chờ giao6 |
-| 6. FE | Modal nội bộ, trang thông báo riêng, summary/operational UI | Save–reload/409/Back/focus/loading/error, desktop/390px, CTA và profile cũ | Chỉ môi trường kiểm; chờ giao7 |
+| 2. DB và nghiệp vụ | Đã có0008/domain hai nguồn/scope/service khóa-version trên DBtest; checkpoint2 giữ API min7, API min0 được mở ở3 | Kiểm kê3DB chỉ đọc; constraint/overlap/phạm vi/concurrency, upgrade/rollback có ledger và lịch sử cũ; kết quả tại bàn giao | Đã publish tích hợp với3 tại6efadcd; không nâng DBapp |
+| 3. API, snapshot, tương thích | Đã có API/preview/version/filter, snapshottrade_v2/rules/scope identity; guard worker ở checkpoint3 đã gỡ tại4, result vẫn chờ5 | Baseline65/targeted83/full419Python, pipcheck;18ca mới về lỗi/stale/race/cutoff/legacy/idempotence | Đã publish code2–3 tại6efadcd, SHAremote/CI đạt; giới hạn hiện tại theo4 |
+| 4. Worker, projection, verifier | Hoàn tất local trade_v2: quyền/Q cap, constrained sales/stock, source/scenario/blocked và metric exclusions | 40 ca trade mới, targeted152/full459 Python và pipcheck; scope/cutoff/receipt/parent/tamper/legacy, bảo toàn3DB/tệp | Không nâng DBapp hoặc chạy nguồn thật; chưa commit/push4; dừng trước5 |
+| 5. Read model và CSV | Hoàn tất local reader/filters/quantities/rights/metric basis/counters từ frozen, API/CSV cùng dataset | Baseline11/targeted62/full478, pipcheck; CSV5040/scope/window/legacy/readonly/null | Chưa commit/push4–5, không DBapp/FE; dừng trước6 |
+| 6. FE | Hoàn tất local modal nội bộ, provider pages/scope/preview, summary và vận hành frozen | 88React/22ca liên quan, 37BE hợp đồng, build/pipcheck, browser1440/390px synthetic | Chưa publish4–6, DBapp0007 giữ; dừng trước7 |
 | 7. Tích hợp và cutover | Suite phù hợp, backup/restore, kế hoạch bật đồng bộ DB/BE/FE/worker và rollback | Hash cũ/metadata, API/CSV/browser, rehearsal dữ liệu không rỗng, profile dispatch | Chỉ cutover khi người dùng giao; không tự chạy8 |
 | 8. Run cũ và kịch bản mới trên bản sao | Danh sách run theo profile; kịch bản nội bộ và nhà mạng độc lập, overlap/multiwarehouse/late notice | Hash trước–sau, worker/verifier, frozen API/CSV/UI, actual/metric riêng; không refit/tuning | Bàn giao từng ca/giới hạn rồi dừng; không nâng R07/T14 |
 

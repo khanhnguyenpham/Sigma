@@ -1,13 +1,15 @@
 # M3 — đặc tả frontend
 
-<a id="lifecycle-chg085"></a>
-## CHG-085 — Thiết kế FE mục tiêu, chưa triển khai
+**CHG-085 giai đoạn 6 — 02/11/2026, hoàn tất local FE:** modal ngừng nhập nội bộ cùng ngày, trang thông báo nhà mạng/phạm vi nhiều kho, preview và hai quyền riêng; vận hành hiển thị lượng bán/tồn bị chặn/Q/cap từ frozen. Baseline74, suite cuối88React (gồm22ca liên quan), 37ca hợp đồng BE, build/pipcheck và browser1440/390px synthetic đạt. DBapp vẫn0007; không cutover/nguồn thật/bước8 cũ. Bước4–6cònlocal, chưa commit/push; dừng trước7, R07/T14 giữ mở. [Triển khai thực](07-product-supply-lifecycle.md#phase6-implemented), [kiểm/giới hạn](../../docs/development.md#handoff-chg085-phase6). Bố cục và quy tắc bên dưới được chốt từ1; checkpoint6 là trạng thái mới nhất. Các mô tả CHG-084 vẫn giữ làm lịch sử.
 
-02/11/2026, giai đoạn1 chỉ MD. [Quyền/thời gian và API](07-product-supply-lifecycle.md#states-and-time), [lộ trình mới](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps) là nguồn quy tắc. Các đoạn CHG-084 phía dưới là checkpoint lịch sử; form hiện tại vẫn gộp thao tác nội bộ trên ProductDetail và bắt+7, chưa có trang thông báo nhà mạng.
+<a id="lifecycle-chg085"></a>
+## CHG-085 — Thiết kế FE và triển khai local giai đoạn 6
+
+02/11/2026, giai đoạn1 chỉ MD. [Quyền/thời gian và API](07-product-supply-lifecycle.md#states-and-time), [lộ trình mới](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps) là nguồn quy tắc. Các đoạn CHG-084 phía dưới là checkpoint lịch sử. Thiết kế này đã được triển khai local ở6; form nội bộ là modal riêng, không bắt+7, nhà mạng có trang quản lý riêng. App chưa cutover7.
 
 ### Điều hướng và ngữ cảnh
 
-Giữ router hash/history và component/hook sẵn có; các URL sau là đề xuất, chưa có trong mã.
+Giữ router hash/history và component/hook sẵn có; các URL sau đã có trong mã local6; query item_id/kho/run/ngày nằm trước hash.
 
 ```mermaid
 flowchart LR
@@ -16,7 +18,7 @@ flowchart LR
     B --> D["Modal Ngừng nhập nội bộ"]
     B --> E["Thông báo ngừng sản phẩm #provider-notices"]
     E --> F["Tạo #provider-notice-new"]
-    E --> G["Chi tiết #provider-notice?id=..."]
+    E --> G["Chi tiết #provider-notice:ID"]
     G --> H["Modal Hủy thông báo"]
     G --> I["Modal Ghi nhận cung cấp trở lại"]
     B --> J["Kế hoạch frozen: Tồn / Nhập / Dự báo"]
@@ -124,7 +126,7 @@ Chi tiết notice có header sản phẩm/phạm vi/mốc ngày/trạng thái/ng
 - Lỗi GET/503 có retry và giữ filter/ngày đã nhập/xóa; không tự điền lại ngày sau retry. Lỗi422 gắn vào field, focus trường đầu sai; lỗi404 có Back tới danh sách.
 - 409 version/preview stale: giữ form, báo thay đổi, cho Tải lại/Xem lại preview; không tự retry mutation. Refetch version rồi người dùng đối chiếu và lưu lại chủ động. Save thành công đọc lại server; chỉ đóng modal sau khi có xác nhận, nếu refetch lỗi hiện “Đã lưu, chưa tải lại được”, không gửi POST lần nữa.
 - Modal có label/describedby, focus trap, Escape/Close trả focus đúng trigger; pending save không cho đóng gây gửi lại. Sau route navigation focus heading; không lạm dụng alert cho loading.
-- Desktop: form tối đa2cột theo nhóm, preview dưới form, scope table riêng; actions không che nội dung. 390px: một cột, label trên input, date không tràn; modal toàn chiều rộng có cuộn dọc, action cuối không che field; list chuyển thẻ, bảng scope/ledger cuộn ngang trong vùng có tên, không cuộn ngang cả trang. Biểu đồ có bảng thay thế và không chỉ dùng màu để phân biệt.
+- Desktop: form tối đa2cột theo nhóm, preview dưới form, scope table riêng; actions không che nội dung. 390px: một cột, label trên input, date không tràn; modal toàn chiều rộng có cuộn dọc, action cuối không che field; list/scope/ledger dùng bảng cuộn ngang trong vùng có tên, không cuộn ngang cả trang. Biểu đồ có bảng thay thế và không chỉ dùng màu để phân biệt.
 - Kiểm triển khai cần save–reload/Back/forward/deep link/Escape/focus/lỗi/conflict trên desktop1440px và390px, không dùng wireframe này làm bằng chứng đã kiểm browser.
 
 **CHG-084 kiểm tích hợp — 02/11/2026:** useAppContext chỉ khởi tạo ngày mặc định một lần theo run đã chọn. Khi API danh sách run lỗi rồi phục hồi, giữ ngày người dùng đã xóa thay vì tự bật lại thao tác ghi với ngày mặc định; test hồi quy đi qua lỗi503/retry đạt. Bản build cuối74React/browser1440/390px đạt, DBapp0007 đã bật form; thao tác ghi thử vẫn trên synthetic DBtest. [Bàn giao](../../docs/development.md#handoff-chg084-step7).

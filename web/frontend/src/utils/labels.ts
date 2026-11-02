@@ -38,6 +38,13 @@ export function errorLabel(error: Error) {
         missing_contract_quantity:
           "Hãy khai báo lượng nhập mỗi lần trong thông tin sản phẩm.",
         feature_not_in_run: "Kế hoạch này chưa có dự kiến bán theo tồn. Tạo kế hoạch mới để xem.",
+        trade_schema_required: "Quản lý vòng đời mua bán chưa được bật cho dữ liệu này.",
+        trade_profile_required: "Cấu hình có hạn chế mua bán mới. Chọn tạo kế hoạch có hỗ trợ hai nguồn hạn chế.",
+        preview_stale: "Phạm vi, cấu hình hoặc kế hoạch tác động đã thay đổi. Tải lại và xem lại tác động trước khi lưu.",
+        provider_conflict: "Trạng thái thông báo đã thay đổi. Kiểm tra lịch sử trước khi thao tác lại.",
+        invalid_trade_history: "Kế hoạch thiếu lịch sử mua bán phù hợp. Chọn kế hoạch khác hoặc tạo mới.",
+        provider_scope_incomplete: "Danh mục đã thay đổi phạm vi. Kiểm tra và khai báo đủ sản phẩm/kho trước khi lập kế hoạch.",
+        invalid_input: "Hãy kiểm tra các trường, ngày và phạm vi được chọn.",
         supply_schema_required: "Quản lý tình trạng cung cấp chưa được bật cho dữ liệu này.",
         supply_conflict: "Lịch cung cấp đã thay đổi hoặc ngày đang chọn không còn phù hợp. Tải lại và kiểm tra ngày trước khi lưu.",
         invalid_supply_history: "Chưa thể đọc lịch cung cấp của kế hoạch này. Hãy chọn kế hoạch khác hoặc tạo mới.",

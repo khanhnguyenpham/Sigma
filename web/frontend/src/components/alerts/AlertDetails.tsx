@@ -16,6 +16,8 @@ import type { PurchasingView } from "../../types/context";
 import { Icon } from "../ui/Icon";
 import { Table } from "../ui/Table";
 import { alertTypeLabel } from "../../utils/labels";
+import { TradeRights, TradeQuantities } from "../products/TradePresentation";
+import { isTradeRow, canRecommend, capLabel } from "../../utils/trade";
 
 export function AlertDetails({
   focused,
@@ -49,7 +51,7 @@ export function AlertDetails({
         </div>
         <div>
           <dt>Trạng thái</dt>
-          <dd>{badge(focused.replenishment_allowed === false ? focused.sell_through_state ?? "stopped" : focused.state)}</dd>
+          <dd>{badge(focused.sales_allowed===false?"provider_blocked":focused.cap_reason?"purchase_limited":focused.replenishment_allowed === false ? focused.sell_through_state ?? "stopped" : focused.state)}</dd>
         </div>
         <div>
           <dt>Ngày quyết định · UTC</dt><dd>{text(focused.as_of_date)}</dd>
@@ -67,10 +69,9 @@ export function AlertDetails({
         </div>
         <div><dt>Số ngày tới lúc cạn</dt><dd>{fmt(focused.lead_days)}</dd></div>
       </dl>
-      {focused.supply_status != null && <p>{badge(focused.supply_status)}</p>}
-      {focused.replenishment_allowed === false && <p className="notice">Thông tin theo dõi bán tồn; sản phẩm đã ngừng nhập, không đặt lô mới. Lô đã đặt vẫn về theo ETA.</p>}
+      {isTradeRow(focused)?<><TradeRights row={focused} /><TradeQuantities row={focused} /></>:<>{focused.supply_status != null && <p>{badge(focused.supply_status)}</p>}{focused.replenishment_allowed === false && <p className="notice">Thông tin theo dõi bán tồn; sản phẩm đã ngừng nhập, không đặt lô mới. Lô đã đặt vẫn về theo ETA.</p>}</>}
       <p className="notice subtle">
-        {focused.replenishment_allowed === false ? "Theo dõi ngày xuống ngưỡng hoặc cạn để bán lượng tồn còn lại." : projected
+        {focused.sales_allowed===false?"Nhà mạng chặn mua và bán mới. Tín hiệu tồn là chẩn đoán, không yêu cầu nhập thêm hoặc xuất tồn bị chặn.":focused.cap_reason?capLabel(focused.cap_reason):focused.replenishment_allowed === false ? "Theo dõi ngày xuống ngưỡng hoặc cạn để bán lượng tồn còn lại." : projected
           ? `Tồn tại quyết định chưa dưới ROP. Lần đầu tồn cuối ngày dự kiến < ROP là ${text(focused.predicted_threshold_date)} trong N ngày. Ngày cạn được đọc từ tín hiệu Nguy cơ cạn riêng của mặt hàng.`
           : focused.alert_type === "below_rop"
             ? focused.state === "pending_covers"
@@ -109,6 +110,7 @@ export function AlertDetails({
                   strokeWidth={2.5}
                   dot={false}
                 />
+                {isTradeRow(focused) && <><Line dataKey="closing_sellable" name="Tồn được bán" stroke="#299581" dot={false} /><Line dataKey="closing_blocked" name="Tồn bị chặn" stroke="#ad6d2f" strokeDasharray="6 3" dot={false} /></>}
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -122,6 +124,7 @@ export function AlertDetails({
               { key: "date", label: "Ngày UTC" },
               { key: "receipts_qty", label: "Hàng đã biết về đầu ngày" },
               { key: "closing_forecast", label: "Tồn cuối ngày dự kiến" },
+              ...(isTradeRow(focused)?[{key:"projected_sales_qty",label:"Dự kiến bán"},{key:"sales_blocked_qty",label:"Bị chặn bán"},{key:"unserved_stock_qty",label:"Thiếu do tồn"},{key:"closing_sellable",label:"Tồn được bán"},{key:"closing_blocked",label:"Tồn bị chặn"}]:[]),
             ]} />
           </details>
         </>
@@ -145,7 +148,7 @@ export function AlertDetails({
           </dl>
           {Boolean(focused.exclusion_reason) && (
             <p className="caption">
-              Không chấm: {text(focused.exclusion_reason)}
+              Không chấm: {focused.exclusion_reason==="provider_sales_blocked"?"Loại cả cửa sổ do hạn chế bán của nhà mạng; không tính lượng bị chặn là thiếu hàng.":text(focused.exclusion_reason)}
             </p>
           )}
         </div>
@@ -158,7 +161,7 @@ export function AlertDetails({
           >
             Kiểm tra tồn kho <Icon name="arrow" size={16} />
           </button>
-          {focused.replenishment_allowed !== false && <button
+          {canRecommend(focused) && <button
             className="secondary"
             onClick={() => onItem(focused, "replenishment")}
           >

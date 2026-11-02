@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { api } from "../services/http";
 
-export function useResource<T>(path: string | null, keepPrevious = false) {
+export function useResource<T>(path: string | null, keepPrevious = false, refreshKey = 0) {
   const [revision, setRevision] = useState(0);
   useEffect(() => {
     const refresh = () => setRevision((v) => v + 1);
@@ -36,7 +36,7 @@ export function useResource<T>(path: string | null, keepPrevious = false) {
           setState({ path, loading: false, error });
       });
     return () => controller.abort();
-  }, [path, revision]);
+  }, [path, revision, refreshKey]);
   return state.path === path || keepPrevious
     ? state
     : { loading: !!path, data: undefined, error: undefined };

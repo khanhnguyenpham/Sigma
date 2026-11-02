@@ -45,17 +45,24 @@ def impact_data(session, draft, ids):
         row = inventory.get(item)
         per_item[item] = dict(stock_qty=row["closing_qty"] if row else None,
             frozen_recommended_qty=row["recommended_qty"] if row else None,
+            sellable_qty=row.get('sellable_qty') if row else None,
+            blocked_qty=row.get('blocked_qty') if row else None,
+            frozen_q_policy=row.get('q_policy') if row else None,
+            frozen_cap_reason=row.get('cap_reason') if row else None,
             pending_qty=sum(r["ordered_qty"] for r in incoming if r["item_id"] == item) if row else None,
             incoming_on_or_after_effective_qty=sum(r["ordered_qty"] for r in incoming
                 if r["item_id"] == item and r["eta"] >= draft.effective_on) if row else None)
     complete = len(inventory) == len(ids)
+    trade_quantities = complete and all(r.get('sellable_qty') is not None and r.get('blocked_qty') is not None for r in inventory.values())
     return dict(empty, run_id=str(run.id), as_of_date=day, config_sha256=run.config_sha256,
         inventory_items=len(inventory), inventory_complete=complete,
         stock_qty=sum(r["closing_qty"] for r in inventory.values()) if complete else None,
         pending_qty=sum(r["ordered_qty"] for r in incoming) if complete else None,
         incoming_on_or_after_effective_qty=sum(r["ordered_qty"] for r in incoming if r["eta"] >= draft.effective_on) if complete else None,
         known_orders_through=known,
-        quantity_basis="frozen_plan_at_selected_date", rights_quantities_available=False), per_item
+        sellable_qty=sum(r['sellable_qty'] for r in inventory.values()) if trade_quantities else None,
+        blocked_qty=sum(r['blocked_qty'] for r in inventory.values()) if trade_quantities else None,
+        quantity_basis="frozen_plan_at_selected_date", rights_quantities_available=trade_quantities), per_item
 
 
 def rights_view(state):

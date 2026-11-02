@@ -1,5 +1,25 @@
 # Kế hoạch dự án SIGMA
 
+<a id="chg-085-publish"></a>
+## CHG-085 — Đóng gói worker, kết quả và giao diện, 02/11/2026
+
+Người dùng giao “Đẩy hết mấy cái vừa làm lên github đi”: cho phép commit/push thường toàn bộ code/tests/docs CHG-085 giai đoạn4–6 lên final-report. Quyền này thay điểm dừng chưa publish của các checkpoint4–6 bên dưới; không mở giai đoạn7–8. Kiểm publish hiện tại: 478Python BE/M2 chạy lại đạt; 88React của bản FE giữ nguyên hash đã đạt, build TypeScript/Vite và pipcheck chạy lại đạt. Browser1440/390px và hash DB/tệp bảo vệ đã kiểm ở6; không dùng số này làm nghiệm thu R07/T14. Phạm vi commit là75tệp trong manifest code/tests/docs đã kiểm; COMMIT_BLOCK_PLAN.md vẫn untracked/nguyên nội dung, không stage raw/run/DB/env/build/output local. DBapp0007 và hai bản sao giữ nguyên, không cutover/chạy nguồn thật. Cổng: local → commit tên theo thay đổi → push thường → SHAremote khớp → hai workflow CI success; sau đó dừng trước7, R07/T14 giữ mở. [Bàn giao](../development.md#handoff-chg085-publish).
+
+<a id="chg-085-phase6"></a>
+## CHG-085 giai đoạn 6 — Frontend, 02/11/2026
+
+**CHG-085 giai đoạn 6 — 02/11/2026, hoàn tất local FE:** modal ngừng nhập nội bộ cùng ngày, trang thông báo nhà mạng/phạm vi nhiều kho, preview và hai quyền riêng; vận hành hiển thị lượng bán/tồn bị chặn/Q/cap từ frozen. Baseline74, suite cuối88React (gồm22ca liên quan), 37ca hợp đồng BE, build/pipcheck và browser1440/390px synthetic đạt. DBapp vẫn0007; không cutover/nguồn thật/bước8 cũ. Bước4–6cònlocal, chưa commit/push; dừng trước7, R07/T14 giữ mở. Thực hiện trên4–5cònlocal từ6efadcd/final-report. [FE thực có](../../M3/docs/07-product-supply-lifecycle.md#phase6-implemented), [kiểm/bảo toàn](../development.md#handoff-chg085-phase6). Không tự publish hoặc làm7.
+
+<a id="chg-085-phase5"></a>
+## CHG-085 giai đoạn 5 — Read model và CSV, 02/11/2026
+
+**CHG-085 giai đoạn 5 — 02/11/2026, hoàn tất local:** đã mở API kết quả/CSV trade_v2 từ ledger, projection và snapshot frozen; lọc hai quyền/trạng thái trước count/page/aggregate, counters riêng và metric có scope/exclusions. Baseline11/targeted62/suite478 Python BE/M2 và pip check đạt. DB ứng dụng vẫn 0007, hai bản sao/bằng chứng cũ giữ nguyên; không FE/cutover/nguồn thật. Chưa commit/push bước 4–5; dừng trước 6. R07/T14 giữ mở. Người dùng giao tiếp5 trên phần4cònlocal từ6efadcd; không tự publish4–5 hoặc làm6. [Thực có](../../M3/docs/07-product-supply-lifecycle.md#phase5-implemented), [kiểm/bảo toàn](../development.md#handoff-chg085-phase5).
+
+<a id="chg-085-phase4"></a>
+## CHG-085 giai đoạn 4 — Worker, projection và verifier, 02/11/2026
+
+**CHG-085 giai đoạn 4 — 02/11/2026, hoàn tất local:** worker/projection và verifier độc lập đã thực thi trade_v2; 40 ca trade mới, 152 ca targeted và toàn suite 459 Python BE/M2 đạt, pip check đạt. Tồn tổng được giữ, sale bị chặn ghi riêng, Q áp cap nguyên lô/ETA/coverage và metric loại cả item-window bị chặn. DB ứng dụng/bản sao cũ chỉ đọc, không cutover hoặc chạy nguồn thật. Bước 5–8 chưa làm; chưa commit/push bước 4 trong lượt này. R07/T14 giữ mở. Người dùng giao “Tiếp tục bước 4 đi” từ 6efadcd trên final-report. [Phần thực](../../M3/docs/07-product-supply-lifecycle.md#phase4-implemented), [bàn giao/kiểm](../development.md#handoff-chg085-phase4). Không tiếp tục bước 8 CHG-084 hoặc tự làm bước 5.
+
 <a id="chg-085-phase3"></a>
 ## CHG-085 giai đoạn3 — API, snapshot và tương thích, 02/11/2026
 

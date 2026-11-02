@@ -4,6 +4,7 @@ from core.run_context import required_run
 from modules.reporting.schemas import Filters
 from modules.reporting.service import context, dataset
 from modules.reporting.supply import operational_rows
+from modules.reporting.trade import is_trade, counters, RIGHT_FILTERS, matches as trade_matches, validate_filters
 
 def purchasing_data(session, key, filters):
     run = required_run(session, key, complete=True)
@@ -12,9 +13,11 @@ def purchasing_data(session, key, filters):
     day = filters.as_of_date
     base = Filters(
         **filters.model_dump(
-            include={"warehouse_id", "item_id", "supplier_id", "product_type", "as_of_date"}
+            include={"warehouse_id", "item_id", "supplier_id", "product_type", "as_of_date",'sku','destination_country','carrier','window_origin',*RIGHT_FILTERS}
         )
     )
+    validate_filters(run,base)
+    if is_trade(run):base=base.model_copy(update={k:None for k in RIGHT_FILTERS})
     inventory, _ = dataset(
         session,
         run,
@@ -39,6 +42,9 @@ def purchasing_data(session, key, filters):
         return all(word in haystack for word in words)
 
     inventory, lots = operational_rows(inventory, lots)
+    if is_trade(run):
+        inventory=[r for r in inventory if trade_matches(r,filters)]
+        lots=[r for r in lots if trade_matches(r,filters)]
     inventory = [row for row in inventory if matches(row)]
     recommendations = [
         {**row, "operational_status": "low_stock"}
@@ -68,6 +74,7 @@ def purchasing_data(session, key, filters):
         pending_units=sum(row["ordered_qty"] for row in incoming),
         historical_lots=len(history),
     )
+    if is_trade(run):summary.update(counters(inventory))
     rows = {
         "recommendations": recommendations,
         "incoming": incoming,

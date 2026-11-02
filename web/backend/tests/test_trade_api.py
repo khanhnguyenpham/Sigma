@@ -280,13 +280,13 @@ def test_new_profile_guards_worker_verifier_and_legacy_bypass(pg, tmp_path):
         serve(cfg, once=True)
         with sessions() as s:
             run = s.get(Run,key)
-            assert run.status == "failed" and run.error_code == "stage_not_implemented"
+            # This fixture deliberately has only one forecast target. Stage 4
+            # reaches H14 input validation rather than the old implementation guard.
+            assert run.status == "failed" and run.error_code == "insufficient_forecast"
             assert s.scalar(select(func.count()).select_from(InventoryDaily).where(InventoryDaily.run_id==key)) == 0
-        with sessions.begin() as s:
-            s.get(Run,key).status = "complete"
         with pytest.raises(DomainError) as exc:
             verify_run(cfg,sessions,key)
-        assert exc.value.code == "stage_not_implemented"
+        assert exc.value.code == "run_not_complete"
         assert client.get(f"/api/v1/runs/{key}/inventory").status_code == 409
 
 

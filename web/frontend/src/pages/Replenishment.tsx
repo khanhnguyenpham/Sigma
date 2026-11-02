@@ -17,6 +17,8 @@ import { Card } from "../components/ui/Card";
 
 import { Icon } from "../components/ui/Icon";
 import { warehouseName } from "../utils/warehouse";
+import { TradeTotals } from "../components/products/TradePresentation";
+import { isTradeRun, capLabel, providerLabel, internalLabel } from "../utils/trade";
 
 interface PurchasingData extends Page {
   summary: Row;
@@ -162,6 +164,7 @@ export function Replenishment({
             </div>
           )}
           {Number(s?.supply_stopped_items ?? 0) > 0 && <p className="notice">{fmt(s?.supply_stopped_items)} sản phẩm đã ngừng nhập, không có đề xuất lô mới. Lô đã đặt vẫn được nhận theo ETA.</p>}
+          <TradeTotals summary={s} />
           <Panel
             title="Danh sách nhập hàng"
             note={`Ngày kế hoạch ${ctx.origin} · UTC`}
@@ -231,7 +234,7 @@ export function Replenishment({
               rows={rows}
               onRow={(row) => setSelection({ key, row })}
               columns={[
-                { key: "supply_status", label: "Cung cấp", render: (v) => v ? badge(v) : "Chưa có trạng thái trong kế hoạch" },
+                ...(isTradeRun(run)?[{key:"internal_status",label:"Nhập nội bộ",render:internalLabel},{key:"provider_status",label:"Nhà mạng",render:providerLabel},{key:"needs_supplier_action",label:"Xử lý lô",render:(v:unknown)=>v===true?"Cần xử lý với nhà cung cấp":v==null?"Chưa có dữ liệu":"Theo lịch đã chốt"}]:[{ key: "supply_status", label: "Cung cấp", render: (v:unknown) => v ? badge(v) : "Chưa có trạng thái trong kế hoạch" }]),
                 ...(view !== "recommendations"
                   ? [
                       {
@@ -269,6 +272,7 @@ export function Replenishment({
                       { key: "closing_qty", label: "Tồn hiện có" },
                       { key: "pending_qty", label: "Đang về" },
                       { key: "rop", label: "Ngưỡng nhập" },
+                      ...(isTradeRun(run)?[{key:"q_policy",label:"Q trước giới hạn"},{key:"q_final",label:"Q sau giới hạn"},{key:"cap_reason",label:"Lý do giới hạn",render:(v:unknown,r:Row)=>r.quantity_diagnostics_available===false?"Chưa có dữ liệu":capLabel(v)}]:[]),
                       {
                         key: "recommended_qty",
                         label: "Cần đặt",

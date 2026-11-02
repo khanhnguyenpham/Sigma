@@ -5,6 +5,7 @@ export class ApiError extends Error {
     public code: string,
     message: string,
     public status: number,
+    public details?: { fields?: { location: (string | number)[]; type: string }[] },
   ) {
     super(message);
   }
@@ -38,6 +39,7 @@ export async function api<T>(
         data.error?.code ?? "network_error",
         data.error?.message ?? "Không thể tải dữ liệu",
         response.status,
+        data.error?.details,
       );
       return data as T;
     })()]);

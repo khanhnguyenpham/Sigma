@@ -20,6 +20,8 @@ import { Icon } from "../components/ui/Icon";
 import type { WorkspaceData } from "../types/api";
 import { WarehouseDirectory } from "../components/inventory/WarehouseDirectory";
 import { warehouseName } from "../utils/warehouse";
+import { TradeTotals } from "../components/products/TradePresentation";
+import { isTradeRun } from "../utils/trade";
 export function Inventory({
   run,
   ctx,
@@ -133,6 +135,7 @@ export function Inventory({
             />
           </div>}
           <State loading={summary.loading} error={summary.error} />
+          <TradeTotals summary={s} />
           {!insideWarehouse ? <WarehouseDirectory key={run?.id} warehouses={warehouses} stock={summary.data?.warehouse_stock}
             loading={catalog?.loading} error={catalog?.error} onChoose={onWarehouse} /> :
           catalog?.data && !warehouse ? <div className="notice error" role="alert">Không tìm thấy kho trong phương án này. Hãy quay lại danh sách kho.</div> : <Panel
@@ -195,6 +198,7 @@ export function Inventory({
                     label: "Nhà mạng",
                   },
                   { key: "closing_qty", label: "Tồn hiện có" },
+                  ...(isTradeRun(run)?[{key:"sellable_qty",label:"Tồn được bán"},{key:"blocked_qty",label:"Tồn bị chặn"}]:[]),
                   { key: "rop", label: "Ngưỡng nhập" },
                   { key: "pending_qty", label: "Đang về" },
                   {

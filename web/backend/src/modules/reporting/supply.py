@@ -70,6 +70,8 @@ def sell_through_data(session, run, filters, items, warehouses, selected, pagina
     origin = filters.as_of_date or run.as_of_date
     query = select(Alert).where(Alert.run_id == run.id, Alert.alert_type == "depletion",
                                 Alert.as_of_date == origin, Alert.item_id.in_(selected)).order_by(Alert.item_id)
+    if filters.window_origin:
+        query=query.where(Alert.window_origin==filters.window_origin)
     rows = []
     # ponytail: materialize one H14 origin; use SQL JSON expansion if catalog size outgrows memory.
     for alert in session.scalars(query):

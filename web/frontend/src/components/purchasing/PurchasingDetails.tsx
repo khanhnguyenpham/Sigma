@@ -5,6 +5,8 @@ import { badge } from "../ui/Badge";
 import { DetailDrawer } from "../ui/DetailDrawer";
 import { Icon } from "../ui/Icon";
 import { warehouseName } from "../../utils/warehouse";
+import { TradeRights, TradeQuantities } from "../products/TradePresentation";
+import { isTradeRow } from "../../utils/trade";
 
 export function PurchasingDetails({
   focused,
@@ -44,8 +46,7 @@ export function PurchasingDetails({
           <p>Kho nhận hàng: <strong>{warehouseName(focused)}</strong></p>
         </div>
       </div>
-      {focused.supply_status != null && <p>{badge(focused.supply_status)}</p>}
-      {focused.replenishment_allowed === false && <p className="notice">Đã ngừng nhập. Lô đã đặt vẫn nhận đúng ETA để bán tiếp.</p>}
+      {isTradeRow(focused)?<><TradeRights row={focused} />{view==="recommendations" && <TradeQuantities row={focused} />}</>:<>{focused.supply_status != null && <p>{badge(focused.supply_status)}</p>}{focused.replenishment_allowed === false && <p className="notice">Đã ngừng nhập. Lô đã đặt vẫn nhận đúng ETA để bán tiếp.</p>}</>}
       {view === "recommendations" ? (
         <>
           <div className="decision-callout">

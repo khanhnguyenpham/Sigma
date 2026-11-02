@@ -22,6 +22,7 @@ import { label } from "../utils/labels";
 import { resultQuery } from "../utils/url";
 import { type Run, type Row } from "../types/api";
 import { type Context } from "../types/context";
+import { TradeTotals } from "../components/products/TradePresentation";
 
 
 export function Overview({
@@ -129,7 +130,8 @@ export function Overview({
       ) : (
         <>
           <State loading={resource.loading} error={resource.error} />
-          {Number(s?.supply_stopped_items ?? 0) > 0 && <p className="notice">{fmt(s?.supply_stopped_items)} sản phẩm đã ngừng nhập trong kế hoạch này; theo dõi bán tồn và lô đã đặt.</p>}
+          <TradeTotals summary={s} />
+          {Number(s?.supply_stopped_items ?? 0) > 0 && <p className="notice">{fmt(s?.supply_stopped_items)} sản phẩm đã ngừng nhập trong kế hoạch này; chỉ bán tồn được phép bán và giữ các lô đã đặt.</p>}
           <div className="stats">
             <Card
               label="Tồn hiện có"

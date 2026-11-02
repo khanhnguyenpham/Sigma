@@ -1,5 +1,31 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+<a id="chg085-publish"></a>
+## CHG-085 — 02/11/2026, bổ sung quyền publish code đã hoàn tất
+
+Người dùng giao “Đẩy hết mấy cái vừa làm lên github đi”: cho phép commit/push thường toàn bộ code/tests/docs CHG-085 giai đoạn4–6 lên final-report. Quyền này thay điểm dừng chưa publish của các checkpoint4–6 bên dưới; không mở giai đoạn7–8. Phạm vi commit là75tệp trong manifest code/tests/docs đã kiểm; COMMIT_BLOCK_PLAN.md vẫn untracked/nguyên nội dung, không stage raw/run/DB/env/build/output local. DBapp0007 và hai bản sao giữ nguyên, không cutover/chạy nguồn thật. Cổng: local → commit tên theo thay đổi → push thường → SHAremote khớp → hai workflow CI success; sau đó dừng trước7, R07/T14 giữ mở. Không thay tác giả/lịch sử Git theo kế hoạch phân bổ cũ. Kiểm publish hiện tại: 478Python BE/M2 chạy lại đạt; 88React của bản FE giữ nguyên hash đã đạt, build TypeScript/Vite và pipcheck chạy lại đạt. Browser1440/390px và hash DB/tệp bảo vệ đã kiểm ở6; không dùng số này làm nghiệm thu R07/T14. [Bàn giao](development.md#handoff-chg085-publish).
+
+<a id="chg085-phase6"></a>
+## CHG-085 — 02/11/2026, giao riêng frontend
+
+Nguồn trực tiếp: “Tiếp tục bước 6 đi”. Quyền lượt này là FE trên phụ thuộc4–5cònlocal; chưa có yêu cầu publish4–6, không mở cutover7 hoặc run thật/bước8 cũ. Giữ final-report/6efadcd, DBapp0007 và COMMIT_BLOCK_PLAN.md untracked. R07/T14 chưa nghiệm thu.
+
+Đã tách modal nội bộ và provider management, scope nhiều kho khai báo rõ, preview/version/fingerprint/refetch và hai quyền frozen trên vận hành. Browser bắt lỗi query refresh bị DTO chặt từ chối và nút Back mất chữ trên390px: chuyển refresh về hook, sửa bố cục và kiểm lại. Test mock nay từ chối tham số v để giữ hồi quy. Không nới BE validator, không thêm dependency hoặc sửa số cũ. [Triển khai/giới hạn](../M3/docs/07-product-supply-lifecycle.md#phase6-implemented), [bàn giao](development.md#handoff-chg085-phase6).
+
+<a id="chg085-phase5"></a>
+## CHG-085 — 02/11/2026, giao riêng read model/API kết quả/CSV
+
+Nguồn trực tiếp: “Tiếp tục làm bước 5 đi”. Mở reader trade_v2 từ dữ liệu worker4đã lưu, không đổi phép tính hoặc mở FE/cutover. Bước4cònlocal là phụ thuộc, chưa có yêu cầu commit/push4–5; quyền publish3đã hoàn tất trước đó. Các run/bản sao/bằng chứng CHG-084 không sửa/chạy lại, COMMIT_BLOCK_PLAN.md giữ untracked.
+
+Đã công khai scope/profile/quantities/rights/cap và metric basis/exclusions; bộ lọc trước page/aggregate, operational newest window trước rights filter. Metric alert scoped lấy cả origin-window, không chọn bỏ ngày xấu; raw forecast score giữ nguồn actual. Legacy thiếu tính năng409, quantity không có diagnostic trảnull thay vì0. [Fields thực](../M3/docs/07-product-supply-lifecycle.md#phase5-implemented), [bàn giao](development.md#handoff-chg085-phase5). R07/T14 mở.
+
+<a id="chg085-phase4"></a>
+## CHG-085 — 02/11/2026, giao riêng worker/projection/verifier
+
+Nguồn trực tiếp: “Tiếp tục bước 4 đi”. Phạm vi mới mở phép tính trade_v2 trên synthetic DBtest, không mở read model/CSV/FE/cutover hoặc nguồn thật. Quyền publish bước 3 đã hoàn tất tại 6efadcd với remote SHA và hai CI success; chưa có yêu cầu publish riêng bước 4 trong lượt này. Giữ COMMIT_BLOCK_PLAN.md untracked, DB ứng dụng và hai bản sao chỉ đọc.
+
+Đã tính cap nguyên lô theo ETA/ngân sách thiếu dự báo trước hạn/coverage; không sửa fixed_order_qty, ROP/SS hoặc giả forecast ngoài H14. Sale bị provider chặn giữ lượng nguồn và tồn, không đồng thời tính shortage. Metric cảnh báo loại cả item-window bị chặn và công khai lý do/ngày/notice; raw forecast và R07/T14 giữ nghĩa cũ. [Đặc tả thực](../M3/docs/07-product-supply-lifecycle.md#phase4-implemented), [kiểm/bảo toàn](development.md#handoff-chg085-phase4).
+
 <a id="chg085-phase3"></a>
 ## CHG-085 — 02/11/2026, giao3 API/snapshot rồi giao publish
 

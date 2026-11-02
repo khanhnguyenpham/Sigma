@@ -53,8 +53,11 @@ def metrics(key: uuid.UUID, request: Request, filters: Annotated[Filters, Query(
     with request.app.state.sessions() as s:
         run = required_run(s, key, complete=True)
         records = metric_records(s, run, filters)
+        metadata=context(run)
+        if filters.granularity=='allocated_daily' and 'trade_lifecycle_profile' in metadata:
+            metadata.update(metric_basis='raw_source_sales',trade_quantities_available=False)
         return dict(
-            context=context(run),
+            context=metadata,
             items=records[
                 (filters.page - 1) * filters.page_size : filters.page
                 * filters.page_size
@@ -89,6 +92,8 @@ def exports(
             else dataset(s, run, allowed[name], first)[0]
         )
         metadata = context(run)
+        if name=='metrics' and filters.granularity=='allocated_daily' and 'trade_lifecycle_profile' in metadata:
+            metadata.update(metric_basis='raw_source_sales',trade_quantities_available=False)
         metadata.update(
             source_sha256=run.source_sha256,
             config_sha256=run.config_sha256,

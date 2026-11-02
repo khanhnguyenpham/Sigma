@@ -14,7 +14,7 @@ from modules.reporting.router import result_response
 
 router = APIRouter(prefix="/api/v1/runs")
 
-@router.get("/{key}/alerts", response_model=AlertPage)
+@router.get("/{key}/alerts", response_model=AlertPage, response_model_exclude_unset=True)
 def alerts(key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]):
     return result_response(request, key, "alerts", filters)
 

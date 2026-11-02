@@ -5,6 +5,7 @@ import { label, errorLabel } from "../../utils/labels";
 import { useResource } from "../../hooks/useResource";
 import { State } from "../ui/State";
 import { useDialogFocus } from "../../hooks/useDialogFocus";
+import { TRADE_PROFILE } from "../../utils/trade";
 export function RunDialog({
   runs,
   onClose,
@@ -47,15 +48,17 @@ export function RunDialog({
     "policy_replay",
     "alert_replay",
   ].includes(kind);
+  const capability=useResource<Page>(needsScenario?"/products?page_size=1":null);
   const unavailable =
     needsScenario &&
     (scenarios.loading ||
       !!scenarios.error ||
       !scenarios.data?.items.length ||
       !selectedForecast);
+  const capabilityPending=needsScenario && (capability.loading || !!capability.error);
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (sending.current || unavailable) return;
+    if (sending.current || unavailable || capabilityPending) return;
     const form = new FormData(e.currentTarget);
     const forecast = forecasts.find(
       (r) => r.id === String(form.get("forecast_run_id")),
@@ -71,6 +74,7 @@ export function RunDialog({
     if (["policy_replay", "alert_replay", "stock_projection"].includes(kind)) {
       body.forecast_run_id = forecast?.id;
       body.scenario_id = Number(form.get("scenario_id"));
+      if(capability.data?.items[0]?.trade_schema_ready===true)body.trade_lifecycle_profile=TRADE_PROFILE;
     }
     if (kind.endsWith("replay")) {
       body.period_start = String(form.get("period_start"));
@@ -234,12 +238,14 @@ export function RunDialog({
             Nhập kho sau 7 ngày, kiểm tra tồn mỗi ngày và dự phóng 14 ngày.
             Phương án được xử lý nền; không gửi đơn đến nhà cung cấp thật.
           </div>
+          {needsScenario && <State loading={capability.loading} error={capability.error} />}
+          {capability.error && <button type="button" onClick={()=>window.dispatchEvent(new Event("sigma:refresh"))}>Tải lại khả năng lập kế hoạch</button>}
           {error && (
             <div role="alert" className="notice error">
               {errorLabel(error)}
             </div>
           )}
-          <button className="primary" disabled={busy || !!unavailable}>
+          <button className="primary" disabled={busy || !!unavailable || capabilityPending}>
             {busy ? "Đang gửi yêu cầu…" : "Bắt đầu lượt chạy"}
           </button>
         </form>

@@ -17,7 +17,7 @@ export function Table({
   onRow?: (row: Row) => void;
 }) {
   return (
-    <div className="table-scroll">
+    <div className="table-scroll" role="region" aria-label="Bảng dữ liệu, có thể cuộn ngang" tabIndex={0}>
       <table>
         <thead>
           <tr>

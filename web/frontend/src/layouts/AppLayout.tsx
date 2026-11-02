@@ -38,7 +38,7 @@ export function AppLayout({
     setRefresh,
     navigate,
   } = app;
-  const managementPage = ["configuration", "products", "product"].includes(page);
+  const managementPage = ["configuration", "products", "product"].includes(page) || page.startsWith("provider-");
   return (
     <div className={"shell " + (navOpen ? "nav-open" : "")}>
       <a

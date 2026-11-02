@@ -2,8 +2,9 @@ from datetime import date
 from typing import Literal
 from pydantic import Field
 from core.schemas import DTO
+from modules.reporting.schemas import TradeFilters
 
-class WorkspaceFilters(DTO):
+class WorkspaceFilters(TradeFilters):
     as_of_date: date
     warehouse_id: int | None = Field(default=None, gt=0)
     item_id: int | None = Field(default=None, gt=0)

@@ -19,6 +19,11 @@ export function resultQuery(
     item_id: ctx.itemId,
     product_type: ctx.productType,
     supplier_id: ctx.supplierId,
+    internal_status: ctx.internalStatus,
+    provider_status: ctx.providerStatus,
+    replenishment_allowed: ctx.replenishmentAllowed,
+    sales_allowed: ctx.salesAllowed,
+    window_origin: ctx.windowOrigin,
     ...extra,
   });
 }
@@ -32,6 +37,7 @@ export function readContext(): Context {
     productType: p.get("product_type") ?? "",
     supplierId: p.get("supplier_id") ?? "",
     origin: p.get("origin") ?? "",
+    ...Object.fromEntries([["internal_status","internalStatus"],["provider_status","providerStatus"],["replenishment_allowed","replenishmentAllowed"],["sales_allowed","salesAllowed"],["window_origin","windowOrigin"]].filter(([key])=>p.has(key)).map(([key,value])=>[value,p.get(key)])),
   };
 }
 
@@ -43,7 +49,19 @@ export function contextUrl(ctx: Context) {
     product_type: ctx.productType,
     supplier_id: ctx.supplierId,
     origin: ctx.origin,
+    internal_status: ctx.internalStatus,
+    provider_status: ctx.providerStatus,
+    replenishment_allowed: ctx.replenishmentAllowed,
+    sales_allowed: ctx.salesAllowed,
+    window_origin: ctx.windowOrigin,
   });
+}
+
+export function navigationUrl(ctx:Context,page:string,view:PurchasingView) {
+  const params=new URLSearchParams(contextUrl(ctx));
+  if(page.startsWith("provider-"))new URLSearchParams(location.search).forEach((v,k)=>{if(k.startsWith("notice_"))params.set(k,v);});
+  if(page==="replenishment")params.set("view",view);
+  return "?"+params.toString()+"#"+page;
 }
 
 export function readPurchasingView(): PurchasingView {

@@ -3,6 +3,7 @@ import { Inventory } from "./pages/Inventory";
 import { Replenishment } from "./pages/Replenishment";
 import { Configuration } from "./pages/Configuration";
 import { Products, ProductDetail } from "./pages/Products";
+import { ProviderNotices } from "./pages/ProviderNotices";
 
 import { useAppContext } from "./hooks/useAppContext";
 
@@ -35,7 +36,7 @@ export default function App() {
   } = app;
   const props = { run, ctx, onChoose: chooseInventory, onItem: openItem };
   const node =
-    page === "products" ? (
+    page.startsWith("provider-") ? <ProviderNotices page={page} day={ctx.origin} runs={runs} run={run} navigate={navigate} onItem={row=>openItem(row,"product")} /> : page === "products" ? (
       <Products ctx={ctx} onContext={(patch) => app.setCtx((c) => ({ ...c, ...patch }))} onOpen={(row) => openItem(row, "product")} />
     ) : page === "product" ? (
       <ProductDetail run={run} ctx={ctx} onDate={(origin) => app.setCtx((c) => ({ ...c, origin }))} onNavigate={navigate} onItem={openItem}

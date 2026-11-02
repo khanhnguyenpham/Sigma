@@ -76,7 +76,8 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
             for operation in methods.values():
                 if not isinstance(operation, dict):
                     continue
-                operation["parameters"] = [p for p in operation.get("parameters", []) if p["name"] != "alert_type"]
+                operation["parameters"] = [p for p in operation.get("parameters", []) if p["name"] not in {
+                    'alert_type','sku','destination_country','carrier','window_origin','internal_status','provider_status','replenishment_allowed','sales_allowed'}]
                 if not operation["parameters"]:
                     operation.pop("parameters")
                 for p in operation.get("parameters", []):

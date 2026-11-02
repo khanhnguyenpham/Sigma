@@ -16,6 +16,7 @@ from core.errors import DomainError
 from modules.configuration.schemas import LEGACY_POLICY_DEFAULTS
 from src.evaluation import score
 from modules.reporting.supply import frozen_history, supply_fields, sell_through_data
+from modules.reporting.trade import is_trade, validate_filters, decorate_rows, matches, sell_through
 
 _ALLOCATED_METRICS = {}
 
@@ -29,7 +30,7 @@ MODELS = {
 
 
 def context(row):
-    return dict(
+    result = dict(
         run_id=str(row.id),
         kind=row.kind,
         status=row.status,
@@ -46,6 +47,12 @@ def context(row):
         is_simulated=row.kind in {"policy_replay", "alert_replay", "stock_projection"},
         evaluation_limit="Historical snapshot; inventory simulated; no independent holdout.",
     )
+    if is_trade(row):
+        result.update(trade_lifecycle_profile=row.config_snapshot['trade_lifecycle_profile'],
+            config_sha256=row.config_sha256,source_sha256=row.source_sha256,units='quantity',
+            metric_basis='allowed_scenario_sales',trade_quantities_available=True,
+            run_as_of_date=row.as_of_date.isoformat(),run_status=row.status)
+    return result
 
 
 def permitted_items(items, policies, filters, as_of):
@@ -60,6 +67,10 @@ def permitted_items(items, policies, filters, as_of):
         selected = {
             i for i in selected if items[i]["product_type"] == filters.product_type
         }
+    for field in ('sku','destination_country','carrier'):
+        value = getattr(filters,field,None)
+        if value is not None:
+            selected = {i for i in selected if items[i].get(field)==value}
     if filters.supplier_id:
         if not policies:
             raise DomainError(
@@ -77,6 +88,9 @@ def permitted_items(items, policies, filters, as_of):
 
 
 def dataset(session, run, name, filters, paginate=True):
+    inventory = name in {'inventory_daily','replenishments','alerts','sell_through'}
+    validate_filters(run,filters,inventory)
+    trade = is_trade(run) and inventory
     warehouses, items, policies = snapshot_maps(session, run)
     warehouses = warehouse_labels(session, warehouses)
     if filters.date_from and filters.date_to and filters.date_to < filters.date_from:
@@ -85,8 +99,10 @@ def dataset(session, run, name, filters, paginate=True):
         items, policies, filters, filters.as_of_date or run.as_of_date
     )
     if name == "sell_through":
+        if trade:
+            return sell_through(session,run,filters,items,warehouses,selected,paginate)
         return sell_through_data(session, run, filters, items, warehouses, selected, paginate)
-    histories = frozen_history(run) if name in {"inventory_daily", "replenishments", "alerts"} else None
+    histories = frozen_history(run) if inventory and not trade else None
     model = MODELS[name]
     if name in {"route_forecasts", "item_forecasts"} and run.kind != "forecast":
         raise DomainError("parent_mismatch", "This run has no forecast dataset", 409)
@@ -97,7 +113,7 @@ def dataset(session, run, name, filters, paginate=True):
     }:
         raise DomainError("parent_mismatch", "This run has no inventory dataset", 409)
     query = select(model).where(model.run_id == run.id)
-    if model is InventoryDaily:
+    if model is InventoryDaily and not trade:
         # Schema may still be 0007 before cutover; existing read models retain their contract.
         query = query.options(defer(InventoryDaily.source_sales_qty), defer(InventoryDaily.actual_blocked_qty))
     if filters.alert_type:
@@ -105,13 +121,17 @@ def dataset(session, run, name, filters, paginate=True):
             raise DomainError("invalid_input", "Alert type filter requires alerts")
         query = query.where(model.alert_type == filters.alert_type)
     if model is RouteForecast:
-        if filters.item_id or filters.product_type:
+        if filters.item_id or filters.product_type or filters.sku:
             raise DomainError(
                 "invalid_input",
                 "Item/type filtering requires allocated daily forecasts",
             )
         if filters.warehouse_id:
             query = query.where(model.warehouse_id == filters.warehouse_id)
+        if filters.destination_country or filters.carrier:
+            query = query.where(model.warehouse_id.in_([w['id'] for w in warehouses.values()
+                if (not filters.destination_country or w['destination_country']==filters.destination_country)
+                and (not filters.carrier or w['carrier']==filters.carrier)]))
         date_col = model.target_date
     else:
         query = query.where(model.item_id.in_(selected))
@@ -126,15 +146,21 @@ def dataset(session, run, name, filters, paginate=True):
         )
     if filters.as_of_date and hasattr(model, "as_of_date"):
         query = query.where(model.as_of_date == filters.as_of_date)
+    if filters.window_origin:
+        if not hasattr(model,'window_origin'):
+            raise DomainError('invalid_input','Window filter requires inventory results')
+        query = query.where(model.window_origin==filters.window_origin)
     if filters.as_of_date and model is Replenishment:
         query = query.where(model.ordered_on <= filters.as_of_date)
+    if trade and filters.as_of_date and model is InventoryDaily:
+        query = query.where(model.date==filters.as_of_date)
     if filters.block and model is RouteForecast:
         query = query.where(model.block == filters.block)
     if filters.date_from:
         query = query.where(date_col >= filters.date_from)
     if filters.date_to:
         query = query.where(date_col <= filters.date_to)
-    if filters.state:
+    if filters.state and not (trade and model is InventoryDaily):
         if model is Alert:
             query = query.where(model.state == filters.state)
         elif model is InventoryDaily:
@@ -214,7 +240,7 @@ def dataset(session, run, name, filters, paginate=True):
                 * filters.page_size
             ]
         return records, total
-    total = session.scalar(select(func.count()).select_from(query.with_only_columns(model.id).subquery()))
+    total = session.scalar(select(func.count()).select_from(query.with_only_columns(model.id).subquery())) if not trade else 0
     query = query.order_by(
         date_col,
         getattr(
@@ -222,14 +248,14 @@ def dataset(session, run, name, filters, paginate=True):
         ),
         model.id,
     )
-    if paginate:
+    if paginate and not trade:
         query = query.offset((filters.page - 1) * filters.page_size).limit(
             filters.page_size
         )
     output = []
     for row in session.scalars(query):
         r = {col.name: getattr(row, col.name) for col in row.__table__.columns
-             if model is not InventoryDaily or col.name not in {"source_sales_qty", "actual_blocked_qty"}}
+             if trade or model is not InventoryDaily or col.name not in {"source_sales_qty", "actual_blocked_qty"}}
         r.pop("run_id", None)
         if "item_id" in r:
             info = items[r["item_id"]]
@@ -266,9 +292,21 @@ def dataset(session, run, name, filters, paginate=True):
             r["eta_if_ordered"] = (
                 r["date"] + timedelta(days=7) if r["recommended_qty"] else None
             )
-        if model in (InventoryDaily, Replenishment, Alert):
+        if model in (InventoryDaily, Replenishment, Alert) and not trade:
             r.update(supply_fields(run, histories, r, filters.as_of_date))
         output.append(r)
+    if trade:
+        # ponytail: materialize the selected recorded scope before rights/count;
+        # move frozen-state predicates into SQL if replay size outgrows memory.
+        output = decorate_rows(session,run,output,name,filters.as_of_date)
+        output = [r for r in output if matches(r,filters)]
+        if filters.state and model is InventoryDaily:
+            if filters.state not in {'low_stock','pending_covers','sufficient'}:
+                raise DomainError('invalid_input','Unsupported inventory state')
+            output = [r for r in output if (not r['stock_below_rop'] if filters.state=='sufficient' else
+                r['stock_below_rop'] and (r.get('q_policy')==0 and r.get('cap_reason') is None if filters.state=='pending_covers' else True))]
+        total = len(output)
+        if paginate:output=output[(filters.page-1)*filters.page_size:filters.page*filters.page_size]
     return output, total
 
 
@@ -356,7 +394,15 @@ def allocated_metrics(session, run):
 def metric_records(session, run, filters):
     if filters.alert_type:
         raise DomainError("invalid_input", "Alert type filter requires alerts")
+    if is_trade(run) and filters.granularity != 'allocated_daily':
+        from modules.reporting.trade import metric_records as trade_metrics
+        return trade_metrics(session,run,filters)
+    validate_filters(run,filters,False)
+    if filters.window_origin:
+        raise DomainError('invalid_input','Window filter requires trade replay metrics')
     if filters.granularity == "allocated_daily":
+        if any(getattr(filters,k) is not None for k in ('sku','item_id','supplier_id','product_type','as_of_date','date_from','date_to')):
+            raise DomainError('invalid_input','Allocated forecast metrics require their stored route/split/cadence scope')
         if run.kind != "forecast":
             run = required_run(session, run.forecast_run_id, "forecast", complete=True)
         records = allocated_metrics(session, run)
@@ -376,7 +422,7 @@ def metric_records(session, run, filters):
             }
             for r in records
         ]
-    for name in ["warehouse_id", "block", "cadence", "granularity", "split"]:
+    for name in ["warehouse_id", "block", "cadence", "granularity", "split",'destination_country','carrier']:
         value = getattr(filters, name)
         if value is not None:
             records = [r for r in records if r.get(name) == value]

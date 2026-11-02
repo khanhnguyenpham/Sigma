@@ -3,6 +3,61 @@
 <a id="status"></a>
 ## 1. Thiết kế mới và phần đang chạy
 
+<a id="phase6-implemented"></a>
+### CHG-085 giai đoạn 6 — 02/11/2026, FE đã triển khai trên DBtest
+
+**CHG-085 giai đoạn 6 — 02/11/2026, hoàn tất local FE:** modal ngừng nhập nội bộ cùng ngày, trang thông báo nhà mạng/phạm vi nhiều kho, preview và hai quyền riêng; vận hành hiển thị lượng bán/tồn bị chặn/Q/cap từ frozen. Baseline74, suite cuối88React (gồm22ca liên quan), 37ca hợp đồng BE, build/pipcheck và browser1440/390px synthetic đạt. DBapp vẫn0007; không cutover/nguồn thật/bước8 cũ. Bước4–6cònlocal, chưa commit/push; dừng trước7, R07/T14 giữ mở. [Lệnh/giới hạn/bảo toàn](../../docs/development.md#handoff-chg085-phase6), [đặc tả FE](04-frontend-spec.md#lifecycle-chg085). Các checkpoint3–5bên dưới giữ lịch sử; FE6chỉ bật hành vi mới khi API báo schema hỗ trợ.
+
+| Luồng | Hành vi thực có |
+|---|---|
+| Nội bộ | ProductDetail summary → modal một action stop/cancel_stop/resume; ngày cùng ngày/min0, target/version/history, preview và xác nhận lưu. Nhà mạng còn chặn thì vẫn nêu riêng. |
+| Nhà mạng | #provider-notices → #provider-notice-new / #provider-notice:ID; nhiều SKU/type/thị trường/kho khai báo rõ, nguồn giả định bắt buộc/URL tùy chọn, full scope totals và sample page. Cancel và resume_supply riêng, lịch sử append. |
+| Lỗi/lưu | Preview hết hạn khi sửa; không tự retry POST. 409giữ reason/source,422focus, save-confirmed/refetch-failed chỉ GET retry; Back/modal/focus/dirty confirmation và schema0007 khóa ghi. |
+| Vận hành | Hai quyền/trạng thái; tổng tồn/được bán/bị chặn, Q_policy/Q_final/cap, lô cũ cần xử lý, no CTA trái quyền. Filter/CSV dùng stored result cùng scope, thiếu diagnostic không giả0. |
+| Dự báo/metric | Bán theo ràng buộc và blocked/stock shortage riêng, input model trong details; metric toàn run có phạm vi/exclusions và source/scenario/blocked. Raw score giữ raw source sales, không đổi R05/M05. |
+| Tạo inventory run | Tự gửi trade marker khi catalog trade_schema_ready=true; không có lựa chọn profile kỹ thuật, không gửi vào source/forecast. App0007 vẫn reader/profile tương thích và không mở ghi mới. |
+
+Không tính Q/projection/forecast tại FE hoặc trong preview mới. Cấu hình hiện tại có thể khác frozen; lưu không tự enqueue, thay snapshot hay viết lại CSV cũ. Bố cục kiểm1440/390px dùng form một cột ởmobile, table có vùng cuộn ngang và bảng thay thế đồ thị. 88React/22ca liên quan, 37ca BE hợp đồng, build/pipcheck và browser synthetic đạt; đây không phải cutover7 hoặc kiểm run thật8.
+
+
+<a id="phase5-implemented"></a>
+### CHG-085 giai đoạn 5 — 02/11/2026, read model/API/CSV đã triển khai trên DBtest
+
+**CHG-085 giai đoạn 5 — 02/11/2026, hoàn tất local:** đã mở API kết quả/CSV trade_v2 từ ledger, projection và snapshot frozen; lọc hai quyền/trạng thái trước count/page/aggregate, counters riêng và metric có scope/exclusions. Baseline11/targeted62/suite478 Python BE/M2 và pip check đạt. DB ứng dụng vẫn 0007, hai bản sao/bằng chứng cũ giữ nguyên; không FE/cutover/nguồn thật. Chưa commit/push bước 4–5; dừng trước 6. R07/T14 giữ mở. [Lệnh kiểm và bảo toàn](../../docs/development.md#handoff-chg085-phase5). Các guard/checkpoint3–4phía dưới giữ đúng lịch sử, guard result đã được mở trong5.
+
+[reporting/trade.py](../../web/backend/src/modules/reporting/trade.py) và [service](../../web/backend/src/modules/reporting/service.py) dispatch profile; API/CSV/workspace/purchasing dùng cùng dataset. Số lượng lấy ledger/projection/diagnostic đã lưu, chỉ metadata quyền giải từ snapshot, không gọi live resolver hoặc tính lại forecast/ROP/SS/Q/path. Profile lạ/rules hoặc marker thiếu trả409invalid_trade_history; legacy yêu cầu quyền mới409feature_not_in_run, filter sai422.
+
+| Dataset | Date/origin và lượng thực có |
+|---|---|
+| inventory | as_of_date lọc ngày ledger của trade_v2; window_origin chọn window; total_qty=closing_qty, sellable_qty/blocked_qty theo quyền frozen; source_sales_qty/scenario_sales_qty/actual_blocked_qty. |
+| alerts | as_of_date là ngày quyết định lưu; quyền/stock/Q diagnostic và exclusion của chính origin, không nối cấu hình mới. |
+| replenishments/purchasing | as_of_date là ngày xem, chỉ đơn đã biết; không lộ trạng thái nhận lô tương lai. Quyền tại ngày xem/ETA và needs_supplier_action; lượng tồn tác động thiếu thì stock_impact_availablefalse, không giả0 hoặc nhận đã tính FIFO. |
+| sell-through | as_of_date là projection origin (mặc định run origin), date_from/to lọc target date; đọc nguyên14hàng projection lưu, không tính lại. window_origin phân biệt cửa sổ replay. |
+| metrics | Mặc định summary stored. Alert as_of/date_from/to chọn whole origin-window; policy chọn ngày ledger. Scope rỗng trả[]; fill_allowed null khi allowed0. Metric allocated_daily vẫn raw_source_sales. |
+
+Filters mới: sku chính xác (1–200 ký tự), destination_country/carrier chính xác (1–100), window_origin date; internal_status active/scheduled_stop/stopped; provider_status clear/scheduled_stop/stopped/scheduled_resume; replenishment_allowed/sales_allowed boolean. Các nhóm AND trước count/page/aggregate/export; blockers trong item OR. Không dùng filter quyền trên raw forecast/allocated metric; raw metric không hỗ trợ scope item/type/supplier/date phải422 thay vì âm thầm bỏ filter.
+
+Inventory/alerts trả q_policy/q_final/cap_reason/sellable_budget/provider_stop_on/cap_eta/forecast_coverage_complete và quantity_diagnostics_available; cap_eta riêng để không ghi đè ETA thật của lô. Q_final inventory luôn lấy recommended_qty đã lưu. Khi alert ledger ngoài origin không có diagnostic, Q_policy/cap đểnull/availabilityfalse, không suy diễn. supply_status alias nội bộ; provider_notice_ids/provider_reasons/provider_sources giữ ID/source giả định frozen. Context có config/source hash/profile/units/metric_basis/run_as_of_date/run_status; legacy không thêm số blocked=0 giả.
+
+Workspace/purchasing chọn newest window từng item trước rights filter. Counters internal_stopped_items/provider_blocked_items/blocked_stock_items/purchase_limited_items/needs_supplier_action_items riêng, affected_items distinct; stock trống lànull. Không tính stopped/capped thành healthy vì Q0. Aggregate sell-through route/day giữ window/origin, tổng input/projected_sales/blocked/unserved/stock và rights/status counts, union notice IDs/reasons/sources, không ép tổng constrained sales bằng route forecast.
+
+Metric scoped chỉ aggregate từ case/ledger đã lưu; threshold crossing actual lấy closing ledger dưới ROP origin trong N đã lưu, không project lại. Whole-window exclusions từ summary luôn đi cùng mẫu số và nguồn/allowed/blocked. CSV dùng cùng filter/dataset, xuất mọi trang (đã kiểm5040hàng qua batch5000), có JSON nested/escape công thức. Preview chỉ bổ sung lượng trade frozen khi đủ dữ liệu; Q của cấu hình đề xuất mới vẫn không tự tính. Không đổi reader/profile/persisted JSON/CSV lịch sử.
+
+
+<a id="phase4-implemented"></a>
+### CHG-085 giai đoạn 4 — 02/11/2026, worker/projection/verifier đã triển khai trên DBtest
+
+**CHG-085 giai đoạn 4 — 02/11/2026, hoàn tất local:** worker/projection và verifier độc lập đã thực thi trade_v2; 40 ca trade mới, 152 ca targeted và toàn suite 459 Python BE/M2 đạt, pip check đạt. Tồn tổng được giữ, sale bị chặn ghi riêng, Q áp cap nguyên lô/ETA/coverage và metric loại cả item-window bị chặn. DB ứng dụng/bản sao cũ chỉ đọc, không cutover hoặc chạy nguồn thật. Bước 5–8 chưa làm; chưa commit/push bước 4 trong lượt này. R07/T14 giữ mở. [Bàn giao và lệnh kiểm](../../docs/development.md#handoff-chg085-phase4). Các checkpoint giai đoạn 1–3 phía dưới giữ nguyên bối cảnh thời điểm đó.
+
+[inventory/trade.py](../../web/backend/src/modules/inventory/trade.py) tính quyền frozen, projection và cap; [simulation.py](../../web/backend/src/modules/inventory/simulation.py) ghi ledger/events/orders/alerts/summary. Nhận lô trước sale, provider block giữ total và ghi sale_blocked, nội bộ chỉ chặn Q. Projection chứa forecast_input_qty/forecast_demand_qty alias, projected_sales_qty/sales_blocked_qty/unserved_stock_qty, unserved_demand_qty=blocked+stock-shortage, available_total/sellable_qty/blocked_stock_before_sale/closing_total/closing_sellable/closing_blocked cùng trạng thái/blockers.
+
+Explanation tại origin có q_policy/q_final/cap_reason/sellable_budget/provider_stop_on/eta/forecast_coverage_complete, hai quyền/lý do, stock_below_rop/actionable và needs_supplier_action cho pending bị chặn tại ETA. Lý do cap: internal_stopped, provider_blocked, eta_at_or_after_provider_stop, insufficient_forecast_coverage, fixed_lot_exceeds_sellable_budget. Giữ nguyên ROP/SS/S/IP; cap không sửa lô cố định hoặc thêm Q vào đường nền. B floor tổng unserved_stock từ ETA tới T−1; thiếu coverage chặn. Alert fixed-origin chỉ dùng phần vector còn lại tới origin+14 trong các quyết định ledger, không lặp forecast ra ngoài coverage.
+
+Producer profile mới ghi hai cột source_sales_qty/actual_blocked_qty ở mọi hàng (gồm 0 khi không block); sales_qty là scenario sales. Summary công khai source/scenario/blocked, fill_allowed, blocked_source_rate, metric_basis=allowed_scenario_sales và exclusions theo whole item-window với dates/notice IDs/reasons. Denominator 0 trả null. Alert/depletion/threshold vẫn lưu chẩn đoán scenario cho window bị loại, is_evaluable=false/evaluation_class=null/exclusion_reason=provider_sales_blocked.
+
+[trade_verification.py](../../web/backend/src/modules/runs/trade_verification.py) tự kiểm snapshot/scope/identity/rules và tính quyền/path/cap, không import resolver/project/recommend/producer. [verification.py](../../web/backend/src/modules/runs/verification.py) đối chiếu balance/nguồn/bán bị chặn, receipt đúng ETA một lần, Q và đơn phát sinh, coverage ngày/item/window, projection/diagnostic/totals/metric/exclusions và parent checksum. Validator cấu trúc cũng được worker gọi trước tính; arithmetic vẫn độc lập. Gỡ stage_not_implemented cho trade_v2, giữ lỗi profile lạ và snapshot lỗi; result/CSV vẫn guard 409 tới bước 5, API preview chưa nối Q-cap từ stored result. Không sửa run/profile/JSON cũ hoặc nối live vào kết quả frozen.
+
+
 <a id="phase3-implemented"></a>
 ### CHG-085 giai đoạn3 — 02/11/2026, API/snapshot/tương thích đã triển khai trên DBtest
 

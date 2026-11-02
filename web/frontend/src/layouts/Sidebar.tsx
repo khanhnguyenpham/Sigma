@@ -27,12 +27,12 @@ export function Sidebar({ app }: { app: AppContextState }) {
       </a>
       <div className="nav-label">QUẢN LÝ KHO</div>
       <nav aria-label="Điều hướng chính">
-        {PAGES.slice(0, 6).map(([id, icon, name]) => (
+        {PAGES.filter(([id])=>id!=="configuration").map(([id, icon, name]) => (
           <button
             key={id}
             title={name}
-            className={page === id ? "selected" : ""}
-            aria-current={page === id ? "page" : undefined}
+            className={page === id || id==="provider-notices" && page.startsWith("provider-") ? "selected" : ""}
+            aria-current={page === id || id==="provider-notices" && page.startsWith("provider-") ? "page" : undefined}
             onClick={() => navigate(id)}
           >
             <Icon name={icon} />

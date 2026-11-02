@@ -1,6 +1,7 @@
 """Read-only purchasing workbench over frozen M3 inventory and receipt runs."""
 
 import csv
+import json
 import io
 from typing import Annotated
 import uuid
@@ -48,6 +49,9 @@ def export(
         for row in rows:
             values = {**metadata, **row}
             for field, value in values.items():
+                if isinstance(value,(dict,list)):
+                    value=json.dumps(value,ensure_ascii=False,default=str)
+                    values[field]=value
                 if isinstance(value, str) and value.startswith(
                     ("=", "+", "-", "@", "\t", "\r")
                 ):

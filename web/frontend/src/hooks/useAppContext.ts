@@ -3,7 +3,7 @@ import { readPurchasingView } from "../utils/url";
 import { useEffect, useRef, useState } from "react";
 import { type Run, type Page } from "../types/api";
 import { type Context } from "../types/context";
-import { readContext, contextUrl } from "../utils/url";
+import { readContext, contextUrl, navigationUrl } from "../utils/url";
 import { useResource } from "./useResource";
 import { type PurchasingView } from "../types/context";
 
@@ -71,17 +71,14 @@ export function useAppContext() {
   }, [runsResource.data]);
   useEffect(() => {
     history.replaceState(
-      null,
+      history.state,
       "",
-      "?" +
-        contextUrl(ctx) +
-        (page === "replenishment" ? "&view=" + purchasingView : "") +
-        "#" +
-        page,
+      navigationUrl(ctx,page,purchasingView),
     );
   }, [ctx, page, purchasingView]);
   useEffect(() => {
     const pop = () => {
+      if(location.hash.slice(1)!==page && !window.dispatchEvent(new CustomEvent("sigma:before-navigate",{cancelable:true,detail:{pop:true}})))return;
       setCtx(readContext());
       setPurchasingView(readPurchasingView());
       setPage(location.hash.slice(1) || "overview");
@@ -89,7 +86,7 @@ export function useAppContext() {
     window.addEventListener("popstate", pop);
     window.addEventListener("hashchange", pop);
     return () => { window.removeEventListener("popstate", pop); window.removeEventListener("hashchange", pop); };
-  }, []);
+  }, [page]);
   useEffect(() => {
     if (
       page !== "product" && ctx.itemId &&
@@ -132,18 +129,16 @@ export function useAppContext() {
       itemId: "",
       supplierId: "",
       productType: "",
+      internalStatus:"",providerStatus:"",replenishmentAllowed:"",salesAllowed:"",windowOrigin:"",
     }));
   }
   function navigate(id: string, view: PurchasingView = "recommendations") {
+    if(!window.dispatchEvent(new Event("sigma:before-navigate",{cancelable:true})))return;
     if (id !== page)
       history.pushState(
         null,
         "",
-        "?" +
-          contextUrl(ctx) +
-          (id === "replenishment" ? "&view=" + view : "") +
-          "#" +
-          id,
+        navigationUrl(ctx,id,view),
       );
     if (id === "replenishment") setPurchasingView(view);
     setPage(id);

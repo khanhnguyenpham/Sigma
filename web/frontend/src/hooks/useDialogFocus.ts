@@ -12,7 +12,7 @@ export function useDialogFocus(open: boolean, onClose: () => void) {
     const targets = () =>
       Array.from(
         dialog?.querySelectorAll<HTMLElement>(
-          'button:not(:disabled),input:not([type="hidden"]):not(:disabled),select:not(:disabled),textarea,a[href]',
+          'button:not(:disabled),input:not([type="hidden"]):not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href],[tabindex="0"]',
         ) ?? [],
       ).filter((el) => el.getClientRects().length > 0);
     targets()[0]?.focus();

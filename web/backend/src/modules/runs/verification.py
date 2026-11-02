@@ -1,6 +1,7 @@
 
 """Independent reconciliation of persisted forecasts, ledgers and replay denominators."""
 from core.run_context import source_data_id
+from datetime import timedelta
 import hashlib, json, math
 from statistics import pstdev
 import numpy as np
@@ -11,6 +12,8 @@ from core.errors import DomainError
 from core.hashes import digest
 from core.serialization import clean_json
 from modules.runs.supply_verification import verify_supply_snapshot, supply_metadata, projection_path
+from modules.runs.trade_verification import (verify_trade_snapshot, trade_rights, trade_path,
+    order_limit, window_exclusion)
 
 
 def verify_run(settings, sessions, key, allow_running=False):
@@ -23,9 +26,9 @@ def verify_run(settings, sessions, key, allow_running=False):
                 "run_not_complete", "Cannot verify incomplete results", 409
             )
         snap = run.config_snapshot
-        if snap.get("trade_lifecycle_profile") is not None:
-            code = "stage_not_implemented" if snap["trade_lifecycle_profile"] == "internal_provider_trade_v2" else "invalid_trade_history"
-            raise DomainError(code, "Trade lifecycle verification is not available at this stage", 409)
+        if snap.get('trade_lifecycle_profile') not in (None, 'internal_provider_trade_v2'):
+            raise DomainError('invalid_trade_history', 'Unsupported trade lifecycle profile', 409)
+        verify_trade_snapshot(run)
         if run.status == "complete" and digest(snap) != run.config_sha256:
             raise DomainError("verification_failed", "Config checksum differs")
         root = settings.output_root / str(key)
@@ -268,6 +271,7 @@ def verify_forecast(s, run, root):
 
 
 def verify_inventory(s, run, settings):
+    trade = verify_trade_snapshot(run)
     params = {"id": run.id}
     ledger = pd.read_sql(
         text(
@@ -304,6 +308,15 @@ def verify_inventory(s, run, settings):
         ],
     )
     source = s.get(Run, run.source_import_run_id)
+    if trade:
+        parent = s.get(Run, run.forecast_run_id)
+        if (source.source_sha256 != run.source_sha256 or parent.source_sha256 != run.source_sha256
+            or parent.source_import_run_id != source.id
+            or digest(source.config_snapshot) != source.config_sha256
+            or digest(parent.config_snapshot) != parent.config_sha256
+            or run.config_snapshot.get('source_parent_config_sha256') != source.config_sha256
+            or run.config_snapshot.get('forecast_parent_config_sha256') != parent.config_sha256):
+            raise DomainError('verification_failed', 'Trade source or forecast parent changed')
     daily = pd.read_sql(
         text(
             "SELECT item_id,date,sales_qty,actual_available FROM daily_sales WHERE source_import_run_id=:id"
@@ -388,7 +401,7 @@ def verify_inventory(s, run, settings):
                 raise DomainError("verification_failed", "Daily balance differs")
             if r.date > window and (
                 pd.isna(matrix.at[r.date, item])
-                or int(matrix.at[r.date, item]) != r.sales_qty
+                or int(matrix.at[r.date, item]) != (r.source_sales_qty if trade else r.sales_qty)
             ):
                 raise DomainError(
                     "verification_failed",
@@ -402,6 +415,15 @@ def verify_inventory(s, run, settings):
             f = vectors[(r.forecast_as_of_date, int(item))]
             p = policies[r.policy_id]
             expected_origin = window if run.kind == "alert_replay" else r.date
+            if trade:
+                state = trade_rights(trade, int(item), expected_origin, r.date)
+                source_qty = int(matrix.at[r.date, item]) if r.date > window else 0
+                blocked_qty = source_qty if not state['sales_allowed'] else 0
+                if (r.source_sales_qty != source_qty or r.actual_blocked_qty != blocked_qty
+                    or r.sales_qty != source_qty-blocked_qty
+                    or r.fulfilled_qty != min(r.opening_qty+r.receipts_qty, source_qty-blocked_qty)
+                    or r.receipts_qty != sum(o.ordered_qty for o in lot_rows if o.eta == r.date)):
+                    raise DomainError('verification_failed', 'Trade source/scenario/blocked ledger differs')
             if r.forecast_as_of_date != expected_origin or p["item_id"] != item or not (
                 p["effective_from"] <= expected_origin.date().isoformat()
                 and (p["effective_to"] is None or expected_origin.date().isoformat() < p["effective_to"])
@@ -449,6 +471,15 @@ def verify_inventory(s, run, settings):
             supply_stopped += not allowed
             if not allowed:
                 q = 0
+            if trade:
+                receipts = {}
+                for o in lot_rows:
+                    if o.eta > r.date and (o.is_initial or o.ordered_on < r.date):
+                        receipts[o.eta.date()] = receipts.get(o.eta.date(), 0) + o.ordered_qty
+                path = trade_path(trade, int(item), r.date, expected_origin, r.closing_qty, f, receipts)
+                limit = order_limit(trade, int(item), expected_origin, r.date, q, path)
+                q = limit['q_final']
+                allowed = limit['replenishment_allowed'] and limit['cap_reason'] is None
             if (
                 r.ss,
                 r.rop_forecast,
@@ -504,6 +535,12 @@ def verify_inventory(s, run, settings):
             1,
         )
     }
+    source_by_item = {}
+    orders_by_id = {}
+    if trade:
+        for sequence, (at, item, _) in raw_events.items():
+            source_by_item.setdefault(item, []).append((sequence, at.date()))
+        orders_by_id = {r.id:r for r in orders.itertuples()}
     for (window, item), group in events.groupby(["window_origin", "item_id"]):
         balance = 0
         seen = set()
@@ -515,6 +552,10 @@ def verify_inventory(s, run, settings):
             if r.event_kind == "initial_stock":
                 balance += r.quantity
             elif r.event_kind == "receipt":
+                if trade:
+                    lot = orders_by_id.get(r.replenishment_order_id)
+                    if lot is None or (lot.window_origin, lot.item_id, lot.eta, lot.ordered_qty) != (window, item, r.event_at.tz_convert('UTC').tz_localize(None).normalize(), r.quantity):
+                        raise DomainError('verification_failed', 'Receipt date or scope differs from frozen lot')
                 balance += r.quantity
             else:
                 if r.source_sequence in seen or raw_events.get(r.source_sequence) != (
@@ -527,10 +568,14 @@ def verify_inventory(s, run, settings):
                         "Sale timestamp/order sequence/quantity differs from the source",
                     )
                 seen.add(r.source_sequence)
-                fulfilled = min(balance, r.quantity)
+                cutoff = window if run.kind == 'alert_replay' else r.event_at
+                blocked = trade is not None and not trade_rights(trade, int(item), cutoff, r.event_at)['sales_allowed']
+                if r.event_kind != ('sale_blocked' if blocked else 'sale'):
+                    raise DomainError('verification_failed', 'Sale event trade right differs')
+                fulfilled = 0 if blocked else min(balance, r.quantity)
                 if (
                     fulfilled != r.fulfilled_qty
-                    or r.quantity - r.fulfilled_qty != r.shortage_qty
+                    or (0 if blocked else r.quantity - r.fulfilled_qty) != r.shortage_qty
                 ):
                     raise DomainError(
                         "verification_failed", "Event fulfillment order differs"
@@ -539,6 +584,11 @@ def verify_inventory(s, run, settings):
             if balance != r.balance_after:
                 raise DomainError("verification_failed", "Event balance differs")
             event_balance_count += 1
+        if trade:
+            finish = ledger.loc[ledger.window_origin.eq(window) & ledger.item_id.eq(item), 'date'].max()
+            expected_sources = {seq for seq,at in source_by_item.get(item, []) if window.date() < at <= finish.date()}
+            if seen != expected_sources:
+                raise DomainError('verification_failed', 'Trade source event coverage differs')
     observed_events = events.loc[events.event_kind.ne("initial_stock")].copy()
     observed_events["date"] = (
         observed_events.event_at.dt.tz_convert("UTC")
@@ -555,6 +605,11 @@ def verify_inventory(s, run, settings):
         ]
         .sum()
     )
+    if trade:
+        source_totals = observed_events.assign(
+            source_sales_qty=lambda f:np.where(f.event_kind.isin(['sale','sale_blocked']), f.quantity, 0),
+            actual_blocked_qty=lambda f:np.where(f.event_kind.eq('sale_blocked'), f.quantity, 0),
+        ).groupby(['window_origin','item_id','date'])[['source_sales_qty','actual_blocked_qty']].sum()
     for r in ledger.itertuples():
         totals = (
             event_totals.loc[(r.window_origin, r.item_id, r.date)].tolist()
@@ -566,12 +621,22 @@ def verify_inventory(s, run, settings):
                 "verification_failed",
                 "Event totals do not reconcile to the daily ledger",
             )
+        if trade:
+            event_key = (r.window_origin,r.item_id,r.date)
+            source_qty,blocked_qty = source_totals.loc[event_key].tolist() if event_key in source_totals.index else (0,0)
+            if source_qty != r.source_sales_qty or blocked_qty != r.actual_blocked_qty:
+                raise DomainError('verification_failed', 'Blocked source events do not reconcile')
     first_depleted = {
         (w, int(i)): g.loc[g.date.gt(w) & g.closing_qty.eq(0), "date"].min()
         for (w, i), g in ledger.groupby(["window_origin", "item_id"])
     }
     confusion = dict(TP=0, FP=0, FN=0, TN=0)
     early = denominator = excluded = 0
+    exclusions = []
+    if trade and run.kind == 'alert_replay':
+        exclusions = [e for (w, i), group in ledger.groupby(['window_origin', 'item_id'])
+            if (e := window_exclusion(trade, i, w, group.date.max()))]
+    excluded_keys = {(e['window_origin'], e['item_id']) for e in exclusions}
     ledger_rows = {(r.window_origin, r.item_id, r.date): r for r in ledger.itertuples()}
     for row in alerts.loc[alerts.alert_type.eq("depletion")].itertuples():
         exp = row.explanation
@@ -585,6 +650,27 @@ def verify_inventory(s, run, settings):
             balance = max(0, balance + receipts.get(d, 0) - quantity)
             if predicted is None and balance == 0:
                 predicted = d
+        if trade:
+            daily_row = ledger_rows[(row.window_origin, row.item_id, row.as_of_date)]
+            lots = order_groups.get((row.window_origin, int(row.item_id)), empty_orders)
+            receipts = {}
+            for lot in lots.itertuples():
+                if lot.eta > row.as_of_date and (lot.is_initial or lot.ordered_on < row.as_of_date):
+                    receipts[lot.eta.date()] = receipts.get(lot.eta.date(), 0) + lot.ordered_qty
+            path = trade_path(trade, int(row.item_id), row.as_of_date, daily_row.forecast_as_of_date,
+                              daily_row.closing_qty, f, receipts)
+            predicted = row.as_of_date if daily_row.closing_qty == 0 else next((pd.Timestamp(r['date']) for r in path if r['closing_total'] == 0), None)
+            if exp.get('projection') != path:
+                raise DomainError('verification_failed', 'Trade projection differs')
+            lead = (predicted-row.as_of_date).days if predicted is not None else None
+            state = 'already_depleted' if daily_row.closing_qty == 0 else 'not_within_horizon' if lead is None else 'early' if lead >= 7 else 'urgent'
+            if row.state != state or (None if pd.isna(row.lead_days) else row.lead_days) != lead:
+                raise DomainError('verification_failed', 'Trade depletion diagnostic differs')
+            if run.kind == 'alert_replay':
+                initial_zero = ledger_rows[(row.window_origin, row.item_id, row.window_origin)].closing_qty == 0
+                actual = None if initial_zero else first_depleted[(row.window_origin, int(row.item_id))]
+                if pd.isna(actual) != pd.isna(row.actual_depletion_date) or pd.notna(actual) and actual != row.actual_depletion_date:
+                    raise DomainError('verification_failed', 'Trade actual depletion differs')
         if supply_histories is not None:
             daily_row = ledger_rows[(row.window_origin, row.item_id, row.as_of_date)]
             lots = order_groups.get((row.window_origin, int(row.item_id)), empty_orders)
@@ -609,6 +695,11 @@ def verify_inventory(s, run, settings):
         ):
             raise DomainError("verification_failed", "Projected depletion differs")
         if run.kind == "alert_replay":
+            if trade and (row.window_origin.date().isoformat(), row.item_id) in excluded_keys:
+                if row.is_evaluable or pd.notna(row.evaluation_class) or row.exclusion_reason != 'provider_sales_blocked':
+                    raise DomainError('verification_failed', 'Blocked window evaluated as baseline')
+                excluded += 1
+                continue
             if row.state == "already_depleted":
                 excluded += 1
                 continue
@@ -648,7 +739,9 @@ def verify_inventory(s, run, settings):
         ):
             raise DomainError("verification_failed", "Alert metric denominator differs")
     if run.result_summary.get("threshold_warning_version") == 1:
-        verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, policies, supply_histories)
+        verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, policies, supply_histories, trade, excluded_keys)
+    if trade:
+        verify_trade_totals(run, ledger, events, orders, alerts, exclusions)
     return dict(
         status="verified",
         kind=run.kind,
@@ -663,7 +756,76 @@ def verify_inventory(s, run, settings):
     )
 
 
-def verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, policies, supply_histories=None):
+def verify_trade_totals(run, ledger, events, orders, alerts, exclusions):
+    """Check cardinality, preserved lots and every published scenario denominator."""
+    snap, summary = run.config_snapshot, run.result_summary
+    windows = [run.as_of_date]
+    if run.kind == 'alert_replay':
+        windows = [run.as_of_date+timedelta(days=h) for h in range(0, (run.period_end-run.as_of_date).days-13, 14)]
+    expected_keys = set()
+    for window in windows:
+        finish = window if run.kind == 'stock_projection' else window+timedelta(days=14) if run.kind == 'alert_replay' else run.period_end
+        ids = [r['item_id'] for r in snap['catalog_snapshot'] if r['first_seen_date'] <= str(window)]
+        for item in ids:
+            expected_keys.update((pd.Timestamp(window), item, pd.Timestamp(window+timedelta(days=h))) for h in range((finish-window).days+1))
+        initial = orders.loc[orders.window_origin.eq(pd.Timestamp(window)) & orders.is_initial]
+        expected_lots = {('initial:'+r['lot_key'], r['item_id'], r['ordered_on'], r['eta'], r['ordered_qty'])
+            for r in snap['scenario']['settings']['receipts_initial'] if r['item_id'] in ids and r['eta'] > str(window)}
+        actual_lots = {(r.order_key, r.item_id, str(r.ordered_on.date()), str(r.eta.date()), r.ordered_qty) for r in initial.itertuples()}
+        if actual_lots != expected_lots or len(initial) != len(expected_lots):
+            raise DomainError('verification_failed', 'Frozen initial lots differ')
+        initial_events = events.loc[events.window_origin.eq(pd.Timestamp(window)) & events.event_kind.eq('initial_stock')]
+        if len(initial_events) != len(ids) or set(initial_events.item_id) != set(ids):
+            raise DomainError('verification_failed', 'Initial stock event coverage differs')
+    actual_keys = {(r.window_origin, r.item_id, r.date) for r in ledger.itertuples()}
+    if expected_keys != actual_keys or len(ledger) != len(expected_keys):
+        raise DomainError('verification_failed', 'Trade ledger coverage differs')
+    groups = {(w,i):g.date.max() for (w,i),g in ledger.groupby(['window_origin','item_id'])}
+    if set(events.groupby(['window_origin','item_id']).groups) != set(groups):
+        raise DomainError('verification_failed', 'Trade event scope differs')
+    for lot in orders.itertuples():
+        finish = groups.get((lot.window_origin,lot.item_id))
+        if (finish is None or lot.ordered_qty <= 0
+            or (not lot.is_initial and (run.kind != 'policy_replay' or not lot.window_origin <= lot.ordered_on <= finish))
+            or lot.status != ('received' if lot.eta <= finish else 'ordered')
+            or lot.received_qty != (lot.ordered_qty if lot.eta <= finish else 0)):
+            raise DomainError('verification_failed', 'Trade order scope or receipt status differs')
+    observed = ledger.loc[ledger.date.gt(ledger.window_origin)]
+    source = int(observed.source_sales_qty.sum())
+    blocked = int(observed.actual_blocked_qty.sum())
+    allowed = int(observed.sales_qty.sum())
+    fulfilled = int(observed.fulfilled_qty.sum())
+    expected = dict(trade_lifecycle_profile='internal_provider_trade_v2', source_sales_qty=source,
+        scenario_sales_qty=allowed, actual_blocked_qty=blocked, fill_allowed=fulfilled/allowed if allowed else None,
+        blocked_source_rate=blocked/source if source else None, metric_basis='allowed_scenario_sales',
+        metric_exclusions=exclusions, excluded_item_windows=len(exclusions),
+        sales_qty=allowed, fulfilled_qty=fulfilled, shortage_qty=allowed-fulfilled,
+        fill_rate=fulfilled/allowed if allowed else None, mean_closing=float(observed.closing_qty.mean()) if len(observed) else None,
+        ledger_rows=len(ledger), event_rows=len(events), order_count=len(orders), alert_rows=len(alerts),
+        windows=len(windows), items=ledger.item_id.nunique(), ordered_qty=int(orders.ordered_qty.sum()))
+    if any(summary.get(k) != v for k,v in expected.items()):
+        raise DomainError('verification_failed', 'Trade scenario totals or exclusions differ')
+    if run.kind == 'alert_replay':
+        rows = alerts.loc[alerts.alert_type.eq('depletion')]
+        counts = {k:int((rows.is_evaluable & rows.evaluation_class.eq(k)).sum()) for k in ('TP','FP','FN','TN')}
+        included = rows.loc[rows.is_evaluable]
+        actual = included.loc[included.actual_depletion_date.notna()]
+        detected = actual.loc[actual.predicted_depletion_date.notna()]
+        early = int(((detected.actual_depletion_date-detected.as_of_date).dt.days >= 7).sum())
+        errors = (detected.predicted_depletion_date-detected.actual_depletion_date).dt.days.abs()
+        tp, fp, fn = counts['TP'], counts['FP'], counts['FN']
+        metric = dict(**counts, precision=tp/(tp+fp) if tp+fp else None, recall=tp/(tp+fn) if tp+fn else None,
+            early_numerator=early, event_denominator=len(actual), early_rate=early/len(actual) if len(actual) else None,
+            late_count=len(detected)-early, date_mae=float(errors.mean()) if len(errors) else None,
+            excluded_count=int((~rows.is_evaluable).sum()))
+        if summary.get('alert_metrics') != metric or [r for r in summary['metrics'] if r['granularity'] == 'alert'] != [dict(granularity='alert', **metric)]:
+            raise DomainError('verification_failed', 'Trade alert metrics differ')
+    elif summary.get('metrics') != [dict(granularity='policy', sales_qty=allowed, fulfilled_qty=fulfilled,
+            shortage_qty=allowed-fulfilled, fill_rate=fulfilled/allowed if allowed else None)]:
+        raise DomainError('verification_failed', 'Trade fill metric differs')
+
+
+def verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, policies, supply_histories=None, trade=None, excluded_keys=None):
     """Independently rebuild crossings and confusion counts from frozen inputs."""
     expected_keys, cases = set(), []
     actual_rows = {(r.window_origin, r.item_id, r.as_of_date, r.alert_type): r
@@ -703,6 +865,34 @@ def verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, 
                         or diagnostic.explanation.get("thresholds", {}).get("needs_replenishment") != bool(row.needs_replenishment)
                     ):
                         raise DomainError("verification_failed", "Supply diagnostic differs")
+            if trade:
+                path = trade_path(trade, int(item), row.date, row.forecast_as_of_date, row.closing_qty,
+                    f, {d.date():q for d,q in receipts.items()})
+                first = next((pd.Timestamp(r['date']) for r in path[:n] if row.closing_qty >= row.rop and r['closing_total'] < row.rop), None)
+                limit = order_limit(trade, int(item), row.forecast_as_of_date, row.date,
+                    # Recompute uncapped policy Q, independently of persisted recommendation.
+                    (p['fixed_order_qty'] if p.get('fixed_order_qty') is not None else max(math.ceil(max(0, row.target_stock-row.inventory_position)), p['moq']))
+                    if row.closing_qty < row.rop and row.target_stock > row.inventory_position else 0, path)
+                limit.update(stock_below_rop=row.closing_qty < row.rop, actionable=bool(row.recommended_qty),
+                    total_qty=row.closing_qty, sellable_qty=row.closing_qty if limit['sales_allowed'] else 0,
+                    blocked_qty=0 if limit['sales_allowed'] else row.closing_qty,
+                    needs_supplier_action=(not limit['sales_allowed'] and row.closing_qty > 0)
+                        or any(not trade_rights(trade, int(item), row.forecast_as_of_date, d)['sales_allowed'] for d in receipts))
+                for signal in ('depletion', 'below_rop', 'projected_below_rop'):
+                    alert = actual_rows.get((*key, signal))
+                    if alert is not None:
+                        exp = alert.explanation
+                        thresholds = exp.get('thresholds', {})
+                        if (any(exp.get(k) != v for k,v in limit.items()) or exp.get('policy') != p
+                            or thresholds.get('recommended_qty') != row.recommended_qty
+                            or thresholds.get('needs_replenishment') != bool(row.needs_replenishment)
+                            or any(thresholds.get(k) != getattr(row,k) for k in ('ss','rop_forecast','rop','target_stock','inventory_position','pending_qty'))):
+                            raise DomainError('verification_failed', 'Trade order cap or rights diagnostic differs')
+                        if signal != 'below_rop' and (exp.get('origin_on_hand') != row.closing_qty
+                            or exp.get('forecast14') != list(map(float, f)) or exp.get('projection') != path
+                            or exp.get('receipts') != [dict(eta=d.date().isoformat(), quantity=q) for d,q in sorted(receipts.items())]
+                            or exp.get('basis') != 'known_receipts_before_new_recommendation'):
+                            raise DomainError('verification_failed', 'Trade projection inputs differ')
             if row.closing_qty < row.rop:
                 expected_keys.add((*key, "below_rop"))
             if first is not None:
@@ -724,6 +914,8 @@ def verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, 
                     raise DomainError("verification_failed", "Projection is not an evaluated replay")
             if run.kind == "alert_replay":
                 eligible = row.closing_qty >= row.rop
+                blocked_window = trade is not None and (window.date().isoformat(), item) in excluded_keys
+                eligible = eligible and not blocked_window
                 actual = group.loc[group.date.gt(window) & group.date.le(window + pd.Timedelta(days=n)) & group.closing_qty.lt(row.rop), "date"].min() if eligible else pd.NaT
                 label = "TP" if first is not None and pd.notna(actual) else "FP" if first is not None else "FN" if pd.notna(actual) else "TN"
                 cases.append((eligible, first, actual, label))
@@ -732,8 +924,8 @@ def verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, 
                     evaluation = dict(item_id=int(item), as_of_date=window.date().isoformat(), rop=row.rop,
                         warning_horizon_days=n, predicted_threshold_date=first.date().isoformat(),
                         actual_threshold_date=actual.date().isoformat() if pd.notna(actual) else None,
-                        is_evaluable=True, exclusion_reason=None)
-                    if not alert.is_evaluable or alert.evaluation_class != label or alert.explanation.get("threshold_evaluation") != evaluation:
+                        is_evaluable=eligible, exclusion_reason='provider_sales_blocked' if blocked_window else None)
+                    if alert.is_evaluable != eligible or (None if pd.isna(alert.evaluation_class) else alert.evaluation_class) != (label if eligible else None) or alert.explanation.get("threshold_evaluation") != evaluation:
                         raise DomainError("verification_failed", "Threshold evaluation differs")
     if set(actual_rows) != expected_keys:
         raise DomainError("verification_failed", "Alert signal coverage differs")
