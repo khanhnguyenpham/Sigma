@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**CHG-084 bước6 — 02/11/2026, T11/T12:** đã tích hợp FE cung cấp và bán tồn, kiểm73React/build/browser desktop390px trên DBtest; DBapp chưa nâng. [Bàn giao](../development.md#handoff-chg084-step6), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). Commit/push/SHA/CI rồi dừng sau bước6; bước7 chờ giao, R07/T14 chưa nghiệm thu. Các checkpoint trước giữ lịch sử.
+
 **CHG-084 bước5 — 02/11/2026, T10/T11/T12:** API/CSV bán tồn, metadata cung cấp trong read model và tổng quan/nhập đã có; không tính lại projection hoặc đọc lifecycle live. Chỉ DBtest; chưa FE/cutover. [Bàn giao](../development.md#handoff-chg084-step5), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). Dừng sau bước5.
 
 **CHG-084 bước4 — 02/11/2026, T10/T12:** đã nối timeline vào simulation/worker và verifier độc lập; chặn nhập mới, giữ receipts/actual, bổ sung JSON projection bán tồn. DBapp chưa nâng, không refit/replay thật; bước5–7 chưa triển khai. [Bàn giao](../development.md#handoff-chg084-step4), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps).

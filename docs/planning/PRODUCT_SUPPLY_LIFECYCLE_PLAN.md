@@ -3,6 +3,8 @@
 <a id="status"></a>
 ## 1. Trạng thái và phạm vi được giao
 
+**Cập nhật bước6, 02/11/2026:** FE cung cấp/bán tồn đã triển khai và kiểm trên DBtest:73React/build, browser desktop1440 và390px, lưu/reload/Back/focus/CSV. [Bàn giao bước6](../development.md#handoff-chg084-step6). Không nâng DBapp, không tự làm bước7; tiếp tục cổng commit/push/SHA/CI rồi dừng. Các điểm dừng trước bên dưới là lịch sử.
+
 **Cập nhật bước5, 02/11/2026:** read model/CSV bán tồn và metadata cung cấp đã triển khai, chỉ kiểm DBtest; không nâng DBapp hoặc làm FE. [Bàn giao bước5](../development.md#handoff-chg084-step5). Dừng sau bước5; các điểm dừng trước là lịch sử.
 
 **Cập nhật bước4, 02/11/2026:** đã nối timeline frozen vào worker/simulation, Q/lô, projection bán tồn và verifier độc lập. Chỉ DBtest, chưa nâng DBapp; read model/CSV/FE thuộc bước5–7. [Bàn giao bước4](../development.md#handoff-chg084-step4). Dừng sau bước4, các đoạn điểm dừng trước là lịch sử.
@@ -64,7 +66,7 @@ Luồng kỹ thuật giữ model nhu cầu và phân bổ hiện có, không ref
 | 3 — API và snapshot | T10/T12 | API thao tác/lịch sử, lọc sản phẩm, expected_version, freeze | 404/409/422, ghi đồng thời, snapshot, không leakage/run cũ | Đã triển khai; kiểm/publish tại bàn giao bước3 |
 | 4 — Worker và bán tồn | T10/T12 | Chặn đề xuất/lô mới; giữ receipts; projection và verifier | Tính tay, biên ngày dừng, lô về muộn, causality; parity khi không có sự kiện | Đã triển khai; kiểm/publish tại bàn giao bước4 |
 | 5 — Read model/CSV | T10/T11/T12 | Tồn/nhập/tổng quan, endpoint và CSV bán tồn | Cùng snapshot, lọc trước phân trang, tổng đầy đủ; không coi ngừng nhập là đủ hàng | Đã triển khai; kiểm/publish tại bàn giao bước5 |
-| 6 — FE | T11/T12 | Form/lịch sử/trạng thái/bộ lọc/biểu đồ | Lưu–reload, 409/lỗi, Back/focus/CSV, desktop và 390px | Chưa triển khai |
+| 6 — FE | T11/T12 | Form/lịch sử/trạng thái/bộ lọc/biểu đồ | Lưu–reload, 409/lỗi, Back/focus/CSV, desktop và 390px | Đã triển khai; kiểm/publish tại bàn giao bước6, chỉ DBtest |
 | 7 — Tích hợp/bàn giao | T10/T11/T12 | Kiểm toàn luồng; sau backup/restore thử mới nâng DB ứng dụng | BE/M2 liên quan, React/build/pip check, API/CSV/browser, verifier và hash | Chưa triển khai |
 
 Không tự nối bước 2 sau khi hoàn tất bước 1. Các bước 2–6 kiểm trên fixture/DB test; chưa đưa thao tác cung cấp vào DB ứng dụng khi worker/read model chưa hỗ trợ đầy đủ. Cổng triển khai DB app thuộc bước 7. Quyền commit/push của lượt này chỉ áp dụng MD bước 1; quyền của các bước sau theo yêu cầu tiếp theo của người dùng.

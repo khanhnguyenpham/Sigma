@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-084 bước6 — 02/11/2026:** FE có components/products/ProductSupplyForm.tsx, components/forecast/SellThrough.tsx và utils/supply.ts; Products/ProductDetail dùng ngày mô phỏng và API live, các trang vận hành dùng metadata frozen. Giữ hooks/services/Table/Panel/Pager/chart hiện có, không thêm dependency hoặc sửa BE/schema/model. [Bàn giao](../development.md#handoff-chg084-step6); DBapp chưa cutover, bước7 chờ giao.
+
 **CHG-084 bước5 — 02/11/2026:** reporting/supply.py giữ reader timeline frozen và projection, operational_rows chọn cửa sổ; reporting service/router nối endpoint/CSV, alerts schema thêm metadata; inventory/purchasing dùng counters và khóa thao tác nhập. [Bàn giao](../development.md#handoff-chg084-step5). Không đổi model/worker/schema/FE/DBapp.
 
 **CHG-084 bước4 — 02/11/2026:** inventory/service.py nhận replenishment_allowed, simulation.py áp timeline theo decision origin/ngày, alerts/service.py mở rộng projection theo profile; runs/supply_verification.py kiểm độc lập và verification.py đối soát ledger/orders/explanation/metric. Worker bỏ guard stage3. Chưa read model/CSV/FE hoặc cutover DBapp. [Bàn giao](../development.md#handoff-chg084-step4).

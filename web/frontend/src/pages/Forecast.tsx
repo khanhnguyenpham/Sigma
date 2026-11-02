@@ -22,7 +22,21 @@ import { type Run, type Page, type Row } from "../types/api";
 import { type Context } from "../types/context";
 import { resultQuery } from "../utils/url";
 import { fmt } from "../utils/format";
+import { SellThrough } from "../components/forecast/SellThrough";
+import { inventoryKinds } from "../config/navigation";
 export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
+  const [showDemand, setShowDemand] = useState(false);
+  useEffect(() => setShowDemand(false), [run?.id]);
+  if (run?.status === "complete" && inventoryKinds.includes(run.kind)) return <>
+    <div className="page-intro"><h1>Dự báo bán hàng</h1><p>Dự kiến bán dựa trên tồn và lô đang về trong kế hoạch đã lưu.</p></div>
+    <SellThrough runId={run.id} ctx={ctx} />
+    <details className="advanced-section" onToggle={(e) => setShowDemand(e.currentTarget.open)}><summary>Nhu cầu dự báo và chất lượng lịch sử</summary>
+      {showDemand && <DemandForecast run={run} ctx={ctx} />}
+    </details>
+  </>;
+  return <DemandForecast run={run} ctx={ctx} />;
+}
+function DemandForecast({ run, ctx }: { run?: Run; ctx: Context }) {
   const [mode, setMode] = useState<"monthly" | "operational">(ctx.warehouseId ? "operational" : "monthly");
   const [daily, setDaily] = useState(!!ctx.warehouseId),
     [block, setBlock] = useState("1"),

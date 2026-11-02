@@ -36,9 +36,9 @@ export default function App() {
   const props = { run, ctx, onChoose: chooseInventory, onItem: openItem };
   const node =
     page === "products" ? (
-      <Products onOpen={(row) => openItem(row, "product")} />
+      <Products ctx={ctx} onContext={(patch) => app.setCtx((c) => ({ ...c, ...patch }))} onOpen={(row) => openItem(row, "product")} />
     ) : page === "product" ? (
-      <ProductDetail run={run} ctx={ctx} onNavigate={navigate} onItem={openItem}
+      <ProductDetail run={run} ctx={ctx} onDate={(origin) => app.setCtx((c) => ({ ...c, origin }))} onNavigate={navigate} onItem={openItem}
         onWarehouse={(row) => app.selectWarehouse(String(row.warehouse_id))} />
     ) : page === "forecast" ? (
       <Forecast run={run} ctx={ctx} />

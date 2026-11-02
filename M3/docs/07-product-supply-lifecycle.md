@@ -3,6 +3,11 @@
 <a id="status"></a>
 ## 1. Trạng thái đặc tả
 
+<a id="step6-implemented"></a>
+**Cập nhật bước6, 02/11/2026:** ProductSupplyForm/SellThrough và các view FE đã tích hợp API bước3/5; không thay BE/worker/schema. ProductDetail chọn ngày UTC từ origin đang xem, stop gợi ý ngày+7, hủy/mở lại hiệu lực cùng ngày ghi nhận; reason bắt buộc, expected_version/target gửi đúng lịch sử. Thiếu ngày, đang tải, prefix cũ hơn latest version hoặc conflict thì không ghi; 409 giữ lý do, yêu cầu tải lại chủ động. Chặn gửi lặp và callback sau unmount; sau lưu/reload nhắc tạo kế hoạch mới, không tính lại run đang xem. Lịch sử có phân trang, form thể hiện item–kho/loại và tồn/pending của kế hoạch nếu có.
+
+Danh sách dùng ngày/status và bộ lọc server trước phân trang; schema chưa nâng vẫn xem catalog không ngày và form báo chưa bật tính năng. Ngày/chọn kho/loại giữ theo context/URL, xóa ngày không tự điền lại trong cùng kế hoạch. Trang vận hành dùng metadata frozen; stopped hiện bán tồn/chờ lô/hết hàng, giữ cảnh báo toán học và bỏ CTA nhập thêm. SellThrough đọc projection đã lưu, bảng/biểu đồ/CSV cùng origin/kho/item/loại/supplier; tổng tuyến dùng aggregate=route_day, biểu đồ khi chọn kho/item. Trong inventory run, Dự báo ưu tiên bán theo tồn; nhu cầu và đánh giá M05 vẫn xem trong chi tiết. Legacy409 yêu cầu kế hoạch mới, không giả đường0. Các status bước1–5 bên dưới giữ lịch sử; [kiểm trực tiếp](../../docs/development.md#handoff-chg084-step6). DBapp chưa nâng, bước7 chưa thực hiện, R07/T14 giữ mở.
+
 <a id="step5-implemented"></a>
 **Cập nhật bước5, 02/11/2026:** GET `/api/v1/runs/{key}/sell-through` và `/api/v1/runs/{key}/exports/sell_through` đã có. Cùng dataset/filter, không tính lại projection hoặc truy vấn lifecycle live. Chỉ inventory run complete; legacy không profile hoặc profile mới thiếu projection bán tồn trả409 feature_not_in_run để tạo kế hoạch mới. Chỉ kiểm DBtest; FE/cutover chưa triển khai. [Bàn giao](../../docs/development.md#handoff-chg084-step5).
 

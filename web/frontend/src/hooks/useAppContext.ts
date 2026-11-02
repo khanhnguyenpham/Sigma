@@ -103,7 +103,7 @@ export function useAppContext() {
         ...c,
         origin: run.kind === "forecast" ? "2025-10-31" : run.as_of_date,
       }));
-  }, [run?.id, ctx.origin]);
+  }, [run?.id]);
   useEffect(() => {
     if (!navOpen) return;
     const close = (event: KeyboardEvent) => {

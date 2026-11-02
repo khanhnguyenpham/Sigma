@@ -919,3 +919,8 @@ Người dùng bổ sung giao kiểm xong bước1 thì commit/push thường MD
 ## CHG-084 bước5 — Read model và CSV
 
 02/11/2026, người dùng giao tiếp bước5. API/CSV bán tồn và metadata cung cấp trong các read model, aggregate/filter/count trước pagination, tổng quan/nhập không coi stopped là healthy/đề xuất. Chỉ đọc snapshot/projection lưu; legacy409, không ghi lại run cũ. Chỉ DBtest, chưa FE/bước6–7 hoặc nâng DBapp. [Bàn giao](../development.md#handoff-chg084-step5), [hợp đồng](../../M3/docs/07-product-supply-lifecycle.md#step5-implemented). Tiếp tục kiểm→commit/push thường final-report→SHAremote/CI rồi dừng bước5; R07/T14 giữ mở.
+
+<a id="chg-084-step6"></a>
+## CHG-084 bước6 — FE cung cấp và bán tồn
+
+02/11/2026, người dùng giao tiếp bước6 sau cổng bước5. ProductDetail có form riêng dừng/hủy/mở lại, lịch sử và ngày UTC mặc định theo origin đang xem; thiếu ngày không lưu, gợi ý +7, lý do bắt buộc, version conflict giữ lý do và yêu cầu tải lại. Danh sách lọc ngày/trạng thái tại server trước phân trang. Tồn/nhập/tổng quan/cảnh báo đọc trạng thái frozen, stopped không hiển thị đủ hàng hoặc CTA đặt thêm. Dự báo của inventory run và chi tiết sản phẩm hiển thị bán theo tồn, nhu cầu/metric lịch sử trong chi tiết, legacy thiếu profile yêu cầu tạo mới. Không đổi model/BE/schema hoặc nâng DBapp; bước7 chờ giao. [Kết quả kiểm và bàn giao](../development.md#handoff-chg084-step6). Tiếp tục commit/push thường final-report→SHAremote→CI rồi dừng, R07/T14 giữ mở. Các mục bước1–5 phía trên giữ checkpoint lịch sử.

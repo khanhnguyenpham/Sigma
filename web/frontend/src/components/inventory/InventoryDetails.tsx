@@ -6,6 +6,7 @@ import { DetailDrawer } from "../ui/DetailDrawer";
 import { badge } from "../ui/Badge";
 import type { PurchasingView } from "../../types/context";
 import { Icon } from "../ui/Icon";
+import { inventoryStatus } from "../../utils/supply";
 import { warehouseName } from "../../utils/warehouse";
 
 export function InventoryDetails({
@@ -42,16 +43,12 @@ export function InventoryInformation({ focused, onItem }: { focused: Row; onItem
         <div>
           <dt>Trạng thái</dt>
           <dd>
-            {badge(
-              focused.needs_replenishment
-                ? Number(focused.recommended_qty) > 0
-                  ? "low_stock"
-                  : "pending_covers"
-                : "sufficient",
-            )}
+            {badge(inventoryStatus(focused))}
           </dd>
         </div>
       </dl>
+      {focused.supply_status != null && <p>{badge(focused.supply_status)}</p>}
+      {focused.replenishment_allowed === false && <p className="notice">Sản phẩm đã ngừng nhập trong kế hoạch này. Tiếp tục bán tồn và nhận lô đã đặt; không đặt thêm.</p>}
       <div className="stats">
         <Card label="Tồn hiện có" value={fmt(focused.closing_qty)} />
         <Card label="Hàng đang về" value={fmt(focused.pending_qty)} />
@@ -133,13 +130,13 @@ export function InventoryInformation({ focused, onItem }: { focused: Row; onItem
               onItem(
                 focused,
                 "replenishment",
-                Number(focused.recommended_qty) > 0
+                focused.replenishment_allowed !== false && Number(focused.recommended_qty) > 0
                   ? "recommendations"
                   : "incoming",
               )
             }
           >
-            {Number(focused.recommended_qty) > 0
+            {focused.replenishment_allowed !== false && Number(focused.recommended_qty) > 0
               ? "Xem đề xuất nhập"
               : "Xem hàng đang về"}
             <Icon name="arrow" size={16} />

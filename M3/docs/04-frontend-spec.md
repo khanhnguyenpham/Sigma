@@ -1,5 +1,9 @@
 # M3 — đặc tả frontend
 
+## CHG-084 bước6 — FE đã triển khai trên DBtest
+
+ProductSupplyForm có ngày mô phỏng, lịch sử, thao tác theo trạng thái và preview item–kho/tồn/pending; gợi ý +7 UTC, validation, version conflict giữ lý do và tải lại chủ động. Products lọc ngày/trạng thái tại server; ProductDetail tách cấu hình live với số liệu kế hoạch frozen. SellThrough dùng API/CSV bước5, ưu tiên bán theo tồn trong inventory run, nhu cầu/metric trong chi tiết. Nhãn/CTA vận hành không thúc nhập hoặc coi stopped là đủ hàng; lô đã đặt vẫn được theo dõi. DB0006 vẫn đọc catalog và báo tính năng chưa bật; chưa mở ghi cung cấp trên app trước bước7. [Hành vi thực](07-product-supply-lifecycle.md#step6-implemented), [73React/build/browser1440/390px](../../docs/development.md#handoff-chg084-step6). Mô tả UI dự kiến bước1 bên dưới là mốc lịch sử.
+
 ## CHG-084 — Tình trạng cung cấp: UI dự kiến
 
 02/11/2026, bước1 chỉ MD: ProductDetail dự kiến có khu vực cung cấp riêng form ROP/SS, ngày mô phỏng/thông báo/ngày dừng +7/lý do/lịch sử/hủy/mở lại; danh sách thêm nhãn/bộ lọc. Tồn/nhập/tổng quan đọc snapshot; Dự báo trong inventory run mới có Dự kiến bán theo tồn, nhu cầu trong chi tiết. Lưu cấu hình nhắc tạo kế hoạch mới, không sửa kết quả cũ; chưa có ngày thì không cho lưu. [Luồng và hành vi FE dự kiến](07-product-supply-lifecycle.md#frontend), [kiểm](07-product-supply-lifecycle.md#test-matrix). Chưa sửa FE hoặc nhận đã kiểm browser tính năng mới.

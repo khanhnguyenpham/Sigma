@@ -37,6 +37,10 @@ export function errorLabel(error: Error) {
           "Nhà cung cấp phải là nhà mạng (carrier) của mặt hàng.",
         missing_contract_quantity:
           "Hãy khai báo lượng nhập mỗi lần trong thông tin sản phẩm.",
+        feature_not_in_run: "Kế hoạch này chưa có dự kiến bán theo tồn. Tạo kế hoạch mới để xem.",
+        supply_schema_required: "Quản lý tình trạng cung cấp chưa được bật cho dữ liệu này.",
+        supply_conflict: "Lịch cung cấp đã thay đổi hoặc ngày đang chọn không còn phù hợp. Tải lại và kiểm tra ngày trước khi lưu.",
+        invalid_supply_history: "Chưa thể đọc lịch cung cấp của kế hoạch này. Hãy chọn kế hoạch khác hoặc tạo mới.",
         insufficient_forecast: "Thiếu đủ 14 ngày dự báo cho mặt hàng.",
         version_conflict: "Cấu hình đã thay đổi. Tải lại trước khi lưu.",
         database_unavailable:

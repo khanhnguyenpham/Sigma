@@ -1,5 +1,7 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+**CHG-084 bước6 — 02/11/2026:** thêm FE ProductSupplyForm, SellThrough và utils/supply; tái dùng useResource/http/Table/Pager/Panel/Recharts. Products/App/context truyền ngày mô phỏng qua URL; views vận hành dùng metadata frozen từ BE, không tự giải timeline hoặc tính lại projection. Không thêm dependency, backend service/schema hoặc thay model. [Bàn giao](../../docs/development.md#handoff-chg084-step6); DBapp chưa nâng.
+
 **CHG-084 bước5 — 02/11/2026:** reporting/supply.py chỉ đọc timeline từ config_snapshot và đường projection trong Alert.explanation; reporting dataset/export dùng chung. Inventory/purchasing operational view chọn window mới nhất cho item, giữ lô đúng window. Không thêm service/dependency/DBtable hoặc gọi lại simulation để phục vụ GET. [Bàn giao](../../docs/development.md#handoff-chg084-step5).
 
 **CHG-084 bước4 — 02/11/2026:** simulation đọc duy nhất snapshot và nhóm timeline theo item, recommend áp khóa nhập; projection mở rộng theo profile mới, không đổi đầu ra legacy. runs/supply_verification kiểm riêng timeline/projection, verification đối soát độc lập với producer. [Bàn giao](../../docs/development.md#handoff-chg084-step4); chưa thay read model/FE hoặc DBapp.

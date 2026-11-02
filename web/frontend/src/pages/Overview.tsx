@@ -129,6 +129,7 @@ export function Overview({
       ) : (
         <>
           <State loading={resource.loading} error={resource.error} />
+          {Number(s?.supply_stopped_items ?? 0) > 0 && <p className="notice">{fmt(s?.supply_stopped_items)} sản phẩm đã ngừng nhập trong kế hoạch này; theo dõi bán tồn và lô đã đặt.</p>}
           <div className="stats">
             <Card
               label="Tồn hiện có"

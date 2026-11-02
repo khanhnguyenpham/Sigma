@@ -1,5 +1,7 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
+**CHG-084 bước6 — 02/11/2026:** suite React đạt73/73, gồm8ca supply-management mới; build/pipcheck đạt. Browser synthetic trên DBtest kiểm mở lại/dừng/hủy/reload/history, biên7ngày, Back/focus, lọc và tải CSV14dòng, desktop1440/390px không tràn ngang trang. 409/giữ lý do/chống gửi lặp/unmount/thiếu ngày/legacy/CTA được kiểm trong React. [Bàn giao và giới hạn](../../docs/development.md#handoff-chg084-step6). Không chạy lại suite BE/M2 local hoặc model thật cho thay đổi chỉ FE; CI kiểm đúng commit saupush. DBapp chỉ đọc, bước7 vẫn chờ giao, R07/T14 chưa nghiệm thu.
+
 **CHG-084 bước5 — 02/11/2026:** test_sell_through_api.py kiểm3kind API/CSV/frozen sau live resume, bộ lọc/aggregate trước pagination, synthetic5040dòng qua nhiều batch export, legacy409 và ranh giới replay. Kết quả thực tại [bàn giao](../../docs/development.md#handoff-chg084-step5). Chỉ DBtest, không nâng DBapp/FE hoặc chạy model/replay thật; R07/T14 giữ mở.
 
 **CHG-084 bước4 — 02/11/2026:** test_supply_simulation.py thêm ca tính tay, stop/resume/cutoff/receipts/actual/parity và worker thật cho3kind; tamper Q/dự kiến bán/unserved/status và lịch sử invalid phải bị verifier chặn. Kết quả thực tại [bàn giao](../../docs/development.md#handoff-chg084-step4). Chỉ DBtest, không chạy model/replay thật hoặc nâng DBapp; R07/T14 chưa nghiệm thu.

@@ -1859,3 +1859,16 @@ button.warehouse-card:hover { border-color: #a9b5f0; background: #fcfcff; box-sh
   .inventory-filters { display: grid; grid-template-columns: minmax(0, 1fr); }
   .warehouse-card-footer { font-size: 9px; }
 }
+
+/* Supply forms share existing cards and table scrolling. */
+.supply-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-bottom:20px; }
+.supply-filters label, .supply-date, .supply-form label { display:flex; flex-direction:column; gap:7px; font-size:12px; margin-bottom:16px; min-width:0; }
+.supply-date { max-width:300px; }
+.supply-form fieldset { border:0; padding:0; margin:0; min-width:0; }
+.supply-form input, .supply-form textarea, .supply-filters input, .supply-filters select { width:100%; min-width:0; }
+.supply-form textarea { min-height:95px; resize:vertical; padding:10px; border:1px solid var(--border); border-radius:8px; font:inherit; }
+.supply-form .notice { overflow-wrap:anywhere; line-height:1.7; }
+.badge.stopped, .badge.sold_out { background:#f7eceb; color:#9c4743; }
+.badge.scheduled_stop, .badge.waiting_receipts { background:#fff3df; color:#986820; }
+.badge.active, .badge.selling_remaining { background:#e9f5f0; color:#277761; }
+@media (max-width:760px) { .supply-filters { grid-template-columns:minmax(0,1fr); } }

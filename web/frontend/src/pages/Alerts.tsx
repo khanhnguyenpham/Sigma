@@ -172,7 +172,7 @@ export function Alerts({
                     label: "Tín hiệu",
                     render: alertTypeLabel,
                   },
-                  { key: "state", label: "Trạng thái", render: badge },
+                  { key: "state", label: "Trạng thái", render: (v, row) => row.replenishment_allowed === false ? badge(row.sell_through_state ?? "stopped") : badge(v) },
                   { key: "rop", label: "ROP tại quyết định", render: (_, row) => fmt((((row.explanation as Row)?.thresholds) as Row)?.rop) },
                   { key: "warning_horizon_days", label: "N ngày", render: (_, row) => fmt((((row.explanation as Row)?.policy) as Row)?.warning_horizon_days ?? 7) },
                   { key: "predicted_threshold_date", label: "Xuống ROP dự kiến" },

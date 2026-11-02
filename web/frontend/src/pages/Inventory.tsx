@@ -1,3 +1,4 @@
+import { inventoryStatus } from "../utils/supply";
 import { WarehouseEditor } from "../components/inventory/WarehouseEditor";
 import { useEffect, useState } from "react";
 import { type Run, type Page, type Row } from "../types/api";
@@ -207,13 +208,7 @@ export function Inventory({
                     key: "needs_replenishment",
                     label: "Trạng thái",
                     render: (v, r) =>
-                      badge(
-                        v
-                          ? Number(r.recommended_qty) > 0
-                            ? "low_stock"
-                            : "pending_covers"
-                          : "sufficient",
-                      ),
+                      badge(inventoryStatus(r)),
                   },
                   {
                     key: "item_id",

@@ -49,7 +49,7 @@ export function AlertDetails({
         </div>
         <div>
           <dt>Trạng thái</dt>
-          <dd>{badge(focused.state)}</dd>
+          <dd>{badge(focused.replenishment_allowed === false ? focused.sell_through_state ?? "stopped" : focused.state)}</dd>
         </div>
         <div>
           <dt>Ngày quyết định · UTC</dt><dd>{text(focused.as_of_date)}</dd>
@@ -67,8 +67,10 @@ export function AlertDetails({
         </div>
         <div><dt>Số ngày tới lúc cạn</dt><dd>{fmt(focused.lead_days)}</dd></div>
       </dl>
+      {focused.supply_status != null && <p>{badge(focused.supply_status)}</p>}
+      {focused.replenishment_allowed === false && <p className="notice">Thông tin theo dõi bán tồn; sản phẩm đã ngừng nhập, không đặt lô mới. Lô đã đặt vẫn về theo ETA.</p>}
       <p className="notice subtle">
-        {projected
+        {focused.replenishment_allowed === false ? "Theo dõi ngày xuống ngưỡng hoặc cạn để bán lượng tồn còn lại." : projected
           ? `Tồn tại quyết định chưa dưới ROP. Lần đầu tồn cuối ngày dự kiến < ROP là ${text(focused.predicted_threshold_date)} trong N ngày. Ngày cạn được đọc từ tín hiệu Nguy cơ cạn riêng của mặt hàng.`
           : focused.alert_type === "below_rop"
             ? focused.state === "pending_covers"
@@ -125,8 +127,7 @@ export function AlertDetails({
         </>
       ) : (
         <div className="notice">
-          Tín hiệu dưới ngưỡng nhập. Mở Tồn kho để xem mức ROP, lượng đang về và
-          đề xuất đặt thêm.
+          {focused.replenishment_allowed === false ? "Mở Tồn kho để theo dõi lượng còn lại và các lô đã đặt." : "Tín hiệu dưới ngưỡng nhập. Mở Tồn kho để xem mức ROP, lượng đang về và đề xuất đặt thêm."}
         </div>
       )}
       <details className="advanced-section">
@@ -157,12 +158,12 @@ export function AlertDetails({
           >
             Kiểm tra tồn kho <Icon name="arrow" size={16} />
           </button>
-          <button
+          {focused.replenishment_allowed !== false && <button
             className="secondary"
             onClick={() => onItem(focused, "replenishment")}
           >
             Xem kế hoạch nhập
-          </button>
+          </button>}
         </div>
       )}
     </DetailDrawer>

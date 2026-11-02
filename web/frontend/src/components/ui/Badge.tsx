@@ -4,6 +4,12 @@ export const badge = (value: unknown) => (
   <span className={"badge " + String(value)}>
     {(
       {
+        active: "Đang cung cấp",
+        scheduled_stop: "Đã lên lịch ngừng",
+        stopped: "Đã ngừng nhập",
+        selling_remaining: "Đang bán tồn",
+        waiting_receipts: "Chờ lô đang về",
+        sold_out: "Đã hết hàng · ngừng nhập",
         early: "Sớm ≥7 ngày",
         urgent: "Khẩn · dưới 7 ngày",
         already_depleted: "Đã hết tại mốc chốt",

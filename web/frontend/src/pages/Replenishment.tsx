@@ -161,6 +161,7 @@ export function Replenishment({
               Hãy đổi ngày, bộ lọc hoặc tạo kế hoạch mới.
             </div>
           )}
+          {Number(s?.supply_stopped_items ?? 0) > 0 && <p className="notice">{fmt(s?.supply_stopped_items)} sản phẩm đã ngừng nhập, không có đề xuất lô mới. Lô đã đặt vẫn được nhận theo ETA.</p>}
           <Panel
             title="Danh sách nhập hàng"
             note={`Ngày kế hoạch ${ctx.origin} · UTC`}
@@ -230,6 +231,7 @@ export function Replenishment({
               rows={rows}
               onRow={(row) => setSelection({ key, row })}
               columns={[
+                { key: "supply_status", label: "Cung cấp", render: (v) => v ? badge(v) : "Chưa có trạng thái trong kế hoạch" },
                 ...(view !== "recommendations"
                   ? [
                       {

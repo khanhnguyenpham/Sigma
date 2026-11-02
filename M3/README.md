@@ -1,5 +1,7 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
+**CHG-084 bước6 — 02/11/2026:** FE quản lý cung cấp và bán tồn đã có: form/lịch sử/dừng/hủy/mở lại theo UTC, nhãn/bộ lọc, biểu đồ/CSV; giữ riêng cấu hình live và trạng thái frozen. 73React/build/browser desktop390px trên DBtest đạt. DBapp vẫn0006, form báo chưa bật; chỉ cutover sau backup/restore thử ở bước7 được giao riêng. [Bàn giao](../docs/development.md#handoff-chg084-step6). Các checkpoint trước bên dưới là lịch sử; R07/T14 giữ mở.
+
 **CHG-084 bước5 — 02/11/2026:** có GET runs/{key}/sell-through và exports/sell_through cùng metadata cung cấp trên tồn/nhập/cảnh báo/tổng quan; đọc từ snapshot/projection lưu. Không tự tính lại run cũ, thiếu profile/dữ liệu trả409 tạo kế hoạch mới. Chỉ kiểm DBtest; DBapp chưa nâng, UI bước6 chưa làm. [Bàn giao](../docs/development.md#handoff-chg084-step5).
 
 **CHG-084 bước4 — 02/11/2026:** worker/simulation đã hỗ trợ supply event frozen và bán tồn, guard bước3 được gỡ; verifier kiểm độc lập. Chỉ kiểm DBtest; DBapp vẫn chưa nâng/mở chức năng cung cấp. Read model/CSV/FE chưa tích hợp ở bước4, không coi các nhãn hiện tại của web là luồng bán tồn đã hoàn tất. [Bàn giao](../docs/development.md#handoff-chg084-step4).
