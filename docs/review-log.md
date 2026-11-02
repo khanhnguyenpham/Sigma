@@ -1,5 +1,12 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+<a id="chg084"></a>
+## CHG-084 — 02/11/2026, duyệt thiết kế và giao riêng MD bước1
+
+Nguồn là trao đổi và kế hoạch được người dùng yêu cầu thực hiện: ban đầu hỏi có cho dừng cung cấp trong ngày để tránh model tiếp tục dự báo; sau làm rõ đã chọn ngừng nhập và bán tồn, bắt buộc báo trước7ngày theo L7, áp dụng từng item tại một kho, vẫn nhận lô đã đặt, có hủy lịch/mở lại và dùng ngày kế hoạch mô phỏng. Người dùng chọn dự báo bán theo tồn, vì còn cần nhu cầu để ước tính ngày bán hết; không dừng toàn model tuyến hoặc phân phối nhu cầu sang SKU khác. Đây không là xác nhận mentor hoặc chứng cứ thông báo NCC thực. E05/RV12 về thiếu nhãn EOL nguồn vẫn giữ nguyên.
+
+Phạm vi được giao: tạo hai MD lộ trình/đặc tả, đồng bộ tài liệu hiện có rồi dừng; chưa sửa code/tạo migration/nâng DB/chạy model hoặc nâng R07/T14. Bổ sung sau đó: làm xong bước1 thì đẩy GitHub và dừng chờ người dùng duyệt bước2. Cho phép commit/push thường riêng MD CHG-084 lên final-report, kiểm SHA remote/CI; không tự làm bước2–7 hoặc đưa dữ liệu riêng tư lên Git. [Lộ trình](planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md), [đặc tả07](../M3/docs/07-product-supply-lifecycle.md), [kiểm/bàn giao](development.md#handoff-chg084).
+
 **CHG-048/E76 — 19/10/2026:** đã nhận yêu cầu chỉ tạo/sửa Markdown thiết kế M3 và commit/push nhánh riêng. [Bộ đặc tả](../M3/README.md) giữ nguồn thuật lại, phân biệt thực tế/dự kiến, không nhận đã chạy BE/FE/DB/ML mới. Chi tiết và bằng chứng ở [E76](#e76).
 
 **CHG-038/E66 — 11/10/2026:** thử nghiệm lịch local hoàn tất,10 ứng viên không thắng đối chứng LG U+ trên validation; không chấm test mới. [Protocol/CSV/bảng kết quả](calendar-experiment.md); chi tiết bằng chứng ở mục CHG-038/E66 cuối nhật ký. R05/R07/T14 giữ mở.

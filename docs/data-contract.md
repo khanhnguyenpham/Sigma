@@ -1,5 +1,14 @@
 # Hợp đồng dữ liệu SIGMA
 
+<a id="supply-lifecycle-chg084"></a>
+## CHG-084 — Hợp đồng cung cấp dự kiến, bước1 chỉ MD
+
+Thông báo ngừng nhập được người dùng khai báo ở cấp item_id (kho/tuyến × SKU × loại), có nhãn mô phỏng; không suy từ sale0, không thêm nhãn EOL giả vào raw hoặc sửa actual. `known_on`/`effective_on` là date UTC mô phỏng, `created_at` là timestamp thực. Ngày dừng đặt mới ≥ known_on+7; lô đã đặt vẫn nhận dù ETA sau ngày dừng. Hủy/mở lại append lịch sử độc lập policy; không có sự kiện nghĩa là active.
+
+Schema dự kiến0007 thêm item_supply_changes, từ13 lên14bảng khi triển khai; giữ nguyên13bảng/cột/hàng cũ và snapshot/hash. Inventory run mới đóng băng profile notice7_sellthrough_v1 và timeline; quyết định chỉ dùng known_on≤origin, không tải lifecycle live vào run đã lưu. Dự kiến bán=min(nhu cầu dự báo, tồn+receipts đã biết), không thay forecast_qty/actual hoặc phân phối phần thiếu sang SKU khác. Missing actual không thành0; projection chỉ trong H14, metric/mẫu số R07 không tự thay.
+
+Nguồn chi tiết: [DB](../M3/docs/07-product-supply-lifecycle.md#database), [API/CSV](../M3/docs/07-product-supply-lifecycle.md#api), [snapshot và causality](../M3/docs/07-product-supply-lifecycle.md#snapshots-and-causality). Chưa tạo migration/bảng hoặc thay DB ở bước1; [yêu cầu](requirements.md#supply-lifecycle-chg084), [lộ trình](planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps).
+
 **CHG-083 — 01/11/2026 thay hợp đồng mode live:** chỉ có ROPfixed/SSdays; DB0006 bỏ4cột mode/lookback/factor, API từ chối4field tương ứng. Giá trị ngưỡng/SSngày được giữ; newrun ghi markerprofile và2hằng mode để đối soát. Snapshot/bundle lịch sử không chỉnh. Điền920policy thiếu lượng bằng quantity03–30/06/2025, cao>median theo loại: eSIM5/10,physical_SIM10/15; medianđọc trực tiếp lần này là6/2, giữ1lượng đã khai báo. Đây là giả định người dùng đã chọn, không phải hợp đồng thực. Ba inventoryrun và9artifact chuyển lưu trữ cóbackup/restore thử;2source/forecastparents và7bảng nguồn/danh mục nguyên checksum,1.049file giữ nội dung qua đường lưu trữ. Tạo1stock_projection mới, không dùng tỷ lệ lịch sử để nghiệm thu profile mới. [Bàn giao](development.md#handoff-chg083).
 
 **CHG-082 — 01/11/2026:** quản lý sản phẩm đọc catalog/policy hiện tại theoitem_id; khóa vẫnwarehouse×SKU×product_type, không gộp hai loại cùngSKU. Latestpolicy có thể có ngày hiệu lực tương lai, UI hiện rõ ngày; kế hoạch vẫn chọn policy theo ngày và guard đã khóa. Tên hiện tại trả riêng trongdisplay_city theoID để sửa kho cập nhật ngay;city read model giữ snapshot/aliasCHG081, JSON/hash/CSVsealed không sửa. CSV mới mang cảcity/display_city. Không đổi phép tính hoặc che việc thiếufixed_order_qty. [API](../M3/docs/03-backend-api.md), [bàn giao](development.md#handoff-chg082).

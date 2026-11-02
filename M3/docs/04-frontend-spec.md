@@ -1,5 +1,9 @@
 # M3 — đặc tả frontend
 
+## CHG-084 — Tình trạng cung cấp: UI dự kiến
+
+02/11/2026, bước1 chỉ MD: ProductDetail dự kiến có khu vực cung cấp riêng form ROP/SS, ngày mô phỏng/thông báo/ngày dừng +7/lý do/lịch sử/hủy/mở lại; danh sách thêm nhãn/bộ lọc. Tồn/nhập/tổng quan đọc snapshot; Dự báo trong inventory run mới có Dự kiến bán theo tồn, nhu cầu trong chi tiết. Lưu cấu hình nhắc tạo kế hoạch mới, không sửa kết quả cũ; chưa có ngày thì không cho lưu. [Luồng và hành vi FE dự kiến](07-product-supply-lifecycle.md#frontend), [kiểm](07-product-supply-lifecycle.md#test-matrix). Chưa sửa FE hoặc nhận đã kiểm browser tính năng mới.
+
 ## CHG-083 — Form số, không còn bộ chọn mode
 
 Form sản phẩm và override nâng cao chỉ có Ngưỡng nhập cố định(ROP), lượng nhập mỗi lần(chỉ sản phẩm), số ngày tồn an toàn và N cảnh báo; không còn select/hiddeninput mode/lookback/factor. Payload whitelist trị số vàID/version/date; bỏ nhánh bật/tắt trường và nội suy theo volatility. SS0/ROP0 giữ đúng, blankoverride vẫn kế thừa. Caption giải thích SSngày không cộng vào ROPcố định. Các mô tả chọn mode ởCHG082 và các phần bên dưới là lịch sử, không phải UI hiện tại. Danh sách run app chỉ còn nguồn/dự báo và kế hoạch tồn mới sauarchive cóbackup. [Bàn giao](../../docs/development.md#handoff-chg083).

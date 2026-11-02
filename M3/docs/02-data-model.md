@@ -1,5 +1,9 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
+## CHG-084 — Lịch sử cung cấp: DB dự kiến, chưa migrate
+
+02/11/2026, bước1 chỉ MD: dự kiến migration0007_supply_lifecycle sau0006_fixed_days thêm item_supply_changes, từ13 lên14bảng nghiệp vụ khi được triển khai; lịch sử append-only theo item/version, ngày mô phỏng và created_at thực tách riêng. Không thay policy ROP/SS, 13bảng cũ hoặc JSON/hash run đã khóa; bảng rỗng nghĩa mọi item active. [Trường, constraint và downgrade dự kiến](07-product-supply-lifecycle.md#database), [snapshot](07-product-supply-lifecycle.md#snapshots-and-causality). Bước2DB chưa bắt đầu; schema hiện tại vẫn0006_fixed_days, không phải đã có bảng mới.
+
 ## CHG-083 — Schema0006_fixed_days
 
 Migration bỏ4cột safety_mode/rop_mode/safety_lookback_days/safety_factor và4check tương ứng khỏi supplier_item_policies; giữ safety_days,configured_rop_floor(ngưỡngROP cố định),fixed_order_qty,warning_horizon_days, phiên bản/hiệu lực/FK. MOQ nullable chỉ để đọc/nâng dữ liệu lịch sử, không làm lượng cố định cho policy mới. Scenario editable bỏ4trường trong override, giữ các số khác và thứ tự; không sửa runs.config_snapshot/hash.

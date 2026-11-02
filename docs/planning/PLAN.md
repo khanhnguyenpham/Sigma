@@ -96,7 +96,7 @@ Dự báo **tổng quantity SIM/gói data bán theo ngày UTC và tuyến `(dest
 
 Phạm vi: audit, EDA tuần/tháng/lễ; dự báo 46 tuyến; MAPE ngày dương ≤20% cho **từng tuyến top 10**, kèm độ phủ và MAE/WAPE/bias; mô phỏng nhập hàng và cảnh báo trước ≥7 ngày; dashboard riêng trên Windows; báo cáo, slide và bàn giao tái lập. Không hứa trước đạt độ chính xác.
 
-EOL, chuyển nhu cầu sang SKU/nhà mạng khác, FIFO theo lô, tối ưu chi phí, đặt hàng tự động, API, cơ sở dữ liệu và hosting là mở rộng. Không dùng mô phỏng để tuyên bố hiệu quả vận hành thật.
+EOL, chuyển nhu cầu sang SKU/nhà mạng khác, FIFO theo lô, tối ưu chi phí, đặt hàng tự động, API, cơ sở dữ liệu và hosting là mở rộng trong thiết kế gốc; các CHG sau ghi rõ phần đã được giao/triển khai. CHG-084 bổ sung quản lý thông báo ngừng nhập thủ công có nhãn mô phỏng, chưa bổ sung tự động phát hiện EOL. Không dùng mô phỏng để tuyên bố hiệu quả vận hành thật.
 
 | Mốc | Ngày | Cách xử lý |
 |---|---|---|
@@ -886,3 +886,12 @@ T11/T12 hoàn tất local: thêm ba API đọc, trang sản phẩm, form inline 
 01/11/2026: người dùng chọn duy nhất ROP ngưỡng cố định và SS theo số ngày bán, yêu cầu sửa BE/FE/DB, bỏ run không cần thiết và giao pushGitHub sau kiểm tra. Người dùng đã chọn điền lượng nhập còn thiếu bằng nhóm lô giả định CHG077: eSIM thấp5/cao10, physical_SIM thấp10/cao15, nhóm cao khi tổng quantity03–30/06/2025 lớn hơn trung vị riêng loại sản phẩm. Giữ lượng đã khai báo, không lấyMOQ thay thế.
 
 T10–T12 hoàn tất local: bỏ bốn trường mode/lookback/factor khỏi livepolicy/API/FE; DB0006_fixed_days bỏ cột và dọn các mode trong scenario editable. Newrun freeze rõfixed/days/profile, không cho override chọn lại mode. Giữ reader/verifier lịch sử để đối chiếu bản lưu trữ. Backup và restore thử riêng trước khi dọn đúng3inventoryrun được liệt kê; giữ nguyên source/forecast parent và chuyển artifact sang archive có hash. Sau đó tạo1stock_projection theo cấu hình mới, không refit hoặc chạy lại toàn replay. Không nâng R07/T14 bằng số của run đã lưu trữ. [Yêu cầu](../requirements.md#fixed-days-chg083), [bàn giao](../development.md#handoff-chg083).
+
+<a id="chg-084"></a>
+## CHG-084 — Ngừng nhập từng sản phẩm và bán tồn
+
+02/11/2026, người dùng duyệt: từng item tại một kho; bắt buộc báo trước ít nhất7ngày theo L7 trong thời gian mô phỏng UTC; ngày dừng chặn đề xuất/lô mới nhưng vẫn nhận lô đã đặt. Tiếp tục ước tính nhu cầu để tính lượng bán theo tồn/pending, cho hủy lịch chưa hiệu lực hoặc mở nhập lại có lịch sử. Không chuyển nhu cầu sang SKU khác hoặc tự phát hiện EOL từ sale0. [Yêu cầu](../requirements.md#supply-lifecycle-chg084), [quyết định nguồn](../review-log.md#chg084).
+
+**Phạm vi thực hiện lượt này: riêng bước1 Markdown**, gắn T01/T10/T11/T12. Đã soạn [lộ trình 7 bước](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps) và [đặc tả07](../../M3/docs/07-product-supply-lifecycle.md); đồng bộ yêu cầu/hợp đồng/đặc tả M3/bàn giao. Các bước2DB–3API/snapshot–4worker/bán tồn–5read model/CSV–6FE–7tích hợp chưa triển khai; bảng mới/migration0007/profile/API đều dự kiến. Không sửa code, tạo migration, nâng DB, refit hoặc replay; M05/R05/R07/T14 giữ nguyên trạng thái.
+
+Người dùng bổ sung giao kiểm xong bước1 thì commit/push thường MD lên final-report, đối chiếu SHA remote/CI rồi **dừng chờ duyệt bước2**. Không tự nối các bước sau hoặc đưa raw/run/DB/env lên Git. [Kiểm và bàn giao](../development.md#handoff-chg084).

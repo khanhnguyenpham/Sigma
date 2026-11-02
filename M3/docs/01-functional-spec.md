@@ -1,5 +1,9 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+## CHG-084 — Ngừng nhập và bán tồn: đặc tả dự kiến
+
+02/11/2026, bước1 chỉ MD: thêm nghiệp vụ dừng nhập từng item sau thông báo ít nhất7ngày mô phỏng UTC, nhận tiếp lô đã đặt, bán tồn, hủy lịch/mở lại có lịch sử. Phân biệt trạng thái cung cấp với trạng thái tồn theo run; nhu cầu vẫn được ước tính, dự kiến bán bị chặn theo hàng có thể bán. [Nguồn quy tắc/trạng thái/thời gian](07-product-supply-lifecycle.md#states-and-time), [phép tính và worker dự kiến](07-product-supply-lifecycle.md#forecast-and-worker). Chưa triển khai, không đổi công thức CHG-083 hoặc nghiệm thu R07/T14 ở lượt MD này.
+
 ## CHG-083 — Hợp đồng tồn kho hiện tại
 
 Từ01/11/2026 người dùng chọn duy nhất ROP cố định và SS theo ngày bán. ROP=configured_rop_floor đã khai báo, SS=ceil(safety_days×mean(forecast14)×safety_multiplier); SS không cộng lại vào ROP. S=ROP+ceil(f8), IP=closing+pending; strictclosing<ROP, Q=fixed_order_qty khiIP<S, ngược lạiQ=0. H14/L7/R1 và việc phân biệt cảnh báo xuốngROP/cạn giữ nguyên. API/DB cấu hình không cònmode/biến động/lookback/factor; JSON lịch sử chỉ đọc để kiểm chứng bản lưu trữ. Các đoạn đa mode bên dưới giữ vai trò thiết kế/lịch sử trướcCHG083. [Yêu cầu](../../docs/requirements.md#fixed-days-chg083).

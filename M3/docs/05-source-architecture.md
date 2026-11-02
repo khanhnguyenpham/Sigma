@@ -1,5 +1,9 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+## CHG-084 — Tích hợp dự kiến vào module hiện có
+
+02/11/2026, bước1 chỉ MD: catalog dự kiến giữ lịch sử cung cấp/API/resolver; configuration/runs freeze timeline vào inventory snapshot; inventory/purchasing áp dụng khóa nhập mới và bán tồn; alerts/reporting xuất cùng snapshot; verifier kiểm độc lập. FE mở rộng Products/ProductDetail và các view tồn/nhập/dự báo hiện có. Giữ model nhu cầu, forecast parent, một Base và worker/CLI hiện có; không thêm dịch vụ hoặc dependency. [Thiết kế07](07-product-supply-lifecycle.md), [lộ trình](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). Tất cả thay đổi source/migration này chưa triển khai, không phải cây code thực tế ở bước1.
+
 **Tính policy bước11 CHG-068 — 25/10/2026:** inventory/service có2mode SS và2mode ROP, simulation chọn lịch sử causal theo decision origin, independent verifier tự đối soát từng dòng. Mode đã lưu từ bước10 nay chạy được, không guard tạm; API/schema13bảng/FE/default legacy giữ, cấu trúc web của CHG-072 giữ. [Công thức và ví dụ](01-functional-spec.md#configurable-calculation-step11), [kiểm và bàn giao](../../docs/development.md#handoff-chg068-step11). Bước12–15 chưa bắt đầu; các trạng thái trước bước11 bên dưới là checkpoint lịch sử.
 
 <a id="web-layout-chg072"></a>
