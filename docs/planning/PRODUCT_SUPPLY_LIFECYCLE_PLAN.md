@@ -3,6 +3,8 @@
 <a id="status"></a>
 ## 1. Trạng thái và phạm vi được giao
 
+**Cập nhật bước7, 02/11/2026:** kiểm tích hợp và cutover đã hoàn tất local:368Python BE/M2,74React/build/pipcheck, API/CSV920 và browser1440/390px. Backup đã restore thử; app nâng0007,13bảng cũ/3run/1.052file nguyên hash, bảng cung cấp mới rỗng. [Bàn giao](../development.md#handoff-chg084-step7). Hiện7/8bước hoàn tất; commit/push/SHA/CI rồi dừng trước bước8. Chưa chạy kịch bản nguồn thật hoặc thao tác stop live; các trạng thái chưa nâng DB ở checkpoint trước là lịch sử.
+
 **Bổ sung bước8, 02/11/2026 — chỉ kế hoạch:** theo yêu cầu người dùng, sau bước7 sẽ kiểm các run cũ và chạy thử một run mới có một item ngừng nhập giữa kỳ. [Protocol bước8](#step8-run-validation). Bước1–6 đã hoàn tất; bước7 và bước8 chưa thực hiện. Lượt này chỉ sửa Markdown, chưa chạy run hoặc nâng DB; các lộ trình7bước phía dưới là mốc trước bổ sung.
 
 **Cập nhật bước6, 02/11/2026:** FE cung cấp/bán tồn đã triển khai và kiểm trên DBtest:73React/build, browser desktop1440 và390px, lưu/reload/Back/focus/CSV. [Bàn giao bước6](../development.md#handoff-chg084-step6). Không nâng DBapp, không tự làm bước7; tiếp tục cổng commit/push/SHA/CI rồi dừng. Các điểm dừng trước bên dưới là lịch sử.
@@ -69,7 +71,7 @@ Luồng kỹ thuật giữ model nhu cầu và phân bổ hiện có, không ref
 | 4 — Worker và bán tồn | T10/T12 | Chặn đề xuất/lô mới; giữ receipts; projection và verifier | Tính tay, biên ngày dừng, lô về muộn, causality; parity khi không có sự kiện | Đã triển khai; kiểm/publish tại bàn giao bước4 |
 | 5 — Read model/CSV | T10/T11/T12 | Tồn/nhập/tổng quan, endpoint và CSV bán tồn | Cùng snapshot, lọc trước phân trang, tổng đầy đủ; không coi ngừng nhập là đủ hàng | Đã triển khai; kiểm/publish tại bàn giao bước5 |
 | 6 — FE | T11/T12 | Form/lịch sử/trạng thái/bộ lọc/biểu đồ | Lưu–reload, 409/lỗi, Back/focus/CSV, desktop và 390px | Đã triển khai; kiểm/publish tại bàn giao bước6, chỉ DBtest |
-| 7 — Tích hợp/bàn giao | T10/T11/T12 | Kiểm toàn luồng; sau backup/restore thử mới nâng DB ứng dụng | BE/M2 liên quan, React/build/pip check, API/CSV/browser, verifier và hash | Chưa triển khai |
+| 7 — Tích hợp/bàn giao | T10/T11/T12 | Kiểm toàn luồng; sau backup/restore thử mới nâng DB ứng dụng | BE/M2 liên quan, React/build/pip check, API/CSV/browser, verifier và hash | Hoàn tất local; DBapp0007, kiểm/publish tại bàn giao bước7 |
 | 8 — Run cũ và kịch bản một item ngừng nhập | T10/T11/T12 | Báo cáo kiểm run cũ; một policy_replay mới có lịch dừng giữa kỳ, kết quả/CSV và bằng chứng local | Bảo toàn run cũ, biên ngày dừng, lô cũ/ETA, bán tồn, nhân quả, verifier độc lập; protocol bên dưới | Mới bổ sung kế hoạch, chưa thực hiện |
 
 Không tự nối bước 2 sau khi hoàn tất bước 1. Các bước 2–6 kiểm trên fixture/DB test; chưa đưa thao tác cung cấp vào DB ứng dụng khi worker/read model chưa hỗ trợ đầy đủ. Cổng triển khai DB app thuộc bước 7. Quyền commit/push của lượt này chỉ áp dụng MD bước 1; quyền của các bước sau theo yêu cầu tiếp theo của người dùng.

@@ -3,6 +3,9 @@
 <a id="status"></a>
 ## 1. Trạng thái đặc tả
 
+<a id="step7-implemented"></a>
+**Cập nhật bước7, 02/11/2026:** DBapp đã nâng0006→0007_supply_lifecycle sau backup/restore thử và migration diễn tập. Hash đủ13bảng cũ,3run/snapshot và1.052file dữ liệu/artifact giữ nguyên; bảng lịch sử cung cấp mới rỗng, metadata0diff. API/worker local đã khởi động lại, quản lý cung cấp được bật nhưng chưa khai báo stop live hoặc tạo run thật mới. Catalog theo ngày hiện920item active/version0; legacy run giữ trạng thái cung cấp null/allowed=true và sell-through409 đúng hợp đồng. Một lỗi FE được sửa: API run list lỗi rồi phục hồi không tự gán lại ngày đã xóa, chỉ khởi tạo mặc định một lần cho run được chọn. [Kết quả kiểm/bàn giao](../../docs/development.md#handoff-chg084-step7). 7/8bước hoàn tất local; bước8 chưa thực hiện, R07/T14 giữ mở. Các checkpoint chưa cutover bên dưới là lịch sử.
+
 **Bổ sung bước8, 02/11/2026 — chỉ thiết kế kiểm:** người dùng yêu cầu đưa kiểm run cũ và một run mới có item ngừng nhập giữa kỳ vào bước8 sau bước7. Chưa chạy thử, chưa chọn item/run cụ thể hoặc nâng DBapp. [Protocol và tiêu chí](#step8-run-validation); bước1–6 đã hoàn tất, bước7–8 chưa thực hiện. Không đổi DB/API/nghiệp vụ hoặc nghiệm thu R07/T14.
 
 <a id="step6-implemented"></a>

@@ -1,5 +1,11 @@
 # SIGMA — React / FastAPI local
 
+## Ngừng nhập sản phẩm và bán tồn — CHG-084
+
+Tại **Sản phẩm → chi tiết → Tình trạng cung cấp**, chọn ngày mô phỏng UTC, ngày dừng cách ngày thông báo ít nhất7ngày và lý do. Từ ngày dừng không đặt lô mới, vẫn nhận lô đã đặt/bán tồn; có lịch sử, hủy lịch chưa hiệu lực và mở nhập lại. Lưu cấu hình rồi tạo kế hoạch mới để tính tác động; run cũ giữ snapshot, thiếu profile bán tồn sẽ yêu cầu kế hoạch mới.
+
+DBapp local đã backup/restore thử và nâng0007_supply_lifecycle; dữ liệu13bảng/3run cũ nguyên hash, lịch sử cung cấp mới rỗng. Kiểm tích hợp368Python/74React/build/pipcheck/API/CSV/browser đạt. [Bàn giao](docs/development.md#handoff-chg084-step7). Chưa chạy kịch bản nguồn thật của bước8; R07/T14 chưa nghiệm thu. Các hướng dẫn nâng0006 bên dưới là checkpoint trước thay đổi này.
+
 ## ROP cố định và SS theo ngày bán — CHG-083
 
 Cấu hình sản phẩm chỉ nhập **ngưỡng nhập cố định (ROP)**, lượng nhập mỗi lần, số ngày tồn an toàn và N ngày cảnh báo; không còn chọn cách tính. ROP bằng ngưỡng đã khai báo, SS theo số ngày bán và không cộng vào ROP. Máy đã cóDB cần backup rồi nâng Alembic lên`head` trước khi chạy API. Không tự dùngMOQ để điền lượng cố định.

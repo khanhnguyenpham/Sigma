@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**CHG-084 bước7 — 02/11/2026, T10/T11/T12:** kiểm368Python/74React/build/pipcheck và browser/API/CSV đạt; backup/restore thử rồi nâng DBapp0007, giữ13bảng cũ/3run/1.052file, history mới0. Đã sửa hồi phục ngày mô phỏng khi API lỗi. [Bàn giao](../development.md#handoff-chg084-step7), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). Hiện7/8bước hoàn tất local, commit/push/SHA/CI rồi dừng, bước8 chưa chạy; R07/T14 giữ mở. Các trạng thái cũ phía dưới là checkpoint lịch sử.
+
 **CHG-084 bổ sung bước8 — 02/11/2026, T01/T10/T11/T12, chỉ kế hoạch:** kiểm các run cũ còn truy cập và một policy_replay mới có một item ngừng nhập giữa kỳ; giữ run cũ/hash, dùng DB bản sao và giả định có nhãn. [Protocol bước8](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#step8-run-validation), [bàn giao MD](../development.md#handoff-chg084-step8-plan). Hiện6/8bước hoàn tất; bước7–8 chưa thực hiện, chưa chạy run/migrate ở lượt này. R07/T14 giữ mở.
 
 **CHG-084 bước6 — 02/11/2026, T11/T12:** đã tích hợp FE cung cấp và bán tồn, kiểm73React/build/browser desktop390px trên DBtest; DBapp chưa nâng. [Bàn giao](../development.md#handoff-chg084-step6), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). Commit/push/SHA/CI rồi dừng sau bước6; bước7 chờ giao, R07/T14 chưa nghiệm thu. Các checkpoint trước giữ lịch sử.

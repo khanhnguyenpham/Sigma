@@ -1,5 +1,7 @@
 # M3 — đặc tả frontend
 
+**CHG-084 kiểm tích hợp — 02/11/2026:** useAppContext chỉ khởi tạo ngày mặc định một lần theo run đã chọn. Khi API danh sách run lỗi rồi phục hồi, giữ ngày người dùng đã xóa thay vì tự bật lại thao tác ghi với ngày mặc định; test hồi quy đi qua lỗi503/retry đạt. Bản build cuối74React/browser1440/390px đạt, DBapp0007 đã bật form; thao tác ghi thử vẫn trên synthetic DBtest. [Bàn giao](../../docs/development.md#handoff-chg084-step7).
+
 ## CHG-084 bước6 — FE đã triển khai trên DBtest
 
 ProductSupplyForm có ngày mô phỏng, lịch sử, thao tác theo trạng thái và preview item–kho/tồn/pending; gợi ý +7 UTC, validation, version conflict giữ lý do và tải lại chủ động. Products lọc ngày/trạng thái tại server; ProductDetail tách cấu hình live với số liệu kế hoạch frozen. SellThrough dùng API/CSV bước5, ưu tiên bán theo tồn trong inventory run, nhu cầu/metric trong chi tiết. Nhãn/CTA vận hành không thúc nhập hoặc coi stopped là đủ hàng; lô đã đặt vẫn được theo dõi. DB0006 vẫn đọc catalog và báo tính năng chưa bật; chưa mở ghi cung cấp trên app trước bước7. [Hành vi thực](07-product-supply-lifecycle.md#step6-implemented), [73React/build/browser1440/390px](../../docs/development.md#handoff-chg084-step6). Mô tả UI dự kiến bước1 bên dưới là mốc lịch sử.

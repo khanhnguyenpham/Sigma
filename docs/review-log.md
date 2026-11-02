@@ -1468,3 +1468,8 @@ Nguồn trực tiếp: người dùng yêu cầu “Làm bước 6 đi” sau c�
 ## CHG-084 — 02/11/2026, bổ sung kế hoạch bước8
 
 Nguồn trực tiếp: người dùng hỏi có thể test run cũ và một run mới với giả định một mặt hàng bị hủy trong thời gian kịch bản, sau đó yêu cầu “Nếu có thể hãy bổ sung nó vào bước8”. Phạm vi mới là bổ sung kế hoạch Markdown, không phải giao chạy bước7/8 ngay. Hiểu “hủy mặt hàng” theo nghiệp vụ đã chốt: ngừng nhập có thông báo≥7ngày, tiếp tục nhận lô cũ/bán tồn, không xóa SKU hoặc hủy đơn đã đặt. Kiểm run cũ chỉ đọc/bảo toàn; một run mới trên DB bản sao riêng, dùng forecast hiện có và verifier độc lập. [Protocol](planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#step8-run-validation), [bàn giao tài liệu](development.md#handoff-chg084-step8-plan). Giữ trạng thái R07/T14, không nhận run hoặc hiệu quả mới khi chưa thực hiện.
+
+<a id="chg084-step7"></a>
+## CHG-084 — 02/11/2026, giao tích hợp/cutover và quy ước tên commit
+
+Nguồn trực tiếp: người dùng yêu cầu tiếp tục bước7; khi commit không để step/số bước trong tên, kèm ảnh minh họa nhãn commit. Chỉ áp dụng tên commit mới theo nội dung thay đổi, không sửa lại lịch sử Git. Phạm vi cho phép kiểm tích hợp, backup/restore thử rồi nâng DBapp theo kế hoạch đã duyệt, commit/push thường final-report/SHAremote/CI; bước8 chưa được giao chạy. Đã nâng0007 sau diễn tập và đối soát, giữ run/dữ liệu cũ và history mới0; ghi thử cung cấp chỉ synthetic DBtest. [Kết quả và giới hạn](development.md#handoff-chg084-step7). R07/T14 giữ nguyên trạng thái.

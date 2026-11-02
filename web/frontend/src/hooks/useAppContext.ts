@@ -1,6 +1,6 @@
 import { inventoryKinds } from "../config/navigation";
 import { readPurchasingView } from "../utils/url";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type Run, type Page } from "../types/api";
 import { type Context } from "../types/context";
 import { readContext, contextUrl } from "../utils/url";
@@ -9,6 +9,7 @@ import { type PurchasingView } from "../types/context";
 
 export function useAppContext() {
   const [ctx, setCtx] = useState<Context>(readContext);
+  const datedRun = useRef("");
   const [page, setPage] = useState(location.hash.slice(1) || "overview");
   const [help, setHelp] = useState(false);
   const [dialog, setDialog] = useState(false);
@@ -98,7 +99,10 @@ export function useAppContext() {
       setCtx((c) => ({ ...c, itemId: "" }));
   }, [items.data, page]);
   useEffect(() => {
-    if (run && !ctx.origin)
+    // Default once per selected run, preserving an explicit clear across retries.
+    if (!run || datedRun.current === run.id) return;
+    datedRun.current = run.id;
+    if (!ctx.origin)
       setCtx((c) => ({
         ...c,
         origin: run.kind === "forecast" ? "2025-10-31" : run.as_of_date,

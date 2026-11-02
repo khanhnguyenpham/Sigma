@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-084 bước7 — 02/11/2026:** migration0007 có sẵn đã áp dụng cho DBapp sau restore thử; không thêm BE/model/schema mới. FE hooks/useAppContext.ts nhớ run đã khởi tạo ngày để giữ thao tác xóa ngày qua lỗi/retry; tests/context-transition.test.tsx thêm ca hồi quy. Ứng dụng có14bảng,13bảng cũ nguyên hash, chưa có supply event/run thật mới. [Bàn giao](../development.md#handoff-chg084-step7). Chỉ bước8 kiểm lịch sử/diễn tập nguồn thật còn chờ giao.
+
 **CHG-084 bước8 dự kiến — 02/11/2026:** [protocol run cũ/run mới](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#step8-run-validation) và [ma trận bằng chứng](../../M3/docs/07-product-supply-lifecycle.md#step8-run-validation) đã bổ sung; dùng reader/verifier/API/worker/CSV/UI hiện có, không thêm module hoặc dependency. Chỉ sửa Markdown, chưa tạo run/DB bản sao hoặc nâng app; bước7–8 chờ giao. [Bàn giao tài liệu](../development.md#handoff-chg084-step8-plan).
 
 **CHG-084 bước6 — 02/11/2026:** FE có components/products/ProductSupplyForm.tsx, components/forecast/SellThrough.tsx và utils/supply.ts; Products/ProductDetail dùng ngày mô phỏng và API live, các trang vận hành dùng metadata frozen. Giữ hooks/services/Table/Panel/Pager/chart hiện có, không thêm dependency hoặc sửa BE/schema/model. [Bàn giao](../development.md#handoff-chg084-step6); DBapp chưa cutover, bước7 chờ giao.

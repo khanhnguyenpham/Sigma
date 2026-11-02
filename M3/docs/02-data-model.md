@@ -1,5 +1,7 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
+**CHG-084 cutover — 02/11/2026:** migration0007_supply_lifecycle đã áp dụng cho DBapp sau backup/restore và nâng thử DBtest. Metadata14bảng/0diff;13bảng cũ giữ đủ hàng/cột/hash, bảng item_supply_changes mới rỗng. API/worker đã khởi động lại, chưa tạo stop live hoặc run mới; không downgrade DBapp trong lượt này. [Bàn giao](../../docs/development.md#handoff-chg084-step7). Các mô tả chưa migrate bên dưới là mốc thiết kế/lượt trước.
+
 **CHG-084 bước2 — 02/11/2026:** migration0007_supply_lifecycle/model item_supply_changes đã có trong mã nguồn; thêm một bảng, giữ13bảng cũ. Constraint ngày/action/lý do/provenance, FK target cùng item, unique item/version và index timeline; downgrade khóa bảng và từ chối nếu có lịch sử. Chỉ thực thi migration trên DBtest; chưa nâng DBứng dụng. [Bàn giao](../../docs/development.md#handoff-chg084-step2), [hợp đồng](07-product-supply-lifecycle.md#database). Các đoạn bước1/dự kiến dưới đây giữ mốc thiết kế.
 
 ## CHG-084 — Lịch sử cung cấp: DB dự kiến, chưa migrate
