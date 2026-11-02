@@ -1,5 +1,7 @@
 # Hợp đồng dữ liệu SIGMA
 
+**CHG-084 bước2 — 02/11/2026:** model/migration0007 và hàm thuần cho timeline đã được triển khai theo hợp đồng cung cấp; metadata14bảng, migration chỉ chạy DBtest. Chưa freeze vào run hoặc nối API/worker/FE, không thay actual/forecast hoặc nâng DBứng dụng. [Bàn giao](development.md#handoff-chg084-step2).
+
 <a id="supply-lifecycle-chg084"></a>
 ## CHG-084 — Hợp đồng cung cấp dự kiến, bước1 chỉ MD
 

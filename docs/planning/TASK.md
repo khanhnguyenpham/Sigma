@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**CHG-084 bước2 — 02/11/2026, T10/T12:** đã thêm migration/model lịch sử cung cấp và hàm thuần kiểm ngày/chuyển trạng thái/knowledge cutoff; bước3API/snapshot và các bước sau chưa bắt đầu. Chỉ nâng DBtest, không nâng DBứng dụng hoặc chạy model. Người dùng giao kiểm rồi push final-report, SHAremote/CI và dừng sau bước2. [Bàn giao](../development.md#handoff-chg084-step2), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps).
+
 <a id="supply-lifecycle-chg084"></a>
 **CHG-084 — 02/11/2026, T01/T10/T11/T12, bước 1 chỉ MD:** đã soạn [lộ trình 7 bước](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps) và [đặc tả kỹ thuật](../../M3/docs/07-product-supply-lifecycle.md), đồng bộ yêu cầu/hợp đồng/đặc tả M3. Dừng nhập từng item tại một kho sau thông báo ít nhất7ngày mô phỏng; nhận lô đã đặt/bán tồn; hủy lịch/mở lại có lịch sử. Bước 2–7 chưa triển khai; chưa sửa code/tạo migration/nâng DB/chạy model, R07/T14 chưa nghiệm thu. Sau kiểm MD, commit/push thường phần bước1 lên final-report, kiểm SHA remote/CI rồi dừng chờ người dùng duyệt bước2. [PLAN](PLAN.md#chg-084), [bàn giao](../development.md#handoff-chg084). Các trạng thái hoàn tất ứng dụng của CHG-083 bên dưới không phải bằng chứng CHG-084 đã chạy.
 

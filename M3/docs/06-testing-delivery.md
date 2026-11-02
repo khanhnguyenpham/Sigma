@@ -1,5 +1,7 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
+**CHG-084 bước2 — 02/11/2026:** thêm test_supply_lifecycle.py kiểm timeline, biên ngày, nhân quả, constraint/migration/bảo toàn và chặn downgrade có dữ liệu. Golden13bảng/OpenAPI cũ giữ; contract chỉ loại đúng bảng mới khi đối chiếu DDL lịch sử. Chạy trên sigma_m3_test, không trên DBứng dụng. Kết quả thực tại [bàn giao bước2](../../docs/development.md#handoff-chg084-step2); ma trận FE/API/worker vẫn là kiểm dự kiến cho bước sau.
+
 ## CHG-084 — Cổng kiểm và điểm dừng
 
 02/11/2026: bước1 chỉ kiểm MD/link/anchor/bảng/Mermaid/tính nhất quán và diff bảo toàn; không chạy model/migration hoặc nhận các kiểm ứng dụng đã đạt. Sau kiểm, commit/push thường phần MD trên final-report, đối chiếu SHA remote và CI rồi dừng chờ duyệt bước2. [Ma trận kiểm dự kiến](07-product-supply-lifecycle.md#test-matrix), [7bước/T01/T10/T11/T12](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps), [bàn giao thực](../../docs/development.md#handoff-chg084). Bước2–7 còn chờ; DBapp chỉ cutover sau backup/restore thử ở bước7, giữ R07/T14 chưa nghiệm thu.

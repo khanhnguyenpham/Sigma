@@ -14,7 +14,7 @@ from core.db import Base
 from core.settings import Settings
 from main import create_app
 import models
-from modules.catalog.models import Item, Supplier, Warehouse
+from modules.catalog.models import Item, Supplier, Warehouse, ItemSupplyChange
 from modules.configuration.models import Policy, Scenario
 from modules.forecasting.models import DailySales, ItemForecast, RouteForecast
 from modules.runs.models import Run
@@ -83,6 +83,9 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
 def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
     statements = []
     for _, table in sorted(Base.metadata.tables.items()):
+        # CHG-084 adds one table; the original thirteen-table golden stays intact.
+        if table.name == "item_supply_changes":
+            continue
         ddl = str(CreateTable(table).compile(dialect=dialect())).strip()
         if table.name == "suppliers":
             # CHG-079 replaces four vendor labels with the source carrier.
@@ -121,9 +124,9 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
 
 def test_features_share_the_single_registered_metadata():
     assert models.Base is Base
-    assert len(Base.metadata.tables) == 13
+    assert len(Base.metadata.tables) == 14
     for model in (Warehouse, Item, Supplier, Policy, Scenario, Run, DailySales, RouteForecast,
-                  ItemForecast, InventoryDaily, InventoryEvent, Replenishment, Alert):
+                  ItemForecast, InventoryDaily, InventoryEvent, Replenishment, Alert, ItemSupplyChange):
         assert model.__table__.metadata is Base.metadata
         assert getattr(models, model.__name__) is model
 

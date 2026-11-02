@@ -3,6 +3,10 @@
 <a id="status"></a>
 ## 1. Trạng thái đặc tả
 
+**Cập nhật bước2, 02/11/2026:** migration0007_supply_lifecycle, ItemSupplyChange, supply_state và validate_supply_change đã có trong mã nguồn. Chỉ migrate DBtest; chưa nâng DBứng dụng hoặc triển khai API/ghi version/freeze/worker/FE bước3–7. Các đoạn dự kiến bên dưới giữ thiết kế đầy đủ và mốc bước1. [Bàn giao bước2](../../docs/development.md#handoff-chg084-step2).
+
+Giao diện hàm thuần: supply_state(changes, item_id, decision_origin, target_date=None) nhận timeline dict với date hoặc ISOdate, chỉ lấy item và known_on≤origin, trả supply_status/replenishment_allowed/stop_change_id/stop_on/version của prefix đã biết. target_date mặc định origin và không được trước origin. validate_supply_change kiểm action/ngày/target/chuyển trạng thái của append, chưa ghi DB hoặc kiểm expected_version. Service khóa item/version và HTTP DTO thuộc bước3.
+
 02/11/2026: **đặc tả được người dùng duyệt; lượt này chỉ thực hiện Markdown bước 1**. Chưa có migration `0007_supply_lifecycle`, bảng/API/profile/FE hoặc verifier mới được triển khai. Schema mã nguồn hiện tại là `0006_fixed_days`; bước này không kết nối/nâng DB. [Lộ trình và điểm dừng](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps), [yêu cầu](../../docs/requirements.md#supply-lifecycle-chg084), [bàn giao](../../docs/development.md#handoff-chg084).
 
 Thông báo là khai báo mô phỏng của người dùng; không có nhãn NCC/EOL thực trong CSV, không tự suy ngừng cung cấp từ doanh số 0. Giữ M05/R05, raw, target/split, H14/L7/R1 và trạng thái R07/T14 chưa nghiệm thu.

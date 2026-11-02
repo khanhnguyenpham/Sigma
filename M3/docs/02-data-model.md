@@ -1,5 +1,7 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
+**CHG-084 bước2 — 02/11/2026:** migration0007_supply_lifecycle/model item_supply_changes đã có trong mã nguồn; thêm một bảng, giữ13bảng cũ. Constraint ngày/action/lý do/provenance, FK target cùng item, unique item/version và index timeline; downgrade khóa bảng và từ chối nếu có lịch sử. Chỉ thực thi migration trên DBtest; chưa nâng DBứng dụng. [Bàn giao](../../docs/development.md#handoff-chg084-step2), [hợp đồng](07-product-supply-lifecycle.md#database). Các đoạn bước1/dự kiến dưới đây giữ mốc thiết kế.
+
 ## CHG-084 — Lịch sử cung cấp: DB dự kiến, chưa migrate
 
 02/11/2026, bước1 chỉ MD: dự kiến migration0007_supply_lifecycle sau0006_fixed_days thêm item_supply_changes, từ13 lên14bảng nghiệp vụ khi được triển khai; lịch sử append-only theo item/version, ngày mô phỏng và created_at thực tách riêng. Không thay policy ROP/SS, 13bảng cũ hoặc JSON/hash run đã khóa; bảng rỗng nghĩa mọi item active. [Trường, constraint và downgrade dự kiến](07-product-supply-lifecycle.md#database), [snapshot](07-product-supply-lifecycle.md#snapshots-and-causality). Bước2DB chưa bắt đầu; schema hiện tại vẫn0006_fixed_days, không phải đã có bảng mới.

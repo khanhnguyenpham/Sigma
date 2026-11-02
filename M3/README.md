@@ -1,5 +1,7 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
+**CHG-084 bước2 — 02/11/2026:** đã thêm DB/model và resolver thuần, chỉ kiểm/migrate DBtest. Chưa có API/snapshot/worker/FE cho ngừng nhập, chưa nâng DBứng dụng; không chạy lệnh upgrade head trên DBapp ở giai đoạn này. [Bàn giao](../docs/development.md#handoff-chg084-step2), [lộ trình](../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps).
+
 **CHG-084 — 02/11/2026, bước1 chỉ Markdown:** [lộ trình ngừng nhập/bán tồn](../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md) và [đặc tả07 DB/API/FE/worker](docs/07-product-supply-lifecycle.md) là thiết kế được duyệt, chưa triển khai bảng/migration/profile/API/UI mới. Kiểm/push MD riêng bước1 rồi dừng chờ duyệt bước2; giữ schema0006_fixed_days và trạng thái R07/T14. [Bàn giao](../docs/development.md#handoff-chg084). Các checkpoint ứng dụng bên dưới là lịch sử, không là bằng chứng tính năng CHG-084 đã chạy.
 
 **Tính policy bước11 CHG-068 — 25/10/2026:** inventory/service có2mode SS và2mode ROP, simulation chọn lịch sử causal theo decision origin, independent verifier tự đối soát từng dòng. Mode đã lưu từ bước10 nay chạy được, không guard tạm; API/schema13bảng/FE/default legacy giữ, cấu trúc web của CHG-072 giữ. [Công thức và ví dụ](docs/01-functional-spec.md#configurable-calculation-step11), [kiểm và bàn giao](../docs/development.md#handoff-chg068-step11). Bước12–15 chưa bắt đầu; các trạng thái trước bước11 bên dưới là checkpoint lịch sử.

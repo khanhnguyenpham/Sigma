@@ -1434,3 +1434,9 @@ Người dùng gửi ảnh thanh lọc/dòng kho sát nhau, lời dẫnMOQ/phư�
 ## CHG-083 — Bỏ lựa chọn mode và dọn run (01/11/2026)
 
 Nguồn: người dùng gửi ảnh bộ chọn ROP/SS, chốt cố địnhROP và SSngày, yêu cầu sửa BE/FE/DB và bỏ run không cần; tiếp tục giao pushGitHub khi hoàn tất. Kiểm trực tiếp trước sửa: app5run complete,921policy/920item, latest919item thiếufixed_order_qty,1lượng đã khai báo. Đã thông báo giữ source+forecast và lưu trữ3runstock/policy/alert; người dùng chọn điền các lượng trống bằng lô giả định đã nghiên cứuCHG077. Không suy từMOQ và không thay lượng đã khai báo. [Bàn giao](development.md#handoff-chg083).
+
+
+<a id="chg084-step2"></a>
+## CHG-084 bước2 — giao riêng DB/nghiệp vụ (02/11/2026)
+
+Nguồn trực tiếp: người dùng yêu cầu bắt đầu bước2 và xong thì đẩy GitHub. Quyền mới thay điểm dừng chờ bước2, không mở rộng sang bước3–7. Triển khai schema/model và hàm thuần theo đặc tả đã duyệt; không nâng DBứng dụng, không thêm HTTP route/freeze/worker/FE hoặc chạy model. [Kết quả kiểm/publish](development.md#handoff-chg084-step2). Đây không phải nghiệm thu R07/T14 hoặc bằng chứng ngừng cung cấp thực.

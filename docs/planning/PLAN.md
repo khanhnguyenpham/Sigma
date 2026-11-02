@@ -895,3 +895,9 @@ T10–T12 hoàn tất local: bỏ bốn trường mode/lookback/factor khỏi li
 **Phạm vi thực hiện lượt này: riêng bước1 Markdown**, gắn T01/T10/T11/T12. Đã soạn [lộ trình 7 bước](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps) và [đặc tả07](../../M3/docs/07-product-supply-lifecycle.md); đồng bộ yêu cầu/hợp đồng/đặc tả M3/bàn giao. Các bước2DB–3API/snapshot–4worker/bán tồn–5read model/CSV–6FE–7tích hợp chưa triển khai; bảng mới/migration0007/profile/API đều dự kiến. Không sửa code, tạo migration, nâng DB, refit hoặc replay; M05/R05/R07/T14 giữ nguyên trạng thái.
 
 Người dùng bổ sung giao kiểm xong bước1 thì commit/push thường MD lên final-report, đối chiếu SHA remote/CI rồi **dừng chờ duyệt bước2**. Không tự nối các bước sau hoặc đưa raw/run/DB/env lên Git. [Kiểm và bàn giao](../development.md#handoff-chg084).
+
+
+<a id="chg-084-step2"></a>
+## CHG-084 bước2 — DB và nghiệp vụ cung cấp
+
+02/11/2026, người dùng giao bắt đầu bước2 rồi push GitHub. Đã thêm migration0007/model bảng lịch sử và resolver/validator thuần, cập nhật contract cho đúng bảng mới nhưng giữ golden cũ. Chỉ chạy migration DBtest, không nâng DBapp hoặc triển khai API/snapshot/worker/FE. Cổng kiểm local→commit/push thường final-report→SHAremote→CI rồi dừng sau bước2; bước3–7 chưa được giao. [Bàn giao](../development.md#handoff-chg084-step2), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). R07/T14 giữ mở.

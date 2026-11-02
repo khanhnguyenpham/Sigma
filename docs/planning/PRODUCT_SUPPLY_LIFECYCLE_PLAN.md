@@ -3,6 +3,8 @@
 <a id="status"></a>
 ## 1. Trạng thái và phạm vi được giao
 
+**Cập nhật bước2, 02/11/2026:** người dùng đã giao triển khai riêng DB/model/nghiệp vụ và push GitHub. Đã thêm migration0007, ItemSupplyChange, resolver/validator thuần; chỉ migrate DBtest, chưa API/freeze/worker/FE hoặc nâng DBứng dụng. Kiểm/publish tại [bàn giao bước2](../development.md#handoff-chg084-step2). Dừng sau bước2; phạm vi bước1 dưới đây là lịch sử.
+
 Ngày 02/11/2026 (Asia/Saigon), người dùng duyệt kế hoạch và giao **riêng bước 1: tài liệu Markdown**. Sau kiểm tra, commit/push thường phần MD CHG-084 lên `final-report`, đối chiếu SHA remote và CI, rồi dừng chờ người dùng duyệt bước 2. Chưa sửa code, tạo migration, nâng DB hoặc chạy model/replay. Bước 2–7 bên dưới là thiết kế, chưa triển khai.
 
 Thay đổi thuộc T01/T10/T11/T12 hiện hữu; bổ sung R06/R08/R09, giữ M05/R05 và trạng thái R07/T14 chưa nghiệm thu. Đây là yêu cầu trực tiếp của người dùng, không phải xác nhận mentor. Nguồn order chưa có nhãn ngừng cung cấp thực tế; mọi thông báo mới là khai báo có nhãn **mô phỏng**, không suy ra EOL từ việc không có sale. Lịch sử ngoài phạm vi EOL trong E05/RV12 vẫn đúng với dữ liệu nguồn và tự động phát hiện.
@@ -52,7 +54,7 @@ Luồng kỹ thuật giữ model nhu cầu và phân bổ hiện có, không ref
 | Bước | Task | Sản phẩm dự kiến | Kiểm/cổng | Trạng thái tại lượt tài liệu |
 |---|---|---|---|---|
 | 1 — Markdown | T01/T10/T11/T12 | Tài liệu này, đặc tả 07 và đồng bộ MD hiện có | Link/anchor, bảng, Mermaid, quy tắc/ngày/trạng thái; chỉ diff MD; commit/push/SHA/CI rồi dừng | Hoàn tất kiểm local MD; bằng chứng kiểm/publish tại bàn giao |
-| 2 — DB và nghiệp vụ | T10/T12 | Migration `0007_supply_lifecycle`, bảng lịch sử, resolver trạng thái | Biên 6/7 ngày, lịch sử, constraint, migration DB test và downgrade không mất dữ liệu | Chưa triển khai; chờ duyệt |
+| 2 — DB và nghiệp vụ | T10/T12 | Migration `0007_supply_lifecycle`, bảng lịch sử, resolver trạng thái | Biên 6/7 ngày, lịch sử, constraint, migration DB test và downgrade không mất dữ liệu | Đã triển khai DB/model/hàm thuần; kiểm và publish tại bàn giao bước2 |
 | 3 — API và snapshot | T10/T12 | API thao tác/lịch sử, lọc sản phẩm, expected_version, freeze | 404/409/422, ghi đồng thời, snapshot, không leakage/run cũ | Chưa triển khai |
 | 4 — Worker và bán tồn | T10/T12 | Chặn đề xuất/lô mới; giữ receipts; projection và verifier | Tính tay, biên ngày dừng, lô về muộn, causality; parity khi không có sự kiện | Chưa triển khai |
 | 5 — Read model/CSV | T10/T11/T12 | Tồn/nhập/tổng quan, endpoint và CSV bán tồn | Cùng snapshot, lọc trước phân trang, tổng đầy đủ; không coi ngừng nhập là đủ hàng | Chưa triển khai |

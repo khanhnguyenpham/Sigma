@@ -1,5 +1,7 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+**CHG-084 bước2 — 02/11/2026:** catalog có model ItemSupplyChange và supply.py chứa hàm thuần supply_state/validate_supply_change; registry đăng ký bảng thứ14. Chưa có service ghi/khóa version, HTTP route, freeze hoặc thay đổi worker/FE; các phần đó thuộc bước3–7. [Bàn giao](../../docs/development.md#handoff-chg084-step2).
+
 ## CHG-084 — Tích hợp dự kiến vào module hiện có
 
 02/11/2026, bước1 chỉ MD: catalog dự kiến giữ lịch sử cung cấp/API/resolver; configuration/runs freeze timeline vào inventory snapshot; inventory/purchasing áp dụng khóa nhập mới và bán tồn; alerts/reporting xuất cùng snapshot; verifier kiểm độc lập. FE mở rộng Products/ProductDetail và các view tồn/nhập/dự báo hiện có. Giữ model nhu cầu, forecast parent, một Base và worker/CLI hiện có; không thêm dịch vụ hoặc dependency. [Thiết kế07](07-product-supply-lifecycle.md), [lộ trình](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). Tất cả thay đổi source/migration này chưa triển khai, không phải cây code thực tế ở bước1.
