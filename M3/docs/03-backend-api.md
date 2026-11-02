@@ -1,5 +1,9 @@
 # M3 — backend, API và worker
 
+**CHG-085 giai đoạn3 — 02/11/2026:** provider-product-notices list/detail/items/events/preview/create/cancel/resume, internal-stop-preview và product filters/quyền2nguồn đã có. Provider write và internal short notice cần preview_fingerprint; stale409, payload/scope422, missing404, schema503. Preview source/scope/version/tồn-lô frozen trước save nguyên tử; latest_action phân biệt cancel/resume. RunCreate markertrade_v2 optional chuyển tiếp, freeze2nguồn và idempotent; old request gặp hạn chế mới đã biết trả409 thay vì bỏ qua. [Payload/endpoint thực](07-product-supply-lifecycle.md#phase3-implemented), [kiểm419Python](../../docs/development.md#handoff-chg085-phase3). Worker/verifier/result guard đến4–5, không nhận đã tính ngừng bán.
+
+**CHG-085 giai đoạn2 — 02/11/2026:** chỉ thêm service persistence provider với khóa Supplier→Notice→Item và expected_version, chưa route/DTO/preview/fingerprint/snapshot mới. URI/OpenAPI cũ giữ nguyên; SupplyChangeCreate/caller service dùng validator default7; chỉ domain min0 mới cho cùng ngày. Read inventory/API/CSV cũ tương thích0007 nhờ bỏ cột mới khỏi truy vấn/đếm/serialization, chưa thêm field nghiệp vụ v2. [Phạm vi thực](07-product-supply-lifecycle.md#phase2-implemented), [kiểm](../../docs/development.md#handoff-chg085-phase2). Giai đoạn3chưa bắt đầu.
+
 ## CHG-085 — API mục tiêu, chưa triển khai
 
 Giữ products/{id}/supply-changes với nghĩa nội bộ, nới stop cùng ngày khi cutover đồng bộ. Thêm preview nội bộ và trang API provider-product-notices/list/detail/items/events/preview/create/cancel/resume; một ghi áp toàn scope nhiều kho nguyên tử, version/fingerprint stale409, payload/scope/ngày sai422, thiếu schema503. Không dùng endpoint nội bộ để mở hạn chế nhà mạng. Scope/preview phải đủ toàn phạm vi, số lượng tác động lấy run frozen được chọn, thiếu dữ liệu là null.

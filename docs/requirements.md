@@ -1,5 +1,9 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**CHG-085 giai đoạn3 — 02/11/2026:** đã có API/preview/phạm vi/version và snapshot2nguồn trên DBtest. Chưa có kết quả worker ngừng bán/actual/Q-cap hoặc FE mới; guard không cho xác nhận runtrade_v2 theo quy tắc cũ. [Phần thực và giới hạn](../M3/docs/07-product-supply-lifecycle.md#phase3-implemented), [kiểm](development.md#handoff-chg085-phase3). Không đổi M05/R05 hoặc nâng R07/T14; dữ liệu thông báo vẫn giả định/khai báo.
+
+**CHG-085 giai đoạn2 — 02/11/2026:** đã có DB/nghiệp vụ thuần hai nguồn và kiểm DBtest, chưa có hành vi nhà mạng ngừng bán trên API/worker/FE ứng dụng. [Phạm vi thực và giới hạn](../M3/docs/07-product-supply-lifecycle.md#phase2-implemented), [bàn giao](development.md#handoff-chg085-phase2). Không đổi yêu cầu nghiệm thu, M05/R05 hoặc trạng thái R07/T14; các mốc chỉMD bên dưới là lịch sử giai đoạn1.
+
 <a id="trade-lifecycle-chg085"></a>
 ## CHG-085 — Bổ sung R06/R08/R09: hai nghiệp vụ độc lập
 

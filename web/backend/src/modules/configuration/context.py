@@ -1,6 +1,6 @@
 """Freeze policies/catalog into a run; readers never reinterpret old runs with live config."""
 
-from datetime import timedelta
+from datetime import date, timedelta
 from sqlalchemy import select
 from modules.configuration.models import Policy
 from modules.configuration.schemas import POLICY_DEFAULTS
@@ -8,6 +8,7 @@ from modules.catalog.models import Item, Warehouse, Supplier
 from core.errors import DomainError
 from fastapi.encoders import jsonable_encoder
 from modules.catalog.supply_service import require_supply_schema, supply_rows
+from modules.catalog.trade_service import trade_schema_ready, require_trade_schema, lock_trade_scope, provider_notices, freeze_trade
 
 
 def freeze_inventory(session, request, source, scenario):
@@ -32,6 +33,13 @@ def freeze_inventory(session, request, source, scenario):
     ids = {
         i["item_id"] for i in catalog if i["first_seen_date"] <= max(dates).isoformat()
     }
+    trade_ready = trade_schema_ready(session)
+    if request.trade_lifecycle_profile:
+        require_trade_schema(session)
+    if trade_ready:
+        supplier_ids = list(session.scalars(select(Supplier.id).join(Warehouse, Warehouse.carrier == Supplier.carrier)
+            .join(Item, Item.warehouse_id == Warehouse.id).where(Item.id.in_(ids)).distinct()))
+        lock_trade_scope(session, supplier_ids, ids, read=True)
     rows = session.scalars(
         select(Policy).where(
             Policy.item_id.in_(ids), Policy.effective_from <= max(dates)
@@ -145,9 +153,18 @@ def freeze_inventory(session, request, source, scenario):
     ]
     require_supply_schema(session)
     supply_history = jsonable_encoder(supply_rows(session, ids, max(dates)))
+    if request.trade_lifecycle_profile:
+        lifecycle = freeze_trade(session, ids, max(dates))
+    else:
+        if trade_ready and (provider_notices(session, ids, max(dates)) or any(
+            row["action"] == "stop" and
+            (date.fromisoformat(row["effective_on"])-date.fromisoformat(row["known_on"])).days < 7
+            for row in supply_history
+        )):
+            raise DomainError("trade_profile_required", "Create a plan with the trade lifecycle profile for these restrictions", 409)
+        lifecycle = dict(supply_lifecycle_profile="notice7_sellthrough_v1", supply_lifecycle_snapshot=supply_history)
     return dict(
-        supply_lifecycle_profile="notice7_sellthrough_v1",
-        supply_lifecycle_snapshot=supply_history,
+        **lifecycle,
         inventory_policy_profile="fixed_rop_days_ss_v1",
         policies=policies,
         policy_ids=sorted({p["id"] for p in policies}),

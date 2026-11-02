@@ -1,5 +1,21 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+<a id="chg085-phase3"></a>
+## CHG-085 — 02/11/2026, giao3 API/snapshot rồi giao publish
+
+Nguồn trực tiếp: “Tiếp tục làm bước3”, sau đó “Làm xong bước này thì đẩy lên github luôn”. Phạm vi: API/DTO/read/preview/version/snapshot/tương thích và guard tối thiểu; chưa phép tính worker/projection/verifier4 hoặc read model/CSV5/FE6/cutover7/run8. Quyền publish mới gồm code2cònlocal là phụ thuộc3 và tài liệu liên quan, push thường final-report/SHAremote/CI rồi dừng; không đưa raw/run/DB/env hoặc COMMIT_BLOCK_PLAN.md untracked lên Git.
+
+Chi tiết triển khai chuyển tiếp: explicit RunCreate.trade_lifecycle_profile=internal_provider_trade_v2 đóng băng2nguồn/profile/rules; request không marker giữnotice7 chỉ nếu phạm vi/cutoff không có provider history hoặc stop nội bộ<7ngày, ngược lại409trade_profile_required. Worker/verifier từ chối trade_v2 bằng stage_not_implemented và reader409feature_not_in_run, không cho giả legacy hoặc nhận đã verified. Đây là đường staging kỹ thuật, không thêm bộ chọn profile vào nghiệp vụ người dùng. Enqueue idempotent trả snapshot cũ trước đọc cấu hình; khóa chia sẻ Supplier→Item→Warehouse làm nhất quán với writer2.
+
+Preview lưu bắt buộc cho provider và nội bộ cùng ngày/short notice; đường+7cũ không fingerprint tiếp tục tương thích, không vượt hạn chế provider vì run bị guard đúng profile. Tồn/lô preview lấy stored run tại ngày chọn, thiếu phạm vi/ngày là null; legacy không có sellable/blocked thì null/availabilityfalse, Q-cap v2 chưa tính ở3. Scope/full totals/filter trước page, nguồn giả định không bắt URL. [Đặc tả thực](../M3/docs/07-product-supply-lifecycle.md#phase3-implemented), [bàn giao và kiểm](development.md#handoff-chg085-phase3).
+
+<a id="chg085-phase2"></a>
+## CHG-085 — 02/11/2026, giao giai đoạn2 DB/nghiệp vụ
+
+Người dùng giao “Bắt đầu làm bước2”; phạm vi mới cho phép triển khai DB/nghiệp vụ trên DBtest, không tự làm3–8. Quyền push riêng MD bước1 trước đó không tự mở rộng cho code giai đoạn2. Kiểm kê trực tiếp read-only xác nhận app0007/14bảng/3run/0stop, validation0007/14bảng/4run/1stop, history0005/13bảng/5run. Không nâng/ghi3DB này hoặc tiếp tục bài thử cũ.
+
+Triển khai0008 và nghiệp vụ theo thiết kế. Chi tiết tương thích cần thiết: validator supply giữ default minimum_notice_days=7 cho caller API/profile cũ, domain min0 cho phép cùng ngày; chỉ gỡ guard caller khi snapshot/worker mới hỗ trợ đúng profile. Hai cột ledger mới nullable/không default/không backfill; read model hiện có bỏ chúng khỏi SELECT/COUNT/serialization để app0007 vẫn đọc được và API/CSV cũ không tự thêm trường mới. Provider persistence chỉ module nội bộ, chưa có route/fingerprint/previewHTTP; các phần đó thuộc3. [Kiểm và bàn giao](development.md#handoff-chg085-phase2).
+
 <a id="chg085"></a>
 ## CHG-085 — 02/11/2026, thay thiết kế vòng đời và giao MD trước
 

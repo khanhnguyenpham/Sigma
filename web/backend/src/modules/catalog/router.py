@@ -6,6 +6,8 @@ from core.http import listing, record
 from modules.catalog.models import Supplier
 from modules.catalog.schemas import WarehouseUpdate, SupplyChangeCreate, SupplyStatus
 from modules.catalog.supply_service import create_supply_change, list_supply_changes
+from modules.catalog.trade_preview import internal_preview
+from modules.catalog.provider_schemas import ProviderStatus
 from modules.catalog.service import list_warehouses, list_items, update_warehouse, get_warehouse, list_products
 from core.errors import DomainError
 
@@ -38,9 +40,13 @@ def warehouse_detail(http: Request, key: int):
 @router.get("/products")
 def products(http: Request, page: int = Query(1, ge=1), page_size: int = Query(50, ge=1, le=100),
              warehouse_id: int | None = Query(None, gt=0), product_type: str | None = None,
-             search: str | None = None, as_of_date: date | None = None, supply_status: SupplyStatus | None = None):
+             search: str | None = None, as_of_date: date | None = None, supply_status: SupplyStatus | None = None,
+             internal_status: SupplyStatus | None = None, provider_status: ProviderStatus | None = None,
+             replenishment_allowed: bool | None = None, sales_allowed: bool | None = None):
     return jsonable_encoder(list_products(http.app.state.sessions, page, page_size, warehouse_id, product_type, search,
-                                         as_of_date=as_of_date, supply_status=supply_status))
+                                         as_of_date=as_of_date, supply_status=supply_status, internal_status=internal_status,
+                                         provider_status=provider_status, replenishment_allowed=replenishment_allowed,
+                                         sales_allowed=sales_allowed))
 
 
 @router.get("/products/{key}")
@@ -61,7 +67,21 @@ def supply_history(http: Request, key: int, page: int = Query(1, ge=1),
 @router.post("/products/{key}/supply-changes", status_code=201)
 def supply_create(http: Request, key: int, request: SupplyChangeCreate):
     with http.app.state.sessions.begin() as session:
+        if request.preview_fingerprint is not None or request.impact_run_id is not None or (
+            request.action == "stop" and (request.effective_on-request.known_on).days < 7
+        ):
+            if request.preview_fingerprint is None:
+                from modules.catalog.trade_service import require_trade_schema
+                require_trade_schema(session)
+                raise DomainError("invalid_input", "Review the internal stop preview before saving")
+            return jsonable_encoder(internal_preview(session, key, request, write=True))
         return jsonable_encoder(create_supply_change(session, key, request))
+
+
+@router.post("/products/{key}/internal-stop-preview")
+def internal_stop_preview(http: Request, key: int, request: SupplyChangeCreate):
+    with http.app.state.sessions.begin() as session:
+        return jsonable_encoder(internal_preview(session, key, request))
 
 
 @router.get("/items")

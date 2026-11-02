@@ -95,7 +95,7 @@ def test_database_constraints_and_item_target(pg):
         s.add(row);s.flush();key=row.id
     base=dict(item_id=item,version=2,action="stop",known_on=D,effective_on=D+timedelta(days=7),reason="Synthetic")
     for change in [dict(version=0),dict(version=1),dict(action="invalid"),dict(reason=" "),dict(reason="\t\n"),dict(reason="x"*1001),
-                   dict(effective_on=D+timedelta(days=6)),dict(target_change_id=key),
+                   dict(effective_on=D-timedelta(days=1)),dict(target_change_id=key),
                    dict(is_assumed=False),dict(assumption_source="real"),
                    dict(item_id=other_id,action="resume",target_change_id=key,effective_on=D)]:
         with pytest.raises(IntegrityError),sessions.begin() as s:
@@ -111,10 +111,11 @@ def test_migration_preserves_all_old_tables_and_blocks_loss(pg):
     cfg=Config(str(Path(__file__).resolve().parents[1]/"alembic.ini"))
     cfg.attributes["database_url"]=engine.url.render_as_string(hide_password=False)
     result_fixture(sessions)
-    old=sorted(set(Base.metadata.tables)-{"item_supply_changes"})
+    old=sorted(name for name in Base.metadata.tables
+               if name!="item_supply_changes" and not name.startswith("provider_product_notice"))
     def snapshot():
         with engine.connect() as c:
-            return {name:c.execute(text(f'SELECT row_to_json(t)::text FROM "{name}" t ORDER BY row_to_json(t)::text')).scalars().all() for name in old}
+            return {name:c.execute(text(f'SELECT (to_jsonb(t)-ARRAY[\'source_sales_qty\',\'actual_blocked_qty\'])::text FROM "{name}" t ORDER BY 1')).scalars().all() for name in old}
     before=snapshot()
     command.downgrade(cfg,"0006_fixed_days")
     command.upgrade(cfg,"head");command.upgrade(cfg,"head")
@@ -126,6 +127,6 @@ def test_migration_preserves_all_old_tables_and_blocks_loss(pg):
         s.add(ItemSupplyChange(item_id=item,version=1,action="stop",known_on=D,effective_on=D+timedelta(days=7),reason="Synthetic"))
     with pytest.raises(RuntimeError,match="lose data"):command.downgrade(cfg,"0006_fixed_days")
     with sessions() as s:
-        assert s.scalar(text("SELECT version_num FROM alembic_version"))=="0007_supply_lifecycle"
+        assert s.scalar(text("SELECT version_num FROM alembic_version"))=="0008_trade_lifecycle"
         assert s.scalar(select(ItemSupplyChange.id)) is not None
     assert snapshot()==before

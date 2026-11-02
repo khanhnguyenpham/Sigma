@@ -3,6 +3,7 @@ from datetime import timedelta
 import numpy as np
 import pandas as pd
 from sqlalchemy import select, func, text
+from sqlalchemy.orm import defer
 from modules.forecasting.models import DailySales, RouteForecast, ItemForecast
 from modules.inventory.models import InventoryDaily
 from modules.purchasing.models import Replenishment
@@ -96,6 +97,9 @@ def dataset(session, run, name, filters, paginate=True):
     }:
         raise DomainError("parent_mismatch", "This run has no inventory dataset", 409)
     query = select(model).where(model.run_id == run.id)
+    if model is InventoryDaily:
+        # Schema may still be 0007 before cutover; existing read models retain their contract.
+        query = query.options(defer(InventoryDaily.source_sales_qty), defer(InventoryDaily.actual_blocked_qty))
     if filters.alert_type:
         if model is not Alert:
             raise DomainError("invalid_input", "Alert type filter requires alerts")
@@ -210,7 +214,7 @@ def dataset(session, run, name, filters, paginate=True):
                 * filters.page_size
             ]
         return records, total
-    total = session.scalar(select(func.count()).select_from(query.subquery()))
+    total = session.scalar(select(func.count()).select_from(query.with_only_columns(model.id).subquery()))
     query = query.order_by(
         date_col,
         getattr(
@@ -224,7 +228,8 @@ def dataset(session, run, name, filters, paginate=True):
         )
     output = []
     for row in session.scalars(query):
-        r = {col.name: getattr(row, col.name) for col in row.__table__.columns}
+        r = {col.name: getattr(row, col.name) for col in row.__table__.columns
+             if model is not InventoryDaily or col.name not in {"source_sales_qty", "actual_blocked_qty"}}
         r.pop("run_id", None)
         if "item_id" in r:
             info = items[r["item_id"]]

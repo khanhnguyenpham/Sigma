@@ -22,7 +22,7 @@ def supply_rows(session, ids, cutoff=None):
     return [record(row) for row in session.scalars(query.order_by(ItemSupplyChange.item_id, ItemSupplyChange.version))]
 
 
-def create_supply_change(session, item_id, request):
+def create_supply_change(session, item_id, request, *, minimum_notice_days=7):
     item = session.scalar(select(Item).where(Item.id == item_id).with_for_update())
     if item is None:
         raise DomainError("not_found", "Product does not exist", 404)
@@ -31,8 +31,8 @@ def create_supply_change(session, item_id, request):
     version = history[-1]["version"] if history else 0
     if request.expected_version != version:
         raise DomainError("version_conflict", "Supply history changed; reload before saving", 409)
-    values = request.model_dump(exclude={"expected_version", "reason"})
-    validate_supply_change(history, item_id=item_id, **values)
+    values = request.model_dump(include={"action", "known_on", "effective_on", "target_change_id"})
+    validate_supply_change(history, item_id=item_id, minimum_notice_days=minimum_notice_days, **values)
     row = ItemSupplyChange(item_id=item_id, version=version + 1, reason=request.reason, **values)
     session.add(row)
     session.flush()

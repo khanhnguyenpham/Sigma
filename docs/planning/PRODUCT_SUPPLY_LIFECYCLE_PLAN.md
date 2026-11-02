@@ -3,6 +3,10 @@
 <a id="status"></a>
 ## 1. Phạm vi hiện tại và bằng chứng đối chiếu
 
+**Cập nhật giai đoạn3 — 02/11/2026:** đã có API/DTO/preview fingerprint/scope/version, product filters/quyền2nguồn và snapshottrade_v2 trên DBtest;419Python BE/M2/pipcheck đạt. Markertrade_v2 là opt-in kỹ thuật ở staging3; bỏ marker khi có hạn chế mới đã biết bị409, worker/verifier/result guard tới4–5. Người dùng giao xong3thì commit/push thường final-report, gồm code2cònlocal là phụ thuộc; kiểm SHAremote/CI rồi dừng trước4. [Đặc tả thực](../../M3/docs/07-product-supply-lifecycle.md#phase3-implemented), [bàn giao](../development.md#handoff-chg085-phase3). DBapp/bản sao/bước8 cũ giữ nguyên; các điểm dừng2bên dưới là lịch sử.
+
+**Cập nhật giai đoạn2 — 02/11/2026:** người dùng đã giao riêng DB/nghiệp vụ sau commit92243b8. Có migration0008/3bảng provider/2cột ledger nullable và domain/service khóa-version; chỉ kiểm sigma_m3_test, app0007 và các bản sao không nâng/ghi. API/DTO cũ giữnotice7; min0 cùng ngày và quyền hai nguồn hiện chỉ domain, chưa snapshot/worker/FE mới. [Phạm vi thực](../../M3/docs/07-product-supply-lifecycle.md#phase2-implemented), [bàn giao](../development.md#handoff-chg085-phase2). Chưa giao3–8 hoặc commit/push code giai đoạn2. Đoạn giai đoạn1 bên dưới giữ lịch sử.
+
 **02/11/2026, giai đoạn 1 chỉ Markdown, chờ người dùng duyệt thiết kế.** CHG-085 thay thiết kế CHG-084 ở các điểm được nêu dưới đây; chưa thay hành vi ứng dụng. Không sửa code/migration/DB, chạy worker/model hoặc tạo run. Người dùng bổ sung giao hoàn tất kiểm bước1 rồi commit/push thường lên final-report, đối chiếu SHA remote/CI và dừng. Giai đoạn 2–8 chỉ làm khi người dùng giao. Quyền publish lượt này chỉ gồm Markdown bước1 theo yêu cầu bổ sung; không gồm code/DB hoặc giai đoạn2. Rxx/Txx hiện hữu được giữ; R07/T14 chưa nghiệm thu.
 
 **Đã đọc trực tiếp mã nguồn:** migration `0007_supply_lifecycle`, catalog models/schemas/router/supply/supply_service, runs service/supply_verification, inventory service/simulation, reporting supply và FE ProductSupplyForm/Products/SellThrough. CHG-084 hiện có lịch sử theo item, khóa Item + expected_version, stop tối thiểu known_on+7, cancel/resume, profile `notice7_sellthrough_v1`, chặn nhập mới và tiếp tục bán tồn. Chưa có hạn chế bán từ nhà mạng, phạm vi một thông báo nhiều kho hoặc tách tồn bị chặn. Tên “cung cấp” hiện tại không làm các sự kiện cũ trở thành thông báo ngừng bán.
@@ -77,20 +81,20 @@ Model đầu vào vẫn dự báo quantity bán từ lịch sử quan sát; dự
 <a id="steps"></a>
 ## 6. Lộ trình CHG-085 và điểm dừng
 
-Đây là lộ trình mới, không reset trạng thái CHG-084. Chỉ giai đoạn1 đang được giao.
+Đây là lộ trình mới, không reset trạng thái CHG-084. Giai đoạn1đã push;2–3hoàn tất local và được giao publish tích hợp;4–8chưa được giao.
 
 | Giai đoạn | Phạm vi/sản phẩm bàn giao | Kiểm bắt buộc khi được giao | Điểm dừng |
 |---|---|---|---|
 | 1. Tài liệu và chốt thiết kế | Hai đặc tả chính và bộ MD đồng bộ, kiểm kê mã/bằng chứng/giới hạn DB | Link/anchor, bảng/fence/sơ đồ, thuật ngữ/causal/profile, diff MD | Kiểm MD → commit/push thường → SHA remote/CI → dừng chờ duyệt triển khai |
-| 2. DB và nghiệp vụ | Kiểm kê DB thật; migration kế tiếp0008, nội bộ cùng ngày, thông báo/scope/lịch sử riêng | Constraint/chuyển trạng thái, overlap/phạm vi, concurrency; DBtest upgrade/rollback có dữ liệu cũ | Không nâng DBapp; chờ giao3 |
-| 3. API, snapshot, tương thích | Preview/ghi/đọc/version/filter; snapshot hai nguồn và profile mới | 404/409/422/503, stale preview, transaction nhiều kho, enqueue idempotent, cutoff và reader cũ | Chưa mở run mới cho worker thiếu hỗ trợ; chờ giao4 |
+| 2. DB và nghiệp vụ | Đã có0008/domain hai nguồn/scope/service khóa-version, chỉ DBtest; API cũ chưa mở min0 | Kiểm kê3DB chỉ đọc; constraint/overlap/phạm vi/concurrency, upgrade/rollback có ledger và lịch sử cũ; kết quả tại bàn giao | Không nâng DBapp, chưa commit/push; dừng chờ giao3 |
+| 3. API, snapshot, tương thích | Đã có API/preview/version/filter, snapshottrade_v2/rules/scope identity; guard worker/result | Baseline65/targeted83/full419Python, pipcheck;18ca mới về lỗi/stale/race/cutoff/legacy/idempotence | Publish code2–3/SHAremote/CI; worker guard; dừng trước4 |
 | 4. Worker, projection, verifier | Quyền nhập/bán, lô cũ/tồn bị chặn, cap Q, replay actual và metric riêng | Tính tay/balance/biên ngày/known late, fixed lot/coverage; verifier không dùng producer | Chỉ DBtest; chờ giao5 |
 | 5. Read model và CSV | Cùng kết quả frozen, bộ lọc/tổng/pagination, reason/counter và schema export | API=CSV=stored; tổng toàn scope; legacy không giả0 hoặc nối live | Chờ giao6 |
 | 6. FE | Modal nội bộ, trang thông báo riêng, summary/operational UI | Save–reload/409/Back/focus/loading/error, desktop/390px, CTA và profile cũ | Chỉ môi trường kiểm; chờ giao7 |
 | 7. Tích hợp và cutover | Suite phù hợp, backup/restore, kế hoạch bật đồng bộ DB/BE/FE/worker và rollback | Hash cũ/metadata, API/CSV/browser, rehearsal dữ liệu không rỗng, profile dispatch | Chỉ cutover khi người dùng giao; không tự chạy8 |
 | 8. Run cũ và kịch bản mới trên bản sao | Danh sách run theo profile; kịch bản nội bộ và nhà mạng độc lập, overlap/multiwarehouse/late notice | Hash trước–sau, worker/verifier, frozen API/CSV/UI, actual/metric riêng; không refit/tuning | Bàn giao từng ca/giới hạn rồi dừng; không nâng R07/T14 |
 
-Người dùng đã giao commit/push riêng Markdown bước1 sau kiểm; các giai đoạn sau chưa có quyền triển khai/publish từ yêu cầu này. Các giai đoạn sau không được tự nối. Tại giai đoạn8 kiểm lại hiện trạng bằng read-only trước; giữ các bản sao/báo cáo CHG-084 nguyên, tạo workspace/DB/output riêng cho kịch bản mới nếu được giao, không chuyển run cũ sang profile mới.
+Quyền publish MD bước1 là lịch sử; yêu cầu mới ở3cho phép publish code2–3tích hợp, không gồm4–8. Các giai đoạn sau không tự nối. Tại8 kiểm lại hiện trạng read-only trước; giữ các bản sao/báo cáo CHG-084 nguyên, tạo DB/output riêng cho kịch bản mới khi được giao, không chuyển run cũ sang profile mới.
 
 <a id="cutover"></a>
 ## 6a. Phương án cutover dự kiến, chỉ khi được giao giai đoạn7

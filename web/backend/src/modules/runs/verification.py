@@ -23,6 +23,9 @@ def verify_run(settings, sessions, key, allow_running=False):
                 "run_not_complete", "Cannot verify incomplete results", 409
             )
         snap = run.config_snapshot
+        if snap.get("trade_lifecycle_profile") is not None:
+            code = "stage_not_implemented" if snap["trade_lifecycle_profile"] == "internal_provider_trade_v2" else "invalid_trade_history"
+            raise DomainError(code, "Trade lifecycle verification is not available at this stage", 409)
         if run.status == "complete" and digest(snap) != run.config_sha256:
             raise DomainError("verification_failed", "Config checksum differs")
         root = settings.output_root / str(key)

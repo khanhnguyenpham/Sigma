@@ -49,9 +49,11 @@ def get_warehouse(session, key):
 
 
 def list_products(sessions, page=1, page_size=50, warehouse_id=None, product_type=None, search=None, item_id=None,
-                  as_of_date=None, supply_status=None):
-    if supply_status and as_of_date is None:
-        raise DomainError("invalid_input", "Supply status filtering requires as_of_date")
+                  as_of_date=None, supply_status=None, internal_status=None, provider_status=None,
+                  replenishment_allowed=None, sales_allowed=None):
+    new_filters = any(v is not None for v in (internal_status, provider_status, replenishment_allowed, sales_allowed))
+    if (supply_status or new_filters) and as_of_date is None:
+        raise DomainError("invalid_input", "Status and rights filtering require as_of_date")
     latest = (select(Policy.id).where(Policy.item_id == Item.id)
               .order_by(Policy.version.desc()).limit(1).correlate(Item).scalar_subquery())
     query = (select(Item, Warehouse, Supplier.id, Policy)
@@ -66,8 +68,12 @@ def list_products(sessions, page=1, page_size=50, warehouse_id=None, product_typ
         query = query.where(Item.sku.icontains(search, autoescape=True))
     if item_id:
         query = query.where(Item.id == item_id)
+    from modules.catalog.trade_service import trade_schema_ready, require_trade_schema, live_rights
     with sessions() as session:
         ready = supply_schema_ready(session)
+        trade_ready = trade_schema_ready(session)
+        if new_filters:
+            require_trade_schema(session)
         if as_of_date is not None:
             require_supply_schema(session)
         if supply_status:
@@ -83,24 +89,38 @@ def list_products(sessions, page=1, page_size=50, warehouse_id=None, product_typ
             predicate = pending.correlate(Item).exists()
             query = query.where(~predicate if supply_status == "active" else predicate)
         total = session.scalar(select(func.count()).select_from(query.subquery()))
-        rows = session.execute(query.order_by(Item.id).offset((page - 1) * page_size).limit(page_size)).all()
+        query = query.order_by(Item.id)
+        if not new_filters:
+            query = query.offset((page-1)*page_size).limit(page_size)
+        rows = session.execute(query).all()
+        ids = [r[0].id for r in rows]
         histories = defaultdict(list)
-        if ready:
-            for change in supply_rows(session, [r[0].id for r in rows]):
-                histories[change["item_id"]].append(change)
-        def supply_fields(item):
+        flat = supply_rows(session, ids) if ready else []
+        for change in flat:
+            histories[change["item_id"]].append(change)
+        rights = live_rights(session, ids, as_of_date, histories=flat) if trade_ready else {}
+        output = []
+        for item, warehouse, supplier, policy in rows:
             history = histories[item.id]
             state = supply_state(history, item.id, as_of_date) if as_of_date else None
-            return dict(supply_status=state["supply_status"] if state else None,
-                        stop_on=state["stop_on"] if state else None,
-                        supply_version=(history[-1]["version"] if history else 0) if ready else None,
-                        supply_schema_ready=ready)
-        return dict(items=[{**record(item), **supply_fields(item), "item_id": item.id, "warehouse": record(warehouse),
-                           "city": warehouse.city, "destination_country": warehouse.destination_country,
-                           "carrier": warehouse.carrier, "supplier_id": supplier,
-                           "policy": record(policy) if policy else None}
-                          for item, warehouse, supplier, policy in rows],
-                    total=total, page=page, page_size=page_size)
+            info = rights.get(item.id, dict(internal_status=state["supply_status"] if state else None,
+                provider_status=None, replenishment_allowed=None, sales_allowed=None,
+                provider_blockers=[], provider_restrictions=[], provider_notice_ids=[], provider_versions={}))
+            if any(value is not None and info[field] != value for field, value in (
+                ("internal_status", internal_status), ("provider_status", provider_status),
+                ("replenishment_allowed", replenishment_allowed), ("sales_allowed", sales_allowed))):
+                continue
+            output.append({**record(item), **info, "trade_schema_ready": trade_ready,
+                "supply_status": state["supply_status"] if state else None,
+                "stop_on": state["stop_on"] if state else None,
+                "supply_version": (history[-1]["version"] if history else 0) if ready else None,
+                "supply_schema_ready": ready, "item_id": item.id, "warehouse": record(warehouse),
+                "city": warehouse.city, "destination_country": warehouse.destination_country,
+                "carrier": warehouse.carrier, "supplier_id": supplier, "policy": record(policy) if policy else None})
+        if new_filters:
+            total = len(output)
+            output = output[(page-1)*page_size:page*page_size]
+        return dict(items=output, total=total, page=page, page_size=page_size)
 
 
 def list_items(sessions, page, page_size, warehouse_id, product_type, run_id, search):

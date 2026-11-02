@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api/v1")
 
 def run_view(row):
     # Detailed config, manifest file paths and request payload are private.
-    return {
+    result = {
         name: getattr(row, name)
         for name in [
             "id",
@@ -38,6 +38,8 @@ def run_view(row):
             "period_end",
         ]
     }
+    result["trade_lifecycle_profile"] = row.config_snapshot.get("trade_lifecycle_profile")
+    return result
 
 
 @router.post("/runs")

@@ -1,5 +1,9 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
+**CHG-085 giai đoạn3 — 02/11/2026:** baseline65, targeted83 và full419Python BE/M2 đạt, pipcheck đạt. test_trade_api.py có18ca: scope nhiều kho/filter trước page, preview/FP/stale/concurrency, cancel/resume/late known, source/extra strict, schema0007, stored impact null, snapshot3kind/idempotence/source parent hash, transaction2nguồn và guard worker/verifier/result. Golden gốc không sửa; không dùng kết quả2thay kiểm3. [Bàn giao và bảo toàn](../../docs/development.md#handoff-chg085-phase3). Không chạy FE/browser hoặc nguồn thật; người dùng giao publish2–3/SHAremote/CI rồi dừng trước4.
+
+**CHG-085 giai đoạn2 — 02/11/2026:** baseline51ca, targeted84ca và suite cuối401Python BE/M2 đạt,0failure/error/skip; pip check đạt. Test upgrade có ledger/history cũ và API/CSV ở0007, metadata0diff, source split/event/FK, concurrency, downgrade chặn mất dữ liệu. Không sửa golden gốc; đã sửa helper fixture, count query và phép đối chiếu bảng/cột tại mốc0004 trong test supplier; kết quả failing không tính đạt. [Kiểm cuối và giới hạn](../../docs/development.md#handoff-chg085-phase2). Không chạy FE/model thật hoặc ghi DBapp/bản sao bước8.
+
 ## CHG-085 — Cổng kiểm tài liệu và triển khai dự kiến
 
 Giai đoạn1 chỉ kiểm link/anchor, bảng/fence/sơ đồ, thuật ngữ/ngày/phạm vi/profile, diff Markdown; không chạy suite/model/migration/run. Người dùng bổ sung giao kiểm xong commit/push thường final-report, SHA remote/CI rồi dừng trước2. [Ma trận bắt buộc khi triển khai](07-product-supply-lifecycle.md#test-matrix), [8giai đoạn và điểm dừng](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps).

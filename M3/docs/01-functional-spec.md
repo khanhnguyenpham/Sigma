@@ -1,5 +1,9 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+**CHG-085 giai đoạn3 — 02/11/2026:** quản lý cấu hình qua providerAPI/preview và nội bộ cùng ngày qua fingerprint, quyền2nguồn theo ngày trong sản phẩm; không sửa policy hoặc gỡ hạn chế nguồn khác. Snapshot mới freeze đầy đủ2nguồn/membership/rules, request legacy không được bỏ qua hạn chế mới đã biết. Worker trade_v2 đang guard tới4; forecast/Q/cân bằng/actual mới chưa tính. [Thực có](07-product-supply-lifecycle.md#phase3-implemented), [kiểm](../../docs/development.md#handoff-chg085-phase3). DBapp/bản sao cũ giữ, R07/T14 mở.
+
+**CHG-085 giai đoạn2 — 02/11/2026:** resolver/validator thuần đã tính quyền nhập là AND nội bộ/nhà mạng, bán chỉ chịu nhà mạng; có scope item nhiều kho, cutoff origin, late notice, hủy và resume tương lai không mở sớm. min0 cho nội bộ cùng ngày đã có trong domain; API cũ vẫn default7. Chưa áp các quyền mới vào simulation/Q/bán/actual; việc đó thuộc4. [Phần thực có](07-product-supply-lifecycle.md#phase2-implemented), [kiểm](../../docs/development.md#handoff-chg085-phase2). Công thức/tình huống mục tiêu dưới đây chưa là kết quả worker v2.
+
 ## CHG-085 — Quy tắc mục tiêu, giai đoạn1 chỉ Markdown
 
 Tách ngừng nhập nội bộ (cùng ngày/lịch tương lai, vẫn bán tồn) và thông báo nhà mạng (chặn nhập/bán khi đã biết+hiệu lực, scope nhiều kho rõ sản phẩm). L7 không là notice7. Hai lịch sử/quyền/hủy/phục hồi độc lập, không policy override hoặc chuyển nhu cầu sang gói khác. Tồn tổng/được bán/bị chặn và actual bị chặn tách rõ, lô cũ vẫn nhận, không tự ghi tổn thất. Trước hạn nhà mạng thêm cap ETA/nguyên lô/coverage sau policy, không sửa ROP/SS. [Quy tắc và4ví dụ bắt buộc](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#business-rules), [phép tính](07-product-supply-lifecycle.md#forecast-and-worker).

@@ -121,6 +121,6 @@ def test_migration_preserves_legacy_rows_and_refuses_lossy_downgrade(pg):
                 s.execute(Policy.__table__.update().where(Policy.id==key).values(**values))
         with pytest.raises(IntegrityError):command.downgrade(cfg,'0003_threshold')
         with engine.connect() as c:
-            assert c.scalar(text('SELECT version_num FROM alembic_version'))=='0007_supply_lifecycle'
+            assert c.scalar(text('SELECT version_num FROM alembic_version'))=='0008_trade_lifecycle'
             assert c.scalar(text('SELECT fixed_order_qty FROM supplier_item_policies WHERE id=:key'),dict(key=key))==50
     finally:command.upgrade(cfg,'head')

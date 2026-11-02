@@ -1,5 +1,9 @@
 # Điều phối công việc SIGMA
 
+**CHG-085 giai đoạn3 — 02/11/2026, T10/T12:** API/preview/snapshot/profile guard và tương thích cũ hoàn tất local;419Python BE/M2/pipcheck đạt. Provider notice nhiều kho được preview đầy đủ trước page, source/reason giả định và expected_version/fingerprint chống stale; sản phẩm lọc2nguồn/quyền trước page. Run trade_v2 chưa được worker/verifier tính;4–8chưa triển khai. Người dùng giao publish thường code2–3tích hợp lên final-report, SHAremote/CI rồi dừng trước4. [Bàn giao](../development.md#handoff-chg085-phase3), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). DBapp/bản sao bước8 giữ nguyên, R07/T14 mở.
+
+**CHG-085 giai đoạn2 — 02/11/2026, T10/T12:** đã triển khai schema0008 và nghiệp vụ thuần hai nguồn/phạm vi/khóa-version trên DBtest; giai đoạn3API/snapshot,4worker/verifier và5–8chưa triển khai. API đang dùng hợp đồng notice7 cũ; chưa mở ngừng bán nhà mạng trên app. DBapp/bản sao bước8 không nâng/ghi. [Bàn giao và kiểm](../development.md#handoff-chg085-phase2), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). Chưa commit/push giai đoạn2; dừng sau kiểm local, R07/T14 giữ mở. Trạng thái chỉMD dưới đây là checkpoint giai đoạn1.
+
 <a id="trade-lifecycle-chg085"></a>
 **CHG-085 — 02/11/2026, T01/T10/T11/T12:** giai đoạn1 chỉ Markdown thiết kế hai nghiệp vụ độc lập; nội bộ ngừng nhập cùng ngày, nhà mạng ngừng mua/bán theo notice nhiều kho; bảo toàn run/profile/actual và metric riêng. [8giai đoạn mới](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps), [đặc tả](../../M3/docs/07-product-supply-lifecycle.md), [bàn giao](../development.md#handoff-chg085). Chưa triển khai2–8, không nâng R07/T14. Người dùng giao kiểm tài liệu rồi commit/push thường final-report/SHAremote/CI và dừng, không tự làm2.
 

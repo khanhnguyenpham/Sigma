@@ -27,7 +27,8 @@ class InventoryEvent(Base):
             "quantity>=0 AND fulfilled_qty>=0 AND shortage_qty>=0 AND balance_after>=0 AND event_sequence>=0"
         ),
         CheckConstraint(
-            "(event_kind='sale' AND quantity=fulfilled_qty+shortage_qty AND source_sequence IS NOT NULL AND replenishment_order_id IS NULL) OR (event_kind='receipt' AND fulfilled_qty=0 AND shortage_qty=0 AND replenishment_order_id IS NOT NULL) OR (event_kind='initial_stock' AND fulfilled_qty=0 AND shortage_qty=0 AND replenishment_order_id IS NULL)"
+            "(event_kind='sale' AND quantity=fulfilled_qty+shortage_qty AND source_sequence IS NOT NULL AND replenishment_order_id IS NULL) OR (event_kind='receipt' AND fulfilled_qty=0 AND shortage_qty=0 AND replenishment_order_id IS NOT NULL) OR (event_kind='initial_stock' AND fulfilled_qty=0 AND shortage_qty=0 AND replenishment_order_id IS NULL) OR (event_kind='sale_blocked' AND source_sequence IS NOT NULL AND replenishment_order_id IS NULL AND fulfilled_qty=0 AND shortage_qty=0)",
+            name="ck_inventory_event_kind",
         ),
         Index(
             "uq_receipt_once",
@@ -52,6 +53,8 @@ class InventoryDaily(Base):
     opening_qty = Column(BigInteger, nullable=False)
     receipts_qty = Column(BigInteger, nullable=False)
     sales_qty = Column(BigInteger, nullable=False)
+    source_sales_qty = Column(BigInteger)
+    actual_blocked_qty = Column(BigInteger)
     fulfilled_qty = Column(BigInteger, nullable=False)
     shortage_qty = Column(BigInteger, nullable=False)
     closing_qty = Column(BigInteger, nullable=False)
@@ -80,6 +83,12 @@ class InventoryDaily(Base):
         ),
         CheckConstraint(
             "ss>=0 AND rop_forecast>=0 AND rop>=0 AND target_stock>=0 AND recommended_qty>=0"
+        ),
+        CheckConstraint(
+            "(source_sales_qty IS NULL AND actual_blocked_qty IS NULL) OR "
+            "(source_sales_qty IS NOT NULL AND actual_blocked_qty IS NOT NULL AND "
+            "source_sales_qty>=0 AND actual_blocked_qty>=0 AND source_sales_qty=sales_qty+actual_blocked_qty)",
+            name="ck_inventory_source_sales",
         ),
         Index("ix_inventory_date", "run_id", "date", "item_id"),
     )

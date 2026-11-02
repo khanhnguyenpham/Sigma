@@ -1,5 +1,9 @@
 # Hợp đồng dữ liệu SIGMA
 
+**CHG-085 giai đoạn3 — 02/11/2026:** inventory request có optional trade_lifecycle_profile=internal_provider_trade_v2; freeze internal_supply_snapshot/provider_notice_snapshot(root/scope/item_ids/item_snapshot/events prefix)/trade_rules, không kèm marker notice7 mâu thuẫn. Chỉ dữ liệu đã commit tại ranh giới freeze khóa chia sẻ và known_on≤origin quyết định lớn nhất; policy cuốn/alert giữ origin do consumer4sẽ xử lý, chưa tính ở3. Request legacy bị409 nếu bỏ marker khi có dữ liệu mới đã biết trong scope; retry key trả snapshot đã lưu. Product config/latest rights tách frozen; legacy run không backfill/đọc live. Preview thiếu dữ liệu/trade quantities là null, không tự forecast/cap; API/CSV result mới chưa mở. [Chi tiết](../M3/docs/07-product-supply-lifecycle.md#phase3-implemented), [bàn giao](development.md#handoff-chg085-phase3).
+
+**CHG-085 giai đoạn2 — 02/11/2026:** schema mã nguồn0008 gồm17bảng nghiệp vụ,3bảng provider có scope/membership/events riêng; inventory_daily thêm source_sales_qty/actual_blocked_qty nullable không default, hàng cũ null và không UPDATE. CHECK giữ source=allowed+blocked, sales_qty=fulfilled+shortage và balance hiện có; inventory_events cho sale_blocked nhưng producer chưa ghi loại mới. Model/DBtest đã triển khai; chưa có snapshot/profile/result v2. API/CSV cũ vẫn không xuất2trường mới, tiếp tục đọc0007. [Bàn giao](development.md#handoff-chg085-phase2), [schema/giới hạn](../M3/docs/07-product-supply-lifecycle.md#phase2-implemented). Các hợp đồng mục tiêu dưới đây chưa phải kết quả worker v2.
+
 <a id="trade-lifecycle-chg085"></a>
 ## CHG-085 — Hợp đồng mục tiêu, chưa triển khai
 

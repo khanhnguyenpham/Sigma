@@ -3,7 +3,53 @@
 <a id="status"></a>
 ## 1. Thiết kế mới và phần đang chạy
 
-**02/11/2026: chỉ giai đoạn1 Markdown; CHG-085 chưa triển khai.** Người dùng bổ sung giao kiểm xong tài liệu thì commit/push thường final-report, kiểm SHA remote/CI rồi dừng. Không sửa code, migration, DB hoặc chạy worker/model/run. [Lộ trình và hiện trạng bước8 cũ](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#status).
+<a id="phase3-implemented"></a>
+### CHG-085 giai đoạn3 — 02/11/2026, API/snapshot/tương thích đã triển khai trên DBtest
+
+Người dùng giao tiếp3 và sau đó giao hoàn tất thì đẩy GitHub. Đã thêm [provider_schemas](../../web/backend/src/modules/catalog/provider_schemas.py), [provider_router](../../web/backend/src/modules/catalog/provider_router.py), [provider_read](../../web/backend/src/modules/catalog/provider_read.py), [trade_preview](../../web/backend/src/modules/catalog/trade_preview.py) và [trade_service](../../web/backend/src/modules/catalog/trade_service.py); dùng domain/persistence/model0008của2. Baseline65/targeted83/full419Python BE/M2 vàpipcheck đạt. Chỉ DBtest/synthetic; DBapp/bản sao không nâng/ghi, không tiếp tục bước8 cũ. [Bàn giao](../../docs/development.md#handoff-chg085-phase3). Publish thường final-report gồm code2cònlocal làm phụ thuộc, kiểm SHAremote/CI rồi dừng trước4.
+
+**API thực có:** GET/POST provider-product-notices; GET /{id}, /{id}/events, /{id}/items; POST /preview, /{id}/cancel, /{id}/resume; POST products/{id}/internal-stop-preview; products list/detail thêm internal_status/provider_status/replenishment_allowed/sales_allowed/notice IDs/versions/reasons/trade_schema_ready. supply_status/supply_version giữ alias nội bộ/latest như cũ. Lọc các nhóm bằng AND trước total/page; notice được tính một lần dù nhiều member. Các read mới dùng batch dữ liệu trước phân trang, chưa có chỉ mục trạng thái tổng hợp hoặc bảng cache riêng; quy mô920item hiện tại dùng hàm thuần, chưa đẩy status predicate provider vào SQL.
+
+Preview provider nhận DTO phân biệt action=stop (supplier_id/scope_definition) hoặc cancel_stop/resume_supply (notice_id/target_event_id). Các trường chung: known_on/effective_on/reason/source_description/source_ref tùy chọn/expected_version; impact_run_id/impact_as_of_date tùy chọn. List dùng page≥1/page_size1–100, supplier_id/item_id/warehouse_id/sku/product_type/destination_country/status/as_of_date/search; filter sai hoặc extra trả422, status thiếu ngày422. Detail có latest_action/latest_known_on/latest_version riêng state theo ngày, để phân biệt hủy và phục hồi dù quyền cùng clear; lịch sử giảm version ở /events.
+
+POSTcreate dùng các trường stop và preview_fingerprint64hex bắt buộc. POSTcancel/resume có path xác định hành động, body chỉ trường chung+target_event_id+fingerprint, không lặp notice_id/action. Server khóa Supplier→Notice(nếu có)→Item→Warehouse rồi tính lại payload chuẩn hóa/membership/catalog identity-version/lịch sử hai nguồn/run-hash/ngày tác động; FP khác trả409preview_stale, version khác409version_conflict; sai trạng thái409, payload/source/scope/ngày cấu trúc sai422, ID thiếu404, schema thiếu503. Root/members/event lưu cùng transaction; retry create với FP cũ bị409, không tạo notice trùng. Scope và tổng preview tính toàn bộ trước page; FP không phụ thuộc trang đang xem.
+
+Nội bộ cùng ngày/short notice hoặc có impact context cần preview_fingerprint; preview và save dùng min0, vẫn bán tồn được phép, mở lại nội bộ không gỡ provider. Đường+7/hủy/mở lại cũ không fingerprint tiếp tục tương thích cho client cũ (min7 ở service mặc định). Payload không được truyền min_notice/profile để vượt quyền. Schema0007 vẫn đọc catalog/trạng thái nội bộ/stock/API/CSV cũ; quyền provider không biết trảnull/trade_schema_readyfalse, yêu cầu tính năng mới trả503. Không auto-migrate.
+
+**Tác động preview:** chỉ đọc inventory/lô đã lưu của impact_run_id complete tại ngày được chọn, chọn một window mới nhất/item, chỉ đơn đã biết và ETA theo known_orders_through. Tổng tồn/pending/số lô chỉ có số khi phạm vi/ngày đủ; thiếu thì null và inventory_completefalse. Không có impact run vẫn cho preview/lưu cấu hình hợp lệ nhưng số lượng null. Legacy chưa có tồn được bán/bị chặn giữ null/rights_quantities_availablefalse, không tính từ live để sửa run. Quyền trước/sau là giả định cấu hình tại rights_on=max(known_on,effective_on), tách rõ ngày số tồn frozen. recommended_qty_after chỉ0 khi quyền nhập bị chặn, còn lại null; quantity_limit_status chưa tính cap v2 ở3. Không chạy model/worker ngầm hoặc nhận đã tính lượng bán/Q trước hạn mới.
+
+**Snapshot chuyển tiếp:** request inventory có thể bổ sung trường kỹ thuật sau, không phải bộ chọn nghiệp vụ trên FE:
+
+```json
+{"trade_lifecycle_profile":"internal_provider_trade_v2"}
+```
+
+Khi có marker: freeze internal_supply_snapshot, provider_notice_snapshot(root/scope/item_ids/item_snapshot/events prefix) và trade_rules; không kèm supply_lifecycle_profile notice7. Scope lưu cả member ở ngoài catalog của run với identity frozen để kiểm phạm vi, nhưng không kéo demand/forecast của item ngoài catalog vào run hoặc phân phối lại. Khoá chia sẻ Supplier→Item→Warehouse giữ các writer cấu hình liên quan trước khi đọc policies/hai lịch sử; provider writer bị khóa tại Supplier, internal/policy writer tại Item. Chỉ hàng đã commit ở ranh giới freeze và known_on≤origin lớn nhất; mỗi origin cụ thể do consumer4sẽ lọc prefix. created_at là thời điểm thao tác kỹ thuật, không dùng ngày hệ thống hoặc Run.created_at thay known_on. Retry key trả snapshot cũ trước đọc live.
+
+Trong staging3, request không marker vẫn freeze notice7 **chỉ khi** scope/cutoff không có provider history và không có stop nội bộ<7ngày đã biết; ngược lại409trade_profile_required. Vì vậy không thể bỏ marker để lờ hạn chế mới. Việc chọn mặc định/đưa marker tự động cho UI khi mở tính năng thuộc6–7, không thêm lựa chọn profile vào form nghiệp vụ. Các profile/JSON/hash/artifact cũ không backfill hoặc nối cấu hình live.
+
+simulate_run và verifier gặp trade_v2 trả stage_not_implemented; profile mới lạ trả invalid_trade_history. Reader result gặp trade_v2 trả409feature_not_in_run, không giả legacy/null profile thành allowed=true. Ca worker synthetic kiểm run fail đúng guard/0ledger; **chưa có run trade_v2 được verified**, chưa triển khai phép tính4 hoặc result/CSV5/FE6. Các đoạn chưa API/snapshot ở checkpoint2phía dưới là lịch sử.
+
+<a id="phase2-implemented"></a>
+### CHG-085 giai đoạn2 — 02/11/2026, đã có DB/nghiệp vụ trên DBtest
+
+Người dùng giao riêng2 sau khi bước1 đã push92243b8/SHAremote/2CI success. Mã hiện có migration [0008_trade_lifecycle](../../web/backend/migrations/versions/0008_trade_lifecycle.py),3model provider trong catalog/models,2cột ledger nullable trong inventory/models, [provider.py](../../web/backend/src/modules/catalog/provider.py) thuần và [provider_service.py](../../web/backend/src/modules/catalog/provider_service.py) persistence. Chỉ migrate/ghi fixture sigma_m3_test; DBapp và hai bản sao bước8 không nâng/ghi. [Kiểm và giới hạn](../../docs/development.md#handoff-chg085-phase2). Chưa được giao commit/push code giai đoạn2.
+
+Đã kiểm kê trực tiếp read-only: app0007/14bảng/3run/0stop; validation0007/14bảng/4run/1stop; history0005_carrier/13bảng/5run. Điều này thay giới hạn chưa kết nối được ở giai đoạn1, không xóa bằng chứng cũ. 0007 không sửa; mã schema hiện17bảng, app vẫn14. Migration0008 thêm3bảng và2cột không default/backfill, nới CHECK action/ngày nội bộ và event_kind. Source/blocked CHECK giữ cân bằng và yêu cầu cả hai cột cùng null (legacy) hoặc cùng không âm/source=sales_qty+blocked. Downgrade giữ bảng khóa trong kiểm, từ chối notice, stop<known+7, ledger mới, sale_blocked hoặc run có trade_lifecycle_profile.
+
+Ngừng nhập cùng ngày đã có ở validate_supply_change(..., minimum_notice_days=0); default7 cố ý giữ cho DTO/service API cũ và notice7 profile. Chưa nối min0 vào API hoặc freeze v2, tránh dữ liệu chưa được worker/verifier hỗ trợ. Hàm provider_notice_state lọc known_on tại origin rồi giải interval target, resume tương lai không gỡ chặn sớm; trade_state hợp hai quyền và giữ blocker/reason độc lập. resolve_provider_scope kiểm mọi kho/thị trường đã khai báo, carrier/SKU/loại chính xác và dedup membership. Lịch sử/nguồn nhập được validate trước persist; không có update/delete service.
+
+Scope JSON cụ thể được service lưu bất biến theo dạng sau (ví dụ synthetic, không phải scope đã ghi DBapp):
+
+```json
+{"products":[{"sku":"PLAN","product_type":"eSIM","destination_countries":["A","B"],"warehouse_ids":[1,2]}]}
+```
+
+Mỗi tổ hợp bắt buộc đủ4trường; không nhận extra hoặc cờ all-carrier. Mọi kho phải có đúng sản phẩm/nhà mạng và tập thị trường khớp các kho được chọn; một thông báo có thể nhiều tổ hợp. Persistence create_provider_notice khóa Supplier rồi Item tăng dần, so expected_version=0 và expected_item_ids nếu caller cung cấp để bắt membership đổi; root/membership/event1 trong cùng transaction caller. append_provider_notice_event khóa Supplier→Notice→Item, so latest expected_version rồi append event2 hủy/resume đúng target. Chỉ một follow-up cho một stop; muốn ngừng lần nữa tạo notice mới. Lỗi rollback qua transaction caller, chưa có commit ngầm. Fingerprint/impact preview/HTTP thuộc3, không được coi expected_item_ids là fingerprint hoàn chỉnh.
+
+Để mã ORM mới không làm hỏng đọc trước cutover, reporting/service hiện defer hai cột mới, COUNT chỉ lấy ID và serialization không xuất chúng; đã kiểm API/CSV trên0007 có ledger. Đây chỉ là bảo toàn hợp đồng đọc cũ, không phải read model v2 của5. Không đổi OpenAPI/route/worker/verifier/FE hoặc công thức Q/ROP/SS; ngừng bán/actual/source split hiện chỉ schema và nghiệp vụ thuần, chưa chạy simulation theo v2. Các phần mục tiêu3–8bên dưới vẫn dự kiến. Những đoạn chỉMD/14bảng và API+7phía dưới là checkpoint CHG-084/giai đoạn1, không phủ nhận tiến độ2.
+
+**Checkpoint giai đoạn1, 02/11/2026: khi đó chỉ Markdown, CHG-085 chưa triển khai.** Người dùng giao kiểm rồi publish MD, sau đó đã giao giai đoạn2 được cập nhật ở trên. Lịch sử bước1không sửa code/migration/DB hoặc chạy worker/model/run vẫn giữ đúng phạm vi thời điểm đó. [Lộ trình và hiện trạng bước8 cũ](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#status).
 
 <a id="step2-implemented"></a>
 <a id="step3-implemented"></a>
@@ -24,7 +70,7 @@ Các anchor stepN-implemented được giữ để liên kết lịch sử vẫn
 | [supply verifier](../../web/backend/src/modules/runs/supply_verification.py), [reporting](../../web/backend/src/modules/reporting/supply.py) | Verifier profile notice7 độc lập; API/CSV đọc frozen/projection. Legacy thiếu sell-through409; chưa có blocked_sales hoặc tồn bị chặn. |
 | [ProductSupplyForm](../../web/frontend/src/components/products/ProductSupplyForm.tsx), [Products](../../web/frontend/src/pages/Products.tsx) | Form trên chi tiết, nhãn “cung cấp”, gợi ý/kiểm+7 và action tùy trạng thái. CHG-085 cần tách modal nội bộ và trang thông báo nhà mạng. |
 
-Mã schema có14 bảng nghiệp vụ; 0007 là migration đã triển khai, tuyệt đối không sửa file lịch sử. Lượt này thử kết nối read-only DBapp và hai bản sao đều OperationalError, nên **chưa xác nhận schema/hàng live**. Báo cáo cũ có dữ liệu bản sao/run mới, không được giả định DB rỗng. Giai đoạn2/7 phải kiểm kê revision, constraints, số sự kiện theo action/provenance, run/profile/hash và phạm vi catalog bằng read-only trước; nếu khác báo cáo phải ghi diff và phương án tương thích trước migration.
+Tại checkpoint giai đoạn1 mã schema có14bảng và kết nối read-only trả OperationalError nên chưa xác nhận live. Giai đoạn2 đã kiểm kê được như phần cập nhật trên; trước cutover7 vẫn phải kiểm lại revision/constraints/sự kiện/provenance/run/profile/hash/catalog nếu có phát sinh. 0007 là migration đã triển khai, không sửa file lịch sử hoặc giả định DB rỗng.
 
 <a id="states-and-time"></a>
 ## 2. Hai lịch sử, thời gian và quyền

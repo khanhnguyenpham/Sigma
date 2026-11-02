@@ -1,5 +1,9 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+**CHG-085 giai đoạn3 — 02/11/2026:** thêm provider_schemas/router/read và trade_preview/trade_service trong catalog; tái dùng model/domain/service của2, hook serialization/current reporting cho impact frozen, không dependency/framework mới. configuration/context chọn marker profile và khóa snapshot; runs DTO/view thêm marker, simulation/verification/reporting chỉ guard chưa hỗ trợ. [Luồng/tệp thực](07-product-supply-lifecycle.md#phase3-implemented), [kiểm/bàn giao](../../docs/development.md#handoff-chg085-phase3). Không sửa phép tính4/FE6 hoặc migration2.
+
+**CHG-085 giai đoạn2 — 02/11/2026:** catalog/provider.py chứa hàm thuần state/validate/scope/quyền, provider_service.py chứa persistence nguyên tử/khóa/version; catalog models và registry thêm3model. Không framework/dependency mới. Migration0008 thêm3bảng/2cột ledger và CHECK; test_trade_lifecycle.py kiểm độc lập hành vi và bảo toàn migration. reporting/service chỉ thay SELECT/count/serialization để không đọc cột chưa có trên app0007; chưa có read model mới. [Bàn giao](../../docs/development.md#handoff-chg085-phase2). Các đoạn “chưa tạo code” phía dưới là checkpoint giai đoạn1.
+
 ## CHG-085 — Thay đổi kiến trúc dự kiến, chỉ tài liệu
 
 Tận dụng catalog models/supply_service/router/schemas cho nội bộ; thêm model/service/resolver provider theo nghiệp vụ riêng trong catalog, không ghép hai nguồn vào model đa năng hoặc tạo framework mới. configuration/context.py hiện freeze supply; sẽ freeze hai snapshot/profile mới; inventory/simulation và runs/verifier dispatch profile; reporting/CSV đọc kết quả frozen. FE tái dùng hooks/services/Table/Panel/Pager/modal/router, tách modal nội bộ và trang thông báo; không thêm framework/dependency.

@@ -15,6 +15,7 @@ from core.settings import Settings
 from main import create_app
 import models
 from modules.catalog.models import Item, Supplier, Warehouse, ItemSupplyChange
+from modules.catalog.models import ProviderProductNotice, ProviderProductNoticeItem, ProviderProductNoticeEvent
 from modules.configuration.models import Policy, Scenario
 from modules.forecasting.models import DailySales, ItemForecast, RouteForecast
 from modules.runs.models import Run
@@ -45,6 +46,13 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
         schema["paths"].pop("/api/v1/products")
         schema["paths"].pop("/api/v1/products/{key}")
         schema["paths"].pop("/api/v1/products/{key}/supply-changes")
+        schema["paths"].pop("/api/v1/products/{key}/internal-stop-preview")
+        for path in list(schema["paths"]):
+            if path.startswith("/api/v1/provider-product-notices"):
+                schema["paths"].pop(path)
+        for name in ("ProviderFollowCreate", "ProviderFollowDraft", "ProviderScope", "ProviderStopCreate", "ProviderStopDraft", "ScopeProduct"):
+            schema["components"]["schemas"].pop(name)
+        schema["components"]["schemas"]["RunCreate"]["properties"].pop("trade_lifecycle_profile")
         schema["components"]["schemas"].pop("SupplyChangeCreate")
         schema["paths"]["/api/v1/warehouses/{key}"].pop("get")
         # CHG-068 step10 explicitly adds these optional request fields only.
@@ -86,8 +94,8 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
 def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
     statements = []
     for _, table in sorted(Base.metadata.tables.items()):
-        # CHG-084 adds one table; the original thirteen-table golden stays intact.
-        if table.name == "item_supply_changes":
+        # Lifecycle additions are checked separately; retain the original thirteen-table golden.
+        if table.name == "item_supply_changes" or table.name.startswith("provider_product_notice"):
             continue
         ddl = str(CreateTable(table).compile(dialect=dialect())).strip()
         if table.name == "suppliers":
@@ -115,6 +123,13 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
                 and "CONSTRAINT ck_alert_threshold_date " not in line)
             ddl = ddl.replace("CONSTRAINT ck_alert_type ", "").replace("CONSTRAINT ck_alert_state ", "")
             ddl = ddl.replace(",\'projected_below_rop\'", "").replace(",\'threshold_warning\'", "")
+        if table.name == "inventory_daily":
+            ddl = "\n".join(line for line in ddl.splitlines()
+                if not re.match(r"\s*(source_sales_qty|actual_blocked_qty)\s", line)
+                and "CONSTRAINT ck_inventory_source_sales " not in line)
+        if table.name == "inventory_events":
+            ddl = ddl.replace("CONSTRAINT ck_inventory_event_kind ", "").replace(
+                " OR (event_kind='sale_blocked' AND source_sequence IS NOT NULL AND replenishment_order_id IS NULL AND fulfilled_qty=0 AND shortage_qty=0)", "")
         statements.append(ddl)
         for index in sorted(table.indexes, key=lambda index: index.name):
             statements.append(str(CreateIndex(index).compile(dialect=dialect())).strip())
@@ -127,9 +142,10 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
 
 def test_features_share_the_single_registered_metadata():
     assert models.Base is Base
-    assert len(Base.metadata.tables) == 14
+    assert len(Base.metadata.tables) == 17
     for model in (Warehouse, Item, Supplier, Policy, Scenario, Run, DailySales, RouteForecast,
-                  ItemForecast, InventoryDaily, InventoryEvent, Replenishment, Alert, ItemSupplyChange):
+                  ItemForecast, InventoryDaily, InventoryEvent, Replenishment, Alert, ItemSupplyChange,
+                  ProviderProductNotice, ProviderProductNoticeItem, ProviderProductNoticeEvent):
         assert model.__table__.metadata is Base.metadata
         assert getattr(models, model.__name__) is model
 

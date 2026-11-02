@@ -39,7 +39,8 @@ def supply_state(changes, item_id, decision_origin, target_date=None):
                 version=visible[-1]["version"] if visible else 0)
 
 
-def validate_supply_change(changes, *, item_id, action, known_on, effective_on, target_change_id=None):
+def validate_supply_change(changes, *, item_id, action, known_on, effective_on, target_change_id=None,
+                           minimum_notice_days=7):
     """Validate a proposed append before the persistence service writes it."""
     known, effective = day(known_on), day(effective_on)
     rows = [r for r in changes if r["item_id"] == item_id]
@@ -47,9 +48,12 @@ def validate_supply_change(changes, *, item_id, action, known_on, effective_on, 
         raise DomainError("supply_conflict", "Supply dates cannot move backwards", 409)
     if action not in {"stop", "cancel_stop", "resume"}:
         raise DomainError("invalid_input", "Unknown supply action")
+    if minimum_notice_days not in (0, 7):
+        raise DomainError("invalid_input", "Unsupported internal supply rules")
     if action == "stop":
-        if target_change_id is not None or effective - known < timedelta(days=7):
-            raise DomainError("invalid_input", "Stop requires at least seven days notice and no target")
+        # Existing API/profile stays notice7 until the trade snapshot and worker cutover.
+        if target_change_id is not None or effective - known < timedelta(days=minimum_notice_days):
+            raise DomainError("invalid_input", "Stop date precedes the permitted internal effective date")
     elif target_change_id is None or effective != known:
         raise DomainError("invalid_input", "Cancel/resume requires a target and takes effect on known_on")
     state = supply_state(rows, item_id, known)

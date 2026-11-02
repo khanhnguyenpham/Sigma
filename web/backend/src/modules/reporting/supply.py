@@ -8,6 +8,8 @@ from modules.catalog.supply import supply_state
 
 
 def frozen_history(run):
+    if run.config_snapshot.get("trade_lifecycle_profile") is not None:
+        raise DomainError("feature_not_in_run", "Trade lifecycle result readers are not available at this stage", 409)
     profile = run.config_snapshot.get("supply_lifecycle_profile")
     if profile is None:
         return None

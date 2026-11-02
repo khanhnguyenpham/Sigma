@@ -445,6 +445,10 @@ def simulate_run(settings, sessions, key):
         source = s.get(Run, run.source_import_run_id)
         forecast_parent = s.get(Run, run.forecast_run_id)
         snapshot = run.config_snapshot
+        if snapshot.get("trade_lifecycle_profile") is not None:
+            if snapshot["trade_lifecycle_profile"] != "internal_provider_trade_v2":
+                raise DomainError("invalid_trade_history", "Unsupported trade lifecycle profile")
+            raise DomainError("stage_not_implemented", "Trade lifecycle simulation is not implemented at this stage")
         profile = snapshot.get("supply_lifecycle_profile")
         if profile not in (None, "notice7_sellthrough_v1") or (profile is None and snapshot.get("supply_lifecycle_snapshot")):
             raise DomainError("invalid_supply_history", "Unsupported supply lifecycle profile")

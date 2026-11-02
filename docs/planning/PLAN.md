@@ -1,5 +1,17 @@
 # Kế hoạch dự án SIGMA
 
+<a id="chg-085-phase3"></a>
+## CHG-085 giai đoạn3 — API, snapshot và tương thích, 02/11/2026
+
+Người dùng giao tiếp3 rồi bổ sung giao hoàn tất thì đẩy GitHub. Đã triển khai provider CRUD dạng append (không PATCH/DELETE), preview source/scope/quyền/tồn-lô frozen/fingerprint, lọc trước pagination, nội bộ min0 có preview, snapshottrade_v2/rules/scope identity và guard worker/verifier/result. Giai đoạn chuyển tiếp giữ request legacy notice7 nếu không có hạn chế mới đã biết; markertrade_v2 explicit không là bộ chọn nghiệp vụ trên UI. Giữ source/forecast/run/artifact cũ và DBapp0007, bản sao cũ chỉ đọc. [Chi tiết thực](../../M3/docs/07-product-supply-lifecycle.md#phase3-implemented), [kiểm/bàn giao](../development.md#handoff-chg085-phase3).
+
+Baseline65/targeted83/full419Python BE/M2, pipcheck đạt. Người dùng giao commit/push thường final-report cho phần2–3tích hợp (2là phụ thuộc chưa commit), kiểm SHAremote/CI rồi dừng; không merge/force-push/deploy hoặc làm4–8. R07/T14 giữ mở.
+
+<a id="chg-085-phase2"></a>
+## CHG-085 giai đoạn2 — DB và nghiệp vụ, được giao riêng ngày02/11/2026
+
+Sau commit tài liệu92243b8/SHAremote/2CI success, người dùng giao bắt đầu2. Phạm vi: kiểm kê DB thật read-only; migration0008 thêm3bảng provider,2cột ledger nullable và CHECK; nới CHECK stop nội bộ cùng ngày; resolver/validator/quyền hai nguồn và service scope/khóa/version, chỉ DBtest. Không sửa0007 hoặc nâng DBapp, không chạy lại bằng chứng bước8. Giữ API/DTO notice7 cũ để không tạo snapshot chưa được worker hỗ trợ; nghiệp vụ min0 mới chưa nối API. Giai đoạn3–8chưa được giao. [Bàn giao](../development.md#handoff-chg085-phase2), [tiến độ](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). Lượt này chưa có quyền commit/push giai đoạn2; giữ local sau kiểm. R07/T14 chưa nghiệm thu.
+
 <a id="chg-085"></a>
 ## CHG-085 — Thiết kế lại vòng đời mua bán, giai đoạn1 Markdown
 

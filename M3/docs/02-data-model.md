@@ -1,6 +1,10 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
-## CHG-085 — Schema mục tiêu, chưa tạo migration
+**CHG-085 giai đoạn3 — 02/11/2026:** không thêm/sửa migration0008 hoặc model DB của2; API dùng schema0008 trên test, schema0007 đọc catalog/stock cũ và báo503 khi yêu cầu tính năng mới. SnapshotJSONtrade_v2 chứa scope/membership/item identity và lịch sử prefix, latest_version dùng ghi tách state-version theo ngày. Khóa snapshot Supplier chia sẻ→Item→Warehouse; provider writer Supplier→Notice→Item giữ nguyên. [Chi tiết](07-product-supply-lifecycle.md#phase3-implemented), [bàn giao](../../docs/development.md#handoff-chg085-phase3). Không nâng DBapp.
+
+**CHG-085 giai đoạn2 — 02/11/2026:** đã tạo migration0008_trade_lifecycle và đăng ký17model/bảng nghiệp vụ; chỉ migrate sigma_m3_test. 0007 giữ byte/hash. Ba bảng provider tách root/scope, membership item và event version1stop/version2cancel-or-resume; FK target cùng notice, nguồn/lý do/giả định bắt buộc. Hai cột ledger nullable/không default, CHECK chia source/blocked và sale_blocked; không backfill hàng cũ. Downgrade khóa bảng và từ chối mọi dữ liệu mới có thể mất; legacy+7/null có thể downgrade và nâng lại. [Chi tiết](07-product-supply-lifecycle.md#phase2-implemented), [bàn giao](../../docs/development.md#handoff-chg085-phase2). DBapp0007 và bản sao cũ không nâng.
+
+## CHG-085 — Schema mục tiêu tại checkpoint giai đoạn1
 
 Giữ item_supply_changes nghĩa nội bộ; migration0008_trade_lifecycle kế tiếp nới stop effective≥known, không sửa0007 đã áp dụng. Thêm provider_product_notices/provider_product_notice_items/provider_product_notice_events với scope bất biến, membership nhiều kho, event append/version/target cùng notice và source/reason giả định; tổng dự kiến17bảng nghiệp vụ nếu hiện trạng14được xác minh. Thêm2cột nullable inventory_daily source_sales_qty/actual_blocked_qty, nới CHECK event_kind để lưu sale_blocked; cột cũ sales_qty giữ scenario sales ở profile mới, reader cũ nguyên. Không backfill run cũ.
 
