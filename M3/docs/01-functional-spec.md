@@ -1,5 +1,11 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+## CHG-085 — Quy tắc mục tiêu, giai đoạn1 chỉ Markdown
+
+Tách ngừng nhập nội bộ (cùng ngày/lịch tương lai, vẫn bán tồn) và thông báo nhà mạng (chặn nhập/bán khi đã biết+hiệu lực, scope nhiều kho rõ sản phẩm). L7 không là notice7. Hai lịch sử/quyền/hủy/phục hồi độc lập, không policy override hoặc chuyển nhu cầu sang gói khác. Tồn tổng/được bán/bị chặn và actual bị chặn tách rõ, lô cũ vẫn nhận, không tự ghi tổn thất. Trước hạn nhà mạng thêm cap ETA/nguyên lô/coverage sau policy, không sửa ROP/SS. [Quy tắc và4ví dụ bắt buộc](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#business-rules), [phép tính](07-product-supply-lifecycle.md#forecast-and-worker).
+
+Chưa triển khai CHG-085 hoặc chạy test/run mới; M05/R05/R07/T14 giữ trạng thái. CHG-084 bên dưới là lịch sử đã triển khai, gồm+7và bán tồn, không phải ngừng bán nhà mạng. [Bước8 cũ dở dang](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#step8-run-validation).
+
 **CHG-084 bước4 — 02/11/2026:** phép tính nhu cầu/ROP/SS giữ; khi stopped, Q=0 và needs_replenishment=false, không tạo lô mới. Raw belowROP/depletion vẫn là chẩn đoán, có metadata không cho nhập. Receipts cũ/actual/shortage và mẫu số vẫn giữ, projected_sales=min(demand,stock+known_receipts). [Hợp đồng thực có](07-product-supply-lifecycle.md#step4-implemented), [bàn giao](../../docs/development.md#handoff-chg084-step4).
 
 ## CHG-084 — Ngừng nhập và bán tồn: đặc tả dự kiến

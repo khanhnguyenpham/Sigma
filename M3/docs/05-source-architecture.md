@@ -1,5 +1,11 @@
 # M3 — cấu trúc mã nguồn và tích hợp
 
+## CHG-085 — Thay đổi kiến trúc dự kiến, chỉ tài liệu
+
+Tận dụng catalog models/supply_service/router/schemas cho nội bộ; thêm model/service/resolver provider theo nghiệp vụ riêng trong catalog, không ghép hai nguồn vào model đa năng hoặc tạo framework mới. configuration/context.py hiện freeze supply; sẽ freeze hai snapshot/profile mới; inventory/simulation và runs/verifier dispatch profile; reporting/CSV đọc kết quả frozen. FE tái dùng hooks/services/Table/Panel/Pager/modal/router, tách modal nội bộ và trang thông báo; không thêm framework/dependency.
+
+[Đối chiếu tệp thật](07-product-supply-lifecycle.md#status), [luồng toàn hệ thống](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#system-flow), [DB/API](07-product-supply-lifecycle.md#database), [FE](04-frontend-spec.md#lifecycle-chg085). Chưa tạo module/tệp code hoặc sửa kiến trúc thực; checkpoint CHG-084 dưới đây là lịch sử.
+
 **CHG-084 bước6 — 02/11/2026:** thêm FE ProductSupplyForm, SellThrough và utils/supply; tái dùng useResource/http/Table/Pager/Panel/Recharts. Products/App/context truyền ngày mô phỏng qua URL; views vận hành dùng metadata frozen từ BE, không tự giải timeline hoặc tính lại projection. Không thêm dependency, backend service/schema hoặc thay model. [Bàn giao](../../docs/development.md#handoff-chg084-step6); DBapp chưa nâng.
 
 **CHG-084 bước5 — 02/11/2026:** reporting/supply.py chỉ đọc timeline từ config_snapshot và đường projection trong Alert.explanation; reporting dataset/export dùng chung. Inventory/purchasing operational view chọn window mới nhất cho item, giữ lô đúng window. Không thêm service/dependency/DBtable hoặc gọi lại simulation để phục vụ GET. [Bàn giao](../../docs/development.md#handoff-chg084-step5).

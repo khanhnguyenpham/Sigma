@@ -1,5 +1,18 @@
 # Hợp đồng dữ liệu SIGMA
 
+<a id="trade-lifecycle-chg085"></a>
+## CHG-085 — Hợp đồng mục tiêu, chưa triển khai
+
+Nguồn order/quantity bán và actual_available không đổi, missing không thành0, không có nhãn ngừng cung cấp thực tế. Thông báo mới đều giả định khai báo, không tự suy từ sales0. Hai nguồn hạn chế độc lập: item_supply_changes cũ luôn là ngừng nhập nội bộ; provider notices/scope/events dự kiến là hạn chế mua/bán đúng item nhiều kho. Ngày UTC known/effective tách created_at thực; nội bộ stop effective≥known, provider stop cho effective<known, chỉ tác động khi known≤decision_origin.
+
+Migration kế tiếp0008, không sửa0007; dự kiến3bảng nhà mạng và2cột nullable source_sales_qty/actual_blocked_qty trên inventory_daily, nới event_kind cho sale_blocked. Hàng/run cũ không backfill, giữ profile reader cũ. Run mới freeze internal_provider_trade_v2 + hai lịch sử/scope/rules; policy rolling origin, alert fixed origin. Không lấy live vào frozen, enqueue retry không refreeze. [DB](../M3/docs/07-product-supply-lifecycle.md#database), [snapshot](../M3/docs/07-product-supply-lifecycle.md#snapshots-and-causality).
+
+Profile mới: total_stock=sellable+blocked; forecast_input=projected_sales+unserved_stock+sales_blocked. Replay source_sales=scenario_sales+actual_blocked, scenario_sales=fulfilled+shortage; balance opening+receipts−fulfilled=closing. Inventory_daily.sales_qty ở profile mới là scenario sales; legacy giữ nghĩa cũ và trường mới null. Sale bị chặn vẫn có event đối chiếu, không xuất tồn; lô cũ nhận đúng một lần dù bị chặn bán. Actual nguồn không UPDATE. Bán tồn nội bộ vẫn bình thường nếu nhà mạng cho bán.
+
+Metric mới công bố source/allowed/blocked/shortage/excluded item-window, mẫu số0→null, không trộn với baseline hoặc nâng R07/T14. API/CSV/FE cùng run/origin/window/profile; legacy thiếu feature409, không giả blocked=0. [Công thức/cap/actual/metric](../M3/docs/07-product-supply-lifecycle.md#forecast-and-worker), [read model](../M3/docs/07-product-supply-lifecycle.md#read-model). Đây là hợp đồng đề xuất CHG-085, chưa phải dữ liệu ứng dụng đang lưu.
+
+### Checkpoint hợp đồng CHG-084 và trước đó
+
 **CHG-084 bước5 — 02/11/2026:** API/CSV sell_through đọc projection H14 đã lưu, không lấy actual làm0 hoặc gán tổng bán bằng tổng nhu cầu. Metadata trạng thái trên các read model lấy frozen timeline theo cutoff; legacy không có lifecycle thì status null, giữ hành vi nhập cũ. Counter stopped riêng, không gán thành healthy. [Hợp đồng](../M3/docs/07-product-supply-lifecycle.md#step5-implemented), [bàn giao](development.md#handoff-chg084-step5).
 
 **CHG-084 bước4 — 02/11/2026:** inventory run có profile mới lưu projection demand/sales/unserved/closing/receipts cùng trạng thái cung cấp trong alerts.explanation; simulation_summary thêm profile và supply_stopped_decisions. Ledger vẫn schema cũ, cần nhập=false/Q0 khi blocked, raw threshold giữ trong explanation/chẩn đoán. Không thay forecast_qty/actual hoặc mẫu số. Snapshot legacy giữ đầu ra cũ. [Hợp đồng](../M3/docs/07-product-supply-lifecycle.md#step4-implemented), [bàn giao](development.md#handoff-chg084-step4).

@@ -1,5 +1,16 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+<a id="chg085"></a>
+## CHG-085 — 02/11/2026, thay thiết kế vòng đời và giao MD trước
+
+Nguồn: yêu cầu trực tiếp người dùng trong tệp đính kèm, không phải xác nhận mentor. Chỉ giai đoạn1; sau đó người dùng bổ sung giao kiểm xong commit/push GitHub. Phạm vi publish chỉ MD bước1 trên final-report, không code/migration/DB/run hoặc tự triển khai2.
+
+Quyết định mới thay CHG-084 mục tiêu: ngừng nhập nội bộ được cùng ngày/future (không notice7), vẫn bán tồn; nhà mạng ngừng sản phẩm là hạn chế nhập/bán độc lập có scope SKU/loại/thị trường/item-kho nhiều kho, known/effective/nguồn/lý do giả định và phục hồi riêng. Hủy trước hiệu lực khác cung cấp trở lại sau hiệu lực. Quyền nhập là AND, quyền bán chỉ chịu hạn chế nhà mạng; policy/mở nội bộ không vượt provider. Tồn blocked không bị xóa, lô cũ vẫn nhận, không tự hủy/hoàn tiền/tổn thất hoặc chuyển sang gói khác. Giữ raw forecast/actual, profile/hash cũ và R07/T14 chưa nghiệm thu.
+
+Thiết kế đề xuất để duyệt: tận dụng bảng nội bộ, thêm3bảng provider +2cột ledger nullable và nới event_kind ở0008, không sửa0007; cap nguyên lô fixed, Q0 nếu ETA≥hạn/không đủ ngân sách/coverage; snapshot2nguồn/profile mới; actual bị chặn và mẫu số/window exclusions công bố riêng; FE modal nội bộ + trang notice riêng. [Quyết định/ví dụ/lộ trình](planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#business-rules), [chi tiết cần duyệt](planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#acceptance).
+
+Bằng chứng đọc trực tiếp phiên này: mã0007/catalog/API/context/simulation/reporting/verifier/FE, các file outputs/chg084_validation/. Có6run cũ trong history-results passed và run policy mới b2fb2e42/new-verification verified; report ngừng nhập/CSV/plot đã tồn tại. Thiếu preserved.json và kết luận UI cuối, nên bước8 đang dở dang/tạm dừng; không chạy lại hoặc sửa bằng chứng và không coi là ngừng bán nhà mạng. Kết nối read-only3DB hiện OperationalError, không xác minh được live; phải kiểm kê trước triển khai, không suy DB rỗng từ báo cáo trước. [Bàn giao/kiểm hiện tại](development.md#handoff-chg085). Các mốc CHG-084 dưới đây giữ nguyên lịch sử.
+
 <a id="chg084"></a>
 ## CHG-084 — 02/11/2026, duyệt thiết kế và giao riêng MD bước1
 

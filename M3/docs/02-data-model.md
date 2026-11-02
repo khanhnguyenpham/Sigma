@@ -1,5 +1,11 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
+## CHG-085 — Schema mục tiêu, chưa tạo migration
+
+Giữ item_supply_changes nghĩa nội bộ; migration0008_trade_lifecycle kế tiếp nới stop effective≥known, không sửa0007 đã áp dụng. Thêm provider_product_notices/provider_product_notice_items/provider_product_notice_events với scope bất biến, membership nhiều kho, event append/version/target cùng notice và source/reason giả định; tổng dự kiến17bảng nghiệp vụ nếu hiện trạng14được xác minh. Thêm2cột nullable inventory_daily source_sales_qty/actual_blocked_qty, nới CHECK event_kind để lưu sale_blocked; cột cũ sales_qty giữ scenario sales ở profile mới, reader cũ nguyên. Không backfill run cũ.
+
+[Trường, constraint, khóa/expected_version, chuyển đổi và downgrade](07-product-supply-lifecycle.md#database), [ledger actual](07-product-supply-lifecycle.md#forecast-and-worker). Phiên tài liệu chưa kết nối được DB (OperationalError); báo cáo bản sao có event/run nên phải kiểm kê live trước triển khai, không suy DB rỗng. Các checkpoint0007 dưới đây là lịch sử, không kiểm lại trong lượt này.
+
 **CHG-084 cutover — 02/11/2026:** migration0007_supply_lifecycle đã áp dụng cho DBapp sau backup/restore và nâng thử DBtest. Metadata14bảng/0diff;13bảng cũ giữ đủ hàng/cột/hash, bảng item_supply_changes mới rỗng. API/worker đã khởi động lại, chưa tạo stop live hoặc run mới; không downgrade DBapp trong lượt này. [Bàn giao](../../docs/development.md#handoff-chg084-step7). Các mô tả chưa migrate bên dưới là mốc thiết kế/lượt trước.
 
 **CHG-084 bước2 — 02/11/2026:** migration0007_supply_lifecycle/model item_supply_changes đã có trong mã nguồn; thêm một bảng, giữ13bảng cũ. Constraint ngày/action/lý do/provenance, FK target cùng item, unique item/version và index timeline; downgrade khóa bảng và từ chối nếu có lịch sử. Chỉ thực thi migration trên DBtest; chưa nâng DBứng dụng. [Bàn giao](../../docs/development.md#handoff-chg084-step2), [hợp đồng](07-product-supply-lifecycle.md#database). Các đoạn bước1/dự kiến dưới đây giữ mốc thiết kế.

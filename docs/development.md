@@ -1,5 +1,21 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-chg085"></a>
+## Bàn giao CHG-085 — 02/11/2026, thiết kế vòng đời mua bán, giai đoạn1
+
+- Đã cập nhật hai tài liệu chính PRODUCT_SUPPLY_LIFECYCLE_PLAN và đặc tả07, requirements/data-contract, đặc tả01–06, PLAN/TASK/PROJECTMAP, review-log, AGENTS và M3 README. Chỉ Markdown: tách ngừng nhập nội bộ cùng ngày khỏi thông báo nhà mạng chặn nhập/bán theo scope nhiều kho; hai lịch sử/quyền/khôi phục độc lập, tồn được bán/bị chặn, lô cũ, cap nguyên lô trước hạn, actual/metric riêng, snapshot/profile/reader cũ, FE tách màn/modal và8giai đoạn có điểm dừng. [Thiết kế](planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md), [DB/API/worker](../M3/docs/07-product-supply-lifecycle.md), [wireframe](../M3/docs/04-frontend-spec.md#lifecycle-chg085).
+- Đối chiếu trực tiếp mã0007/models/resolver/service/DTO/router/context/simulation/reporting/verifier/FE: hiện mới có nội bộ notice7/bán tồn, chưa có CHG-085. Không sửa0007/code/DB hoặc chạy worker/model/test/run mới. Lượt này đã thử kết nối read-only DBapp và hai bản sao nhưng đều OperationalError; không khởi động dịch vụ, không nhận đã xác minh live hoặc lịch sử rỗng. Trước giai đoạn2/7 cần kiểm kê lại revision/events/run/profile thực tế và rehearsal dữ liệu không rỗng.
+- Hiệu chỉnh tiến độ bước8 cũ bằng file đang có: history-results.json ghi6run cũ passed; new-verification.json ghi policy_replay b2fb2e42 verified; report.json có stop nội bộ item1 Sydney, không lô mới sau dừng, CSV14hàng/ledger22hàng, plot có sẵn. Đây là đọc báo cáo, không chạy lại verifier/API trong phiên. Chưa thấy preserved.json, chưa có bàn giao kiểm UI/bảo toàn cuối nên bước8 tạm dừng/dở dang; giữ nguyên toàn bộ bằng chứng. Run này không chứng minh chặn bán nhà mạng. [Kiểm kê chi tiết](planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#step8-run-validation).
+- Những lựa chọn còn chờ duyệt triển khai: cap nguyên lô và chặn khi thiếu coverage; scope item bất biến/không tự thêm item tương lai; resume provider không hồi tố; ledger source/allowed/blocked và metric item-window exclusions. Các quy tắc bắt buộc từ yêu cầu đã vào thiết kế. R07/T14 chưa nghiệm thu; M05/R05 không đổi.
+- Kiểm MD và bảo toàn đạt trong phạm vi thay đổi; số liệu và giới hạn ở phần kết quả bên dưới. Không dùng số test hoặc CI cũ làm bằng chứng mới.
+- Quyền mới người dùng bổ sung: hoàn tất/kiểm bước1 rồi commit/push thường riêng MD lên final-report, đối chiếu SHAremote và CI; tên commit theo thay đổi, không ghi step/số bước. COMMIT_BLOCK_PLAN.md untracked có từ đầu giữ nguyên, không stage. Không push dữ liệu/run/DB/env; không merge/force-push/deploy hoặc triển khai2–8. Dừng sau publish, bước tiếp theo là người dùng duyệt và giao riêng DB/nghiệp vụ giai đoạn2.
+
+### Kết quả kiểm và publish CHG-085
+
+Kiểm trực tiếp toàn17MD thay đổi:895liên kết nội bộ,91bảng,209anchor tường minh và4khối Mermaid; không có lỗi link/anchor mới, bảng lệch cột, fence hở hoặc anchor trùng. Sáu liên kết tới3nguồn lịch sử đã thiếu ở HEAD trước sửa vẫn giữ nguyên: báo cáo M2 đã xóa (4chỗ), ảnh yêu cầu và PDF nguồn trong review-log; không phục hồi file đã xóa hoặc nhận đã đọc nguồn thiếu. Mermaid được kiểm cấu trúc/fence/node, chưa render hình. Đã đối chiếu quy tắc hai nguồn/quyền/ngày/actual/profile/DB-API-worker-FE/lộ trình và ma trận ca bắt buộc; đây là kiểm đặc tả, không là kết quả test ứng dụng.
+
+SHA256498tệp đã ghi nhận đầu phiên được đối chiếu: chỉ17MD trong phạm vi thay đổi,449tệp ngoàiMD giữ nguyên, gồm178tệp bằng chứng outputs/chg084_validation; không thêm/xóa tệp trong tập đối soát. COMMIT_BLOCK_PLAN.md untracked có sẵn giữ hash và không stage. git diff --check đạt; diff chỉ17MD. Không chạy test ứng dụng/model/migration local hoặc tạo run; CI synthetic có thể tự chạy sau push theo workflow hiện có. SHAremote/CI của commit mới được kiểm sau push và báo trong thông điệp kết thúc, tránh vòng commit chỉ để ghi SHA của chính commit.
+
 <a id="handoff-chg084"></a>
 ## Bàn giao CHG-084 bước1 — 02/11/2026 (Asia/Saigon)
 

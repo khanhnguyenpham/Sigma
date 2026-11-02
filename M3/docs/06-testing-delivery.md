@@ -1,5 +1,11 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
+## CHG-085 — Cổng kiểm tài liệu và triển khai dự kiến
+
+Giai đoạn1 chỉ kiểm link/anchor, bảng/fence/sơ đồ, thuật ngữ/ngày/phạm vi/profile, diff Markdown; không chạy suite/model/migration/run. Người dùng bổ sung giao kiểm xong commit/push thường final-report, SHA remote/CI rồi dừng trước2. [Ma trận bắt buộc khi triển khai](07-product-supply-lifecycle.md#test-matrix), [8giai đoạn và điểm dừng](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps).
+
+**Bước8 CHG-084 đã làm một phần, đang tạm dừng:** có report verifier6run cũ và policy_replay b2fb2e42 trên bản sao, API/CSV/plot và báo cáo ngừng nhập; chưa thấy preserved.json/final browser/handoff. Không chạy lại hoặc sửa bằng chứng, không coi là nhà mạng ngừng bán. [Kiểm kê trực tiếp file và phần còn lại](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#step8-run-validation). Những dòng “chưa chạy bước8” ở checkpoint dưới đây chỉ đúng tại thời điểm cũ. R07/T14 chưa nghiệm thu.
+
 **CHG-084 bước7 — 02/11/2026:** suite mới368Python BE/M2 và74React đạt, build/pipcheck đạt. Regression test tái hiện rồi chặn tự điền ngày đã xóa khi API run list lỗi/phục hồi. Backup restore vào sigma_m3_test, kiểm đủ13bảng ở0006 rồi nâng diễn tập0007/schema0diff; sau đó mới nâng app, giữ3run/1.052file/history mới0. API/CSV920, browser app1440/390px và synthetic form→API→worker→verifier→CSV đạt. [Bằng chứng, lỗi môi trường và giới hạn](../../docs/development.md#handoff-chg084-step7). Không dùng synthetic thay kịch bản nguồn thật bước8; bước8 chưa chạy, R07/T14 giữ mở.
 
 **CHG-084 bổ sung bước8 — 02/11/2026, chưa thực hiện:** sau bước7 và khi được giao, kiểm danh sách run cũ còn truy cập (kể cả archive), reader/verifier theo profile và hash trước–sau; chạy một policy_replay mới trên DB bản sao với một stop giả định giữa kỳ. Khóa thông báo/ngày dừng≥7ngày và pending đã biết tại origin; kiểm không đặt mới từ ngày dừng, nhận lô cũ, bán tồn/unserved/cutoff và API/CSV/UI. [Protocol](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#step8-run-validation), [bằng chứng cần có](07-product-supply-lifecycle.md#step8-run-validation), [bàn giao MD](../../docs/development.md#handoff-chg084-step8-plan). Đây chưa là test/run đã chạy, không đổi R07/T14.

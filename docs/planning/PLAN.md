@@ -1,5 +1,14 @@
 # Kế hoạch dự án SIGMA
 
+<a id="chg-085"></a>
+## CHG-085 — Thiết kế lại vòng đời mua bán, giai đoạn1 Markdown
+
+02/11/2026: yêu cầu mới tách ngừng nhập nội bộ khỏi nhà mạng ngừng sản phẩm; bỏ notice7 cho nội bộ, giữ L7 lead time; provider notice xác định scope nhiều kho, known/effective/nguồn giả định, chặn nhập và bán mới, không hậu mãi/thuê bao. Tồn/lô cũ/actual/run frozen giữ nghĩa, tách blocked và shortage; cap Q nguyên lô trước hạn sau policy, không sửa ROP/SS. M05/R05/R07/T14 giữ trạng thái.
+
+[Lộ trình8giai đoạn mới và từng điểm dừng](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps), [thiết kế chi tiết](../../M3/docs/07-product-supply-lifecycle.md), [lựa chọn cần duyệt](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#acceptance). Lượt này chỉ1: tài liệu và kiểm MD, chưa code/migration/DB/worker/model/run. Người dùng bổ sung giao kiểm xong commit/push thường final-report, đối chiếu SHAremote/CI rồi dừng chờ giao2; không merge/force-push/deploy. [Bàn giao](../development.md#handoff-chg085).
+
+**CHG-084 bước8 tạm dừng sau thực hiện một phần:** báo cáo local có6run cũ passed và policy_replay mới b2fb2e42 verified, API/CSV/plot ngừng nhập; chưa có preserved.json/final browser/handoff. [Kiểm kê trực tiếp file](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#step8-run-validation). Không sửa/chạy lại/diễn giải thành ngừng bán; các đoạn CHG-084 phía dưới là checkpoint lịch sử, dù khi đó ghi bước8 chưa chạy.
+
 **CHG-068 bước 15 — 27/10/2026, hoàn tất:** đã chạy hai replay thật mới với cấu hình cơ sở khóa trước kết quả; worker và verifier độc lập đạt. Policy fill 90,4121%, thiếu 1.531/15.968; depletion báo sớm 986/2.867 = **34,391350%, chưa đạt mục tiêu làm việc 45%**. Metric xuống ROP giữ riêng (TP101/FP89/FN0/TN619). 245 Python, 50 React, build/pip check, API/CSV/browser đạt; 1.038 hash protected, 140 artifact sealed và hàng cũ của 13 bảng nghiệp vụ + Alembic nguyên. Schema 0003_threshold/0diff; chỉ thêm hai run local, không refit/tuning. R07/T14 chưa nghiệm thu. Commit `2658b8116accbed4354fdc18b55d7ed52f436f7c` đã push thường, remoteSHA khớp và2workflowCI completed/success.
 
 **CHG-068 bước14 — 26/10/2026, hoàn tất:** sau cổng13 mã73d6f39/remoteSHA/2CI success, người dùng giao14. React hiển thị ROP/SS/mode/N, ngày xuống ROP riêng ngày cạn, lý do/đường projection/bảng UTC; filter/export và metric threshold riêng depletion. Workspace thêm warning_items/projected_below_rop_items đếm item duy nhất; inventory API/CSV đọc5tham số từ policy frozen, công thức fixed hiển thị đúng.245Python (3ca mới),50React (7ca mới,1worker)/build/pipcheck và browser desktop/mobile390px trên2run synthetic đạt;1027protectedhash và3app run nguyên, schema0003_threshold giữ. Commit mã37c4525b90cb361d8eeabc23c46cfc82fb39f8dc đã push thường, remoteSHA khớp và2workflowCI completed/success; bước15 chưa bắt đầu, R07/T14 chưa nghiệm thu, chưa có replay thật mới chứng minh45%.

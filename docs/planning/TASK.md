@@ -1,5 +1,10 @@
 # Điều phối công việc SIGMA
 
+<a id="trade-lifecycle-chg085"></a>
+**CHG-085 — 02/11/2026, T01/T10/T11/T12:** giai đoạn1 chỉ Markdown thiết kế hai nghiệp vụ độc lập; nội bộ ngừng nhập cùng ngày, nhà mạng ngừng mua/bán theo notice nhiều kho; bảo toàn run/profile/actual và metric riêng. [8giai đoạn mới](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps), [đặc tả](../../M3/docs/07-product-supply-lifecycle.md), [bàn giao](../development.md#handoff-chg085). Chưa triển khai2–8, không nâng R07/T14. Người dùng giao kiểm tài liệu rồi commit/push thường final-report/SHAremote/CI và dừng, không tự làm2.
+
+**Hiệu chỉnh tiến độ bước8 CHG-084:** đã có báo cáo6run cũ và một policy_replay ngừng nhập trên bản sao; đang tạm dừng, chưa có xác nhận bảo toàn/browser/handoff cuối. Không ghi chưa chạy gì; không sửa/chạy lại bằng chứng. [Đã có và còn thiếu](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#step8-run-validation). Các checkpoint bên dưới giữ lịch sử, không mô tả hiện trạng mới nhất.
+
 **CHG-084 bước7 — 02/11/2026, T10/T11/T12:** kiểm368Python/74React/build/pipcheck và browser/API/CSV đạt; backup/restore thử rồi nâng DBapp0007, giữ13bảng cũ/3run/1.052file, history mới0. Đã sửa hồi phục ngày mô phỏng khi API lỗi. [Bàn giao](../development.md#handoff-chg084-step7), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). Hiện7/8bước hoàn tất local, commit/push/SHA/CI rồi dừng, bước8 chưa chạy; R07/T14 giữ mở. Các trạng thái cũ phía dưới là checkpoint lịch sử.
 
 **CHG-084 bổ sung bước8 — 02/11/2026, T01/T10/T11/T12, chỉ kế hoạch:** kiểm các run cũ còn truy cập và một policy_replay mới có một item ngừng nhập giữa kỳ; giữ run cũ/hash, dùng DB bản sao và giả định có nhãn. [Protocol bước8](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#step8-run-validation), [bàn giao MD](../development.md#handoff-chg084-step8-plan). Hiện6/8bước hoàn tất; bước7–8 chưa thực hiện, chưa chạy run/migrate ở lượt này. R07/T14 giữ mở.

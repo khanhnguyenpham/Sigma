@@ -1,5 +1,18 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+<a id="trade-lifecycle-chg085"></a>
+## CHG-085 — Bổ sung R06/R08/R09: hai nghiệp vụ độc lập
+
+02/11/2026, người dùng giao thiết kế lại, **giai đoạn1 chỉ Markdown**; bổ sung yêu cầu kiểm xong commit/push thường final-report, SHA remote/CI rồi dừng. Chưa giao triển khai2–8. Các phần CHG-084 bên dưới giữ lịch sử, quy tắc+7 của chúng không còn là yêu cầu mục tiêu cho stop nội bộ.
+
+Ngừng nhập nội bộ theo item/kho cho phép cùng ngày hoặc tương lai, không bắt buộc báo trước7; L7 là lead time. Chặn đề xuất/lô mới, giữ lô cũ và bán tồn được phép. Hủy trước hiệu lực/mở lại sau hiệu lực có lịch sử; policy không mở lại. Nhà mạng ngừng sản phẩm là nghiệp vụ riêng, có known/effective (cho phép biết muộn), lý do/nguồn giả định, scope SKU/loại/tuyến-thị trường/item-kho tường minh dùng chung nhiều kho; chặn cả nhập và bán khi đã biết và hiệu lực, không ngắt dịch vụ đã mua hoặc tự chặn toàn carrier.
+
+Quyền nhập là giao hai điều kiện; quyền bán chỉ chịu nhà mạng. Hủy/phục hồi từng nguồn không vượt nguồn còn lại. Tồn tổng=được bán+bị chặn, không xóa hoặc ghi tổn thất; lô cũ vẫn nhận một lần vào tồn bị chặn nếu cần, hiện Cần xử lý với nhà cung cấp. Trước hạn đã biết: chặn ETA≥hạn, cap nguyên lô theo khả năng bán còn lại và coverage, không tự sửa ROP/SS. Không tự chuyển nhu cầu/tồn sang gói khác.
+
+Dự báo quantity/actual nguồn và run cũ/hash/profile giữ nguyên; sales dự kiến sau ràng buộc khác đầu vào model. Tách thiếu hàng/bị chặn/tồn không được bán; replay actual bị chặn có metric/mẫu số riêng minh bạch. Không suy ngừng từ sale0, không refit toàn model, không mở rộng activation/thuê bao/hậu mãi. **R07/T14 chưa nghiệm thu, M05/R05 không đổi.** [Quyết định và ví dụ](planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#business-rules), [ca bắt buộc](../M3/docs/07-product-supply-lifecycle.md#test-matrix), [lựa chọn cần duyệt](planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#acceptance).
+
+### Checkpoint CHG-084 và các yêu cầu lịch sử
+
 **CHG-084 bước3 — 02/11/2026:** đã triển khai API/version/lịch sử và snapshot theo thiết kế; chưa bổ sung yêu cầu nghiệm thu hoặc nâng R07/T14. Khả năng khóa nhập/bán tồn của simulation còn ở bước4, API mới chỉ kiểm trên DBtest, chưa nâng DBứng dụng. [Bàn giao](development.md#handoff-chg084-step3).
 
 <a id="supply-lifecycle-chg084"></a>

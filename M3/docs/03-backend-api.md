@@ -1,5 +1,11 @@
 # M3 — backend, API và worker
 
+## CHG-085 — API mục tiêu, chưa triển khai
+
+Giữ products/{id}/supply-changes với nghĩa nội bộ, nới stop cùng ngày khi cutover đồng bộ. Thêm preview nội bộ và trang API provider-product-notices/list/detail/items/events/preview/create/cancel/resume; một ghi áp toàn scope nhiều kho nguyên tử, version/fingerprint stale409, payload/scope/ngày sai422, thiếu schema503. Không dùng endpoint nội bộ để mở hạn chế nhà mạng. Scope/preview phải đủ toàn phạm vi, số lượng tác động lấy run frozen được chọn, thiếu dữ liệu là null.
+
+[Hợp đồng endpoint/payload/response/filter/pagination/lỗi/khóa](07-product-supply-lifecycle.md#api), [profile mới và reader cũ](07-product-supply-lifecycle.md#snapshots-and-causality), [read model/CSV](07-product-supply-lifecycle.md#read-model). Run mới freeze hai nguồn/scope/rules trong transaction nhất quán; guard worker chưa hỗ trợ phải chặn enqueue/chạy. Giữ API/CSV/result run cũ theo profile, không nối live hoặc tự backfill quyền bán mới. Các đoạn CHG-084 bên dưới là lịch sử triển khai.
+
 **CHG-084 bước5 — 02/11/2026:** endpoint sell-through/CSV đã triển khai cùng bộ lọc item/kho/loại/supplier/origin/ngày mục tiêu và aggregate route_day trước phân trang. Inventory/alerts/replenishments trả metadata cung cấp frozen, workspace/purchasing tách stopped khỏi healthy/đề xuất. [Hợp đồng thực](07-product-supply-lifecycle.md#step5-implemented), [bàn giao](../../docs/development.md#handoff-chg084-step5). Chưa FE/cutover DBapp.
 
 **CHG-084 bước3 — 02/11/2026:** GET/POSTproducts/{key}/supply-changes, as_of_date/supply_status ở products và as_of_date ở detail đã triển khai. POST201, lỗi404/409/422, history version giảm dần; latest supply_version độc lập ngày xem/policy. Inventory enqueue đóng băng profile/timeline; chưa endpoint bán tồn/CSV. [Hợp đồng và giới hạn](07-product-supply-lifecycle.md#step3-implemented), [bàn giao](../../docs/development.md#handoff-chg084-step3).

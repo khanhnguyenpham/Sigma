@@ -1,5 +1,132 @@
 # M3 — đặc tả frontend
 
+<a id="lifecycle-chg085"></a>
+## CHG-085 — Thiết kế FE mục tiêu, chưa triển khai
+
+02/11/2026, giai đoạn1 chỉ MD. [Quyền/thời gian và API](07-product-supply-lifecycle.md#states-and-time), [lộ trình mới](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps) là nguồn quy tắc. Các đoạn CHG-084 phía dưới là checkpoint lịch sử; form hiện tại vẫn gộp thao tác nội bộ trên ProductDetail và bắt+7, chưa có trang thông báo nhà mạng.
+
+### Điều hướng và ngữ cảnh
+
+Giữ router hash/history và component/hook sẵn có; các URL sau là đề xuất, chưa có trong mã.
+
+```mermaid
+flowchart LR
+    A["Sản phẩm #products"] --> B["Chi tiết #product?item_id=..."]
+    C["Tồn kho theo kho"] --> B
+    B --> D["Modal Ngừng nhập nội bộ"]
+    B --> E["Thông báo ngừng sản phẩm #provider-notices"]
+    E --> F["Tạo #provider-notice-new"]
+    E --> G["Chi tiết #provider-notice?id=..."]
+    G --> H["Modal Hủy thông báo"]
+    G --> I["Modal Ghi nhận cung cấp trở lại"]
+    B --> J["Kế hoạch frozen: Tồn / Nhập / Dự báo"]
+```
+
+Menu chính thêm “Thông báo ngừng sản phẩm”, không gọi chung là “Tình trạng cung cấp”. Từ summary sản phẩm mở list đã lọc item; từ notice mở sản phẩm/kho trong scope; Back quay đúng list/filter/page. URL giữ item/kho/ngày/run và notice/filter/page; không đặt lý do/nguồn người dùng nhập vào URL. Modal mở bằng history entry và đóng/Back trả ngữ cảnh; form có dirty state cần xác nhận bỏ thay đổi. Reload liên kết sâu tải đúng item/notice, kể cả ngoài100option đầu.
+
+Luôn hiển thị hai ngữ cảnh: “Cấu hình mới nhất — ngày xem UTC …” trên màn quản lý và “Kế hoạch … — thông tin đã chốt tại …” trên vận hành. Đổi ngày xem không đổi ngày ghi nhận ngầm; ngày ghi nhận nhập rõ. Thông tin tới sau origin có nhãn trong cấu hình, không sửa run. Sau lưu: refetch version/history/config, focus thông báo “Đã lưu. Tạo kế hoạch mới để tính tác động.”, không tự enqueue hoặc thay số kế hoạch.
+
+### Chi tiết sản phẩm: summary, không form lifecycle
+
+```text
+Desktop
+[← Sản phẩm / Kho]          SKU · SIM/eSIM · Nhà mạng · Thị trường · Kho
+[Cấu hình mới nhất | Ngày xem UTC]
+[Nhập nội bộ: Đang nhập / Lên lịch / Đã ngừng]   [Nhà mạng: Không hạn chế / ...]
+[Quyền nhập: Có/Không + từng lý do]              [Quyền bán: Có/Không + lý do]
+[Xem / Quản lý ngừng nhập nội bộ]                [Xem thông báo liên quan]
+[Kế hoạch đã chốt: run/ngày | Tồn tổng | Được bán | Bị chặn | Lô đang về]
+[Liên kết Tồn kho / Nhập hàng / Dự báo theo cùng ngữ cảnh]
+[Form policy riêng như hiện có, không có nút tự mở nhập]
+
+390px
+[←] [SKU và mô tả xuống dòng]
+[Ngày xem]
+[Thẻ Nhập nội bộ] [nút toàn chiều rộng]
+[Thẻ Hạn chế nhà mạng] [nút toàn chiều rộng]
+[Quyền nhập, quyền bán và từng lý do]
+[Tồn tổng / Được bán / Bị chặn, xếp dọc]
+```
+
+Hiện source/reason và liên kết notice, không lộ profile/version/fingerprint cho người vận hành; thông tin kỹ thuật chỉ ở chi tiết phục vụ kiểm. Nếu có hai hạn chế thì hiện cả hai; summary tổng không giấu nguyên nhân. “Mở nhập lại nội bộ” luôn kèm giải thích còn bị nhà mạng chặn nếu có.
+
+### Modal “Ngừng nhập nội bộ”
+
+Một modal cho một item/kho; không có dropdown “loại nghiệp vụ”. Theo hành động mở modal tương ứng: Ngừng nhập, Hủy lịch ngừng nhập hoặc Mở nhập lại; mỗi lần chỉ có một hành động rõ tên.
+
+```text
+[Ngừng nhập nội bộ] [Đóng]
+[SKU · loại · kho · nhà mạng, chỉ đọc]
+[Ngày ghi nhận UTC] [Ngày hiệu lực: hôm nay hoặc tương lai]
+[Lý do *]
+[Preview: run/ngày | tồn tổng/được bán/bị chặn | lô cũ/ETA]
+[Vẫn bán lượng tồn được phép bán; lô đã đặt vẫn được nhận.]
+[Hạn chế nhà mạng còn áp dụng nếu có]
+[Xem lịch sử]                         [Hủy] [Lưu ngừng nhập]
+```
+
+Không gợi ý+7 hoặc yêu cầu known+7; lead time7 chỉ xuất hiện trong preview ETA nếu cần. Khi hủy/mở lại, effective=known hiển thị chỉ đọc; target stop rõ, không chọn tùy ý event. Hủy lịch chưa hiệu lực và mở lại sau hiệu lực có modal xác nhận riêng nội dung, không tự đổi nghĩa nút theo lỗi API. Lịch sử trong modal/trang phụ dùng page, ngày biết/hiệu lực/action/lý do/nguồn giả định; newest first. Preview không có run ghi chưa có dữ liệu, không ghi tồn0.
+
+| Trạng thái nội bộ tại ngày ghi nhận | Hành động |
+|---|---|
+| Active | Ngừng nhập hôm nay hoặc lên lịch |
+| Scheduled_stop | Xem lịch; Hủy lịch trước hiệu lực, không thêm stop thứ hai |
+| Stopped | Xem lịch; Mở nhập lại nội bộ, không bỏ hạn chế nhà mạng |
+| Ngày xem trước latest change / thiếu ngày / schema chưa sẵn sàng | Đọc summary/history phù hợp; yêu cầu chọn ngày ghi nhận hợp lệ, không gửi ghi |
+
+### Trang “Thông báo ngừng sản phẩm”
+
+List có tiêu đề + nút Tạo thông báo, filter nhà mạng/SKU/loại/thị trường/kho/trạng thái/ngày; thẻ/bảng mỗi notice một dòng: sản phẩm/phạm vi, số item/kho, ngày biết/hiệu lực, trạng thái, nhãn “Giả định mô phỏng”, link chi tiết. Không lặp cùng notice thành một row mỗi kho. Filter reset page1, reload/Back giữ query; total từ server toàn scope.
+
+Tạo là màn riêng, không wizard nhiều tầng:
+```text
+[Tạo thông báo ngừng sản phẩm]
+[Nhà mạng *] [Gói/SKU chính xác *] [Loại SIM/eSIM *]
+[Thị trường/tuyến *] [Kho áp dụng: tất cả trong phạm vi hoặc nhóm được khai báo *]
+[Ngày biết thông báo UTC *] [Ngày hiệu lực UTC *]
+[Lý do *] [Nguồn khai báo/giả định *] [Liên kết tham chiếu: tùy chọn]
+[Nhận diện: Giả định mô phỏng]
+[Xem phạm vi và tác động]
+[Toàn phạm vi: N item / M kho | danh sách có phân trang]
+[Tác động theo kế hoạch/ngày đã chọn:
+ tổng tồn / được bán / sẽ bị chặn, lô về sau hạn, Q bị loại/lý do]
+[Ngừng mua và bán mới; không ngắt dịch vụ đã mua; không tự hủy lô]
+[Hủy] [Lưu thông báo]
+```
+
+Preview cho biết “tổng toàn phạm vi” và “trang đang xem”; không coi một trang là đủ item. Scope không mặc định toàn carrier. Đổi nhà mạng/SKU/loại/thị trường/kho/ngày/nguồn/impact run làm preview cũ mất hiệu lực và nút lưu yêu cầu xem lại. Thông báo đã hiệu lực khi biết muộn được phép, hiện rõ “Hệ thống biết sau ngày hiệu lực; quyết định trước ngày biết giữ nguyên”. URL nguồn không bắt buộc; mô tả nguồn/giả định bắt buộc, không yêu cầu URL không tồn tại.
+
+Chi tiết notice có header sản phẩm/phạm vi/mốc ngày/trạng thái/nguồn; lịch sử bất biến và danh sách item/kho có quyền/tồn/lô theo ngữ cảnh. “Hủy thông báo chưa hiệu lực” mở modal riêng (known/reason/source, hiệu lực trong ngày), “Ghi nhận cung cấp trở lại” mở modal riêng (known/effective≥known/reason/source/preview). Không dùng nút “Mở nhập lại” cho nhà mạng.
+
+| Trạng thái notice | Hành động trên chi tiết |
+|---|---|
+| Đã biết, chưa hiệu lực | Xem; Hủy thông báo trước ngày hiệu lực |
+| Đã hiệu lực (kể cả biết muộn) | Xem; Ghi nhận cung cấp trở lại |
+| Đã lên lịch cung cấp trở lại | Xem mốc phục hồi, vẫn nêu hạn chế hiện tại; không append resume trùng |
+| Đã hủy / đã cung cấp trở lại | Chỉ xem lịch sử; muốn dừng mới tạo thông báo mới |
+| Có thông báo chồng lấp | Nêu còn bao nhiêu hạn chế khác; phục hồi notice này không bảo đảm quyền nhập/bán |
+
+### Các màn vận hành
+
+| Màn | Hiển thị/hành động theo kết quả frozen |
+|---|---|
+| Sản phẩm | Hai nhãn/filter “Ngừng nhập nội bộ”, “Nhà mạng ngừng bán”; summary quyền và lý do, không một filter “ngừng cung cấp” mơ hồ. |
+| Tồn kho | Tổng tồn, tồn được phép bán, tồn bị chặn; stock0 khác missing; lô về sau stop có “Cần xử lý với nhà cung cấp”. |
+| Nhập hàng | Q trước/sau giới hạn và lý do; không CTA nhập khi quyền cấm/Q0. Lô cũ vẫn xem ETA/trạng thái, không tự có nút hoàn tiền/hủy. |
+| Dự báo | Chính là “Dự kiến bán theo ràng buộc”; đường input model xem trong chi tiết, legend lượng thiếu hàng/bị chặn riêng, tồn được bán/bị chặn rõ đơn vị. Forecast standalone chưa có inventory profile vẫn ghi đầu vào mô hình, không giả constrained sales. |
+| Tổng quan | Counter hai nguồn riêng, affected distinct; không tô healthy cho item bị chặn; tổng kho cùng scope đầy đủ. |
+| Cảnh báo | Low stock/ROP là chẩn đoán; lý do không thể nhập/bán và metric basis riêng; không hô nhập thêm trái quyền. |
+
+### Loading, lỗi, focus, save–reload và desktop/390px
+
+- Loading list/detail có skeleton hoặc thông báo trạng thái; không hiển thị active giả trước dữ liệu. Preview/loading/save khóa nút gửi, dùng guard chống click đôi; request GET cũ abort khi scope/ngày đổi.
+- Empty list: “Chưa có thông báo” + Tạo; filter không khớp: “Không có kết quả” + Xóa bộ lọc. Scope rỗng không lưu. Không có run: cấu hình vẫn xem/lưu hợp lệ, phần tác động ghi chưa có dữ liệu.
+- Lỗi GET/503 có retry và giữ filter/ngày đã nhập/xóa; không tự điền lại ngày sau retry. Lỗi422 gắn vào field, focus trường đầu sai; lỗi404 có Back tới danh sách.
+- 409 version/preview stale: giữ form, báo thay đổi, cho Tải lại/Xem lại preview; không tự retry mutation. Refetch version rồi người dùng đối chiếu và lưu lại chủ động. Save thành công đọc lại server; chỉ đóng modal sau khi có xác nhận, nếu refetch lỗi hiện “Đã lưu, chưa tải lại được”, không gửi POST lần nữa.
+- Modal có label/describedby, focus trap, Escape/Close trả focus đúng trigger; pending save không cho đóng gây gửi lại. Sau route navigation focus heading; không lạm dụng alert cho loading.
+- Desktop: form tối đa2cột theo nhóm, preview dưới form, scope table riêng; actions không che nội dung. 390px: một cột, label trên input, date không tràn; modal toàn chiều rộng có cuộn dọc, action cuối không che field; list chuyển thẻ, bảng scope/ledger cuộn ngang trong vùng có tên, không cuộn ngang cả trang. Biểu đồ có bảng thay thế và không chỉ dùng màu để phân biệt.
+- Kiểm triển khai cần save–reload/Back/forward/deep link/Escape/focus/lỗi/conflict trên desktop1440px và390px, không dùng wireframe này làm bằng chứng đã kiểm browser.
+
 **CHG-084 kiểm tích hợp — 02/11/2026:** useAppContext chỉ khởi tạo ngày mặc định một lần theo run đã chọn. Khi API danh sách run lỗi rồi phục hồi, giữ ngày người dùng đã xóa thay vì tự bật lại thao tác ghi với ngày mặc định; test hồi quy đi qua lỗi503/retry đạt. Bản build cuối74React/browser1440/390px đạt, DBapp0007 đã bật form; thao tác ghi thử vẫn trên synthetic DBtest. [Bàn giao](../../docs/development.md#handoff-chg084-step7).
 
 ## CHG-084 bước6 — FE đã triển khai trên DBtest
