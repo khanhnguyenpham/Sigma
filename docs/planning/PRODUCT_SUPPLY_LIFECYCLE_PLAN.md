@@ -3,6 +3,8 @@
 <a id="status"></a>
 ## 1. Trạng thái và phạm vi được giao
 
+**Bổ sung bước8, 02/11/2026 — chỉ kế hoạch:** theo yêu cầu người dùng, sau bước7 sẽ kiểm các run cũ và chạy thử một run mới có một item ngừng nhập giữa kỳ. [Protocol bước8](#step8-run-validation). Bước1–6 đã hoàn tất; bước7 và bước8 chưa thực hiện. Lượt này chỉ sửa Markdown, chưa chạy run hoặc nâng DB; các lộ trình7bước phía dưới là mốc trước bổ sung.
+
 **Cập nhật bước6, 02/11/2026:** FE cung cấp/bán tồn đã triển khai và kiểm trên DBtest:73React/build, browser desktop1440 và390px, lưu/reload/Back/focus/CSV. [Bàn giao bước6](../development.md#handoff-chg084-step6). Không nâng DBapp, không tự làm bước7; tiếp tục cổng commit/push/SHA/CI rồi dừng. Các điểm dừng trước bên dưới là lịch sử.
 
 **Cập nhật bước5, 02/11/2026:** read model/CSV bán tồn và metadata cung cấp đã triển khai, chỉ kiểm DBtest; không nâng DBapp hoặc làm FE. [Bàn giao bước5](../development.md#handoff-chg084-step5). Dừng sau bước5; các điểm dừng trước là lịch sử.
@@ -68,8 +70,24 @@ Luồng kỹ thuật giữ model nhu cầu và phân bổ hiện có, không ref
 | 5 — Read model/CSV | T10/T11/T12 | Tồn/nhập/tổng quan, endpoint và CSV bán tồn | Cùng snapshot, lọc trước phân trang, tổng đầy đủ; không coi ngừng nhập là đủ hàng | Đã triển khai; kiểm/publish tại bàn giao bước5 |
 | 6 — FE | T11/T12 | Form/lịch sử/trạng thái/bộ lọc/biểu đồ | Lưu–reload, 409/lỗi, Back/focus/CSV, desktop và 390px | Đã triển khai; kiểm/publish tại bàn giao bước6, chỉ DBtest |
 | 7 — Tích hợp/bàn giao | T10/T11/T12 | Kiểm toàn luồng; sau backup/restore thử mới nâng DB ứng dụng | BE/M2 liên quan, React/build/pip check, API/CSV/browser, verifier và hash | Chưa triển khai |
+| 8 — Run cũ và kịch bản một item ngừng nhập | T10/T11/T12 | Báo cáo kiểm run cũ; một policy_replay mới có lịch dừng giữa kỳ, kết quả/CSV và bằng chứng local | Bảo toàn run cũ, biên ngày dừng, lô cũ/ETA, bán tồn, nhân quả, verifier độc lập; protocol bên dưới | Mới bổ sung kế hoạch, chưa thực hiện |
 
 Không tự nối bước 2 sau khi hoàn tất bước 1. Các bước 2–6 kiểm trên fixture/DB test; chưa đưa thao tác cung cấp vào DB ứng dụng khi worker/read model chưa hỗ trợ đầy đủ. Cổng triển khai DB app thuộc bước 7. Quyền commit/push của lượt này chỉ áp dụng MD bước 1; quyền của các bước sau theo yêu cầu tiếp theo của người dùng.
+
+<a id="step8-run-validation"></a>
+## 4a. Bước 8 — Kiểm run cũ và một run mới có giả định ngừng nhập
+
+**Phụ thuộc:** bước7 hoàn tất cổng kiểm/cutover và người dùng giao thực hiện bước8. Lượt bổ sung này chỉ mô tả kế hoạch; không tự chạy bước7/8. Còn hai bước7–8 trong phạm vi CHG-084 mở rộng, không đổi R07/T14.
+
+1. **Chốt phạm vi và bảo toàn.** Liệt kê run ứng dụng đang giữ và run đã lưu trữ còn truy cập được, gồm nguồn/forecast parent và các run tồn/nhập/cảnh báo. Ghi ID/kind/profile/schema/version/origin/phạm vi ngày, snapshot/config hash và artifact SHA256 trước kiểm. Run thiếu file hoặc không còn truy cập phải ghi rõ, không nhận đã kiểm tất cả lịch sử. Thao tác trên nguồn thật giữ local; tạo bản sao DB riêng từ backup đã restore thử và giữ artifact cũ chỉ đọc. Không khai báo giả định vào cấu hình live của DB ứng dụng trong bài thử này.
+2. **Kiểm các run cũ theo hợp đồng đã đóng băng.** Dùng reader/verifier tương ứng profile lịch sử, đối soát tồn/nhập/cảnh báo và API/CSV/UI trong phạm vi từng loại. Không enqueue lại vào cùng ID, cập nhật snapshot/hash/JSON hoặc sửa artifact để khớp mã mới. Legacy thiếu profile bán tồn phải trả409 và UI yêu cầu tạo kế hoạch mới; không diễn giải lại từ lifecycle live. Nếu muốn tái chạy phải tạo runID khác và ghi là phép thử mới. Cuối kiểm so lại hàng/hash/artifact cũ, phân biệt metadata trình bày mới với kết quả đã lưu.
+3. **Khóa một kịch bản mới trước khi chạy.** Chọn một item có tồn hoặc lô về, xác định rõ kho/SKU/loại, dùng source/forecast parent hiện có tương thích và không refit. Ưu tiên policy_replay có nhiều ngày quyết định để quan sát trước/sau dừng và việc tạo lô. Khóa cấu hình/seed/tồn đầu/pending/cửa sổ và lý do có nhãn giả định; ngày thông báo biết trước ngày dừng ít nhất7ngày, ngày dừng nằm trong kỳ. Chỉ thêm stop cho đúng một item trong DB bản sao qua API cung cấp, freeze notice7_sellthrough_v1 vào run mới. Không xóa sản phẩm, hủy lô cũ hoặc gán actual tương lai bằng0.
+4. **Chạy worker và kiểm độc lập.** Trước hiệu lực vẫn theo policy (không bắt buộc Q>0 nếu chưa đủ điều kiện); từ ngày hiệu lực Q=0 và không phát sinh lô mới cho item. Lô đặt trước dừng vẫn nhận đủ một lần đúng ETA; projection bán=min(nhu cầu, tồn+lô đã biết), tồn không âm, unserved giữ đủ. Lô về sau khi cạn cho phép bán tiếp. Không có ngày cạn trong H14 thì ghi chưa xác định trong phạm vi, không ngoại suy. Chọn item khác/cùng SKU ở kho khác nếu có để đối chứng phạm vi; nhu cầu/share không bị chuyển sang mặt hàng khác. Kiểm cutoff cuốn theo ngày của policy, lịch frozen và verifier độc lập.
+5. **Đối soát và bàn giao.** So API/CSV/UI cùng run/origin/kho/item, lập bảng trước dừng/ngày dừng/lô về/ngày cạn hoặc hết horizon. Có biểu đồ nhu cầu–dự kiến bán–tồn, lịch lô cũ và kết quả verifier. Chỉ dùng run cũ làm đối chứng định lượng khi source/forecast/config/profile/kỳ đánh giá tương thích; khác cấu hình thì công bố khác biệt, không quy mọi chênh lệch cho ngừng nhập. Bàn giao một run mới được ghi rõ giả định, không tự thêm lượt tuning/đối chứng mới hoặc sửa run cũ. Báo cáo còn có kết quả kiểm từng run cũ, hash trước–sau và giới hạn; raw/DB/run/artifact thật không push GitHub.
+
+**Ví dụ thời gian dự kiến, chưa phải run đã chạy:** kỳ03–21/10/2025, thông báo01/10, ngừng nhập08/10. Có thể khai báo trước khi chạy một lô pending giả định đặt03/10, ETA10/10, đã biết tại origin03/10; lô đó vẫn nhận sau ngày dừng. Nếu policy còn cho đặt lô07/10 thì lô đó vẫn nhận14/10. Khi thực hiện sẽ chọn kỳ có dữ liệu/forecast hợp lệ, lượng/tồn và provenance rõ; pending đầu kỳ phải có ngày đặt không sau origin, không đưa đơn đặt tương lai vào tập đã biết. Không chỉnh policy sau khi thấy kết quả để ép có đơn đặt hoặc làm đẹp metric. Nguồn chưa có nhãn ngừng cung cấp thật; “hủy mặt hàng” trong bài thử được hiểu là **ngừng nhập và tiếp tục bán tồn**, không xóa SKU.
+
+**Điều kiện xong bước8:** các run trong danh sách kiểm đều có kết quả đạt/chưa đạt/không thể kiểm có lý do; run mới complete và independently verified; các biên nghiệp vụ, API/CSV/UI và bảo toàn cũ có bằng chứng. Một kịch bản không thay nghiệm thu toàn bài, không dùng để nâng R07/T14 hoặc suy ra hiệu quả vận hành thật. [Chi tiết kiểm kỹ thuật](../../M3/docs/07-product-supply-lifecycle.md#step8-run-validation).
 
 <a id="acceptance"></a>
 ## 5. Kịch bản nghiệm thu dự kiến

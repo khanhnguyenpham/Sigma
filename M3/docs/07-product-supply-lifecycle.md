@@ -3,6 +3,8 @@
 <a id="status"></a>
 ## 1. Trạng thái đặc tả
 
+**Bổ sung bước8, 02/11/2026 — chỉ thiết kế kiểm:** người dùng yêu cầu đưa kiểm run cũ và một run mới có item ngừng nhập giữa kỳ vào bước8 sau bước7. Chưa chạy thử, chưa chọn item/run cụ thể hoặc nâng DBapp. [Protocol và tiêu chí](#step8-run-validation); bước1–6 đã hoàn tất, bước7–8 chưa thực hiện. Không đổi DB/API/nghiệp vụ hoặc nghiệm thu R07/T14.
+
 <a id="step6-implemented"></a>
 **Cập nhật bước6, 02/11/2026:** ProductSupplyForm/SellThrough và các view FE đã tích hợp API bước3/5; không thay BE/worker/schema. ProductDetail chọn ngày UTC từ origin đang xem, stop gợi ý ngày+7, hủy/mở lại hiệu lực cùng ngày ghi nhận; reason bắt buộc, expected_version/target gửi đúng lịch sử. Thiếu ngày, đang tải, prefix cũ hơn latest version hoặc conflict thì không ghi; 409 giữ lý do, yêu cầu tải lại chủ động. Chặn gửi lặp và callback sau unmount; sau lưu/reload nhắc tạo kế hoạch mới, không tính lại run đang xem. Lịch sử có phân trang, form thể hiện item–kho/loại và tồn/pending của kế hoạch nếu có.
 
@@ -165,7 +167,7 @@ Tận dụng trang Products/ProductDetail, hook HTTP, form và nhãn hiện có;
 - Giữ focus, nhãn trường, loading/error/empty, chặn gửi lặp và khả năng dùng ở desktop/390px. Item đã ngừng không có CTA nhập thêm; vẫn xem tồn, pending, CSV và lịch sử.
 
 <a id="test-matrix"></a>
-## 8. Ma trận kiểm dự kiến cho bước 2–7
+## 8. Ma trận kiểm dự kiến cho bước 2–8
 
 | Ca | Kết quả cần đạt |
 |---|---|
@@ -187,5 +189,25 @@ Tận dụng trang Products/ProductDetail, hook HTTP, form và nhãn hiện có;
 | API/CSV/filter/pagination/aggregate | Cùng run/ngày/snapshot; export đầy đủ, không tính tổng từ một trang. |
 | Form lưu–reload, 409, Back, focus, desktop/390px | Trạng thái/URL đúng, lỗi rõ, không tràn trang hoặc gửi trùng. |
 | Migration upgrade/downgrade | 13 bảng cũ/hàng/hash nguyên; metadata0diff; có lịch sử thì chặn downgrade. |
+| Bước8: run cũ còn truy cập và một policy_replay mới có stop giữa kỳ | Reader/verifier theo profile cũ, hash/artifact bất biến; run mới verified, lịch dừng causal, Q/lô/receipts/bán tồn đúng; API/CSV/UI cùng snapshot. |
 
 Kiểm MD bước 1 chỉ kiểm đặc tả/link/anchor/sơ đồ và bảo toàn phạm vi tệp, không phải bằng chứng các ca trên đã chạy. Bước 7 mới kiểm suite BE/M2 phù hợp, React/build/pip check, API/CSV/browser, backup/restore và app cutover theo lộ trình; không dùng số test lịch sử thay kết quả trực tiếp.
+
+<a id="step8-run-validation"></a>
+## 9. Bước8 dự kiến — Bảo toàn run cũ và diễn tập một item ngừng nhập
+
+Thực hiện sau cổng bước7 và khi được giao. [Protocol nghiệp vụ, ví dụ ngày và điều kiện hoàn thành](../../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#step8-run-validation) là nguồn chính; không thêm migration/model hoặc endpoint. Dùng DB bản sao riêng được restore từ backup kiểm chứng, cấu hình source/output root riêng cho đầu ra mới; giữ artifact đã lưu chỉ đọc, không thay trạng thái cung cấp live của DB ứng dụng. Dữ liệu thật không đưa sang dịch vụ ngoài/GitHub.
+
+| Nhóm kiểm | Bằng chứng cần lưu local khi thực hiện |
+|---|---|
+| Danh sách run cũ | ID/kind/profile/origin/kỳ/source-parent/forecast-parent, đường artifact và khả năng truy cập; app và archive tách rõ. |
+| Khả năng đọc/verifier lịch sử | Profile được hỗ trợ, kết quả verify/read/API/CSV/UI phù hợp loại run; legacy sell-through409, source/forecast không bị diễn giải thành run tồn. Thiếu artifact/reader thì ghi thiếu/chưa kiểm, không sửa kết quả để qua. |
+| Bảo toàn | Hash các hàng run/snapshot/kết quả và file artifact trước–sau; giả định cung cấp mới trong bản sao không đổi run cũ. Không so CSV động byte-for-byte nếu có metadata/nhãn được mở rộng, nhưng số liệu nghiệp vụ phải theo snapshot. |
+| Một run mới | Ưu tiên policy_replay; khóa nguồn/forecast/config/seed/kỳ/tồn/pending/item/lịch dừng trước kết quả. POST supply-changes trong DB bản sao, enqueue runID mới, snapshot có đúng một item được thêm stop và profile notice7_sellthrough_v1, worker complete/verifier độc lập đạt. |
+| Biên dừng | Trước effective_on còn được nhập theo policy; từ effective_on không tạo recommendation/lô mới của item. Những item khác giữ policy riêng, demand/share không phân phối lại. |
+| Nhận lô cũ và bán tồn | Đặt trước dừng/ETA sau dừng nhận đúng một lần; demand/sales/receipts/closing/unserved đối soát theo từng origin H14. Pending giả định ghi rõ provenance, không giả dữ liệu lô doanh nghiệp. Không dùng Q vừa khuyến nghị như lô đã biết trong projection. |
+| Nhân quả | known_on≤decision_origin khi quyết định; policy cutoff cuốn ngày; sự kiện sau origin không sửa projection trước. Snapshot/artifact/run cũ và forecast parent vẫn giữ hash. |
+| Giao diện và xuất | API và CSV đủ phạm vi/chung snapshot, UI trước/đúng/sau ngày dừng và khi lô về; supply status tách sell-through state, không có CTA nhập thêm sau dừng. Biểu đồ demand/sales/tồn và bảng lô kèm nhãn mô phỏng. |
+| Bàn giao | Báo cáo từng run cũ đạt/chưa đạt/không thể kiểm có lý do, run mới/giả định/cấu hình/hash/verifier và giới hạn. Không gọi là cải thiện R07 hoặc nghiệm thu T14; không refit/tuning/đổi policy theo kết quả. |
+
+Một policy_replay mới nhằm quan sát khóa tạo lô qua ngày dừng; không thay phép đánh giá alert replay/R07. Chỉ kết luận chênh lệch so run cũ khi các đầu vào và profile tương thích; nếu không, báo kiểm luật và đối soát độc lập, chưa có đối chứng định lượng. Lượt sửa Markdown này chưa tạo DB bản sao, snapshot, run hoặc báo cáo kết quả thực.

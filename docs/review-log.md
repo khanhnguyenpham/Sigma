@@ -1463,3 +1463,8 @@ Người dùng yêu cầu tiếp tục bước5 sau bước4 đã publish/SHA/CI
 ## CHG-084 bước6 — 02/11/2026, giao tiếp FE
 
 Nguồn trực tiếp: người dùng yêu cầu “Làm bước 6 đi” sau cổng publish bước5. Phạm vi FE form/lịch sử/trạng thái/bộ lọc/bán tồn; kiểm trên DBtest và tiếp tục commit/push thường final-report/SHAremote/CI của chuỗi bước. Không mở bước7 hoặc nâng DBapp. Form là thông báo do người dùng khai báo trong mô phỏng, không thêm tự phát hiện ngừng cung cấp. Run đã lưu giữ nghĩa/snapshot, trạng thái live mới không sửa số liệu frozen; UI nhắc tạo kế hoạch mới. [Kết quả và giới hạn](development.md#handoff-chg084-step6); dừng sau bước6, R07/T14 chưa nghiệm thu.
+
+<a id="chg084-step8-plan"></a>
+## CHG-084 — 02/11/2026, bổ sung kế hoạch bước8
+
+Nguồn trực tiếp: người dùng hỏi có thể test run cũ và một run mới với giả định một mặt hàng bị hủy trong thời gian kịch bản, sau đó yêu cầu “Nếu có thể hãy bổ sung nó vào bước8”. Phạm vi mới là bổ sung kế hoạch Markdown, không phải giao chạy bước7/8 ngay. Hiểu “hủy mặt hàng” theo nghiệp vụ đã chốt: ngừng nhập có thông báo≥7ngày, tiếp tục nhận lô cũ/bán tồn, không xóa SKU hoặc hủy đơn đã đặt. Kiểm run cũ chỉ đọc/bảo toàn; một run mới trên DB bản sao riêng, dùng forecast hiện có và verifier độc lập. [Protocol](planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#step8-run-validation), [bàn giao tài liệu](development.md#handoff-chg084-step8-plan). Giữ trạng thái R07/T14, không nhận run hoặc hiệu quả mới khi chưa thực hiện.

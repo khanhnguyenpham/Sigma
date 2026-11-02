@@ -1,5 +1,7 @@
 # SIGMA M3 — thiết kế tồn kho, nhập hàng và dashboard
 
+**CHG-084 mở rộng8bước — 02/11/2026:** đã thêm kế hoạch kiểm run cũ và một run mới có một mặt hàng ngừng nhập giữa kỳ vào [bước8](../docs/planning/PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#step8-run-validation), [kiểm kỹ thuật](docs/07-product-supply-lifecycle.md#step8-run-validation). Bước1–6 đã hoàn tất; bước7cutover và bước8diễn tập chưa làm, không tự chạy từ yêu cầu bổ sung Markdown này. Run thử có nhãn giả định và DB bản sao riêng, không sửa run/cấu hình live cũ hoặc nâng R07/T14.
+
 **CHG-084 bước6 — 02/11/2026:** FE quản lý cung cấp và bán tồn đã có: form/lịch sử/dừng/hủy/mở lại theo UTC, nhãn/bộ lọc, biểu đồ/CSV; giữ riêng cấu hình live và trạng thái frozen. 73React/build/browser desktop390px trên DBtest đạt. DBapp vẫn0006, form báo chưa bật; chỉ cutover sau backup/restore thử ở bước7 được giao riêng. [Bàn giao](../docs/development.md#handoff-chg084-step6). Các checkpoint trước bên dưới là lịch sử; R07/T14 giữ mở.
 
 **CHG-084 bước5 — 02/11/2026:** có GET runs/{key}/sell-through và exports/sell_through cùng metadata cung cấp trên tồn/nhập/cảnh báo/tổng quan; đọc từ snapshot/projection lưu. Không tự tính lại run cũ, thiếu profile/dữ liệu trả409 tạo kế hoạch mới. Chỉ kiểm DBtest; DBapp chưa nâng, UI bước6 chưa làm. [Bàn giao](../docs/development.md#handoff-chg084-step5).
