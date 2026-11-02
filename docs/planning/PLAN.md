@@ -913,3 +913,9 @@ Người dùng bổ sung giao kiểm xong bước1 thì commit/push thường MD
 ## CHG-084 bước4 — Worker, bán tồn và verifier
 
 02/11/2026, người dùng giao tiếp bước4. Đã nối supply timeline frozen vào worker/simulation, chặn Q/lô mới đúng ngày, giữ receipts/actual/metric, mở rộng projection bán tồn và verifier độc lập. Không đổi model/schema/DBapp hoặc làm read model/CSV/FE bước5–7. [Bàn giao](../development.md#handoff-chg084-step4), [hợp đồng](../../M3/docs/07-product-supply-lifecycle.md#step4-implemented). Tiếp tục cổng kiểm→commit/push thường final-report→SHAremote/CI như các bước trước rồi dừng sau bước4; R07/T14 giữ mở.
+
+
+<a id="chg-084-step5"></a>
+## CHG-084 bước5 — Read model và CSV
+
+02/11/2026, người dùng giao tiếp bước5. API/CSV bán tồn và metadata cung cấp trong các read model, aggregate/filter/count trước pagination, tổng quan/nhập không coi stopped là healthy/đề xuất. Chỉ đọc snapshot/projection lưu; legacy409, không ghi lại run cũ. Chỉ DBtest, chưa FE/bước6–7 hoặc nâng DBapp. [Bàn giao](../development.md#handoff-chg084-step5), [hợp đồng](../../M3/docs/07-product-supply-lifecycle.md#step5-implemented). Tiếp tục kiểm→commit/push thường final-report→SHAremote/CI rồi dừng bước5; R07/T14 giữ mở.

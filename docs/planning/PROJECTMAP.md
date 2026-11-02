@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**CHG-084 bước5 — 02/11/2026:** reporting/supply.py giữ reader timeline frozen và projection, operational_rows chọn cửa sổ; reporting service/router nối endpoint/CSV, alerts schema thêm metadata; inventory/purchasing dùng counters và khóa thao tác nhập. [Bàn giao](../development.md#handoff-chg084-step5). Không đổi model/worker/schema/FE/DBapp.
+
 **CHG-084 bước4 — 02/11/2026:** inventory/service.py nhận replenishment_allowed, simulation.py áp timeline theo decision origin/ngày, alerts/service.py mở rộng projection theo profile; runs/supply_verification.py kiểm độc lập và verification.py đối soát ledger/orders/explanation/metric. Worker bỏ guard stage3. Chưa read model/CSV/FE hoặc cutover DBapp. [Bàn giao](../development.md#handoff-chg084-step4).
 
 **CHG-084 bước3 — 02/11/2026:** catalog/schemas.py/router.py/supply_service.py triển khai DTO/HTTP/service cung cấp; service.py thêm lọc/metadata sản phẩm; configuration/context.py freeze timeline/profile. Worker chỉ thêm guard tạm chặn lịch sử khác rỗng tới bước4. [Bàn giao](../development.md#handoff-chg084-step3). API mới kiểm trên DBtest; DBapp chưa nâng, FE/model/engine không đổi.

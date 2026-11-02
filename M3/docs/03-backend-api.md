@@ -1,5 +1,7 @@
 # M3 — backend, API và worker
 
+**CHG-084 bước5 — 02/11/2026:** endpoint sell-through/CSV đã triển khai cùng bộ lọc item/kho/loại/supplier/origin/ngày mục tiêu và aggregate route_day trước phân trang. Inventory/alerts/replenishments trả metadata cung cấp frozen, workspace/purchasing tách stopped khỏi healthy/đề xuất. [Hợp đồng thực](07-product-supply-lifecycle.md#step5-implemented), [bàn giao](../../docs/development.md#handoff-chg084-step5). Chưa FE/cutover DBapp.
+
 **CHG-084 bước3 — 02/11/2026:** GET/POSTproducts/{key}/supply-changes, as_of_date/supply_status ở products và as_of_date ở detail đã triển khai. POST201, lỗi404/409/422, history version giảm dần; latest supply_version độc lập ngày xem/policy. Inventory enqueue đóng băng profile/timeline; chưa endpoint bán tồn/CSV. [Hợp đồng và giới hạn](07-product-supply-lifecycle.md#step3-implemented), [bàn giao](../../docs/development.md#handoff-chg084-step3).
 
 ## CHG-084 — API và snapshot dự kiến

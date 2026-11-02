@@ -14,6 +14,7 @@ from core.serialization import clean_json
 from core.errors import DomainError
 from modules.configuration.schemas import LEGACY_POLICY_DEFAULTS
 from src.evaluation import score
+from modules.reporting.supply import frozen_history, supply_fields, sell_through_data
 
 _ALLOCATED_METRICS = {}
 
@@ -82,6 +83,9 @@ def dataset(session, run, name, filters, paginate=True):
     selected = permitted_items(
         items, policies, filters, filters.as_of_date or run.as_of_date
     )
+    if name == "sell_through":
+        return sell_through_data(session, run, filters, items, warehouses, selected, paginate)
+    histories = frozen_history(run) if name in {"inventory_daily", "replenishments", "alerts"} else None
     model = MODELS[name]
     if name in {"route_forecasts", "item_forecasts"} and run.kind != "forecast":
         raise DomainError("parent_mismatch", "This run has no forecast dataset", 409)
@@ -118,6 +122,8 @@ def dataset(session, run, name, filters, paginate=True):
         )
     if filters.as_of_date and hasattr(model, "as_of_date"):
         query = query.where(model.as_of_date == filters.as_of_date)
+    if filters.as_of_date and model is Replenishment:
+        query = query.where(model.ordered_on <= filters.as_of_date)
     if filters.block and model is RouteForecast:
         query = query.where(model.block == filters.block)
     if filters.date_from:
@@ -255,6 +261,8 @@ def dataset(session, run, name, filters, paginate=True):
             r["eta_if_ordered"] = (
                 r["date"] + timedelta(days=7) if r["recommended_qty"] else None
             )
+        if model in (InventoryDaily, Replenishment, Alert):
+            r.update(supply_fields(run, histories, r, filters.as_of_date))
         output.append(r)
     return output, total
 

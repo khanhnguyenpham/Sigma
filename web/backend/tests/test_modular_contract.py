@@ -41,6 +41,7 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
         expected = json.loads((FIXTURES / "openapi_baseline.json").read_text(encoding="utf-8"))
         schema = app.openapi()
         # CHG-082 adds three reads only; every pre-existing API contract stays unchanged.
+        schema["paths"].pop("/api/v1/runs/{key}/sell-through")
         schema["paths"].pop("/api/v1/products")
         schema["paths"].pop("/api/v1/products/{key}")
         schema["paths"].pop("/api/v1/products/{key}/supply-changes")

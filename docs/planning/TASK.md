@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**CHG-084 bước5 — 02/11/2026, T10/T11/T12:** API/CSV bán tồn, metadata cung cấp trong read model và tổng quan/nhập đã có; không tính lại projection hoặc đọc lifecycle live. Chỉ DBtest; chưa FE/cutover. [Bàn giao](../development.md#handoff-chg084-step5), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). Dừng sau bước5.
+
 **CHG-084 bước4 — 02/11/2026, T10/T12:** đã nối timeline vào simulation/worker và verifier độc lập; chặn nhập mới, giữ receipts/actual, bổ sung JSON projection bán tồn. DBapp chưa nâng, không refit/replay thật; bước5–7 chưa triển khai. [Bàn giao](../development.md#handoff-chg084-step4), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps).
 
 **CHG-084 bước3 — 02/11/2026, T10/T12:** API lịch sử/thao tác, khóa/version, lọc trạng thái SQL trước count/page và freeze timeline đã có; chưa FE/CSV/simulation cung cấp. Chỉ DBtest, không nâng DBapp. [Bàn giao](../development.md#handoff-chg084-step3), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). Người dùng giao push final-report; dừng sau bước3, bước4–7 chưa bắt đầu.

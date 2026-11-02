@@ -3,6 +3,7 @@ from core.errors import DomainError
 from core.run_context import required_run
 from modules.reporting.schemas import Filters
 from modules.reporting.service import context, dataset
+from modules.reporting.supply import operational_rows
 
 def purchasing_data(session, key, filters):
     run = required_run(session, key, complete=True)
@@ -11,7 +12,7 @@ def purchasing_data(session, key, filters):
     day = filters.as_of_date
     base = Filters(
         **filters.model_dump(
-            include={"warehouse_id", "item_id", "supplier_id", "product_type"}
+            include={"warehouse_id", "item_id", "supplier_id", "product_type", "as_of_date"}
         )
     )
     inventory, _ = dataset(
@@ -37,11 +38,12 @@ def purchasing_data(session, key, filters):
         ).casefold()
         return all(word in haystack for word in words)
 
+    inventory, lots = operational_rows(inventory, lots)
     inventory = [row for row in inventory if matches(row)]
     recommendations = [
         {**row, "operational_status": "low_stock"}
         for row in inventory
-        if row["needs_replenishment"] and row["recommended_qty"] > 0
+        if row.get("replenishment_allowed", True) and row["needs_replenishment"] and row["recommended_qty"] > 0
     ]
     history = []
     for row in lots:
@@ -60,6 +62,7 @@ def purchasing_data(session, key, filters):
     summary = dict(
         inventory_available=bool(inventory),
         recommended_items=len(recommendations),
+        supply_stopped_items=sum(r.get("supply_status")=="stopped" for r in inventory),
         recommended_units=sum(row["recommended_qty"] for row in recommendations),
         incoming_lots=len(incoming),
         pending_units=sum(row["ordered_qty"] for row in incoming),

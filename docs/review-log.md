@@ -1452,3 +1452,9 @@ Người dùng yêu cầu tiếp tục bước3 và đẩyGitHub. Cho phép API/
 ## CHG-084 bước4 — 02/11/2026, giao tiếp worker/bán tồn
 
 Nguồn trực tiếp: người dùng yêu cầu tiếp tục bước4 sau khi bước3 đã push/SHA/CI thành công. Guard worker tạm được thay bằng tính toán và kiểm thực, chỉ dùng snapshot; không mở bước5–7 hoặc nâng DBapp. Giữ cảnh báo toán học và mẫu số, thêm tính có thể nhập riêng; không coi khóa nhập là đã đủ hàng hoặc tự nâng R07/T14. Tiếp tục cổng kiểm/commit/push/SHA/CI của chuỗi bước hiện hành, rồi dừng sau bước4. [Bàn giao](development.md#handoff-chg084-step4).
+
+
+<a id="chg084-step5"></a>
+## CHG-084 bước5 — 02/11/2026, giao tiếp read model/CSV
+
+Người dùng yêu cầu tiếp tục bước5 sau bước4 đã publish/SHA/CI thành công. Phạm vi read model/API/CSV/tổng hợp; không mở FE hoặc cutover DBapp. Dùng dữ liệu frozen, legacy thiếu bán tồn yêu cầu tạo mới; không dùng lifecycle live đổi lịch sử hoặc phân phối lại nhu cầu. Tiếp tục cổng commit/push/SHA/CI của chuỗi bước rồi dừng. [Kết quả](development.md#handoff-chg084-step5); R07/T14 giữ nguyên trạng thái.

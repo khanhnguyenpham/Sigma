@@ -30,6 +30,11 @@ class AlertRow(DTO):
     carrier: str
     city: str | None
     display_city: str | None = None
+    supply_status: Literal["active", "scheduled_stop", "stopped"] | None = None
+    replenishment_allowed: bool = True
+    replenishment_block_reason: str | None = None
+    stock_below_rop: bool | None = None
+    sell_through_state: Literal["selling_remaining", "waiting_receipts", "sold_out"] | None = None
 
 
 class AlertPage(DTO):

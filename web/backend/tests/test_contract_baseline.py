@@ -20,6 +20,7 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
     assert routes.pop('/api/v1/products') == ['get']
     assert routes.pop('/api/v1/products/{key}') == ['get']
     assert routes.pop('/api/v1/products/{key}/supply-changes') == ['get', 'post']
+    assert routes.pop('/api/v1/runs/{key}/sell-through') == ['get']
     routes['/api/v1/warehouses/{key}'].remove('get')
     assert routes == baseline['routes']
     assert set(Base.metadata.tables) == set(baseline['tables']) | {'item_supply_changes'}

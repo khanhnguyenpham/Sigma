@@ -3,6 +3,15 @@
 <a id="status"></a>
 ## 1. Trạng thái đặc tả
 
+<a id="step5-implemented"></a>
+**Cập nhật bước5, 02/11/2026:** GET `/api/v1/runs/{key}/sell-through` và `/api/v1/runs/{key}/exports/sell_through` đã có. Cùng dataset/filter, không tính lại projection hoặc truy vấn lifecycle live. Chỉ inventory run complete; legacy không profile hoặc profile mới thiếu projection bán tồn trả409 feature_not_in_run để tạo kế hoạch mới. Chỉ kiểm DBtest; FE/cutover chưa triển khai. [Bàn giao](../../docs/development.md#handoff-chg084-step5).
+
+Origin mặc định run.as_of_date, chọn bằng as_of_date; date_from/date_to lọc ngày mục tiêu. Bộ lọc kho/item/loại/supplier dùng catalog/policy frozen trước đếm/phân trang. aggregate=route_day cộng demand/sales/unserved/closing/receipts, item_count/stopped_items của toàn phạm vi lọc, không ép bằng raw route demand; không trả trạng thái chung gây hiểu nhầm nếu nhiều item. Split/block/state/alert_type/granularity/cadence không áp dụng cho dataset này và bị422, khoảng ngày đảo cũng422. Không có dữ liệu đúng origin/filter trả mảng rỗng. JSON context thêm projection_as_of_date; CSV có as_of_date của từng dòng cùng run/source/config/selection hash và giữ bảo vệ công thức, xuất hết phạm vi thay vì trang hiện tại.
+
+Inventory/alerts/replenishments trả supply_status/replenishment_allowed/replenishment_block_reason/stock_below_rop/sell_through_state. Hai trường stock/sell state chỉ có giá trị khi dữ liệu tương ứng đã lưu/đủ để tính; legacy status null và allowed=true để giữ nghĩa nhập cũ, không nối cấu hình live. Replenishments có as_of_date chỉ hiện lô đã đặt trước/đúng ngày xem, metadata theo cutoff tương ứng; purchasing incoming/history vẫn dùng known_orders_through, không suy receipt thực ngoài kỳ đã lưu.
+
+Workspace và purchasing lấy đủ inventory/lots trước phân trang; operational view chọn window_origin mới nhất cho mỗi item tại ranh giới replay và lô cùng window, không gộp hai thí nghiệm thành một tồn. Stopped không vào healthy hoặc danh sách đề xuất nhập; raw low stock/warnings vẫn là thông tin. Thêm supply_stopped_items trong summary/workspace warehouse totals, không xóa diagnostic hoặc đổi metric/mẫu số. Read model không sửa needs/Q/JSON/hash đã lưu. Các phần bước1–4 bên dưới là lịch sử.
+
 <a id="step4-implemented"></a>
 **Cập nhật bước4, 02/11/2026:** worker đã bỏ guard stage_not_implemented; simulation chỉ đọc supply_lifecycle_snapshot đã freeze, không truy vấn lifecycle live. Profile notice7_sellthrough_v1 mở khóa xử lý cung cấp; profile lạ hoặc thiếu timeline bị từ chối. Legacy không có profile giữ nghĩa/đầu ra cũ, không suy lifecycle từ danh mục live. Chỉ kiểm DBtest; read model/CSV/FE/cutover chưa triển khai. [Bàn giao](../../docs/development.md#handoff-chg084-step4).
 

@@ -161,7 +161,7 @@ def test_workspace_pending_counts_are_as_of_and_alert_items_not_double_counted(
         assert data["route_stock"][0]["closing_qty"] == 7
         assert data["warehouse_stock"] == [dict(warehouse_id=1, city="Frozen City",
             destination_country="DemoLand", carrier="DemoCarrier", item_count=1,
-            on_hand_units=7, low_stock_items=1, replenish_items=0, recommended_units=0)]
+            on_hand_units=7, low_stock_items=1, replenish_items=0, recommended_units=0, supply_stopped_items=0)]
         empty = client.get(path + "&item_id=999").json()
         assert (
             empty["summary"]["item_count"] == 0

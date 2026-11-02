@@ -41,6 +41,13 @@ def item_forecasts(
     return result_response(request, key, "item_forecasts", filters)
 
 
+@router.get("/{key}/sell-through")
+def sell_through(key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]):
+    result = result_response(request, key, "sell_through", filters)
+    result["context"]["projection_as_of_date"] = (filters.as_of_date.isoformat() if filters.as_of_date else result["context"]["as_of_date"])
+    return result
+
+
 @router.get("/{key}/metrics")
 def metrics(key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]):
     with request.app.state.sessions() as s:
@@ -69,6 +76,7 @@ def exports(
         "replenishments": "replenishments",
         "alerts": "alerts",
         "metrics": "metrics",
+        "sell_through": "sell_through",
     }
     if name not in allowed:
         raise DomainError("not_found", "Unknown export dataset", 404)
