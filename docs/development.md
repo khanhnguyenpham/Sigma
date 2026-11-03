@@ -1,5 +1,49 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-chg087"></a>
+## CHG-087 — Kế hoạch demo đầy đủ dùng chung, 03/11/2026
+
+Người dùng chốt project thực tập có demo hoàn chỉnh, mọi khách thao tác trên demo dùng chung, dữ liệu đã ẩn danh; tiếp đó giao **chỉ chỉnh MD trước, triển khai sau** và bổ sung **làm xong thì đẩy GitHub**. Phạm vi publish hiện tại là12Markdown codebase đang chỉnh về chất lượng/kế hoạch/bàn giao; các tệp Python nghiên cứuCHG086 cònlocal không thuộc commit này. COMMIT_BLOCK_PLAN.md giữ nguyên/untracked. Quyền này mở commit/push thường final-report cho bộMD, không mở triển khai hoặc trả phí cloud.
+
+[Kế hoạch hiện hành](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md) thay đề xuất chỉ đọc: khách không đăng nhập có thể import nguồn demo, forecast, tạo3loại run tồn, sửa kho/policy/scenario/lifecycle và xem kết quả/CSV/tổng30. Dùng DBdemo chung có thông báo thay đổi được người khác thấy; reset bằng công cụ người vận hành. Chọn một Render web service quản lý API+worker cùng persistent disk, Postgres riêng và Vercel FE. Giữ queue/advisory lock hiện có; quota backend/compute/retention chốt bằng benchmark, chưa thêm tenant/RBAC/Redis/object storage.
+
+Nguồn dẫn xuất phải giữ hợp đồng20cột và chạy được chuỗi tạo run mới thật; kiểm quan hệ nguồn của gói tổng30 và giữ provenance mới, không lắp artifact nguồn khác/bỏ hash check. Disk/DB demo tách app và bằng chứng local. D0S25 đã có; [D1–D6 mới](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md#steps) là nền chạy → dữ liệu/reset → kiểm chức năng/tài nguyên → triển khai thử → online/công khai → bàn giao. D1–D6 chưa thực hiện; C00/R05/R07/T14 giữ trạng thái.
+
+Lượt này chỉ chỉnhMD, đọc code và đối chiếu tài liệu nền tảng; không sửa code/tests/config/DB, tạo source/seed, chạy model/worker/run, upload dữ liệu hoặc deploy. 483Python và4DB/1.466tệp ởCHG086 là kết quả lượt trước, không gọi vừa chạy lại. Kiểm12Markdown/807liên kết/64bảng/197anchor/1sơđồ:0lỗi mới,6liên kết thiếu tệp lịch sử giữ baseline; diffcheck đạt. Hash296tệp ngoàiMD và hash riêngCOMMIT_BLOCK_PLAN.md trước–sau khớp. Cổng publish: kiểm local → commit tên theo thay đổi → push thường final-report → remoteSHA khớp → haiworkflowCI success. SHA/remote/CI được ghi sau thực hiện trong receipt local `outputs/chg087_deploy_plan/` và bàn giao cuối chat; không nhận CI đạt khi đang chờ.
+
+<a id="handoff-chg086"></a>
+## CHG-086 — Kiểm S25 và kế hoạch triển khai, 03/11/2026
+
+Người dùng cho phép không ép45% nếu sai số/đánh đổi không phù hợp sản phẩm; yêu cầu kiểmS25 rồi lập kế hoạch Render/Vercel, xác định bản online công khai với dữ liệu đã ẩn danh. Chưa có xác nhận mentor mới hoặc ngưỡng precision/MAE chính thức; R05/R07/T14 giữ mở. CHG085 đã publish commit `17ac4b2704ab1a77350336a8dc53f4d9d0dfa638`, remoteSHA khớp và haiCI success; lượtCHG086 này chưa commit/push hoặc triển khai cloud.
+
+### Kết quả và quyết định
+
+[Báo cáo S25](../M3/docs/S25_CURRENT_REVIEW.md) ghi toàn bộ số và20nhóm sản phẩm. Tái kiểm sealedCHG078 giữ nguyên manifest/artifact/mã/scalar; digest ứng dụng cũ khác được giữ lịch sử. Phép kiểm mới áp920policy hiện tại fixedROP/days/fixedQ phản thực lên frozen validation/test, không nhận policy đã có ở năm2025. Mỗi split dùng chung physical path/episode giữaC00/S25, kiểm độc lập khởi tạo/sale/receipts/order/ledger, scalarprojection vàscoring. Không refit/tuning hoặc tạo run app.
+
+- ValidationC00→S25: early451/818→512/818, precision76,58%→68,35%, FP1.345→2.417, dateMAE3,934(664ca)→3,922(701ca).
+- Test hồi cứuC00→S25: early450/833→523/833, precision80,89%→74,30%, FP1.146→1.993, dateMAE4,011(666ca)→3,879(696ca), P90cảhai8ngày. Cùng666ca ghép: MAE4,011→3,758ngày.
+- Khuyến nghị giữC00 mặc định; chưa tích hợpS25. Profiletrade_v2 có lịch sử rỗng, không chứng minhS25 với providerstop/cap/exclusions. Kết quả policy replay không thay nghiệm thuR07 alert replay, không là testholdout mới.
+
+### Kiểm đã chạy trong lượt này
+
+```powershell
+.venv-m3/Scripts/python.exe -B tmp/supplier_checks.py -m pytest web/backend/tests tests M2/models/tests -q --junitxml=outputs/chg086_s25_review/tests.xml
+.venv-m3/Scripts/python.exe -m pip check
+.venv-m3/Scripts/python.exe -B tmp/supplier_checks.py -m web.backend.research.current_s25_review --run-dir outputs/chg086_s25_review
+```
+
+**483Python đạt,0skip/0fail/0error**, gồm5ca mới: parity currentfixedROP/physical/scoring/stress,3canhiễu order/closing/ROP bị verifier từ chối, tương lai actual không đổi quyết định trước cutoff. pipcheck đạt. Có1cảnh báo deprecationStarlette/httpx từ dependency hiện tại; không thay dependency trong lượt này. Không đổi mã phục vụ/FE nên không chạy lại browser/React/build và không nhận kiểmLinux/cloud đã đạt.
+
+Kiểm12Markdown/779liên kết/63bảng/189anchor/1sơđồ:0lỗi mới,6liên kết thiếu tệp lịch sử giữ baseline; `git diff --check` đạt. Hai tài liệu mới và3tệp Python mới thuộc phạm vi localCHG086; không stageCOMMIT_BLOCK_PLAN.md.
+
+Snapshot trước–sau chỉ đọc cho thấy4DB bảo vệ (`sigma_m3`, hai bảnCHG084 và rehearsalCHG085) cùng toàn bộ hàng/run giữ hash; app vẫn0008/3run,0internalstop/0providernotice. 1.466tệp bảo vệ giữ nguyên, gồm1.412tệp phase8 và54tệp sealed nghiên cứu bổ sung; application code digest không đổi. Bằng chứng mới nằm riêng `outputs/chg086_s25_review/`: lock/current-policies/before, historical-audit, physical/alarms/cases/summary/verification, product-diagnostics, tests vàpreserved. Không sửa raw/forecast/model/policyDB hoặc receipt cũ; không đưa output/DB/env lênGit/cloud.
+
+### Kế hoạch và bàn giao
+
+[Kế hoạch Render/Vercel](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md) thêm bước triển khai vàoT12/T14: D0 đã xong; tiếp theoD1 chuẩn bị code demo chỉ đọc/settingscloud/routing/health, D2 xuất bộ dữ liệu dẫn xuất mới đã ẩn danh vàrestoretest; sau đóD3staging/D4kiểmonline/D5côngkhai, D6tươngtác cóauth/worker/storage nếu cần. Kế hoạch nêu lệnhbuild/start, Python3.12/Node24theoCI, origin/proxy/CSV, freevstrảphí, backup/rollback và giới hạn storage. API hiện chưa cóauth/chặn ghi, settingslocalhost vàartifactlocal là trở ngại thực; chưa sửa các phần đó ở lượt này.
+
+Chưa tạo tài nguyên/chọn gói trả phí/upload dữ liệu hoặc triển khai thật. Ngân sách chưa chốt; không tự mua. COMMIT_BLOCK_PLAN.md giữ untracked/nguyên nội dung. Các checkpoint dưới là lịch sử, không dùng sốtest cũ thay kiểmCHG086.
+
 <a id="handoff-chg085-publish78"></a>
 ## Bàn giao CHG-085 — Xuất bản tích hợp và validation, 03/11/2026
 

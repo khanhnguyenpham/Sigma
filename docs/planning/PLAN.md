@@ -1,5 +1,23 @@
 # Kế hoạch dự án SIGMA
 
+<a id="chg-087"></a>
+## CHG-087 — Kế hoạch demo đầy đủ dùng chung, 03/11/2026
+
+Người dùng xác định project thực tập, muốn demo hoàn chỉnh và chọn **mọi khách thao tác trên demo dùng chung**; dữ liệu đã ẩn danh. Yêu cầu tiếp theo giới hạn lượt này **chỉ chỉnh fileMD cho kế hoạch deploy, triển khai sau**. Đây là hướng triển khai mới thay đề xuất chỉ đọcCHG086, không phải thay chất lượng/model hoặc xác nhận mentor.
+
+[Kế hoạch hiện hành](RENDER_VERCEL_DEPLOYMENT_PLAN.md) giữ import nguồn demo/forecast/stock_projection/policy_replay/alert_replay, chỉnh kho-policy-scenario/lifecycle, kết quả/CSV/tổng30. Không yêu cầu đăng nhập hoặc tách workspace; khách biết thay đổi dùng chung và có thể reset. Chọn một Render service với API+worker được quản lý cùng release/disk, Postgres demo riêng, Vercel FE; giữ queue PostgreSQL, kiểm quota/request/compute ởbackend và reset bằng công cụ vận hành riêng. Chưa thêm RBAC/tenant/Redis/object storage.
+
+[Lộ trìnhD1–D6 mới](RENDER_VERCEL_DEPLOYMENT_PLAN.md#steps): nền demo đầy đủ → bộ nguồn20cột/seed/reset → kiểm đa khách/chức năng/tài nguyên → triển khai thử → kiểm online/công khai → bàn giao. GiữD0S25/C00 đã xong; các mãD1–D6 thay nội dung bước cũ, không còn “tương tác tùy chọn làm sau”. Chưa thực hiệnD1–D6; không code/tests/config/DB/seed/model/worker/cloud/upload/trả phí trong lượt này. Người dùng bổ sung giao commit/push thường12MD kế hoạch/chất lượng/bàn giao lên final-report sau kiểm, remoteSHA/haiCI;3Python nghiên cứuCHG086 vàCOMMIT_BLOCK_PLAN.md giữ ngoài stage. C00 mặc định, R05/R07/T14 mở; ngân sách chưa chốt, không tự mua tài nguyên. [Bàn giao](../development.md#handoff-chg087).
+
+<a id="chg-086"></a>
+## CHG-086 — Kiểm chất lượng S25 và thêm bước triển khai, 03/11/2026
+
+Người dùng cho phép không đạt45% nếu sai số/đánh đổi quá lớn, yêu cầu kiểmS25 rồi lập kế hoạch Render/Vercel; bản online **công khai, dữ liệu đã ẩn danh**. Đây là ưu tiên sản phẩm mới do người dùng, không là xác nhận mentor mới hoặc quyền tự đóng R07/T14. Giữ mốc≥7ngày, episode/mẫu số và các metric riêng; không thay model/M05/R05.
+
+[Kiểm S25](../../M3/docs/S25_CURRENT_REVIEW.md) đã hoàn tất: tái kiểm sealed CHG078 và đối chứng mới với920fixedROP/days/fixedQ hiện tại. Cùng833episode test hồi cứu, early54,02%→62,79%, precision80,89%→74,30%, FP1.146→1.993, dateMAE4,011→3,879ngày. GiữC00 mặc định, chưa đưa S25 vào app; không gọi policy_replay này là R07 alert replay hoặc holdout mới. 483Python BE/M2/pipcheck đạt;4DB/1.466tệp nguyên, app0008/3run.
+
+Thêm **bước triển khai demo online thuộc T12/T14**. Lộ trình chỉ đọcD1–D6 từng đề xuất ởcheckpointCHG086 đã được thay bằng [demo đầy đủCHG087](#chg-087); D0S25 vẫn hoàn tất và D1–D6 mới chưa triển khai. Quyền publishCHG085 đã hoàn tất17ac4b2/remoteSHA/haiCI success. [Bàn giao kiểmS25 và kế hoạch ban đầu](../development.md#handoff-chg086).
+
 <a id="chg-085-publish78"></a>
 ## CHG-085 — Xuất bản cutover và kiểm run lịch sử, 03/11/2026
 
@@ -649,6 +667,8 @@ Trạng thái: chưa làm → đang làm → bị chặn / cần kiểm tra lạ
 
 <a id="t14"></a>
 ### T14 — Nghiệm thu và đóng gói
+
+- **CHG-087:** [demo đầy đủ Render/Vercel](RENDER_VERCEL_DEPLOYMENT_PLAN.md) với dữ liệu đã ẩn danh; mọi khách tạo run/chỉnh dữ liệu chung, thay đề xuất chỉ đọcCHG086. Chỉ sửa/publishMD ở lượt này; D1–D6 mới chưa triển khai. Không dùng việc online để nghiệm thu chất lượng dự báo/cảnh báo.
 
 - **CHG-048/E76:** Bộ đặc tả không đóng R05/R07 hoặc nghiệm thu ứng dụng.
 

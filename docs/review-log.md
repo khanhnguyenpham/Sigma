@@ -1,5 +1,19 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+<a id="chg087"></a>
+## CHG-087 — 03/11/2026, đổi sang demo đầy đủ và chỉ sửa kế hoạch
+
+Nguồn trực tiếp: người dùng xác định đây là project thực tập, yêu cầu demo hoàn chỉnh; chọn “Mọi khách thao tác trên demo dùng chung”. Người dùng tiếp tục yêu cầu sửa các fileMD trước, triển khai sau. Không cần đăng nhập để dùng nghiệp vụ; không có workspace/tài khoản riêng hoặc giai đoạn chỉ đọc bắt buộc. Đây là thay đổi phạm vi triển khai, không sửa yêu cầu forecast/cảnh báo hoặc kết quảS25.
+
+[Kế hoạch mới](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md) giữ import/forecast/3loại run tồn/chỉnh cấu hình/lifecycle/kết quả/CSV/tổng30 từ đầu; chọn API+worker cùng một Render service/disk và DBdemo riêng, Vercel FE. Backend queue/quota/version, nhãn demo và reset bằng công cụ vận hành bảo vệ tài nguyên/dữ liệu. Không dựng RBAC/tenant/object storage mặc định. D0đãcó; D1–D6 mới chỉ kế hoạch. Chỉ sửa MD, không code/DB/config/tests/seed/run/cloud/upload/trả phí; phần nghiên cứuCHG086 cònlocal giữ nguyên. Người dùng bổ sung “Làm xong thì đẩy lên github luôn đi”, mở publish12MD thường final-report sau kiểm/remoteSHA/haiCI, không stage3Python nghiên cứu hoặcCOMMIT_BLOCK_PLAN.md. [Bàn giao](development.md#handoff-chg087); R05/R07/T14 mở.
+
+<a id="chg086"></a>
+## CHG-086 — 03/11/2026, kiểm S25 và kế hoạch triển khai công khai
+
+Nguồn là yêu cầu trực tiếp trong chat: có thể không cần45% nếu sai số quá lớn, kiểmS25 rồi lên kế hoạch Render/Vercel. Trả lời làm rõ: **công khai, dữ liệu đã ẩn danh**. Không có xác nhận mentor mới; ngân sách chưa được chọn. Giữ metric≥7ngày/mẫu số; không dùng45% đơn lẻ để chọn cấu hình hoặc tự đóngR07/T14.
+
+[Đã kiểm](../M3/docs/S25_CURRENT_REVIEW.md): sealedS25 cũ khớp hash/scalar; đối chứng920fixedROP hiện tại testearly54,02%→62,79%, precision80,89%→74,30%, FP1.146→1.993, dateMAE4,011→3,879ngày. Khuyến nghị giữC00, chưa tích hợpS25. 483Python/pipcheck đạt;4DB/1.466tệp bảo vệ nguyên. [Kế hoạch](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md) thêmD1code chỉ đọc, D2export ẩn danh, D3staging, D4kiểm online, D5công khai/rollback vàD6tương tác tùy chọn. Chưa codecloud/upload/trả phí/commit/push mới; app0008/3run, R05/R07/T14 mở. [Bàn giao](development.md#handoff-chg086). Quyền publishCHG085 đã hoàn tất ở17ac4b2, remoteSHA/haiCI success; không mở publishCHG086.
+
 <a id="chg085-publish78"></a>
 ## CHG-085 — 03/11/2026, giao publish phần tích hợp và validation
 

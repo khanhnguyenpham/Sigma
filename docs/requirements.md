@@ -1,5 +1,23 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+<a id="chg087-shared-demo"></a>
+## CHG-087 — 03/11/2026, demo đầy đủ cho project thực tập
+
+Người dùng yêu cầu demo hoàn chỉnh và chọn **mọi khách thao tác trên demo dùng chung**, với dữ liệu đã ẩn danh. Không yêu cầu đăng nhập nghiệp vụ/tài khoản doanh nghiệp hoặc tách dữ liệu từng người. Giữ chức năng hiện có: nhập nguồn demo được đăng ký, tạo forecast và3loại run tồn, chỉnh kho/policy/scenario/lifecycle, xem metric/biểu đồ/CSV và tổng30. Thay đề xuất chỉ đọc và việc chỉ quản trị được chạy job củaCHG086; tương tác là phạm vi bản demo đầu.
+
+R09/T12/T14 bổ sung [kế hoạch demo dùng chung](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md): người xem được báo thay đổi dùng chung/có thể reset; DB/source/artifactdemo tách app và bằng chứng local. Backend áp validation/version/idempotency/queue/quota; reset/backup/migration/deploy là thao tác người vận hành, không API phá dữ liệu công khai. Không công khai raw riêng tư, secret hoặc nhận nguồn/đường dẫn tùy ý. Không cần mô hình phân quyền nhiều vai trò cho demo này.
+
+**Lượt hiện tại chỉ sửa Markdown**, theo yêu cầu “Trước tiên chỉnh các file MD cho kế hoạch deploy rồi mới triển khai sau”. Người dùng bổ sung giao publish bộMD sau kiểm; D1–D6 chưa thực hiện, chưa code/seed/run/DB/cloud/upload/trả phí. [Tiêu chí đầy đủ](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md#acceptance). Ưu tiên chất lượngCHG086/C00 và R05/M05/R07/T14 không đổi, không có mentor xác nhận mới.
+
+<a id="chg086-quality-deployment"></a>
+## CHG-086 — 03/11/2026, chất lượng cảnh báo và phạm vi công khai
+
+Yêu cầu trực tiếp của người dùng: có thể không đạt mục tiêu45% nếu sai số/đánh đổi chất lượng quá lớn; kiểmS25 và thêm kế hoạch triển khai Render/Vercel. Người dùng chốt bản online **công khai, dữ liệu đã ẩn danh**. Phần này thay cách dùng45% như một cổng sản phẩm bắt buộc; giữ45% làm tham chiếu lịch sử, không ép tăng cảnh báo để vượt nó. Không tự gán sự thay đổi này cho mentor, không hạ mốc báo trước≥7ngày hoặc tự đặt ngưỡng precision/MAE mới để đóng nghiệm thu.
+
+R07 cần báo cáo đồng thời early/recall theo episode, precision/FP theo item-ngày, gánh nặng cảnh báo, sai lệch ngày/mẫu số và khác biệt sản phẩm; tách can thiệp nhập/right-censor, policy replay/alert replay và threshold/depletion. [KiểmS25 hồi cứu](../M3/docs/S25_CURRENT_REVIEW.md) cho thấy lợi ích sớm đi kèm FP tăng; giữC00 mặc định, chưa tích hợpS25. R05/M05/A08–A17 và R07/T14 chưa nghiệm thu giữ nguyên.
+
+R09/T12/T14 bổ sung triển khai công khai; đề xuất chỉ đọc/ghi cần quyền riêng củacheckpointCHG086 đã được [CHG087](#chg087-shared-demo) thay bằng demo đầy đủ, mọi khách thao tác chung. React trênVercel, API/worker/DBdemo trênRender theo [kế hoạch mới](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md), **chưa triển khai**. Không tải nguyênDB/raw/run riêng tư hoặc secrets lên cloud/Git; ngân sách chưa chốt.
+
 **CHG-085 giai đoạn 8 — 03/11/2026, hoàn tất local:** đã đọc và verify 7 run cũ, đối chiếu API/CSV cho 12 cặp DB–run; chạy 4 run mới trên bản sao dùng nguồn/forecast có sẵn và 1 run synthetic cho hai kho. Worker, verifier độc lập, API/CSV và browser 1440/390px đạt. Ca bổ sung chặn 19 đơn vị nguồn trong mô phỏng; ca synthetic có 280 = 150 được phép bán + 130 bị chặn. Sửa nhãn quyền mua/bán trong bảng projection; 89 React và build đạt. App ở 0008 với 3 run ban đầu; 4 DB bảo vệ và 1.412 tệp giữ hash. Không refit/tuning hoặc viết lại bằng chứng CHG-084; R07/T14 giữ mở. Thay đổi giai đoạn 7–8 chưa commit/push. [Bàn giao/giới hạn](development.md#handoff-chg085-phase8). Các checkpoint bên dưới là lịch sử.
 
 **CHG-085 giai đoạn 7 — 03/11/2026:** tích hợp/cutover local0008 đã kiểm; giữ dữ liệu/run cũ, hai nghiệp vụ nhập/bán tách biệt và profile frozen. Các số kiểm synthetic chứng minh triển khai kỹ thuật; không thay M05/R05, không nghiệm thu R07/T14. Chưa thực hiện8 hoặc tạo thông báo/run nguồn thật trên ứng dụng. [Kiểm/giới hạn](development.md#handoff-chg085-phase7).
@@ -193,6 +211,8 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 
 <a id="r07"></a>
 ### R07 — Đo cảnh báo trước ít nhất 7 ngày
+
+- **Ưu tiên sản phẩm hiện tại:** [CHG-086](#chg086-quality-deployment) cho phép bỏ việc ép45% nếu đánh đổi sai số/FP không phù hợp. Các kết quả và diễn giảiCHG073 dưới đây giữ vai trò lịch sử; chưa có xác nhận mentor mới hoặc nghiệm thuR07.
 
 - **Nguồn:** S01/M3; P02 replay/horizon; U04 mô phỏng có nhãn; CHG-073 thuật lại mục tiêu45%. **Trạng thái:** Chưa nghiệm thu; mục tiêu45% theo diễn giải bên dưới chưa được xác nhận là ngưỡng nghiệm thu bắt buộc.
 - **Nội dung:** Tách cảnh báo dưới ngưỡng với ngày cạn dự kiến; 1–6 ngày khẩn/muộn, 7–14 sớm, không bịa ngày ngoài horizon.
