@@ -1,5 +1,71 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-chg085-publish78"></a>
+## Bàn giao CHG-085 — Xuất bản tích hợp và validation, 03/11/2026
+
+- Người dùng giao đẩy toàn bộ phần vừa hoàn tất lên GitHub: cho phép commit/push thường 20 tệp code/tests/docs của CHG-085 giai đoạn 7–8 lên final-report. Quyền này thay các điểm dừng chưa publish7–8 phía dưới; không mở công việc mới hoặc tự đóng R07/T14.
+- Phạm vi là 18 Markdown và 2 tệp FE; giữ COMMIT_BLOCK_PLAN.md untracked/nguyên nội dung. Không stage raw/run/DB/env/dist/output hoặc thay metadata lịch sử Git. App0008/3run và các DB bản sao giữ nguyên; lượt publish không tạo run, khai báo lifecycle hoặc chạy model/worker mới.
+- 89 React, TypeScript/Vite build và pipcheck được kiểm lại cho lượt publish; hash mã FE khớp bản đã kiểm browser. Bằng chứng 7 run cũ/12 DB-run, 4 run mới trên bản sao nguồn thật, 1 synthetic hai kho và bảo toàn 4 DB/1.412 tệp thuộc giai đoạn8; không nhận là vừa chạy lại trong lượt publish. Cổng: local → commit tên theo thay đổi → push thường → SHA remote khớp → hai workflow CI success.
+- Parent đã đối chiếu remote trước commit:99395aa42f86226882e0d66c546dd5c2a7647c2b. Manifest20tệp và hash các tệp bảo vệ/bằng chứng8 được kiểm trước stage. Kiểm Markdown/link/anchor/fence/bảng và diff trước commit; author/committer dùng cấu hình Git hiện tại, không backdate, force/rebase/merge/deploy.
+- Kết quả SHA/remote/CI được ghi sau push trong receipt local `outputs/chg085_publish_78/` và bàn giao cuối chat. Không nhận CI đạt khi đang chờ. Bằng chứng cutover và validation chi tiết tại [giai đoạn7](#handoff-chg085-phase7), [giai đoạn8](#handoff-chg085-phase8); các câu chưa publish bên dưới giữ làm lịch sử trước yêu cầu mới.
+
+
+<a id="handoff-chg085-phase8"></a>
+## Bàn giao CHG-085 giai đoạn 8 — 03/11/2026 (Asia/Saigon)
+
+**CHG-085 giai đoạn 8 — 03/11/2026, hoàn tất local:** đã đọc và verify 7 run cũ, đối chiếu API/CSV cho 12 cặp DB–run; chạy 4 run mới trên bản sao dùng nguồn/forecast có sẵn và 1 run synthetic cho hai kho. Worker, verifier độc lập, API/CSV và browser 1440/390px đạt. Ca bổ sung chặn 19 đơn vị nguồn trong mô phỏng; ca synthetic có 280 = 150 được phép bán + 130 bị chặn. Sửa nhãn quyền mua/bán trong bảng projection; 89 React và build đạt. App ở 0008 với 3 run ban đầu; 4 DB bảo vệ và 1.412 tệp giữ hash. Không refit/tuning hoặc viết lại bằng chứng CHG-084; R07/T14 giữ mở. Thay đổi giai đoạn 7–8 chưa commit/push.
+
+- **Phạm vi và cô lập:** người dùng giao riêng giai đoạn 8. Tạo ba DB mới từ app 0008, history 0005 và validation 0007: `sigma_m3_chg085_validation_20261103`, `sigma_m3_chg085_history_20261103`, `sigma_m3_chg085_notice7_20261103`; thêm `sigma_m3_chg085_scope_20261103` cho dữ liệu synthetic. Artifact được chép vào `outputs/chg085_phase8/`, kiểm manifest trước khi đọc. Không ghi/migrate DB ứng dụng hoặc DB/bằng chứng CHG-084. Chỉ sửa FE và một regression test; BE/worker/verifier/model không đổi từ 99395aa. Thay đổi Markdown giai đoạn 7 vẫn được giữ.
+- **Run lịch sử:** kiểm kê 12 cặp DB–run, có 7 ID duy nhất: source, forecast, ba run tồn/nhập/cảnh báo theo profile cũ, một stock_projection fixed_days và một policy_replay notice7. Cả 7 qua verifier độc lập. API detail/summary và CSV đã kiểm cho cả 12 cặp; legacy thiếu sell-through trả `409 feature_not_in_run`, notice7 đọc bán tồn trả 200. Không chạy lại worker để viết lại run cũ, không đổi profile/snapshot/hash. Verifier chỉ ghi sidecar trong output mới.
+- **Khóa giả định trước kết quả:** `locked-plan.json` và SHA giữ nguồn 89a674, forecast 8637b3, origin 03/11/2025, policy 14 ngày và alert 28 ngày/hai window. Chọn năm item theo ID và một control cùng SKU ở kho khác. Kiểm ngừng nhập cùng ngày tại D+5; provider stop D+7; hai notice chồng nhau, resume riêng và ngừng nhập nội bộ còn hiệu lực; thông báo biết tại D+6 nhưng hiệu lực D+2; hạn D+20 vượt coverage. Hai lô cũ đã biết tại origin. Override ROP 100000 chỉ dùng cho hai item kiểm cap, không sửa policy/default ứng dụng.
+- **Đối soát:** Q_policy 15 → Q_final 0 khi ETA chạm hạn; chặn Q khi thiếu coverage hoặc nguyên lô vượt budget. Nội bộ vẫn cho bán tồn; provider chặn sale và lô mới, giữ receipt và tổng tồn. Gỡ một notice không gỡ notice khác hoặc ngừng nhập nội bộ. Policy dùng ngày cuốn, alert dùng prefix tại từng window; late notice không hồi tố. Kiểm SQL source = allowed + blocked, allowed = fulfilled + shortage và balance; API/CSV cùng dataset, filter/count trước page, projection 14 dòng/item và CSV đủ phạm vi.
+
+| Run trên bản sao | ID | Ledger rows | Nguồn | Theo kịch bản | Bị chặn | Window bị loại |
+|---|---|---|---|---|---|---|
+| stock_projection | 51a70590-029e-4777-b704-1d0497e42ba4 | 920 | 0 | 0 | 0 | 0 |
+| policy_replay | 904211e7-e987-42fe-96bb-198a5c44b60b | 13800 | 2195 | 2195 | 0 | 0 |
+| alert_replay | d29a6f37-0f3b-4c1e-9da1-78a03c3ed743 | 27600 | 4384 | 4379 | 5 | 4 |
+| policy_replay bổ sung | 5ce8d142-fb43-44dc-846a-143074c58207 | 13800 | 2195 | 2176 | 19 | 0 |
+
+- **Giữ kết quả 0 và ca bổ sung:** policy 14 ngày đầu không có giao dịch tại các item/ngày bị chặn, nên blocked = 0; kết quả này được giữ nguyên. Bổ sung một ca độc lập: chọn item 751, D5G-7D/eSIM tại Chiang Mai/TrueMove H, chỉ bằng tổng quantity **train 01/01/2024–30/06/2025** lớn nhất (714), tie theo ID. Không dùng sale tương lai để chọn. Khóa `supplemental-locked.json` và SHA trước chạy; stop cùng ngày 03/11, lô cũ 10 đơn vị về 07/11, cover 3, safety_multiplier 1, không override ROP. Riêng item: nguồn 19 = bị chặn 19, allowed 0, Q mới 0; lô cũ vẫn nhận và không mất tồn do sale_blocked. Verifier, 15 dòng inventory/CSV và 14 dòng projection/CSV đạt. Không ghi đè hoặc tối ưu kết quả ban đầu.
+- **Giới hạn và metric:** alert 28 ngày có nguồn 4384 = allowed 4379 + blocked 5, loại cả 4 window có hạn chế bán. Early 263/1046 ≈ 25,14%; không phải kết quả đạt 45% hoặc bằng chứng cải thiện. Các tỷ lệ thuộc riêng kịch bản, không gộp với baseline/S25, không đóng R07/T14.
+- **Hai kho:** danh mục nguồn có một kho cho mỗi carrier, nên không dựng ca nhiều kho từ nguồn đó bằng cách sửa catalog/parent. Ca synthetic riêng có hai kho cùng carrier/SKU và một item ngoài phạm vi; parents/forecast được inject trước lock, không nhận là forecast 46 tuyến đã train/verify. Một notice áp hai kho, notice thứ hai chồng ở kho 2; resume tại D+7/D+10 trong khi nội bộ kho 1 vẫn chặn nhập. Tính tay nguồn 280 = allowed 150 + blocked 130 (50/80 theo item), control giữ quyền, lô cũ 20 vẫn nhận sau hạn. Worker/verifier và 45 dòng inventory/CSV đạt.
+- **Frozen và cấu hình hiện tại:** sau enqueue, append resume trên DB copy tại 17/11. Product hiện tại cho bán, còn run đã lưu vẫn chặn; JSON phản hồi trước–sau giữ nguyên. Browser hiển thị đúng cả hai vùng current/frozen. Không sửa nguồn/forecast hoặc artifact cha.
+- **Lỗi FE và kiểm mới:** bảng projection từng hiện “Đang cung cấp” khi nhà mạng đã chặn vì chỉ dùng `supply_status` nội bộ. `SellThrough` dùng `TradeRights` cho từng row trade, aggregate hiển thị “Theo từng sản phẩm”, legacy giữ badge cũ. Regression kiểm provider blocked, nội bộ stopped nhưng vẫn bán, aggregate và legacy. **89 React/16 file và TypeScript/Vite build đạt**; không sửa phép tính/API. 478 Python và pipcheck là baseline giai đoạn 7, không báo là đã chạy lại trong giai đoạn 8; kiểm hiện tại là các worker/verifier/API/CSV nêu trên.
+- **Browser:** built-client 1440/390px kiểm stock/Q cap/receipt vào tồn bị chặn, policy current khác frozen, alert scope/exclusions, notice7 cũ còn bán tồn và synthetic hai kho. Không tràn trang tại 390px; bảng có vùng cuộn riêng. API bản sao tại 8318–8321 đã dừng sau kiểm, app API/worker 8000 vẫn khỏe với 3 run ban đầu và 0 provider notice. Không ghi app qua UI.
+- **Bảo toàn:** toàn bộ hàng/cột của bốn DB bảo vệ và 1.412 tệp khớp baseline. Trên validation copy, bảy bảng nguồn/catalog/policy/forecast giữ full hash; run, ledger/kết quả và scenario cũ giữ hash sau khi loại đúng các run/scenario mới. Snapshot, locked plan và artifact cũ giữ nguyên. Không backfill receipt/preserved.json còn thiếu của CHG-084. COMMIT_BLOCK_PLAN.md nguyên nội dung và untracked; raw/run/dump/env/output không stage/push.
+- **Tra cứu:** `outputs/chg085_phase8/` có before, ba dump và copy-before; old-runs/history-results/historical-api; locked-plan + SHA/new-runs/worker-results/reports; supplemental và synthetic locked/report/CSV; frozen-probe/frontend-tests/browser/preserved/app-smoke/receipt/markdown-check và ảnh. Script local ở `tmp/chg085_phase8*.py`. Giai đoạn 1–8 CHG-085 đã thực hiện; thay đổi 7–8 còn local, chưa có publish mới. R05/M05/R07/T14 không tự thay trạng thái.
+
+
+<a id="handoff-chg085-phase7"></a>
+## Bàn giao CHG-085 giai đoạn 7 — 03/11/2026 (Asia/Saigon)
+
+**CHG-085 giai đoạn 7 — 03/11/2026, hoàn tất tích hợp/cutover local:** backup 31.536.707 byte đã restore trên DB rehearsal riêng; nâng/hạ/nâng với lịch sử cũ không rỗng và từ chối downgrade khi có stop cùng ngày đạt. DBapp đã nâng `0008_trade_lifecycle`, giữ hash toàn bộ cột cũ của 14 bảng nghiệp vụ/3 run; 1.053 tệp và hai DB bản sao CHG-084 giữ nguyên. 478 Python BE/M2, 88 React, build/pipcheck, API/CSV 920 và browser 1440/390px đạt. API/worker cùng bản mã 99395aa và FE build mới chạy cổng 8000; thử ghi chỉ trên DBtest/bản rehearsal, worker chỉ synthetic DBtest, không tạo run nguồn thật hoặc khai báo stop/notice trên app. Giai đoạn 8 chưa được giao, R07/T14 giữ mở.
+
+- Phạm vi: người dùng giao riêng7 trên `final-report` tại `99395aa42f86226882e0d66c546dd5c2a7647c2b`. Không sửa code/nghiệp vụ/model/golden/dependency; không tiếp tục8, không dùng số kiểm synthetic làm nghiệm thu R07/T14. Thay đổi Markdown bàn giao7 còn local, chưa commit/push; COMMIT_BLOCK_PLAN.md không sửa/stage.
+- Trước nâng: PostgreSQL local được khởi động đúng127.0.0.1:55432; app revision0007/3run/0job queued-running/0stop. API/worker chưa chạy ở đầu phiên; dùng launcher stop để dọn state cũ trước cửa sổ cutover. Snapshot read-only cả app và hai bản sao `sigma_m3_chg084_validation`, `sigma_m3_chg084_history`; hash1053tệp gồm raw/derived/artifact/legacy và commit-plan.
+- Backup ban đầu `outputs/chg085_phase7/sigma_m3_before.dump` 31.536.707byte; pg_restore list và restore thật sang DB mới `sigma_m3_chg085_rehearsal_20261103`, không dùng lại DB/bằng chứng CHG-084. Full-table hashes khớp trước diễn tập. Thêm một stop+7ngày synthetic trên clone; nâng0008/hạ0007/nâng0008 giữ cột cũ/lịch sử và metadata0diff. Thêm stop cùng ngày synthetic trên clone, downgrade bị từ chối; revision/tất cả hàng giữ nguyên. Không downgrade app.
+- Cả3run complete cũ (source_import/forecast/stock_projection) qua verifier độc lập trên clone, artifact được chép sang `rehearsal-artifacts/runs` để không ghi sidecar vào bằng chứng cũ. Full suite hiện tại478Python BE/M2 đạt/0skip (142,42s),88React đạt, TypeScript/Vite build và pipcheck đạt. Cảnh báo deprecation TestClient hiện hữu, không ảnh hưởng kết quả.
+- Browser built-client1440/390px trên `sigma_m3_test`: preview/lưu stop cùng ngày, preview/lưu notice2kho, reload, quyền cấu hình mới nhất tách frozen. Tạo stock_projection từ UI tự gửitrade_v2; worker xử lý, verifier kiểm cả run mới và run trước thay đổi. Run mới chặn bán/Q, giữ lô cũ20đơn vị về và tồn bị chặn41; CSV bán tồn14dòng, run cũ vẫn được bán theo snapshot cũ. Đây là smoke synthetic giai đoạn7, không phải kịch bản nguồn thật giai đoạn8.
+- Cutover: sau rehearsal/suite và xác nhận không job đang ghi, tạo thêm `sigma_m3_cutover.dump`, so hash dữ liệu trước nâng; Alembic nâng app0008, so14bảng trên tập cột cũ/3run khớp, hai cột mới hàng cũNULL, provider history0, metadata0diff. Mở API+worker bằng `web/backend/scripts/local_stack.py start --port 8000`, phục vụ FE từdist vừa build. UI cũ cần reload. Smoke app chỉ GET: health,920products/trade capability/quyền, provider list rỗng, CSVinventory920, 3run giữ nguyên, browser desktop/mobile. Không tạo notice/stop/run hoặc chạy source thật để thử app.
+- Phục hồi: trước mở ghi có thể phục hồi backup đã restore thử. Sau có notice/stop cùng ngày/runtrade_v2, không downgrade/xóa lịch sử hoặc restore đè làm mất dữ liệu; dừng stack bằng launcher, giữ DB và reader tương thích, xử lý lỗi và lập phương án reconcile trước phục hồi. Chỉ stop/start các tiến trình do launcher này quản lý, không dừng PostgreSQL hoặc ứng dụng khác.
+- Bằng chứng local `outputs/chg085_phase7/`: before.json, hai dump, cutover-backup.json, rehearsal.json, applied.json, python-tests.xml, synthetic.json, http.json, preserved.json và ảnh browser. Script kiểm cục bộ trong `tmp/chg085_phase7*.py`; không đưa DB/env/raw/run/dump/output lên Git. Bản sao CHG-084/bằng chứng cũ giữ nguyên; kết quả publish4–6 trước đó tại99395aa có receipt riêng, không dùng thay kiểm hiện tại.
+- Bước kế tiếp: chỉ triển khai8 khi được giao; kiểm run theo profile và kịch bản hai nghiệp vụ trên bản sao/output mới, giữ CHG-084 đang tạm dừng và R07/T14 mở.
+
+Lệnh kiểm hiện tại (qua runner local đọc.env, không in credential):
+
+```powershell
+.venv-m3/Scripts/python.exe -B tmp/supplier_checks.py -m pytest web/backend/tests tests M2/models/tests -q -o addopts= --tb=short --junitxml=outputs/chg085_phase7/python-tests.xml
+# Tại web/frontend
+npm test -- --maxWorkers=1
+npm run build
+# Tại project root
+.venv-m3/Scripts/python.exe -m pip check
+.venv-m3/Scripts/python.exe -B tmp/supplier_checks.py tmp/chg085_phase7.py http
+.venv-m3/Scripts/python.exe -B tmp/supplier_checks.py tmp/chg085_phase7.py preserve
+```
+
+
 <a id="handoff-chg085-publish"></a>
 ## Bàn giao CHG-085 — Đóng gói worker, kết quả và giao diện, 02/11/2026
 

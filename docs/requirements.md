@@ -1,5 +1,9 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**CHG-085 giai đoạn 8 — 03/11/2026, hoàn tất local:** đã đọc và verify 7 run cũ, đối chiếu API/CSV cho 12 cặp DB–run; chạy 4 run mới trên bản sao dùng nguồn/forecast có sẵn và 1 run synthetic cho hai kho. Worker, verifier độc lập, API/CSV và browser 1440/390px đạt. Ca bổ sung chặn 19 đơn vị nguồn trong mô phỏng; ca synthetic có 280 = 150 được phép bán + 130 bị chặn. Sửa nhãn quyền mua/bán trong bảng projection; 89 React và build đạt. App ở 0008 với 3 run ban đầu; 4 DB bảo vệ và 1.412 tệp giữ hash. Không refit/tuning hoặc viết lại bằng chứng CHG-084; R07/T14 giữ mở. Thay đổi giai đoạn 7–8 chưa commit/push. [Bàn giao/giới hạn](development.md#handoff-chg085-phase8). Các checkpoint bên dưới là lịch sử.
+
+**CHG-085 giai đoạn 7 — 03/11/2026:** tích hợp/cutover local0008 đã kiểm; giữ dữ liệu/run cũ, hai nghiệp vụ nhập/bán tách biệt và profile frozen. Các số kiểm synthetic chứng minh triển khai kỹ thuật; không thay M05/R05, không nghiệm thu R07/T14. Chưa thực hiện8 hoặc tạo thông báo/run nguồn thật trên ứng dụng. [Kiểm/giới hạn](development.md#handoff-chg085-phase7).
+
 **CHG-085 giai đoạn 6 — 02/11/2026:** giao diện hai nghiệp vụ đã triển khai/kiểm local trên synthetic, gồm multi-warehouse scope, ngày cùng ngày, hai quyền, preview/save/refetch/409 và tồn bị chặn/CTA. Không thay R05/M05 hoặc nghiệm thu R07/T14. Bước7cutover và8run bản sao chưa thực hiện. [Bàn giao/giới hạn](development.md#handoff-chg085-phase6).
 
 **CHG-085 giai đoạn 5 — 02/11/2026:** đã kiểm synthetic read model/API/CSV frozen cho hai quyền, tồn blocked, cap/Q, source/scenario/blocked và mẫu số/exclusions; filter/tổng đúng trước page. Không thay tiêu chí M05/R05 hoặc nâng R07/T14. UI6, cutover7 và run bản sao8 chưa làm; số synthetic không chứng minh nghiệm thu mục tiêu cảnh báo. [Bàn giao/giới hạn](development.md#handoff-chg085-phase5).

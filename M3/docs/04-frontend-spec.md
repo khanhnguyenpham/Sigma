@@ -1,5 +1,9 @@
 # M3 — đặc tả frontend
 
+**CHG-085 giai đoạn 8 — 03/11/2026, hoàn tất local:** đã đọc và verify 7 run cũ, đối chiếu API/CSV cho 12 cặp DB–run; chạy 4 run mới trên bản sao dùng nguồn/forecast có sẵn và 1 run synthetic cho hai kho. Worker, verifier độc lập, API/CSV và browser 1440/390px đạt. Ca bổ sung chặn 19 đơn vị nguồn trong mô phỏng; ca synthetic có 280 = 150 được phép bán + 130 bị chặn. Sửa nhãn quyền mua/bán trong bảng projection; 89 React và build đạt. App ở 0008 với 3 run ban đầu; 4 DB bảo vệ và 1.412 tệp giữ hash. Không refit/tuning hoặc viết lại bằng chứng CHG-084; R07/T14 giữ mở. Thay đổi giai đoạn 7–8 chưa commit/push. [Bàn giao/giới hạn](../../docs/development.md#handoff-chg085-phase8). Các checkpoint bên dưới là lịch sử.
+
+**CHG-085 giai đoạn 7 — 03/11/2026:** FE build đã được API local8000 phục vụ cùng DB0008/worker hiện tại. Browser1440/390px kiểm app chỉ đọc và DBtest có lưu ngừng nhập cùng ngày/thông báo2kho, tạo inventory run qua UI, worker/verifier và frozen result/CSV. App không phát sinh stop/notice/run thử. [Kiểm/giới hạn](../../docs/development.md#handoff-chg085-phase7).
+
 **CHG-085 giai đoạn 6 — 02/11/2026, hoàn tất local FE:** modal ngừng nhập nội bộ cùng ngày, trang thông báo nhà mạng/phạm vi nhiều kho, preview và hai quyền riêng; vận hành hiển thị lượng bán/tồn bị chặn/Q/cap từ frozen. Baseline74, suite cuối88React (gồm22ca liên quan), 37ca hợp đồng BE, build/pipcheck và browser1440/390px synthetic đạt. DBapp vẫn0007; không cutover/nguồn thật/bước8 cũ. Bước4–6cònlocal, chưa commit/push; dừng trước7, R07/T14 giữ mở. [Triển khai thực](07-product-supply-lifecycle.md#phase6-implemented), [kiểm/giới hạn](../../docs/development.md#handoff-chg085-phase6). Bố cục và quy tắc bên dưới được chốt từ1; checkpoint6 là trạng thái mới nhất. Các mô tả CHG-084 vẫn giữ làm lịch sử.
 
 <a id="lifecycle-chg085"></a>

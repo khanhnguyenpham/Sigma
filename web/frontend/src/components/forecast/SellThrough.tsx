@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import type { Context } from "../../types/context";
-import type { Page } from "../../types/api";
+import type { Page, Row } from "../../types/api";
 import { useResource } from "../../hooks/useResource";
 import { resultQuery } from "../../utils/url";
 import { Panel } from "../ui/Panel";
@@ -10,6 +10,7 @@ import { Table } from "../ui/Table";
 import { Pager } from "../ui/Pager";
 import { ExportButton } from "../ui/ExportButton";
 import { badge } from "../ui/Badge";
+import { TradeRights } from "../products/TradePresentation";
 
 export function SellThrough({ runId, ctx, trade:tradeRun=false }: { runId: string; ctx: Context; trade?:boolean }) {
   const [page, setPage] = useState(1);
@@ -32,7 +33,9 @@ export function SellThrough({ runId, ctx, trade:tradeRun=false }: { runId: strin
         {key:"target_date",label:"Ngày UTC"},{key:"sku",label:"Sản phẩm"},{key:"city",label:"Kho"},
         {key:"projected_sales_qty",label:"Dự kiến bán"},{key:"receipts_qty",label:"Hàng về đã biết"},
         ...(trade?[{key:"unserved_stock_qty",label:"Thiếu do tồn"},{key:"sales_blocked_qty",label:"Bị nhà mạng chặn"},{key:"closing_sellable",label:"Tồn được bán"},{key:"closing_blocked",label:"Tồn bị chặn"}]:[]),
-        {key:"closing_forecast",label:"Tồn cuối ngày"},{key:"supply_status",label:"Cung cấp",render:(v) => v ? badge(v) : "Theo từng sản phẩm"},
+        {key:"closing_forecast",label:"Tồn cuối ngày"},
+        ...(trade ? [{key:"provider_status",label:"Quyền mua bán",render:(_:unknown,row:Row) => typeof row.sales_allowed === "boolean" ? <TradeRights row={row} /> : "Theo từng sản phẩm"}]
+          : [{key:"supply_status",label:"Cung cấp",render:(v:unknown) => v ? badge(v) : "Theo từng sản phẩm"}]),
       ]} /><Pager page={page} total={data.data?.total ?? 0} onChange={setPage} />
       <ExportButton url={`/runs/${runId}/exports/sell_through?${q}`} />
       <details className="advanced-section"><summary>Nhu cầu dự báo và phần chưa đáp ứng</summary><Table rows={rows} columns={[

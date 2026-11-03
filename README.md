@@ -1,10 +1,14 @@
 # SIGMA — React / FastAPI local
 
-## Ngừng nhập sản phẩm và bán tồn — CHG-084
+## Vòng đời mua bán SIM/eSIM — CHG-085
 
-Tại **Sản phẩm → chi tiết → Tình trạng cung cấp**, chọn ngày mô phỏng UTC, ngày dừng cách ngày thông báo ít nhất7ngày và lý do. Từ ngày dừng không đặt lô mới, vẫn nhận lô đã đặt/bán tồn; có lịch sử, hủy lịch chưa hiệu lực và mở nhập lại. Lưu cấu hình rồi tạo kế hoạch mới để tính tác động; run cũ giữ snapshot, thiếu profile bán tồn sẽ yêu cầu kế hoạch mới.
+Ứng dụng local đã nâng **0008_trade_lifecycle**, API/worker/FE chạy đồng bộ tại `http://127.0.0.1:8000/`. Reload trình duyệt sau cutover.
 
-DBapp local đã backup/restore thử và nâng0007_supply_lifecycle; dữ liệu13bảng/3run cũ nguyên hash, lịch sử cung cấp mới rỗng. Kiểm tích hợp368Python/74React/build/pipcheck/API/CSV/browser đạt. [Bàn giao](docs/development.md#handoff-chg084-step7). Chưa chạy kịch bản nguồn thật của bước8; R07/T14 chưa nghiệm thu. Các hướng dẫn nâng0006 bên dưới là checkpoint trước thay đổi này.
+- **Sản phẩm → chi tiết → Ngừng nhập nội bộ:** có thể hiệu lực cùng ngày UTC, chỉ chặn nhập mới; vẫn nhận lô đã đặt và bán tồn được phép bán.
+- **Thông báo ngừng sản phẩm:** khai báo nhà mạng, sản phẩm và phạm vi kho, ngày biết/hiệu lực, lý do và nguồn giả định; nhà mạng ngừng thì chặn cả nhập và bán mới, tồn/lô cũ được giữ.
+- Xem preview trước lưu; hủy lịch và mở/cung cấp lại có lịch sử riêng. Lưu không sửa số liệu kế hoạch cũ; tạo kế hoạch mới để tính tác động.
+
+Giai đoạn7 đã hoàn tất local với478Python/88React, backup/restore/rollback, kiểm API/CSV và browser desktop/mobile. Giữ14bảng cũ/3run/1053tệp và hai DB bản sao; lịch sử mới trên app rỗng. [Bàn giao/rollback](docs/development.md#handoff-chg085-phase7). Giai đoạn8 đã kiểm local trên bản sao riêng:7run cũ,4run mới dùng nguồn có sẵn và1run synthetic2kho; sửa nhãn quyền trong projection,89React/build đạt. [Bàn giao8](docs/development.md#handoff-chg085-phase8). Thay đổi7–8 chưa commit/push, R07/T14 chưa nghiệm thu. Các revision/notice7 bên dưới chỉ áp checkpoint/profile lịch sử.
 
 ## ROP cố định và SS theo ngày bán — CHG-083
 

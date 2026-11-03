@@ -1,5 +1,17 @@
 # M3 — Đặc tả vòng đời mua bán SIM/eSIM (CHG-085)
 
+<a id="phase8-validated"></a>
+### CHG-085 giai đoạn 8 — 03/11/2026, kiểm run lịch sử và các kịch bản mới
+
+**CHG-085 giai đoạn 8 — 03/11/2026, hoàn tất local:** đã đọc và verify 7 run cũ, đối chiếu API/CSV cho 12 cặp DB–run; chạy 4 run mới trên bản sao dùng nguồn/forecast có sẵn và 1 run synthetic cho hai kho. Worker, verifier độc lập, API/CSV và browser 1440/390px đạt. Ca bổ sung chặn 19 đơn vị nguồn trong mô phỏng; ca synthetic có 280 = 150 được phép bán + 130 bị chặn. Sửa nhãn quyền mua/bán trong bảng projection; 89 React và build đạt. App ở 0008 với 3 run ban đầu; 4 DB bảo vệ và 1.412 tệp giữ hash. Không refit/tuning hoặc viết lại bằng chứng CHG-084; R07/T14 giữ mở. Thay đổi giai đoạn 7–8 chưa commit/push. [Bằng chứng/giới hạn](../../docs/development.md#handoff-chg085-phase8). Run cũ chỉ đọc/verify theo snapshot/profile gốc, không chạy lại worker để sửa chúng. Các runtrade_v2 mới giữ hai lịch sử/known cutoff, source=allowed+blocked, nhận lô cũ và giữ blocked stock; cùng API/CSV/UI frozen. Lịch sử/config live sửa sau enqueue không làm đổi run đã lưu. Các câu “chưa triển khai/chưa chạy8” phía dưới là checkpoint lịch sử; R07/T14 không tự đóng.
+
+
+<a id="phase7-implemented"></a>
+### CHG-085 giai đoạn 7 — 03/11/2026, đã cutover ứng dụng local
+
+**CHG-085 giai đoạn 7 — 03/11/2026, hoàn tất tích hợp/cutover local:** backup 31.536.707 byte đã restore trên DB rehearsal riêng; nâng/hạ/nâng với lịch sử cũ không rỗng và từ chối downgrade khi có stop cùng ngày đạt. DBapp đã nâng `0008_trade_lifecycle`, giữ hash toàn bộ cột cũ của 14 bảng nghiệp vụ/3 run; 1.053 tệp và hai DB bản sao CHG-084 giữ nguyên. 478 Python BE/M2, 88 React, build/pipcheck, API/CSV 920 và browser 1440/390px đạt. API/worker cùng bản mã 99395aa và FE build mới chạy cổng 8000; thử ghi chỉ trên DBtest/bản rehearsal, worker chỉ synthetic DBtest, không tạo run nguồn thật hoặc khai báo stop/notice trên app. Giai đoạn 8 chưa được giao, R07/T14 giữ mở. [Bàn giao/rollback/kiểm](../../docs/development.md#handoff-chg085-phase7). Đây là trạng thái hiện hành; các checkpoint “app0007/chưa cutover” bên dưới giữ làm lịch sử. Profile cũ không tự nâng, cấu hình mới không sửa frozen; app0008 mở capability cho thao tác và tạo inventorytrade_v2 mới khi người dùng yêu cầu. Chưa có runtrade_v2 hoặc thông báo/stop thật trên app trong lần cutover này.
+
+
 <a id="status"></a>
 ## 1. Thiết kế mới và phần đang chạy
 

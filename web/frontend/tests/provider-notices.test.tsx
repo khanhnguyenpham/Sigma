@@ -1,13 +1,36 @@
-import { act,cleanup,fireEvent,render,screen,waitFor } from "@testing-library/react";
+import { act,cleanup,fireEvent,render,screen,waitFor,within } from "@testing-library/react";
 import { beforeEach,afterEach,expect,it,vi } from "vitest";
 import { ProviderNoticeForm } from "../src/components/products/ProviderNoticeForm";
 import { ProviderNotices } from "../src/pages/ProviderNotices";
 import { ProductDetail } from "../src/pages/Products";
 import { RunDialog } from "../src/components/dialogs/RunDialog";
+import { SellThrough } from "../src/components/forecast/SellThrough";
 import { contextUrl,readContext,navigationUrl } from "../src/utils/url";
 import type { Row,Run } from "../src/types/api";
 
 const day='2025-10-31',fp='b'.repeat(64),ctx={runId:'plan',origin:day,warehouseId:'1',itemId:'11',supplierId:'',productType:''};
+
+it('shows separate frozen purchase and sale rights in projected rows, with aggregate and legacy fallbacks',async()=>{
+  vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({items:[
+    {target_date:'2025-11-01',supply_status:'active',internal_status:'active',provider_status:'stopped',replenishment_allowed:false,sales_allowed:false},
+    {target_date:'2025-11-02',supply_status:'stopped',internal_status:'stopped',provider_status:'clear',replenishment_allowed:false,sales_allowed:true},
+    {target_date:'2025-11-03',supply_status:'active'}],total:3,context:{trade_lifecycle_profile:'internal_provider_trade_v2'}}),{status:200}));
+  const view=render(<SellThrough runId="plan" ctx={{...ctx,warehouseId:'',itemId:''}} />);
+  await screen.findByRole('columnheader',{name:'Quyền mua bán'});
+  const table=screen.getAllByRole('table')[0];
+  const blocked=within(table).getByRole('row',{name:/2025-11-01/});
+  expect(within(blocked).getByText('Nhà mạng ngừng mua và bán')).toBeVisible();
+  expect(within(blocked).getByText(/Không được bán mới/)).toBeVisible();
+  const internal=within(table).getByRole('row',{name:/2025-11-02/});
+  expect(within(internal).getByText('Đã ngừng nhập nội bộ')).toBeVisible();
+  expect(within(internal).getByText(/Được bán tồn/)).toBeVisible();
+  expect(within(table).getByRole('row',{name:/2025-11-03/})).toHaveTextContent('Theo từng sản phẩm');
+  view.unmount();
+  vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({items:[{target_date:'2025-11-01',supply_status:'active'}],total:1}),{status:200}));
+  render(<SellThrough runId="legacy" ctx={{...ctx,warehouseId:'',itemId:''}} />);
+  expect(await screen.findByRole('columnheader',{name:'Cung cấp'})).toBeVisible();
+  expect(screen.getByText('Đang cung cấp')).toBeVisible();
+});
 const notice={id:1,supplier_id:1,latest_version:1,latest_action:'stop',latest_known_on:day,as_of_date:day,state:{provider_status:'stopped',sales_allowed:false},scope_items:2,scope_warehouses:2,
   scope_definition:{products:[{sku:'SYN',product_type:'eSIM',destination_countries:['A','B'],warehouse_ids:[1,2]}]},reason:'Synthetic notice',source_description:'Hypothetical',source_ref:null};
 const reply=(data:unknown,status=200)=>Promise.resolve({ok:status<300,status,json:async()=>data} as Response);

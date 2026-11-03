@@ -1,5 +1,22 @@
 # Kế hoạch dự án SIGMA
 
+<a id="chg-085-publish78"></a>
+## CHG-085 — Xuất bản cutover và kiểm run lịch sử, 03/11/2026
+
+Người dùng giao đẩy toàn bộ phần vừa hoàn tất lên GitHub: cho phép commit/push thường 20 tệp code/tests/docs của CHG-085 giai đoạn 7–8 lên final-report. Quyền này thay các điểm dừng chưa publish7–8 phía dưới; không mở công việc mới hoặc tự đóng R07/T14. Phạm vi là 18 Markdown và 2 tệp FE; giữ COMMIT_BLOCK_PLAN.md untracked/nguyên nội dung. Không stage raw/run/DB/env/dist/output hoặc thay metadata lịch sử Git. App0008/3run và các DB bản sao giữ nguyên; lượt publish không tạo run, khai báo lifecycle hoặc chạy model/worker mới. 89 React, TypeScript/Vite build và pipcheck được kiểm lại cho lượt publish; hash mã FE khớp bản đã kiểm browser. Bằng chứng 7 run cũ/12 DB-run, 4 run mới trên bản sao nguồn thật, 1 synthetic hai kho và bảo toàn 4 DB/1.412 tệp thuộc giai đoạn8; không nhận là vừa chạy lại trong lượt publish. Cổng: local → commit tên theo thay đổi → push thường → SHA remote khớp → hai workflow CI success. [Bàn giao](../development.md#handoff-chg085-publish78).
+
+<a id="chg-085-phase8"></a>
+## CHG-085 giai đoạn 8 — Run lịch sử và kịch bản trên bản sao, 03/11/2026
+
+**CHG-085 giai đoạn 8 — 03/11/2026, hoàn tất local:** đã đọc và verify 7 run cũ, đối chiếu API/CSV cho 12 cặp DB–run; chạy 4 run mới trên bản sao dùng nguồn/forecast có sẵn và 1 run synthetic cho hai kho. Worker, verifier độc lập, API/CSV và browser 1440/390px đạt. Ca bổ sung chặn 19 đơn vị nguồn trong mô phỏng; ca synthetic có 280 = 150 được phép bán + 130 bị chặn. Sửa nhãn quyền mua/bán trong bảng projection; 89 React và build đạt. App ở 0008 với 3 run ban đầu; 4 DB bảo vệ và 1.412 tệp giữ hash. Không refit/tuning hoặc viết lại bằng chứng CHG-084; R07/T14 giữ mở. Thay đổi giai đoạn 7–8 chưa commit/push. [Bàn giao/giới hạn](../development.md#handoff-chg085-phase8). Giai đoạn1–8 đã thực hiện; đây không phải nghiệm thu toàn dự án hoặc quyền publish mới. Phần chỉ có kế hoạch/chưa được giao8 phía dưới là checkpoint lịch sử.
+
+
+<a id="chg-085-phase7"></a>
+## CHG-085 giai đoạn 7 — Tích hợp/cutover local, 03/11/2026
+
+**CHG-085 giai đoạn 7 — 03/11/2026, hoàn tất tích hợp/cutover local:** backup 31.536.707 byte đã restore trên DB rehearsal riêng; nâng/hạ/nâng với lịch sử cũ không rỗng và từ chối downgrade khi có stop cùng ngày đạt. DBapp đã nâng `0008_trade_lifecycle`, giữ hash toàn bộ cột cũ của 14 bảng nghiệp vụ/3 run; 1.053 tệp và hai DB bản sao CHG-084 giữ nguyên. 478 Python BE/M2, 88 React, build/pipcheck, API/CSV 920 và browser 1440/390px đạt. API/worker cùng bản mã 99395aa và FE build mới chạy cổng 8000; thử ghi chỉ trên DBtest/bản rehearsal, worker chỉ synthetic DBtest, không tạo run nguồn thật hoặc khai báo stop/notice trên app. Giai đoạn 8 chưa được giao, R07/T14 giữ mở. Người dùng giao riêng7 trên nền99395aa/final-report; không tự làm8 hoặc publish7. [Bàn giao và rollback](../development.md#handoff-chg085-phase7), [lộ trình](PRODUCT_SUPPLY_LIFECYCLE_PLAN.md#steps). Các điểm dừng trước7 ở các checkpoint dưới đây là lịch sử.
+
+
 <a id="chg-085-publish"></a>
 ## CHG-085 — Đóng gói worker, kết quả và giao diện, 02/11/2026
 
