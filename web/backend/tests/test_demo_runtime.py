@@ -87,6 +87,9 @@ def test_manifest_and_heartbeat_reject_tampering(monkeypatch, tmp_path):
     assert not source_ready(settings)
     with worker_heartbeat(settings, "code"):
         assert worker_ready(settings, "code")
+        with monkeypatch.context() as patch:
+            patch.setattr(psutil.Process, "status", lambda self: psutil.STATUS_ZOMBIE)
+            assert not worker_ready(settings, "code")
         assert not worker_ready(replace(settings, worker_instance="another-launch"), "code")
         assert not worker_ready(settings, "old-code")
         path = settings.output_root / ".worker-heartbeat.json"

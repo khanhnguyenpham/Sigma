@@ -93,7 +93,8 @@ def worker_ready(settings, code_sha):
         process = psutil.Process(row["pid"])
         return bool(settings.worker_instance and row["instance"] == settings.worker_instance
             and row["code_sha256"] == code_sha and 0 <= time.time() - row["updated"] < 10
-            and abs(process.create_time() - row["started"]) < .1 and process.is_running())
+            and abs(process.create_time() - row["started"]) < .1 and process.is_running()
+            and process.status() != psutil.STATUS_ZOMBIE)
     except (OSError, ValueError, KeyError, TypeError, psutil.Error):
         return False
 

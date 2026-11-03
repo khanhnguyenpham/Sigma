@@ -19,6 +19,8 @@ Người dùng giaoD1 và sau đó bỏ yêu cầu thông báo demo dùng chung 
 
 `npm run build` tạiweb/frontend vàpipcheck đạt; không sửaFEsource nên không chạy lạiReact/browser và không lấy browsercũ làm kiểmD1. Hai template validate theo schema công khai chính thứcRender/Vercel, receipt`hosting-schema-check.json`. MáyWindows không có distroWSL cài sẵn; Linux/SIGTERM/processgroups/realstacksmoke được kiểm bởi backendjobUbuntu/Postgres18 hiện có khi publish, không nhận đã chạyLinuxlocal.
 
+Kiểm cuối bổ sung loại trạng thái workerzombie dù PID/create-time còn tồn tại và heartbeat còn mới;17caD1 được chạy lại trên guardnày, không gọi fullsuite500 là vừa chạy lại sau bổ sung. CI saucommit kiểm đầy đủ nguồn publish, bao gồm Linuxprocesslifecycle. Giữ run bịgiánđoạn và retry theo cơ chế worker cũ, không giảresume.
+
 ### Bảo toàn và cổng bàn giao
 
 Chỉ schema/data synthetic trênsigma_m3_test nhận thao tác test. Snapshot4DBbảo vệ và1.466tệp nguồn/bằng chứng được đối chiếu trước–sau, app vẫn0008/3run, không migrate/seed/khai lifecycle hoặc run nguồn thật. D1không restart stackapp, sửaCSV, nhân giá giả hoặc dùng nguồn thật; ba tệp nghiên cứuCHG086 vàCOMMIT_BLOCK_PLAN.md giữ nguyên/ngoài stage. Receipt riêng `outputs/chg088_d1/`, không ghi đè bằng chứng trước.
