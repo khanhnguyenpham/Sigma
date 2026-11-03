@@ -1,5 +1,10 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-chg087-money"></a>
+## CHG-087 bổ sung — Quy tắc ẩn giá khi chuẩn bị demo
+
+03/11/2026, người dùng hỏi bỏ hoặc làm giả giá orderCSV trước khi công khai. Đã đọc auditor và các nơi dùng trường tiền: importer bắt buộc20cột, kiểm3cột tiền và quan hệ doanh thu; mô hình/tồn dùng quantity. [Quy tắcD2](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md#demo-money-fields) và [hợp đồng demo](data-contract.md#demo-price-policy) chọn giữ cột, thay unit_price_vnd/unit_cost_vnd/gross_revenue_vnd bằng0 trong bản dẫn xuất, ghi placeholder; kiểm nguồn/dedup trước và bảo toàn quantity sau biến đổi. Không chỉnh CSV/DB/code, không chạy model/worker hoặc triển khai ở lượt này. Chỉ bổ sung3MD; nguồn thật/run/hash cũ giữ nguyên. PublishMD theo yêu cầu đẩy kế hoạch đã có, kiểm local/remoteSHA/haiCI; receipt riêng `outputs/chg087_money_plan/`, không ghi đè receipt kế hoạch trước.
+
 <a id="handoff-chg087"></a>
 ## CHG-087 — Kế hoạch demo đầy đủ dùng chung, 03/11/2026
 

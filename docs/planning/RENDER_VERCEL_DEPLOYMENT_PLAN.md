@@ -61,6 +61,23 @@ Không chỉ chuẩn bị DB kết quả tính sẵn. Gói demo phải đủ đ�
 
 Gói dự kiến upload có danh sách tệp/trường, size/hash và kiểm ẩn danh cụ thể. Tạo gói/seed/chạy run là phần triển khai sau, chưa làm ở lượt chỉ Markdown.
 
+<a id="demo-money-fields"></a>
+### Giá và doanh thu trong bản nguồn demo
+
+Bổ sung03/11/2026: người dùng cho phép bỏ hoặc làm giả giá vì demo chỉ cần quantity. Chọn cách giữ hợp đồng20cột, **thay toàn bộ giá trị tiền bằng0 trong bản CSV dẫn xuất dành cho demo**:
+
+| Cột | Giá trị demo | Ý nghĩa |
+| --- | --- | --- |
+| unit_price_vnd | 0 | Placeholder, không phải giá bán thật |
+| unit_cost_vnd | 0 | Placeholder, không phải giá vốn thật |
+| gross_revenue_vnd | 0 | quantity × unit_price_vnd, không phải doanh thu thật |
+
+Importer hiện yêu cầu đủ20cột và kiểm gross_revenue_vnd=quantity×unit_price_vnd; xóa cột sẽ cần đổi hợp đồng/importer. Không cần thêm việc đó cho demo. Không dùng hệ số nhân, làm tròn hoặc giá ngẫu nhiên từ giá thật; không giữ doanh thu gốc khi đã thay đơn giá. [Hợp đồng bản demo](../data-contract.md#demo-price-policy).
+
+D2 thực hiện biến đổi trên bản sao mới, giữ CSV gốc và bằng chứng sealed nguyên. Auditor phải xác nhận nguồn hợp lệ trước biến đổi để không vô tình che xung đột duplicate bằng cách xóa khác biệt về tiền. Sau biến đổi kiểm đủ schema, tiền bằng0/toàn bộ hàng, không money-invalid/revenue-mismatch; đối chiếu quantity theo ngày UTC×item/tuyến, trạng thái, thứ tự và dedup như trước. Mô hình hiện dự báo quantity, các cột tiền được audit/tổng hợp nhưng không là feature/target dự báo hoặc tham số tồn; việc kiểm giữ nguyên dữ liệu quantity là bắt buộc.
+
+Gói seed/artifact/export demo cũng phải được dựng từ nguồn đã xử lý, không mang theo bảng doanh thu/giá gốc từ kết quả cũ. Giá trị0 có nhãn placeholder demo, không diễn giải thành giá hoặc doanh thu thực bằng0. Nguồn dẫn xuất có SHA/provenance mới; không sửa hash hoặc giá trị trong run gốc. Đây là quy tắc chuẩn bịD2, **chưa tạo hoặc chỉnh CSV/DB ở lượt bổ sung kế hoạch này**.
+
 ## 4. Công việc code dự kiến
 
 | Phần | Việc cần làm | Kiểm |

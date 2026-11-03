@@ -1,5 +1,12 @@
 # Hợp đồng dữ liệu SIGMA
 
+<a id="demo-price-policy"></a>
+## CHG-087 bổ sung — 03/11/2026, giá giả cho bản demo công khai
+
+Người dùng cho phép bỏ hoặc làm giả giá trong ordersCSV vì demo dự báo quantity, không cần dữ liệu giá thật. [Kế hoạchD2](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md#demo-money-fields) chọn giữ20cột hiện tại, đặt **unit_price_vnd=0, unit_cost_vnd=0, gross_revenue_vnd=0** trên bản nguồn dẫn xuất mới. Số0 là placeholder demo, không là số liệu giá/doanh thu thực; vẫn thỏa gross_revenue_vnd=quantity×unit_price_vnd.
+
+Không xóa cột khỏi hợp đồng nguồn hiện hành hoặc thay file gốc. Không giữ giá vốn/doanh thu thật, không suy giá giả từ giá thật. Audit nguồn trước biến đổi để bảo toàn kiểm duplicate; sau biến đổi kiểm schema/tiền hợp lệ và bảo toàn quantity theo ngày UTC×item/tuyến, trạng thái, thứ tự/dedup. Gói seed/CSV/artifact demo lấy nguồn đã xử lý, có provenance/hash mới và không mang giá/doanh thu cũ. Chưa tạo bản CSV demo hoặc sửa DB/code ở lượt chỉ cập nhậtMD này; các hợp đồng/bằng chứng nguồn gốc phía dưới vẫn giữ nguyên.
+
 **CHG-085 giai đoạn 8 — 03/11/2026, hoàn tất local:** đã đọc và verify 7 run cũ, đối chiếu API/CSV cho 12 cặp DB–run; chạy 4 run mới trên bản sao dùng nguồn/forecast có sẵn và 1 run synthetic cho hai kho. Worker, verifier độc lập, API/CSV và browser 1440/390px đạt. Ca bổ sung chặn 19 đơn vị nguồn trong mô phỏng; ca synthetic có 280 = 150 được phép bán + 130 bị chặn. Sửa nhãn quyền mua/bán trong bảng projection; 89 React và build đạt. App ở 0008 với 3 run ban đầu; 4 DB bảo vệ và 1.412 tệp giữ hash. Không refit/tuning hoặc viết lại bằng chứng CHG-084; R07/T14 giữ mở. Thay đổi giai đoạn 7–8 chưa commit/push. [Bàn giao/giới hạn](development.md#handoff-chg085-phase8). Các checkpoint bên dưới là lịch sử.
 
 **CHG-085 giai đoạn 7 — 03/11/2026:** DBapp đã nâng0008; 14 bảng nghiệp vụ cũ giữ hash trên cùng tập cột trước nâng. Hai cột mới inventory_daily của hàng cũ đều NULL, ba bảng provider rỗng; không backfill snapshot hoặc suy diễn blocked=0 cho run cũ. 3run và dữ liệu nguồn/forecast giữ nguyên; chỉ dữ liệu giả trên DBtest có stop/notice/profile mới. [Bảo toàn](development.md#handoff-chg085-phase7).
