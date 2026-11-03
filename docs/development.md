@@ -1,9 +1,9 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
 <a id="handoff-chg090-d3"></a>
-## CHG-090 — D3 kiểm local hoàn tất, chờ publish, gỡ Tổng30 khỏi demo
+## CHG-090 — D3 hoàn tất cổng code/publish, gỡ Tổng30 khỏi demo
 
-Người dùng tiếp tục D3 sau checkpoint tạm dừng và yêu cầu gỡ Tổng30; bổ sung rõ **xóa khỏi demo, không thêm cơ chế bật/tắt**. Đã xóa component/tab/CSS/lời dẫn monthly, 5 API/CSV operation, schema query và lệnh prepare-monthly khỏi ứng dụng. Chỉ giữ helper/bằng chứng nghiên cứu offline, không sửa R05/M05 thành đã nghiệm thu. Demo H14/tồn/nhập/cảnh báo không còn phụ thuộc bundle/receipt ngoài. D4–D6/cloud chưa làm; chưa commit/push D3, HEAD2112b6d của D2.
+Người dùng tiếp tục D3 sau checkpoint tạm dừng và yêu cầu gỡ Tổng30; bổ sung rõ **xóa khỏi demo, không thêm cơ chế bật/tắt**. Đã xóa component/tab/CSS/lời dẫn monthly, 5 API/CSV operation, schema query và lệnh prepare-monthly khỏi ứng dụng. Chỉ giữ helper/bằng chứng nghiên cứu offline, không sửa R05/M05 thành đã nghiệm thu. Demo H14/tồn/nhập/cảnh báo không còn phụ thuộc bundle/receipt ngoài. D4–D6/cloud chưa làm. Code`3f5c430c94c086179f065c543b3020fdfb021bde` đã push thường final-report; remoteSHA khớp và hai workflowCI success. Bàn giaoMD này bổ sung sau cổng code, không đổi byte mã hoặc dữ liệu.
 
 ### Code và cổng kiểm
 
@@ -39,7 +39,7 @@ Hai cửa sổ kho/policy: saveA, staleB409/giữ draft, refetch/lưu lại; sce
 
 BốnDB bảo vệ và1.466tệp khớp baseline D2; app0008_trade_lifecycle/3run giữ nguyên. Nguồn/raw/credential và3PythonS25/COMMIT_BLOCK_PLAN.md ngoài stage. Source/artifact/runs D3 còn đầy đủ, không đưa dữ liệu vàoGit.
 
-Full-size snapshot D3 đã backup rồi restore sau thay đổi demo có thể đảo ngược, giữ nguyên16run và toàn bộ hash bảng/artifact; receipt reset-review.json. Cổng vận hành đã đạt. Tiếp theo publish thườngfinal-report, đối chiếu remoteSHA/haiCI trước khi nhận D3 publish hoàn tất.
+Full-size snapshot D3 đã backup rồi restore sau thay đổi demo có thể đảo ngược, giữ nguyên16run và toàn bộ hash bảng/artifact; receipt reset-review.json. Cổng vận hành và publishcode đã đạt. HaiCI của đúng commitcode: [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/41653482038), [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/41653481952). Receipt local publish-receipt.json lưu SHA/remote/CI; bàn giaoMD được bổ sung sau cổng code. API/worker D3 đã dừng sạch, khóa worker nhả; không còn job đang chạy. Demo đang lưu16run để giữ bằng chứng; D4 dùng seedD2/baseline7run đã kiểm, không tự xóa lịch sử D3 để mở quota.
 
 <a id="handoff-chg089-d2"></a>
 ## CHG-089 — Nguồn và khôi phục demo D2, 03/11/2026

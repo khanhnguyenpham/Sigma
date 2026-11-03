@@ -3,7 +3,7 @@
 <a id="chg090-resume"></a>
 ## CHG-090 tiếp tục — 03/11/2026, gỡ Tổng30 và kiểm D3
 
-Người dùng giao tiếp D3 và gỡ Tổng30 khỏi demo, sau đó yêu cầu xóa hẳn thay vì cơ chế tắt. Đã xóa UI/API/schema/CLI monthly, giữ nghiên cứu lịch sử riêng; không còn phụ thuộc bundle/receipt ngoài, không tự nghiệm thu R05. Quota/guard/retry, forecast/3inventory independent verify,12API/CSV, lifecycle, desktop/mobile và bảo toàn đạt;517Python/89React/build/pipcheck đạt. Chi tiết số đo, lỗi cleanup đã sửa và giới hạn chứng cứ tại [bàn giao](development.md#handoff-chg090-d3). Cổng vận hành/publish theo trạng thái mới ở bàn giao; các checkpoint tạm dừng/chờ Tổng30 bên dưới là lịch sử. C00/R07/T14 và D4–D6 chưa đổi.
+Người dùng giao tiếp D3 và gỡ Tổng30 khỏi demo, sau đó yêu cầu xóa hẳn thay vì cơ chế tắt. Đã xóa UI/API/schema/CLI monthly, giữ nghiên cứu lịch sử riêng; không còn phụ thuộc bundle/receipt ngoài, không tự nghiệm thu R05. Quota/guard/retry, forecast/3inventory independent verify,12API/CSV, lifecycle, desktop/mobile và bảo toàn đạt;517Python/89React/build/pipcheck đạt. Chi tiết số đo, lỗi cleanup đã sửa và giới hạn chứng cứ tại [bàn giao](development.md#handoff-chg090-d3). Cổng code/publish3f5c430 đã đạt remoteSHA/haiCI success; full-size backup/reset16run và shutdown đạt; các checkpoint tạm dừng/chờ Tổng30 bên dưới là lịch sử. C00/R07/T14 và D4–D6 chưa đổi.
 
 
 <a id="chg090"></a>

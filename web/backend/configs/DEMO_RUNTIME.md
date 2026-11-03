@@ -1,6 +1,6 @@
 # Runtime và dữ liệu demo
 
-**03/11/2026 — tiếp tục D3 và gỡ Tổng 30 khỏi demo theo yêu cầu mới.** Bỏ hẳn giao diện/API Tổng 30, không thêm cờ bật/tắt hoặc phụ thuộc bundle/receipt ngoài. Luồng dự báo vận hành H14/tồn/nhập/cảnh báo giữ nguyên. R05/M05 và bằng chứng nghiên cứu lịch sử không tự nghiệm thu hoặc xóa. Các checkpoint chờ Tổng30/tạm dừng phía dưới là lịch sử. D3 đã kiểm chức năng, cổng vận hành/publish theo bàn giao; chưa deploy; D4–D6 chưa làm.
+**03/11/2026 — tiếp tục D3 và gỡ Tổng 30 khỏi demo theo yêu cầu mới.** Bỏ hẳn giao diện/API Tổng 30, không thêm cờ bật/tắt hoặc phụ thuộc bundle/receipt ngoài. Luồng dự báo vận hành H14/tồn/nhập/cảnh báo giữ nguyên. R05/M05 và bằng chứng nghiên cứu lịch sử không tự nghiệm thu hoặc xóa. Các checkpoint chờ Tổng30/tạm dừng phía dưới là lịch sử. D3 đã qua cổng code/publish tại3f5c430 (remoteSHA/haiCI success); full-size backup/reset và shutdown đạt; chưa deploy; D4–D6 chưa làm.
 
 **D3 đã kiểm local03/11/2026:** quota/guard/retry, benchmark, API/CSV/browser và full-size backup/reset đạt; template env đã đồng bộ. [Bàn giao và giới hạn số đo](../../../docs/development.md#handoff-chg090-d3). D4 mới kiểm cấu hình/tài nguyên hosting, chưa deploy.
 

@@ -1,6 +1,6 @@
 # CHG-087 — Demo đầy đủ chức năng trên Render và Vercel
 
-**03/11/2026 — tiếp tục D3 và gỡ Tổng 30 khỏi demo theo yêu cầu mới.** Bỏ hẳn giao diện/API Tổng 30, không thêm cờ bật/tắt hoặc phụ thuộc bundle/receipt ngoài. Luồng dự báo vận hành H14/tồn/nhập/cảnh báo giữ nguyên. R05/M05 và bằng chứng nghiên cứu lịch sử không tự nghiệm thu hoặc xóa. Các checkpoint chờ Tổng30/tạm dừng phía dưới là lịch sử. D3 đã kiểm chức năng, cổng vận hành/publish theo bàn giao; chưa deploy; D4–D6 chưa làm.
+**03/11/2026 — tiếp tục D3 và gỡ Tổng 30 khỏi demo theo yêu cầu mới.** Bỏ hẳn giao diện/API Tổng 30, không thêm cờ bật/tắt hoặc phụ thuộc bundle/receipt ngoài. Luồng dự báo vận hành H14/tồn/nhập/cảnh báo giữ nguyên. R05/M05 và bằng chứng nghiên cứu lịch sử không tự nghiệm thu hoặc xóa. Các checkpoint chờ Tổng30/tạm dừng phía dưới là lịch sử. D3 đã qua cổng code/publish tại3f5c430 (remoteSHA/haiCI success); full-size backup/reset và shutdown đạt; chưa deploy; D4–D6 chưa làm.
 
 D0–D2 đã kiểm xong phần phục vụ demo hiện hành. D3 đã kiểm local: worker xử lý interrupted, retry mới có liên kết, forecast/3inventory/CSV/browser/quota và full-size backup/reset đạt; không sửa run lỗi cũ thành complete. [Bàn giao D3](../development.md#handoff-chg090-d3).
 
