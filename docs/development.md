@@ -1,5 +1,30 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-chg088-d1"></a>
+## CHG-088 — Nền runtime demo D1, 03/11/2026
+
+Người dùng giaoD1 và sau đó bỏ yêu cầu thông báo demo dùng chung trênUI; FE không chỉnh. Settingslocal giữ hành vi cũ, mode demo chuẩn hóa URLPostgres/psycopg, chặnDBapp, yêu cầu DBsigma_demo/test và hai root riêng dướiM3_DEMO_ROOT tênsigma-demo; HTTPSorigin tường minh, không wildcard/path/credentials. Launcherforeground quản lý API/worker cùngrelease/disk, thoátlỗi khi childchết, cleanupmodelprocess; workerheartbeat idle/busy gắn instance/PID/create-time/code. `/live` và `/ready` bổ sung ngoài schemaOpenAPI, `/health` và nghiệp vụ cũ giữ hợp đồng.
+
+[Hướng dẫn runtime](../web/backend/configs/DEMO_RUNTIME.md) ghi các env, startup, manifest tối thiểuD2, semanticsprobes, template Render/Vercel và giới hạn. Chưa thay `ProcessPoolExecutor`, queue/quota/retention hoặc dữ liệu; không gọi manifestflag là đã kiểmẩn danh. Template nằm`.example`, auto-deployoff; schema validation không tạo tài nguyên. Không thêm banner, role/login hoặc read-onlymiddleware.
+
+### Kiểm local
+
+```powershell
+.venv-m3/Scripts/python.exe -B tmp/supplier_checks.py -m pytest web/backend/tests tests M2/models/tests -q --junitxml=outputs/chg088_d1/tests.xml
+.venv-m3/Scripts/python.exe -B tmp/supplier_checks.py -m pytest web/backend/tests/test_demo_runtime.py -q --junitxml=outputs/chg088_d1/targeted-final.xml
+.venv-m3/Scripts/python.exe -m pip check
+```
+
+500Python đạt,0skip/fail/error; số này gồm5testS25localCHG086 cònuntracked/khôngpublish. Sau đó17caD1 kiểm tăng cườngCORSpreflightHTTPS, POST202/idempotency200 thật trênDBtest đạt. CóparitygoldenAPI/schema cũ, lỗiDB/schema/sourcehash/heartbeatcũ, supervisor dọn modelchild khipeerchết, idleworkerboot/failure/restart. Fullsuite chạy trước khi thêm assertionsCORS/POST vào cùngtestD1; targetedfinal đã chạy lại và đạt, appcode không đổi giữa hai lượt. Một warningdeprecationStarlette/httpx từdependency hiện tại, không nâng gói trongD1.
+
+`npm run build` tạiweb/frontend vàpipcheck đạt; không sửaFEsource nên không chạy lạiReact/browser và không lấy browsercũ làm kiểmD1. Hai template validate theo schema công khai chính thứcRender/Vercel, receipt`hosting-schema-check.json`. MáyWindows không có distroWSL cài sẵn; Linux/SIGTERM/processgroups/realstacksmoke được kiểm bởi backendjobUbuntu/Postgres18 hiện có khi publish, không nhận đã chạyLinuxlocal.
+
+### Bảo toàn và cổng bàn giao
+
+Chỉ schema/data synthetic trênsigma_m3_test nhận thao tác test. Snapshot4DBbảo vệ và1.466tệp nguồn/bằng chứng được đối chiếu trước–sau, app vẫn0008/3run, không migrate/seed/khai lifecycle hoặc run nguồn thật. D1không restart stackapp, sửaCSV, nhân giá giả hoặc dùng nguồn thật; ba tệp nghiên cứuCHG086 vàCOMMIT_BLOCK_PLAN.md giữ nguyên/ngoài stage. Receipt riêng `outputs/chg088_d1/`, không ghi đè bằng chứng trước.
+
+Cổnglocal→commit/push thườngfinal-report→remoteSHA→haiCI phải đạt trước khi chốtbàn giao; SHA/jobLinux/kếtquảCI ghi sau thực hiện vào receipt và cuối chat. Trạng thái localđạt không được thay bằng tuyên bố đãdeploy. Dừng trướcD2; tiếp theo là bộCSV20cột đã ẩn danh/tiền0, seed/parents/tổng30 vàreset. D3quota/benchmark vàD4–D6cloud còn chờ; C00/R05/R07/T14 không đổi.
+
 <a id="handoff-chg087-money"></a>
 ## CHG-087 bổ sung — Quy tắc ẩn giá khi chuẩn bị demo
 

@@ -1,5 +1,12 @@
 # Kế hoạch dự án SIGMA
 
+<a id="chg-088-d1"></a>
+## CHG-088 — D1 nền chạy demo, 03/11/2026
+
+Người dùng giaoD1 và yêu cầu bỏ thông báo “demo dùng chung” trênUI. Đã thêm settingsmode demo có DB/root/origin riêng, launcherforeground API+worker và cleanup processcon, readinessschema/disk/source/worker, heartbeatidle/busy, Python3.12 và config hosting mẫu. Không thay FE/nghiệp vụ/queue/model hoặc mặc địnhC00; không thêm auth/chỉđọc/banner. [Runtime và phần chưa mở](../../web/backend/configs/DEMO_RUNTIME.md), [bàn giao](../development.md#handoff-chg088-d1).
+
+500Python BE/M2,17caD1 kiểm tăng cườngCORS/POST/idempotency/processlifecycle, build/pipcheck và schema chính thức của template đạt. Test trênDBtest/synthetic; không dùng run/DB thật, không seed/migration/cloud. Linux thực hiện bằng workflowCI trước chốt cổngpublish. Tiếp tục cổnglocal→commit/push thườngfinal-report→remoteSHA/haiCI, giữ3PythonnghiêncứuCHG086 ngoài stage và COMMIT_BLOCK_PLAN.md nguyên. Dừng trướcD2: dữ liệu ẩn danh/giá0, seed/reset chưa làm; quota/compute limit thuộcD3. R05/R07/T14 mở, không tự nghiệm thu từD1.
+
 <a id="chg-087"></a>
 ## CHG-087 — Kế hoạch demo đầy đủ dùng chung, 03/11/2026
 

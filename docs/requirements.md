@@ -1,11 +1,16 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+<a id="chg088-d1"></a>
+## CHG-088 — 03/11/2026, D1 và bỏ bannerUI
+
+Người dùng giao thực hiệnD1 và bổ sung bỏ thông báo demo dùng chung trên giao diện. Thay phần yêu cầu banner trongCHG087; vẫn giữ việc mọi khách thao tác chung, không đăng nhập nghiệp vụ. D1chỉ nềnsettings/runtime/probes/templates; không phải đã hoàn thiệnquota/seed/ẩn danh/triển khai. [Runtime](../web/backend/configs/DEMO_RUNTIME.md), [bàn giao/kiểm](development.md#handoff-chg088-d1); R05/M05/R07/T14 vàC00 không đổi.
+
 <a id="chg087-shared-demo"></a>
 ## CHG-087 — 03/11/2026, demo đầy đủ cho project thực tập
 
 Người dùng yêu cầu demo hoàn chỉnh và chọn **mọi khách thao tác trên demo dùng chung**, với dữ liệu đã ẩn danh. Không yêu cầu đăng nhập nghiệp vụ/tài khoản doanh nghiệp hoặc tách dữ liệu từng người. Giữ chức năng hiện có: nhập nguồn demo được đăng ký, tạo forecast và3loại run tồn, chỉnh kho/policy/scenario/lifecycle, xem metric/biểu đồ/CSV và tổng30. Thay đề xuất chỉ đọc và việc chỉ quản trị được chạy job củaCHG086; tương tác là phạm vi bản demo đầu.
 
-R09/T12/T14 bổ sung [kế hoạch demo dùng chung](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md): người xem được báo thay đổi dùng chung/có thể reset; DB/source/artifactdemo tách app và bằng chứng local. Backend áp validation/version/idempotency/queue/quota; reset/backup/migration/deploy là thao tác người vận hành, không API phá dữ liệu công khai. Không công khai raw riêng tư, secret hoặc nhận nguồn/đường dẫn tùy ý. Không cần mô hình phân quyền nhiều vai trò cho demo này.
+R09/T12/T14 bổ sung [kế hoạch demo dùng chung](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md): DB/source/artifactdemo tách app và bằng chứng local, có reset bởi người vận hành; theoCHG088 không thêm bannerUI. Backend áp validation/version/idempotency/queue/quota; reset/backup/migration/deploy là thao tác người vận hành, không API phá dữ liệu công khai. Không công khai raw riêng tư, secret hoặc nhận nguồn/đường dẫn tùy ý. Không cần mô hình phân quyền nhiều vai trò cho demo này.
 
 **Lượt hiện tại chỉ sửa Markdown**, theo yêu cầu “Trước tiên chỉnh các file MD cho kế hoạch deploy rồi mới triển khai sau”. Người dùng bổ sung giao publish bộMD sau kiểm; D1–D6 chưa thực hiện, chưa code/seed/run/DB/cloud/upload/trả phí. [Tiêu chí đầy đủ](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md#acceptance). Ưu tiên chất lượngCHG086/C00 và R05/M05/R07/T14 không đổi, không có mentor xác nhận mới.
 

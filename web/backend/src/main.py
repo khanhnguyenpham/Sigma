@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from core.db import database
 from core.http import install_error_handlers, router as health_router
 from core.settings import PROJECT_ROOT, Settings
+from core.hashes import code_digest
 from modules.catalog.router import router as catalog_router
 from modules.catalog.provider_router import router as provider_router
 from modules.configuration.router import router as configuration_router
@@ -28,6 +29,7 @@ def create_app(settings=None):
 
     app = FastAPI(title="SIGMA M3 local API", version="0.1.0", lifespan=lifespan)
     app.state.engine, app.state.sessions, app.state.settings = engine, sessions, settings
+    app.state.code_sha256 = code_digest()
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[settings.frontend_origin],

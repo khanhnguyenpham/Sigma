@@ -1,0 +1,47 @@
+{
+  "services": [
+    {
+      "type": "web",
+      "name": "sigma-demo",
+      "runtime": "python",
+      "region": "singapore",
+      "plan": "standard",
+      "numInstances": 1,
+      "autoDeployTrigger": "off",
+      "buildCommand": "python -m pip install -r web/backend/requirements.txt && python -m pip install --no-deps -e web/backend",
+      "startCommand": "python web/backend/scripts/demo_stack.py",
+      "healthCheckPath": "/api/v1/ready",
+      "disk": {
+        "name": "demo-data",
+        "mountPath": "/var/data/sigma-demo",
+        "sizeGB": 1
+      },
+      "envVars": [
+        {
+          "key": "M3_MODE",
+          "value": "demo"
+        },
+        {
+          "key": "M3_DEMO_ROOT",
+          "value": "/var/data/sigma-demo"
+        },
+        {
+          "key": "M3_DATABASE_URL",
+          "sync": false
+        },
+        {
+          "key": "M3_FRONTEND_ORIGIN",
+          "sync": false
+        },
+        {
+          "key": "M3_SOURCE_ROOT",
+          "value": "/var/data/sigma-demo/source"
+        },
+        {
+          "key": "M3_OUTPUT_ROOT",
+          "value": "/var/data/sigma-demo/outputs/m3"
+        }
+      ]
+    }
+  ]
+}

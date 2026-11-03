@@ -10,6 +10,7 @@ from modules.runs.models import Run
 from modules.forecasting.ingestion import import_snapshot
 from core.hashes import digest, code_digest
 from core.settings import Settings
+from core.demo import worker_heartbeat
 
 LOCK_ID = 734100719
 LOADED_CODE = code_digest()
@@ -200,12 +201,13 @@ def serve(settings, once=False):
                             status="failed", error_code="interrupted", finished_at=now()
                         )
                     )
-                while True:
-                    key = process_one(settings, sessions)
-                    if once:
-                        return key
-                    if key is None:
-                        time.sleep(1)
+                with worker_heartbeat(settings, LOADED_CODE):
+                    while True:
+                        key = process_one(settings, sessions)
+                        if once:
+                            return key
+                        if key is None:
+                            time.sleep(1)
             finally:
                 lock.execute(text("SELECT pg_advisory_unlock(:key)"), {"key": LOCK_ID})
     finally:

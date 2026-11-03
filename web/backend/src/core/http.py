@@ -10,6 +10,20 @@ from core.errors import DomainError
 router = APIRouter(prefix="/api/v1")
 
 
+@router.get("/live", include_in_schema=False)
+def live():
+    return {"status": "ok"}
+
+
+@router.get("/ready", include_in_schema=False)
+def ready(http: Request):
+    from core.demo import readiness
+    checks = readiness(http.app.state.settings, http.app.state.engine, http.app.state.code_sha256)
+    healthy = all(checks.values())
+    return JSONResponse(status_code=200 if healthy else 503,
+        content=dict(status="ready" if healthy else "not_ready", checks=checks))
+
+
 def record(row):
     return {c.name: getattr(row, c.name) for c in row.__table__.columns}
 
