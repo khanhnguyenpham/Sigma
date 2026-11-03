@@ -25,6 +25,8 @@ CI Linux lầnđầu phát hiện raceởcleanup: gửiSIGKILL vàwaitdirectchil
 
 ### Bảo toàn và cổng bàn giao
 
+**Cổngcode đã đạt:** `7f25df7ffa50996e73ceecb414a97f309b3fe694` pushthườngfinal-report, remoteSHA khớp; [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/41579562605) và [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/41579562580) đều completed/success. Bốnjobtest/backend/frontend/m2-regression success; backendUbuntu/Postgres18 đã chạy thật các17caD1, gồmSIGTERM và modelchildcleanup. CácSHAtrước có lỗiLinux không dùng làm bằng chứngcổngđạt. Bổ sungMDghi cổng saucode, không sửa nguồn runtime đã kiểm.
+
 Chỉ schema/data synthetic trênsigma_m3_test nhận thao tác test. Snapshot4DBbảo vệ và1.466tệp nguồn/bằng chứng được đối chiếu trước–sau, app vẫn0008/3run, không migrate/seed/khai lifecycle hoặc run nguồn thật. D1không restart stackapp, sửaCSV, nhân giá giả hoặc dùng nguồn thật; ba tệp nghiên cứuCHG086 vàCOMMIT_BLOCK_PLAN.md giữ nguyên/ngoài stage. Receipt riêng `outputs/chg088_d1/`, không ghi đè bằng chứng trước.
 
 Cổnglocal→commit/push thườngfinal-report→remoteSHA→haiCI phải đạt trước khi chốtbàn giao; SHA/jobLinux/kếtquảCI ghi sau thực hiện vào receipt và cuối chat. Trạng thái localđạt không được thay bằng tuyên bố đãdeploy. Dừng trướcD2; tiếp theo là bộCSV20cột đã ẩn danh/tiền0, seed/parents/tổng30 vàreset. D3quota/benchmark vàD4–D6cloud còn chờ; C00/R05/R07/T14 không đổi.

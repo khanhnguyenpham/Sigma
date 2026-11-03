@@ -1,6 +1,6 @@
 # CHG-087 — Demo đầy đủ chức năng trên Render và Vercel
 
-**03/11/2026 — Kế hoạchCHG087, triển khai D1 theo CHG088.** Người dùng giao làmD1 và bỏ yêu cầu thông báo “demo dùng chung” trên giao diện. D1 đang kiểm nền settings/launcher/probes và cấu hình mẫu; D2–D6 chưa làm. Chốt nghiệp vụ vẫn là project thực tập đầy đủ chức năng, **mọi khách thao tác trên demo dùng chung**, dữ liệu đã ẩn danh. Không có giai đoạn chỉ đọc bắt buộc. [Yêu cầu](../requirements.md#chg087-shared-demo), [bàn giao kế hoạch](../development.md#handoff-chg087), [nền chạyD1](../../web/backend/configs/DEMO_RUNTIME.md), [kiểm S25 đã có](../../M3/docs/S25_CURRENT_REVIEW.md).
+**03/11/2026 — D1 hoàn tất theo CHG088.** Người dùng giao làmD1 và bỏ yêu cầu thông báo “demo dùng chung” trên giao diện. Nền settings/launcher/probes và cấu hình mẫu đã kiểm Windows/Linux; code`7f25df7` đã push, haiworkflowCI success. D2–D6 chưa làm. Chốt nghiệp vụ vẫn là project thực tập đầy đủ chức năng, **mọi khách thao tác trên demo dùng chung**, dữ liệu đã ẩn danh. Không có giai đoạn chỉ đọc bắt buộc. [Yêu cầu](../requirements.md#chg087-shared-demo), [bàn giaoD1](../development.md#handoff-chg088-d1), [runtime](../../web/backend/configs/DEMO_RUNTIME.md), [kiểm S25 đã có](../../M3/docs/S25_CURRENT_REVIEW.md).
 
 <a id="scope"></a>
 ## 1. Phạm vi đã chốt
@@ -41,7 +41,7 @@ flowchart LR
     O -->|gói demo đã ẩn danh| D
 ~~~
 
-Chọn **một Render web service trả phí có persistent disk**, chạy API và worker như hai process cùng release. [LauncherD1](../../web/backend/scripts/demo_stack.py) đã được thêm và đang kiểm: quản lý cả hai, truyền tín hiệu dừng, dọn processcon và báo lỗi khi một process chết. API một process Uvicorn; giữ queue PostgreSQL/advisory lock và một worker hiện có. Không fit model trong HTTP request hoặc tạo worker cho mỗi request.
+Chọn **một Render web service trả phí có persistent disk**, chạy API và worker như hai process cùng release. [LauncherD1](../../web/backend/scripts/demo_stack.py) đã kiểm trên Windows/Linux: quản lý cả hai, truyền tín hiệu dừng, chờ processgroup ngừng và báo lỗi khi một process chết. API một process Uvicorn; giữ queue PostgreSQL/advisory lock và một worker hiện có. Không fit model trong HTTP request hoặc tạo worker cho mỗi request.
 
 Đây là lựa chọn kỹ thuật của project: disk Render chỉ gắn với một instance, không chia sẻ sang service khác; gắn disk có giới hạn scale và gián đoạn khi deploy. Chấp nhận các giới hạn đó cho demo thực tập. Không tách API/worker rồi giả định hai service mount chung disk. [Render disks](https://render.com/docs/disks).
 
@@ -137,7 +137,7 @@ Không giữ hai môi trường trả phí song song lâu dài chỉ để demo:
 | D5 — online/công khai | Chuỗi run mới thật, chỉnh policy/lifecycle, frozen/CSV, hai browser, directAPI/proxy/restart/restore | Đủ chức năng, không lộ dữ liệu, quota/worker/backup đúng; URL/SHA/hashes/hướng dẫn cùng release |
 | D6 — bàn giao vận hành | Reset/backup/restore/rollback, chẩn đoán queue/worker, hạn mức/chủ tài khoản | Người vận hành dựng lại được demo; không tự đóng R05/R07/T14 |
 
-**Hiện tại:** D0 có bằng chứngCHG086. Người dùng đã giao D1, đang kiểm code settings/launcher/probes và template; D2–D6 chưa triển khai. Điểm dừng chỉMarkdownCHG087 là lịch sử, không cấmD1 mới được giao. Không migrate/seedDBapp, chạy nguồn thật, upload dữ liệu, trả phí hoặc deploy ởD1. Code nghiên cứuCHG086 vẫnlocal/ngoài stage; yêu cầu bỏ banner được áp dụng cho phạm vi hiện tại. [NềnD1 và phần còn chờD2/D3](../../web/backend/configs/DEMO_RUNTIME.md).
+**Hiện tại:** D0 vàD1 hoàn tất. CodeD1`7f25df7`/remoteSHA khớp/haiCI success, gồm Linuxprocesslifecycle; [bàn giao](../development.md#handoff-chg088-d1). Tiếp theoD2 chuẩn bị nguồn20cột/giá0, seed/parents/tổng30 vàreset; D2–D6 chưa triển khai. Không migrate/seedDBapp, chạy nguồn thật, upload dữ liệu, trả phí hoặc deploy ởD1. Code nghiên cứuCHG086 vẫnlocal/ngoài stage; không thêm banner. [Phần còn chờD2/D3](../../web/backend/configs/DEMO_RUNTIME.md).
 
 <a id="acceptance"></a>
 ## 8. Tiêu chí demo hoàn chỉnh
