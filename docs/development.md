@@ -21,6 +21,8 @@ Người dùng giaoD1 và sau đó bỏ yêu cầu thông báo demo dùng chung 
 
 Kiểm cuối bổ sung loại trạng thái workerzombie dù PID/create-time còn tồn tại và heartbeat còn mới;17caD1 được chạy lại trên guardnày, không gọi fullsuite500 là vừa chạy lại sau bổ sung. CI saucommit kiểm đầy đủ nguồn publish, bao gồm Linuxprocesslifecycle. Giữ run bịgiánđoạn và retry theo cơ chế worker cũ, không giảresume.
 
+CI Linux lầnđầu phát hiện raceởcleanup: gửiSIGKILL vàwaitdirectchild chưa bảo đảm modelchild đã ngừng. Đã sửa launcher chờ các thành viên processgroup khôngcòn sống (zombie/dead không tính là đang chạy), giữ timeout và luôn thử dừng các rootkhác nếu một rootlỗi. Giữ nguyên assertion ca processcon; không nới kiểm để nhậnCIđạt. Loglỗi gốc và các receiptCI từngSHA lưu riêng trongoutputsD1; chỉ chốt trên haiworkflow success củaSHAcuối.
+
 ### Bảo toàn và cổng bàn giao
 
 Chỉ schema/data synthetic trênsigma_m3_test nhận thao tác test. Snapshot4DBbảo vệ và1.466tệp nguồn/bằng chứng được đối chiếu trước–sau, app vẫn0008/3run, không migrate/seed/khai lifecycle hoặc run nguồn thật. D1không restart stackapp, sửaCSV, nhân giá giả hoặc dùng nguồn thật; ba tệp nghiên cứuCHG086 vàCOMMIT_BLOCK_PLAN.md giữ nguyên/ngoài stage. Receipt riêng `outputs/chg088_d1/`, không ghi đè bằng chứng trước.

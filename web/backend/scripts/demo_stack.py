@@ -4,11 +4,23 @@ import signal
 import subprocess
 import sys
 import threading
+import time
 import uuid
 
 import psutil
 from core.demo import storage_ready
 from core.settings import PROJECT_ROOT, Settings
+
+
+def group_alive(group):
+    for process in psutil.process_iter(["pid", "status"]):
+        try:
+            if (process.info["status"] not in {psutil.STATUS_ZOMBIE, psutil.STATUS_DEAD}
+                    and os.getpgid(process.pid) == group):
+                return True
+        except (OSError, psutil.Error):
+            continue
+    return False
 
 
 def stop(process):
@@ -27,6 +39,13 @@ def stop(process):
         except ProcessLookupError:
             pass
         process.wait(timeout=5)
+        # SIGKILL delivery is asynchronous. Reaping only the direct child is
+        # insufficient when its model children have already been reparented.
+        deadline = time.monotonic() + 5
+        while group_alive(process.pid):
+            if time.monotonic() >= deadline:
+                raise RuntimeError("Demo process group did not stop")
+            time.sleep(.02)
     else:
         try:
             parent = psutil.Process(process.pid)
@@ -66,10 +85,16 @@ def supervise(commands, env, stopping=None):
                 return 1
         return 0
     finally:
+        failure = None
         for child in reversed(children):
-            stop(child)
+            try:
+                stop(child)
+            except Exception as error:
+                failure = error
         for signum, handler in previous.items():
             signal.signal(signum, handler)
+        if failure:
+            raise RuntimeError("Could not stop the complete demo stack") from failure
 
 
 def main():
