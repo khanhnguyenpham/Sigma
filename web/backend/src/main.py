@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from core.db import database
 from core.http import install_error_handlers, router as health_router
 from core.settings import PROJECT_ROOT, Settings
@@ -30,6 +31,15 @@ def create_app(settings=None):
     app = FastAPI(title="SIGMA M3 local API", version="0.1.0", lifespan=lifespan)
     app.state.engine, app.state.sessions, app.state.settings = engine, sessions, settings
     app.state.code_sha256 = code_digest()
+    @app.middleware("http")
+    async def demo_maintenance(request, call_next):
+        if (settings.mode == "demo" and settings.demo_root and (settings.demo_root / ".maintenance").exists()
+                and request.url.path.startswith("/api/v1/")
+                and request.url.path not in {"/api/v1/live", "/api/v1/ready", "/api/v1/health"}
+                and request.method != "OPTIONS"):
+            return JSONResponse(status_code=503, headers={"Retry-After": "30"}, content={
+                "error": {"code": "demo_maintenance", "message": "Demo đang được khôi phục. Vui lòng thử lại sau."}})
+        return await call_next(request)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[settings.frontend_origin],

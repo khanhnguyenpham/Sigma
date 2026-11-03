@@ -33,6 +33,22 @@ jobs:
               c.execute('CREATE DATABASE sigma_m3_test OWNER sigma_m3_app')
           PY
       - run: python -m pip check
+      - name: Use PostgreSQL tools from the matching service container
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP']) / 'sigma-pg-tools'
+          root.mkdir(exist_ok=True)
+          for tool in ('pg_dump', 'pg_restore'):
+              path = root / tool
+              path.write_text('#!/bin/sh\nexec docker exec -i -e PGHOST -e PGPORT -e PGDATABASE -e PGUSER -e PGPASSWORD -e PGSSLMODE ' + os.environ['POSTGRES_CONTAINER'] + ' ' + tool + ' "$@"\n')
+              path.chmod(0o755)
+          with open(os.environ['GITHUB_ENV'], 'a') as output:
+              output.write('M3_PG_BIN=' + str(root) + '\n')
+          PY
       - name: Check flat backend entry points
         run: |
           python -m cli --help

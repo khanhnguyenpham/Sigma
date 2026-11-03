@@ -1,5 +1,12 @@
 # Kế hoạch dự án SIGMA
 
+<a id="chg-089-d2"></a>
+## CHG-089 — Dữ liệu và khôi phục demo D2
+
+Người dùng giao tiếp D2. Đã xuất nguồn ẩn danh/tiền0, dựng DB/seed/cha/run demo mới từ đầu và kiểm native backup/reset cả DB lẫn artifact; không sao chép kết quả nguồn gốc vào run demo. [Bàn giao và bằng chứng](../development.md#handoff-chg089-d2), [lệnh vận hành](../../web/backend/configs/DEMO_RUNTIME.md#công-cụ-dữ-liệu-d2).
+
+Tổng30 do người khác phụ trách và chưa có bundle/receipt trên máy. Đây không là cha của H14/inventory; giữ chờ bàn giao, không tự bỏ hạng mục hoặc nhận R05 đạt. D2 phần chính đã kiểm local, phần tổng30 còn mở. 504Python (gồm5caS25local ngoàiGit),21caD2/runtime/pipcheck chạy lại đạt; app0008/3run,4DB/1.466tệp bảo vệ nguyên. Publish theo cổng commit/push thườngfinal-report/remoteSHA/haiCI; receiptSHA/CI lưu riêng ngoàiGit. D3–D6 chưa làm, chưa cloud/upload/trả phí; C00/R05/R07/T14 giữ nguyên.
+
 <a id="chg-088-d1"></a>
 ## CHG-088 — D1 nền chạy demo, 03/11/2026
 

@@ -134,13 +134,12 @@ def forecast_run(settings, sessions, key):
         )
     cfg, model_settings, final = m2_adapter.configuration()
     sales, audit = audit_orders(settings.order_source("orders_snapshot"), cfg)
-    if (
-        audit["source_sha256_before"] != source_hash
-        or source_hash != final["source_sha256"]
-    ):
+    if audit["source_sha256_before"] != source_hash:
         raise DomainError(
             "parent_mismatch", "Source must match the registered fixed M2 protocol"
         )
+    from modules.forecasting.demo_source import require_registered_source
+    require_registered_source(settings, sales, source_hash, final["source_sha256"])
     daily = daily_sales(sales, cfg)
     full_daily = daily.copy()
     top = route_top(daily, cfg)

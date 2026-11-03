@@ -61,6 +61,10 @@ def import_snapshot(settings, sessions, run_id):
         )
     )
     sales, audit = audit_orders(source, cfg)
+    demo_source = None
+    if settings.mode == "demo":
+        from modules.forecasting.demo_source import require_registered_source
+        demo_source = require_registered_source(settings, sales, source_hash)
     observed = daily_sales(sales, cfg)
     top = route_top(observed, cfg)
     train = sales.loc[sales.date <= pd.Timestamp(cfg["train_end"])]
@@ -201,6 +205,8 @@ def import_snapshot(settings, sessions, run_id):
             source_kind="retrospective_order_snapshot",
             inventory_created=False,
         )
+        if demo_source:
+            summary.update(source_kind="derived_anonymized_demo", demo_source=demo_source)
         run = session.get(Run, run_id)
         run.source_sha256 = audit["source_sha256_before"]
         run.result_summary = summary

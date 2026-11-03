@@ -1,5 +1,31 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-chg089-d2"></a>
+## CHG-089 — Nguồn và khôi phục demo D2, 03/11/2026
+
+**Đã tiếp tục theo yêu cầu người dùng và kiểm xong phần D2 độc lập với tổng30.** Forecast replay/stock_projection giữ nguyên bản đã complete; worker đã chuyển policy_replay bị dừng `4ad1b429-64d4-4159-afdd-751b88c71eda` sang failed/interrupted. Retry `4299c97a-b7fb-4338-b587-fa63581d8054` có retry_of_run_id đúng và alert_replay `c145ea03-0af9-4895-963f-2f242ae279c6` đều complete/verified; không sửa run lỗi thành thành công. Hai tệp forecasting ingestion.py/service.py đã chuẩn hóa CRLF→LF khi demo không còn worker/job đang chạy. Codehash cha giữ `77a18018…`; các run mới dùng `f80a50c5…`, receipt line-ending-codehash.json lưu cả hai. API/CSV, native backup/reset toàn gói và readiness sau restore đã đạt; tổng30 vẫn chờ bàn giao, chưa deploy.
+
+Người dùng giao tiếpD2. Nguồn tổng30 do người khác làm, không nằm trên máy này; đã kiểm workspace/worktree/backup nhưng không có bundle`sigma_aggregate_focus_20261018` và receipt gốc. Tổng30 không là cha của H14/inventory nên tiếp tục các phần độc lập; giữ phần này chờ bàn giao, chưa nhận D2/tổng30 hoàn tất toàn bộ hoặc R05 đạt. Không tự dựng lại nghiên cứu, gắn gói nguồn khác, sửa sealed hash hoặc dùng số trongMD làm bằng chứng mới.
+
+### Công cụ đã thêm
+
+- Export riêng20cột: audit nguồn đăng ký trước khi biến đổi để không che conflictingduplicate; thay order/customerID/activation/giờ trong ngày/trường không cần thiết, tiền0. Giữ quantity/status/ngày UTC/tuyến/SKU/thứ tự và dedup; chữ ký dailyquantity/số đơn và transaction được đối chiếu trước–sau. Không tạo bảng ánh xạ ID kèm gói demo.
+- Import/forecast chỉ chấp nhận nguồn demo có SHA cha đăng ký và chữ ký tương thích; local/M2 giữ guard nguồn gốc. Model/top10/train-validation-test/selection/formula không đổi. Provenance mới là`derived_anonymized_demo`; không sửa run hoặc artifact gốc.
+- OperatorCLI có init/seed/run/backup/reset, chỉ DBdemo/canonicalroot; credentialoperator riêng với app. Nativepg_dump/pg_restore khớp server, customdump và transactionrestore; checksum mọi bảng/tệp, schema/source. Snapshot không chứa heartbeat/private diagnosticlog. Không có HTTPreset hoặc resetlúcboot.
+- Maintenance chặn request nghiệp vụ mới/ready503; operator từ chối workerđangchạy. Phải dừng cả API/worker và chờ request trước khi backup/reset. Restorelỗi giữ marker, `--recover` chỉ dùng cùng snapshot, kiểm xong mới dọn temp/mở lại; không tự kill hoặc giảresume.
+
+[Hướng dẫn và lệnh](../web/backend/configs/DEMO_RUNTIME.md#công-cụ-dữ-liệu-d2). CI sử dụng pg_dump/pg_restore của servicePostgres18 hiện có qua Dockerexec, không thêm packageclient lệch version. Templatehosting và FE không thay; không thêm banner.
+
+### Kết quả kiểm local
+
+504Python BE/M2,0fail/error/skip; gồm5caS25local không publish, nên không dùng504 làm sốtestCI. Lần tiếp tục đã chạy lại toàn bộ504ca cùng21caD2/runtime riêng; native restore/thay đổiDB+artifact/tamper, activeworker và restoregiánđoạn/recovery đều đạt. Receipt resume-all-tests.xml vàresume-targeted.xml lưu kết quả mới. Pipcheck đạt. WarningStarlette/httpx nhưbaseline. Không đổiFE nên không chạy lạiReact/browser choD2; kiểm hai khách/quota/benchmark/browser thuộcD3.
+
+Nguồn demo100.000hàng/20cột,93.104sales/118.296quantity,3cột tiền0 toàn bộ; nguồnsha`1697a2645acce851659051f4e3c9af1d378e79499b7cc4de410340902f33dc05`, chasha`6aa5aa599938db8409b57327166eaae042014e218a4a97d4d44a202b7db15d0b`. Import672.520dailyrows/46kho/920item; seed920policy/5scenario theo giả địnhseed hiện có, không tuning45%. Approle riêng khôngsuperuser/createdb/createrole hoặcCREATEschema, cóCRUD nghiệp vụ. Các run demo dùngUUID/code/config/sourceprovenance mới; không dùng dự báo nguồn gốc gắn sang demo.
+
+Chuỗi nguồn → forecast replay → stock_projection/policy_replay/alert_replay đã hoàn tất và verifier độc lập đạt. Forecast đủ185origins/17.020route rows/2.382.800item rows; API/CSV có scope/warehouse/date, workspace920item, importlặp quaPOST202/idempotency200 giữ672.520dailyrows và canonicalsource. Đã backup18bảng/154artifact, sửa kho và thêm tệp tạm chỉ trênDBdemo rồi restore: toàn bộ hashDB/artifact/API/CSV và verifier sau reset khớp; thay đổi tạm bị loại. Gói upload local theo whitelist có158tệp, 41,810,196byte; chỉ source/manifest vàsnapshotbaseline, không gồm env/log/tệp gốc. Chưa upload. Receipt `final-receipt.json`, `release-manifest.json`, `api-review.json`, `privacy-review.json` trongoutputsD2. BốnDBbảo vệ và1.466tệp đã đối chiếu nguyên hash; app0008/3run. Bằng chứngD2 nằm`outputs/chg089_d2/` riêng, gồm nguồn/DBdemo, envoperatorprivate/logs/manifest/receipts; không đưa dữ liệu, dump, env, archive hoặcoutputs lênGit. BaPythonS25 vàCOMMIT_BLOCK_PLAN.md giữ ngoài stage.
+
+Cổng local→commit/push thườngfinal-report→remoteSHA/haiCI vẫn áp dụng; SHA/CI ghi trong receipt publish-receipt.json sau cổngpublish; tổng30 vẫn chờ bàn giao nên không tuyên bố D2 đầy đủ hoàn tất. D3quota/compute/retention vàD4–D6cloud chưa làm; không upload/trả phí/deploy, không thayC00 hoặc đóngR05/R07/T14.
+
 <a id="handoff-chg088-d1"></a>
 ## CHG-088 — Nền runtime demo D1, 03/11/2026
 

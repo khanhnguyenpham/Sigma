@@ -1,6 +1,6 @@
 # CHG-087 — Demo đầy đủ chức năng trên Render và Vercel
 
-**03/11/2026 — D1 hoàn tất theo CHG088.** Người dùng giao làmD1 và bỏ yêu cầu thông báo “demo dùng chung” trên giao diện. Nền settings/launcher/probes và cấu hình mẫu đã kiểm Windows/Linux; code`7f25df7` đã push, haiworkflowCI success. D2–D6 chưa làm. Chốt nghiệp vụ vẫn là project thực tập đầy đủ chức năng, **mọi khách thao tác trên demo dùng chung**, dữ liệu đã ẩn danh. Không có giai đoạn chỉ đọc bắt buộc. [Yêu cầu](../requirements.md#chg087-shared-demo), [bàn giaoD1](../development.md#handoff-chg088-d1), [runtime](../../web/backend/configs/DEMO_RUNTIME.md), [kiểm S25 đã có](../../M3/docs/S25_CURRENT_REVIEW.md).
+**03/11/2026 — D2 phần chính đã kiểm local theo CHG089; D1 đã hoàn tất.** Đã có nguồn20cột ẩn danh/tiền0 và DBdemo riêng; chuỗi run/API/CSV/backup/reset đã kiểm đạt. Tổng30 chờ bundle/receipt do người khác phụ trách, không có trên máy này; không cản H14/tồn/nhập/cảnh báo nhưng chưa được nhận phần tổng30 hoàn tất hoặc R05 đạt. D3–D6 chưa làm. Chốt nghiệp vụ vẫn là project thực tập đầy đủ chức năng, **mọi khách thao tác trên demo dùng chung**, dữ liệu đã ẩn danh. Không có giai đoạn chỉ đọc bắt buộc hoặc bannerUI. [Yêu cầu](../requirements.md#chg087-shared-demo), [bàn giaoD1](../development.md#handoff-chg088-d1), [runtime](../../web/backend/configs/DEMO_RUNTIME.md), [kiểm S25 đã có](../../M3/docs/S25_CURRENT_REVIEW.md).
 
 <a id="scope"></a>
 ## 1. Phạm vi đã chốt
@@ -59,7 +59,7 @@ Không chỉ chuẩn bị DB kết quả tính sẵn. Gói demo phải đủ đ�
 6. Kiểm cả nguồn seed và chuỗi source mới → forecast mới → inventory mới; kể cả import lại nguồn cùng nội dung và quan hệ nguồn của view tổng30. Chạy verifier, đối chiếu DB/API/CSV. Không gắn kết quả tính sẵn của nguồn khác vào run mới.
 7. Kiểm DB/JSON/snapshot/CSV/error/log/bundle để không lộ ID gốc, secret, đường dẫn cá nhân hoặc raw download. Giữ snapshot/hash bằng chứng local nguyên; bản demo có nhãn dẫn xuất, không nhận số/hash bằng bản gốc nếu đầu vào đổi.
 
-Gói dự kiến upload có danh sách tệp/trường, size/hash và kiểm ẩn danh cụ thể. Tạo gói/seed/chạy run là phần triển khai sau, chưa làm ở lượt chỉ Markdown.
+Gói dự kiến upload có danh sách tệp/trường, size/hash và kiểm ẩn danh cụ thể. CHG089/D2 thực hiện riêng nguồn/seed/run/reset trên local; chưa upload hoặc tạo tài nguyên cloud. Phần tổng30 cần bundle`sigma_aggregate_focus_20261018` và receipt gốc được bàn giao, đối chiếu dữ liệu rồi tạo package gắn nguồn demo. Không tự dựng lại nghiên cứu hoặc dùng số liệu trongMarkdown thay bundle đã kiểm.
 
 <a id="demo-money-fields"></a>
 ### Giá và doanh thu trong bản nguồn demo
@@ -76,7 +76,7 @@ Importer hiện yêu cầu đủ20cột và kiểm gross_revenue_vnd=quantity×u
 
 D2 thực hiện biến đổi trên bản sao mới, giữ CSV gốc và bằng chứng sealed nguyên. Auditor phải xác nhận nguồn hợp lệ trước biến đổi để không vô tình che xung đột duplicate bằng cách xóa khác biệt về tiền. Sau biến đổi kiểm đủ schema, tiền bằng0/toàn bộ hàng, không money-invalid/revenue-mismatch; đối chiếu quantity theo ngày UTC×item/tuyến, trạng thái, thứ tự và dedup như trước. Mô hình hiện dự báo quantity, các cột tiền được audit/tổng hợp nhưng không là feature/target dự báo hoặc tham số tồn; việc kiểm giữ nguyên dữ liệu quantity là bắt buộc.
 
-Gói seed/artifact/export demo cũng phải được dựng từ nguồn đã xử lý, không mang theo bảng doanh thu/giá gốc từ kết quả cũ. Giá trị0 có nhãn placeholder demo, không diễn giải thành giá hoặc doanh thu thực bằng0. Nguồn dẫn xuất có SHA/provenance mới; không sửa hash hoặc giá trị trong run gốc. Đây là quy tắc chuẩn bịD2, **chưa tạo hoặc chỉnh CSV/DB ở lượt bổ sung kế hoạch này**.
+Gói seed/artifact/export demo cũng phải được dựng từ nguồn đã xử lý, không mang theo bảng doanh thu/giá gốc từ kết quả cũ. Giá trị0 có nhãn placeholder demo, không diễn giải thành giá hoặc doanh thu thực bằng0. Nguồn dẫn xuất có SHA/provenance mới; không sửa hash hoặc giá trị trong run gốc. Quy tắc này đã được triển khai bởi công cụ exportD2; nguồn gốc giữ nguyên.
 
 ## 4. Công việc code dự kiến
 
@@ -137,7 +137,7 @@ Không giữ hai môi trường trả phí song song lâu dài chỉ để demo:
 | D5 — online/công khai | Chuỗi run mới thật, chỉnh policy/lifecycle, frozen/CSV, hai browser, directAPI/proxy/restart/restore | Đủ chức năng, không lộ dữ liệu, quota/worker/backup đúng; URL/SHA/hashes/hướng dẫn cùng release |
 | D6 — bàn giao vận hành | Reset/backup/restore/rollback, chẩn đoán queue/worker, hạn mức/chủ tài khoản | Người vận hành dựng lại được demo; không tự đóng R05/R07/T14 |
 
-**Hiện tại:** D0 vàD1 hoàn tất. CodeD1`7f25df7`/remoteSHA khớp/haiCI success, gồm Linuxprocesslifecycle; [bàn giao](../development.md#handoff-chg088-d1). Tiếp theoD2 chuẩn bị nguồn20cột/giá0, seed/parents/tổng30 vàreset; D2–D6 chưa triển khai. Không migrate/seedDBapp, chạy nguồn thật, upload dữ liệu, trả phí hoặc deploy ởD1. Code nghiên cứuCHG086 vẫnlocal/ngoài stage; không thêm banner. [Phần còn chờD2/D3](../../web/backend/configs/DEMO_RUNTIME.md).
+**Hiện tại:** D0 vàD1 hoàn tất; D2 đã kiểm nguồn20cột/giá0, seed/parents/ba loại inventory, API/CSV vàreset. [Bàn giaoD2](../development.md#handoff-chg089-d2). Tổng30 là hạng mục chờ bàn giao bên ngoài, giữ mở trongD2/D3; chưa nhận demo đầy đủ phần này. Không migrate/seedDBapp, upload, trả phí hoặc deploy trongD2. Code nghiên cứuCHG086 vẫnlocal/ngoài stage; không thêm banner. [Công cụ và giới hạn](../../web/backend/configs/DEMO_RUNTIME.md).
 
 <a id="acceptance"></a>
 ## 8. Tiêu chí demo hoàn chỉnh

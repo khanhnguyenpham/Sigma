@@ -1,5 +1,12 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+<a id="chg089"></a>
+## CHG-089 — 03/11/2026, nguồn và reset demo D2
+
+Người dùng giao tiếpD2, xác nhận phần tổng30 do người khác làm nên không lưu trên máy, rồi hỏi có cần cho demo không. Đã giải thích tổng30 phục vụ trình bày R05/M05, không là phụ thuộc chạy H14/tồn/nhập/cảnh báo. Tiếp tục phần D2 độc lập, giữ tổng30 chờ bundle/receipt; đây không là xác nhận bỏ yêu cầu tổng30 hoặc nghiệm thu chất lượng.
+
+Đã tạo nguồn dẫn xuất20cột/tiền0 trên thư mục mới, giữ raw/hash và các DB bằng chứng; demo có UUID/provenance mới. Công cụ operator dùng native Postgres và snapshot DB+artifact, failclosed/recover rõ ràng, không mở HTTPreset. Kiểm run/API/CSV/reset và bảo toàn tại [bàn giao](development.md#handoff-chg089-d2). Không có deploy/cloud/upload hoặc thay model/C00; R05/R07/T14 mở. Publishcode/tests/docs thườngfinal-report theo quyền đẩy công việc đã có;3PythonS25/COMMIT_BLOCK_PLAN.md và dữ liệu/env/dump/outputs ngoàiGit, đối chiếu remoteSHA/haiCI sau thực hiện.
+
 <a id="chg087"></a>
 ## CHG-087 — 03/11/2026, đổi sang demo đầy đủ và chỉ sửa kế hoạch
 

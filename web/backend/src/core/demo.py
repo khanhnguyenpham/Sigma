@@ -45,6 +45,8 @@ def source_ready(settings):
 
 def storage_ready(settings):
     try:
+        if settings.demo_root and (settings.demo_root / ".maintenance").exists():
+            return False
         # Probe only the configured artifact root; never write into the source.
         with tempfile.TemporaryFile(dir=settings.output_root) as stream:
             stream.write(b"probe")
