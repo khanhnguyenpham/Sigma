@@ -1,7 +1,5 @@
 """Synthetic total-30 boundary, provenance and HTTP/CSV checks; no source data."""
 
-import csv
-import io
 import json
 from datetime import date
 from types import SimpleNamespace
@@ -13,7 +11,6 @@ from core.errors import DomainError
 from main import create_app
 from modules.reporting import monthly
 from core.hashes import digest
-from test_results_api import result_fixture
 from test_postgres_api import settings
 
 
@@ -174,41 +171,16 @@ def test_package_rejects_changed_bytes_or_context(tmp_path, monkeypatch, tamper)
         monthly.load_package(cfg, source)
 
 
-def test_monthly_http_context_filters_export_and_unknown_actual(pg, tmp_path):
-    _, sessions = pg
-    cfg = settings(tmp_path)
-    source_id, forecast_id, _ = result_fixture(sessions)
-    from core.run_context import required_run
-
-    with sessions() as session:
-        source = required_run(session, source_id)
-        write_package(cfg, source)
+@pytest.mark.parametrize("mode", ["local", "demo"])
+def test_monthly_removed_from_application(pg, tmp_path, mode):
+    from dataclasses import replace
+    cfg = replace(settings(tmp_path), mode=mode)
     with TestClient(create_app(cfg)) as client:
-        base = f"/api/v1/runs/{forecast_id}"
-        summary = client.get(base + "/monthly-summary")
-        assert summary.status_code == 200, summary.text
-        assert not summary.json()["summary"]["meets_r05"]  # 1 route cannot claim 10/10.
-        assert summary.json()["context"]["run_id"] == str(forecast_id)
-        assert summary.json()["context"]["decision"] == "M05"
-        response = client.get(base + "/monthly-forecasts?as_of_date=2025-12-31")
-        assert response.status_code == 200
-        assert response.json()["items"][0]["actual_qty"] is None
-        assert client.get(base + "/monthly-summary?warehouse_id=1").status_code == 422
-        assert client.get(base + "/monthly-metrics?item_id=1").status_code == 422
-        assert client.get(base + "/monthly-forecasts?page_size=101").status_code == 422
-        assert (
-            client.get(base + "/monthly-forecasts?warehouse_id=999").json()["total"]
-            == 0
-        )
-        result = client.get(base + "/exports/monthly_forecasts?as_of_date=2025-12-31")
-        assert result.status_code == 200, result.text
-        rows = list(csv.DictReader(io.StringIO(result.content.decode("utf-8-sig"))))
-        assert len(rows) == 1 and rows[0]["actual_qty"] == ""
-        assert rows[0]["model"] == "'=formula" and rows[0]["window_days"] == "30"
-        assert (
-            rows[0]["run_id"] == str(forecast_id)
-            and rows[0]["acceptance_version"] == "r05-sales-30d-v1"
-        )
+        assert not any("monthly" in path for path in client.get("/openapi.json").json()["paths"])
+        for suffix in ("monthly-summary", "monthly-forecasts", "monthly-metrics",
+                       "exports/monthly_forecasts", "exports/monthly_metrics"):
+            response = client.get("/api/v1/runs/00000000-0000-0000-0000-000000000000/" + suffix)
+            assert response.status_code == 404
 
 
 def test_receipt_path_and_missing_benchmark_are_not_served(tmp_path):

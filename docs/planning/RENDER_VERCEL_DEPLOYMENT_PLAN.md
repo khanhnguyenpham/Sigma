@@ -1,6 +1,8 @@
 # CHG-087 — Demo đầy đủ chức năng trên Render và Vercel
 
-**03/11/2026 — D2 phần chính đã kiểm local theo CHG089; D1 đã hoàn tất.** Đã có nguồn20cột ẩn danh/tiền0 và DBdemo riêng; chuỗi run/API/CSV/backup/reset đã kiểm đạt. Tổng30 chờ bundle/receipt do người khác phụ trách, không có trên máy này; không cản H14/tồn/nhập/cảnh báo nhưng chưa được nhận phần tổng30 hoàn tất hoặc R05 đạt. D3–D6 chưa làm. Chốt nghiệp vụ vẫn là project thực tập đầy đủ chức năng, **mọi khách thao tác trên demo dùng chung**, dữ liệu đã ẩn danh. Không có giai đoạn chỉ đọc bắt buộc hoặc bannerUI. [Yêu cầu](../requirements.md#chg087-shared-demo), [bàn giaoD1](../development.md#handoff-chg088-d1), [runtime](../../web/backend/configs/DEMO_RUNTIME.md), [kiểm S25 đã có](../../M3/docs/S25_CURRENT_REVIEW.md).
+**03/11/2026 — tiếp tục D3 và gỡ Tổng 30 khỏi demo theo yêu cầu mới.** Bỏ hẳn giao diện/API Tổng 30, không thêm cờ bật/tắt hoặc phụ thuộc bundle/receipt ngoài. Luồng dự báo vận hành H14/tồn/nhập/cảnh báo giữ nguyên. R05/M05 và bằng chứng nghiên cứu lịch sử không tự nghiệm thu hoặc xóa. Các checkpoint chờ Tổng30/tạm dừng phía dưới là lịch sử. D3 đã kiểm chức năng, cổng vận hành/publish theo bàn giao; chưa deploy; D4–D6 chưa làm.
+
+D0–D2 đã kiểm xong phần phục vụ demo hiện hành. D3 đã kiểm local: worker xử lý interrupted, retry mới có liên kết, forecast/3inventory/CSV/browser/quota và full-size backup/reset đạt; không sửa run lỗi cũ thành complete. [Bàn giao D3](../development.md#handoff-chg090-d3).
 
 <a id="scope"></a>
 ## 1. Phạm vi đã chốt
@@ -14,7 +16,7 @@ Một ứng dụng công khai, không yêu cầu đăng nhập cho chức năng 
 | Tồn kho | Tạo stock_projection, policy_replay, alert_replay | Fixed ROP/SS days/fixed quantity, L7/R1/H14, snapshot frozen và verifier giữ đúng |
 | Cấu hình | Sửa kho, tạo phiên bản policy/scenario theo thao tác app hiện hỗ trợ | Giữ ngày hiệu lực/version/validation/409; không thêm nghiệp vụ doanh nghiệp ngoài app |
 | Lifecycle | Ngừng/hủy/mở nhập nội bộ; preview/tạo/quản lý thông báo nhà mạng | Giữ quyền mua/bán, nhiều kho, cap/ETA; run complete không đổi theo cấu hình live |
-| Kết quả | Lọc, biểu đồ, chi tiết, metric và CSV, dự báo tổng30 | DB/API/UI/CSV cùng run/scope; tổng30 có gói tương thích source demo |
+| Kết quả | Lọc, biểu đồ, chi tiết, metric và CSV vận hành H14 | DB/API/UI/CSV cùng run/scope |
 | Vận hành | Người vận hành seed/reset/backup/migrate/deploy bằng công cụ riêng | Không có reset toàn DB công khai hoặc credential trong trình duyệt |
 
 “Đầy đủ” là chức năng nghiệp vụ hiện có hoạt động xuyên suốt online. Không cần tài khoản, RBAC nhiều vai trò, tenant riêng, thanh toán, Redis/Celery, autoscaling hoặc object storage để bắt đầu. Giới hạn tài nguyên đặt ở chỗ nhận job, không biến app thành chỉ đọc.
@@ -45,7 +47,7 @@ Chọn **một Render web service trả phí có persistent disk**, chạy API v
 
 Đây là lựa chọn kỹ thuật của project: disk Render chỉ gắn với một instance, không chia sẻ sang service khác; gắn disk có giới hạn scale và gián đoạn khi deploy. Chấp nhận các giới hạn đó cho demo thực tập. Không tách API/worker rồi giả định hai service mount chung disk. [Render disks](https://render.com/docs/disks).
 
-Postgres demo tách khỏi appDB local và các DB bằng chứng. Disk chứa nguồn dẫn xuất, run mới và gói tổng30 demo; không mount thư mục gốc người dùng. API không public static nguồn/artifact/log, CSV qua route export. Cần giữ nguồn và artifact qua restart để chạy thêm run và đọc kết quả cũ. Nếu benchmark thiếu RAM/CPU thì tăng tài nguyên một service trước; chỉ xét tách worker/storage khi có nhu cầu đo được.
+Postgres demo tách khỏi appDB local và các DB bằng chứng. Disk chứa nguồn dẫn xuất và run mới; không mount thư mục gốc người dùng. API không public static nguồn/artifact/log, CSV qua route export. Cần giữ nguồn và artifact qua restart để chạy thêm run và đọc kết quả cũ. Nếu benchmark thiếu RAM/CPU thì tăng tài nguyên một service trước; chỉ xét tách worker/storage khi có nhu cầu đo được.
 
 ## 3. Dữ liệu phải hỗ trợ cả chạy mới
 
@@ -55,11 +57,11 @@ Không chỉ chuẩn bị DB kết quả tính sẵn. Gói demo phải đủ đ�
 2. Không thay CSV20cột bằng aggregate rồi nhận source_import chạy nguyên trạng. Phải kiểm bằng auditor/importer thật. Nếu gộp dữ liệu để ẩn danh thì sinh nguồn demo hợp lệ, đối chiếu aggregate/cohort và ghi phần số liệu thay đổi.
 3. Country/carrier/SKU dùng mã công khai đã kiểm hoặc alias đồng bộ. Nếu đổi danh tính tuyến thì cấu hình model/top10/selection demo phải tương thích; không đổi cấu hình M2/M05 gốc. Giữ train/validation/test và không dùng test để chọn lại model.
 4. Tạo DB demo mới và seed kho/danh mục/policy/scenario/parents/run ban đầu bằng UUID/hash/provenance mới. Profile hiện tại fixed ROP/days/fixed quantity, trade_v2; tồn/nhập/ETA có nhãn giả định. Có source/forecast cha sẵn để thử nhanh, đồng thời tạo source/forecast mới vẫn hoạt động.
-5. Chuẩn bị gói tổng30 tương thích source demo, kiểm route-day và provenance. Khi phải tạo gói dẫn xuất thì dùng ID/manifest/receipt mới qua luồng kiểm hợp lệ; không sửa sealed package hoặc bỏ hash check để gắn gói nguồn thật vào source demo. Chuẩn bị benchmark không trở thành nút tuning nghiên cứu công khai.
+5. Tổng 30 ngày đã loại khỏi demo theo yêu cầu03/11/2026; không cần package/bundle/receipt monthly để triển khai H14.
 6. Kiểm cả nguồn seed và chuỗi source mới → forecast mới → inventory mới; kể cả import lại nguồn cùng nội dung và quan hệ nguồn của view tổng30. Chạy verifier, đối chiếu DB/API/CSV. Không gắn kết quả tính sẵn của nguồn khác vào run mới.
 7. Kiểm DB/JSON/snapshot/CSV/error/log/bundle để không lộ ID gốc, secret, đường dẫn cá nhân hoặc raw download. Giữ snapshot/hash bằng chứng local nguyên; bản demo có nhãn dẫn xuất, không nhận số/hash bằng bản gốc nếu đầu vào đổi.
 
-Gói dự kiến upload có danh sách tệp/trường, size/hash và kiểm ẩn danh cụ thể. CHG089/D2 thực hiện riêng nguồn/seed/run/reset trên local; chưa upload hoặc tạo tài nguyên cloud. Phần tổng30 cần bundle`sigma_aggregate_focus_20261018` và receipt gốc được bàn giao, đối chiếu dữ liệu rồi tạo package gắn nguồn demo. Không tự dựng lại nghiên cứu hoặc dùng số liệu trongMarkdown thay bundle đã kiểm.
+Gói dự kiến upload có danh sách tệp/trường, size/hash và kiểm ẩn danh cụ thể. CHG089/D2 thực hiện riêng nguồn/seed/run/reset trên local; chưa upload hoặc tạo tài nguyên cloud. Không đưa package Tổng30 vào gói demo; giữ bằng chứng nghiên cứu gốc riêng.
 
 <a id="demo-money-fields"></a>
 ### Giá và doanh thu trong bản nguồn demo
@@ -78,22 +80,22 @@ D2 thực hiện biến đổi trên bản sao mới, giữ CSV gốc và bằng
 
 Gói seed/artifact/export demo cũng phải được dựng từ nguồn đã xử lý, không mang theo bảng doanh thu/giá gốc từ kết quả cũ. Giá trị0 có nhãn placeholder demo, không diễn giải thành giá hoặc doanh thu thực bằng0. Nguồn dẫn xuất có SHA/provenance mới; không sửa hash hoặc giá trị trong run gốc. Quy tắc này đã được triển khai bởi công cụ exportD2; nguồn gốc giữ nguyên.
 
-## 4. Công việc code dự kiến
+## 4. Code D1–D3 và cổng kiểm hosting D4
 
 | Phần | Việc cần làm | Kiểm |
 | --- | --- | --- |
 | Settings | Origin HTTPS theo môi trường, PostgreSQL psycopg/TLS và cấu hình demo riêng | Từ chối cấu hình sai/trỏ appDB; không lộ secret |
 | Launcher | Quản lý API + worker cùng release/disk và toàn bộ process con | Worker chết không báo khỏe; shutdown/restart không sót hoặc trùng process |
 | Queue/quota | Queue/advisory lock cũ; một job chạy, giới hạn queue/tần suất/request/retention | Backend kiểm nguyên tử cả direct Render API, trả lỗi và thời gian thử lại rõ |
-| Forecast compute | Kiểm ProcessPoolExecutor(max_workers=3) hiện có; demo dự kiến1process tính toán và giới hạn thread model | Đo RSS/thời gian nguồn/forecast/inventory; không đổi model/công thức/selection |
-| FE | Giữ form/tạo run và giao diện hiện tại; hoàn thiện tiến độ/queue/error/retry ởD3 | Không thêm banner theo yêu cầu; hai cửa sổ/409/double-submit/Back/reload/mobile đúng |
+| Forecast compute | Kiểm ProcessPoolExecutor(max_workers=3) hiện có; demo đã kiểm1process tính toán và giới hạn thread model | Đo RSS/thời gian nguồn/forecast/inventory; không đổi model/công thức/selection |
+| FE | Giữ form/tạo run và giao diện hiện tại; tiến độ/queue/error/retry đã kiểm localD3 | Không thêm banner theo yêu cầu; hai cửa sổ/409/double-submit/Back/reload/mobile đúng |
 | Routing | Giữ /api/v1; Vercel rewrite cho fetch và CSV, origin tường minh | GET/POST/PATCH, Idempotency-Key, query/status/lỗi/export headers qua proxy |
 | Health | Health nhẹ, readiness kiểm DB/schema/disk/gói và worker heartbeat | Phát hiện worker/DB/disk lỗi thay vì chỉ API trả200 |
 | Seed/reset | Lệnh vận hành riêng chỉ cho DB/path demo, maintenance/drain | Từ chối appDB và tệp bằng chứng; restore DB+artifact đồng bộ |
 
 API/worker dùng role đọc/ghi dữ liệu demo, không có superuser/CREATE DATABASE/DDL; migration/reset dùng credential vận hành riêng. Khách không cần đăng nhập theo lựa chọn đã chốt. CORS không phải xác thực hoặc ngăn script gọi API trực tiếp; quota/request limits phải đặt ở backend, không chỉ disable nút.
 
-Chốt giới hạn queue/tần suất/thời gian job/retention sau benchmarkD3. Không âm thầm giảm horizon/cohort, đổi model hoặc trả complete khi chưa chạy. Job giới hạn/gián đoạn có trạng thái/lý do và retry hợp lệ. Không thêm quota tài khoản khi không có tài khoản.
+Giới hạn local D3 đã khai báo trong template/runtime và kiểm bằng benchmark; kiểm lại tài nguyên hosting ở D4 trước deploy. Không âm thầm giảm horizon/cohort, đổi model hoặc trả complete khi chưa chạy. Job giới hạn/gián đoạn có trạng thái/lý do và retry hợp lệ. Không thêm quota tài khoản khi không có tài khoản.
 
 ## 5. Cấu hình hosting dự kiến
 
@@ -102,7 +104,7 @@ Chốt giới hạn queue/tần suất/thời gian job/retention sau benchmarkD3
 | Render web | Root repo, Python3.12, một instance/API/worker | Cần cả src/, M2/, data/configs và web/backend/configs |
 | Build | python -m pip install -r web/backend/requirements.txt && python -m pip install --no-deps -e web/backend | Dependencies hiện có; package yêu cầu Python>=3.12,<3.13 |
 | Start | `python web/backend/scripts/demo_stack.py` quản lý Uvicornfactory0.0.0.0/PORT và worker | Có ởD1; không migrate/seed/reset khi boot, không mở process cho mỗi request |
-| Disk | Ví dụ /var/data/sigma-demo, nguồn source/data/, run outputs/m3/ | Monthly_benchmarks và run cùng dưới disk theo path resolver; nguồn immutable, artifact phát sinh |
+| Disk | Ví dụ /var/data/sigma-demo, nguồn source/data/, run outputs/m3/ | Run dưới disk theo path resolver; nguồn immutable, artifact phát sinh |
 | Postgres | DB demo riêng cùng region, internal URL, psycopg3/TLS theo endpoint | Schema head0008 hiện tại; migration/seed một nơi |
 | Env | M3_MODE=demo, M3_DEMO_ROOT, M3_DATABASE_URL, M3_FRONTEND_ORIGIN, M3_SOURCE_ROOT, M3_OUTPUT_ROOT; quota/compute ởD3 | Chung cho API/worker, server-only; DBsigma_demo/test, rootdemo riêng, không copy .env local |
 | Vercel | Root web/frontend; Node24 theo CI; npm ci; npm run build; output dist | Hash router hiện tại không cần SPA catch-all |
@@ -131,19 +133,19 @@ Không giữ hai môi trường trả phí song song lâu dài chỉ để demo:
 | --- | --- | --- |
 | D0 — chất lượng | Giữ kiểmS25/C00 đã có, C00 mặc định | Đã xongCHG086; không chạy lại/tích hợpS25 ở lượt này |
 | D1 — nền demo đầy đủ | Settings/launcher API-worker cùng disk, health/readiness, cấu hình hosting mẫu; bỏ banner theo yêu cầu | Boot/shutdown/restart Windows-Linux với synthetic; không thay chức năng bằng chỉ đọc |
-| D2 — dữ liệu và khôi phục | Nguồn20cột đã ẩn danh, seedDB/policy/scenario/parents/kết quả/tổng30, manifest/hash và reset | Chuỗi import/forecast/inventory từ đầu trên DBdemo; kiểm ẩn danh, reset DB+artifact đạt |
-| D3 — kiểm chức năng/tài nguyên | Hai khách, versionconflict/queue/quota/retry, CSV/chart/tổng30/lifecycle, benchmark và mức giới hạn | Python/React/build/pipcheck; browser1440/390px; verifier độc lập; retention không phá run cha |
+| D2 — dữ liệu và khôi phục | Nguồn20cột đã ẩn danh, seedDB/policy/scenario/parents/kết quả, manifest/hash và reset | Chuỗi import/forecast/inventory từ đầu trên DBdemo; kiểm ẩn danh, reset DB+artifact đạt |
+| D3 — kiểm chức năng/tài nguyên | Hai khách, versionconflict/queue/quota/retry, CSV/chart/lifecycle, benchmark và mức giới hạn | Python/React/build/pipcheck; browser1440/390px; verifier độc lập; retention không phá run cha |
 | D4 — triển khai thử | Vercel preview, Render service/disk/DBdemo, secrets server-only, seed đúng gói, mức chi phí/account cụ thể | Thực hiện sau khi được giao triển khai; gói/chi phí cụ thể; không nối DBlocal |
 | D5 — online/công khai | Chuỗi run mới thật, chỉnh policy/lifecycle, frozen/CSV, hai browser, directAPI/proxy/restart/restore | Đủ chức năng, không lộ dữ liệu, quota/worker/backup đúng; URL/SHA/hashes/hướng dẫn cùng release |
 | D6 — bàn giao vận hành | Reset/backup/restore/rollback, chẩn đoán queue/worker, hạn mức/chủ tài khoản | Người vận hành dựng lại được demo; không tự đóng R05/R07/T14 |
 
-**Hiện tại:** D0 vàD1 hoàn tất; D2 đã kiểm nguồn20cột/giá0, seed/parents/ba loại inventory, API/CSV vàreset. [Bàn giaoD2](../development.md#handoff-chg089-d2). Tổng30 là hạng mục chờ bàn giao bên ngoài, giữ mở trongD2/D3; chưa nhận demo đầy đủ phần này. Không migrate/seedDBapp, upload, trả phí hoặc deploy trongD2. Code nghiên cứuCHG086 vẫnlocal/ngoài stage; không thêm banner. [Công cụ và giới hạn](../../web/backend/configs/DEMO_RUNTIME.md).
+**Hiện tại:** D0 vàD1 hoàn tất; D2 đã kiểm nguồn20cột/giá0, seed/parents/ba loại inventory, API/CSV vàreset. [Bàn giaoD2](../development.md#handoff-chg089-d2). Tổng30 đã bỏ khỏi phạm vi demo theo yêu cầu mới; D2 không còn phụ thuộc bàn giao ngoài này. Không migrate/seedDBapp, upload, trả phí hoặc deploy trongD2. Code nghiên cứuCHG086 vẫnlocal/ngoài stage; không thêm banner. [Công cụ và giới hạn](../../web/backend/configs/DEMO_RUNTIME.md).
 
 <a id="acceptance"></a>
 ## 8. Tiêu chí demo hoàn chỉnh
 
 - Khách không đăng nhập chỉnh được kho/policy/scenario/lifecycle theo luồng hiện có. Khách khác thấy thay đổi sau refetch; cùng version bị409 đúng. Theo yêu cầu03/11/2026 không thêm banner/thông báo demo dùng chung.
-- Tạo source từ bộ demo, forecast mới và cả3loại run tồn; queue/progress/error/retry và output thực, không chỉ xem run tính sẵn. Tổng30 tương thích source; H14 vận hành, threshold/depletion giữ riêng.
+- Tạo source từ bộ demo, forecast mới và cả3loại run tồn; queue/progress/error/retry và output thực, không chỉ xem run tính sẵn. H14 vận hành, threshold/depletion giữ riêng; không có Tổng30 trong demo.
 - Policy/stop/notice tác động run mới theo cutoff; run complete giữ snapshot/hash. Không mất quyền mua/bán/blocked/cap/Q/exclusions khi online; không gắn S25/45% làm cổng ngầm.
 - API/CSV/chart/pagination/export khớp trên desktop/390px, Back/reload đúng. Writes qua proxy và directAPI cùng validation/quota/idempotency; không có đường bypass đưa source/file tùy ý.
 - Một worker queue, job nặng không khóa API; benchmark có số đo. Restart/deploy không double worker/order; run gián đoạn và retry có trạng thái/quan hệ nguồn đúng, không nhận tự resume khi chưa hỗ trợ.

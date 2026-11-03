@@ -12,7 +12,12 @@ from M2.final_report import replay as final_replay
 
 def configuration():
     cfg = json.loads((ROOT / "data/configs/config.json").read_text(encoding="utf-8"))
+    import os
+    if os.environ.get('M3_MODE') == 'demo':
+        cfg['lightgbm_threads'] = 1
     settings = load_settings(ROOT / "data/configs/m2-reproduce.json")
+    if os.environ.get('M3_MODE') == 'demo':
+        settings['workers'] = 1
     final = json.loads(
         (ROOT / "data/configs/m2-final.json").read_text(encoding="utf-8")
     )

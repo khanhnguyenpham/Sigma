@@ -113,6 +113,21 @@ def test_real_snapshot_restores_db_artifacts_and_rejects_tampering(pg,monkeypatc
     assert restore(settings,settings.database_url,'baseline','sigma_m3_test',pg_bin)['status']=='restored'
     assert snapshot_state(pg[0])==before and artifact.read_text()=='{"value":1}'
     assert not (settings.output_root/'extra.json').exists() and not (settings.demo_root/'.maintenance').exists()
+    # A real reset frees the retained-run budget without deleting parent rows in place.
+    limited = replace(settings, demo_limits=replace(settings.demo_limits, retained_runs=1))
+    body = dict(kind='source_import', source_key='orders_snapshot', as_of_date='2025-12-31')
+    with TestClient(create_app(limited)) as client:
+        assert client.post('/api/v1/runs', json=body, headers={'Idempotency-Key':'before-reset'}).status_code == 202
+        refused = client.post('/api/v1/runs', json=body, headers={'Idempotency-Key':'full'})
+        assert refused.status_code == 429 and refused.json()['error']['code'] == 'demo_retention_full'
+    # Synthetic fixture has no worker; make it idle before the operator reset.
+    with pg[0].begin() as connection:connection.execute(text("UPDATE runs SET status='failed',error_code='interrupted'"))
+    restore(settings,settings.database_url,'baseline','sigma_m3_test',pg_bin)
+    with TestClient(create_app(limited)) as client:
+        assert client.post('/api/v1/runs', json=body, headers={'Idempotency-Key':'after-reset'}).status_code == 202
+    with pg[0].begin() as connection:connection.execute(text("UPDATE runs SET status='failed',error_code='interrupted'"))
+    restore(settings,settings.database_url,'baseline','sigma_m3_test',pg_bin)
+    assert snapshot_state(pg[0]) == before
     native=demo_data.pg_tool
     def interrupted(*args,**kwargs):
         raise RuntimeError('Simulated operator interruption')

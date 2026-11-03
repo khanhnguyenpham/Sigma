@@ -22,6 +22,7 @@ def run_view(row):
             "status",
             "source_import_run_id",
             "forecast_run_id",
+            "retry_of_run_id",
             "scenario_id",
             "as_of_date",
             "observation_end",
@@ -49,7 +50,7 @@ def runs_post(
     idempotency_key: str = Header(alias="Idempotency-Key"),
 ):
     with http.app.state.sessions.begin() as session:
-        row, created = enqueue(session, request, idempotency_key)
+        row, created = enqueue(session, request, idempotency_key, http.app.state.settings)
         return JSONResponse(
             status_code=202 if created else 200,
             content=jsonable_encoder(
@@ -60,6 +61,19 @@ def runs_post(
                 )
             ),
         )
+
+
+@router.post('/runs/{key}/retry')
+def retry_run(http: Request, key: uuid.UUID, idempotency_key: str = Header(alias='Idempotency-Key')):
+    from core.errors import DomainError
+    with http.app.state.sessions.begin() as session:
+        previous = required_run(session, key)
+        if previous.status != 'failed':
+            raise DomainError('parent_mismatch', 'Only failed runs can be retried', 409)
+        body = {**previous.config_snapshot['request'], 'retry_of_run_id': str(key)}
+        row, created = enqueue(session, RunCreate(**body), idempotency_key, http.app.state.settings)
+        return JSONResponse(status_code=202 if created else 200, content=jsonable_encoder(
+            dict(run_id=row.id, status=row.status, status_url=f'/api/v1/runs/{row.id}')))
 
 
 @router.get("/runs")

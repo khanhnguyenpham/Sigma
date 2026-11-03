@@ -928,13 +928,6 @@ tr.clickable:hover {
   font-size: 11px;
   color: #7e8ca4;
 }
-.monthly-toggle {
-  flex-direction: row;
-  align-items: center;
-  gap: 7px;
-  font-size: 11px;
-  color: #8a95ac;
-}
 .advanced-section {
   border: 1px solid var(--border);
   border-radius: 9px;

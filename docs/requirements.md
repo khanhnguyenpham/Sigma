@@ -1,5 +1,7 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**03/11/2026 — tiếp tục D3 và gỡ Tổng 30 khỏi demo theo yêu cầu mới.** Bỏ hẳn giao diện/API Tổng 30, không thêm cờ bật/tắt hoặc phụ thuộc bundle/receipt ngoài. Luồng dự báo vận hành H14/tồn/nhập/cảnh báo giữ nguyên. R05/M05 và bằng chứng nghiên cứu lịch sử không tự nghiệm thu hoặc xóa. Các checkpoint chờ Tổng30/tạm dừng phía dưới là lịch sử. D3 đã kiểm chức năng, cổng vận hành/publish theo bàn giao; chưa deploy; D4–D6 chưa làm.
+
 <a id="chg088-d1"></a>
 ## CHG-088 — 03/11/2026, D1 và bỏ bannerUI
 
@@ -8,7 +10,7 @@ Người dùng giao thực hiệnD1 và bổ sung bỏ thông báo demo dùng ch
 <a id="chg087-shared-demo"></a>
 ## CHG-087 — 03/11/2026, demo đầy đủ cho project thực tập
 
-Người dùng yêu cầu demo hoàn chỉnh và chọn **mọi khách thao tác trên demo dùng chung**, với dữ liệu đã ẩn danh. Không yêu cầu đăng nhập nghiệp vụ/tài khoản doanh nghiệp hoặc tách dữ liệu từng người. Giữ chức năng hiện có: nhập nguồn demo được đăng ký, tạo forecast và3loại run tồn, chỉnh kho/policy/scenario/lifecycle, xem metric/biểu đồ/CSV và tổng30. Thay đề xuất chỉ đọc và việc chỉ quản trị được chạy job củaCHG086; tương tác là phạm vi bản demo đầu.
+Người dùng yêu cầu demo hoàn chỉnh và chọn **mọi khách thao tác trên demo dùng chung**, với dữ liệu đã ẩn danh. Không yêu cầu đăng nhập nghiệp vụ/tài khoản doanh nghiệp hoặc tách dữ liệu từng người. Giữ chức năng hiện có: nhập nguồn demo được đăng ký, tạo forecast và3loại run tồn, chỉnh kho/policy/scenario/lifecycle, xem metric/biểu đồ/CSV vận hành H14. Theo yêu cầu CHG090 tiếp tục, Tổng30 đã gỡ khỏi demo; R05/M05 nghiên cứu giữ riêng. Thay đề xuất chỉ đọc và việc chỉ quản trị được chạy job củaCHG086; tương tác là phạm vi bản demo đầu.
 
 R09/T12/T14 bổ sung [kế hoạch demo dùng chung](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md): DB/source/artifactdemo tách app và bằng chứng local, có reset bởi người vận hành; theoCHG088 không thêm bannerUI. Backend áp validation/version/idempotency/queue/quota; reset/backup/migration/deploy là thao tác người vận hành, không API phá dữ liệu công khai. Không công khai raw riêng tư, secret hoặc nhận nguồn/đường dẫn tùy ý. Không cần mô hình phân quyền nhiều vai trò cho demo này.
 

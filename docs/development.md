@@ -1,5 +1,46 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-chg090-d3"></a>
+## CHG-090 — D3 kiểm local hoàn tất, chờ publish, gỡ Tổng30 khỏi demo
+
+Người dùng tiếp tục D3 sau checkpoint tạm dừng và yêu cầu gỡ Tổng30; bổ sung rõ **xóa khỏi demo, không thêm cơ chế bật/tắt**. Đã xóa component/tab/CSS/lời dẫn monthly, 5 API/CSV operation, schema query và lệnh prepare-monthly khỏi ứng dụng. Chỉ giữ helper/bằng chứng nghiên cứu offline, không sửa R05/M05 thành đã nghiệm thu. Demo H14/tồn/nhập/cảnh báo không còn phụ thuộc bundle/receipt ngoài. D4–D6/cloud chưa làm; chưa commit/push D3, HEAD2112b6d của D2.
+
+### Code và cổng kiểm
+
+- Quota nhận job chung API/CLI/operator khóa transaction PostgreSQL, xét idempotency trước quota:2run queued/running,8run/giờ,16run lưu giữ, replay tối đa92ngày. Retention từ chối mới, không tự xóa cha/artifact. Request ghi60/phút trên một API process, body thực64KiB trong10giây; đọc vẫn hoạt động. Khi bị giới hạn có429/Retry-After. DB4096MiB và disk còn512MiB kiểm lúc nhận job, không phải hard cap tăng trưởng giữa job.
+- Worker cha giữ lock/heartbeat, giám sát cả cây job7200giây/4096MiB; dọn process con, ghi lý do failed và cho retry mới có liên kết. Demo chạy một process model/thread; không thay model/công thức/selection/cohort/horizon. Retry UI giữ khóa sau lỗi, chặn double-submit và chọn đúng run mới.
+- **517Python BE/M2,0fail/error/skip**, pipcheck đạt;5ca S25 chỉ local/ngoàiGit nên số publish tương ứng512. **89React/17file và TypeScript/Vite build đạt**. Quota/reset native synthetic đã kiểm chạm cap→từ chối→restore baseline→nhận job lại. Golden cũ giữ nguyên; fixture5operation bị xóa lấy từ code đã commit2112b6d, phục hồi riêng khi so hash hợp đồng lịch sử. Kiểm hash nay gồm demo_stack.py là phụ thuộc thực thi guard.
+- Đã sửa3lỗi runtime qua benchmark: standaloneworker thiếu đăng ký FK/model; log giám sát tạo trước thư mục producer; Windows chờ handle model đã thoát/PID tái dùng gây AccessDenied. Cleanup mới kiểm identity, đợi có giới hạn, kill/reap và kiểm không còn process sống; có regression test. Một ca test focus React được đổi sang đợi effect thay vì đọc ngay khi alert vừa xuất hiện, không đổi logic form.
+
+### Run và phép đo thực
+
+| Loại | Run | Kết quả | Thời gian quan sát |
+| --- | --- | --- | --- |
+| Source | bccf46b3-792e-4d5d-b68b-445aa783a1c3 | Complete/verified, nguồn20cột dẫn xuất D2 | 115,86giây ở lần đo nguồn trước |
+| Forecast | 0ea25925-cdba-4cef-b4fb-a595ef3ab91f | Complete/independent verify/manifest sealed;185origin,17.020route/2.382.800itemforecast | Khoảng1514giây,25,2phút |
+| Stock | fd486782-b6b0-4b8c-bc0e-d62dd6671ef0 | Complete/verified | Khoảng43giây |
+| Policy | d7f7f825-0585-4017-9c81-178870a00ca0 | Complete/verified | Khoảng286giây qua HTTP |
+| Alert | cff66f20-d692-4e3c-bb5c-36a630a90ab1 | Complete/verified | Khoảng70giây qua HTTP |
+| Retry UI | 94526a19-5243-4f86-9736-a3ad867ca0a4 | Complete/verified, retry_of943aa123, canonical source reuse | Receipt guard đầy đủ |
+
+Run617f8d7f bị gián đoạn được worker chuyển failed/interrupted trước retry mới;943aa123/code_mismatch và2fa46cca/worker_failed giữ nguyên. Không sửa failed/running thành complete hoặc lấy rowcount làm bằng chứng. Bảy run D2 giữ config/artifact/hash. Tất cả16run, kể cả lỗi và artifact đang dở cũ, còn trong demo.
+
+Forecast được chạy dưới codehash`b3ab06b10e1ba572222e9c14b107f0f4ed6a49fa4f0afa4ec411d2930cff37f4`; verifier/seal đã xong trước lỗi cleanup Windows của supervisor. **Không có resource receipt guard của forecast đó**, không dựng lại số đo. Có1455mẫu HTTP đều200, p95≈0,032giây và đỉnh RSS toàn stack quan sát≈1,17GiB; sampler bỏ9lượt RSS khi process vừa thoát. Sau sửa cleanup và gỡ API/CLI monthly,3inventory/retryUI dùng codehash`d9d98c86b6c6bd721d75f2aded236e2de33c7e21f4f9aa77183664747a7c8a10`, receipt guard đầy đủ. Không đổi mã model/producer hoặc chạy lại forecast đã seal chỉ để sửa công cụ đo.
+
+Đỉnh RSS job nguồn≈299MiB,stock≈481MiB,policy≈1019MiB,alert≈517MiB. Lần đo hai replay cuối343mẫu API đều200, không lỗi HTTP, p95≈0,032giây, max≈0,578giây, RSS toàn stack≈1,34GiB. DB tăng khoảng72,5MiB trong lượt policy+alert; đây không phải tăng trưởng toàn chuỗi forecast. Các số là máy Windows local16logicalCPU/≈16GiB RAM, không thay cổng đo Linux/cloud D4. Giữ giới hạn bảo vệ đã khai báo và kiểm lại tài nguyên hosting trước deploy.
+
+### Nghiệp vụ, API/CSV và browser
+
+12CSV/API trong cùng scope khớp từng giá trị, gồm forecast, inventory, projection, replenishment, alert và metric. Nội bộ item9 stop30/09→resume15/10; provider item11 stop07/10 known30/09→resume15/10. Policy/alert ghi source2043=được phép2038+bị chặn5, không bán mới từ07–14/10; stock projection giữ tồn bị chặn/Q0. Provider notice2 cho item9 được tạo rồi hủy trước hiệu lực bằng preview/UI, giữ2dòng lịch sử; hủy provider không gỡ stop nhập nội bộ. Không dùng những giả định demo để nghiệm thu R07/T14.
+
+Hai cửa sổ kho/policy: saveA, staleB409/giữ draft, refetch/lưu lại; scenario mới dùng chung hiện ở cửa sổ khác. Browser desktop1440/mobile390 (document375), chart/bảng cuộn riêng, Back/Forward/reload và Escape trả focus đạt. Forecast mới không còn chữ/tab Tổng30; CSV tải thật14ngàyUTC. RetryUI tạo run16 hoàn tất, thử thêm trả429retention và tổng vẫn16; đọc dữ liệu vẫn được. Ảnh/receipt riêng tại outputs/chg090_d3, không vàoGit.
+
+### Bảo toàn và điểm tiếp theo
+
+BốnDB bảo vệ và1.466tệp khớp baseline D2; app0008_trade_lifecycle/3run giữ nguyên. Nguồn/raw/credential và3PythonS25/COMMIT_BLOCK_PLAN.md ngoài stage. Source/artifact/runs D3 còn đầy đủ, không đưa dữ liệu vàoGit.
+
+Full-size snapshot D3 đã backup rồi restore sau thay đổi demo có thể đảo ngược, giữ nguyên16run và toàn bộ hash bảng/artifact; receipt reset-review.json. Cổng vận hành đã đạt. Tiếp theo publish thườngfinal-report, đối chiếu remoteSHA/haiCI trước khi nhận D3 publish hoàn tất.
+
 <a id="handoff-chg089-d2"></a>
 ## CHG-089 — Nguồn và khôi phục demo D2, 03/11/2026
 

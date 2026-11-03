@@ -107,7 +107,7 @@ it('supports the directory breadcrumb, browser Back and reloading a warehouse de
   view.unmount();
 });
 
-it('opens sell-through for inventory and keeps raw daily demand and monthly tabs in details', async () => {
+it('opens sell-through for inventory and raw daily demand in details', async () => {
   render(<App />);
   fireEvent.click(await screen.findByRole('button', { name: 'Mở kho Sydney tại Australia, nhà mạng Optus' }));
   const heading = await screen.findByRole('heading', { level: 1, name: 'Sydney' });
@@ -117,6 +117,6 @@ it('opens sell-through for inventory and keeps raw daily demand and monthly tabs
   fireEvent.click(screen.getByText('Nhu cầu dự báo và chất lượng lịch sử'));
   await screen.findByRole('heading', { name: 'Ngày phân bổ từ tổng tuần' });
   expect(screen.getByRole('button', { name: 'Phân bổ theo ngày' })).toHaveClass('active');
-  expect(screen.getByRole('button', { name: 'Tổng 30 ngày' })).toBeVisible();
+  expect(screen.queryByRole('button', { name: 'Tổng 30 ngày' })).toBeNull();
   await waitFor(() => expect(calls.some((u) => u.includes('/forecasts/items?') && u.includes('warehouse_id=1') && u.includes('aggregate=route_day'))).toBe(true));
 });

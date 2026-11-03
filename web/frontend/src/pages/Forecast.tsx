@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { MonthlyForecast } from "../components/forecast/MonthlyForecast";
 import {
   ResponsiveContainer,
   BarChart,
@@ -39,7 +38,6 @@ export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
   return <DemandForecast run={run} ctx={rawCtx} />;
 }
 function DemandForecast({ run, ctx }: { run?: Run; ctx: Context }) {
-  const [mode, setMode] = useState<"monthly" | "operational">(ctx.warehouseId ? "operational" : "monthly");
   const [daily, setDaily] = useState(!!ctx.warehouseId),
     [block, setBlock] = useState("1"),
     [page, setPage] = useState(1);
@@ -71,12 +69,12 @@ function DemandForecast({ run, ctx }: { run?: Run; ctx: Context }) {
     },
   );
   const route = useResource<Page>(
-    ready && mode === "operational"
+    ready
       ? `/runs/${id}/forecasts/${daily ? "items" : "routes"}?${q}${daily ? "&aggregate=route_day" : ""}`
       : null,
   );
   const metrics = useResource<Page>(
-    ready && mode === "operational"
+    ready
       ? `/runs/${id}/metrics?${resultQuery({ ...ctx, itemId: "", supplierId: "", productType: "" }, { block, split: "test", cadence: "daily_origins", granularity: daily ? "allocated_daily" : "weekly", page_size: 100 })}`
       : null,
   );
@@ -87,22 +85,13 @@ function DemandForecast({ run, ctx }: { run?: Run; ctx: Context }) {
       <div className="page-intro">
         <h1>Dự báo nhu cầu</h1>
         <p>
-          Dự báo lượng SIM/gói data bán theo quốc gia và nhà mạng. Tổng 30 ngày
-          dùng xem nhu cầu dài hơn; kế hoạch tồn kho dùng dự báo 14 ngày từ hai
-          khối tuần.
+          Dự báo lượng SIM/gói data bán theo quốc gia và nhà mạng. Kế hoạch tồn kho dùng dự báo 14 ngày từ hai khối tuần.
         </p>
       </div>
       <div className="segments" aria-label="Phạm vi dự báo">
         <button
-          className={mode === "monthly" ? "active" : ""}
-          onClick={() => setMode("monthly")}
-        >
-          Tổng 30 ngày
-        </button>
-        <button
-          className={mode === "operational" && !daily ? "active" : ""}
+          className={!daily ? "active" : ""}
           onClick={() => {
-            setMode("operational");
             setDaily(false);
             setPage(1);
           }}
@@ -110,9 +99,8 @@ function DemandForecast({ run, ctx }: { run?: Run; ctx: Context }) {
           Tổng 7 ngày
         </button>
         <button
-          className={mode === "operational" && daily ? "active" : ""}
+          className={daily ? "active" : ""}
           onClick={() => {
-            setMode("operational");
             setDaily(true);
             setPage(1);
           }}
@@ -120,9 +108,7 @@ function DemandForecast({ run, ctx }: { run?: Run; ctx: Context }) {
           Phân bổ theo ngày
         </button>
       </div>
-      {mode === "monthly" ? (
-        <MonthlyForecast run={run} ctx={ctx} />
-      ) : !ready ? (
+      {!ready ? (
         <div className="notice">
           Chọn một lượt dự báo hoặc mô phỏng đã hoàn tất để xem kết quả.
         </div>
@@ -301,8 +287,7 @@ function DemandForecast({ run, ctx }: { run?: Run; ctx: Context }) {
               />
               <p className="caption">
                 MAPE chỉ trên actual dương. Ngày phân bổ là dự báo dẫn xuất.
-                Theo M05, R05 chấm tổng 30 ngày ở tab riêng; các bảng này là
-                chẩn đoán vận hành H14.
+                Các bảng này là chẩn đoán vận hành H14.
               </p>
             </Panel>
           </details>

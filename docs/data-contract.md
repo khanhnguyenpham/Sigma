@@ -1,5 +1,7 @@
 # Hợp đồng dữ liệu SIGMA
 
+**Cập nhật phạm vi demo03/11/2026:** Tổng30 đã gỡ khỏi giao diện/API/CLI ứng dụng theo yêu cầu người dùng; không thêm cờ bật/tắt và không chờ bundle/receipt ngoài. Tài liệu/bằng chứng M05/R05 bên dưới là nghiên cứu và lịch sử tích hợp, không còn mô tả tính năng demo hiện hành. H14/L7/R1 phục vụ vận hành giữ nguyên; không tự nghiệm thu R05/R07/T14.
+
 <a id="demo-price-policy"></a>
 ## CHG-087 bổ sung — 03/11/2026, giá giả cho bản demo công khai
 

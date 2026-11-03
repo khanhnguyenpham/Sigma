@@ -12,7 +12,6 @@ from modules.catalog.router import router as catalog_router
 from modules.catalog.provider_router import router as provider_router
 from modules.configuration.router import router as configuration_router
 from modules.runs.router import router as runs_router
-from modules.reporting.monthly_router import router as monthly_router
 from modules.inventory.router import router as workspace_router
 from modules.purchasing.router import router as purchasing_router
 from modules.alerts.router import router as alerts_router
@@ -40,16 +39,20 @@ def create_app(settings=None):
             return JSONResponse(status_code=503, headers={"Retry-After": "30"}, content={
                 "error": {"code": "demo_maintenance", "message": "Demo đang được khôi phục. Vui lòng thử lại sau."}})
         return await call_next(request)
+    if settings.mode == 'demo':
+        from core.demo_limits import DemoRequestLimits
+        app.add_middleware(DemoRequestLimits, limits=settings.demo_limits)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[settings.frontend_origin],
         allow_methods=["GET", "POST", "PATCH"],
         allow_headers=["Content-Type", "Idempotency-Key"],
+        expose_headers=['Retry-After'],
     )
     install_error_handlers(app)
     for router in (
         health_router, catalog_router, provider_router, configuration_router, runs_router,
-        monthly_router, workspace_router, purchasing_router, alerts_router, results_router,
+        workspace_router, purchasing_router, alerts_router, results_router,
     ):
         app.include_router(router)
     frontend = PROJECT_ROOT / "web/frontend/dist"

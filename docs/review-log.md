@@ -1,5 +1,16 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+<a id="chg090-resume"></a>
+## CHG-090 tiếp tục — 03/11/2026, gỡ Tổng30 và kiểm D3
+
+Người dùng giao tiếp D3 và gỡ Tổng30 khỏi demo, sau đó yêu cầu xóa hẳn thay vì cơ chế tắt. Đã xóa UI/API/schema/CLI monthly, giữ nghiên cứu lịch sử riêng; không còn phụ thuộc bundle/receipt ngoài, không tự nghiệm thu R05. Quota/guard/retry, forecast/3inventory independent verify,12API/CSV, lifecycle, desktop/mobile và bảo toàn đạt;517Python/89React/build/pipcheck đạt. Chi tiết số đo, lỗi cleanup đã sửa và giới hạn chứng cứ tại [bàn giao](development.md#handoff-chg090-d3). Cổng vận hành/publish theo trạng thái mới ở bàn giao; các checkpoint tạm dừng/chờ Tổng30 bên dưới là lịch sử. C00/R07/T14 và D4–D6 chưa đổi.
+
+
+<a id="chg090"></a>
+## CHG-090 — Giao D3 rồi tạm dừng, 03/11/2026
+
+Người dùng giao tiếpD3 sau cổngD2/2112b6d, sau đó yêu cầu tạm dừng tại đây. Đã dừng stack/modelD3, giữ nguyên run/artifact/nguồn và lưu điểm tiếp tục; không commit/push/deploy hoặc nhận D3 hoàn tất. Code/kiểm local, hai lỗi benchmark đã sửa, dữ liệu demo đã ghi và phần chưa nghiệm thu tại [bàn giao](development.md#handoff-chg090-d3). Tổng30 vẫn chờ bundle/receipt bên ngoài; không đổiC00/R05/R07/T14 hoặc triển khaiD4.
+
 <a id="chg089"></a>
 ## CHG-089 — 03/11/2026, nguồn và reset demo D2
 

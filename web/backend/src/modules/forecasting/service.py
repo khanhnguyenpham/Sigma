@@ -92,7 +92,8 @@ def select_new(validation, cfg, routes, models):
 def execute_jobs(daily, split, jobs, folder, label, callback):
     frames = []
     files = {}
-    with ProcessPoolExecutor(max_workers=3) as pool:
+    import os
+    with ProcessPoolExecutor(max_workers=1 if os.environ.get('M3_MODE') == 'demo' else 3) as pool:
         pending = {
             pool.submit(
                 m2_adapter.candidate_job, daily, split, family, model, routes

@@ -20,6 +20,7 @@ def code_digest():
         for p in (project / folder).rglob("*.py")
     ]
     paths.append(project / "M2/final_report.py")
+    paths.append(project / "web/backend/scripts/demo_stack.py")
     return digest(
         {
             p.relative_to(project).as_posix(): hashlib.sha256(

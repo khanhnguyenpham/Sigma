@@ -48,6 +48,7 @@ def install_error_handlers(app):
     async def domain_error(request, exc):
         return JSONResponse(
             status_code=exc.status,
+            headers={'Retry-After': str(exc.details['retry_after_seconds'])} if 'retry_after_seconds' in exc.details else None,
             content={
                 "error": dict(code=exc.code, message=exc.message, details=exc.details),
                 "request_id": str(uuid.uuid4()),

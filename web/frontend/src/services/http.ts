@@ -5,7 +5,7 @@ export class ApiError extends Error {
     public code: string,
     message: string,
     public status: number,
-    public details?: { fields?: { location: (string | number)[]; type: string }[] },
+    public details?: { retry_after_seconds?: number; fields?: { location: (string | number)[]; type: string }[] },
   ) {
     super(message);
   }

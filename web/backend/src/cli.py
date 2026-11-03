@@ -48,22 +48,10 @@ def main():
     sim.add_argument("--wait", action="store_true")
     verify = commands.add_parser("verify")
     verify.add_argument("--run-id", type=uuid.UUID, required=True)
-    monthly = commands.add_parser("prepare-monthly")
-    monthly.add_argument("--source-run", type=uuid.UUID, required=True)
-    monthly.add_argument("--verification-receipt", required=True)
     args = p.parse_args()
     settings = Settings.from_env()
     engine, sessions = database(settings.database_url)
     try:
-        if args.command == "prepare-monthly":
-            from modules.reporting.monthly import prepare
-
-            with sessions() as session:
-                result = prepare(
-                    settings, session, args.source_run, args.verification_receipt
-                )
-            print(json.dumps(result, default=str, allow_nan=False))
-            return
         if args.command == "seed-simulation":
             from modules.inventory.seeding import seed_simulation
 
@@ -109,7 +97,7 @@ def main():
             )
             with sessions.begin() as session:
                 row, _ = enqueue(
-                    session, request, args.request_key or str(uuid.uuid4())
+                    session, request, args.request_key or str(uuid.uuid4()), settings
                 )
                 key = row.id
             if args.wait:

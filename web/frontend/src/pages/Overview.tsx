@@ -23,6 +23,7 @@ import { resultQuery } from "../utils/url";
 import { type Run, type Row } from "../types/api";
 import { type Context } from "../types/context";
 import { TradeTotals } from "../components/products/TradePresentation";
+import { RunRetry } from "../components/dialogs/RunRetry";
 
 
 export function Overview({
@@ -105,9 +106,11 @@ export function Overview({
                     jobs.total_windows ??
                     "…",
                 )}{" "}
-                · {run.error_code ?? ""}
+                · {({ interrupted: "Bị gián đoạn", demo_job_timeout: "Vượt thời gian xử lý",
+                     demo_job_memory: "Vượt giới hạn bộ nhớ", demo_job_exited: "Tiến trình xử lý đã dừng" } as Record<string,string>)[run.error_code ?? ""] ?? run.error_code ?? ""}
               </p>
             </details>
+            {run.status === "failed" && <RunRetry key={run.id} id={run.id} onCreated={onRun} />}
           </div>
         </div>
       )}

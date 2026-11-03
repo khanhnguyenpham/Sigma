@@ -1,5 +1,7 @@
 # Tổng 30 ngày — tiêu chí R05 hiện hành
 
+**Cập nhật phạm vi demo03/11/2026:** Tổng30 đã gỡ khỏi giao diện/API/CLI ứng dụng theo yêu cầu người dùng; không thêm cờ bật/tắt và không chờ bundle/receipt ngoài. Tài liệu/bằng chứng M05/R05 bên dưới là nghiên cứu và lịch sử tích hợp, không còn mô tả tính năng demo hiện hành. H14/L7/R1 phục vụ vận hành giữ nguyên; không tự nghiệm thu R05/R07/T14.
+
 Ngày 20/10/2026, người dùng thuật lại mentor **đã chốt chấm tổng 30 ngày thay cho từng ngày** (M05, CHG-061). Đây là nguồn xác nhận qua người dùng; chưa có biên bản mentor độc lập. Ngưỡng vẫn là MAPE ≤20% cho **từng tuyến top 10**, xếp theo quantity train. Không đổi raw, target, split hoặc tuyến để đạt ngưỡng.
 
 ## Kết quả đã đối soát
@@ -59,7 +61,7 @@ CLI kiểm summary/file/module hashes, receipt, selection lock trước test, tr
 
 Gói thực E93 có **8.510 forecast tổng 30**, **184 dòng metric** (46 tuyến ×2 split ×2 cadence). Gói ID `42dd7812e3b92ebddf781e9eaa0b0e2458e8f4dc764abce3db1c3888573940c0`; summary nguồn SHA `a8e90ec29ea154c34ac9d54fcf0a224767fe37a2435ab1ba0d57453359878c38`. Receipt kiểm gốc có trường `daily_R05_acceptance_replaced=false` theo tiêu chí lịch sử khi run tạo; giữ nguyên trường này. Cấu hình M05 hiện hành nằm trong [acceptance-30d.json](configs/acceptance-30d.json), không sửa ngược sealed run.
 
-## API và mã liên quan
+## Lịch sử API và mã liên quan (đã gỡ khỏi ứng dụng03/11/2026)
 
 | Đường dẫn sau `/api/v1/runs/{run_id}` | Phạm vi |
 |---|---|
@@ -71,7 +73,7 @@ Gói thực E93 có **8.510 forecast tổng 30**, **184 dòng metric** (46 tuy�
 
 Cadence chính `daily_origins`; chẩn đoán `nonoverlapping_30d` có 3 cửa sổ/tuyến. API từ chối item/supplier filter; dữ liệu thiếu gói trả `monthly_not_prepared`, gói lệch trả `monthly_invalid`. Run chưa complete hoặc parent không tương thích cũng bị chặn. CSV có BOM, escape chuỗi bắt đầu bằng ký tự công thức, null xuất ô trống.
 
-Mã hiện hành sau bước8 CHG-068: [service](../web/backend/src/modules/reporting/monthly.py), [API](../web/backend/src/modules/reporting/monthly_router.py), [UI](frontend/src/components/forecast/MonthlyForecast.tsx), [test backend](../web/backend/tests/test_monthly.py), [test UI](frontend/tests/monthly.test.tsx). Hướng dẫn chạy stack tại [README root](../README.md).
+Mã nghiên cứu/kiểm offline còn giữ: [service](../web/backend/src/modules/reporting/monthly.py), [test backend](../web/backend/tests/test_monthly.py). API `monthly_router.py`, UI `MonthlyForecast.tsx`, testUI monthly và lệnh prepare-monthly đã gỡ khỏi ứng dụng03/11/2026. Các endpoint/lệnh trong phần này chỉ ghi lại tích hợp lịch sử, không còn là hướng dẫn sử dụng demo. Hướng dẫn stack hiện hành tại [README root](../README.md).
 
 R05 **đạt ngưỡng số học theo M05 trên bộ test hồi cứu**. Nghiệm thu toàn bài/T14 còn cần mentor rà target A08, phạm vi mô phỏng, kết quả R07 và giới hạn holdout; không tự nhận đã được mentor ký duyệt.
 

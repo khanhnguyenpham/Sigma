@@ -11,6 +11,7 @@ from modules.forecasting.ingestion import import_snapshot
 from core.hashes import digest, code_digest
 from core.settings import Settings
 from core.demo import worker_heartbeat
+import models  # Register every foreign-key target before a standalone worker flushes Run.
 
 LOCK_ID = 734100719
 LOADED_CODE = code_digest()
@@ -20,7 +21,7 @@ def now():
     return datetime.now(timezone.utc)
 
 
-def process_one(settings, sessions):
+def claim_one(sessions):
     with sessions.begin() as session:
         row = session.scalar(
             select(Run)
@@ -34,7 +35,14 @@ def process_one(settings, sessions):
         row.status = "running"
         row.started_at = now()
         row.heartbeat_at = now()
-        key, kind, expected_code = row.id, row.kind, row.code_sha256
+        return row.id, row.kind, row.code_sha256
+
+
+def process_one(settings, sessions, claimed=None):
+    claimed = claimed or claim_one(sessions)
+    if claimed is None:
+        return None
+    key, kind, expected_code = claimed
     heartbeat_stop = threading.Event()
 
     def heartbeat():
@@ -182,6 +190,73 @@ def process_one(settings, sessions):
     return key
 
 
+def demo_process_one(settings, sessions):
+    """Keep the lock/heartbeat in the parent; own and bound the complete job tree."""
+    import subprocess, sys
+    import psutil
+    from web.backend.scripts.demo_stack import stop
+    claimed = claim_one(sessions)
+    if claimed is None:
+        return None
+    key = claimed[0]
+    # Producers create a new artifact directory themselves (forecast uses exist_ok=False).
+    private_root = settings.output_root.parent
+    env = {k: v for k, v in os.environ.items() if k != 'M3_OPERATOR_DATABASE_URL'}
+    env.update(M3_MODE='demo', M3_DATABASE_URL=settings.database_url,
+        M3_DEMO_ROOT=str(settings.demo_root), M3_SOURCE_ROOT=str(settings.source_root),
+        M3_OUTPUT_ROOT=str(settings.output_root), M3_FRONTEND_ORIGIN=settings.frontend_origin,
+        M3_WORKER_INSTANCE=settings.worker_instance,
+        OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
+        NUMEXPR_NUM_THREADS='1', VECLIB_MAXIMUM_THREADS='1')
+    from dataclasses import fields
+    env.update({'M3_DEMO_' + f.name.upper(): str(getattr(settings.demo_limits, f.name))
+                for f in fields(settings.demo_limits)})
+    started = time.monotonic()
+    limit_code = None
+    peak = 0
+    owned = {}
+    with (private_root / (str(key) + '_supervisor.private.log')).open('ab') as log:
+        process = subprocess.Popen([sys.executable, '-m', 'worker', '--claimed-run', str(key)],
+            env=env, stdin=subprocess.DEVNULL, stdout=log, stderr=log,
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+        try:
+            while process.poll() is None:
+                memory = 0
+                try:
+                    parent = psutil.Process(process.pid)
+                    for child in [parent, *parent.children(recursive=True)]:
+                        owned[child.pid] = child
+                        try:
+                            memory += child.memory_info().rss
+                        except psutil.NoSuchProcess:
+                            pass
+                except psutil.NoSuchProcess:
+                    pass
+                peak = max(peak, memory)
+                if time.monotonic() - started > settings.demo_limits.job_seconds:
+                    limit_code = 'demo_job_timeout'
+                elif memory > settings.demo_limits.job_memory_mb * 1024**2:
+                    limit_code = 'demo_job_memory'
+                if limit_code:
+                    break
+                time.sleep(.2)
+        finally:
+            # Also remove model descendants if their job parent exited unexpectedly.
+            stop(process, group=False, owned=owned.values())
+    with sessions.begin() as session:
+        row = session.get(Run, key)
+        if row.status == 'running' or limit_code:
+            row.status = 'failed'
+            row.error_code = limit_code or 'demo_job_exited'
+            row.finished_at = row.heartbeat_at = now()
+    receipt = dict(run_id=str(key), elapsed_seconds=time.monotonic()-started,
+        peak_tree_rss_bytes=peak, job_seconds=settings.demo_limits.job_seconds,
+        job_memory_mb=settings.demo_limits.job_memory_mb, limit_code=limit_code,
+        model_processes=1, model_threads=1)
+    (private_root / (str(key) + '_resources.private.log')).write_text(json.dumps(receipt, indent=2), encoding='utf-8')
+    return key
+
+
 def serve(settings, once=False):
     engine, sessions = database(settings.database_url)
     try:
@@ -203,7 +278,8 @@ def serve(settings, once=False):
                     )
                 with worker_heartbeat(settings, LOADED_CODE):
                     while True:
-                        key = process_one(settings, sessions)
+                        key = (demo_process_one(settings, sessions) if settings.mode == 'demo'
+                               else process_one(settings, sessions))
                         if once:
                             return key
                         if key is None:
@@ -217,8 +293,25 @@ def serve(settings, once=False):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--once", action="store_true")
+    parser.add_argument('--claimed-run')
     args = parser.parse_args()
-    key = serve(Settings.from_env(), args.once)
+    settings = Settings.from_env()
+    if args.claimed_run:
+        import uuid
+        if settings.mode != 'demo':
+            raise SystemExit('Claimed jobs require demo mode')
+        engine, sessions = database(settings.database_url)
+        try:
+            with sessions() as session:
+                row = session.get(Run, uuid.UUID(args.claimed_run))
+                if row is None or row.status != 'running':
+                    raise SystemExit('Job is not claimed')
+                claimed = row.id, row.kind, row.code_sha256
+            process_one(settings, sessions, claimed)
+        finally:
+            engine.dispose()
+        return
+    key = serve(settings, args.once)
     print("Processed one queued run" if key else "No queued run")
 
 

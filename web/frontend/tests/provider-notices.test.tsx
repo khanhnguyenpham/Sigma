@@ -136,7 +136,7 @@ it('automatically adds the supported trade marker only for inventory runs',async
 it('focuses the rejected field and preserves the draft after a validation error',async()=>{
   render(<ProviderNoticeForm day={day} runs={[]} onClose={()=>{}} onSaved={()=>{}} />);await scope();reasons();invalidReason=true;
   fireEvent.click(screen.getByRole('button',{name:'Xem phạm vi và tác động'}));await screen.findByRole('alert');
-  expect(screen.getByLabelText('Lý do thay đổi')).toHaveFocus();expect(screen.getByLabelText('Lý do thay đổi')).toHaveValue('Declared simulation');
+  await waitFor(()=>expect(screen.getByLabelText('Lý do thay đổi')).toHaveFocus());expect(screen.getByLabelText('Lý do thay đổi')).toHaveValue('Declared simulation');
   expect(screen.getByText('Kiểm tra: Lý do thay đổi')).toBeVisible();expect(screen.getByRole('button',{name:'Lưu thông báo'})).toBeDisabled();
 });
 

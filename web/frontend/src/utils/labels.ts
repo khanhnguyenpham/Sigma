@@ -20,13 +20,11 @@ export function label(kind: string) {
 
 export function errorLabel(error: Error) {
   const code = error instanceof ApiError ? error.code : "";
+  if (error instanceof ApiError && error.status === 429 && error.details?.retry_after_seconds)
+    return `${error.message} Thử lại sau ${error.details.retry_after_seconds} giây.`;
   return (
     (
       {
-        monthly_not_prepared:
-          "Nguồn này chưa có gói tổng 30 đã kiểm chứng. Xem hướng dẫn prepare-monthly trong M3.",
-        monthly_invalid:
-          "Gói tổng 30 không khớp nguồn hoặc checksum. Cần kiểm tra lại trước khi hiển thị.",
         run_not_complete:
           "Lượt chạy chưa hoàn tất. Hãy theo dõi tiến độ ở Tổng quan.",
         parent_mismatch:

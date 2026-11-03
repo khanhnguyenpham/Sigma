@@ -23,8 +23,8 @@ def group_alive(group):
     return False
 
 
-def stop(process):
-    if os.name == "posix":
+def stop(process, *, group=True, owned=()):
+    if os.name == "posix" and group:
         try:
             os.killpg(process.pid, signal.SIGTERM)
         except ProcessLookupError:
@@ -47,24 +47,43 @@ def stop(process):
                 raise RuntimeError("Demo process group did not stop")
             time.sleep(.02)
     else:
+        targets = list(owned)
         try:
             parent = psutil.Process(process.pid)
-            targets = parent.children(recursive=True) + [parent]
-            for target in reversed(targets):
-                try:
-                    target.terminate()
-                except psutil.NoSuchProcess:
-                    pass
-            _, alive = psutil.wait_procs(targets, timeout=5)
-            for target in alive:
-                try:
-                    target.kill()
-                except psutil.NoSuchProcess:
-                    pass
-            psutil.wait_procs(alive, timeout=5)
+            targets += parent.children(recursive=True) + [parent]
         except psutil.NoSuchProcess:
             pass
+        # Long jobs retain handles for exited model pools. Check process identity
+        # before cleanup; waiting on a recycled Windows PID can raise AccessDenied.
+        targets = [p for p in {p.pid: p for p in targets}.values() if p.is_running()]
+        for target in reversed(targets):
+            try:
+                target.terminate()
+            except psutil.NoSuchProcess:
+                pass
+        def remaining():
+            live = []
+            for target in targets:
+                try:
+                    if target.is_running() and target.status() not in {psutil.STATUS_ZOMBIE, psutil.STATUS_DEAD}:
+                        live.append(target)
+                except psutil.NoSuchProcess:
+                    pass
+            return live
+        deadline = time.monotonic() + 5
+        while (alive := remaining()) and time.monotonic() < deadline:
+            time.sleep(.02)
+        for target in alive:
+            try:
+                target.kill()
+            except psutil.NoSuchProcess:
+                pass
+        deadline = time.monotonic() + 5
+        while remaining() and time.monotonic() < deadline:
+            time.sleep(.02)
         process.wait(timeout=5)
+        if remaining():
+            raise RuntimeError("Demo process tree did not stop")
 
 
 def supervise(commands, env, stopping=None):
@@ -112,7 +131,8 @@ def main():
         raise SystemExit("PORT must be in 1024..65535") from None
     env = {**os.environ, "M3_WORKER_INSTANCE": str(uuid.uuid4())}
     return supervise([[sys.executable, "-m", "worker"], [sys.executable, "-m", "uvicorn",
-        "main:create_app", "--factory", "--host", "0.0.0.0", "--port", str(port)]], env)
+        "main:create_app", "--factory", "--host", "0.0.0.0", "--port", str(port),
+        '--limit-concurrency', '64', '--timeout-keep-alive', '5']], env)
 
 
 if __name__ == "__main__":

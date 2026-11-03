@@ -1,6 +1,10 @@
 # Runtime và dữ liệu demo
 
-D1 thêm cấu hình/launcher/probes để API và worker chạy cùng một instance. D2 bổ sung xuất nguồn ẩn danh và công cụ seed/backup/reset bên dưới. Quota/benchmarkD3 và triển khaiD4 còn chờ. Theo yêu cầu03/11/2026, không thêm banner “demo dùng chung” vào giao diện.
+**03/11/2026 — tiếp tục D3 và gỡ Tổng 30 khỏi demo theo yêu cầu mới.** Bỏ hẳn giao diện/API Tổng 30, không thêm cờ bật/tắt hoặc phụ thuộc bundle/receipt ngoài. Luồng dự báo vận hành H14/tồn/nhập/cảnh báo giữ nguyên. R05/M05 và bằng chứng nghiên cứu lịch sử không tự nghiệm thu hoặc xóa. Các checkpoint chờ Tổng30/tạm dừng phía dưới là lịch sử. D3 đã kiểm chức năng, cổng vận hành/publish theo bàn giao; chưa deploy; D4–D6 chưa làm.
+
+**D3 đã kiểm local03/11/2026:** quota/guard/retry, benchmark, API/CSV/browser và full-size backup/reset đạt; template env đã đồng bộ. [Bàn giao và giới hạn số đo](../../../docs/development.md#handoff-chg090-d3). D4 mới kiểm cấu hình/tài nguyên hosting, chưa deploy.
+
+D1 thêm cấu hình/launcher/probes để API và worker chạy cùng một instance. D2 bổ sung xuất nguồn ẩn danh và công cụ seed/backup/reset bên dưới. Quota/benchmarkD3 đã kiểm local; triển khaiD4 còn chờ. Theo yêu cầu03/11/2026, không thêm banner “demo dùng chung” vào giao diện.
 
 ## Cấu hình
 
@@ -64,9 +68,17 @@ Sau khi worker bị dừng đột ngột, khởi động lại launcher để wo
 
 Snapshot nằm`M3_DEMO_ROOT/backups/NAME`; nguồn bất biến ở`source/` phải được sao lưu cùng manifest riêng. Snapshot chỉ dùng với schema tương thích; khác releasecode cần rehearsal lại, không nhận rollbackcode là đủ. Không có HTTPreset hoặc reset khiboot.
 
-### Phần tổng 30 ngày chờ bàn giao
+### Phạm vi dự báo demo
 
-Bundle`sigma_aggregate_focus_20261018` và receipt gốc do người khác phụ trách, hiện không có trên máy này. Tổng30 không là cha của H14/inventory nên không cản demo các chức năng đó; endpoint tổng30 vẫn báo thiếu gói409, không giả kết quả hoặc bỏ hashcheck. Cần nhận bundle/receipt hợp lệ, đối chiếu route-day và tạo package gắn nguồn demo qua bước riêng trước khi trình diễn tổng30/R05. D2 chưa nghiệm thu phần này; R05/R07/T14 giữ mở.
+Đã gỡ Tổng 30 ngày khỏi bản demo: không component/tab, API/CSV monthly hoặc lệnh prepare-monthly trong CLI ứng dụng; không thêm cờ bật/tắt. Chỉ dùng tổng tuần và phân bổ ngày H14 cho tồn/nhập/cảnh báo. Không chờ bundle/receipt ngoài. R05/M05 và bằng chứng nghiên cứu lịch sử giữ riêng, không được tự nhận nghiệm thu.
+
+### Hạn mức D3
+
+Mẫu env khai báo 2 run queued/running, 8 run/giờ, 16 run lưu giữ, 60 request ghi/phút, body thực 64KiB trong 10giây, replay tối đa92ngày. Một API process có một bộ đếm request ghi trong RAM; reset khi restart. Quota run khóa transaction PostgreSQL, xét idempotency trước quota; API/CLI/operator dùng chung cổng nhận job. Khi chạm hạn mức trả429 và Retry-After, đọc dữ liệu vẫn hoạt động.
+
+Worker cha giữ lock/heartbeat, giám sát thời gian7200giây và RAM4096MiB của cả cây process job; dọn process con và ghi failed có lý do khi vượt. Demo dùng một process tính model và một thread/model; không đổi model/selection/horizon/cohort. Dung lượng DB kiểm trước nhận job4096MiB, disk còn ít nhất512MiB; đây là cổng nhận job, không phải giới hạn tuyệt đối dung lượng tăng trong job.
+
+Retention chỉ từ chối job mới, không tự xóa cha/artifact. Seed D2 có7run, vì vậy cap16 còn9slot trước reset; các run lỗi/retry cũng chiếm slot. Người vận hành backup/reset ngoại tuyến theo quy trình phía trên, giữ graph cha và mọi artifact đồng bộ. Không có endpoint reset công khai. Mức RAM/thời gian là giới hạn bảo vệ; benchmark local và kiểm cloud D4 là hai cổng khác nhau.
 
 ## Probes
 

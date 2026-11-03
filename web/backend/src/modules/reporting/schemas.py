@@ -31,17 +31,3 @@ class Filters(TradeFilters):
     granularity: Literal["weekly", "allocated_daily", "alert", "policy", "threshold"] | None = None
     cadence: Literal["daily_origins", "nonoverlapping_7d"] | None = None
     aggregate: Literal["route_day"] | None = None
-
-
-class MonthlyFilters(DTO):
-    page: int = Field(default=1, ge=1)
-    page_size: int = Field(default=50, ge=1, le=100)
-    warehouse_id: int | None = Field(default=None, gt=0)
-    as_of_date: date | None = None
-    split: Literal["validation", "test", "future"] | None = None
-    cadence: Literal["daily_origins", "nonoverlapping_30d"] = "daily_origins"
-    top10_only: bool = True
-
-
-class SummaryFilters(DTO):
-    pass

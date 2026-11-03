@@ -1,6 +1,7 @@
 """Local configuration; HTTP never resolves arbitrary filesystem paths."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from core.demo_limits import DemoLimits
 import os
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -26,6 +27,7 @@ class Settings:
     mode: str = "local"
     worker_instance: str = ""
     demo_root: Path | None = None
+    demo_limits: DemoLimits = field(default_factory=DemoLimits)
 
     @classmethod
     def from_env(cls):
@@ -75,6 +77,7 @@ class Settings:
             mode,
             os.environ.get("M3_WORKER_INSTANCE", ""),
             demo_root,
+            DemoLimits.from_env() if mode == 'demo' else DemoLimits(),
         )
 
     def order_source(self, key):

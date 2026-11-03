@@ -184,7 +184,7 @@ def run_job(settings, body, request_key=None):
     engine, sessions = database(settings.database_url)
     try:
         with sessions.begin() as session:
-            row, _ = enqueue(session, RunCreate(**body), request_key or str(uuid.uuid4()))
+            row, _ = enqueue(session, RunCreate(**body), request_key or str(uuid.uuid4()), settings)
             key = row.id
         while True:
             with sessions() as session:

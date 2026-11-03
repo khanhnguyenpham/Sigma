@@ -11,13 +11,17 @@ from core.run_context import required_run
 from modules.runs.models import Run
 from modules.configuration.models import Scenario
 
-def enqueue(session, request, key):
+def enqueue(session, request, key, settings=None):
     if not key or len(key) > 128 or not key.isprintable():
         raise DomainError(
             "invalid_input", "Idempotency-Key must contain 1–128 printable characters"
         )
     body = request.model_dump(mode="json", exclude_none=True)
     body_hash = digest(body)
+    if settings and settings.mode == 'demo':
+        from sqlalchemy import text
+        from core.demo_limits import ADMISSION_LOCK
+        session.execute(text('SELECT pg_advisory_xact_lock(:key)'), {'key': ADMISSION_LOCK})
     existing = session.scalar(select(Run).where(Run.request_key == key))
     if existing:
         if existing.request_sha256 != body_hash:
@@ -27,9 +31,16 @@ def enqueue(session, request, key):
                 409,
             )
         return existing, False
+    if settings and settings.mode == 'demo':
+        from core.demo_limits import admit
+        admit(session, settings, request)
     profile_path = PROJECT_ROOT / "web/backend/configs/m3-profile.json"
     profile = json.loads(profile_path.read_text(encoding="utf-8"))
     snapshot = dict(profile=profile, request=body, **PROFILE)
+    if settings and settings.mode == 'demo':
+        from dataclasses import asdict
+        snapshot['demo_limits'] = asdict(settings.demo_limits)
+        snapshot['demo_compute'] = dict(model_processes=1, model_threads=1)
     source_sha = None
     if request.source_import_run_id:
         source = required_run(

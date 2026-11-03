@@ -41,6 +41,15 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
     try:
         expected = json.loads((FIXTURES / "openapi_baseline.json").read_text(encoding="utf-8"))
         schema = app.openapi()
+        # Removed Total30 endpoints/types are the only historical contract subtraction.
+        assert not any('monthly' in path for path in schema['paths'])
+        removed = json.loads((FIXTURES / 'removed_monthly_openapi.json').read_text())
+        assert len(removed['paths']) == 5 and all('monthly' in p for p in removed['paths'])
+        schema['paths'].update(removed['paths'])
+        schema['components']['schemas'].update(removed['schemas'])
+        retry = schema['paths'].pop('/api/v1/runs/{key}/retry')
+        assert set(retry) == {'post'}
+        assert any(p['name'] == 'Idempotency-Key' and p['required'] for p in retry['post']['parameters'])
         # CHG-082 adds three reads only; every pre-existing API contract stays unchanged.
         schema["paths"].pop("/api/v1/runs/{key}/sell-through")
         schema["paths"].pop("/api/v1/products")
@@ -203,9 +212,15 @@ def test_code_digest_detects_changes_in_the_relocated_backend(monkeypatch, tmp_p
     final_report = tmp_path / "M2/final_report.py"
     final_report.parent.mkdir()
     final_report.write_text("unchanged", encoding="utf-8")
+    supervisor = tmp_path / "web/backend/scripts/demo_stack.py"
+    supervisor.parent.mkdir(parents=True)
+    supervisor.write_text("guard-before", encoding="utf-8")
     monkeypatch.setattr(hashes, "PROJECT_ROOT", tmp_path)
     before = hashes.code_digest()
     source.write_text("after", encoding="utf-8")
+    assert hashes.code_digest() != before
+    before = hashes.code_digest()
+    supervisor.write_text("guard-after", encoding="utf-8")
     assert hashes.code_digest() != before
 
 

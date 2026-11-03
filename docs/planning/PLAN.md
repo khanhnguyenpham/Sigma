@@ -1,5 +1,16 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-090/D3 — 03/11/2026, kiểm local hoàn tất, chờ publish:** Đã gỡ hẳn Tổng30 khỏi UI/API/schema/CLI ứng dụng, không có cờ bật/tắt và không chờ bundle/receipt ngoài. Quota nguyên tử, body/write limits, guard thời gian/RAM/cây process, một model process/thread và retry API/UI đã kiểm. 517Python BE/M2/pipcheck (gồm5S25local ngoàiGit),89React/build đạt. Forecast mới và3run tồn complete/verified;12CSV khớp API, lifecycle chặn đúng5đơn vị nguồn; UIretrycomplete/429retention và backup/reset quota synthetic đạt. BốnDB/1.466tệp cùng7run D2 nguyên; app0008/3run. Demo16run, không job đang chạy. Chưa commit/push/deploy D3; D4–D6 chưa làm. C00/R05/R07/T14 giữ nguyên;3PythonS25/COMMIT_BLOCK_PLAN.md, dữ liệu/credential/outputs ngoàiGit. [Bàn giao](../development.md#handoff-chg090-d3).
+
+Các checkpoint tạm dừng/chờ Tổng30 phía dưới là lịch sử trước yêu cầu tiếp tục và gỡ tính năng.
+
+
+
+<a id="chg-090-d3"></a>
+## CHG-090 — D3 đang dở, tạm dừng theo người dùng
+
+Đã triển khai local quota/request/jobguard/compute/retry và kiểm515Python/90React/build/pipcheck; benchmark mới có nguồncomplete, forecast617f8d7f cònrunning khi dừng trước verifier/seal. Dừng đúng stack8040, giữ dữ liệu/run lỗi/partial và các thay đổi local, chưa commit/push/deploy. Browser hai khách/lifecycle/mobile mới kiểm một phần; ba inventoryD3, API/CSV/bảo toàn và số đo cuối chưa chốt. [Bàn giao và điểm tiếp tục](../development.md#handoff-chg090-d3). Tổng30 còn chờ ngoài; D4–D6 chưa làm, C00/R05/R07/T14 giữ nguyên.
+
 <a id="chg-089-d2"></a>
 ## CHG-089 — Dữ liệu và khôi phục demo D2
 

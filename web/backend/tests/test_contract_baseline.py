@@ -16,6 +16,7 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
         path: sorted(k for k in methods if k in {'get', 'post', 'patch', 'delete', 'put'})
         for path, methods in app.openapi()['paths'].items()
     }
+    assert routes.pop('/api/v1/runs/{key}/retry') == ['post']
     # CHG-082 adds product management and a live warehouse read; retain the golden for all existing operations.
     assert routes.pop('/api/v1/products') == ['get']
     assert routes.pop('/api/v1/products/{key}') == ['get']
@@ -26,7 +27,9 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
             routes.pop(path)
     assert routes.pop('/api/v1/runs/{key}/sell-through') == ['get']
     routes['/api/v1/warehouses/{key}'].remove('get')
-    assert routes == baseline['routes']
+    # Total30 is removed from the application; historical fixture stays intact.
+    assert not any('monthly' in path for path in routes)
+    assert routes == {p: methods for p, methods in baseline['routes'].items() if 'monthly' not in p}
     assert set(Base.metadata.tables) == set(baseline['tables']) | {'item_supply_changes',
         'provider_product_notices', 'provider_product_notice_items', 'provider_product_notice_events'}
     assert len(Base.metadata.tables) == 17
