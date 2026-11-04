@@ -4,6 +4,7 @@ from core.errors import DomainError
 from core.hashes import digest
 from modules.runs.models import Run
 from modules.configuration.schemas import LEGACY_POLICY_DEFAULTS
+from modules.catalog.receiving import frozen_receiving
 
 
 def source_data_id(source):
@@ -81,6 +82,9 @@ def snapshot_maps(session, run):
         }
         for i in snap.get("catalog_snapshot", [])
     }
+    for item_id, location in frozen_receiving(snap).items():
+        items[item_id].update({key: location[key] for key in
+            ("source_warehouse_id", "receiving_warehouse_id", "receiving_version")})
     # Interpret legacy policies in a copy; never backfill sealed JSON or its hash.
     policies = {p["id"]: {**LEGACY_POLICY_DEFAULTS, **p} for p in snap.get("policies", [])}
     return warehouses, items, policies

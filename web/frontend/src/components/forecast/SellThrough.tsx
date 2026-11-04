@@ -11,6 +11,7 @@ import { Pager } from "../ui/Pager";
 import { ExportButton } from "../ui/ExportButton";
 import { badge } from "../ui/Badge";
 import { TradeRights } from "../products/TradePresentation";
+import { warehouseName } from "../../utils/warehouse";
 
 export function SellThrough({ runId, ctx, trade:tradeRun=false }: { runId: string; ctx: Context; trade?:boolean }) {
   const [page, setPage] = useState(1);
@@ -30,7 +31,7 @@ export function SellThrough({ runId, ctx, trade:tradeRun=false }: { runId: strin
         {trade && <Line dataKey="closing_blocked" name="Tồn bị chặn" stroke="#ad6d2f" strokeDasharray="6 3" dot={false} />}
       </LineChart></ResponsiveContainer></div>}
       <Table rows={rows} columns={[
-        {key:"target_date",label:"Ngày UTC"},{key:"sku",label:"Sản phẩm"},{key:"city",label:"Kho"},
+        {key:"target_date",label:"Ngày UTC"},{key:"sku",label:"Sản phẩm"},{key:"city",label:"Kho",render:(_value:unknown,row:Row)=>warehouseName(row)},
         {key:"projected_sales_qty",label:"Dự kiến bán"},{key:"receipts_qty",label:"Hàng về đã biết"},
         ...(trade?[{key:"unserved_stock_qty",label:"Thiếu do tồn"},{key:"sales_blocked_qty",label:"Bị nhà mạng chặn"},{key:"closing_sellable",label:"Tồn được bán"},{key:"closing_blocked",label:"Tồn bị chặn"}]:[]),
         {key:"closing_forecast",label:"Tồn cuối ngày"},

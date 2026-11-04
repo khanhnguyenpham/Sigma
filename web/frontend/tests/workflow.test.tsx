@@ -10,7 +10,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { State } from "../src/components/ui/State";
 import { Table } from "../src/components/ui/Table";
 import { useResource } from "../src/hooks/useResource";
-import { RunDialog } from "../src/components/dialogs/RunDialog";
+import { RunForm } from "../src/components/configuration/RunForm";
 import { ApiError } from "../src/services/http";
 import { contextUrl, readContext } from "../src/utils/url";
 import { fmt } from "../src/utils/format";
@@ -123,10 +123,11 @@ describe("Result integrity in the UI", () => {
       },
     ] satisfies Run[];
     const created = vi.fn();
-    render(<RunDialog runs={runs} onClose={() => {}} onCreated={created} />);
-    await screen.findByText("Base · v1");
+    render(<RunForm scenario={{ id: 1, name: "Base", version: 1 }} runs={runs} onCreated={created} />);
+    await screen.findByText("Base · phiên bản 1");
+    await waitFor(() => expect(screen.getByRole("button", { name: "Chạy kịch bản" })).toBeEnabled());
     const form = screen
-      .getByRole("button", { name: "Bắt đầu lượt chạy" })
+      .getByRole("button", { name: "Chạy kịch bản" })
       .closest("form")!;
     fireEvent.submit(form);
     fireEvent.submit(form);
@@ -145,6 +146,6 @@ describe("Result integrity in the UI", () => {
     expect(keys[1]).toBe(keys[0]);
     expect(bodies[1]).toBe(bodies[0]);
     await act(async () => finish(response({ run_id: "new-run" })));
-    await waitFor(() => expect(created).toHaveBeenCalledWith("new-run"));
+    await waitFor(() => expect(created).toHaveBeenCalledWith("new-run", "1"));
   });
 });

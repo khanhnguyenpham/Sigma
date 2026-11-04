@@ -51,7 +51,8 @@ def history_at(matrix, item, origin, days):
 
 
 def pure_window(
-    matrix, sales_events, catalog, forecasts, policies, scenario, kind, origin, end, supply_changes=None, trade_snapshot=None
+    matrix, sales_events, catalog, forecasts, policies, scenario, kind, origin, end, supply_changes=None, trade_snapshot=None,
+    receiving=None
 ):
     known = [i for i in catalog if date.fromisoformat(i["first_seen_date"]) <= origin]
     ids = [i["item_id"] for i in known]
@@ -84,6 +85,8 @@ def pure_window(
             changes_by_item[change["item_id"]].append(change)
 
     def add_order(record):
+        if receiving is not None:
+            record["receiving_warehouse_id"] = receiving[record["item_id"]]
         orders.append(record)
         orders_by_item[record["item_id"]].append(record)
 
@@ -487,6 +490,8 @@ def simulate_run(settings, sessions, key):
             raise DomainError('invalid_trade_history', 'Unsupported trade lifecycle profile')
         from modules.runs.trade_verification import verify_trade_snapshot
         verify_trade_snapshot(run)
+        from modules.runs.receiving_verification import verify_receiving_snapshot
+        receiving = verify_receiving_snapshot(run)
         profile = snapshot.get("supply_lifecycle_profile")
         if profile not in (None, "notice7_sellthrough_v1") or (profile is None and snapshot.get("supply_lifecycle_snapshot")):
             raise DomainError("invalid_supply_history", "Unsupported supply lifecycle profile")
@@ -595,7 +600,7 @@ def simulate_run(settings, sessions, key):
             total_windows=len(windows),
         )
         result = pure_window(
-            matrix, grouped, catalog, vectors, policies, scenario, kind, start, finish, supply_changes, trade_snapshot
+            matrix, grouped, catalog, vectors, policies, scenario, kind, start, finish, supply_changes, trade_snapshot, receiving
         )
         for name in combined:
             combined[name].extend(result[name])
@@ -709,6 +714,9 @@ def simulate_run(settings, sessions, key):
         ] + ([dict(granularity="threshold", **threshold_metrics(combined["threshold_cases"]))]
              if kind == "alert_replay" else []),
     )
+    if receiving is not None:
+        summary.update(receiving_warehouse_profile=snapshot["receiving_warehouse_profile"],
+                       receiving_warehouse_count=len(set(receiving.values())))
     if profile:
         summary.update(supply_lifecycle_profile=profile,
                        supply_stopped_decisions=sum(s["supply_stopped_decisions"] for s in summaries))

@@ -129,7 +129,7 @@ def test_readiness_schema_storage_and_worker_with_real_pg(pg, monkeypatch, tmp_p
                 assert "postgresql" not in response.text and str(tmp_path) not in response.text
             finally:
                 with pg[0].begin() as connection:
-                    connection.execute(text("UPDATE alembic_version SET version_num='0008_trade_lifecycle'"))
+                    connection.execute(text("UPDATE alembic_version SET version_num='0009_receiving_warehouse'"))
         assert client.get("/api/v1/ready").status_code == 503
 
 

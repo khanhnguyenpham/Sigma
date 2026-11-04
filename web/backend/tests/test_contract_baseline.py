@@ -22,6 +22,7 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
     assert routes.pop('/api/v1/products/{key}') == ['get']
     assert routes.pop('/api/v1/products/{key}/supply-changes') == ['get', 'post']
     assert routes.pop('/api/v1/products/{key}/internal-stop-preview') == ['post']
+    assert routes.pop('/api/v1/products/{key}/receiving-warehouse') == ['patch']
     for path in list(routes):
         if path.startswith('/api/v1/provider-product-notices'):
             routes.pop(path)

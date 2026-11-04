@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 
 import { api } from "../services/http";
 
-export function useResource<T>(path: string | null, keepPrevious = false, refreshKey = 0) {
+export function useResource<T>(path: string | null, keepPrevious = false, refreshKey = 0,
+  load: (path: string, options: RequestInit) => Promise<T> = api) {
   const [revision, setRevision] = useState(0);
   useEffect(() => {
     const refresh = () => setRevision((v) => v + 1);
@@ -26,17 +27,17 @@ export function useResource<T>(path: string | null, keepPrevious = false, refres
       data: keepPrevious ? previous.data : undefined,
       loading: true,
     }));
-    api<T>(path, { signal: controller.signal })
+    load(path, { signal: controller.signal })
       .then((data) => {
         if (!controller.signal.aborted)
           setState({ path, data, loading: false });
       })
       .catch((error) => {
         if (!controller.signal.aborted)
-          setState({ path, loading: false, error });
+          setState((previous) => ({ path, data: keepPrevious ? previous.data : undefined, loading: false, error }));
       });
     return () => controller.abort();
-  }, [path, revision, refreshKey]);
+  }, [path, revision, refreshKey, load]);
   return state.path === path || keepPrevious
     ? state
     : { loading: !!path, data: undefined, error: undefined };

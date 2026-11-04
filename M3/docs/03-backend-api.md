@@ -1,5 +1,11 @@
 # M3 — backend, API và worker
 
+**CHG-094/095 — 04/11/2026, API đã kiểm tích hợp:** Filter lịch sử trước total/page, metadata frozen whitelist, PATCH kho/version và kết quả theo receiving_warehouse_id đạt trong520Python. AlertRow đã khai báo đủ metadata receiving; count sản phẩm dùng Item.id để không truy vấn cột chưa tồn tại ở schema cũ. Verifier/API/CSV đạt cho run browser synthetic và đạt lại sau restore. Không phục vụ bản API mới trên demo ở lượt này. [Bàn giao](../../docs/development.md#handoff-chg094-095-integration).
+
+**CHG-094 — 04/11/2026, source API cho trang Kịch bản/chưa kiểm:** GET `/runs` nhận thêm `scenario_id` (số nguyên dương), `kind` (5 kind hiện có), `status` (queued/running/complete/failed/invalidated); các filter tùy chọn kết hợp AND trước total/order/page, bỏ trống giữ hành vi cũ. GET danh sách/chi tiết thêm `scenario_name`, `scenario_version`; chi tiết thêm `scenario_settings` chỉ gồm cover_days/safety_multiplier/policy_overrides/receipts_initial/receipts_declared từ snapshot frozen. Không trả toàn config, request hoặc đường dẫn riêng. Trang dùng POST `/scenarios`, POST `/runs` với Idempotency-Key và POST `/runs/{id}/retry` hiện có; không có API chạy pipeline mới hoặc kho override trong RunCreate. Không thay schema DB cho CHG-094. Ca kiểm filter/count/page/metadata đã chuẩn bị, chưa chạy hoặc phục vụ bản API mới trên demo. [Bàn giao](../../docs/development.md#implementation-chg094-scenarios).
+
+**Tiến độ CHG-095, 04/11/2026:** Source PATCH `/products/{key}/receiving-warehouse`, metadata đọc sản phẩm và filter `receiving_warehouse_id` cho kết quả/`GET /items?run_id=…` đã viết. Freeze tự lấy mặc định từng sản phẩm, không cần trường kho trong RunCreate/scenario. Worker/verifier/read model dùng profile `product_default_receiving_v1`. Chưa test/build/migration hoặc phục vụ API mới trên demo; [giới hạn](../../docs/development.md#implementation-chg095-receiving-warehouse). Phần dự kiến bên dưới là checkpoint trước code.
+
 <a id="receiving-warehouse-chg095"></a>
 ## CHG-095 — API kho nhận hàng mặc định, dự kiến
 

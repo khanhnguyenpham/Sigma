@@ -4,7 +4,7 @@ import { ProviderNoticeForm } from "../src/components/products/ProviderNoticeFor
 import { ProviderNotices } from "../src/pages/ProviderNotices";
 import { ProductDetail } from "../src/pages/Products";
 import { ProductSupply } from "../src/pages/ProductSupply";
-import { RunDialog } from "../src/components/dialogs/RunDialog";
+import { RunForm } from "../src/components/configuration/RunForm";
 import { SellThrough } from "../src/components/forecast/SellThrough";
 import { contextUrl,readContext,navigationUrl } from "../src/utils/url";
 import type { Row,Run } from "../src/types/api";
@@ -137,8 +137,8 @@ it('round trips frozen rights/window and provider filters through navigation wit
 
 it('automatically adds the supported trade marker only for inventory runs',async()=>{
   const forecast:Run={id:'forecast',kind:'forecast',status:'complete',as_of_date:day,observation_end:day,source_import_run_id:'source',forecast_run_id:null,scenario_id:null,config_version:'test',assumption_version:'test',target_version:'test',error_code:null,result_summary:{origins:1},period_start:null,period_end:null,created_at:day};
-  render(<RunDialog runs={[forecast]} onClose={()=>{}} onCreated={()=>{}} />);await waitFor(()=>expect(screen.getByRole('button',{name:'Bắt đầu lượt chạy'})).toBeEnabled());
-  fireEvent.submit(screen.getByRole('button',{name:'Bắt đầu lượt chạy'}).closest('form')!);
+  render(<RunForm scenario={{ id: 1, name: "Base", version: 1 }} runs={[forecast]} onCreated={()=>{}} />);await waitFor(()=>expect(screen.getByRole('button',{name:'Chạy kịch bản'})).toBeEnabled());
+  fireEvent.submit(screen.getByRole('button',{name:'Chạy kịch bản'}).closest('form')!);
   await waitFor(()=>expect(posts).toHaveLength(1));expect(posts[0].body.trade_lifecycle_profile).toBe('internal_provider_trade_v2');
   expect(screen.queryByText('internal_provider_trade_v2')).toBeNull();
 });

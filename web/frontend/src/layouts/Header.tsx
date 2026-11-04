@@ -9,10 +9,8 @@ export function Header({ app }: { app: AppContextState }) {
     navOpen,
     setNavOpen,
     busyRun,
-    selectRun,
-    navigate,
     setHelp,
-    setDialog,
+    openScenarios,
   } = app;
   const selectedTitle = page === "product-supply" || page.startsWith("provider-") ? "Lịch cung cấp" : page === "product" ? "Cấu hình sản phẩm" : PAGES.find((p) => p[0] === page)?.[2] ?? "Tổng quan";
   return (
@@ -52,8 +50,7 @@ export function Header({ app }: { app: AppContextState }) {
           <button
             className="task-indicator"
             onClick={() => {
-              selectRun(busyRun.id);
-              navigate("overview");
+              openScenarios(busyRun.id);
             }}
           >
             <i className="spinner" />
@@ -63,10 +60,10 @@ export function Header({ app }: { app: AppContextState }) {
         <span className="environment-pill">
           <Icon name="info" size={14} /> {"Dữ liệu mô phỏng"}
         </span>
-        <button className="primary" onClick={() => setDialog(true)}>
+        {page !== "scenarios" && <button className="primary" onClick={() => openScenarios()}>
           <Icon name="plus" size={17} />
           Tạo phương án
-        </button>
+        </button>}
       </div>
     </header>
   );

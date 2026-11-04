@@ -14,6 +14,7 @@ from core.serialization import clean_json
 from modules.runs.supply_verification import verify_supply_snapshot, supply_metadata, projection_path
 from modules.runs.trade_verification import (verify_trade_snapshot, trade_rights, trade_path,
     order_limit, window_exclusion)
+from modules.runs.receiving_verification import verify_receiving_snapshot
 
 
 def verify_run(settings, sessions, key, allow_running=False):
@@ -29,6 +30,7 @@ def verify_run(settings, sessions, key, allow_running=False):
         if snap.get('trade_lifecycle_profile') not in (None, 'internal_provider_trade_v2'):
             raise DomainError('invalid_trade_history', 'Unsupported trade lifecycle profile', 409)
         verify_trade_snapshot(run)
+        verify_receiving_snapshot(run)
         if run.status == "complete" and digest(snap) != run.config_sha256:
             raise DomainError("verification_failed", "Config checksum differs")
         root = settings.output_root / str(key)
@@ -272,6 +274,7 @@ def verify_forecast(s, run, root):
 
 def verify_inventory(s, run, settings):
     trade = verify_trade_snapshot(run)
+    receiving = verify_receiving_snapshot(run)
     params = {"id": run.id}
     ledger = pd.read_sql(
         text(
@@ -295,6 +298,7 @@ def verify_inventory(s, run, settings):
         params=params,
         parse_dates=["window_origin", "ordered_on", "eta"],
     )
+    verify_receiving_snapshot(run, orders)
     alerts = pd.read_sql(
         text("SELECT * FROM alerts WHERE run_id=:id"),
         s.connection(),
@@ -552,7 +556,9 @@ def verify_inventory(s, run, settings):
             if r.event_kind == "initial_stock":
                 balance += r.quantity
             elif r.event_kind == "receipt":
-                if trade:
+                if trade or receiving is not None:
+                    if not orders_by_id:
+                        orders_by_id = {lot.id: lot for lot in orders.itertuples()}
                     lot = orders_by_id.get(r.replenishment_order_id)
                     if lot is None or (lot.window_origin, lot.item_id, lot.eta, lot.ordered_qty) != (window, item, r.event_at.tz_convert('UTC').tz_localize(None).normalize(), r.quantity):
                         raise DomainError('verification_failed', 'Receipt date or scope differs from frozen lot')

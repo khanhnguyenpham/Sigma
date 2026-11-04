@@ -23,27 +23,27 @@ import { resultQuery } from "../utils/url";
 import { type Run, type Row } from "../types/api";
 import { type Context } from "../types/context";
 import { TradeTotals } from "../components/products/TradePresentation";
-import { RunRetry } from "../components/dialogs/RunRetry";
 
 
 export function Overview({
   run,
   ctx,
-  runs,
   onRun,
   onCreate,
   onNavigate,
   onItem,
   onChoose,
+  embedded = false,
 }: {
   run?: Run;
   ctx: Context;
-  runs: Run[];
+  runs?: Run[];
   onRun: (id: string) => void;
   onCreate: () => void;
   onNavigate: (page: string, view?: PurchasingView) => void;
   onItem: (row: Row, page?: string) => void;
   onChoose?: () => void;
+  embedded?: boolean;
 }) {
   const ready =
     run?.status === "complete" &&
@@ -56,10 +56,9 @@ export function Overview({
   );
   const s = resource.data?.summary;
   const terminal = run && ["failed", "invalidated"].includes(run.status);
-  const jobs = run?.result_summary ?? {};
   return (
     <>
-      <div className="page-heading">
+      {!embedded && <div className="page-heading">
         <div>
           <h1>Điều hành tồn kho</h1>
           <p>
@@ -69,51 +68,11 @@ export function Overview({
         <button className="secondary" onClick={() => onNavigate("inventory")}>
           Xem tồn kho <Icon name="arrow" size={16} />
         </button>
-      </div>
-      {run && run.status !== "complete" && (
-        <div
-          className={"job-status " + (terminal ? "job-error" : "")}
-          role="status"
-        >
-          <div className="job-icon">
-            <Icon name={terminal ? "alert" : "refresh"} />
-          </div>
-          <div>
-            <strong>
-              {terminal
-                ? "Phương án chưa thể hoàn tất"
-                : "Đang xử lý phương án"}
-            </strong>
-            <p>
-              {terminal
-                ? "Kiểm tra cấu hình và tạo lại phương án mới."
-                : "Bạn có thể tiếp tục làm việc; kết quả sẽ cập nhật khi xử lý xong."}
-            </p>
-            <details>
-              <summary>Chi tiết xử lý</summary>
-              <p>
-                {String(jobs.phase ?? run.status)} ·{" "}
-                {String(
-                  jobs.completed_jobs ??
-                    jobs.completed_origins ??
-                    jobs.completed_windows ??
-                    0,
-                )}
-                /
-                {String(
-                  jobs.total_jobs ??
-                    jobs.total_origins ??
-                    jobs.total_windows ??
-                    "…",
-                )}{" "}
-                · {({ interrupted: "Bị gián đoạn", demo_job_timeout: "Vượt thời gian xử lý",
-                     demo_job_memory: "Vượt giới hạn bộ nhớ", demo_job_exited: "Tiến trình xử lý đã dừng" } as Record<string,string>)[run.error_code ?? ""] ?? run.error_code ?? ""}
-              </p>
-            </details>
-            {run.status === "failed" && <RunRetry key={run.id} id={run.id} onCreated={onRun} />}
-          </div>
-        </div>
-      )}
+      </div>}
+      {run && run.status !== "complete" && <div className={terminal ? "notice error" : "notice"} role="status">
+        <span>{terminal ? "Phương án chưa hoàn tất." : "Phương án đang được xử lý."}</span>{" "}
+        <button type="button" className="text-button" onClick={() => onRun(run.id)}>Xem tiến độ tại Kịch bản</button>
+      </div>}
       {!ready ? (
         run?.status === "complete" ? (
           <PlanRequired onChoose={onChoose} />
@@ -335,72 +294,9 @@ export function Overview({
                 )
               )}
             </Panel>
-            <section className="quick-actions">
-              <h2>Thao tác nhanh</h2>
-              <p>Chuẩn bị kế hoạch và theo dõi xử lý.</p>
-              <button onClick={onCreate}>
-                <span className="quick-icon">
-                  <Icon name="plus" />
-                </span>
-                <span>
-                  <strong>Tạo phương án mới</strong>
-                  <small>Chọn dữ liệu và kịch bản</small>
-                </span>
-                <Icon name="chevron" size={16} />
-              </button>
-              <button onClick={() => onNavigate("alerts")}>
-                <span className="quick-icon orange">
-                  <Icon name="bell" />
-                </span>
-                <span>
-                  <strong>Kiểm tra cảnh báo</strong>
-                  <small>Ưu tiên các mặt hàng có nguy cơ</small>
-                </span>
-                <Icon name="chevron" size={16} />
-              </button>
-              <button onClick={() => onNavigate("products")}>
-                <span className="quick-icon teal">
-                  <Icon name="settings" />
-                </span>
-                <span>
-                  <strong>Quản lý sản phẩm</strong>
-                  <small>ROP, lượng nhập mỗi lần và mức tồn an toàn</small>
-                </span>
-                <Icon name="chevron" size={16} />
-              </button>
-            </section>
           </div>
         </>
       )}
-      <details className="history-section">
-        <summary>
-          <Icon name="clock" size={16} />
-          Lịch sử xử lý <span>{runs.length} phương án</span>
-        </summary>
-        <Panel
-          title="Các phương án gần đây"
-          note="Mỗi phương án giữ riêng dữ liệu, dự báo và phiên bản cấu hình."
-        >
-          <Table
-            rows={runs.slice(0, 8) as unknown as Row[]}
-            onRow={(r) => onRun(String(r.id))}
-            columns={[
-              {
-                key: "kind",
-                label: "Công việc",
-                render: (v) => label(String(v)),
-              },
-              { key: "as_of_date", label: "Mốc dữ liệu" },
-              { key: "status", label: "Trạng thái", render: badge },
-              {
-                key: "created_at",
-                label: "Tạo lúc",
-                render: (v) => new Date(String(v)).toLocaleString("vi-VN"),
-              },
-            ]}
-          />
-        </Panel>
-      </details>
     </>
   );
 }

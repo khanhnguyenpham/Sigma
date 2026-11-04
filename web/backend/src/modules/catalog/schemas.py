@@ -7,6 +7,11 @@ from uuid import UUID
 SupplyStatus = Literal["active", "scheduled_stop", "stopped"]
 
 
+class ReceivingWarehouseUpdate(DTO):
+    receiving_warehouse_id: int = Field(gt=0, strict=True)
+    expected_version: int = Field(ge=0, strict=True)
+
+
 class SupplyChangeCreate(DTO):
     action: Literal["stop", "cancel_stop", "resume"]
     known_on: date

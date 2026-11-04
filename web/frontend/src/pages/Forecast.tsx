@@ -27,18 +27,19 @@ import { isTradeRun } from "../utils/trade";
 export function Forecast({ run, ctx }: { run?: Run; ctx: Context }) {
   const [showDemand, setShowDemand] = useState(false);
   useEffect(() => setShowDemand(false), [run?.id]);
-  const rawCtx={...ctx,internalStatus:undefined,providerStatus:undefined,replenishmentAllowed:undefined,salesAllowed:undefined,windowOrigin:undefined};
+  const rawCtx={...ctx,warehouseId:ctx.warehouseScope === "receiving" ? "" : ctx.warehouseId,warehouseScope:undefined,
+    internalStatus:undefined,providerStatus:undefined,replenishmentAllowed:undefined,salesAllowed:undefined,windowOrigin:undefined};
   if (run?.status === "complete" && inventoryKinds.includes(run.kind)) return <>
     <div className="page-intro"><h1>Dự báo bán hàng</h1><p>Dự kiến bán dựa trên tồn và lô đang về trong kế hoạch đã lưu.</p></div>
     <SellThrough runId={run.id} ctx={ctx} trade={isTradeRun(run)} />
     <details className="advanced-section" onToggle={(e) => setShowDemand(e.currentTarget.open)}><summary>Nhu cầu dự báo và chất lượng lịch sử</summary>
-      {showDemand && <><p className="notice">Đầu vào mô hình được đối chiếu lượng bán nguồn; không áp bộ lọc quyền mua bán hoặc dùng lượng đã chặn để làm đẹp metric.</p><DemandForecast run={run} ctx={rawCtx} /></>}
+      {showDemand && <><p className="notice">Đầu vào mô hình được đối chiếu lượng bán nguồn; không áp bộ lọc quyền mua bán hoặc dùng lượng đã chặn để làm đẹp metric. Kho nhận hàng không thay tuyến nguồn của dự báo.</p><DemandForecast run={run} ctx={rawCtx} /></>}
     </details>
   </>;
   return <DemandForecast run={run} ctx={rawCtx} />;
 }
 function DemandForecast({ run, ctx }: { run?: Run; ctx: Context }) {
-  const [daily, setDaily] = useState(!!ctx.warehouseId),
+  const [daily, setDaily] = useState(!!ctx.warehouseId || !!ctx.itemId),
     [block, setBlock] = useState("1"),
     [page, setPage] = useState(1);
   const id = run?.kind === "forecast" ? run.id : run?.forecast_run_id;

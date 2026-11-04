@@ -182,6 +182,7 @@ def test_full_scope_aggregate_and_csv_cross_batch_preserve_stored_values(pg,tmp_
             product=Item(warehouse_id=1,sku=f'SYN-READ-{n}',product_type='eSIM',first_seen_date=D)
             s.add(product);s.flush()
             snapshot['catalog_snapshot'].append(dict(snapshot['catalog_snapshot'][0],item_id=product.id,sku=product.sku))
+            snapshot['receiving_warehouse_snapshot'].append(dict(snapshot['receiving_warehouse_snapshot'][0],item_id=product.id))
             notice=snapshot['provider_notice_snapshot'][0]
             notice['item_ids'].append(product.id)
             notice['item_snapshot'].append(dict(notice['item_snapshot'][0],id=product.id,sku=product.sku))
@@ -217,6 +218,7 @@ def test_mixed_scope_filters_and_totals_precede_pagination(pg,tmp_path):
         p2=Policy(**dict(attrs,item_id=product.id));s.add(p2);s.flush()
         snap['policies'].append(dict(snap['policies'][0],item_id=product.id,id=p2.id))
         snap['catalog_snapshot'].append(dict(snap['catalog_snapshot'][0],item_id=product.id,sku=product.sku))
+        snap['receiving_warehouse_snapshot'].append(dict(snap['receiving_warehouse_snapshot'][0],item_id=product.id))
         first=s.scalar(select(InventoryDaily).where(InventoryDaily.run_id==key))
         attrs={col.name:getattr(first,col.name) for col in InventoryDaily.__table__.columns if col.name!='id'}
         s.add(InventoryDaily(**dict(attrs,item_id=product.id,policy_id=p2.id,pending_qty=0,inventory_position=21)))

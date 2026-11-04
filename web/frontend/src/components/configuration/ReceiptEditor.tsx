@@ -1,8 +1,8 @@
-import { type ConfigurationState } from "../../hooks/useConfiguration";
+import { type ScenarioEditorState } from "../../hooks/useScenarioEditor";
 
 import { ItemSelect } from "./ItemSelect";
 
-export function ReceiptEditor({ editor }: { editor: ConfigurationState }) {
+export function ReceiptEditor({ editor }: { editor: ScenarioEditorState }) {
   const {
     receipts,
     setReceipts,

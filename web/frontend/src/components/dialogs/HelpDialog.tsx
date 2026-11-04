@@ -21,11 +21,10 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
         <h3>Bắt đầu một kế hoạch</h3>
         <ol>
           <li>
-            Chọn phương án và ngày kế hoạch ở thanh bộ lọc. Ngày nghiệp vụ theo UTC.
+            Mở Kịch bản để thiết lập, lưu phiên bản rồi chạy. Theo dõi tiến độ và xem kết quả ngay trên trang đó.
           </li>
           <li>
-            Xem Dự báo nhu cầu: tổng 30 dùng lập nhu cầu dài hơn; dự báo hai
-            khối 7 ngày được phân bổ thành 14 ngày để tính tồn.
+            Chọn phương án và ngày kế hoạch ở thanh bộ lọc khi xem các trang kết quả. Dự báo hai khối 7 ngày được phân bổ thành 14 ngày để tính tồn; ngày nghiệp vụ theo UTC.
           </li>
           <li>
             Mở Tồn kho, chọn kho theo tên thành phố rồi chọn sản phẩm để xem
@@ -65,7 +64,7 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
         <h3>Thử thay đổi</h3>
         <p>
           Mở Sản phẩm, chọn mặt hàng và chỉnh lượng nhập mỗi lần, số ngày tồn an toàn hoặc ngưỡng nhập.
-          Lưu cấu hình rồi tạo kế hoạch để tính kết quả theo ngày hiệu lực.
+          Chọn kho nhận mặc định tại sản phẩm. Lưu cấu hình rồi mở Kịch bản để tạo kế hoạch theo ngày hiệu lực.
         </p>
 
         <h3>Tải dữ liệu và xử lý lỗi</h3>

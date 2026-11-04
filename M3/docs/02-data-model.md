@@ -1,5 +1,9 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
+**CHG-095 — 04/11/2026, schema0009 đã kiểm trên DBtest:** Upgrade/downgrade/upgrade với source/forecast/catalog cũ giữ mọi cột cũ, metadata0diff; downgrade chặn mặc định riêng/receiving profile. Reader0008 giữ tương thích, API ghi trả503 nếu chưa nâng schema. Native dump/restore synthetic18bảng khớp; DB demo vẫn0008, không cutover. [Bàn giao và bằng chứng](../../docs/development.md#handoff-chg094-095-integration). Những dòng dự kiến/chưa kiểm phía dưới là checkpoint trước đợt kiểm mới.
+
+**Tiến độ CHG-095, 04/11/2026:** Migration nguồn `0009_receiving_warehouse` và model đã được viết theo thiết kế bên dưới, có deferred fields cho đọc schema cũ và guard downgrade mất dữ liệu. Profile `product_default_receiving_v1` freeze mapping riêng; không backfill run/lô cũ. Chưa chạy migration/metadata check/test, DB/demo chưa cutover. [Bàn giao](../../docs/development.md#implementation-chg095-receiving-warehouse); nội dung dự kiến phía dưới là checkpoint thiết kế.
+
 <a id="receiving-warehouse-chg095"></a>
 ## CHG-095 — Dữ liệu kho nhận mặc định, dự kiến
 

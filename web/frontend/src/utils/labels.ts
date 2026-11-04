@@ -13,6 +13,11 @@ export function label(kind: string) {
         policy_replay: "Kế hoạch nhập hàng",
         alert_replay: "Kiểm tra cảnh báo",
         stock_projection: "Kế hoạch tồn kho",
+        queued: "Đang xếp hàng",
+        running: "Đang xử lý",
+        complete: "Đã hoàn tất",
+        failed: "Chưa hoàn tất",
+        invalidated: "Không còn hợp lệ",
       } as Record<string, string>
     )[kind] ?? kind
   );
@@ -26,7 +31,7 @@ export function errorLabel(error: Error) {
     (
       {
         run_not_complete:
-          "Lượt chạy chưa hoàn tất. Hãy theo dõi tiến độ ở Tổng quan.",
+          "Lượt chạy chưa hoàn tất. Hãy theo dõi tiến độ tại Kịch bản.",
         parent_mismatch:
           "Nguồn, phiên bản hoặc lượt dự báo chưa tương thích. Vui lòng chọn lại.",
         missing_partner_config:
@@ -37,6 +42,8 @@ export function errorLabel(error: Error) {
           "Hãy khai báo lượng nhập mỗi lần trong thông tin sản phẩm.",
         feature_not_in_run: "Kế hoạch này chưa có dự kiến bán theo tồn. Tạo kế hoạch mới để xem.",
         trade_schema_required: "Quản lý vòng đời mua bán chưa được bật cho dữ liệu này.",
+        receiving_schema_required: "Kho nhận hàng chưa được bật cho dữ liệu này.",
+        invalid_receiving_snapshot: "Kế hoạch thiếu thông tin kho nhận đã chốt. Chọn kế hoạch khác hoặc tạo mới.",
         trade_profile_required: "Cấu hình có hạn chế mua bán mới. Chọn tạo kế hoạch có hỗ trợ hai nguồn hạn chế.",
         preview_stale: "Phạm vi, cấu hình hoặc kế hoạch tác động đã thay đổi. Tải lại và xem lại tác động trước khi lưu.",
         provider_conflict: "Trạng thái thông báo đã thay đổi. Kiểm tra lịch sử trước khi thao tác lại.",

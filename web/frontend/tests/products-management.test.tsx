@@ -37,6 +37,15 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); history.replaceState(null, '', '/'); });
 
+it.each([['product', 'SYNTHETIC-SKU'], ['product-supply', 'Lịch cung cấp']])('preserves the product in a %s deep link while choosing the initial run', async (page, heading) => {
+  history.replaceState(null, '', `/?item_id=11&warehouse_id=1#${page}`);
+  render(<App />);
+  await screen.findByRole('heading', { name: heading, level: 1 });
+  await waitFor(() => expect(location.search).toContain('run_id=plan'));
+  expect(location.search).toContain('item_id=11');
+  expect(location.search).toContain('warehouse_id=1');
+});
+
 it('lists current products without a run and filters on the server before pagination', async () => {
   const open = vi.fn(); render(<Products onOpen={open} />);
   await screen.findByText('SYNTHETIC-SKU');

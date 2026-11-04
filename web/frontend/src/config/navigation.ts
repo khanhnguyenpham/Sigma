@@ -5,7 +5,7 @@ export const PAGES = [
   ["forecast", "chart", "Dự báo nhu cầu"],
   ["replenishment", "truck", "Nhập hàng"],
   ["alerts", "bell", "Cảnh báo"],
-  ["configuration", "settings", "Thiết lập tính toán"],
+  ["scenarios", "settings", "Kịch bản"],
 ];
 
 export const inventoryKinds = ["stock_projection", "policy_replay", "alert_replay"];

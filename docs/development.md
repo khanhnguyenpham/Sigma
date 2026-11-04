@@ -1,5 +1,69 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-chg094-095-integration"></a>
+## CHG-094/095 — Kiểm tích hợp, bàn giao và cổng GitHub
+
+**04/11/2026 (Asia/Saigon).** Người dùng giao kiểm tích hợp/bàn giao, test/build và đẩy GitHub sau hai lượt viết source. Quyền này thay chỉ dẫn hoãn test/push trước đó, gồm cả checkpoint local `fb233cd`; không mở deploy/cutover DB demo hoặc D6. Kiểm mới ở đây được thực chạy, tách với bằng chứng CHG-093/D5 và các checkpoint chưa kiểm bên dưới.
+
+### Kết quả local
+
+| Cổng | Bằng chứng trong lượt này |
+|---|---|
+| Python | 520 ca BE/M2 đạt,0fail/0error/0skip; bỏ riêng tệp5caS25local không publish. Có migration/contract/native backup và worker/verifier cho cả3inventory-kind. |
+| Frontend | 101React đạt; TypeScript/Vite production build và pipcheck đạt. Đã sửa giữ đúng phản hồi run đang chọn, fixture lịch sử, timeout chờ lazy import trong jsdom và liên kết sản phẩm/lịch cung cấp thiếu run_id. |
+| API/schema | AlertRow nhận metadata kho nhận; count sản phẩm chỉ chọn Item.id nên đọc được schema cũ. Golden lịch sử giữ nguyên, chỉ chuẩn hóa dấu phẩy/khoảng trắng sau khi loại phần bổ sung; fixture mở rộng catalog bổ sung mapping receiving tương ứng, không bỏ guard frozen. |
+| Migration0009 | Lên/hạ/lên với source/forecast/catalog cũ không rỗng, giữ mọi cột cũ; reader0008 báo receiving_schema_ready=false/PATCH503. Lên head lặp an toàn, metadata0diff. Downgrade từ chối khi có mặc định riêng hoặc receiving profile; không nâng DB demo. |
+| Browser | IAB desktop1440×1000/mobile390×844, không tràn ngang toàn trang,0consoleerror. Lưu kho khác nguồn→reload; Lưu scenario không enqueue; bấm chạy→queued→reload→worker→complete và bảng/biểu đồ ngay tại trang. Bộ lọc/CSV giữ run/kho; alias và Back còn mở đúng kết quả. |
+| API/CSV | Một stock_projection synthetic `75eb3bc9-780c-4bf2-b993-6e5533ccffeb` complete/verified. Đối chiếu từng giá trị chung API/CSV: tồn1, lô nhập0, cảnh báo2, projection14. Browser CSV tồn1dòng, nguồn1/kho nhận2/tồn9; không có tồn nhân đôi tại kho nguồn. |
+| Frozen | Kho nhận2 được chốt khi enqueue. Sau đó đổi mặc định live về1 trước khi worker chạy; kết quả/CSV vẫn về2. Nguồn/forecast là fixture synthetic, không refit hoặc chạy lại nguồn thật. |
+| Phục hồi | pg_dump native79.677byte, SHA256 `f203ede913a88d1fbfc2d12d5830959edb862e86bd2af84e0763f880ae4ea4c9`; pg_restore trên sigma_m3_test khớp hash18bảng. Verifier độc lập và4cặpAPI/CSV đạt lại sau restore. |
+| Bảo toàn | Demo18bảng/158artifact khớp mốc trước;1.466tệp bảo vệ,435artifactD3 và4tệp local nguyên hash. Không mở4DB cũ, không ghi/migrate demo, không tạo run thật hoặc đổi status thủ công. |
+
+Ca xác nhận bỏ bản nháp được kiểm bằng React và có trigger confirm/giữ URL khi hủy trên Chrome. Không nhận đã kiểm hủy confirm native trên IAB hoặc nhiều browser engine; DOM Chrome sau hủy chưa kiểm lại vì giới hạn điều khiển. Luồng complete/CSV/responsive nêu trên được kiểm trực tiếp trên IAB. Các ca quota/retry/409/dependency/race được kiểm ở suite; không nhận vừa chạy lại benchmark100.000hàng hoặc forecast thật185mốc.
+
+Backend source hash cuối: `1e9ca14a624b672205eaa362c3542c6feb3df8a95056718cb2f7b847dcb21f74`. Các sửa trong lượt tích hợp không đổi model/config C00, metric/cohort hoặc trạng thái R05/R07/T14. Demo chưa cutover0009/chưa deploy; cần backup/rehearsal trên bản sao demo và triển khai đồng bộ API/worker/FE khi được giao cập nhật demo. Bản build nằm local; không nhận URL tunnel cũ là bản mới đã nghiệm thu.
+
+### Phạm vi GitHub và nhận bàn giao
+
+Commit/push thường trên `final-report` gồm code/tests/docs CHG-094/095 và sửa tích hợp, nối sau checkpoint `fb233cd`. Không force-push hoặc sửa lịch sử. Bốn tệp `COMMIT_BLOCK_PLAN.md`, hai Python nghiên cứuS25 và testS25 giữ untracked/nguyên hash; không stage raw/env/node_modules/dist/output/dump/credential. Không tạo tài nguyên trả phí, không tự mở D6.
+
+Bằng chứng local ở `outputs/chg094_095_integration/`: `backend-final.xml`, `frontend-final.json`, `build-final.log`, `integration-receipt.json`, `browser-review.json`, `browser-csv.json`, `backup-restore.json`, `preserved.json`, ảnhdesktop/mobile và manifest publish. Kết quả SHAremote và hai workflow **cho đúng commit vừa push** ghi riêng `publish-receipt.json`; chỉ chốt cổng publish khi cả hai success, không dùng CI lịch sử. Các artifact/receipt/dump này ngoài Git.
+
+[Đặc tả UI](../M3/docs/04-frontend-spec.md#scenario-workspace-chg094), [ma trận và phạm vi kiểm](../M3/docs/06-testing-delivery.md#scenario-workspace-chg094), [điều phối](planning/TASK.md).
+
+<a id="implementation-chg094-scenarios"></a>
+## CHG-094 — Mã trang Kịch bản và dọn giao diện, chờ kiểm tích hợp
+
+**04/11/2026 (Asia/Saigon).** Người dùng giao bắt đầu trang Kịch bản riêng sau phần kho mặc định, sau đó bổ sung dọn các phần không cần thiết ở trang khác. Giữ chỉ dẫn hoãn test và GitHub cho đến khi hoàn tất các việc. Phần dưới ghi nhận source đã viết; chưa phải nghiệm thu bằng thực thi.
+
+- `pages/Scenarios.tsx`, `ScenarioEditor`, `useScenarioEditor` và `RunForm` thay trang Configuration cùng hai hộp thoại thiết lập/chạy. Menu Kịch bản, nút Tạo phương án, trạng thái Đang xử lý và liên kết lượt chạy đi vào `#scenarios`; `#configuration` cũ được chuẩn hóa. Lưu chỉ tạo phiên bản, không enqueue. Chạy dùng đúng ID đã lưu, không áp bản nháp chưa lưu và không chọn lại kho nhận.
+- Danh sách phiên bản/nguồn/forecast tải đủ trang. Phụ thuộc lỗi/thiếu chặn gửi; input ngày không tự điền lại sau refresh lỗi. POST run giữ cùng body/key khi gửi lại thao tác chưa rõ kết quả; failed dùng endpoint retry với liên kết lượt gốc. Không tự tạo pipeline hoặc gửi đơn mua thật.
+- URL giữ `scenario_id`/`run_id` và bộ lọc trước hash. Chọn run tải chi tiết dù ngoài danh sách gần nhất; mismatch/ID lỗi không thay bằng run mới nhất. Bản nháp được bảo vệ khi điều hướng/Back/reload; job đang chạy không chặn rời trang. Chỉ GET chi tiết run đang queued/running được poll2giây; terminal dừng poll đó, cơ chế refresh danh sách chung vẫn giữ.
+- `ScenarioResults` ghép tóm tắt/tồn/nhập/cảnh báo/dự kiến bán ngay tại trang khi complete, dùng lại API/bảng/biểu đồ/CSV vận hành và phạm vi kho nhận CHG-095. Source import chỉ hiện các chỉ tiêu công khai. Kết quả cũ dùng dữ liệu đã lưu; form đang sửa và thiết lập frozen được ghi riêng. Queued/running/failed không hiển thị kết quả partial như complete.
+- GET `/runs` thêm ba filter tùy chọn `scenario_id`, `kind`, `status`, áp trước total/page; response có tên/phiên bản và whitelist thiết lập scenario frozen. Không trả toàn bộ config/request/path nội bộ. Không có migration riêng cho CHG-094; CHG-095 vẫn cần migration0009 trước cutover.
+- Dọn theo yêu cầu mới: Tổng quan bỏ khối Thao tác nhanh và lịch sử trùng, chuyển thử lại/chi tiết xử lý sang Kịch bản nhưng giữ chỉ số, biểu đồ và bảng vận hành. Chi tiết sản phẩm tập trung cấu hình/kho nhận; tồn trong kế hoạch được thu gọn, biểu đồ bán tồn chuyển về trang kết quả. Header không lặp nút tạo khi ở trang Kịch bản; Help bỏ hướng dẫn Tổng30 cũ. Xóa component/hook/modal và CSS không còn dùng của luồng cũ; không xóa dữ liệu hoặc chức năng đọc kết quả.
+- Chuẩn bị `scenario-workspace.test.tsx`, `test_scenario_workspace.py`, chuyển ca form cũ sang component tại trang và bổ sung guard OpenAPI cho ba filter mới. Các ca dự kiến gồm save/run riêng, dirty guard, exact-run/reload/alias/mismatch, kết quả tại chỗ, quota/key, lỗi dependency, retry và count/page/metadata frozen. **Chưa chạy bất kỳ ca nào**, chưa có số pass hoặc bằng chứng browser.
+
+Không chạy pytest/React test/TypeScript/Vite/pipcheck/browser, không mở DB hay thực thi migration/model/worker/verifier, không tạo run hoặc đổi trạng thái thật. Không rebuild/restart demo, commit/push/deploy hoặc tạo tài nguyên cloud. Chưa kiểm hash DB/artifact trong lượt này, không dùng số kiểm CHG-093/D5 để nhận CHG-094/095 đạt. Bốn tệp S25/COMMIT_BLOCK_PLAN vẫn ngoài phạm vi; C00/R05/R07/T14 giữ nguyên.
+
+**Việc còn chờ:** khi chuyển sang đợt kiểm theo chỉ dẫn người dùng, chạy ma trận CHG-094/095 và hồi quy, sửa lỗi; kiểm tích hợp API→worker→kết quả/CSV trên DBtest và browser1440/390; backup/restore/rehearsal migration0009 trước cutover. Source local chưa được đưa lên demo/GitHub. [Thiết kế và phần đã dọn](../M3/docs/04-frontend-spec.md#scenario-workspace-chg094), [cổng kiểm còn chờ](../M3/docs/06-testing-delivery.md#scenario-workspace-chg094).
+
+<a id="implementation-chg095-receiving-warehouse"></a>
+## CHG-095 — Viết mã kho mặc định, hoãn kiểm và cutover
+
+**04/11/2026 (Asia/Saigon), từ checkpoint local `fb233cd`.** Người dùng giao triển khai kho nhận mặc định và giữ chỉ dẫn chưa test/push cho tới khi hoàn tất các việc. Phần code sau đã được viết, chưa được xác nhận bằng thực thi.
+
+- Migration nguồn `0009_receiving_warehouse` thêm `items.receiving_warehouse_id`/`receiving_version` và kho nhận trên lô; FK/check/null cho lịch sử, downgrade từ chối khi đã có cấu hình/run/lô mới. Không chạy migration lên DB nào.
+- `catalog/receiving.py` và API PATCH sản phẩm có kiểm version/khóa Item, no-op cùng giá trị, kiểm kho; chưa cấu hình riêng kế thừa kho item. Trường mới deferred để các lần đọc catalog cũ không tự truy vấn cột chưa có; khi schema chưa hỗ trợ, UI báo chưa thể lưu riêng.
+- Freeze inventory tự chốt profile `product_default_receiving_v1`, bản đồ item/kho nguồn/kho nhận/version và metadata kho cùng transaction nhận job. Scenario/lô đầu kỳ không có override kho. Worker dùng mapping chốt cho đích lô; vị trí tồn của item theo mapping này, lượng seed/forecast/actual không nhân đôi hoặc đổi tuyến nguồn. Verifier độc lập kiểm profile, phạm vi, version, đích order và receipt; reader legacy không đọc mặc định live để đổi lịch sử.
+- Read model tồn/nhập/projection/CSV thêm kho nhận frozen và filter `receiving_warehouse_id` trước count/page/aggregate/export; `warehouse_id` vẫn là nguồn. Workspace nhóm theo kho nhận và giữ route-stock theo nguồn. Bộ lọc/URL UI có `warehouse_scope=receiving`, tên/quốc gia kho nhận tách carrier/thị trường nguồn; danh sách item ở kho nhận tải qua đủ trang.
+- Form `ProductReceivingForm` tại sản phẩm tải đủ trang kho, lưu riêng kho nhận, giữ lựa chọn khi409 và yêu cầu reload khi kết quả ghi chưa rõ. Kịch bản hiện có tự dùng mặc định; trang Kịch bản mới CHG-094 chưa được viết trong lượt này. UI/nguồn React được đọc rà theo Ponytail/React Best Practices, không chạy công cụ kiểm.
+- Đã chuẩn bị `test_receiving_warehouse.py` và `receiving-warehouse.test.tsx` cho API/version/frozen/ba kind/worker/verifier/kho khác nguồn/CSV, form phân trang/409/URL; điều chỉnh các guard hợp đồng/schema và revision trong fixture migration theo bổ sung0009, giữ golden lịch sử. **Các ca này chưa chạy**, không có số pass/build hoặc bằng chứng browser mới.
+
+Không chạy pytest/npm test/TypeScript/Vite/pipcheck/browser hoặc verifier/model/worker; không mở DB, tạo run, kiểm hash DB/artifact, nâng schema, restart demo, commit/push hoặc deploy. Demo vẫn là bản trước cutover; không nhận tính năng đã dùng được trên demo từ thay đổi source này. Bốn tệp S25/COMMIT_BLOCK_PLAN tiếp tục ngoài Git, C00/R05/R07/T14 giữ trạng thái.
+
+**Phần tiếp theo:** triển khai trang Kịch bản CHG-094 khi được giao; sau khi hoàn tất công việc mới chạy ma trận kiểm, sửa lỗi, rehearsal backup/restore/migration và cutover đồng bộ trước cập nhật demo/publish. Chưa nghiệm thu CHG-095 do cố ý hoãn thực thi theo người dùng.
+
 <a id="checkpoint-local-20261104"></a>
 ## Checkpoint local — 04/11/2026, hoãn test và GitHub
 

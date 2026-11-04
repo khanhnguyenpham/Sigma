@@ -1,5 +1,9 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+**CHG-094/095 — 04/11/2026, đã kiểm tích hợp synthetic:** Sản phẩm lưu kho mặc định, scenario tự dùng mặc định khi enqueue; worker và kết quả giữ kho frozen dù mặc định đổi sau đó. Trang riêng lưu/chạy/tiến độ/kết quả/CSV đã kiểm trực tiếp desktop/mobile. 520Python/101React/build/pipcheck đạt; không chạy nguồn thật, nâng DB demo hoặc đổi C00/R05/R07/T14. [Bàn giao mới](../../docs/development.md#handoff-chg094-095-integration) thay checkpoint chưa kiểm bên dưới.
+
+**Tiến độ CHG-095, 04/11/2026:** Đã viết source cho các quy tắc kho mặc định bên dưới; chưa test/build, nâng schema hoặc cập nhật demo theo yêu cầu hoãn kiểm. Profile mới `product_default_receiving_v1`; lịch sử dùng snapshot cũ, kịch bản không override kho. [Bàn giao implementation/chưa nghiệm thu](../../docs/development.md#implementation-chg095-receiving-warehouse). Phần chỉMD phía dưới là checkpoint thiết kế trước khi giao code.
+
 <a id="receiving-warehouse-chg095"></a>
 ## CHG-095 — Kho nhận hàng mặc định của sản phẩm
 

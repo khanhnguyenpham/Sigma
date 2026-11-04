@@ -24,6 +24,13 @@ class AlertRow(DTO):
     explanation: dict[str, Any]
     is_simulated: bool
     warehouse_id: int
+    source_warehouse_id: int | None = None
+    receiving_warehouse_id: int | None = None
+    receiving_version: int | None = None
+    source_city: str | None = None
+    receiving_city: str | None = None
+    receiving_display_city: str | None = None
+    receiving_destination_country: str | None = None
     sku: str
     product_type: Literal["eSIM", "physical_SIM"]
     destination_country: str

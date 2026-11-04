@@ -6,19 +6,20 @@ import { Icon } from "../ui/Icon";
 import { Panel } from "../ui/Panel";
 import { State } from "../ui/State";
 
-export function WarehouseDirectory({ warehouses, stock, loading, error, onChoose }: {
+export function WarehouseDirectory({ warehouses, stock, loading, error, onChoose, receiving = false }: {
   warehouses: Row[];
   stock?: Row[];
   loading?: boolean;
   error?: Error;
   onChoose?: (id: string) => void;
+  receiving?: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [country, setCountry] = useState("");
   const [carrier, setCarrier] = useState("");
   const normalize = (value: unknown) => String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
   const rows = warehouses.filter((w) =>
-    (!country || w.destination_country === country) && (!carrier || w.carrier === carrier) &&
+    (!country || w.destination_country === country) && (receiving || !carrier || w.carrier === carrier) &&
     normalize(`${warehouseName(w)} ${w.destination_country}`).includes(normalize(search.trim())),
   );
   const totals = new Map(stock?.map((row) => [String(row.warehouse_id), row]));
@@ -36,28 +37,28 @@ export function WarehouseDirectory({ warehouses, stock, loading, error, onChoose
             {[...new Set(warehouses.map((w) => String(w.destination_country)))].sort().map((c) => <option key={c}>{c}</option>)}
           </select>
         </label>
-        <label>Nhà mạng
+        {!receiving && <label>Nhà mạng
           <select aria-label="Nhà mạng của kho" value={carrier} onChange={(e) => setCarrier(e.target.value)}>
             <option value="">Tất cả nhà mạng</option>
             {[...new Set(warehouses.map((w) => String(w.carrier)))].sort().map((c) => <option key={c}>{c}</option>)}
           </select>
-        </label>
+        </label>}
         {(search || country || carrier) && <button className="text-button" onClick={() => { setSearch(""); setCountry(""); setCarrier(""); }}>Xóa bộ lọc kho</button>}
       </div>
-      <div className="warehouse-list-meta"><span>{rows.length} / {warehouses.length} kho</span><span>Mỗi kho hiện quản lý sản phẩm của một nhà mạng.</span></div>
+      <div className="warehouse-list-meta"><span>{rows.length} / {warehouses.length} kho</span><span>{receiving ? "Tồn và lô nhập theo kho nhận đã chốt của từng sản phẩm." : "Mỗi kho hiện quản lý sản phẩm của một nhà mạng."}</span></div>
       <State loading={loading} error={error} empty={!loading && !error && !rows.length} />
       {!loading && !error && <div className="warehouse-grid">
         {rows.map((w) => {
           const s = totals.get(String(w.id));
           return <button className="warehouse-card" key={String(w.id)}
-            aria-label={`Mở kho ${warehouseName(w)} tại ${w.destination_country}, nhà mạng ${w.carrier}`}
+            aria-label={`Mở kho ${warehouseName(w)} tại ${w.destination_country}${receiving ? "" : `, nhà mạng ${w.carrier}`}`}
             onClick={() => onChoose?.(String(w.id))}>
             <div className="warehouse-card-heading">
               <span className="warehouse-icon"><Icon name="warehouse" size={25} /></span>
               <span className="warehouse-location"><h3>{warehouseName(w)}</h3><span>{String(w.destination_country)}</span></span>
               <Icon name="chevron" size={17} />
             </div>
-            <span className="carrier-chip">Nhà mạng <strong>{String(w.carrier)}</strong></span>
+            {!receiving && <span className="carrier-chip">Nhà mạng <strong>{String(w.carrier)}</strong></span>}
             <dl className="warehouse-card-metrics">
               <div><dt>Mặt hàng</dt><dd>{fmt(s?.item_count)}</dd></div>
               <div><dt>Tồn hiện có</dt><dd>{fmt(s?.on_hand_units)}</dd></div>

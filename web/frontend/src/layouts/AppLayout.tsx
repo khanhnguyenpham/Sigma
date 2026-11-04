@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { State } from "../components/ui/State";
 import { HelpDialog } from "../components/dialogs/HelpDialog";
 import { PageBoundary } from "../components/ui/PageBoundary";
-import { RunDialog } from "../components/dialogs/RunDialog";
 
 import { type AppContextState } from "../hooks/useAppContext";
 
@@ -27,18 +26,12 @@ export function AppLayout({
     page,
     help,
     setHelp,
-    dialog,
-    setDialog,
-    runs,
     ctx,
-    setCtx,
     runsResource,
     run,
     selectedResource,
-    setRefresh,
-    navigate,
   } = app;
-  const managementPage = ["configuration", "products", "product", "product-supply"].includes(page) || page.startsWith("provider-");
+  const managementPage = ["scenarios", "configuration", "products", "product", "product-supply"].includes(page) || page.startsWith("provider-");
   return (
     <div className={"shell " + (navOpen ? "nav-open" : "")}>
       <a
@@ -97,18 +90,6 @@ export function AppLayout({
         </div>
       </main>
       {help && <HelpDialog onClose={() => setHelp(false)} />}
-      {dialog && (
-        <RunDialog
-          runs={runs}
-          onClose={() => setDialog(false)}
-          onCreated={(id) => {
-            setDialog(false);
-            setCtx((c) => ({ ...c, runId: id, origin: "" }));
-            setRefresh((v) => v + 1);
-            navigate("overview");
-          }}
-        />
-      )}
     </div>
   );
 }

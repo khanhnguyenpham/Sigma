@@ -155,7 +155,7 @@ def test_migration_preserves_all_other_tables_and_supplier_ids(pg):
             assert connection.execute(text('SELECT id,created_at FROM suppliers ORDER BY id')).all() == identity
             assert connection.scalar(text('SELECT carrier FROM suppliers WHERE id=1')) == 'DemoCarrier'
             for name, rows in before.items():
-                assert connection.execute(text(f"SELECT to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','source_sales_qty','actual_blocked_qty'] FROM \"{name}\" t ORDER BY to_jsonb(t)::text")).scalars().all() == rows
+                assert connection.execute(text(f"SELECT to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','source_sales_qty','actual_blocked_qty','receiving_warehouse_id','receiving_version'] FROM \"{name}\" t ORDER BY to_jsonb(t)::text")).scalars().all() == rows
             assert compare_metadata(MigrationContext.configure(connection, opts={'compare_type': True, 'compare_server_default': True}), Base.metadata) == []
     finally:
         command.upgrade(cfg, 'head')

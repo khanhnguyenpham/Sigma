@@ -10,6 +10,7 @@ from modules.catalog.supply_service import supply_rows, supply_schema_ready, req
 from modules.configuration.models import Policy
 from core.http import record
 from modules.catalog.locations import display_warehouse
+from modules.catalog.receiving import product_receiving
 
 
 def list_warehouses(sessions, page, page_size, country, run_id):
@@ -90,11 +91,12 @@ def list_products(sessions, page=1, page_size=50, warehouse_id=None, product_typ
                 pending = pending.where(stop.effective_on > as_of_date)
             predicate = pending.correlate(Item).exists()
             query = query.where(~predicate if supply_status == "active" else predicate)
-        total = session.scalar(select(func.count()).select_from(query.subquery()))
+        total = session.scalar(select(func.count()).select_from(query.with_only_columns(Item.id, maintain_column_froms=True).subquery()))
         query = query.order_by(Item.id)
         if not new_filters:
             query = query.offset((page-1)*page_size).limit(page_size)
         rows = session.execute(query).all()
+        receiving = product_receiving(session, [row[0] for row in rows])
         ids = [r[0].id for r in rows]
         histories = defaultdict(list)
         flat = supply_rows(session, ids) if ready else []
@@ -112,7 +114,7 @@ def list_products(sessions, page=1, page_size=50, warehouse_id=None, product_typ
                 ("internal_status", internal_status), ("provider_status", provider_status),
                 ("replenishment_allowed", replenishment_allowed), ("sales_allowed", sales_allowed))):
                 continue
-            output.append({**record(item), **info, "trade_schema_ready": trade_ready,
+            output.append({**record(item), **info, **receiving[item.id], "trade_schema_ready": trade_ready,
                 "supply_status": state["supply_status"] if state else None,
                 "stop_on": state["stop_on"] if state else None,
                 "supply_version": (history[-1]["version"] if history else 0) if ready else None,
@@ -125,13 +127,15 @@ def list_products(sessions, page=1, page_size=50, warehouse_id=None, product_typ
         return dict(items=output, total=total, page=page, page_size=page_size)
 
 
-def list_items(sessions, page, page_size, warehouse_id, product_type, run_id, search):
+def list_items(sessions, page, page_size, warehouse_id, product_type, run_id, search, receiving_warehouse_id=None):
     if run_id:
         with sessions() as s:
             run = required_run(s, run_id, complete=True)
             rows = [{**v, "id": k} for k, v in snapshot_maps(s, run)[1].items()]
             if warehouse_id:
                 rows = [r for r in rows if r["warehouse_id"] == warehouse_id]
+            if receiving_warehouse_id:
+                rows = [r for r in rows if r.get("receiving_warehouse_id", r["warehouse_id"]) == receiving_warehouse_id]
             if product_type:
                 rows = [r for r in rows if r["product_type"] == product_type]
             if search:
@@ -142,6 +146,8 @@ def list_items(sessions, page, page_size, warehouse_id, product_type, run_id, se
                 page=page,
                 page_size=page_size,
             )
+    if receiving_warehouse_id is not None:
+        raise DomainError("invalid_input", "Choose a frozen plan to filter receiving locations")
     filters = []
     if warehouse_id:
         filters.append(Item.warehouse_id == warehouse_id)

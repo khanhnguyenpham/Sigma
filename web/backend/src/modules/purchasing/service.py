@@ -13,7 +13,7 @@ def purchasing_data(session, key, filters):
     day = filters.as_of_date
     base = Filters(
         **filters.model_dump(
-            include={"warehouse_id", "item_id", "supplier_id", "product_type", "as_of_date",'sku','destination_country','carrier','window_origin',*RIGHT_FILTERS}
+            include={"warehouse_id", "receiving_warehouse_id", "item_id", "supplier_id", "product_type", "as_of_date",'sku','destination_country','carrier','window_origin',*RIGHT_FILTERS}
         )
     )
     validate_filters(run,base)

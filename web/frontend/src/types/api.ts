@@ -1,6 +1,7 @@
 export type Row = Record<string, unknown>;
 
 export interface Run {
+  receiving_warehouse_profile?: string | null;
   trade_lifecycle_profile?: string | null;
   id: string;
   kind: string;
@@ -10,6 +11,10 @@ export interface Run {
   source_import_run_id: string | null;
   forecast_run_id: string | null;
   scenario_id: number | null;
+  scenario_name?: string | null;
+  scenario_version?: number | null;
+  scenario_settings?: Row;
+  retry_of_run_id?: string | null;
   config_version: string;
   assumption_version: string;
   target_version: string;

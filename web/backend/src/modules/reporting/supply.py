@@ -5,6 +5,7 @@ from sqlalchemy import select
 from core.errors import DomainError
 from modules.alerts.models import Alert
 from modules.catalog.supply import supply_state
+from modules.catalog.receiving import location_fields
 
 
 def frozen_history(run):
@@ -85,17 +86,18 @@ def sell_through_data(session, run, filters, items, warehouses, selected, pagina
             target = date.fromisoformat(projected["date"])
             if (filters.date_from and target < filters.date_from) or (filters.date_to and target > filters.date_to):
                 continue
-            rows.append(dict(item, city=warehouse["city"], display_city=warehouse["display_city"],
+            rows.append(dict(item, **location_fields(item, warehouses), city=warehouse["city"], display_city=warehouse["display_city"],
                 as_of_date=origin, target_date=target, horizon_day=horizon,
                 **{k:v for k,v in projected.items() if k != "date"}))
     if filters.aggregate == "route_day":
         groups = {}
         for row in rows:
-            key = (row["warehouse_id"], row["target_date"])
+            key = (row["warehouse_id"], row.get("receiving_warehouse_id"), row["target_date"])
             group = groups.setdefault(key, dict(warehouse_id=row["warehouse_id"], city=row["city"],
                 display_city=row["display_city"], destination_country=row["destination_country"], carrier=row["carrier"],
                 as_of_date=origin, target_date=row["target_date"], horizon_day=row["horizon_day"], item_count=0,
                 stopped_items=0, **{k:0 for k in ("forecast_demand_qty", "projected_sales_qty", "unserved_demand_qty", "closing_forecast", "receipts_qty")}))
+            group.update(location_fields(row, warehouses))
             group["item_count"] += 1
             group["stopped_items"] += row["supply_status"] == "stopped"
             for name in ("forecast_demand_qty", "projected_sales_qty", "unserved_demand_qty", "closing_forecast", "receipts_qty"):

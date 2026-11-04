@@ -1,5 +1,9 @@
 # M3 — đặc tả frontend
 
+**CHG-094/095 — 04/11/2026, UI đã kiểm local:** 101React và TypeScript/Vite build đạt; browser1440/390 đi lưu kho→reload→lưu scenario riêng→chạy→queued/reload→complete/kết quả/CSV ngay trang. Liên kết product/product-supply thiếu run_id giữ item khi app tự chọn run; có2ca hồi quy mới. Alias/Back còn xem đúng kết quả, không tràn ngang toàn trang. Bản demo chưa cutover; [phạm vi/bằng chứng](../../docs/development.md#handoff-chg094-095-integration) thay các trạng thái chưa kiểm phía dưới.
+
+**Tiến độ CHG-095, 04/11/2026:** Đã viết form Kho nhận hàng tại sản phẩm, mặc định/version và lỗi409/reload, phân trang options đầy đủ; các màn tồn/nhập/projection/CSV hiển thị kho nhận frozen và URL có `warehouse_scope=receiving`. Kịch bản hiện có tự lấy mặc định qua backend, không chọn lại kho. Chưa test/build/browser hoặc cập nhật demo; page Kịch bản CHG-094 chưa triển khai. [Bàn giao source/chưa nghiệm thu](../../docs/development.md#implementation-chg095-receiving-warehouse). Các mô tả chỉMD bên dưới là lịch sử thiết kế.
+
 <a id="receiving-warehouse-chg095"></a>
 ## CHG-095 — Chọn kho mặc định tại sản phẩm, kịch bản tự dùng
 
@@ -12,12 +16,18 @@
 - Khi run đã được nhận, phần thiết lập đã chốt/tiến độ/kết quả hiện kho từ snapshot của run. Đổi mặc định sản phẩm không đổi kho của queued/running/complete hoặc lô cũ. Retry với cấu hình hiện tại có thể đổi kho ở run mới, phải ghi rõ trước thao tác.
 - Kết quả tại trang Kịch bản, Tồn kho và Nhập hàng/CSV hiển thị kho nhận thực của mô phỏng; tên kho nguồn giữ riêng để giải thích forecast. Một lượng hàng không xuất hiện ở cả kho cũ và kho mới. Số lượng/tổng hợp/bộ lọc cùng vai trò kho nhận, không chỉ đổi chữ của cột cũ.
 
-Desktop1440/mobile390, label/nút/lỗi tại trường và thao tác bàn phím theo chuẩn hiện có. [Quy tắc tồn và nguồn](01-functional-spec.md#receiving-warehouse-chg095), [API dự kiến](03-backend-api.md#receiving-warehouse-chg095), [ma trận kiểm](06-testing-delivery.md#receiving-warehouse-chg095). Phần CHG-094 phía dưới vẫn là thiết kế, được bổ sung quy tắc kế thừa kho này; lượt hiện tại chưa triển khai cả hai tính năng.
+Desktop1440/mobile390, label/nút/lỗi tại trường và thao tác bàn phím theo chuẩn hiện có. [Quy tắc tồn và nguồn](01-functional-spec.md#receiving-warehouse-chg095), [API dự kiến](03-backend-api.md#receiving-warehouse-chg095), [ma trận kiểm](06-testing-delivery.md#receiving-warehouse-chg095). CHG-094/095 đã có source theo bàn giao hiện hành nhưng chưa kiểm/cutover; các yêu cầu và ma trận kiểm vẫn là cổng cần thực thi.
 
 <a id="scenario-workspace-chg094"></a>
 ## CHG-094 — Trang riêng để thiết lập, chạy và xem kết quả kịch bản
 
-**04/11/2026 — thiết kế theo yêu cầu người dùng, chỉ cập nhật Markdown; chưa triển khai UI.** Mục tiêu là thao tác trên một trang xuyên suốt: chọn/tạo kịch bản → thiết lập → lưu → chạy → theo dõi → xem kết quả ngay tại trang đó. Phần này thay thiết kế mở form kịch bản và tạo lượt chạy bằng hai hộp thoại riêng. CHG-093 về sản phẩm/lịch cung cấp vẫn áp dụng; các mô tả sáu màn hình, tab Kịch bản trong Cấu hình và modal tạo run phía dưới là lịch sử ở phần bị thay thế.
+**04/11/2026 — đã viết source, hoãn kiểm theo người dùng.** `Scenarios`, `ScenarioEditor`, `RunForm` và `ScenarioResults` thực hiện luồng chọn/tạo kịch bản → thiết lập → lưu → chạy → theo dõi → xem kết quả cùng trang; hai modal và trang Configuration cũ đã bỏ. Chưa test/build/browser/migration hoặc cập nhật demo, chưa nghiệm thu. [Bàn giao source](../../docs/development.md#implementation-chg094-scenarios). CHG-093 và kho mặc định CHG-095 tiếp tục áp dụng; các mô tả sáu màn hình, tab Kịch bản trong Cấu hình và modal tạo run phía dưới là lịch sử ở phần bị thay thế.
+
+### Dọn các trang khác theo yêu cầu bổ sung
+
+- Tổng quan giữ chỉ số, biểu đồ nhu cầu/tồn, mặt hàng cần chú ý và lịch hàng về; bỏ khối Thao tác nhanh/lịch sử chạy trùng. Khi có tác vụ chưa hoàn tất, liên kết mở đúng run tại Kịch bản; thao tác thử lại đặt ở đó.
+- Chi tiết sản phẩm giữ cấu hình nhập và kho nhận; phần tồn của kế hoạch nằm trong mục thu gọn. Biểu đồ bán tồn dùng trang kết quả/Dự báo để tránh lặp trong trang cấu hình.
+- Menu chỉ có một mục Kịch bản, header không lặp nút tạo khi đã ở trang đó. Help hướng dẫn luồng mới và bỏ tham chiếu Tổng30 đã gỡ. Không bỏ các trang Tồn kho/Nhập hàng/Cảnh báo/Dự báo hoặc dữ liệu lịch sử.
 
 ### Điểm vào và URL
 
@@ -81,7 +91,7 @@ Các loại tồn `stock_projection`, `policy_replay`, `alert_replay` là luồn
 
 ### Ranh giới triển khai và kiểm
 
-Tận dụng React/TypeScript, hash/history, hook Fetch và API hiện có. Lấy chi tiết run qua `/runs/{id}` dù không nằm trong trang danh sách; chọn đúng scenario bằng dữ liệu danh sách có phân trang, không giới hạn 100 bản đầu hoặc giả định có endpoint chi tiết scenario chưa được cung cấp. Giao diện dự kiến có page `Scenarios` ghép form/tiến độ/kết quả dùng chung; điều chỉnh navigation/context/CTA của `Configuration` và `RunDialog`, không thêm router/state framework hay đổi schema/model cho việc chuyển trang.
+Tận dụng React/TypeScript, hash/history, hook Fetch và API hiện có. Lấy chi tiết run qua `/runs/{id}` dù không nằm trong trang danh sách; chọn đúng scenario bằng dữ liệu danh sách có phân trang, không giới hạn 100 bản đầu hoặc giả định có endpoint chi tiết scenario chưa được cung cấp. Source hiện có page `Scenarios` ghép form/tiến độ/kết quả dùng chung; navigation/context/CTA đã chuyển khỏi `Configuration`/`RunDialog`, không thêm router/state framework hay schema/model cho việc chuyển trang. GET `/runs` bổ sung filter lịch sử/phụ thuộc và metadata thiết lập frozen; chưa kiểm API mới.
 
 [Kế hoạch triển khai](../../docs/planning/PLAN.md#chg-094), [tiêu chí R08/R09](../../docs/requirements.md#chg094-scenario-workspace), [ma trận kiểm dự kiến](06-testing-delivery.md#scenario-workspace-chg094), [bàn giao lượt chỉ MD](../../docs/development.md#handoff-chg094-scenarios). Chỉ nghiệm thu UI sau khi có code và bằng chứng kiểm mới; kết quả kiểm CHG-093/D5 không chứng minh trang này đã tồn tại.
 

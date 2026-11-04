@@ -1,5 +1,6 @@
 from sqlalchemy import BigInteger, Boolean, CheckConstraint, Column, Date, ForeignKey, ForeignKeyConstraint, Index, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import deferred
 from core.db import Base, fk, identity
 
 
@@ -11,6 +12,7 @@ class Replenishment(Base):
     )
     window_origin = Column(Date, nullable=False)
     item_id = fk("items")
+    receiving_warehouse_id = deferred(fk("warehouses", nullable=True))
     policy_id = Column(BigInteger, nullable=False)
     order_key = Column(Text, nullable=False)
     ordered_on = Column(Date, nullable=False)

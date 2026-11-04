@@ -1,4 +1,20 @@
 import { API_PREFIX, READ_TIMEOUT_MS, WRITE_TIMEOUT_MS } from "../config/http";
+import type { Page, Row } from "../types/api";
+
+export async function apiAllPages<T = Row>(path: string, options: RequestInit = {}): Promise<Page<T>> {
+  const [pathname, search] = path.split("?");
+  const params = new URLSearchParams(search);
+  params.set("page_size", "100");
+  const items: T[] = [];
+  let first: Page<T> | undefined;
+  for (let page = 1; ; page++) {
+    params.set("page", String(page));
+    const result = await api<Page<T>>(`${pathname}?${params}`, options);
+    first ??= result;
+    items.push(...result.items);
+    if (items.length >= result.total || !result.items.length) return { ...first, items, page: 1, page_size: items.length };
+  }
+}
 
 export class ApiError extends Error {
   constructor(

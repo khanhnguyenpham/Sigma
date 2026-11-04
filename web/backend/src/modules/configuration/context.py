@@ -2,6 +2,7 @@
 
 from datetime import date, timedelta
 from sqlalchemy import select
+from sqlalchemy.orm import undefer
 from modules.configuration.models import Policy
 from modules.configuration.schemas import POLICY_DEFAULTS
 from modules.catalog.models import Item, Warehouse, Supplier
@@ -9,6 +10,7 @@ from core.errors import DomainError
 from fastapi.encoders import jsonable_encoder
 from modules.catalog.supply_service import require_supply_schema, supply_rows
 from modules.catalog.trade_service import trade_schema_ready, require_trade_schema, lock_trade_scope, provider_notices, freeze_trade
+from modules.catalog.receiving import receiving_schema_ready, RECEIVING_PROFILE
 
 
 def freeze_inventory(session, request, source, scenario):
@@ -54,6 +56,9 @@ def freeze_inventory(session, request, source, scenario):
             "missing_contract_quantity",
             "Order quantity must be configured on the item policy, not the scenario",
         )
+    if (any("receiving_warehouse_id" in o for o in overrides.values()) or "receiving_warehouse_id" in scenario.settings
+        or any("receiving_warehouse_id" in lot for lot in scenario.settings.get("receipts_initial", []))):
+        raise DomainError("invalid_input", "Scenarios use each product's saved receiving warehouse")
     for p in rows:
         record = {
             name: getattr(p, name)
@@ -127,6 +132,22 @@ def freeze_inventory(session, request, source, scenario):
             raise DomainError(
                 "invalid_input", "Initial receipts must be known at the run origin"
             )
+    receiving = {}
+    item_query = select(Item).where(Item.id.in_(ids)).order_by(Item.id)
+    if receiving_schema_ready(session):
+        live_items = session.scalars(item_query.options(undefer(Item.receiving_warehouse_id), undefer(Item.receiving_version))
+            .with_for_update(read=True).execution_options(populate_existing=True)).all()
+        if {i.id for i in live_items} != ids:
+            raise DomainError("catalog_mismatch", "A source product is missing from the catalog", 409)
+        receiving = dict(receiving_warehouse_profile=RECEIVING_PROFILE, receiving_warehouse_snapshot=[
+            dict(item_id=i.id, source_warehouse_id=i.warehouse_id,
+                 receiving_warehouse_id=i.receiving_warehouse_id or i.warehouse_id,
+                 receiving_version=i.receiving_version) for i in live_items])
+    else:
+        live_items = session.scalars(item_query).all()
+    warehouse_ids = {i.warehouse_id for i in live_items}
+    warehouse_ids.update(r["receiving_warehouse_id"] for r in receiving.get("receiving_warehouse_snapshot", []))
+    warehouse_ids.update(w["id"] for w in source.config_snapshot.get("warehouse_snapshot", []))
     warehouses = [
         {
             name: getattr(w, name)
@@ -141,14 +162,8 @@ def freeze_inventory(session, request, source, scenario):
             ]
         }
         for w in session.scalars(
-            select(Warehouse).where(
-                Warehouse.id.in_(
-                    {
-                        i.warehouse_id
-                        for i in session.scalars(select(Item).where(Item.id.in_(ids)))
-                    }
-                )
-            )
+            select(Warehouse).where(Warehouse.id.in_(warehouse_ids)).order_by(Warehouse.id).with_for_update(read=True)
+                .execution_options(populate_existing=True)
         )
     ]
     require_supply_schema(session)
@@ -165,6 +180,7 @@ def freeze_inventory(session, request, source, scenario):
         lifecycle = dict(supply_lifecycle_profile="notice7_sellthrough_v1", supply_lifecycle_snapshot=supply_history)
     return dict(
         **lifecycle,
+        **receiving,
         inventory_policy_profile="fixed_rop_days_ss_v1",
         policies=policies,
         policy_ids=sorted({p["id"] for p in policies}),

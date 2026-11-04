@@ -1,5 +1,11 @@
 # Kế hoạch dự án SIGMA
 
+**CHG-094/095 — 04/11/2026, đã thực thi kiểm tích hợp local:** 520Python/101React/build/pipcheck, migration có lịch sử cũ, browser desktop/mobile, verifier/API/CSV và native restore synthetic đạt; bảo toàn demo18bảng/158artifact và dữ liệu cũ đạt. Người dùng mở quyền test/build/commit/push thường, thay hoãn trước đó. Cổng publish là remoteSHA/haiCI đúng commit, receipt ngoài Git; chưa cutover DB demo/deploy hoặc mở D6. [Bằng chứng và giới hạn](../development.md#handoff-chg094-095-integration). Không nâng R05/R07/T14 hoặc thay model C00.
+
+**CHG-094/095 — 04/11/2026, tiến độ hiện tại:** Đã viết source kho nhận mặc định rồi trang Kịch bản riêng và dọn phần trùng trên Tổng quan/chi tiết sản phẩm theo yêu cầu bổ sung. Chưa chạy test/build/migration/browser hoặc cập nhật demo/GitHub; ma trận kiểm vẫn là phần còn chờ, chưa nghiệm thu. [Phạm vi thực](../development.md#implementation-chg094-scenarios). Thứ tự tiếp theo là đợt kiểm tích hợp/sửa lỗi theo chỉ dẫn hoãn kiểm của người dùng, rehearsal/cutover an toàn rồi mới publish/deploy; không tự mở D6 hoặc đổi R05/R07/T14. Các checkpoint trước code bên dưới giữ lịch sử.
+
+**CHG-095 — 04/11/2026, tiến độ mã:** Đã viết cấu hình kho nhận/API/migration0009, snapshot/worker/verifier/read model/CSV và form sản phẩm, từ checkpoint `fb233cd`. Chưa test/build/migrate/cutover hoặc publish theo chỉ dẫn người dùng; các ca kiểm đã chuẩn bị, chưa nhận hoàn tất nghiệm thu. CHG-094 chưa triển khai. [Phạm vi thực và việc còn chờ](../development.md#implementation-chg095-receiving-warehouse). Các đoạn chỉMD bên dưới là trạng thái trước khi được giao code.
+
 **Điều phối checkpoint04/11/2026:** Người dùng yêu cầu chốt mốc hiện tại bằng commit local, chưa test/chưa đẩy GitHub; đợi hoàn tất các việc mới test/push. Thứ tự dự kiến là CHG-095 → CHG-094 → kiểm tích hợp/sửa lỗi → publish thường/remote SHA/CI → D6. Đây là hoãn thời điểm kiểm và publish, không bỏ các ca kiểm dự kiến hoặc nhận tính năng đã nghiệm thu. Lượt checkpoint không tự triển khai code. [Phạm vi mốc](../development.md#checkpoint-local-20261104).
 
 <a id="chg-095"></a>

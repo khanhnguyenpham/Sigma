@@ -27,7 +27,7 @@ export function Sidebar({ app }: { app: AppContextState }) {
       </a>
       <div className="nav-label">QUẢN LÝ KHO</div>
       <nav aria-label="Điều hướng chính">
-        {PAGES.filter(([id])=>id!=="configuration").map(([id, icon, name]) => (
+        {PAGES.map(([id, icon, name]) => (
           <button
             key={id}
             title={name}

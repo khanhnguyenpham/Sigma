@@ -127,6 +127,6 @@ def test_migration_preserves_all_old_tables_and_blocks_loss(pg):
         s.add(ItemSupplyChange(item_id=item,version=1,action="stop",known_on=D,effective_on=D+timedelta(days=7),reason="Synthetic"))
     with pytest.raises(RuntimeError,match="lose data"):command.downgrade(cfg,"0006_fixed_days")
     with sessions() as s:
-        assert s.scalar(text("SELECT version_num FROM alembic_version"))=="0008_trade_lifecycle"
+        assert s.scalar(text("SELECT version_num FROM alembic_version"))=="0009_receiving_warehouse"
         assert s.scalar(select(ItemSupplyChange.id)) is not None
     assert snapshot()==before

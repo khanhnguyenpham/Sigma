@@ -103,6 +103,7 @@ def test_route_totals_count_all_items_before_pagination_and_csv_batches(pg,tmp_p
             row=Item(warehouse_id=1,sku=f'SYN-{n}',product_type='eSIM',first_seen_date=D)
             s.add(row);s.flush()
             snapshot['catalog_snapshot'].append({**snapshot['catalog_snapshot'][0],'item_id':row.id,'sku':row.sku})
+            snapshot['receiving_warehouse_snapshot'].append(dict(snapshot['receiving_warehouse_snapshot'][0], item_id=row.id))
             attrs={col.name:getattr(alert,col.name) for col in Alert.__table__.columns if col.name not in {'id','created_at'}}
             attrs.update(item_id=row.id,explanation=deepcopy(alert.explanation))
             s.add(Alert(**attrs))

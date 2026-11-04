@@ -1,5 +1,9 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
+**CHG-094/095 — 04/11/2026, cổng kiểm local đã thực chạy:** 520Python BE/M2 đạt0skip (không gồm5caS25local),101React đạt, build/pipcheck đạt. Có migration0009 với lịch sử cũ, typed Alerts/legacy reader, frozen ba kind; một browser stock complete/verified và4cặpAPI/CSV, CSV tải thật, desktop/mobile, dump/restore18bảng rồi verify lại. Không nhận vừa chạy nguồn thật/benchmark hoặc hủy confirm native IAB; giới hạn browser ghi rõ trong [bàn giao](../../docs/development.md#handoff-chg094-095-integration). Ma trận bên dưới giữ yêu cầu đối chiếu, số/bằng chứng trước đợt này là lịch sử. Cổng remoteSHA/haiCI đúng commit lưu ở receipt local publish.
+
+**CHG-095, 04/11/2026 — chuẩn bị ca kiểm, chưa chạy:** Source mới có `web/backend/tests/test_receiving_warehouse.py`, `web/frontend/tests/receiving-warehouse.test.tsx` và điều chỉnh guard hợp đồng/revision migration. Chưa thực thi test/build/metadata/browser/worker/verifier hoặc DB cutover theo yêu cầu người dùng. Ma trận bên dưới vẫn là cổng phải chạy sau khi hoàn tất các việc; không có số pass mới. [Implementation và phần còn chờ](../../docs/development.md#implementation-chg095-receiving-warehouse).
+
 <a id="receiving-warehouse-chg095"></a>
 ## CHG-095 — Ca kiểm kho mặc định, dự kiến/chưa chạy
 
@@ -21,7 +25,7 @@ Kiểm unit/API/worker/verifier độc lập trên DBtest, ca synthetic có kho 
 <a id="scenario-workspace-chg094"></a>
 ## CHG-094 — Kiểm trang kịch bản dự kiến, chưa thực thi
 
-04/11/2026, lượt này chỉ cập nhật MD cho [thiết kế trang Kịch bản](04-frontend-spec.md#scenario-workspace-chg094). Các ca dưới đây là cổng kiểm khi được giao code, không phải test đã đạt hoặc run mới đã tạo.
+04/11/2026, đã viết source theo [thiết kế trang Kịch bản](04-frontend-spec.md#scenario-workspace-chg094) và yêu cầu dọn UI. Đã chuẩn bị `web/frontend/tests/scenario-workspace.test.tsx`, `web/backend/tests/test_scenario_workspace.py` và chuyển ca form cũ sang component tại trang; guard OpenAPI giữ golden và kiểm riêng ba filter mới. **Chưa chạy các ca này, test/build/browser hoặc worker/migration**, theo yêu cầu hoãn kiểm. Ma trận dưới đây vẫn là cổng còn chờ, không phải bằng chứng đạt. [Bàn giao](../../docs/development.md#implementation-chg094-scenarios).
 
 | Ca kiểm | Kỳ vọng |
 |---|---|
@@ -38,6 +42,8 @@ Kiểm unit/API/worker/verifier độc lập trên DBtest, ca synthetic có kho 
 | Failed và quota | Retry dùng `/runs/{id}/retry`, liên kết `retry_of`, có nhãn cấu hình hiện tại; run cũ nguyên. 409/422/429/mất mạng giữ form, không tự lặp mutation hoặc bỏ quota. |
 | API và CSV | Đối soát tóm tắt/bảng/biểu đồ với API của cùng run/ngày/filter; CSV đủ phạm vi qua nhiều trang; metric toàn lượt giữ scope/mẫu số/exclusions. Queued/running/failed không xuất CSV kết quả. |
 | Tương thích vận hành | Tồn/nhập/cảnh báo/dự báo và sản phẩm/lịch cung cấp CHG-093 còn mở đúng ngữ cảnh; import/forecast vẫn có luồng chuẩn bị dữ liệu, không cần scenario. |
+| Dọn giao diện | Tổng quan không còn thao tác nhanh/lịch sử/thử lại trùng; chi tiết sản phẩm còn cấu hình/kho nhận và tồn thu gọn; không mất bảng, biểu đồ, CSV ở các trang kết quả. Help không còn Tổng30; điểm vào cũ mở trang Kịch bản. |
+| API lịch sử | `scenario_id`/`kind`/`status` lọc trước total/page, các trang hợp thành đúng tập không lặp; ID/enum sai trả422. Tên/phiên bản/thiết lập lấy từ frozen whitelist, không lộ config/request/path riêng. |
 | Desktop/mobile/bàn phím | 1440px và390px, form trên trang, không tràn ngang toàn trang, bảng cuộn riêng; label/focus/thông báo complete/lỗi, xác nhận bỏ bản nháp; không chặn rời trang chỉ vì job đang chạy. |
 
 Khi triển khai: kiểm React/hook/URL phù hợp thay đổi, TypeScript/Vite build; browser trên DBtest/demo riêng đi trọn thiết lập → lưu → chạy → worker → complete → kết quả tại trang → CSV và reload. Dùng fixture/synthetic để thử lỗi và quota, đối soát API/CSV; ghi rõ dữ liệu/phạm vi và bảo toàn run cũ. Không refit model hoặc dùng số test lịch sử làm bằng chứng cho trang mới. [Thứ tự triển khai](../../docs/planning/PLAN.md#chg-094), [bàn giao MD](../../docs/development.md#handoff-chg094-scenarios).

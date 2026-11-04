@@ -31,6 +31,7 @@ export function InventoryInformation({ focused, onItem }: { focused: Row; onItem
       <dl className="drawer-fields">
         <div>
           <dt>Kho</dt><dd>{warehouseName(focused)}</dd>
+          {focused.receiving_warehouse_id != null && <><dt>Kho / tuyến nguồn</dt><dd>{String(focused.source_city ?? "—")}</dd></>}
         </div>
         <div><dt>Quốc gia</dt><dd>{text(focused.destination_country)}</dd></div>
         <div><dt>Nhà mạng</dt><dd>{text(focused.carrier)}</dd></div>

@@ -262,7 +262,7 @@ export function Replenishment({
                   render: (_v, r) => (
                     <div className="cell-product">
                       <strong>{warehouseName(r)}</strong>
-                      <small>{String(r.destination_country)}</small>
+                      <small>{String(r.receiving_destination_country ?? r.destination_country)}</small>
                     </div>
                   ),
                 },

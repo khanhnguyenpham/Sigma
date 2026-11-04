@@ -4,7 +4,8 @@ from fastapi import APIRouter, Query, Request
 from fastapi.encoders import jsonable_encoder
 from core.http import listing, record
 from modules.catalog.models import Supplier
-from modules.catalog.schemas import WarehouseUpdate, SupplyChangeCreate, SupplyStatus
+from modules.catalog.schemas import WarehouseUpdate, SupplyChangeCreate, SupplyStatus, ReceivingWarehouseUpdate
+from modules.catalog.receiving import update_receiving
 from modules.catalog.supply_service import create_supply_change, list_supply_changes
 from modules.catalog.trade_preview import internal_preview
 from modules.catalog.provider_schemas import ProviderStatus
@@ -64,6 +65,12 @@ def supply_history(http: Request, key: int, page: int = Query(1, ge=1),
         return jsonable_encoder(list_supply_changes(session, key, page, page_size, as_of_date))
 
 
+@router.patch("/products/{key}/receiving-warehouse")
+def product_receiving_patch(http: Request, key: int, request: ReceivingWarehouseUpdate):
+    with http.app.state.sessions.begin() as session:
+        return jsonable_encoder(update_receiving(session, key, request))
+
+
 @router.post("/products/{key}/supply-changes", status_code=201)
 def supply_create(http: Request, key: int, request: SupplyChangeCreate):
     with http.app.state.sessions.begin() as session:
@@ -93,10 +100,11 @@ def items(
     product_type: str | None = None,
     run_id: uuid.UUID | None = None,
     search: str | None = None,
+    receiving_warehouse_id: int | None = Query(None, gt=0),
 ):
     return list_items(
         http.app.state.sessions, page, page_size,
-        warehouse_id, product_type, run_id, search,
+        warehouse_id, product_type, run_id, search, receiving_warehouse_id,
     )
 
 

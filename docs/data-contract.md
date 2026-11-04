@@ -1,5 +1,9 @@
 # Hợp đồng dữ liệu SIGMA
 
+**CHG-094/095 — 04/11/2026, hợp đồng đã kiểm local:** Mapping source/receiving frozen được worker/verifier/API/CSV kiểm trên3inventory-kind; luồng browser giữ kho2 dù live default đổi về1 sau enqueue. Migration0009 bảo toàn cột cũ và metadata0diff, dump/restore synthetic18bảng khớp. Không đổi target, quantity, tuyến forecast, C00 hoặc dữ liệu nguồn; không migrate demo. [Bàn giao/giới hạn](development.md#handoff-chg094-095-integration). Các điểm chưa thực thi bên dưới ghi lịch sử trước lượt kiểm.
+
+**Tiến độ CHG-095, 04/11/2026:** Đã viết source cho kho nhận riêng và snapshot `product_default_receiving_v1`, giữ `warehouse_id` làm định danh nguồn, thêm `receiving_warehouse_id` cho vị trí tồn/lô trong run mới. Chưa test/migrate hoặc đối soát DB/run/CSV thật; không đổi raw hoặc sealed snapshot. [Bàn giao source](development.md#implementation-chg095-receiving-warehouse); phần chỉMD bên dưới là checkpoint trước code.
+
 <a id="receiving-warehouse-chg095"></a>
 ## CHG-095 — Phân biệt kho nguồn và kho nhận, thiết kế dự kiến
 

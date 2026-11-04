@@ -78,9 +78,10 @@ def workspace(
         for row in inventory:
             route = (row["destination_country"], row["carrier"])
             routes[route] = routes.get(route, 0) + row["closing_qty"]
-            stock = warehouse_stock.setdefault(row["warehouse_id"], dict(
-                warehouse_id=row["warehouse_id"], city=row["city"],
-                destination_country=row["destination_country"], carrier=row["carrier"],
+            warehouse_id = row.get("receiving_warehouse_id", row["warehouse_id"])
+            stock = warehouse_stock.setdefault(warehouse_id, dict(
+                warehouse_id=warehouse_id, city=row.get("receiving_city", row["city"]),
+                destination_country=row.get("receiving_destination_country", row["destination_country"]), carrier=row["carrier"],
                 item_count=0, on_hand_units=0, low_stock_items=0,
                 replenish_items=0, recommended_units=0, supply_stopped_items=0,
             ))
@@ -90,6 +91,11 @@ def workspace(
             stock["replenish_items"] += (row.get("recommended_qty") or 0) > 0
             stock["recommended_units"] += row.get("recommended_qty") or 0
             stock["supply_stopped_items"] += row.get("supply_status")=="stopped"
+        if run.config_snapshot.get("receiving_warehouse_profile"):
+            for stock in warehouse_stock.values():
+                carriers = sorted({r["carrier"] for r in inventory if r["receiving_warehouse_id"] == stock["warehouse_id"]})
+                stock.update(receiving_warehouse_id=stock["warehouse_id"], carriers=carriers,
+                             carrier=carriers[0] if len(carriers) == 1 else None)
         totals = dict(
             inventory_available=bool(inventory),
             item_count=len(inventory),
@@ -115,7 +121,7 @@ def workspace(
         if is_trade(run):
             totals.update(counters(inventory))
             for stock in warehouse_stock.values():
-                stock.update(counters([r for r in inventory if r['warehouse_id']==stock['warehouse_id']]))
+                stock.update(counters([r for r in inventory if r.get('receiving_warehouse_id', r['warehouse_id'])==stock['warehouse_id']]))
             for stock in route_stock:
                 stock.update(counters([r for r in inventory if (r['destination_country'],r['carrier'])==(stock['destination_country'],stock['carrier'])]))
         return clean_json(

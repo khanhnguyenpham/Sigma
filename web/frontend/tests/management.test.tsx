@@ -9,7 +9,7 @@ import { afterEach, expect, it, vi } from "vitest";
 import { Overview } from "../src/pages/Overview";
 import { Inventory } from "../src/pages/Inventory";
 import { Replenishment } from "../src/pages/Replenishment";
-import { RunDialog } from "../src/components/dialogs/RunDialog";
+import { RunForm } from "../src/components/configuration/RunForm";
 import { type Run } from "../src/types/api";
 import { type Context } from "../src/types/context";
 afterEach(() => {
@@ -62,7 +62,7 @@ const workspace = {
   route_stock: [],
 };
 
-it("leads with real inventory actions and keeps processing history collapsed", async () => {
+it("leads with inventory actions and leaves processing history on the scenario page", async () => {
   vi.spyOn(globalThis, "fetch").mockImplementation(() => response(workspace));
   const navigate = vi.fn(),
     open = vi.fn();
@@ -92,7 +92,8 @@ it("leads with real inventory actions and keeps processing history collapsed", a
   expect(open).toHaveBeenCalledWith(workspace.attention[0], "inventory");
   fireEvent.click(screen.getByRole("button", { name: "Xem tất cả" }));
   expect(navigate).toHaveBeenCalledWith("replenishment");
-  expect(screen.getByText("Các phương án gần đây")).not.toBeVisible();
+  expect(screen.queryByText("Các phương án gần đây")).toBeNull();
+  expect(screen.queryByText("Thao tác nhanh")).toBeNull();
 });
 
 it("clears operational totals immediately when the selected plan changes", async () => {
@@ -178,13 +179,12 @@ it("prefers the full replay parent rather than the newest future-only forecast",
     result_summary: { origins: 185 },
   } as Run;
   render(
-    <RunDialog
+    <RunForm scenario={{ id: 1, name: "Base", version: 1 }}
       runs={[future, replay]}
-      onClose={() => {}}
       onCreated={() => {}}
     />,
   );
-  await screen.findByText("Base · v1");
+  await screen.findByText("Base · phiên bản 1");
   expect(screen.getByLabelText("Dự báo cha đã hoàn tất")).toHaveValue("replay");
 });
 

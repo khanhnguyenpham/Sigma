@@ -8,7 +8,7 @@ import {
   within,
 } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { Configuration } from "../src/pages/Configuration";
+import { ScenarioEditor } from "../src/components/configuration/ScenarioEditor";
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
@@ -48,11 +48,8 @@ it("preserves receipt date and quantity when inputs change in the same batch", a
       }),
     } as Response);
   });
-  render(<Configuration onChanged={() => {}} />);
-  fireEvent.click(
-    screen.getByRole("button", { name: "＋ Kịch bản mới" }),
-  );
-  const dialog = within(screen.getByRole("dialog"));
+  render(<ScenarioEditor onSaved={() => {}} onRefresh={() => {}} onDirty={() => {}} onBusy={() => {}} />);
+  const dialog = within(screen.getByRole("form", { name: "Thiết lập kịch bản" }));
   await dialog.findByRole("option", { name: "Tokyo" });
   fireEvent.change(
     dialog.getByRole("textbox", { name: "Tên kịch bản" }),
@@ -63,12 +60,12 @@ it("preserves receipt date and quantity when inputs change in the same batch", a
     { target: { value: "receipt_fixture" } },
   );
   fireEvent.change(
-    dialog.getByRole("combobox", { name: "Kho để chọn mặt hàng" }),
+    dialog.getByRole("combobox", { name: "Kho danh mục để chọn mặt hàng" }),
     { target: { value: "18" } },
   );
   await waitFor(() =>
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      "/api/v1/items?warehouse_id=18&page_size=100",
+      expect.stringContaining("/api/v1/items?warehouse_id=18&page_size=100"),
       expect.anything(),
     ),
   );
@@ -85,7 +82,7 @@ it("preserves receipt date and quantity when inputs change in the same batch", a
     fireEvent.change(quantity, { target: { value: "20" } });
   });
   fireEvent.submit(
-    dialog.getByRole("button", { name: "Lưu phiên bản mới" }).closest("form")!,
+    dialog.getByRole("button", { name: "Lưu thiết lập" }).closest("form")!,
   );
   await waitFor(() => expect(posted).toBeDefined());
   expect(posted?.settings.receipts_initial[0]).toMatchObject({

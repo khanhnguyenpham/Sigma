@@ -15,7 +15,8 @@ export function resultQuery(
   extra: Record<string, string | number | undefined | null> = {},
 ) {
   return query({
-    warehouse_id: ctx.warehouseId,
+    warehouse_id: ctx.warehouseScope === "receiving" ? undefined : ctx.warehouseId,
+    receiving_warehouse_id: ctx.warehouseScope === "receiving" ? ctx.warehouseId : undefined,
     item_id: ctx.itemId,
     product_type: ctx.productType,
     supplier_id: ctx.supplierId,
@@ -32,7 +33,9 @@ export function readContext(): Context {
   const p = new URLSearchParams(location.search);
   return {
     runId: p.get("run_id") ?? "",
+    ...(p.has("scenario_id") ? { scenarioId: p.get("scenario_id") ?? "" } : {}),
     warehouseId: p.get("warehouse_id") ?? "",
+    ...(p.get("warehouse_scope") === "receiving" ? { warehouseScope: "receiving" as const } : {}),
     itemId: p.get("item_id") ?? "",
     productType: p.get("product_type") ?? "",
     supplierId: p.get("supplier_id") ?? "",
@@ -44,7 +47,9 @@ export function readContext(): Context {
 export function contextUrl(ctx: Context) {
   return query({
     run_id: ctx.runId,
+    scenario_id: ctx.scenarioId,
     warehouse_id: ctx.warehouseId,
+    warehouse_scope: ctx.warehouseScope,
     item_id: ctx.itemId,
     product_type: ctx.productType,
     supplier_id: ctx.supplierId,
@@ -59,10 +64,16 @@ export function contextUrl(ctx: Context) {
 }
 
 export function navigationUrl(ctx:Context,page:string,view:PurchasingView) {
+  if (page === "configuration") page = "scenarios";
   const params=new URLSearchParams(contextUrl(ctx));
   if(page.startsWith("provider-"))new URLSearchParams(location.search).forEach((v,k)=>{if(k.startsWith("notice_"))params.set(k,v);});
   if(page==="replenishment")params.set("view",view);
   return "?"+params.toString()+"#"+page;
+}
+
+export function readPage() {
+  const page = location.hash.slice(1) || "overview";
+  return page === "configuration" ? "scenarios" : page;
 }
 
 export function readPurchasingView(): PurchasingView {

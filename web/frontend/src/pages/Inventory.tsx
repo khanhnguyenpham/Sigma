@@ -19,7 +19,7 @@ import type { PurchasingView } from "../types/context";
 import { Icon } from "../components/ui/Icon";
 import type { WorkspaceData } from "../types/api";
 import { WarehouseDirectory } from "../components/inventory/WarehouseDirectory";
-import { warehouseName } from "../utils/warehouse";
+import { warehouseName, isReceivingRun } from "../utils/warehouse";
 import { TradeTotals } from "../components/products/TradePresentation";
 import { isTradeRun } from "../utils/trade";
 export function Inventory({
@@ -48,6 +48,7 @@ export function Inventory({
   const [page, setPage] = useState(1),
     [status, setStatus] = useState(""),
     [editingWarehouse, setEditingWarehouse] = useState(false);
+  const receiving = isReceivingRun(run);
   const key = JSON.stringify([ctx, status]);
   useEffect(() => setPage(1), [key]);
   useEffect(() => setStatus(""), [ctx.runId, ctx.warehouseId]);
@@ -88,7 +89,7 @@ export function Inventory({
           <p>
             {insideWarehouse ? `${text(warehouse?.destination_country)} · Xem sản phẩm và tình trạng tồn trong kho.` : "Bắt đầu từ kho đang quản lý, sau đó chọn kho để xem sản phẩm bên trong."}
           </p>
-          {insideWarehouse && warehouse && <span className="carrier-chip">Nhà mạng <strong>{String(warehouse.carrier)}</strong></span>}
+          {insideWarehouse && warehouse && !receiving && <span className="carrier-chip">Nhà mạng <strong>{String(warehouse.carrier)}</strong></span>}
         </div>
         {insideWarehouse && <div className="warehouse-actions">
           <button onClick={() => setEditingWarehouse(true)}><Icon name="settings" size={16} /> Chỉnh sửa kho</button>
@@ -137,7 +138,7 @@ export function Inventory({
           <State loading={summary.loading} error={summary.error} />
           <TradeTotals summary={s} />
           {!insideWarehouse ? <WarehouseDirectory key={run?.id} warehouses={warehouses} stock={summary.data?.warehouse_stock}
-            loading={catalog?.loading} error={catalog?.error} onChoose={onWarehouse} /> :
+            loading={catalog?.loading} error={catalog?.error} onChoose={onWarehouse} receiving={receiving} /> :
           catalog?.data && !warehouse ? <div className="notice error" role="alert">Không tìm thấy kho trong phương án này. Hãy quay lại danh sách kho.</div> : <Panel
             title="Sản phẩm trong kho"
             note={`Ngày ${ctx.origin} · Nhấn một mặt hàng để xem chi tiết.`}

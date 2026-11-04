@@ -4,6 +4,7 @@ from pydantic import Field
 from core.schemas import DTO
 
 class TradeFilters(DTO):
+    receiving_warehouse_id: int | None = Field(default=None, gt=0)
     sku: str | None = Field(default=None, min_length=1, max_length=200)
     destination_country: str | None = Field(default=None, min_length=1, max_length=100)
     carrier: str | None = Field(default=None, min_length=1, max_length=100)

@@ -56,6 +56,9 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
         schema["paths"].pop("/api/v1/products/{key}")
         schema["paths"].pop("/api/v1/products/{key}/supply-changes")
         schema["paths"].pop("/api/v1/products/{key}/internal-stop-preview")
+        schema["paths"].pop("/api/v1/products/{key}/receiving-warehouse")
+        receiving = schema["components"]["schemas"].pop("ReceivingWarehouseUpdate")
+        assert set(receiving["required"]) == {"receiving_warehouse_id", "expected_version"}
         for path in list(schema["paths"]):
             if path.startswith("/api/v1/provider-product-notices"):
                 schema["paths"].pop(path)
@@ -64,6 +67,11 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
         schema["components"]["schemas"]["RunCreate"]["properties"].pop("trade_lifecycle_profile")
         schema["components"]["schemas"].pop("SupplyChangeCreate")
         schema["paths"]["/api/v1/warehouses/{key}"].pop("get")
+        run_parameters = schema["paths"]["/api/v1/runs"]["get"]["parameters"]
+        added = {p["name"] for p in run_parameters if p["name"] in {"scenario_id", "kind", "status"}}
+        assert added == {"scenario_id", "kind", "status"}
+        assert all(not p["required"] for p in run_parameters if p["name"] in added)
+        schema["paths"]["/api/v1/runs"]["get"]["parameters"] = [p for p in run_parameters if p["name"] not in added]
         # CHG-068 step10 explicitly adds these optional request fields only.
         # Keep the original golden intact and compare the rest byte-for-byte.
         for name in ("PolicyCreate", "PolicyOverride"):
@@ -86,7 +94,7 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
                 if not isinstance(operation, dict):
                     continue
                 operation["parameters"] = [p for p in operation.get("parameters", []) if p["name"] not in {
-                    'alert_type','sku','destination_country','carrier','window_origin','internal_status','provider_status','replenishment_allowed','sales_allowed'}]
+                    'alert_type','sku','destination_country','carrier','window_origin','internal_status','provider_status','replenishment_allowed','sales_allowed','receiving_warehouse_id'}]
                 if not operation["parameters"]:
                     operation.pop("parameters")
                 for p in operation.get("parameters", []):
@@ -108,6 +116,13 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
         if table.name == "item_supply_changes" or table.name.startswith("provider_product_notice"):
             continue
         ddl = str(CreateTable(table).compile(dialect=dialect())).strip()
+        if table.name in {"items", "replenishment_orders"}:
+            assert table.c.receiving_warehouse_id.nullable
+            ddl = "\n".join(line for line in ddl.splitlines()
+                if not re.match(r"\s*(receiving_warehouse_id|receiving_version)\s", line)
+                and "CONSTRAINT ck_item_receiving_version " not in line
+                and "FOREIGN KEY(receiving_warehouse_id)" not in line)
+            ddl = re.sub(r",\s*\n\)", "\n)", ddl)
         if table.name == "suppliers":
             # CHG-079 replaces four vendor labels with the source carrier.
             ddl = "\n".join(line for line in ddl.splitlines()

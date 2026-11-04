@@ -3,13 +3,14 @@ from datetime import timedelta
 import numpy as np
 import pandas as pd
 from sqlalchemy import select, func, text
-from sqlalchemy.orm import defer
+from sqlalchemy.orm import defer, undefer
 from modules.forecasting.models import DailySales, RouteForecast, ItemForecast
 from modules.inventory.models import InventoryDaily
 from modules.purchasing.models import Replenishment
 from modules.alerts.models import Alert
 from modules.catalog.models import Item
 from modules.catalog.service import warehouse_labels
+from modules.catalog.receiving import location_fields
 from core.run_context import required_run, source_data_id, snapshot_maps
 from core.serialization import clean_json
 from core.errors import DomainError
@@ -52,6 +53,8 @@ def context(row):
             config_sha256=row.config_sha256,source_sha256=row.source_sha256,units='quantity',
             metric_basis='allowed_scenario_sales',trade_quantities_available=True,
             run_as_of_date=row.as_of_date.isoformat(),run_status=row.status)
+    if row.config_snapshot.get("receiving_warehouse_profile"):
+        result["receiving_warehouse_profile"] = row.config_snapshot["receiving_warehouse_profile"]
     return result
 
 
@@ -63,6 +66,9 @@ def permitted_items(items, policies, filters, as_of):
         selected = {
             i for i in selected if items[i]["warehouse_id"] == filters.warehouse_id
         }
+    if filters.receiving_warehouse_id:
+        selected = {i for i in selected if items[i].get("receiving_warehouse_id", items[i]["warehouse_id"])
+                    == filters.receiving_warehouse_id}
     if filters.product_type:
         selected = {
             i for i in selected if items[i]["product_type"] == filters.product_type
@@ -104,6 +110,7 @@ def dataset(session, run, name, filters, paginate=True):
         return sell_through_data(session, run, filters, items, warehouses, selected, paginate)
     histories = frozen_history(run) if inventory and not trade else None
     model = MODELS[name]
+    receiving = bool(run.config_snapshot.get("receiving_warehouse_profile")) and inventory
     if name in {"route_forecasts", "item_forecasts"} and run.kind != "forecast":
         raise DomainError("parent_mismatch", "This run has no forecast dataset", 409)
     if name in {"inventory_daily", "replenishments", "alerts"} and run.kind not in {
@@ -113,6 +120,8 @@ def dataset(session, run, name, filters, paginate=True):
     }:
         raise DomainError("parent_mismatch", "This run has no inventory dataset", 409)
     query = select(model).where(model.run_id == run.id)
+    if model is Replenishment and receiving:
+        query = query.options(undefer(Replenishment.receiving_warehouse_id))
     if model is InventoryDaily and not trade:
         # Schema may still be 0007 before cutover; existing read models retain their contract.
         query = query.options(defer(InventoryDaily.source_sales_qty), defer(InventoryDaily.actual_blocked_qty))
@@ -255,7 +264,8 @@ def dataset(session, run, name, filters, paginate=True):
     output = []
     for row in session.scalars(query):
         r = {col.name: getattr(row, col.name) for col in row.__table__.columns
-             if trade or model is not InventoryDaily or col.name not in {"source_sales_qty", "actual_blocked_qty"}}
+             if (trade or model is not InventoryDaily or col.name not in {"source_sales_qty", "actual_blocked_qty"})
+             and not (model is Replenishment and col.name == "receiving_warehouse_id" and not receiving)}
         r.pop("run_id", None)
         if "item_id" in r:
             info = items[r["item_id"]]
@@ -276,6 +286,11 @@ def dataset(session, run, name, filters, paginate=True):
         r["display_city"] = w["display_city"] if w else None
         if w:
             r.update(destination_country=w["destination_country"], carrier=w["carrier"])
+        if inventory and "item_id" in r:
+            location = location_fields(items[r["item_id"]], warehouses)
+            if model is Replenishment and receiving and r.get("receiving_warehouse_id") != location["receiving_warehouse_id"]:
+                raise DomainError("invalid_receiving_snapshot", "Order destination differs from the frozen product default", 409)
+            r.update(location)
         p = policies.get(r.get("policy_id"))
         if p:
             r.update(

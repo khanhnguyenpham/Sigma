@@ -1,5 +1,25 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+<a id="chg094-095-integration"></a>
+## CHG-094/095 — 04/11/2026, mở kiểm tích hợp và publish
+
+Người dùng giao kiểm tích hợp/bàn giao, test/build rồi đẩy GitHub, thay hoãn trước đó. Đã sửa phản hồi run cũ trong context, typed Alerts thiếu trường receiving, count catalog chạm cột mới trên schema cũ, fixture catalog mở rộng thiếu mapping frozen và giữ item của deep link khi tự chọn run. Giữ golden/guard nghiệp vụ, không nới bảo toàn để làm test đạt.
+
+520Python BE/M2/101React/build/pipcheck đạt; migration lịch sử cũ, browser1440/390, worker/verifier/API/CSV và native restore synthetic18bảng đạt. Demo18bảng/158artifact,1.466tệp bảo vệ/435artifactD3 và4tệp local nguyên hash. Publish thường code/tests/docs final-report theo remoteSHA/haiCI; không tự deploy, cutover demo, mở D6 hoặc đổi C00/R05/R07/T14. [Bàn giao và giới hạn thực](development.md#handoff-chg094-095-integration).
+
+## CHG-094 — 04/11/2026, viết trang Kịch bản và dọn phần trùng
+
+Người dùng giao triển khai trang riêng rồi bổ sung dọn các phần không cần thiết ở trang khác. Source đã gom lưu/chạy/tiến độ/kết quả/lịch sử vào `#scenarios`, giữ alias, version/frozen/idempotency/retry/quota và tự dùng kho mặc định. Tổng quan bỏ thao tác nhanh/lịch sử/thử lại trùng; chi tiết sản phẩm thu gọn tồn và bỏ biểu đồ trùng, Help bỏ Tổng30 cũ. Đã xóa luồng modal/hook cũ thay vì giữ hai cách thiết lập song song.
+
+Đã chuẩn bị ca kiểm workspace và API filter/count/metadata; **chưa chạy test/build/browser/DB/migration/worker** theo yêu cầu hoãn kiểm. Chưa commit/push/deploy hoặc cập nhật demo, không ghi nhận nghiệm thu mới. [Source và giới hạn](development.md#implementation-chg094-scenarios). C00/R05/R07/T14 và bốn tệp local giữ nguyên. Các mục trước đó phía dưới là checkpoint lịch sử.
+
+<a id="chg095-implementation"></a>
+## CHG-095 — 04/11/2026, giao code kho mặc định sau checkpoint
+
+Người dùng giao “bắt đầu từ việc làm kho mặc định”, tiếp tục chỉ dẫn chưa test/push đến khi hoàn tất các việc. Đã viết source từ sản phẩm/API/migration0009 tới snapshot/worker/verifier/read model/CSV và UI, không đổi tuyến nguồn hoặc thêm override kho trong kịch bản. Source cũ giữ cách đọc legacy; mặc định mới chỉ áp dụng run tạo sau khi schema/consumer mới hoạt động. Đây là tiến độ implementation, chưa bằng chứng nghiệm thu.
+
+Không chạy test/build/migration/worker/model/browser, không thao tác DB/run hoặc cập nhật demo; ca kiểm mới chỉ được chuẩn bị. [Bàn giao thực và giới hạn](development.md#implementation-chg095-receiving-warehouse). Chưa commit/push/deploy; CHG-094 vẫn chờ code, C00/R05/R07/T14 giữ nguyên.
+
 <a id="chg095"></a>
 ## CHG-095 — 04/11/2026, chọn kho nhận tại sản phẩm và mặc định cho kịch bản
 

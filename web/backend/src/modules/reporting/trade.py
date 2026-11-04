@@ -9,6 +9,7 @@ from modules.alerts.models import Alert
 from modules.purchasing.models import Replenishment
 from modules.inventory.models import InventoryDaily
 from modules.catalog.trade_service import TRADE_PROFILE as PROFILE, TRADE_RULES
+from modules.catalog.receiving import location_fields
 
 RIGHT_FILTERS = ('internal_status','provider_status','replenishment_allowed','sales_allowed')
 CAP_FIELDS = ('q_policy','q_final','cap_reason','sellable_budget','provider_stop_on','eta','forecast_coverage_complete')
@@ -33,6 +34,8 @@ def is_trade(run):
 
 
 def validate_filters(run, filters, inventory=True):
+    if getattr(filters, "receiving_warehouse_id", None) is not None and not inventory:
+        raise DomainError("invalid_input", "Receiving warehouse filters require inventory results")
     requested = any(getattr(filters,k,None) is not None for k in RIGHT_FILTERS)
     if requested and not inventory:
         raise DomainError('invalid_input','Trade rights filters require inventory results')
@@ -145,12 +148,13 @@ def counters(rows):
 def aggregate_projection(rows):
     groups = {}
     for row in rows:
-        key = (row['window_origin'],row['as_of_date'],row['warehouse_id'],row['target_date'])
+        key = (row['window_origin'],row['as_of_date'],row['warehouse_id'],row.get('receiving_warehouse_id'),row['target_date'])
         group = groups.setdefault(key, {**{k:row[k] for k in ('window_origin','as_of_date','warehouse_id','city','display_city','destination_country','carrier','target_date','horizon_day')},
             **{k:0 for k in PROJECTION_QUANTITIES},'item_count':0,'internal_stopped_items':0,'provider_blocked_items':0,'affected_items':0,
             'replenishment_allowed_items':0,'sales_allowed_items':0,'provider_notice_ids':[],
             'provider_reasons':[],'provider_sources':[],'internal_reasons':[],
             'internal_status_counts':{},'provider_status_counts':{}})
+        group.update({k:v for k,v in row.items() if k.startswith(('receiving_', 'source_warehouse', 'source_city'))})
         group['item_count'] += 1
         internal, provider = row['internal_status']=='stopped', not row['sales_allowed']
         group['internal_stopped_items'] += internal
@@ -188,7 +192,7 @@ def sell_through(session, run, filters, items, warehouses, selected, paginate):
             target = date.fromisoformat(projected['date'])
             if (filters.date_from and target<filters.date_from) or (filters.date_to and target>filters.date_to):
                 continue
-            row = dict(item,city=warehouse['city'],display_city=warehouse['display_city'],window_origin=alert.window_origin,
+            row = dict(item,**location_fields(item, warehouses),city=warehouse['city'],display_city=warehouse['display_city'],window_origin=alert.window_origin,
                 as_of_date=origin,target_date=target,horizon_day=h,**{k:v for k,v in projected.items() if k!='date'})
             row.update(sources,supply_status=row['internal_status'],provider_reasons=[b['reason'] for b in row['provider_blockers']])
             row.update({('cap_eta' if k=='eta' else k):alert.explanation.get(k) for k in CAP_FIELDS},recommendation_as_of_date=origin)
@@ -208,7 +212,7 @@ def metric_records(session, run, filters):
         raise DomainError('invalid_input','Unsupported trade metric filter')
     if filters.granularity not in (None,'alert','policy','threshold'):
         raise DomainError('invalid_input','Trade metrics use policy, alert or threshold granularity')
-    scope_fields=RIGHT_FILTERS+('sku','destination_country','carrier','window_origin','warehouse_id','item_id','supplier_id','product_type','as_of_date','date_from','date_to')
+    scope_fields=RIGHT_FILTERS+('sku','destination_country','carrier','window_origin','warehouse_id','receiving_warehouse_id','item_id','supplier_id','product_type','as_of_date','date_from','date_to')
     if all(getattr(filters,k) is None for k in scope_fields):
         summary=run.result_summary
         quantities=('source_sales_qty','scenario_sales_qty','actual_blocked_qty','sales_qty','fulfilled_qty','shortage_qty','fill_allowed','fill_rate','blocked_source_rate')

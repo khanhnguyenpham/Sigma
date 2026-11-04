@@ -9,7 +9,7 @@ import {
 } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import App from "../src/App";
-import { Configuration } from "../src/pages/Configuration";
+import { ScenarioEditor } from "../src/components/configuration/ScenarioEditor";
 import { ProductPolicyForm } from "../src/components/products/ProductPolicyForm";
 import type { Run } from "../src/types/api";
 
@@ -208,9 +208,8 @@ it("keeps batched override field edits in the scenario payload", async () => {
     body = JSON.parse(String(options.body));
     return reply({ id: 1 });
   });
-  render(<Configuration onChanged={() => {}} />);
-  fireEvent.click(screen.getByRole("button", { name: "＋ Kịch bản mới" }));
-  const dialog = within(screen.getByRole("dialog"));
+  render(<ScenarioEditor onSaved={() => {}} onRefresh={() => {}} onDirty={() => {}} onBusy={() => {}} />);
+  const dialog = within(screen.getByRole("form", { name: "Thiết lập kịch bản" }));
   await dialog.findByRole("option", { name: "Synthetic" });
   fireEvent.change(dialog.getByLabelText("Tên kịch bản"), {
     target: { value: "Synthetic override" },
@@ -218,7 +217,7 @@ it("keeps batched override field edits in the scenario payload", async () => {
   fireEvent.change(dialog.getByLabelText("Mã kịch bản"), {
     target: { value: "synthetic_override" },
   });
-  fireEvent.change(dialog.getByLabelText("Kho để chọn mặt hàng"), {
+  fireEvent.change(dialog.getByLabelText("Kho danh mục để chọn mặt hàng"), {
     target: { value: "18" },
   });
   await waitFor(() =>
@@ -244,7 +243,7 @@ it("keeps batched override field edits in the scenario payload", async () => {
     });
   });
   fireEvent.submit(
-    dialog.getByRole("button", { name: "Lưu phiên bản mới" }).closest("form")!,
+    dialog.getByRole("button", { name: "Lưu thiết lập" }).closest("form")!,
   );
   await waitFor(() => expect(body).toBeDefined());
   expect(body?.settings.policy_overrides).toEqual([
@@ -325,13 +324,12 @@ it("keeps blank numeric overrides inherited and preserves zero SS days", async (
     if (options?.method !== "POST") return readReply(input);
     body = JSON.parse(String(options.body)); return reply({ id: 1 });
   });
-  render(<Configuration onChanged={() => {}} />);
-  fireEvent.click(screen.getByRole("button", { name: "＋ Kịch bản mới" }));
-  const dialog = within(screen.getByRole("dialog"));
+  render(<ScenarioEditor onSaved={() => {}} onRefresh={() => {}} onDirty={() => {}} onBusy={() => {}} />);
+  const dialog = within(screen.getByRole("form", { name: "Thiết lập kịch bản" }));
   await dialog.findByRole("option", { name: "Synthetic" });
   fireEvent.change(dialog.getByLabelText("Tên kịch bản"), { target: { value: "Inherited" } });
   fireEvent.change(dialog.getByLabelText("Mã kịch bản"), { target: { value: "inherited" } });
-  fireEvent.change(dialog.getByLabelText("Kho để chọn mặt hàng"), { target: { value: "18" } });
+  fireEvent.change(dialog.getByLabelText("Kho danh mục để chọn mặt hàng"), { target: { value: "18" } });
   const add = dialog.getByRole("button", { name: "＋ Điều chỉnh mặt hàng" });
   await waitFor(() => expect(add).toBeEnabled()); fireEvent.click(add);
   const group = within(dialog.getByRole("group", { name: "Điều chỉnh riêng mặt hàng" }));
@@ -340,7 +338,7 @@ it("keeps blank numeric overrides inherited and preserves zero SS days", async (
   fireEvent.change(group.getByLabelText("Ngưỡng nhập cố định (ROP)"), { target: { value: "" } });
   fireEvent.change(group.getByLabelText("Số ngày tồn an toàn"), { target: { value: "0" } });
   fireEvent.change(group.getByLabelText("Số ngày nhìn trước cảnh báo xuống ROP"), { target: { value: "1" } });
-  fireEvent.submit(dialog.getByRole("button", { name: "Lưu phiên bản mới" }).closest("form")!);
+  fireEvent.submit(dialog.getByRole("button", { name: "Lưu thiết lập" }).closest("form")!);
   await waitFor(() => expect(body).toBeDefined());
   expect(body?.settings.policy_overrides).toEqual([{ item_id: 341, safety_days: 0, warning_horizon_days: 1 }]);
 });

@@ -1,4 +1,4 @@
-import { type ConfigurationState } from "../../hooks/useConfiguration";
+import { type ScenarioEditorState } from "../../hooks/useScenarioEditor";
 
 import { ItemSelect } from "./ItemSelect";
 
@@ -7,7 +7,7 @@ import { PolicyFields } from "./PolicyFields";
 export function PolicyOverrideEditor({
   editor,
 }: {
-  editor: ConfigurationState;
+  editor: ScenarioEditorState;
 }) {
   const { overrides, setOverrides, update, warehouse, itemData, itemOptions } =
     editor;

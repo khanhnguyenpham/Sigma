@@ -1,6 +1,8 @@
 export interface Context {
   runId: string;
+  scenarioId?: string;
   warehouseId: string;
+  warehouseScope?: "receiving";
   itemId: string;
   productType: string;
   supplierId: string;

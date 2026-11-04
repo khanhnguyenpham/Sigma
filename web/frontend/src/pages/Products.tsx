@@ -10,10 +10,9 @@ import { Table } from "../components/ui/Table";
 import { Pager } from "../components/ui/Pager";
 import { State } from "../components/ui/State";
 import { ProductPolicyForm } from "../components/products/ProductPolicyForm";
+import { ProductReceivingForm } from "../components/products/ProductReceivingForm";
 import { InventoryInformation } from "../components/inventory/InventoryDetails";
-import { SellThrough } from "../components/forecast/SellThrough";
 import { inventoryKinds } from "../config/navigation";
-import { isTradeRun } from "../utils/trade";
 import { ProductStatus } from "../components/products/ProductStatus";
 import { Icon } from "../components/ui/Icon";
 
@@ -54,6 +53,7 @@ export function Products({ onOpen, onSupply = onOpen, ctx, onContext }: { onOpen
       {data.data&&<><Table rows={data.data.items} columns={[
         {key:"sku",label:"Sản phẩm",render:(v,r)=><><button className="product-name" onClick={()=>onOpen(r)}>{String(v)}</button><small className="product-cell-note">{r.product_type==="physical_SIM"?"SIM vật lý":"eSIM"}</small></>},
         {key:"city",label:"Kho / nhà mạng",render:(v,r)=><><strong>{String(v)}</strong><small className="product-cell-note">{String(r.carrier)}</small></>},
+        {key:"receiving_warehouse",label:"Kho nhận mặc định",render:(v,r)=><>{warehouseName((v ?? r.warehouse) as Row)}{r.receiving_source==="inherited"&&<small className="product-cell-note">Theo kho sản phẩm</small>}</>},
         {key:"internal_status",label:"Trạng thái nhập",render:(v,r)=><ProductStatus kind="internal" value={v??r.supply_status}/>},
         {key:"provider_status",label:"Trạng thái",render:v=><ProductStatus kind="provider" value={v}/>},
         {key:"policy",label:"Cấu hình nhập",render:v=>{const p=v as Row|null;return p?<><strong>{p.fixed_order_qty==null?"Chưa cấu hình":`${fmt(p.fixed_order_qty)} / lần`}</strong><small className="product-cell-note">Tồn an toàn {fmt(p.safety_days)} ngày</small></>:"Chưa cấu hình";}},
@@ -86,21 +86,30 @@ export function ProductDetail({ ctx, run, onNavigate, onWarehouse, onItem, onDat
       <div className="page-heading product-page-heading"><div><h1>{String(row.sku)}</h1><p>{String(row.product_type)} · {warehouseName(row)} · {String(row.carrier)}</p></div><button className="secondary" onClick={()=>onItem(row,"product-supply")}><Icon name="clock" size={16}/>Lịch cung cấp</button></div>
       {message && <div className="notice success" role="status" ref={notice} tabIndex={-1}>{message}</div>}
       <div className="product-layout">
+        <div className="product-settings-summary">
         <Panel title="Thông tin sản phẩm"><dl className="product-information">
           <div><dt>Mã sản phẩm</dt><dd>{String(row.sku)}</dd></div><div><dt>Loại sản phẩm</dt><dd>{String(row.product_type)}</dd></div>
-          <div><dt>Kho</dt><dd>{warehouseName(row)}</dd></div><div><dt>Quốc gia</dt><dd>{String(row.destination_country)}</dd></div>
+          <div><dt>Kho danh mục / tuyến nguồn</dt><dd>{warehouseName(row)}</dd></div><div><dt>Quốc gia</dt><dd>{String(row.destination_country)}</dd></div>
+          <div><dt>Kho nhận mặc định</dt><dd>{warehouseName((row.receiving_warehouse ?? row.warehouse) as Row)}</dd></div>
           <div><dt>Nhà cung cấp</dt><dd>{String(row.carrier)}</dd></div><div><dt>Ngày có dữ liệu</dt><dd>{text(row.first_seen_date)}</dd></div>
           <div><dt>Cấu hình áp dụng từ</dt><dd>{text(policy?.effective_from)}</dd></div>
-        </dl><button className="secondary" onClick={() => onWarehouse(row)}>Xem sản phẩm trong kho</button></Panel>
+        </dl><button className="secondary" onClick={() => onWarehouse(stock.data?.items[0] ? {
+          ...row, warehouse_id: stock.data.items[0].receiving_warehouse_id ?? row.warehouse_id,
+        } : row)}>Xem sản phẩm trong kho</button></Panel>
+        <Panel title="Kho nhận hàng" note="Áp dụng tự động cho các lượt chạy mới.">
+          <ProductReceivingForm key={`receiving:${row.id}:${revision}:${row.receiving_version ?? 0}`} product={row}
+            onSaved={() => { setRevision((v) => v + 1); setMessage("Đã lưu kho nhận mặc định. Áp dụng cho lượt chạy mới."); }}
+            onReload={() => { setRevision((v) => v + 1); setMessage(""); }} />
+        </Panel>
+        </div>
         <Panel title="Cấu hình nhập hàng" note="Thiết lập riêng cho sản phẩm tại kho này.">
           <ProductPolicyForm key={`${row.id}:${revision}:${policy?.version ?? 0}`} product={row} onSaved={() => { setRevision((v) => v + 1); setMessage("Đã lưu cấu hình sản phẩm."); }} onReload={() => { setRevision((v) => v + 1); setMessage(""); }} />
         </Panel>
       </div>
-      {ready && <SellThrough runId={run.id} ctx={ctx} trade={isTradeRun(run)} />}
-      {ready && <Panel title="Tình trạng tồn kho" note={`Số liệu trong kế hoạch tại ngày ${ctx.origin}. Lưu cấu hình không tính lại số liệu đã lưu.`}>
+      {ready && <details className="advanced-section"><summary>Tồn kho trong kế hoạch đang chọn</summary><Panel title="Tình trạng tồn kho" note={`Số liệu trong kế hoạch tại ngày ${ctx.origin}. Lưu cấu hình không tính lại số liệu đã lưu.`}>
         <State loading={stock.loading} error={stock.error} empty={!stock.loading && !stock.error && !stock.data?.items.length} />
         {stock.data?.items[0] && <InventoryInformation focused={{ ...stock.data.items[0], display_city: row.city }} onItem={onItem} />}
-      </Panel>}
+      </Panel></details>}
     </>}
   </>;
 }

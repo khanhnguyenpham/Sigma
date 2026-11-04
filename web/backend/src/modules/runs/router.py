@@ -1,5 +1,6 @@
 """HTTP adapters for run creation, status and summaries."""
 import uuid
+from typing import Literal
 from fastapi import APIRouter, Header, Query, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
@@ -40,6 +41,13 @@ def run_view(row):
         ]
     }
     result["trade_lifecycle_profile"] = row.config_snapshot.get("trade_lifecycle_profile")
+    result["receiving_warehouse_profile"] = row.config_snapshot.get("receiving_warehouse_profile")
+    scenario = row.config_snapshot.get("scenario", {})
+    result["scenario_name"] = scenario.get("name")
+    result["scenario_version"] = scenario.get("version")
+    settings = scenario.get("settings", {})
+    result["scenario_settings"] = {key: settings[key] for key in
+        ("cover_days", "safety_multiplier", "policy_overrides", "receipts_initial", "receipts_declared") if key in settings}
     return result
 
 
@@ -81,10 +89,17 @@ def runs_get(
     http: Request,
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
+    scenario_id: int | None = Query(None, gt=0),
+    kind: Literal["source_import", "forecast", "policy_replay", "alert_replay", "stock_projection"] | None = None,
+    status: Literal["queued", "running", "complete", "failed", "invalidated"] | None = None,
 ):
     with http.app.state.sessions() as session:
+        query = select(Run)
+        for field, value in ((Run.scenario_id, scenario_id), (Run.kind, kind), (Run.status, status)):
+            if value is not None:
+                query = query.where(field == value)
         rows = session.scalars(
-            select(Run)
+            query
             .order_by(Run.created_at.desc(), Run.id)
             .offset((page - 1) * page_size)
             .limit(page_size)
@@ -92,6 +107,7 @@ def runs_get(
         output = []
         for row in rows:
             r = run_view(row)
+            r.pop("scenario_settings")
             r["result_summary"] = {
                 k: v
                 for k, v in r["result_summary"].items()
@@ -100,7 +116,7 @@ def runs_get(
             output.append(r)
         return dict(
             items=output,
-            total=session.scalar(select(func.count()).select_from(Run)),
+            total=session.scalar(select(func.count()).select_from(query.subquery())),
             page=page,
             page_size=page_size,
         )

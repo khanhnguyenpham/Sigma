@@ -1,5 +1,6 @@
 from sqlalchemy import BigInteger, Boolean, CheckConstraint, Column, Date, ForeignKey, ForeignKeyConstraint, Index, Integer, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import deferred
 from core.db import Base, created, fk, identity
 
 
@@ -25,6 +26,8 @@ class Item(Base):
     __tablename__ = "items"
     id = identity()
     warehouse_id = fk("warehouses")
+    receiving_warehouse_id = deferred(fk("warehouses", nullable=True))
+    receiving_version = deferred(Column(Integer, nullable=False, server_default=text("0")))
     sku = Column(Text, nullable=False)
     product_type = Column(Text, nullable=False)
     first_seen_date = Column(Date, nullable=False)
@@ -33,6 +36,9 @@ class Item(Base):
         UniqueConstraint("warehouse_id", "sku", "product_type"),
         CheckConstraint("product_type IN ('eSIM','physical_SIM')"),
         Index("ix_items_warehouse", "warehouse_id"),
+        CheckConstraint("(receiving_warehouse_id IS NULL AND receiving_version=0) OR "
+                        "(receiving_warehouse_id IS NOT NULL AND receiving_version>=1)",
+                        name="ck_item_receiving_version"),
     )
 
 

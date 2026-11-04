@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from sqlalchemy import select, func, text
+from sqlalchemy import select, func, text, inspect
 from sqlalchemy.exc import IntegrityError, OperationalError
 from core.errors import DomainError
 
@@ -25,7 +25,9 @@ def ready(http: Request):
 
 
 def record(row):
-    return {c.name: getattr(row, c.name) for c in row.__table__.columns}
+    state = inspect(row)
+    return {c.name: getattr(row, c.name) for c in row.__table__.columns
+            if not (c.name in state.unloaded and state.mapper.column_attrs[c.name].deferred)}
 
 
 def listing(sessions, model, page, size, predicates=()):

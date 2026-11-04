@@ -8,7 +8,7 @@ import { warehouseName } from "../utils/warehouse";
 import { type AppContextState } from "../hooks/useAppContext";
 import { isTradeRun } from "../utils/trade";
 
-export function ContextFilters({ app }: { app: AppContextState }) {
+export function ContextFilters({ app, hideRunSelector = false }: { app: AppContextState; hideRunSelector?: boolean }) {
   const { ctx, setCtx, runs, selectRun, catalog, items, run, suppliers } = app;
   const inventoryPage = app.page === "inventory";
   const trade=isTradeRun(run),tradeFilter=!!(ctx.internalStatus || ctx.providerStatus || ctx.replenishmentAllowed || ctx.salesAllowed || ctx.windowOrigin);
@@ -16,7 +16,7 @@ export function ContextFilters({ app }: { app: AppContextState }) {
   return (
     <>
       <section className={"context-bar" + (inventoryPage ? " warehouse-context" : "")} aria-label="Bộ lọc cùng lượt chạy">
-        <label className="plan-filter">
+        {!hideRunSelector && <label className="plan-filter">
           Phương án
           <select
             aria-label="Lượt chạy"
@@ -31,11 +31,11 @@ export function ContextFilters({ app }: { app: AppContextState }) {
               </option>
             ))}
           </select>
-        </label>
+        </label>}
         {!inventoryPage && <><label>
-          Kho
+          {ctx.warehouseScope === "receiving" ? "Kho nhận hàng" : "Kho"}
           <select
-            aria-label="Kho / tuyến"
+            aria-label={ctx.warehouseScope === "receiving" ? "Kho nhận hàng" : "Kho / tuyến"}
             value={ctx.warehouseId}
             onChange={(e) =>
               setCtx((c) => ({
@@ -151,7 +151,7 @@ export function ContextFilters({ app }: { app: AppContextState }) {
       </details>}
       {!inventoryPage && warehouse && <div className="warehouse-scope" aria-label="Kho đang chọn">
         <Icon name="warehouse" size={17} /><span>Kho <strong>{warehouseName(warehouse)}</strong></span>
-        <span>{String(warehouse.destination_country)}</span><span>Nhà mạng <strong>{String(warehouse.carrier)}</strong></span>
+        <span>{String(warehouse.destination_country)}</span>{ctx.warehouseScope !== "receiving" && <span>Nhà mạng <strong>{String(warehouse.carrier)}</strong></span>}
       </div>}
       <div className="context-meta">
         {run && (
