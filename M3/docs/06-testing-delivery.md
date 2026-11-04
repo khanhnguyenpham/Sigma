@@ -1,5 +1,47 @@
 # M3 — kiểm thử, nghiệm thu và bàn giao
 
+<a id="receiving-warehouse-chg095"></a>
+## CHG-095 — Ca kiểm kho mặc định, dự kiến/chưa chạy
+
+04/11/2026, bổ sung MD theo [quy tắc kho nhận](01-functional-spec.md#receiving-warehouse-chg095); chưa code/test ứng dụng, migration hoặc chạy kịch bản mới.
+
+| Ca | Kỳ vọng khi được giao triển khai |
+|---|---|
+| Kế thừa và lưu | Chưa cấu hình riêng dùng kho item, version0; chọn kho B/lưu/reload đúng B. Kho không tồn tại/ID sai bị từ chối, cùng giá trị no-op, stale version409 giữ bản nháp. |
+| Kịch bản tự mặc định | Cả3inventory-kind và lô đầu kỳ tự dùng kho mỗi sản phẩm; không có override kho trong scenario/UI, payload override lạ bị chặn. Hai sản phẩm có mặc định khác nhau tạo lô về đúng từng kho. |
+| Khác kho nguồn | Item nguồn A chọn nhận B: seed tồn một lần, đơn/receipt/pending/tồn/bán thuộc B, không cộng lại tại A. Forecast/actual của item giữ nguyên nguồn, không nhân đôi hoặc đổi carrier/quốc gia nguồn. |
+| Một kho nhiều item | Hai item khác tuyến hoặc trùng SKU/khác loại cùng chọn B vẫn tách item/policy/forecast; tổng kho đúng, không gộp định danh hoặc tính lượng hai lần. |
+| Frozen và cạnh tranh | Lưu kho đồng thời với enqueue có ranh giới freeze nhất quán. Đổi B→C sau enqueue không đổi queued/running/complete/lô cũ; run mới dùng C. Retry mới giải thích cấu hình hiện tại. |
+| Legacy và migration | Run/lô cũ thiếu field đọc kho từ snapshot cũ, không live fallback. Upgrade/rollback/schema/FK/version và cột/hash lịch sử bảo toàn; profile cũ không xử lý nhầm kho mới. |
+| API/CSV và vị trí kho | Bộ lọc kho nhận trước total/page/aggregate/export; phân biệt filter kho nguồn. API/tóm tắt/bảng/biểu đồ/CSV cùng run/kho, receipt một lần, không có tồn/nhập ảo ở kho khác. |
+| UI và hồi quy | Form sản phẩm1440/390, bàn phím/409/reload; trang Kịch bản chỉ hiển thị mặc định/chốt frozen. Quyền lifecycle, fixed quantity, L7/R1/H14, metric/mẫu số và luồng CHG-093/094 giữ đúng. |
+
+Kiểm unit/API/worker/verifier độc lập trên DBtest, ca synthetic có kho nhận khác kho nguồn và đối soát bảo toàn theo item/toàn run; browser lưu sản phẩm→chạy kịch bản→kết quả/CSV đúng kho. Không dùng test kho A→A để nhận nhánh chọn kho khác đã đạt. [Thứ tự và điểm dừng](../../docs/planning/PLAN.md#chg-095).
+
+<a id="scenario-workspace-chg094"></a>
+## CHG-094 — Kiểm trang kịch bản dự kiến, chưa thực thi
+
+04/11/2026, lượt này chỉ cập nhật MD cho [thiết kế trang Kịch bản](04-frontend-spec.md#scenario-workspace-chg094). Các ca dưới đây là cổng kiểm khi được giao code, không phải test đã đạt hoặc run mới đã tạo.
+
+| Ca kiểm | Kỳ vọng |
+|---|---|
+| Menu và các điểm vào | Kịch bản thay Thiết lập tính toán; Tạo phương án mở trang, liên kết `#configuration` cũ còn dùng được; Đang xử lý/Xem lượt chạy mở đúng run trong cùng trang. |
+| Thiết lập tại trang | Chọn/tạo phiên bản, form hiện trực tiếp; kho/item ngoài 100 option đầu vẫn chọn đúng, blank/0/receipt rỗng đúng nghĩa; không thêm ô đổi lượng nhập scenario. |
+| Lưu và chạy riêng | Lưu tạo đúng phiên bản, không enqueue; Chạy dùng đúng ID đã lưu. Bản nháp chưa lưu bị chặn kèm hướng dẫn; lưu xong nhưng run lỗi không POST scenario lần nữa. |
+| Dependency và ngày | Thiếu/lỗi tải nguồn/forecast/scenario hoặc ngày không tương thích chặn submit; xóa ngày rồi API lỗi/phục hồi không tự điền lại; filter xem bảng không làm hẹp phạm vi run. |
+| Chống gửi lặp | Nhấp đôi chỉ một POST run; retry mạng cùng key/body. Reload chỉ GET, không tự gửi lại thao tác chưa rõ kết quả hoặc tạo bản scenario trùng. |
+| Tiến độ | queued/running hiện phase/counters API, terminal dừng poll; rời trang không hủy job, quay lại/reload đúng run tiếp tục theo dõi; không hiện kết quả partial như complete. |
+| Kết quả ngay tại trang | Từng kind complete hiển thị tóm tắt và bảng/biểu đồ phù hợp ngay tại `#scenarios`; không buộc chuyển Tổng quan/Tồn kho. Chưa có dataset không sinh tab/số giả; không thêm Tổng30. |
+| Lỗi đọc sau complete | Hiện complete cùng lỗi tải kết quả và nút tải lại; không tạo run mới, không đổi status thành failed. |
+| URL, lịch sử và race | Back/Forward/reload giữ scenario/version/run/filter; run ngoài trang danh sách vẫn tải đúng. ID sai/không tồn tại hoặc scenario lệch run báo rõ; response lượt A đến muộn không ghi đè lượt B, không tự chọn run mới nhất. |
+| Frozen và lượt mới | Đổi policy/scenario/lifecycle không đổi kết quả cũ; chỉnh tiếp hiện bản nháp riêng. Chọn lượt cũ/mới có đúng tiêu đề/nguồn/cha/version, không chớp số cũ dưới tiêu đề mới. |
+| Failed và quota | Retry dùng `/runs/{id}/retry`, liên kết `retry_of`, có nhãn cấu hình hiện tại; run cũ nguyên. 409/422/429/mất mạng giữ form, không tự lặp mutation hoặc bỏ quota. |
+| API và CSV | Đối soát tóm tắt/bảng/biểu đồ với API của cùng run/ngày/filter; CSV đủ phạm vi qua nhiều trang; metric toàn lượt giữ scope/mẫu số/exclusions. Queued/running/failed không xuất CSV kết quả. |
+| Tương thích vận hành | Tồn/nhập/cảnh báo/dự báo và sản phẩm/lịch cung cấp CHG-093 còn mở đúng ngữ cảnh; import/forecast vẫn có luồng chuẩn bị dữ liệu, không cần scenario. |
+| Desktop/mobile/bàn phím | 1440px và390px, form trên trang, không tràn ngang toàn trang, bảng cuộn riêng; label/focus/thông báo complete/lỗi, xác nhận bỏ bản nháp; không chặn rời trang chỉ vì job đang chạy. |
+
+Khi triển khai: kiểm React/hook/URL phù hợp thay đổi, TypeScript/Vite build; browser trên DBtest/demo riêng đi trọn thiết lập → lưu → chạy → worker → complete → kết quả tại trang → CSV và reload. Dùng fixture/synthetic để thử lỗi và quota, đối soát API/CSV; ghi rõ dữ liệu/phạm vi và bảo toàn run cũ. Không refit model hoặc dùng số test lịch sử làm bằng chứng cho trang mới. [Thứ tự triển khai](../../docs/planning/PLAN.md#chg-094), [bàn giao MD](../../docs/development.md#handoff-chg094-scenarios).
+
 **CHG-088/D1 — 03/11/2026:** [kiểm nềnruntime](../../docs/development.md#handoff-chg088-d1) gồm500Python,17caD1targetedfinal, build/pipcheck/schemahosting; Linux quaCItheocổngpublish. Không sửaFE/banner/browser theo yêu cầu mới. D1giữoldOpenAPI và choPOST/idempotency bình thường; schema/source/disk/workerprobe mới chặn readinesssai. [Hướng dẫn](../../web/backend/configs/DEMO_RUNTIME.md); chưa dùng nguồn thật/chạyD2/quotaD3/cloud, R05/R07/T14 vẫn mở.
 
 **CHG-087 — 03/11/2026, chỉMarkdown:** [kế hoạch demo đầy đủ dùng chung](../../docs/planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md) thay giai đoạn chỉ đọc củaCHG086. Cổng kiểm dự kiến gồm chuỗi import→forecast→3loại run tồn, tổng30 đúng nguồn, kho/policy/lifecycle, hai khách/version409, queue/quota/retry, mobile/CSV, restart/worker/disk và resetDB+artifact. Chưa chạy các cổng online này. Không cần login/tenant/RBAC cho chức năng nghiệp vụ theo lựa chọn người dùng; reset chỉ bằng công cụ vận hành. [Bàn giao và phạm vi publishMD](../../docs/development.md#handoff-chg087). Các test/DBhashCHG086 dưới đây là bằng chứng lịch sử, không phải vừa kiểm lại hoặc nghiệm thuD1–D6.

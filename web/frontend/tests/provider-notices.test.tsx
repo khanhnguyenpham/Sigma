@@ -3,6 +3,7 @@ import { beforeEach,afterEach,expect,it,vi } from "vitest";
 import { ProviderNoticeForm } from "../src/components/products/ProviderNoticeForm";
 import { ProviderNotices } from "../src/pages/ProviderNotices";
 import { ProductDetail } from "../src/pages/Products";
+import { ProductSupply } from "../src/pages/ProductSupply";
 import { RunDialog } from "../src/components/dialogs/RunDialog";
 import { SellThrough } from "../src/components/forecast/SellThrough";
 import { contextUrl,readContext,navigationUrl } from "../src/utils/url";
@@ -111,11 +112,21 @@ it('preserves filter pagination, a cleared date and readable schema errors acros
   expect(location.search).not.toContain('notice_day=2025');
 });
 
-it('uses summary and a separate internal dialog on product detail without embedding a supply form',async()=>{
-  render(<ProductDetail ctx={ctx} onNavigate={()=>{}} onWarehouse={()=>{}} onItem={()=>{}} />);
-  await screen.findByRole('heading',{name:'SYN',level:1});expect(screen.queryByRole('dialog')).toBeNull();expect(screen.queryByLabelText('Lý do thay đổi')).toBeNull();
-  fireEvent.click(screen.getByRole('button',{name:'Ngừng nhập nội bộ'}));expect(await screen.findByRole('dialog',{name:'Ngừng nhập nội bộ'})).toBeVisible();
+it('keeps lifecycle actions on the separate product supply page with a focused internal dialog',async()=>{
+  render(<ProductSupply page="product-supply" ctx={ctx} runs={[]} navigate={()=>{}} onDate={()=>{}} onItem={()=>{}} />);
+  await screen.findByRole('heading',{name:'Lịch cung cấp',level:1});expect(screen.queryByRole('dialog')).toBeNull();expect(screen.queryByLabelText('Lý do thay đổi')).toBeNull();
+  fireEvent.click(screen.getByRole('button',{name:'Đặt lịch ngừng nhập'}));expect(await screen.findByRole('dialog',{name:'Ngừng nhập nội bộ'})).toBeVisible();
   fireEvent.keyDown(document,{key:'Escape'});await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());
+});
+
+it('prefills a product-scoped provider notice without treating the initial scope as a dirty draft',async()=>{
+  const close=vi.fn(),confirm=vi.spyOn(window,'confirm').mockReturnValue(false);
+  render(<ProviderNoticeForm initialProduct={{id:11,sku:'SYN',product_type:'eSIM',supplier_id:1,warehouse_id:1,destination_country:'A'}} day={day} runs={[]} onClose={close} onSaved={()=>{}} />);
+  await waitFor(()=>expect(screen.getByLabelText('Nhà mạng áp dụng')).toHaveValue('1'));
+  expect(screen.getByLabelText('Nhà mạng áp dụng')).toBeDisabled();
+  expect(screen.getByLabelText('Mã SKU chính xác')).toHaveValue('SYN');
+  expect(await screen.findByLabelText('First City · A')).toBeChecked();
+  fireEvent.click(screen.getByRole('button',{name:'Quay lại lịch cung cấp'}));expect(close).toHaveBeenCalledOnce();expect(confirm).not.toHaveBeenCalled();
 });
 
 it('round trips frozen rights/window and provider filters through navigation without exposing the profile picker',()=>{

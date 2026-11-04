@@ -1,5 +1,21 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
+<a id="receiving-warehouse-chg095"></a>
+## CHG-095 — Dữ liệu kho nhận mặc định, dự kiến
+
+04/11/2026, chỉ MD; schema/code hiện tại chưa có các trường dưới đây. [Quy tắc nghiệp vụ](01-functional-spec.md#receiving-warehouse-chg095) là nguồn nghĩa; không đổi định danh item/tuyến nguồn để thực hiện chọn kho nhận.
+
+| Nơi lưu dự kiến | Trường và quy tắc |
+|---|---|
+| `items` | Thêm `receiving_warehouse_id` FK nullable và `receiving_version` số nguyên không âm, mặc định0. NULL với version0 nghĩa chưa cấu hình riêng, kế thừa `items.warehouse_id`. Sau lưu hợp lệ có FK cụ thể/version tăng; `items.warehouse_id`, SKU/type/first_seen và khóa UNIQUE cũ giữ nguyên. |
+| Snapshot inventory run mới | Bản đồ item→kho nhận đã resolve, version và danh tính kho; phân biệt `source_warehouse_id` với `receiving_warehouse_id`. Bản đồ cố định toàn run, kể cả replay; mỗi item chỉ có một kho nhận. Freeze đồng bộ với catalog/lifecycle, không đọc setting live trong worker. |
+| `replenishment_orders` | Thêm `receiving_warehouse_id` FK nullable để tương thích hàng lịch sử; lô của profile mới bắt buộc có kho đúng snapshot item. Lô khởi tạo/đặt mới/receipt giữ cùng đích, receipt một lần. |
+| Ledger/projection/read model | Vị trí tồn của item trong run mới lấy từ mapping frozen; API/CSV trả kho nhận rõ ràng. Không cần nhân bản item hoặc ghi cùng lượng tồn ở cả hai kho. Rà soát toàn bộ join/group/filter theo vai trò kho, không đổi khóa nguồn của forecast/actual. |
+
+Migration bổ sung khi được giao code, chưa ấn định revision ở lượt MD; không backfill nơi nhận cho lô/ledger/run lịch sử bằng setting mới. Reader legacy suy kho từ catalog trong chính snapshot cũ; nếu thiếu dữ liệu để xác định thì báo không khả dụng, không chọn mặc định hiện tại. Profile/snapshot mới phải có consumer/verifier tương ứng trước khi cho tạo run; legacy consumer không được xử lý mapping khác kho như trường hợp cũ.
+
+Giữ số lượng seed tồn đầu của từng item và khởi tạo một lần tại kho nhận frozen; đổi nơi nhóm không phải chuyển hàng của run cũ. Kiểm migration/rollback, FK/version, snapshot consistency và bảo toàn cột cũ trước cutover. [API](03-backend-api.md#receiving-warehouse-chg095), [ma trận kiểm](06-testing-delivery.md#receiving-warehouse-chg095).
+
 **CHG-085 giai đoạn 8 — 03/11/2026, hoàn tất local:** đã đọc và verify 7 run cũ, đối chiếu API/CSV cho 12 cặp DB–run; chạy 4 run mới trên bản sao dùng nguồn/forecast có sẵn và 1 run synthetic cho hai kho. Worker, verifier độc lập, API/CSV và browser 1440/390px đạt. Ca bổ sung chặn 19 đơn vị nguồn trong mô phỏng; ca synthetic có 280 = 150 được phép bán + 130 bị chặn. Sửa nhãn quyền mua/bán trong bảng projection; 89 React và build đạt. App ở 0008 với 3 run ban đầu; 4 DB bảo vệ và 1.412 tệp giữ hash. Không refit/tuning hoặc viết lại bằng chứng CHG-084; R07/T14 giữ mở. Thay đổi giai đoạn 7–8 chưa commit/push. [Bàn giao/giới hạn](../../docs/development.md#handoff-chg085-phase8). Các checkpoint bên dưới là lịch sử.
 
 **CHG-085 giai đoạn 7 — 03/11/2026:** migration0008 đã chạy trên DBapp sau backup/restore/upgrade-rollback rehearsal riêng. Metadata17bảng nghiệp vụ/0diff; 14bảng cũ so hash cùng cột khớp, hai cột mới nullable vẫn NULL, ba bảng provider rỗng. Downgrade từ chối dữ liệu v2; không xóa sự kiện để rollback. [Bằng chứng/phục hồi](../../docs/development.md#handoff-chg085-phase7).

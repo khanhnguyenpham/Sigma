@@ -1,5 +1,23 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+<a id="chg095"></a>
+## CHG-095 — 04/11/2026, chọn kho nhận tại sản phẩm và mặc định cho kịch bản
+
+**Nguồn:** người dùng hỏi đơn nhập hiện về một kho mặc định hay không, yêu cầu thêm trường chọn kho nhận trong sản phẩm vào MD; sau đó bổ sung **trong các kịch bản cứ mặc định đưa sản phẩm về kho hàng mặc định**. Đây là yêu cầu sản phẩm, không là quyền triển khai code hoặc xác nhận mentor.
+
+Đọc code hiện tại thấy item có warehouse_id, replenishment/receipt theo item_id, chưa có trường kho nhận riêng. Thiết kế mới thêm mặc định từng sản phẩm, kế thừa kho item khi chưa cấu hình riêng; kịch bản không thêm override. Run mới chốt mapping cùng version, lượng tồn/lô không bị tính ở hai kho; thay mặc định không sửa job/run/lô cũ. Kho nguồn và kho nhận tách nghĩa, không sửa raw/khóa forecast hoặc tự chuyển hàng.
+
+T10–T12/R06/R08/R09 đồng bộ [nghiệp vụ](../M3/docs/01-functional-spec.md#receiving-warehouse-chg095), dữ liệu/API/UI/kiểm dự kiến, [PLAN](planning/PLAN.md#chg-095) và bàn giao. Chưa code/migrate/run/build/deploy/publish; CHG-094 vẫn là thiết kế, C00/R05/R07/T14 giữ trạng thái. [Kiểm tài liệu thực trong lượt này](development.md#handoff-chg095-receiving-warehouse).
+
+<a id="chg094"></a>
+## CHG-094 — 04/11/2026, trang thiết lập/chạy/kết quả kịch bản
+
+**Nguồn:** người dùng yêu cầu khi thiết lập và chạy kịch bản phải có một trang riêng dễ thao tác, chạy xong hiện kết quả tại trang đó; lượt này chỉ cập nhật các file MD. Đây là yêu cầu UI của người dùng, không là xác nhận mentor hoặc quyền triển khai/publish mới.
+
+**Quyết định thiết kế:** menu Kịch bản thay Thiết lập tính toán, route `#scenarios`; form scenario và tham số chạy nằm trực tiếp trong trang, Lưu không enqueue, Chạy dùng phiên bản đã lưu. Tạo phương án và điểm vào theo dõi mở cùng trang. Run complete tự hiện tóm tắt/bảng/biểu đồ/CSV tại chỗ; giữ URL, lịch sử, frozen, idempotency/quota và retry tạo run mới. Không buộc người dùng sang màn khác để xem kết quả.
+
+T11/T12/R08/R09 đồng bộ [đặc tả](../M3/docs/04-frontend-spec.md#scenario-workspace-chg094), [kế hoạch](planning/PLAN.md#chg-094), [ca kiểm dự kiến](../M3/docs/06-testing-delivery.md#scenario-workspace-chg094) và trạng thái bàn giao. Chỉ sửa Markdown, chưa thực thi ca UI/run mới; không nhận các test cũ là bằng chứng cho thiết kế này. CHG-093, C00/model/metric và R05/R07/T14 giữ nguyên; COMMIT_BLOCK_PLAN.md và tệp nghiên cứu local giữ nguyên. [Kiểm thực trong lượt MD](development.md#handoff-chg094-scenarios).
+
 <a id="chg090-resume"></a>
 ## CHG-090 tiếp tục — 03/11/2026, gỡ Tổng30 và kiểm D3
 

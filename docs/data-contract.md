@@ -1,5 +1,14 @@
 # Hợp đồng dữ liệu SIGMA
 
+<a id="receiving-warehouse-chg095"></a>
+## CHG-095 — Phân biệt kho nguồn và kho nhận, thiết kế dự kiến
+
+**04/11/2026, chỉ cập nhật MD.** `items.warehouse_id` hiện định danh item theo kho/tuyến nguồn; lô nhập hiện suy kho qua item. Trường **Kho nhận hàng mặc định** mới dự kiến lưu riêng, không sửa mapping nguồn/order CSV hoặc khóa `(warehouse_id, sku, product_type)` lịch sử.
+
+Kịch bản không override kho: run tồn mới freeze kho nhận mặc định đã resolve/version cho từng item, áp dụng cho seed tồn đầu giả định, lô đầu kỳ và lô tạo mới trong run. Forecast/actual vẫn theo item/tuyến nguồn, mỗi lượng chỉ tính một lần tại kho nhận; metadata nguồn và vị trí tồn phải phân biệt trong API/CSV. Đây là giả định vị trí của run mô phỏng mới, không phải chứng cứ doanh nghiệp chuyển hàng.
+
+Đổi mặc định chỉ áp dụng lượt tạo sau, không chuyển tồn/lô hoặc sửa snapshot/job cũ. Run cũ resolve kho từ catalog frozen cũ; không backfill bằng setting live. Kịch bản tái sử dụng là khai báo giả định cho run mới, không tự cộng lô của run khác. [Nghiệp vụ](../M3/docs/01-functional-spec.md#receiving-warehouse-chg095), [dữ liệu dự kiến](../M3/docs/02-data-model.md#receiving-warehouse-chg095), [kế hoạch](planning/PLAN.md#chg-095). Chưa đổi raw/schema/DB/model, chưa nhận đã kiểm nhánh kho nhận mới.
+
 **Cập nhật phạm vi demo03/11/2026:** Tổng30 đã gỡ khỏi giao diện/API/CLI ứng dụng theo yêu cầu người dùng; không thêm cờ bật/tắt và không chờ bundle/receipt ngoài. Tài liệu/bằng chứng M05/R05 bên dưới là nghiên cứu và lịch sử tích hợp, không còn mô tả tính năng demo hiện hành. H14/L7/R1 phục vụ vận hành giữ nguyên; không tự nghiệm thu R05/R07/T14.
 
 <a id="demo-price-policy"></a>

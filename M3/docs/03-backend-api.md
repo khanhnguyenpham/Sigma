@@ -1,5 +1,20 @@
 # M3 — backend, API và worker
 
+<a id="receiving-warehouse-chg095"></a>
+## CHG-095 — API kho nhận hàng mặc định, dự kiến
+
+**04/11/2026, chỉ MD; endpoint/trường mới chưa được triển khai.** Hiện nhập mô phỏng lấy kho theo item. [Yêu cầu mới](01-functional-spec.md#receiving-warehouse-chg095) thêm mặc định tại sản phẩm và tự áp dụng cho kịch bản.
+
+- GET `/products` và `/products/{id}` dự kiến trả `receiving_warehouse_id` đã resolve, thông tin kho nhận, `receiving_version` và nguồn cấu hình riêng/kế thừa. `warehouse_id` hiện có vẫn là kho danh mục/tuyến nguồn; không đổi nghĩa ngầm. Danh sách kho chọn lấy từ GET `/warehouses` hiện có, đủ phân trang.
+- Dự kiến PATCH `/products/{id}/receiving-warehouse` nhận `receiving_warehouse_id` và `expected_version`. Backend xác minh item/kho tồn tại, ID hợp lệ, khóa Item rồi đối chiếu version và lưu nguyên tử; stale trả409, không ghi đè. Lưu cùng giá trị là no-op, không tăng version. Không sửa `items.warehouse_id`, không tạo lô/chuyển hàng hoặc tự chạy model. Chưa có cấu hình riêng dùng version0.
+- POST `/runs` cho ba inventory-kind tự freeze kho mặc định của từng item khi nhận job. POST `/scenarios` và `settings.policy_overrides` không thêm trường override kho; UI không yêu cầu người dùng chọn lại. Lô đầu kỳ được resolve tại cùng ranh giới freeze, không lấy cấu hình live lúc worker xử lý.
+- Read model tồn/nhập/projection/summary và CSV của profile mới trả kho nhận frozen, tách metadata nguồn. Bộ lọc `receiving_warehouse_id` dự kiến áp trước count/page/aggregate/export; filter `warehouse_id` cũ giữ nghĩa nguồn. Màn Tồn kho dùng vai trò kho nhận cho profile mới, không gọi filter nguồn rồi gắn nhãn là kho nhận.
+- Worker/verifier kiểm mọi order/receipt và lượng tồn chỉ thuộc kho chốt của item trong run; không đọc mặc định hiện tại để ghép kết quả. Retry dùng cấu hình hiện tại nên run retry mới có thể có kho khác; response/summary phải giữ liên kết và version để UI giải thích. Run cũ, lô đang về và job đã enqueue giữ đích cũ.
+
+Triển khai phải đồng bộ [schema/profile](02-data-model.md#receiving-warehouse-chg095), consumer/verifier và reader legacy trước khi bật chọn kho khác. Không coi API ghi field đơn lẻ là đã thực hiện đúng tồn/kho. [Kiểm dự kiến](06-testing-delivery.md#receiving-warehouse-chg095), [kế hoạch](../../docs/planning/PLAN.md#chg-095).
+
+**CHG-093 — 04/11/2026:** GET `/products` nhận thêm `carrier` (chuỗi khớp chính xác Warehouse.carrier), kết hợp AND với warehouse/type/search và trạng thái trước total/page. Không truyền hoặc chuỗi rỗng giữ hành vi cũ; nhà mạng không tồn tại trả danh sách rỗng. Trang lịch cung cấp theo sản phẩm dùng GET `/provider-product-notices?item_id=…` đã có. Không đổi DTO ghi, schema hoặc frozen result. [Kiểm](../../docs/development.md#handoff-chg093-products).
+
 **CHG-085 giai đoạn 8 — 03/11/2026, hoàn tất local:** đã đọc và verify 7 run cũ, đối chiếu API/CSV cho 12 cặp DB–run; chạy 4 run mới trên bản sao dùng nguồn/forecast có sẵn và 1 run synthetic cho hai kho. Worker, verifier độc lập, API/CSV và browser 1440/390px đạt. Ca bổ sung chặn 19 đơn vị nguồn trong mô phỏng; ca synthetic có 280 = 150 được phép bán + 130 bị chặn. Sửa nhãn quyền mua/bán trong bảng projection; 89 React và build đạt. App ở 0008 với 3 run ban đầu; 4 DB bảo vệ và 1.412 tệp giữ hash. Không refit/tuning hoặc viết lại bằng chứng CHG-084; R07/T14 giữ mở. Thay đổi giai đoạn 7–8 chưa commit/push. [Bàn giao/giới hạn](../../docs/development.md#handoff-chg085-phase8). Các checkpoint bên dưới là lịch sử.
 
 **CHG-085 giai đoạn 7 — 03/11/2026:** app0008/API/worker/FE cùng phiên bản đã bật local; catalog920 báo trade_schema_ready=true, quyền nhập/bán đúng với lịch sử rỗng; provider list200/rỗng và CSV tồn920 đạt. Các run cũ giữ dispatch/profile, không tự chuyển sangtrade_v2. Chỉ syntheticDBtest ghi qua API/UI và chạyworker. [Bàn giao](../../docs/development.md#handoff-chg085-phase7).

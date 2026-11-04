@@ -1,5 +1,27 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+<a id="chg095-receiving-warehouse"></a>
+## CHG-095 — R06/R08/R09: kho nhận mặc định theo sản phẩm
+
+**04/11/2026, yêu cầu người dùng/chỉ MD:** thêm **Kho nhận hàng mặc định** trong cấu hình sản phẩm; người dùng bổ sung kịch bản cứ đưa sản phẩm về kho mặc định đó, không cần ô chọn lại/override kho trong kịch bản.
+
+- **R06/T10:** Mỗi sản phẩm có một kho nhận mặc định, chưa cấu hình riêng kế thừa kho item hiện tại. Run tồn mới chốt mặc định từng item; mọi lô của run về đúng kho đó, tồn/pending/receipt được tính đúng một nơi. Kho nhận khác kho nguồn không đổi forecast/actual/carrier hoặc tự chuyển tồn/lô từ run cũ.
+- **R08/T11:** Chọn/lưu/reload tại sản phẩm; trang Kịch bản CHG-094 tự áp dụng mặc định và hiển thị kho đã chốt ở thiết lập/kết quả/CSV. Phân biệt kho danh mục/tuyến nguồn và kho nhận, không chỉ đổi tên cột.
+- **R09/T12:** Có version/conflict guard, freeze nguyên tử với enqueue, legacy reader/profile và kiểm worker/verifier/API/CSV. Đổi mặc định sau enqueue không sửa job/run/lô cũ; retry mới dùng cấu hình hiện tại phải được giải thích.
+
+[Quy tắc chi tiết](../M3/docs/01-functional-spec.md#receiving-warehouse-chg095), [kế hoạch](planning/PLAN.md#chg-095), [ca kiểm dự kiến](../M3/docs/06-testing-delivery.md#receiving-warehouse-chg095). Chưa triển khai/kiểm UI/DB mới hoặc nghiệm thu; C00/model/metric và R05/R07/T14 giữ nguyên, không có xác nhận mentor mới.
+
+<a id="chg094-scenario-workspace"></a>
+## CHG-094 — R08/R09: thiết lập, chạy và kết quả trên một trang riêng
+
+**04/11/2026, yêu cầu giao diện của người dùng; lượt này chỉ cập nhật Markdown.** Trang **Kịch bản** riêng gom chọn/tạo phiên bản, thiết lập, lưu, chạy, theo dõi và kết quả. Thay điểm vào bằng modal thiết lập/tạo lượt chạy; menu Thiết lập tính toán chuyển thành Kịch bản. [Đặc tả](../M3/docs/04-frontend-spec.md#scenario-workspace-chg094).
+
+- **R08/T11:** Thiết lập trực tiếp trên trang; Lưu thiết lập không chạy job, Chạy kịch bản dùng đúng phiên bản đã lưu. Queued/running hiện tiến độ; complete tự hiển thị tóm tắt và bảng/biểu đồ phù hợp ngay tại trang đó, kèm CSV cùng phạm vi. Các màn vận hành vẫn dùng để xem thêm, không là bước bắt buộc để nhận kết quả.
+- **R09/T12:** URL giữ scenario/version/run và bộ lọc; reload/Back/Forward khôi phục đúng lượt, không tạo job mới hoặc tự đổi sang run gần nhất. Chống gửi lặp, dependency/date validation, idempotency/retry/quota và lỗi an toàn giữ nguyên. Lỗi tải kết quả complete chỉ cần tải lại dữ liệu, không chạy lại tác vụ.
+- Kết quả đọc snapshot frozen của đúng run/cha/version, không dùng bản nháp hoặc policy/lifecycle mới nhất thay lịch sử. Retry run lỗi tạo run mới có liên kết và ghi rõ dùng cấu hình hiện tại. Không đổi model/công thức/metric, C00 hoặc tiêu chí R05/R07/T14; không đưa Tổng30 trở lại app.
+
+**Trạng thái:** đã đặc tả, chưa triển khai/kiểm UI mới; chưa nghiệm thu R08/R09 hoặc nâng T11/T12/T14 vì sửa tài liệu. [Ma trận kiểm dự kiến](../M3/docs/06-testing-delivery.md#scenario-workspace-chg094), [kế hoạch](planning/PLAN.md#chg-094).
+
 **03/11/2026 — tiếp tục D3 và gỡ Tổng 30 khỏi demo theo yêu cầu mới.** Bỏ hẳn giao diện/API Tổng 30, không thêm cờ bật/tắt hoặc phụ thuộc bundle/receipt ngoài. Luồng dự báo vận hành H14/tồn/nhập/cảnh báo giữ nguyên. R05/M05 và bằng chứng nghiên cứu lịch sử không tự nghiệm thu hoặc xóa. Các checkpoint chờ Tổng30/tạm dừng phía dưới là lịch sử. D3 đã qua cổng code/publish tại3f5c430 (remoteSHA/haiCI success); full-size backup/reset và shutdown đạt; chưa deploy; D4–D6 chưa làm.
 
 <a id="chg088-d1"></a>

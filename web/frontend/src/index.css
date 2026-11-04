@@ -1880,6 +1880,37 @@ button.warehouse-card:hover { border-color: #a9b5f0; background: #fcfcff; box-sh
 @media(max-width:760px) { .provider-heading { flex-direction:column; gap:12px; } .provider-heading > .secondary { font-size:12px; } }
 @media(max-width:760px) { .provider-filters, .scope-choices, .trade-modal .form-grid, .provider-editor .form-grid { grid-template-columns:minmax(0,1fr); } .provider-editor { padding:16px; } .trade-modal { width:calc(100% - 16px); max-height:94dvh; padding:20px 16px; } .scope-product { padding:12px; } .trade-totals { display:grid; grid-template-columns:minmax(0,1fr); } .trade-totals span { display:flex; justify-content:space-between; gap:12px; } .provider-editor .form-actions, .trade-modal .form-actions { display:grid; grid-template-columns:minmax(0,1fr); } }
 .supply-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-bottom:20px; }
+.catalog-filters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px 20px; padding:20px; background:#f8f9fd; border:1px solid #e9edf5; border-radius:12px; }
+.catalog-filters label { display:flex; flex-direction:column; gap:8px; min-width:0; font-size:12px; font-weight:600; color:#64748b; }
+.catalog-filters input,.catalog-filters select { width:100%; min-width:0; height:44px; box-sizing:border-box; background:#fff; }
+.catalog-search-input { position:relative; }
+.catalog-search-input > svg { position:absolute; top:13px; left:13px; color:#8d9ab1; pointer-events:none; }
+.catalog-search-input input { padding-left:39px; }
+.catalog-results { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 0; color:#64748b; font-size:13px; }
+.catalog-results strong { color:#22324c; }
+.catalog-results small { display:block; margin-top:5px; color:#94a0b4; font-size:11px; }
+.product-catalog .table-scroll table { min-width:930px; }
+.product-catalog td { padding-top:17px; padding-bottom:17px; }
+.product-cell-note { display:block; color:#8b98ae; font-size:11px; margin-top:5px; font-weight:400; }
+.product-name { border:0; padding:0; background:none; box-shadow:none; font:inherit; font-weight:700; color:#273d65; text-align:left; }
+.product-name:hover { color:#5366df; background:none; text-decoration:underline; }
+.product-actions { display:flex; flex-wrap:wrap; gap:7px; }
+.product-actions button { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:8px 10px; font-size:11px; white-space:nowrap; }
+.product-status { display:inline-flex; align-items:center; gap:6px; padding:6px 9px; border-radius:6px; white-space:nowrap; font-size:11px; font-weight:600; line-height:1.4; }
+.product-status i { width:5px; height:5px; flex-shrink:0; border-radius:50%; background:currentColor; }
+.product-status.positive { color:#24745c; background:#eaf6ef; }
+.product-status.warning { color:#9a6a20; background:#fff3dc; }
+.product-status.negative { color:#b44e4e; background:#fceded; }
+.product-status.neutral { color:#7e8ba0; background:#f1f4f8; }
+.supply-page-context { display:flex; align-items:flex-end; gap:24px; margin:22px 0; }
+.supply-page-context label { display:flex; flex-direction:column; gap:8px; font-size:12px; color:#64748b; }
+.supply-page-context input { width:220px; }
+.supply-page-context p { font-size:12px; color:#8b98ae; margin:0 0 12px; }
+.supply-internal-action { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.supply-internal-action p { color:#64748b; font-size:13px; margin:0; }
+@media(max-width:1050px) { .catalog-filters { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) { .catalog-filters { grid-template-columns:minmax(0,1fr); gap:12px; padding:14px; } .catalog-results { align-items:flex-start; } .supply-page-context,.supply-internal-action { flex-direction:column; align-items:stretch; gap:14px; } .supply-page-context input { width:100%; } .supply-internal-action button { width:100%; } }
+@media(max-width:600px) { .product-page-heading { flex-direction:column; gap:12px; } .product-page-heading > .secondary { font-size:12px; } }
 .supply-filters label, .supply-date, .supply-form label { display:flex; flex-direction:column; gap:7px; font-size:12px; margin-bottom:16px; min-width:0; }
 .supply-date { max-width:300px; }
 .supply-form fieldset { border:0; padding:0; margin:0; min-width:0; }

@@ -1,5 +1,137 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="checkpoint-local-20261104"></a>
+## Checkpoint local — 04/11/2026, hoãn test và GitHub
+
+Người dùng giao **chốt mốc hiện tại, chưa đẩy GitHub hay chạy test; đợi làm xong các việc rồi mới test/push**. Checkpoint lưu code/tests hiện có của giao diện sản phẩm-lịch cung cấp CHG-093, Markdown bàn giao demo D4/D5 và thiết kế CHG-094/095 trên nhánh `final-report`, từ HEAD trước mốc `4476a1c`. Không sửa metadata/lịch sử Git cũ hoặc chạy hook test ở mốc này.
+
+- Chỉ rà trạng thái và phạm vi stage để tạo commit local; không chạy pytest/React/build/browser/verifier/model/worker hoặc kiểm lại DB. Các số kiểm của checkpoint trước là bằng chứng lịch sử, không là kết quả của lượt commit này.
+- CHG-093 là code đã có; trang Kịch bản CHG-094 và kho nhận mặc định CHG-095 vẫn chưa triển khai. Không coi commit lưu thiết kế là hoàn tất hai tính năng.
+- Không stage `docs/planning/COMMIT_BLOCK_PLAN.md`, hai script research S25 và `test_current_s25_review.py`; dữ liệu/env/dump/output/build/credential tiếp tục ngoài Git. Không push/deploy, thay DB/run hoặc dừng demo.
+- Thứ tự dự kiến sau mốc: kho nhận mặc định CHG-095 → trang Kịch bản CHG-094 → kiểm tích hợp và sửa lỗi → push thường/đối chiếu remote SHA/CI, rồi bàn giao vận hành D6. Lượt hiện tại chỉ chốt checkpoint, không tự bắt đầu code tiếp. R05/R07/T14 và C00 giữ nguyên.
+
+<a id="handoff-chg095-receiving-warehouse"></a>
+## CHG-095 — Kho nhận mặc định theo sản phẩm, chỉ cập nhật Markdown
+
+**04/11/2026 (Asia/Saigon).** Người dùng yêu cầu thêm trường chọn kho nhập trong sản phẩm và chốt kịch bản cứ dùng kho mặc định của sản phẩm. Đọc tệp thực thấy `Item.warehouse_id` gắn kho/tuyến, `Replenishment`/`ReceiptInput` theo item_id và chưa có kho nhận riêng; hiện không phải mọi đơn đều về một kho chung. Chỉ đọc source, không kết nối DB hoặc kiểm demo live.
+
+- Đã bổ sung [quy tắc](../M3/docs/01-functional-spec.md#receiving-warehouse-chg095), [schema/snapshot dự kiến](../M3/docs/02-data-model.md#receiving-warehouse-chg095), [API](../M3/docs/03-backend-api.md#receiving-warehouse-chg095), [UI](../M3/docs/04-frontend-spec.md#receiving-warehouse-chg095) và [ca kiểm](../M3/docs/06-testing-delivery.md#receiving-warehouse-chg095). Trường kho mặc định tại sản phẩm; scenario không override, inventory run mới freeze mapping để tồn/lô/CSV về đúng một kho, run cũ giữ nguyên.
+- Đồng bộ data-contract, requirements R06/R08/R09, PLAN/TASK/PROJECTMAP T10–T12, review-log và AGENTS. CHG-094 tiếp tục là thiết kế trang riêng, được bổ sung quy tắc tự lấy kho mặc định; không cần chọn kho lại khi chạy.
+- **Kiểm thực trong lượt MD:** 13 tài liệu, 46 liên kết nội bộ/anchor mới và 3 bảng đạt kiểm cấu trúc; `git diff --check` không có lỗi whitespace. SHA-256 của 313 tệp tracked/local không bị ignore ngoài Markdown (kèm COMMIT_BLOCK_PLAN.md) khớp đầu lượt, không thêm tệp trong phạm vi này. Không dùng kiểm tài liệu/hash mã làm bằng chứng ứng dụng hoặc DB/artifact/live đã được kiểm.
+- **Giới hạn:** chỉ sửa MD, chưa code/tests/config/migration/DB/run/worker/model/build/deploy hoặc commit/push. Các thay đổi local CHG-093/D4/D5/094, bốn tệp S25/COMMIT_BLOCK_PLAN giữ nguyên. Không nhận đã đối soát DB/artifact/live trong lượt này; C00/R05/R07/T14 giữ trạng thái.
+
+**Bước tiếp:** khi được giao triển khai, làm theo [PLAN CHG-095](planning/PLAN.md#chg-095) và kiểm xuyên sản phẩm→enqueue→snapshot→worker/verifier→tồn/nhập/CSV tại kho mặc định, gồm ca kho nhận khác kho nguồn. Chưa nghiệm thu bằng việc tài liệu đã bổ sung.
+
+<a id="handoff-chg094-scenarios"></a>
+## CHG-094 — Thiết kế trang Kịch bản riêng, chỉ cập nhật Markdown
+
+**04/11/2026 (Asia/Saigon).** Người dùng yêu cầu thiết lập/chạy kịch bản trên một trang riêng và hiển thị kết quả ngay tại trang đó; phạm vi lượt này là cập nhật MD. Đã đối chiếu code hiện có: `Configuration` liệt kê scenario rồi mở `ConfigurationDialog`/`ScenarioForm`, `RunDialog` tạo run riêng, header/Tổng quan mở modal. Đây là hiện trạng đọc từ tệp, không phải kiểm browser/live mới.
+
+- [Đặc tả frontend](../M3/docs/04-frontend-spec.md#scenario-workspace-chg094): menu Kịch bản/route `#scenarios`, form trực tiếp, Lưu và Chạy tách biệt, tiến độ/complete/kết quả/CSV cùng trang; lịch sử và query giữ đúng scenario/run. Nêu tương thích `#configuration`, CTA cũ, import/forecast và các màn vận hành.
+- [R08/R09](requirements.md#chg094-scenario-workspace), [PLAN](planning/PLAN.md#chg-094), TASK/PROJECTMAP và [review-log](review-log.md#chg094) đã đồng bộ; [ma trận kiểm](../M3/docs/06-testing-delivery.md#scenario-workspace-chg094) là yêu cầu kiểm sau khi triển khai, chưa thực thi trong lượt này. AGENTS ghi checkpoint mới để tránh hiểu nhầm đã có UI.
+- **Kiểm thực trong lượt MD:** 9 tài liệu, 33 liên kết nội bộ/anchor mới, 4 bảng và 1 khối mã minh họa đều đạt kiểm cấu trúc; `git diff --check` không có lỗi whitespace. SHA-256 của 313 tệp tracked/local không bị ignore ngoài Markdown (kèm COMMIT_BLOCK_PLAN.md) khớp đầu lượt, không thêm tệp ngoài phạm vi này. Đây là kiểm tài liệu/bảo toàn tệp mã, không phải test ứng dụng hoặc đối soát DB/artifact.
+- **Giới hạn:** không sửa code/tests/config/DB, chạy worker/model/run, build/deploy hoặc commit/push trong lượt này. Các thay đổi CHG-093/D4/D5 và tệp local có sẵn được giữ. Không nhận đã kiểm lại hash DB/artifact hoặc trạng thái demo live bằng lượt sửa MD; C00/R05/R07/T14 không đổi.
+
+**Bước tiếp:** khi người dùng giao triển khai, làm theo PLAN CHG-094 rồi kiểm luồng thiết lập→lưu→chạy→worker→complete→kết quả ngay tại trang→CSV/reload. Chưa nghiệm thu trang mới hoặc nâng T11/T12/T14 vì tài liệu đã hoàn tất.
+
+<a id="handoff-chg093-products"></a>
+## CHG-093 — Trang sản phẩm và lịch cung cấp riêng
+
+Ngày04/11/2026, người dùng yêu cầu thay thao tác từ menu thông báo ngừng sản phẩm bằng các nút ở từng sản phẩm. Không mở D6 hoặc publish Git.
+
+- Products bỏ menu thông báo, hiển thị hai nút **Cấu hình** / **Lịch cung cấp** từng dòng. `#product` giữ form policy; `#product-supply` chứa lịch nhập nội bộ và các thông báo nhà mạng liên quan, lọc bằng item_id. URL giữ item/kho/origin, kể cả reload khi danh sách options không chứa item. Quay lại sau thao tác refetch cấu hình hiện tại; không sửa frozen.
+- Form ngừng cung cấp từ sản phẩm điền sẵn carrier/SKU/type/thị trường/kho; khóa danh tính sản phẩm, vẫn chọn được phạm vi kho hợp lệ cùng nhà mạng. Bản nháp điền sẵn chưa sửa không bị coi là dirty. Preview/fingerprint/version guard, cancel/resume và hai quyền vẫn dùng nghiệp vụ cũ. Link provider cũ còn đọc được, không có mục menu riêng.
+- Bộ lọc gọn3cột desktop/1cột mobile: tìm SKU, kho, nhà mạng, loại, Trạng thái nhập, Trạng thái. Bỏ input ngày xem ở danh sách; trạng thái vẫn theo origin kế hoạch và ghi rõ mốc bên dưới bộ lọc. Ngày thao tác ở trang lịch vẫn hiện để khai báo known/effective UTC. GET/products thêm carrier exact-match, AND với bộ lọc còn lại trước count/page. Không migration hoặc thay đổi model.
+- 489Python BE/M2 đạt,1native backup test bỏ qua do không truyền M3_PG_BIN trong lượt suite này. Ca carrier có dữ liệu3item nhà mạng khác, page2/page_size1, AND internal_status và kho không khớp. 92React đạt, gồm ca sản phẩm/provider; sau sửa style mobile build lại và kiểm browser. TypeScript/Vite build và pipcheck đạt. Không dùng số kiểm cũ517 để báo lượt này.
+- Browser HTTPS kiểm1440×1000 và390×844: menu mới, Optus20sản phẩm, nút từng dòng, route/reload giữ item1, mở/đóng modal nội bộ/Escape, form provider điền sẵn; preview trả đúng1item/1kho và chặn hai quyền theo giả định. Chỉ preview, không lưu notice/policy/run vào demo trong lượt này. Sửa style cũ font-size0 làm mất chữ nút cấu hình trên mobile.
+- Demo giữ hash18bảng/158artifact/8run, CSV run `f7107fd1-8dbb-4182-9d2f-90df226a8ed9` khớp baseline. 1.466tệp bảo vệ và435artifactD3 nguyên; không mở4DB cũ. Runtime backend `6b27480d6cf4753fe72830934fb4e55289f200f244f9624a93f5f16b928bba89`; prepared.json cập nhật hash bản đã kiểm, prepared cũ giữ trong before.json; metadata/hash của run lịch sử không đổi.
+
+Receipt/log/screenshot nằm local `outputs/chg093_products/`; link hiện tại đọc `outputs/chg091_d4/local-hosted/connection.json`. Demo dùng Quick Tunnel miễn phí khi máy/process đang mở; Vercel/Render không thay đổi. D4/D5 Markdown local đã có giữ nguyên; bốn tệp S25/COMMIT_BLOCK_PLAN, dữ liệu và credential tiếp tục ngoàiGit. C00/R05/R07/T14 giữ trạng thái.
+
+<a id="handoff-chg092-d5"></a>
+## CHG-092 — D5 hoàn tất trên bản demo khi máy đang mở
+
+Người dùng giao tiếp D5 sau khi chọn backend chạy trên máy cá nhân qua Quick Tunnel miễn phí. Phạm vi nghiệm thu là UI/API cùng origin HTTPS→Cloudflare→localhost8041, Postgres demo riêng55433; không nhận backend Render/Vercel hoặc online khi máy tắt đã hoàn tất. D6 chưa được triển khai. Mã runtime vẫn `d9d98c86b6c6bd721d75f2aded236e2de33c7e21f4f9aa77183664747a7c8a10`, Git nguồn `4476a1c311a66dc615f4171ad45b29841f2b75c7`; không đổi model-config/cohort/horizon hoặc tích hợp S25. Forecast mới thực thi fit theo protocol hiện hành, không dùng kết quả mẫu cho run mới.
+
+### Các cổng đã kiểm
+
+- Backup trước D5 khớp18bảng/158artifact/8run. Mọi ghi chỉ trên DBdemo55433/rootD4 riêng; không mở4DBapp/bằng chứng cũ. Source_import mới `50efb077-8099-4680-a4f4-4c3236034e1f` complete/verified, reuse canonical khi cùng nguồn/cutoff; verifier kiểm672.520dailyrows/118.296quantity. Đây không phải import mới một nguồn khác.
+- Forecast đầu `19951707-aa7b-46df-99e2-4561e5e64aef` đang chạy thì chủ động dừng stack. Worker khởi động lại ghi `failed/interrupted`; APIretry tạo `9339658a-561d-4c84-aa4d-fbf93bc81a7a` córetry_of đúng, complete/verified sau≈621,5giây. Verifier độc lập kiểm46tuyến/185mốc,17.020weekly labels/allocation groups,2.382.800item forecast rows,36validation selections và1.799fit-log rows. Không dùng phase `verified` khi status cònrunning làm bằng chứng complete.
+- Ba run mới từ forecast đó/scenarioD5: stock `5127dc75-46cf-4128-a7e0-ce9c4086475f`, policy `72f0bb70-c7fa-472f-aef5-7e032d91a534`, alert `67449ee3-e2fd-4762-8e7e-1e0771c1673c`. Origin30/09/2025; replay01–14/10; H14 giữ nguyên. Cả3complete và verifier độc lập đạt. Thêm queued stock `a891b5db-9617-40dc-87ab-ee204ce88764` từ parent cũ, complete/verified. Tổng6run complete mới được verify độc lập; run gián đoạn được giữ failed trong snapshot.
+- Khi forecast chạy, public và direct API cùng trả429/Retry-After cho job thứ3; sampler126GET đều200,0transporterror,p95≈0,313giây,max≈0,563giây. Body>64KiB trả413; sourcekey dạngpath tùy ý bị422. Giới hạn request ghi vàrun/giờ cùng chặn direct/HTTPS429, đọc/ready vẫn hoạt động; UI giữ draft và hiển thị thời gian thử lại. Retention16 giữ nguyên mã đã kiểm D3; D5 không sửa created_at/chờ lách quota để ép thêm job.
+- Tạo policy tương lai hợp lệ, stale version409; scenario mới và phiên bản kế tiếp; internal stop cùng ngày và provider stop mua/bán từ07/10. Preview/fingerprint sai409, resume/cancel hai nguồn đạt. Hai replay ghi riêng5đơn vị actual source bị chặn; projection8ngày bị chặn cóQ0. Sau thay đổi live/policy/scenario, config/artifact/status và giá trị API của run frozen giữ nguyên. Job đã enqueue trước notice vẫn giữ quyền cũ dù live cùng cutoff đã bị chặn: kiểm trực tiếp8dòng projection.
+- **12cặp API/CSV qua HTTPS** khớp từng giá trị/phân trang trên cùngscope: kho1, forecast tại30/09 và các loại kết quả inventory/sell-through/alerts/replenishments/metrics. Không gọi đây là export toàn bộ2,38triệu dòng qua browser. Native verifier kiểm toàn bộ dữ liệu run. Source/static/dump/env/logpaths trả404, OpenAPI không cònmonthly; JSON/CSV/assets không chứa secret hoặc path cá nhân. Asset frontend quaHTTPS khớpSHA build local.
+- Hai tabIAB có stateUI riêng: phiên đầu đổi kho, phiên còn lại lưu bản cũ báo conflict, refetch thấy thay đổi; trả tên Sydney lại. Desktop1440×1000 vàmobile390×844 không tràn ngang trang; mobile menu/list/detail/preview, đổi draft vô hiệu preview, Back/reload đạt. Đây không phải kiểm nhiều browser engine. CSV tải bằng nút UI sau restore gồm20item/kho1, byte khớp endpointHTTPS cùngfilter, SHA `84b6592d7bde6a8430a102b665c57e857f7e49ee7818dc6442e62ee01b34d6b8`; consoleerror trang cuối rỗng.
+
+### Phục hồi, bảo toàn và trạng thái bàn giao
+
+Full snapshot `outputs/chg091_d4/local-hosted/sigma-demo/backups/d5-complete-20261104` có15run,18bảng,317artifact vàdump84.458.563byte. Sau khi sửa một kho/tạo một artifact tạm có kiểm soát, restore full snapshot khớp toàn bộ hash bảng/tệp; API xác nhận các runcomplete giữ summary. Không sửa runfailed thànhcomplete. Snapshot đầy đủ được giữ ngoàiGit.
+
+Sau nghiệm thu, restore `pre-d5-20261104` để demo live về **8run trước D5, còn8slot retention**. Tất cả18bảng và158artifact khớp checkpoint trước D5; toàn bộ run/config/lifecycle thử D5 nằm trong full snapshot riêng, không còn trongDBlive. Việc này cho phép khách tiếp tục tạo pipeline mới mà không chạm cap ngay.1.466tệp bảo vệ và435artifactD3 khớp SHA; không nhận đã kiểm live hash4DB cũ trong lượt này.
+
+Link đang chạy sau restore: [demo SIGMA](https://charlie-sas-men-scenarios.trycloudflare.com/), [readiness](https://charlie-sas-men-scenarios.trycloudflare.com/api/v1/ready). ReadyDB/storage/worker đều true, đúng1worker advisorylock,0jobbusy;46kho/920sản phẩm. CSV920 của runD4 cũ cònSHA `63fa5974a753d9ce76fcd91faa3fe9c2ccbc17e60450dd1dbd7bc7175337ed8a`. Link đổi khi mở tunnel mới; máy/Internet/tiến trình phải chạy. Vercel cũ vẫn chưa rewriteAPI và không phải link demo dùng hiện tại. [Lệnh chạy/dừng](#handoff-chg091-d4-local).
+
+Bằng chứng và công cụ private tại `outputs/chg092_d5/`: protocol-lock, baseline, requests/run receipts, interruption-before/after, active/hour quota, online-load, configuration, privacy-limits, browser-review/screenshots/browser-csv, api-review-before, independent-verification, queued-frozen, frozen-after-live-changes, full-restore, baseline-restored, post-restore-online vàfinal-receipt. D5 không sửa code nghiệp vụ, nên không nhận đã chạy lại suitePython/React/CI của D3. Kiểm hiện tại là run thật/verifier/API/CSV/browser/restore và kiểmMarkdown. MD D4–D5 còn local, chưa commit/push;4tệp S25/COMMIT_BLOCK_PLAN và credential/data/output ngoàiGit. C00/R05/R07/T14 giữ nguyên; D6 còn chờ giao.
+
+<a id="handoff-chg091-d4-local"></a>
+## CHG-091 — 04/11/2026, backend demo chạy thử qua Quick Tunnel
+
+Người dùng cho phép demo hoạt động khi máy cá nhân đang mở, ban đầu chỉ kiểm03/11 rồi giao triển khai thử BE04/11. Yêu cầu này thay điều kiện trước bắt buộc online khi máy tắt và không dùng local tunnel; ngân sách vẫn0. Không cần chờ đăng ký Oracle cho phương án thử hiện tại.
+
+### Kết quả và dữ liệu riêng
+
+- `cloudflared`2026.10.7 tải từ release chính thức, SHA256 `2493dbc168923bb3e59e5e7716f71deced92992eea9acd6e9d74f84ac7751343` khớp công bố. Không cài system service, task tự chạy, tài khoản/thẻ, domain hoặc tài nguyên trả phí.
+- PostgreSQL18.6 trên127.0.0.1:55433 là cluster mới ở `outputs/chg091_d4/local-hosted/pgdata`, DBsigma_demo. Owner/operator tách app role chỉDML; không truyền credential vận hành vào API/worker. Root nguồn/artifact riêng `outputs/chg091_d4/local-hosted/sigma-demo`; seed D2 restore đúng18bảng/154artifact/7run trước khởi động. Giữ D3/nghiên cứu và các DBapp riêng; không reset D3 để lấy slot.
+- Launcher hiện có chạy API8041 và worker; originHTTPS chính xác theo hostname tunnel. FastAPI phục vụ luôn bản build UI hiện có, API_PREFIX cùng origin `/api/v1`. Chỉ tunnel tới HTTP8041; không public PostgreSQL, thư mục repo, dump/env hoặc artifact root. Mã nghiệp vụ/runtime không đổi, codehash `d9d98c86b6c6bd721d75f2aded236e2de33c7e21f4f9aa77183664747a7c8a10`.
+- Link tại thời điểm bàn giao: https://heart-asn-spatial-infringement.trycloudflare.com/ ; URL hiện hành ghi trong `outputs/chg091_d4/local-hosted/connection.json`. RootUI/API chạy cùng link này. Project frontend Vercel và bảo vệ truy cập của nó giữ nguyên, chưa nối API rewrite; không nhận URLVercel cũ đã đọc dữ liệu.
+- Kiểm HTTPS thật: ready200 vớiDB/storage/worker đều true;46kho/920sản phẩm; CORSpreflight/Idempotency-Key đạt. Tạo stock_projection mới quaPOST202, gửi lại cùng key trả200/cùngUUID; run `f7107fd1-8dbb-4182-9d2f-90df226a8ed9` complete/verified, API phân trang vàCSV khớp920hàng. Đây là job tồn từ forecast cha có sẵn, không refit/chạy forecast mới.
+- Dừng sạch đã kiểm cổng8041/55433/20441 đóng; mở lại từ cùng dữ liệu thành công, link đổi đúng quy tắc Quick Tunnel. Có8run sau smoke (gồm1failed lịch sử seed được giữ nguyên), còn8slot theo retention16; không tự xóa run.
+- CLIverifier độc lập kiểm lại job mới đạt920ngưỡng/920event/1.641alert. 1.466tệp bảo vệ theo baselineD2 và435tệp artifactD3 hiện tại khớp SHA; không mở4DB cũ để kiểm live trong lượt này. Browser qua link mới hiển thị job hoàn tất/920mặt hàng, consoleerror rỗng; ảnh `outputs/chg091_d4/local-hosted/demo-live.png`.
+- Receipt private local: `prepared.json`, `restart-check.json`, `tunnel-smoke.json` trong `outputs/chg091_d4/local-hosted/`. Script setup/start/stop/smoke và toàn bộ dữ liệu, log, password ởoutputs ngoàiGit. Cổng thử này không thay nghiệm thu đầy đủ D5–D6 hoặc R05/R07/T14; chưa commit/push các MarkdownD4.
+
+### Chạy và dừng trên máy này
+
+Từ rootrepo, dùng PowerShell. Khi bản demo đang chạy, chỉ xem trạng thái/link; không chạy thêm một stack:
+
+```powershell
+.venv-m3/Scripts/python.exe outputs/chg091_d4/local_demo.py status
+```
+
+Dừng đúng stack/tunnel/cluster demo riêng:
+
+```powershell
+.venv-m3/Scripts/python.exe outputs/chg091_d4/local_demo.py stop
+```
+
+Mở lại sau khi đã dừng, giữ cửa sổ terminal đang chạy; công cụ in link mới khi local readiness đạt:
+
+```powershell
+.venv-m3/Scripts/python.exe outputs/chg091_d4/local_demo.py start
+```
+
+Không chạy lại `prepare_local_demo.py` hoặc restore/reset seed mỗi lần mở. Công cụ start dùng lại dữ liệu hiện tại, đặt đúng origin mới, một API/worker và tắt các process nó quản lý khi dừng/lỗi. Link mới có thể cần chờ DNS cập nhật ngắn; dùngstatus vàready để chẩn đoán. Nếu đổi mã runtime, start từ chối vì hash khác: kiểm release trước khi mở lại.
+
+Hiện stack được mở ẩn bằngStart-Process theo yêu cầu deploy thử và giữ chạy sau lượt này. Máy cần bật, có Internet và không sleep; tắt máy hoặc tiến trình thì link ngắt. Quick Tunnel không có SLA, tối đa200request đang xử lý, không SSE và hostname thay khi mở tunnel mới. [Cloudflare Quick Tunnel](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/), [release/checksum](https://github.com/cloudflare/cloudflared/releases/tag/2026.10.7). Chưa tự triển khai D5/D6 hoặc cam kết online khi máy tắt.
+
+<a id="handoff-chg091-d4"></a>
+## CHG-091 — D4 frontend đã deploy free, backend chưa triển khai
+
+Người dùng giao D4, sau đó chốt **chỉ dùng free, không phát sinh phí** và **demo phải hoạt động khi máy cá nhân tắt**. Các yêu cầu này thay phương án Render có disk trả phí trước đây. Không dùng trial của tài nguyên trả phí, nâng gói, mua domain hoặc tunnel phụ thuộc máy cá nhân. Render và Vercel đã được kết nối; quyền workspace Vercel đã duyệt, không yêu cầu người dùng tạo lại hai tài khoản này.
+
+- Frontend từ commit `4476a1c311a66dc615f4171ad45b29841f2b75c7` đã upload71tệp tracked (380.238byte nguồn); loại tests, mẫu cấu hình, env, dữ liệu và outputs. Tài khoản Vercel báo `hobby`, không trial; không bật tính năng trả phí. Project `sigma-demo`, Node24, `npm ci` → `tsc -b && vite build` đạt trên Vercel. Không có GitHub integration nên lần này deploy source qua connector; không tự deploy theo push.
+- Deployment `dpl_AYpW6UpP9sUNg4iov3gmxhGHUc6W` READY. URL [frontend](https://sigma-demo-eta.vercel.app/), [release cố định](https://sigma-demo-78ta7bdut-sigma-90aa.vercel.app/). Project mới phục vụ staging, nhưng target nền tảng là `production`, không nhận đây là Vercel preview target. Giữ bảo vệ truy cập Vercel hiện tại; chưa công bố demo đầy đủ.
+- Kiểm HTTP qua connector có quyền: root200, HTML tiếng Việt/title SIGMA và các asset build; `/api/v1/live`404 vì **chưa có backend hoặc API rewrite**. Không nhận chức năng import/forecast/tồn online đã đạt. API/worker/DB/seed chưa triển khai cloud; không tạo Render service/DB/disk.
+- Gói D2 `outputs/chg089_d2/demo-seed.tar.gz` được đọc lại:41.810.196byte, SHA256 `eaa7e6ef4867e5b947a1ed3de1076bbdacb68f8b737ec1fd5d910e9c07bf9385`;158tệp/67.645.702byte giải nén đúng release-manifest, đường dẫn an toàn/không link hoặc trùng. Nguồn100.000hàng/20cột, toàn bộ3cột tiền0; manifest nguồn/dump khớp; schema0008/18bảng/154artifact. Đây là kiểm tính toàn vẹn và placeholder, không thay audit ẩn danh D2 hoặc nghiệm thu restore cloud. Không giải nén vào runtime/restore DB/upload seed. Giữ baseline D2 và16run/bằng chứng D3 nguyên.
+- Receipt private local: `outputs/chg091_d4/staging-receipt.json`, `seed-preflight.json`, script đọc `audit_seed.py`, payload `frontend-upload.private.json`. Không commit các tệp này. Kiểm billing charges trả `costs_not_found`, không dùng lỗi này làm bằng chứng hóa đơn0; bằng chứng thao tác là chỉ deploy frontend cơ bản, không mua/nâng gói/tạo tài nguyên trả phí.
+
+### Phần còn thiếu để hoàn tất D4
+
+Backend cần runtime cloud miễn phí đủ RAM và storage bền cho API/worker/Postgres; không nối DBlocal. Render Free không giữ filesystem qua restart và không có disk bền; Postgres Free hết hạn30ngày, nên không đáp ứng kiến trúc đầy đủ hiện tại. [Render Free](https://render.com/docs/free), [disk](https://render.com/docs/disks). Không giảm model/cohort/horizon hoặc thay forecast thật bằng kết quả mẫu để vừa gói.
+
+Oracle Always Free là ứng viên, **chưa chọn hoặc tạo tài nguyên**. Tài liệu hiện hành cho A1 ARM tổng2OCPU/12GB và200GB boot/block; còn phụ thuộc capacity, có thể thu hồi VM idle. Chưa kiểm dependencies/runtime LinuxARM. Oracle yêu cầu người dùng tự đăng ký/xác minh thẻ và có thể giữ tiền xác minh tạm thời; câu hỏi chấp nhận điều kiện này còn chờ trả lời. Không suy ra việc duyệt Vercel là đồng ý đăng ký Oracle. Chỉ xét Always Free, không dùng300USD trial, không nâng Pay As You Go. [Tài nguyên](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm), [điều kiện đăng ký](https://www.oracle.com/cloud/free/faq/).
+
+Khi có runtime được xác minh free: kiểm kiến trúc/dependencies, tạo credential server-only và DBdemo riêng, restore seed/verify, chạy stack/readiness rồi nối API rewrite/CSV. D5 mới nghiệm thu online chức năng/restart/restore; D6 bàn giao vận hành. **D4 chưa hoàn tất; D5–D6 chưa làm.** Lượt này không sửa mã nghiệp vụ hoặc DB, không chạy model/job mới, không mở publish Git;4tệp S25/COMMIT_BLOCK_PLAN ngoàiGit, C00/R05/R07/T14 giữ nguyên.
+
 <a id="handoff-chg090-d3"></a>
 ## CHG-090 — D3 hoàn tất cổng code/publish, gỡ Tổng30 khỏi demo
 

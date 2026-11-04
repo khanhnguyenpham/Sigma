@@ -31,8 +31,8 @@ export function Sidebar({ app }: { app: AppContextState }) {
           <button
             key={id}
             title={name}
-            className={page === id || id==="provider-notices" && page.startsWith("provider-") ? "selected" : ""}
-            aria-current={page === id || id==="provider-notices" && page.startsWith("provider-") ? "page" : undefined}
+            className={page === id || id==="products" && (["product", "product-supply"].includes(page) || page.startsWith("provider-")) ? "selected" : ""}
+            aria-current={page === id || id==="products" && (["product", "product-supply"].includes(page) || page.startsWith("provider-")) ? "page" : undefined}
             onClick={() => navigate(id)}
           >
             <Icon name={icon} />

@@ -42,11 +42,11 @@ def products(http: Request, page: int = Query(1, ge=1), page_size: int = Query(5
              warehouse_id: int | None = Query(None, gt=0), product_type: str | None = None,
              search: str | None = None, as_of_date: date | None = None, supply_status: SupplyStatus | None = None,
              internal_status: SupplyStatus | None = None, provider_status: ProviderStatus | None = None,
-             replenishment_allowed: bool | None = None, sales_allowed: bool | None = None):
+             replenishment_allowed: bool | None = None, sales_allowed: bool | None = None, carrier: str | None = None):
     return jsonable_encoder(list_products(http.app.state.sessions, page, page_size, warehouse_id, product_type, search,
                                          as_of_date=as_of_date, supply_status=supply_status, internal_status=internal_status,
                                          provider_status=provider_status, replenishment_allowed=replenishment_allowed,
-                                         sales_allowed=sales_allowed))
+                                         sales_allowed=sales_allowed, carrier=carrier))
 
 
 @router.get("/products/{key}")

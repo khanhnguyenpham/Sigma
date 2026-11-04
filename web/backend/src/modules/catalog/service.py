@@ -50,7 +50,7 @@ def get_warehouse(session, key):
 
 def list_products(sessions, page=1, page_size=50, warehouse_id=None, product_type=None, search=None, item_id=None,
                   as_of_date=None, supply_status=None, internal_status=None, provider_status=None,
-                  replenishment_allowed=None, sales_allowed=None):
+                  replenishment_allowed=None, sales_allowed=None, carrier=None):
     new_filters = any(v is not None for v in (internal_status, provider_status, replenishment_allowed, sales_allowed))
     if (supply_status or new_filters) and as_of_date is None:
         raise DomainError("invalid_input", "Status and rights filtering require as_of_date")
@@ -64,6 +64,8 @@ def list_products(sessions, page=1, page_size=50, warehouse_id=None, product_typ
         query = query.where(Item.warehouse_id == warehouse_id)
     if product_type:
         query = query.where(Item.product_type == product_type)
+    if carrier:
+        query = query.where(Warehouse.carrier == carrier)
     if search:
         query = query.where(Item.sku.icontains(search, autoescape=True))
     if item_id:

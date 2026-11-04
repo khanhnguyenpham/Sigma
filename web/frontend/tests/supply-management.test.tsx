@@ -98,9 +98,9 @@ it('acknowledges a successful write even if refresh fails, and only retries the 
 });
 
 it('sends independent internal/provider filters and resets pagination',async()=>{
-  render(<Products onOpen={()=>{}} ctx={ctx} />);await waitFor(()=>expect(screen.getByLabelText('Nhà mạng ngừng bán')).toBeEnabled());
+  render(<Products onOpen={()=>{}} ctx={ctx} />);await waitFor(()=>expect(screen.getByLabelText('Trạng thái')).toBeEnabled());
   fireEvent.click(await screen.findByRole('button',{name:'Sau →'}));await waitFor(()=>expect(reads.at(-1)).toContain('page=2'));
-  fireEvent.change(screen.getByLabelText('Ngừng nhập nội bộ'),{target:{value:'stopped'}});fireEvent.change(screen.getByLabelText('Nhà mạng ngừng bán'),{target:{value:'stopped'}});
+  fireEvent.change(screen.getByLabelText('Trạng thái nhập'),{target:{value:'stopped'}});fireEvent.change(screen.getByLabelText('Trạng thái'),{target:{value:'stopped'}});
   await waitFor(()=>expect(reads.at(-1)).toContain('provider_status=stopped'));expect(reads.at(-1)).toContain('internal_status=stopped');expect(reads.at(-1)).toContain('page=1');
 });
 

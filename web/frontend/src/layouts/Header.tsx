@@ -14,7 +14,7 @@ export function Header({ app }: { app: AppContextState }) {
     setHelp,
     setDialog,
   } = app;
-  const selectedTitle = page.startsWith("provider-")?"Thông báo ngừng sản phẩm":page === "product" ? "Thông tin sản phẩm" : PAGES.find((p) => p[0] === page)?.[2] ?? "Tổng quan";
+  const selectedTitle = page === "product-supply" || page.startsWith("provider-") ? "Lịch cung cấp" : page === "product" ? "Cấu hình sản phẩm" : PAGES.find((p) => p[0] === page)?.[2] ?? "Tổng quan";
   return (
     <header className="topbar">
       <div className="breadcrumb">

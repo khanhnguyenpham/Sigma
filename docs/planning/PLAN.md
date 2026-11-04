@@ -1,5 +1,37 @@
 # Kế hoạch dự án SIGMA
 
+**Điều phối checkpoint04/11/2026:** Người dùng yêu cầu chốt mốc hiện tại bằng commit local, chưa test/chưa đẩy GitHub; đợi hoàn tất các việc mới test/push. Thứ tự dự kiến là CHG-095 → CHG-094 → kiểm tích hợp/sửa lỗi → publish thường/remote SHA/CI → D6. Đây là hoãn thời điểm kiểm và publish, không bỏ các ca kiểm dự kiến hoặc nhận tính năng đã nghiệm thu. Lượt checkpoint không tự triển khai code. [Phạm vi mốc](../development.md#checkpoint-local-20261104).
+
+<a id="chg-095"></a>
+## CHG-095 — Kho nhận mặc định tại sản phẩm, kịch bản tự kế thừa
+
+04/11/2026, người dùng yêu cầu bổ sung MD rồi chốt **mọi kịch bản dùng kho hàng mặc định của từng sản phẩm**. T10–T12/R06/R08/R09 bổ sung theo [nghiệp vụ](../../M3/docs/01-functional-spec.md#receiving-warehouse-chg095); phần trang Kịch bản CHG-094 vẫn dự kiến, không thêm bộ chọn kho nhận vào scenario.
+
+| Hạng mục khi được giao code | Điều kiện hoàn tất |
+|---|---|
+| Dữ liệu và cấu hình sản phẩm | Trường kho nhận/version riêng với kho nguồn, migration tương thích lịch sử; API lưu có expected_version, UI chọn/lưu/reload. Chưa cấu hình riêng dùng kho item. |
+| Snapshot, worker và verifier | Freeze item→kho nhận khi nhận run; ba inventory-kind/lô đầu kỳ/lô mới cùng dùng mặc định. Seed/receipt/pending/tồn/bán cùng kho nhận và tính một lần; không sửa khóa forecast/actual hoặc dùng setting live. |
+| Read model và UI kết quả | Tồn/nhập/summary/CSV hiển thị và lọc đúng kho nhận, tách metadata nguồn; trang Kịch bản chỉ hiển thị kho kế thừa/frozen. Lưu không chuyển hàng hoặc chạy job; cũ giữ snapshot. |
+| Kiểm và cutover khi được giao | Ca cùng/khác kho, nhiều item, freeze/race/legacy/409/API/CSV và browser1440/390 theo [ma trận](../../M3/docs/06-testing-delivery.md#receiving-warehouse-chg095); backup/restore/migration rehearsal và bảo toàn trước nâng DB. |
+
+Đây là thay đổi xuyên dữ liệu/API/worker/verifier/read model, không nghiệm thu bằng dropdown có lưu nhưng receipt vẫn về kho cũ. Lượt này chỉ bổ sung MD, chưa thực hiện hạng mục trên, code/tests/DB/run/deploy/publish; giữ CHG-093/094, C00/R05/R07/T14 và tệp local ngoài Git. [Bàn giao](../development.md#handoff-chg095-receiving-warehouse).
+
+<a id="chg-094"></a>
+## CHG-094 — Trang Kịch bản: thiết lập → chạy → kết quả tại chỗ
+
+04/11/2026, người dùng yêu cầu cập nhật các file MD trước. **Phần hoàn tất trong lượt này là tài liệu; các hạng mục triển khai dưới đây chưa thực hiện.** T11/T12 thực hiện theo [đặc tả frontend](../../M3/docs/04-frontend-spec.md#scenario-workspace-chg094), [bổ sung R08/R09](../requirements.md#chg094-scenario-workspace) và [ma trận kiểm](../../M3/docs/06-testing-delivery.md#scenario-workspace-chg094); không tạo mã task mới.
+
+| Thứ tự khi được giao triển khai | Sản phẩm và điều kiện hoàn tất |
+|---|---|
+| 1. Trang và điều hướng | Kịch bản thay Thiết lập tính toán, route `#scenarios`; CTA tạo/theo dõi/lịch sử và alias `#configuration` cùng mở trang. Query trước hash giữ đúng scenario/run/filter, không tự chọn run khác. |
+| 2. Thiết lập và chạy | Đưa form scenario và tham số chạy lên trang; dùng phiên bản đã lưu, Lưu và Chạy tách biệt. Giữ loại run, nguồn/cha/ngày hợp lệ, validation/version/idempotency/quota và chuẩn bị dữ liệu import/forecast hiện có. |
+| 3. Tiến độ và kết quả | Theo dõi đúng run tới terminal; complete hiện tóm tắt, bảng/biểu đồ/CSV tại trang, có lịch sử lượt chạy. Failed/retry liên kết run mới, lỗi đọc không enqueue; không trộn frozen với bản nháp hoặc response cũ. |
+| 4. Kiểm tích hợp và bàn giao | React/build, browser1440/390, Back/reload, lưu→run→worker→complete→kết quả→CSV, lỗi/409/429 và bảo toàn. Ghi bằng chứng mới; số kiểm CHG-093/D5 là lịch sử. |
+
+Tái dùng component/hook/read model hiện có, dự kiến page `Scenarios` tại `web/frontend/src/pages/`; không cần framework hoặc migration mới để chuyển vị trí form. Các hợp đồng API và nghiệp vụ hiện có là nguồn dữ liệu; không refit/tuning, đổi model/C00, đưa Tổng30 trở lại app hay đóng R05/R07/T14. Sản phẩm/lịch cung cấp CHG-093 giữ luồng đã có.
+
+**Điểm dừng lượt MD:** chỉ kiểm liên kết/anchor/cấu trúc và tính nhất quán tài liệu; chưa sửa code/tests/config, ghi DB/run, chạy worker/model, build/deploy hoặc publish Git. Tiếp tục triển khai khi người dùng giao. [Bàn giao](../development.md#handoff-chg094-scenarios).
+
 **CHG-090/D3 — 03/11/2026, hoàn tất cổng code/publish:** Đã gỡ hẳn Tổng30 khỏi UI/API/schema/CLI ứng dụng, không có cờ bật/tắt và không chờ bundle/receipt ngoài. Quota nguyên tử, body/write limits, guard thời gian/RAM/cây process, một model process/thread và retry API/UI đã kiểm. 517Python BE/M2/pipcheck (gồm5S25local ngoàiGit),89React/build đạt. Forecast mới và3run tồn complete/verified;12CSV khớp API, lifecycle chặn đúng5đơn vị nguồn; UIretrycomplete/429retention và full-size backup/reset16run đạt. BốnDB/1.466tệp cùng7run D2 nguyên; app0008/3run. Demo16run, không job đang chạy. Code`3f5c430c94c086179f065c543b3020fdfb021bde` đã push thường final-report, remoteSHA khớp/haiCI success; bàn giaoMD bổ sung sau cổng code. Chưa deploy; D4–D6 chưa làm. C00/R05/R07/T14 giữ nguyên;3PythonS25/COMMIT_BLOCK_PLAN.md, dữ liệu/credential/outputs ngoàiGit. [Bàn giao](../development.md#handoff-chg090-d3).
 
 Các checkpoint tạm dừng/chờ Tổng30 phía dưới là lịch sử trước yêu cầu tiếp tục và gỡ tính năng.

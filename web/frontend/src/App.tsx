@@ -4,6 +4,7 @@ import { Replenishment } from "./pages/Replenishment";
 import { Configuration } from "./pages/Configuration";
 import { Products, ProductDetail } from "./pages/Products";
 import { ProviderNotices } from "./pages/ProviderNotices";
+import { ProductSupply } from "./pages/ProductSupply";
 
 import { useAppContext } from "./hooks/useAppContext";
 
@@ -36,8 +37,8 @@ export default function App() {
   } = app;
   const props = { run, ctx, onChoose: chooseInventory, onItem: openItem };
   const node =
-    page.startsWith("provider-") ? <ProviderNotices page={page} day={ctx.origin} runs={runs} run={run} navigate={navigate} onItem={row=>openItem(row,"product")} /> : page === "products" ? (
-      <Products ctx={ctx} onContext={(patch) => app.setCtx((c) => ({ ...c, ...patch }))} onOpen={(row) => openItem(row, "product")} />
+    (page === "product-supply" || page.startsWith("provider-") && !!ctx.itemId) ? <ProductSupply key={`${ctx.itemId}:${page}`} ctx={ctx} page={page} run={run} runs={runs} navigate={navigate} onDate={origin=>app.setCtx(c=>({...c,origin}))} onItem={row=>openItem(row,"product")} /> : page.startsWith("provider-") ? <ProviderNotices page={page} day={ctx.origin} runs={runs} run={run} navigate={navigate} onItem={row=>openItem(row,"product")} /> : page === "products" ? (
+      <Products ctx={ctx} onContext={(patch) => app.setCtx((c) => ({ ...c, ...patch }))} onOpen={(row) => openItem(row, "product")} onSupply={row=>openItem(row,"product-supply")} />
     ) : page === "product" ? (
       <ProductDetail run={run} ctx={ctx} onDate={(origin) => app.setCtx((c) => ({ ...c, origin }))} onNavigate={navigate} onItem={openItem}
         onWarehouse={(row) => app.selectWarehouse(String(row.warehouse_id))} />

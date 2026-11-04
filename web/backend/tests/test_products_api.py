@@ -31,6 +31,27 @@ def test_products_pagination_search_and_missing_policy_are_independent_of_runs(p
         assert client.get("/api/v1/products?page=0").status_code == 422
 
 
+def test_products_carrier_filter_applies_before_pagination_and_status_filters(pg, tmp_path):
+    from modules.catalog.models import Warehouse
+    _, sessions = pg
+    result_fixture(sessions)
+    with sessions.begin() as session:
+        warehouse = Warehouse(code="OTHER", city="Other City", destination_country="DemoLand",
+                              carrier="OtherCarrier", assumption_source="synthetic_fixture")
+        session.add(warehouse)
+        session.flush()
+        for sku in ("OTHER-1", "OTHER-2", "OTHER-3"):
+            session.add(Item(warehouse_id=warehouse.id, sku=sku, product_type="eSIM", first_seen_date=D))
+    with TestClient(create_app(settings(tmp_path))) as client:
+        response = client.get(f"/api/v1/products?carrier=OtherCarrier&page_size=1&page=2&as_of_date={D}&internal_status=active")
+        assert response.status_code == 200
+        page = response.json()
+        assert page["total"] == 3 and len(page["items"]) == 1
+        assert page["items"][0]["carrier"] == "OtherCarrier" and page["items"][0]["sku"] == "OTHER-2"
+        assert client.get("/api/v1/products?carrier=OtherCarrier&warehouse_id=1").json()["total"] == 0
+        assert client.get("/api/v1/products?carrier=missing").json()["total"] == 0
+
+
 def test_product_save_reads_latest_version_and_keeps_frozen_runs(pg, tmp_path):
     _, sessions = pg
     _, _, item = result_fixture(sessions)

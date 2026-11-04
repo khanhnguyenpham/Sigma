@@ -1,5 +1,20 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+<a id="receiving-warehouse-chg095"></a>
+## CHG-095 — Kho nhận hàng mặc định của sản phẩm
+
+**04/11/2026, yêu cầu mới/chỉ cập nhật Markdown; chưa triển khai.** Hiện `Item.warehouse_id` gắn mỗi mặt hàng với một kho/tuyến; lô nhập theo `item_id` nên về kho đó, không có một kho chung cho mọi đơn. Người dùng yêu cầu thêm trường chọn kho nhận trong sản phẩm, sau đó chốt: **trong các kịch bản cứ dùng kho hàng mặc định của sản phẩm**.
+
+1. Cấu hình sản phẩm có **Kho nhận hàng mặc định**, chọn một kho trong catalog. Sản phẩm chưa cấu hình riêng kế thừa kho đang gắn với item; UI ghi rõ giá trị kế thừa. Một lô chỉ về một kho, không chia tỷ lệ nhiều kho.
+2. Kịch bản không có trường chọn/override kho nhận. Khi tạo inventory run, backend lấy mặc định của từng sản phẩm và chốt bản đồ item→kho nhận cùng version/metadata vào snapshot. `stock_projection`, `policy_replay`, `alert_replay` đều dùng bản đồ đó; import/forecast không bị đổi nguồn/tuyến vì chọn kho nhận.
+3. Mỗi lô mới và lô đầu kỳ do kịch bản khai báo dùng kho đã chốt của item trong chính run đó. Lô đầu kỳ là giả định của run, không tự nhập lại một đơn thực từ run khác. Sau khi tạo lô, kho nhận được giữ cố định; thay mặc định sản phẩm chỉ tác động run tạo sau, không sửa lô/run cũ hoặc job đang xếp hàng/chạy.
+4. Trong run mới, mỗi item có một kho nhận/tồn phục vụ mô phỏng cố định theo snapshot. Tồn đầu giả định được khởi tạo đúng một lần tại kho đó, receipt/pending/bán/tồn của item cùng vị trí; không đồng thời ghi lượng này ở kho danh mục cũ. Nhu cầu vẫn là forecast/actual của chính item/tuyến nguồn, không nhân thêm forecast khi chuyển cách nhóm theo kho nhận.
+5. `items.warehouse_id` vẫn giữ định danh nguồn `(kho/tuyến, SKU, loại)`; không sửa khóa này để đổi kho nhận. Chọn kho khác không đổi SKU/loại/carrier/thị trường nguồn hoặc gộp hai item trùng SKU. Kho nhận là vị trí lưu hàng của mô phỏng mới, tách với kho/tuyến dùng nhận diện dữ liệu nguồn.
+6. Các bảng tồn/lô đang về/CSV của profile mới hiển thị và tổng hợp theo kho nhận frozen, có metadata kho/tuyến nguồn riêng khi cần. Mỗi item trong cùng run chỉ được tính một lần; pending/receipt tại kho B không cộng thêm vào tồn kho A. Lượng nhập cố định, L7/R1/H14, quyền nhập/bán và metric/exclusions giữ quy tắc hiện có. Scope hạn chế nhà mạng vẫn theo định danh item/tuyến nguồn đã chốt; chọn kho nhận khác không gỡ hạn chế hoặc đổi mẫu số metric theo tuyến nguồn.
+7. Lưu mặc định không chuyển tồn hoặc lô đang về giữa kho và không enqueue. Run mới vẫn là mô phỏng độc lập, không tự lấy tồn cuối/lô của run trước làm đầu kỳ. Run cũ đọc mapping của snapshot cũ; không dùng mặc định live để suy ngược nơi nhận hàng.
+
+[Dữ liệu/snapshot](02-data-model.md#receiving-warehouse-chg095), [API dự kiến](03-backend-api.md#receiving-warehouse-chg095), [UI và kịch bản](04-frontend-spec.md#receiving-warehouse-chg095), [kế hoạch](../../docs/planning/PLAN.md#chg-095). Đây là mở rộng dữ liệu/worker/read model, không chỉ thêm dropdown; chỉ bật chọn kho khác sau khi toàn chuỗi đã hỗ trợ và được kiểm.
+
 **CHG-085 giai đoạn 8 — 03/11/2026, hoàn tất local:** đã đọc và verify 7 run cũ, đối chiếu API/CSV cho 12 cặp DB–run; chạy 4 run mới trên bản sao dùng nguồn/forecast có sẵn và 1 run synthetic cho hai kho. Worker, verifier độc lập, API/CSV và browser 1440/390px đạt. Ca bổ sung chặn 19 đơn vị nguồn trong mô phỏng; ca synthetic có 280 = 150 được phép bán + 130 bị chặn. Sửa nhãn quyền mua/bán trong bảng projection; 89 React và build đạt. App ở 0008 với 3 run ban đầu; 4 DB bảo vệ và 1.412 tệp giữ hash. Không refit/tuning hoặc viết lại bằng chứng CHG-084; R07/T14 giữ mở. Thay đổi giai đoạn 7–8 chưa commit/push. [Bàn giao/giới hạn](../../docs/development.md#handoff-chg085-phase8). Các checkpoint bên dưới là lịch sử.
 
 **CHG-085 giai đoạn 7 — 03/11/2026:** hai nghiệp vụ đã bật trên ứng dụng local0008: nội bộ cùng ngày chỉ chặn nhập, nhà mạng theo phạm vi khai báo chặn nhập/bán. UI tạo inventory run tự gửi trade_v2 theo capability; lưu không sửa frozen hoặc tự enqueue. App không có stop/notice/run mới trong cutover. [Bàn giao/giới hạn](../../docs/development.md#handoff-chg085-phase7).

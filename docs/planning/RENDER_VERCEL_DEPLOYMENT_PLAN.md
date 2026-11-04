@@ -1,4 +1,10 @@
-# CHG-087 — Demo đầy đủ chức năng trên Render và Vercel
+# Demo đầy đủ chức năng — triển khai chỉ dùng free
+
+**CHG-092/D5 — 04/11/2026, hoàn tất cho phương án máy đang mở:** Chuỗi nguồn/forecast/3loại tồn mới, interrupted→retry, cấu hình/lifecycle/frozen,12cặpAPI/CSV, hai phiênUI, desktop1440/mobile390, direct/HTTPSquota và full-size restore đã kiểm. [Bàn giao](../development.md#handoff-chg092-d5). Full snapshot15run giữ riêng; demo live phục hồi8run trước D5 để còn8slot. Link mới https://charlie-sas-men-scenarios.trycloudflare.com/ ; Vercel cũ chưa nốiAPI. Các checkpoint D4 bên dưới là lịch sử; D6 chưa làm. Không trả phí, không cam kết hoạt động khi máy tắt.
+
+**04/11/2026 — đã triển khai thử backend khi máy mở:** Người dùng đã chấp nhận phương án phụ thuộc máy cá nhân và giao deploy thử BE. API+worker+Postgres/demo storage riêng chạy local, Cloudflare Quick Tunnel miễn phí phục vụ luônUI/API cùng origin; đã kiểmready/46kho/920sản phẩm, một job tồn mới complete/verified/API/CSV và dừng/mở lại. [Bàn giao/cách chạy](../development.md#handoff-chg091-d4-local). Vercel cũ chưa rewriteAPI. Yêu cầu online khi máy tắt/không local tunnel của03/11 bên dưới là checkpoint trước lựa chọn mới; không cần chờ Oracle cho bản thử này. D5–D6 chưa nghiệm thu.
+
+**CHG-091/D4,03/11/2026:** Người dùng chốt **không phát sinh phí, không dùng dịch vụ trả phí** và **máy cá nhân tắt demo vẫn online**. Frontend đã build/deploy READY trên Vercel Hobby; backend chưa triển khai, chưa nối API, D4 còn dở. Phương án Render service/disk trả phí trước đây bị thay thế; không áp dụng template đó, không dùng credit trial của tài nguyên trả phí hoặc nâng gói. Không dùng tunnel chạy trên máy cá nhân. [Bàn giao D4](../development.md#handoff-chg091-d4). Các câu “chưa deploy/D4–D6 chưa làm” của checkpoint D3 dưới đây là lịch sử; D5–D6 hiện vẫn chưa làm.
 
 **03/11/2026 — tiếp tục D3 và gỡ Tổng 30 khỏi demo theo yêu cầu mới.** Bỏ hẳn giao diện/API Tổng 30, không thêm cờ bật/tắt hoặc phụ thuộc bundle/receipt ngoài. Luồng dự báo vận hành H14/tồn/nhập/cảnh báo giữ nguyên. R05/M05 và bằng chứng nghiên cứu lịch sử không tự nghiệm thu hoặc xóa. Các checkpoint chờ Tổng30/tạm dừng phía dưới là lịch sử. D3 đã qua cổng code/publish tại3f5c430 (remoteSHA/haiCI success); full-size backup/reset và shutdown đạt; chưa deploy; D4–D6 chưa làm.
 
@@ -24,13 +30,15 @@ Một ứng dụng công khai, không yêu cầu đăng nhập cho chức năng 
 Giữ C00 mặc định theo [kiểm S25](../../M3/docs/S25_CURRENT_REVIEW.md); không ép45% hoặc tự tích hợp S25. Online không tự nghiệm thu R05/R07/T14 hoặc biến dữ liệu demo thành bằng chứng mentor mới.
 
 <a id="architecture"></a>
-## 2. Kiến trúc tối giản được chọn
+## 2. Kiến trúc và trạng thái chọn hosting
 
 ~~~mermaid
 flowchart LR
     G[Mọi khách: xem và thao tác] --> V[Vercel: React/Vite]
-    V -->|/api/v1 và CSV qua rewrite| A[Render: FastAPI]
-    subgraph R[Một Render web service, một instance]
+    G --> T[Cloudflare Quick Tunnel: link thử hiện hành]
+    T -->|UI và /api/v1 cùng origin| A[FastAPI: máy cá nhân8041]
+    V -.->|Vercel cũ chưa nối API| A
+    subgraph R[Runtime demo riêng: chạy khi máy mở]
         A
         W[Worker hiện có, một process]
         D[(Persistent disk: nguồn demo và artifact)]
@@ -43,11 +51,11 @@ flowchart LR
     O -->|gói demo đã ẩn danh| D
 ~~~
 
-Chọn **một Render web service trả phí có persistent disk**, chạy API và worker như hai process cùng release. [LauncherD1](../../web/backend/scripts/demo_stack.py) đã kiểm trên Windows/Linux: quản lý cả hai, truyền tín hiệu dừng, chờ processgroup ngừng và báo lỗi khi một process chết. API một process Uvicorn; giữ queue PostgreSQL/advisory lock và một worker hiện có. Không fit model trong HTTP request hoặc tạo worker cho mỗi request.
+Frontend đã deploy trên [Vercel](https://sigma-demo-eta.vercel.app/), project `sigma-demo`, từ commit4476a1c; URL đó chưa nốiAPI. Bản thử04/11 dùng giao diện build có sẵn do FastAPI phục vụ qua cùng linkQuickTunnel, không cần redeploy Vercel khi hostname tunnel đổi. API và worker như hai process cùng release, dùng DB/disk demo riêng trên máy cá nhân. [LauncherD1](../../web/backend/scripts/demo_stack.py) đã kiểm trên Windows/Linuxx64: quản lý cả hai, truyền tín hiệu dừng, chờ processgroup ngừng và báo lỗi khi một process chết. API một process Uvicorn; giữ queue PostgreSQL/advisory lock và một worker hiện có. Không fit model trong HTTP request hoặc tạo worker cho mỗi request.
 
-Đây là lựa chọn kỹ thuật của project: disk Render chỉ gắn với một instance, không chia sẻ sang service khác; gắn disk có giới hạn scale và gián đoạn khi deploy. Chấp nhận các giới hạn đó cho demo thực tập. Không tách API/worker rồi giả định hai service mount chung disk. [Render disks](https://render.com/docs/disks).
+Render có disk trả phí là thiết kế cũ, không còn được áp dụng. Render Free không có persistent disk; không triển khai rồi nhận dữ liệu/run sẽ bền qua restart. [Render disks](https://render.com/docs/disks), [Free](https://render.com/docs/free). Oracle Always Free chỉ là ứng viên chờ người dùng chấp nhận điều kiện đăng ký/tài khoản, xác minh capacity và kiểm LinuxARM; chưa là giải pháp đã chạy. Không đổi model hoặc dùng tài nguyên trả phí khi thiếu capacity.
 
-Postgres demo tách khỏi appDB local và các DB bằng chứng. Disk chứa nguồn dẫn xuất và run mới; không mount thư mục gốc người dùng. API không public static nguồn/artifact/log, CSV qua route export. Cần giữ nguồn và artifact qua restart để chạy thêm run và đọc kết quả cũ. Nếu benchmark thiếu RAM/CPU thì tăng tài nguyên một service trước; chỉ xét tách worker/storage khi có nhu cầu đo được.
+Postgres demo tách khỏi appDB local và các DB bằng chứng. Disk chứa nguồn dẫn xuất và run mới; không mount thư mục gốc người dùng. API không public static nguồn/artifact/log, CSV qua route export. Cần giữ nguồn và artifact qua restart để chạy thêm run và đọc kết quả cũ. Nếu gói free thiếu RAM/CPU/storage thì dừng phần provision phụ thuộc đó, không tự tăng lên tài nguyên trả phí hoặc giảm chức năng.
 
 ## 3. Dữ liệu phải hỗ trợ cả chạy mới
 
@@ -58,7 +66,7 @@ Không chỉ chuẩn bị DB kết quả tính sẵn. Gói demo phải đủ đ�
 3. Country/carrier/SKU dùng mã công khai đã kiểm hoặc alias đồng bộ. Nếu đổi danh tính tuyến thì cấu hình model/top10/selection demo phải tương thích; không đổi cấu hình M2/M05 gốc. Giữ train/validation/test và không dùng test để chọn lại model.
 4. Tạo DB demo mới và seed kho/danh mục/policy/scenario/parents/run ban đầu bằng UUID/hash/provenance mới. Profile hiện tại fixed ROP/days/fixed quantity, trade_v2; tồn/nhập/ETA có nhãn giả định. Có source/forecast cha sẵn để thử nhanh, đồng thời tạo source/forecast mới vẫn hoạt động.
 5. Tổng 30 ngày đã loại khỏi demo theo yêu cầu03/11/2026; không cần package/bundle/receipt monthly để triển khai H14.
-6. Kiểm cả nguồn seed và chuỗi source mới → forecast mới → inventory mới; kể cả import lại nguồn cùng nội dung và quan hệ nguồn của view tổng30. Chạy verifier, đối chiếu DB/API/CSV. Không gắn kết quả tính sẵn của nguồn khác vào run mới.
+6. Kiểm cả nguồn seed và chuỗi source mới → forecast mới → inventory mới; kể cả import lại nguồn cùng nội dung và quan hệ nguồn H14. Chạy verifier, đối chiếu DB/API/CSV. Không gắn kết quả tính sẵn của nguồn khác vào run mới.
 7. Kiểm DB/JSON/snapshot/CSV/error/log/bundle để không lộ ID gốc, secret, đường dẫn cá nhân hoặc raw download. Giữ snapshot/hash bằng chứng local nguyên; bản demo có nhãn dẫn xuất, không nhận số/hash bằng bản gốc nếu đầu vào đổi.
 
 Gói dự kiến upload có danh sách tệp/trường, size/hash và kiểm ẩn danh cụ thể. CHG089/D2 thực hiện riêng nguồn/seed/run/reset trên local; chưa upload hoặc tạo tài nguyên cloud. Không đưa package Tổng30 vào gói demo; giữ bằng chứng nghiên cứu gốc riêng.
@@ -97,34 +105,35 @@ API/worker dùng role đọc/ghi dữ liệu demo, không có superuser/CREATE D
 
 Giới hạn local D3 đã khai báo trong template/runtime và kiểm bằng benchmark; kiểm lại tài nguyên hosting ở D4 trước deploy. Không âm thầm giảm horizon/cohort, đổi model hoặc trả complete khi chưa chạy. Job giới hạn/gián đoạn có trạng thái/lý do và retry hợp lệ. Không thêm quota tài khoản khi không có tài khoản.
 
-## 5. Cấu hình hosting dự kiến
+## 5. Cấu hình runtime cần kiểm trên hosting free
 
 | Thành phần | Cấu hình | Ghi chú |
 | --- | --- | --- |
-| Render web | Root repo, Python3.12, một instance/API/worker | Cần cả src/, M2/, data/configs và web/backend/configs |
+| Backend thử đã chạy local | Root repo, Python3.12, một API/worker, cổng8041 | Cần cả src/, M2/, data/configs và web/backend/configs; template Render trả phí không được áp dụng |
 | Build | python -m pip install -r web/backend/requirements.txt && python -m pip install --no-deps -e web/backend | Dependencies hiện có; package yêu cầu Python>=3.12,<3.13 |
 | Start | `python web/backend/scripts/demo_stack.py` quản lý Uvicornfactory0.0.0.0/PORT và worker | Có ởD1; không migrate/seed/reset khi boot, không mở process cho mỗi request |
 | Disk | Ví dụ /var/data/sigma-demo, nguồn source/data/, run outputs/m3/ | Run dưới disk theo path resolver; nguồn immutable, artifact phát sinh |
-| Postgres | DB demo riêng cùng region, internal URL, psycopg3/TLS theo endpoint | Schema head0008 hiện tại; migration/seed một nơi |
+| Postgres thử riêng | Cluster mới127.0.0.1:55433, DBsigma_demo, schema0008 | Restore D2 khớp18bảng/154artifact, không nối DBapp/D3; không public cổngDB |
 | Env | M3_MODE=demo, M3_DEMO_ROOT, M3_DATABASE_URL, M3_FRONTEND_ORIGIN, M3_SOURCE_ROOT, M3_OUTPUT_ROOT; quota/compute ởD3 | Chung cho API/worker, server-only; DBsigma_demo/test, rootdemo riêng, không copy .env local |
-| Vercel | Root web/frontend; Node24 theo CI; npm ci; npm run build; output dist | Hash router hiện tại không cần SPA catch-all |
-| Proxy/domain | /api/:path* tới Render /api/:path*; HTTPS mặc định .vercel.app/.onrender.com | Kiểm writes/CSV; không cache API mutable như asset; staging origin riêng, không wildcard mọi preview |
+| Vercel đã deploy | Root web/frontend; Node24 theo CI; npm ci; npm run build; output dist | Build READY; hash router không cần SPA catch-all; giữ bảo vệ Vercel trong staging |
+| Proxy/domain chưa nối | /api/:path* tới backend /api/:path* khi có HTTPS cloud free đã kiểm | Kiểm writes/CSV; không cache API mutable như asset; origin riêng, không wildcard mọi preview |
 
 Không cần mua domain để trình diễn. Biến VITE_* có thể vào bundle công khai, không lưu secrets. External rewrite là khả năng của Vercel; lệnh/path/launcher ở đây là thiết kế project cần kiểm Linux/cloud. [Vercel rewrites](https://vercel.com/docs/routing/rewrites), [environment variables](https://vercel.com/docs/environment-variables), [Render Python](https://render.com/docs/python-version).
 
-## 6. Chi phí phù hợp demo thực tập
+## 6. Ngân sách bắt buộc0
 
-Kiến trúc cơ sở: **Vercel FE + một Render web có disk + một Postgres demo**. Không trả thêm worker riêng/object storage/domain. Chưa chọn mua gói hoặc tổng ngân sách; đo RAM/CPU/disk trước. Một queue worker có thể sinh process model, không nhận512MB/2GB đủ khi chưa đo.
+Chỉ dùng gói free; không nâng cấp, mua domain hoặc dùng trial tài nguyên trả phí. Frontend tĩnh Vercel Hobby đã build/deploy; không dùng tính năng Pro. Mục đích project cá nhân/phi thương mại theo [Hobby docs](https://vercel.com/docs/plans/hobby). Theo yêu cầu mới04/11, bản thử được phép phụ thuộc máy cá nhân; dữ liệu riêng giữ trên disk qua restart, link tạm quaQuickTunnel. Nếu sau này cần online khi máy tắt thì chọn lại runtime, không tự mua tài nguyên.
 
-| Phương án | Khi dùng | Giới hạn |
+| Phương án | Trạng thái | Giới hạn |
 | --- | --- | --- |
-| Cơ sở có disk | Demo đầy đủ, giữ nguồn/run qua restart/deploy | Disk cần service trả phí; tổng gồm compute/disk/DB/usage, chưa là báo giá |
-| Free thử ngắn | Chỉ thử hosting tạm khi chưa có ngân sách | Không persistent disk, file có thể mất sau restart/cold start; không nghiệm thu lưu dữ liệu bản đầy đủ |
-| Tăng tài nguyên một service | Forecast vượt RAM/CPU | Giữ kiến trúc một instance trước, tách service/storage khi có nhu cầu thực |
+| Render có persistent disk | Không được dùng | Cần trả phí, trái yêu cầu hiện tại |
+| Render Free | Không chọn cho backend đầy đủ hiện tại | Không persistent disk, mất file sau restart/sleep; DB Free hết hạn30ngày |
+| Backend máy cá nhân + Quick Tunnel | Đã được chọn và triển khai thử04/11 | Máy bật/có mạng/khôngsleep, link đổi khi mở lại; không có SLA |
+| Oracle Always Free A1 | Ứng viên cũ, không cần cho bản thử local | Chưa có tài khoản/resource hoặc kiểmARM; không dùng credit trial/PAYG |
 
-Render Free ngủ sau15phút, có thể mất khoảng1phút khởi động; Postgres Free hết hạn30ngày và không có backup tự động. Tính vào lịch demo, không ping để lách ngủ. [Render Free](https://render.com/docs/free). Vercel Hobby cho mục đích cá nhân, phi thương mại theo [Hobby docs](https://vercel.com/docs/plans/hobby); kiểm điều kiện tài khoản và giá/usage khi triển khai.
+Render Free ngủ sau15phút, file thay đổi mất khi restart/sleep; không ping để lách ngủ. [Render Free](https://render.com/docs/free). Oracle hiện công bố tổng2OCPU/12GB A1 và200GB boot/block Always Free trong home region; có thể thiếu capacity hoặc thu hồi VM idle, không có SLA. [Tài nguyên Always Free](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm). Không coi đây là cam kết uptime hoặc ARM đã tương thích.
 
-Không giữ hai môi trường trả phí song song lâu dài chỉ để demo: dùng staging tạm, giữ bản local kiểm được rồi chuyển URL public theo release. Chốt ngân sách/tài khoản khi chuẩn bị triển khai thật; không chặn hoàn thiện kế hoạch Markdown.
+Oracle yêu cầu người dùng tự xác minh danh tính bằng thẻ, có thể có khoản giữ tiền xác minh tạm thời; chưa được người dùng chấp nhận. [FAQ đăng ký](https://www.oracle.com/cloud/free/faq/). Không cần tiếp tục đăng ký Oracle để thử phương án local đã được cho phép. Bản thử đã có backend thật, không chỉ frontend; đây chưa là bằng chứng online độc lập máy cá nhân.
 
 <a id="steps"></a>
 ## 7. Lộ trình mới
@@ -135,8 +144,8 @@ Không giữ hai môi trường trả phí song song lâu dài chỉ để demo:
 | D1 — nền demo đầy đủ | Settings/launcher API-worker cùng disk, health/readiness, cấu hình hosting mẫu; bỏ banner theo yêu cầu | Boot/shutdown/restart Windows-Linux với synthetic; không thay chức năng bằng chỉ đọc |
 | D2 — dữ liệu và khôi phục | Nguồn20cột đã ẩn danh, seedDB/policy/scenario/parents/kết quả, manifest/hash và reset | Chuỗi import/forecast/inventory từ đầu trên DBdemo; kiểm ẩn danh, reset DB+artifact đạt |
 | D3 — kiểm chức năng/tài nguyên | Hai khách, versionconflict/queue/quota/retry, CSV/chart/lifecycle, benchmark và mức giới hạn | Python/React/build/pipcheck; browser1440/390px; verifier độc lập; retention không phá run cha |
-| D4 — triển khai thử | Vercel preview, Render service/disk/DBdemo, secrets server-only, seed đúng gói, mức chi phí/account cụ thể | Thực hiện sau khi được giao triển khai; gói/chi phí cụ thể; không nối DBlocal |
-| D5 — online/công khai | Chuỗi run mới thật, chỉnh policy/lifecycle, frozen/CSV, hai browser, directAPI/proxy/restart/restore | Đủ chức năng, không lộ dữ liệu, quota/worker/backup đúng; URL/SHA/hashes/hướng dẫn cùng release |
+| D4 — triển khai thử | Vercel frontend cũ READY; bản thử UI/API/worker quaQuickTunnel, Postgres/seed riêng trên máy | Theo phạm vi mới: máy mở mới dùng được, ngân sách0; seed/ready/jobtồn/API/CSV/restart đạt; chưa nghiệm thu đầy đủ D5 |
+| D5 — online/công khai | Đã kiểm chuỗi run mới thật, cấu hình/lifecycle/frozen/CSV, hai phiênUI, directAPI/QuickTunnel/restart/restore | Đạt04/11 cho demo khi máy mở; snapshot15run giữ riêng, live8run/8slot; bằng chứng URL/codeSHA/hashes cùng release; chưa kiểm nhiều browser engine |
 | D6 — bàn giao vận hành | Reset/backup/restore/rollback, chẩn đoán queue/worker, hạn mức/chủ tài khoản | Người vận hành dựng lại được demo; không tự đóng R05/R07/T14 |
 
 **Hiện tại:** D0 vàD1 hoàn tất; D2 đã kiểm nguồn20cột/giá0, seed/parents/ba loại inventory, API/CSV vàreset. [Bàn giaoD2](../development.md#handoff-chg089-d2). Tổng30 đã bỏ khỏi phạm vi demo theo yêu cầu mới; D2 không còn phụ thuộc bàn giao ngoài này. Không migrate/seedDBapp, upload, trả phí hoặc deploy trongD2. Code nghiên cứuCHG086 vẫnlocal/ngoài stage; không thêm banner. [Công cụ và giới hạn](../../web/backend/configs/DEMO_RUNTIME.md).

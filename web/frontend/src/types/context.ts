@@ -4,6 +4,7 @@ export interface Context {
   itemId: string;
   productType: string;
   supplierId: string;
+  carrier?: string;
   origin: string;
   internalStatus?: string;
   providerStatus?: string;

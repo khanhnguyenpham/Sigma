@@ -1,5 +1,92 @@
 # M3 — đặc tả frontend
 
+<a id="receiving-warehouse-chg095"></a>
+## CHG-095 — Chọn kho mặc định tại sản phẩm, kịch bản tự dùng
+
+**04/11/2026, bổ sung thiết kế/chỉ MD; chưa có UI mới.** Người dùng yêu cầu một trường chọn kho để nhập trong sản phẩm và bổ sung: **các kịch bản mặc định đưa sản phẩm về kho hàng mặc định**. Hiện mỗi item gắn một kho; lô nhập theo item, không dồn mọi sản phẩm vào một kho chung.
+
+- Trang **Sản phẩm → Cấu hình** thêm trường **Kho nhận hàng mặc định** và thao tác **Lưu kho nhận**. Giá trị ban đầu là kho hiện tại nếu chưa cấu hình riêng, có nhãn kế thừa; không tự chọn kho đầu danh sách. Bộ chọn một kho, hiển thị địa danh và quốc gia; không thay SKU/loại/carrier/thị trường nguồn theo metadata kho nhận.
+- Thông tin sản phẩm phân biệt **Kho danh mục / tuyến nguồn** và **Kho nhận hàng mặc định** khi khác nhau. Danh sách sản phẩm hiện kho nhận mặc định; trường này không phải bộ lọc “Kho sản phẩm” hiện có. Chọn xong phải lưu mới áp dụng; thành công hiện “Đã lưu kho nhận mặc định. Áp dụng cho lượt chạy mới.”
+- Kho ngoài trang options đầu vẫn tải/chọn đúng; lỗi tải kho chặn lưu, không xóa giá trị đã lưu. 409 giữ bản nháp và cho tải lại version; đọc lại sản phẩm/reload phải thấy đúng lựa chọn. Lưu không tạo run hoặc chuyển lô/tồn đang có.
+- **Trang Kịch bản CHG-094 không thêm ô chọn/override kho nhận.** Khi chạy, từng sản phẩm tự dùng mặc định đã lưu; phần kiểm tra thiết lập có dòng “Kho nhận theo mặc định từng sản phẩm”, bảng chi tiết hiển thị tên kho để đối chiếu. Lô đầu kỳ khai báo trong kịch bản cũng tự dùng kho mặc định được chốt của item, không cần chọn lại từng lô.
+- Khi run đã được nhận, phần thiết lập đã chốt/tiến độ/kết quả hiện kho từ snapshot của run. Đổi mặc định sản phẩm không đổi kho của queued/running/complete hoặc lô cũ. Retry với cấu hình hiện tại có thể đổi kho ở run mới, phải ghi rõ trước thao tác.
+- Kết quả tại trang Kịch bản, Tồn kho và Nhập hàng/CSV hiển thị kho nhận thực của mô phỏng; tên kho nguồn giữ riêng để giải thích forecast. Một lượng hàng không xuất hiện ở cả kho cũ và kho mới. Số lượng/tổng hợp/bộ lọc cùng vai trò kho nhận, không chỉ đổi chữ của cột cũ.
+
+Desktop1440/mobile390, label/nút/lỗi tại trường và thao tác bàn phím theo chuẩn hiện có. [Quy tắc tồn và nguồn](01-functional-spec.md#receiving-warehouse-chg095), [API dự kiến](03-backend-api.md#receiving-warehouse-chg095), [ma trận kiểm](06-testing-delivery.md#receiving-warehouse-chg095). Phần CHG-094 phía dưới vẫn là thiết kế, được bổ sung quy tắc kế thừa kho này; lượt hiện tại chưa triển khai cả hai tính năng.
+
+<a id="scenario-workspace-chg094"></a>
+## CHG-094 — Trang riêng để thiết lập, chạy và xem kết quả kịch bản
+
+**04/11/2026 — thiết kế theo yêu cầu người dùng, chỉ cập nhật Markdown; chưa triển khai UI.** Mục tiêu là thao tác trên một trang xuyên suốt: chọn/tạo kịch bản → thiết lập → lưu → chạy → theo dõi → xem kết quả ngay tại trang đó. Phần này thay thiết kế mở form kịch bản và tạo lượt chạy bằng hai hộp thoại riêng. CHG-093 về sản phẩm/lịch cung cấp vẫn áp dụng; các mô tả sáu màn hình, tab Kịch bản trong Cấu hình và modal tạo run phía dưới là lịch sử ở phần bị thay thế.
+
+### Điểm vào và URL
+
+- Menu **Kịch bản** thay mục **Thiết lập tính toán**, mở trang `#scenarios`. Danh sách lựa chọn, form thiết lập, form chạy và kết quả nằm trong cùng trang; không thêm một menu thiết lập trùng chức năng.
+- Nút **Tạo phương án** ở header/Tổng quan mở trang này ở trạng thái tạo lượt chạy mới, giữ ngữ cảnh quay lại; không mở `RunDialog`. Liên kết **Đang xử lý**, **Xem lượt chạy** và lịch sử mở lại trang với đúng `run_id`, kể cả queued/running/failed.
+- URL đích dùng query trước hash, ví dụ `?scenario_id=<id>&run_id=<id>#scenarios`. `scenario_id` là ID của đúng phiên bản đã lưu, không chỉ là mã nhóm kịch bản. `run_id` xác định tiến độ/kết quả đang xem. Filter kho/item/ngày giữ theo quy ước URL hiện có.
+- `#configuration` cũ dẫn sang `#scenarios` và giữ ngữ cảnh hợp lệ. Vào trang để tạo mới không tự nhận run mặc định của app làm kết quả kịch bản. Reload/Back/Forward khi có `run_id` chỉ đọc lại run đó, không POST; ID sai/không còn tồn tại báo rõ, không thay bằng run mới nhất.
+- Với run tồn đã lưu, đối chiếu scenario/phiên bản từ run; cặp `scenario_id`/`run_id` không khớp phải báo xung đột trước khi hiện kết quả. Import/forecast không yêu cầu scenario, không gán kịch bản giả để dùng chung URL.
+
+### Bố cục trên cùng trang
+
+| Khu vực | Nội dung và thao tác |
+|---|---|
+| Đầu trang | Tiêu đề Kịch bản, nút quay lại, chọn kịch bản/phiên bản đã lưu hoặc Tạo kịch bản mới. Hiện tên kịch bản và lượt chạy đang xem. |
+| Thiết lập kịch bản | Tên, mã, ghi chú, tồn đầu theo số ngày phủ, hệ số safety, điều chỉnh policy theo item và hàng đang về; chọn kho để tìm item. Nhóm nâng cao được thu gọn, form chính nằm trực tiếp trên trang. |
+| Thiết lập lượt chạy | Loại công việc, nguồn/dự báo cha đã complete, mốc chốt UTC, khoảng replay khi phù hợp; hiện rõ phiên bản kịch bản được dùng. Có nút Lưu thiết lập và Chạy kịch bản với trạng thái khả dụng riêng. |
+| Tiến độ | Mã lượt chạy, queued/running/complete/failed, phase/counters do API cung cấp, thời điểm và lỗi an toàn; có Thử tải lại hoặc Thử lại với cấu hình hiện tại theo trạng thái. |
+| Kết quả | Tóm tắt, bảng/biểu đồ và CSV của chính lượt complete, ngay dưới tiến độ. Các nhóm chi tiết phù hợp loại run được mở tại đây; liên kết sang màn vận hành là tùy chọn xem thêm. |
+| Các lượt đã chạy | Chọn lại lượt theo đúng phiên bản kịch bản, gồm cả lượt lỗi; có phân trang. Đổi lựa chọn tải kết quả ngay trong trang này. |
+
+```text
+[← Quay lại]  Kịch bản            [Chọn kịch bản · phiên bản] [Tạo mới]
+[Thiết lập kịch bản: thông tin chung / điều chỉnh riêng / hàng đang về]
+[Thiết lập lượt chạy: loại / cha / mốc UTC / khoảng replay]
+[Lưu thiết lập] [Chạy kịch bản]
+[Tiến độ và trạng thái của lượt đang chọn]
+[Kết quả: Tóm tắt | Tồn kho | Nhập hàng | Cảnh báo]  [Xuất CSV]
+[Bảng / biểu đồ của đúng lượt chạy và bộ lọc]
+[Các lượt đã chạy của phiên bản kịch bản]
+```
+
+Desktop 1440px có thể chia nhóm thiết lập thành hai cột, tiến độ/kết quả dùng toàn chiều rộng. Mobile 390px xếp dọc đúng thứ tự; form không nằm trong modal cuộn lồng nhau. Bảng/biểu đồ cuộn trong vùng riêng, nút có chữ rõ và không tràn ngang trang. Không bắt người dùng sang Tổng quan/Tồn kho để biết kết quả đã chạy.
+
+### Lưu thiết lập và bắt đầu lượt chạy
+
+1. Chọn phiên bản có sẵn để chạy nguyên cấu hình, hoặc tạo/chỉnh thành một phiên bản mới. Dùng các trường/ràng buộc hiện hành; lượng nhập mỗi lần vẫn cấu hình tại sản phẩm, không thêm ô đổi lượng này vào scenario. Override trống kế thừa, giá trị 0 hợp lệ được giữ; danh sách receipt rỗng được khai báo rõ. L7/R1/H14 giữ nguyên.
+2. **Lưu thiết lập** tạo scenario/phiên bản qua API hiện có; không enqueue. Chỉnh từ bản có sẵn dùng quan hệ phiên bản hiện hành (`base_scenario_id` khi phù hợp), không sửa đè phiên bản đã dùng. Sau lưu, giữ form và chọn đúng ID/version trả về, không đóng trang.
+3. **Chạy kịch bản** chỉ khả dụng khi thiết lập đã lưu, dependency tải thành công và nguồn/cha/ngày tương thích. Nếu bản nháp đã đổi, chỉ rõ cần lưu phiên bản mới; không âm thầm chạy bản cũ hoặc tự thay ngày đã xóa. Filter kho/item dùng chọn cấu hình hay xem kết quả không tự thu hẹp phạm vi tính toán của run.
+4. Gửi tạo run với scenario ID đã chọn và payload tương ứng loại công việc. Chống nhấp đôi; cùng lần gửi chưa rõ kết quả thì retry mạng dùng cùng Idempotency-Key/body. Lưu thành công nhưng POST run lỗi vẫn giữ phiên bản đã lưu, không tạo thêm scenario chỉ để thử chạy lại. Lỗi lưu chưa rõ server đã nhận thì yêu cầu đối chiếu danh sách trước khi gửi lại, không tự POST thêm phiên bản.
+5. Khi API nhận run, ghi `run_id` vào URL và hiện tiến độ trên chính trang. Poll khoảng 2 giây khi queued/running; dùng phase/counters thật, không bịa phần trăm. Dừng poll trạng thái khi terminal; hủy request cũ khi đổi lượt/rời trang.
+6. Tác vụ vẫn chạy nền khi người dùng rời trang. Quay lại bằng URL/lịch sử tải đúng trạng thái; rời trang không đồng nghĩa hủy job. Chỉ xác nhận bỏ thay đổi khi có bản nháp chưa lưu. Không tự chạy lại sau refresh hoặc mất kết nối.
+
+Các loại tồn `stock_projection`, `policy_replay`, `alert_replay` là luồng chính. Nhập nguồn và tạo forecast hiện có vẫn truy cập được trong nhóm **Chuẩn bị dữ liệu** của trang này với các trường theo kind; chúng không cần scenario. Không tự chạy cả chuỗi import/forecast/replay khi chỉ bấm chạy một loại công việc.
+
+### Hoàn tất và kết quả tại chỗ
+
+| Loại lượt chạy | Kết quả hiện ngay trên trang |
+|---|---|
+| `stock_projection` | Tóm tắt tồn/nguy cơ, projection H14, tồn được bán/bị chặn, SS/ROP, lượng nhập/ETA và bảng chi tiết theo API hiện có. |
+| `policy_replay` | Tóm tắt mô phỏng kỳ đã chọn, bán/thiếu/tồn, lô nhập, bảng/biểu đồ tồn và metric policy có scope. |
+| `alert_replay` | Tóm tắt cảnh báo, ngày xuống ROP riêng ngày cạn, bảng chi tiết và metric depletion/threshold cùng tử số/mẫu số/phạm vi/ca loại; không trộn với policy replay. |
+| `forecast` | Tóm tắt nguồn/origin/tuyến, dự báo vận hành H14, bảng/biểu đồ và metric hiện có; không tạo tab Tổng30. |
+| `source_import` | Tóm tắt audit/import và nguồn đã đăng ký; không hiện bảng tồn/cảnh báo chưa được tạo. |
+
+- Run complete tự mở khu vực kết quả trên cùng trang, thông báo **Đã chạy xong** và tải read model của đúng `run_id`. Không chỉ hiện nút dẫn sang trang khác. Nếu tải kết quả lỗi, giữ trạng thái complete, báo lỗi đọc và cho tải lại; không enqueue lại tác vụ.
+- Tóm tắt luôn hiện loại run, mốc/kỳ UTC, nguồn/cha, scenario/version khi có và nhãn mô phỏng. Cấu hình đã chốt để chạy hiển thị chỉ đọc; bản nháp chỉnh tiếp được ghi rõ chưa áp dụng cho kết quả đang xem. Sửa policy/scenario/lifecycle hiện tại không cập nhật số frozen.
+- Tab/bảng/biểu đồ chỉ dùng dataset loại run hỗ trợ; tái dùng component/read model vận hành, FE không tính lại nghiệp vụ. Null/chưa actual/empty do filter khác 0. Quyền nhập/bán, nguồn/giả định/bị chặn và metric exclusions giữ nghĩa hiện hành.
+- Filter và CSV cùng `run_id`/ngày/kho/item/quyền; export đủ phạm vi đã lọc, không chỉ trang bảng. Filter bảng không đổi mẫu số metric toàn lượt; nhãn scope phải ghi rõ. Không cho CSV kết quả khi queued/running/failed hoặc parent không khớp.
+- Chọn lượt khác hay kịch bản khác phải hủy request trước, xóa hoặc che dữ liệu của lựa chọn cũ trong lúc tải. Kết quả cũ không được mang tiêu đề lượt mới. Chọn kịch bản khác không đổi cấu hình của job đã gửi; lần chạy mới giữ lịch sử lượt trước.
+- Run failed hiện lỗi và **Thử lại với cấu hình hiện tại**, tạo run mới qua `/runs/{id}/retry`, có `retry_of`; nhắc rõ cấu hình hiện tại có thể khác snapshot lượt lỗi. Không đổi trạng thái run cũ. 409/422/429 giữ lựa chọn/bản nháp và lỗi tương ứng; không tự retry mutation khi hết quota.
+
+### Ranh giới triển khai và kiểm
+
+Tận dụng React/TypeScript, hash/history, hook Fetch và API hiện có. Lấy chi tiết run qua `/runs/{id}` dù không nằm trong trang danh sách; chọn đúng scenario bằng dữ liệu danh sách có phân trang, không giới hạn 100 bản đầu hoặc giả định có endpoint chi tiết scenario chưa được cung cấp. Giao diện dự kiến có page `Scenarios` ghép form/tiến độ/kết quả dùng chung; điều chỉnh navigation/context/CTA của `Configuration` và `RunDialog`, không thêm router/state framework hay đổi schema/model cho việc chuyển trang.
+
+[Kế hoạch triển khai](../../docs/planning/PLAN.md#chg-094), [tiêu chí R08/R09](../../docs/requirements.md#chg094-scenario-workspace), [ma trận kiểm dự kiến](06-testing-delivery.md#scenario-workspace-chg094), [bàn giao lượt chỉ MD](../../docs/development.md#handoff-chg094-scenarios). Chỉ nghiệm thu UI sau khi có code và bằng chứng kiểm mới; kết quả kiểm CHG-093/D5 không chứng minh trang này đã tồn tại.
+
+**CHG-093 — 04/11/2026:** Danh sách sản phẩm có nút Cấu hình và Lịch cung cấp từng dòng; bỏ menu thông báo ngừng sản phẩm. Trang `#product-supply` theo item/kho chứa nhập nội bộ và lịch nhà mạng liên quan; mở form provider điền sẵn danh tính/phạm vi, giữ preview/version guard. Bộ lọc tìm SKU/kho/nhà mạng/loại/Trạng thái nhập/Trạng thái, bỏ input ngày xem; trạng thái theo origin được ghi rõ, ngày thao tác nằm tại trang lịch. Badge và bố cục responsive mới. [Kiểm và giới hạn](../../docs/development.md#handoff-chg093-products). Mô tả điểm vào UI cũ bên dưới là lịch sử.
+
 **CHG-085 giai đoạn 8 — 03/11/2026, hoàn tất local:** đã đọc và verify 7 run cũ, đối chiếu API/CSV cho 12 cặp DB–run; chạy 4 run mới trên bản sao dùng nguồn/forecast có sẵn và 1 run synthetic cho hai kho. Worker, verifier độc lập, API/CSV và browser 1440/390px đạt. Ca bổ sung chặn 19 đơn vị nguồn trong mô phỏng; ca synthetic có 280 = 150 được phép bán + 130 bị chặn. Sửa nhãn quyền mua/bán trong bảng projection; 89 React và build đạt. App ở 0008 với 3 run ban đầu; 4 DB bảo vệ và 1.412 tệp giữ hash. Không refit/tuning hoặc viết lại bằng chứng CHG-084; R07/T14 giữ mở. Thay đổi giai đoạn 7–8 chưa commit/push. [Bàn giao/giới hạn](../../docs/development.md#handoff-chg085-phase8). Các checkpoint bên dưới là lịch sử.
 
 **CHG-085 giai đoạn 7 — 03/11/2026:** FE build đã được API local8000 phục vụ cùng DB0008/worker hiện tại. Browser1440/390px kiểm app chỉ đọc và DBtest có lưu ngừng nhập cùng ngày/thông báo2kho, tạo inventory run qua UI, worker/verifier và frozen result/CSV. App không phát sinh stop/notice/run thử. [Kiểm/giới hạn](../../docs/development.md#handoff-chg085-phase7).

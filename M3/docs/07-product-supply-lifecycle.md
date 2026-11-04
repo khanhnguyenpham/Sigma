@@ -1,5 +1,7 @@
 # M3 — Đặc tả vòng đời mua bán SIM/eSIM (CHG-085)
 
+**CHG-093 — 04/11/2026, cập nhật điểm vào UI:** Bỏ menu thông báo riêng. Từ Products, nút Cấu hình mở `#product`; nút Lịch cung cấp mở `#product-supply` cho item/kho đó. Trang lịch có modal nhập nội bộ và danh sách nhà mạng theo item_id; form provider điền sẵn sản phẩm, vẫn xem trước phạm vi và giữ hai quyền độc lập. Nhãn bộ lọc là Trạng thái nhập/Trạng thái, thêm lọc nhà mạng; không có input ngày xem ở Products. Nghiệp vụ known/effective, lịch sử, quota và frozen không đổi. [Bàn giao](../../docs/development.md#handoff-chg093-products). Điểm vào ProductDetail/menu provider trong các checkpoint cũ bên dưới giữ làm lịch sử.
+
 <a id="phase8-validated"></a>
 ### CHG-085 giai đoạn 8 — 03/11/2026, kiểm run lịch sử và các kịch bản mới
 

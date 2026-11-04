@@ -37,7 +37,7 @@ export function readContext(): Context {
     productType: p.get("product_type") ?? "",
     supplierId: p.get("supplier_id") ?? "",
     origin: p.get("origin") ?? "",
-    ...Object.fromEntries([["internal_status","internalStatus"],["provider_status","providerStatus"],["replenishment_allowed","replenishmentAllowed"],["sales_allowed","salesAllowed"],["window_origin","windowOrigin"]].filter(([key])=>p.has(key)).map(([key,value])=>[value,p.get(key)])),
+    ...Object.fromEntries([["carrier","carrier"],["internal_status","internalStatus"],["provider_status","providerStatus"],["replenishment_allowed","replenishmentAllowed"],["sales_allowed","salesAllowed"],["window_origin","windowOrigin"]].filter(([key])=>p.has(key)).map(([key,value])=>[value,p.get(key)])),
   };
 }
 
@@ -48,6 +48,7 @@ export function contextUrl(ctx: Context) {
     item_id: ctx.itemId,
     product_type: ctx.productType,
     supplier_id: ctx.supplierId,
+    carrier: ctx.carrier,
     origin: ctx.origin,
     internal_status: ctx.internalStatus,
     provider_status: ctx.providerStatus,

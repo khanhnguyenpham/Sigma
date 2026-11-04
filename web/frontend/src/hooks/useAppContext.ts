@@ -89,7 +89,7 @@ export function useAppContext() {
   }, [page]);
   useEffect(() => {
     if (
-      page !== "product" && ctx.itemId &&
+      !["product", "product-supply"].includes(page) && !page.startsWith("provider-") && ctx.itemId &&
       items.data &&
       !items.data.items.some((i) => String(i.id) === ctx.itemId)
     )
@@ -128,6 +128,7 @@ export function useAppContext() {
       warehouseId: "",
       itemId: "",
       supplierId: "",
+      carrier: "",
       productType: "",
       internalStatus:"",providerStatus:"",replenishmentAllowed:"",salesAllowed:"",windowOrigin:"",
     }));
