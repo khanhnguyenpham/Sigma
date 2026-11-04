@@ -50,6 +50,9 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
         retry = schema['paths'].pop('/api/v1/runs/{key}/retry')
         assert set(retry) == {'post'}
         assert any(p['name'] == 'Idempotency-Key' and p['required'] for p in retry['post']['parameters'])
+        origins = schema['paths'].pop('/api/v1/runs/{key}/forecasts/origins')
+        assert set(origins) == {'get'}
+        assert [(p['name'], p['in'], p['required']) for p in origins['get']['parameters']] == [('key', 'path', True)]
         # CHG-082 adds three reads only; every pre-existing API contract stays unchanged.
         schema["paths"].pop("/api/v1/runs/{key}/sell-through")
         schema["paths"].pop("/api/v1/products")

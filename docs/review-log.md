@@ -1,5 +1,45 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 04/11/2026 — Cổng publish demo/UI theo yêu cầu người dùng
+
+Người dùng giao đẩy các thay đổi lên GitHub. Phạm vi34tệp code/tests/docs gồm launcher, so sánh14ngày, C00 tổng hợp, ngày snapshot và chỉnh giao diện; dữ liệu/backup/credential/4tệp nghiên cứu riêng ở ngoài Git.522Python BE/M2 (0skip),114React/build/pipcheck và9contract đạt; suite đầu phát hiện hai guard OpenAPI chưa tách endpoint mới, đã bổ sung assertionGET/pathUUID và giữ nguyên golden cũ. Cổng bảo toàn→commit/push thường final-report→remoteSHA/haiCI của đúng commit ghi receipt local outputs/chg106_publish. [Bàn giao](development.md#handoff-demo-ui-publish).
+
+## 04/11/2026 — Sửa vị trí báo sớm theo ảnh và xóa hẳn tab Dự kiến bán
+
+CardchuyểnxuốngngaytrongTóm tắtdướihàngtab,hiệnmetricreplayliênquan cónhãnnguồnkỳrõcho stockthayvìẩnphíatrênbộlọc/chỉnútđiềuhướng. Xóa tabDựkiếnbántrongkịchbản,giữcomparisonởtabriêng.113React/build/HTTPS1440/390trênc02đạt,khôngwriteDB/đổiBE/tạorun/push. [Bàn giao](development.md#handoff-scenario-summary-placement).
+
+## 04/11/2026 — Hiện tỷ lệ báo sớm7ngày và bỏ so sánh trùng
+
+Theo hai yêu cầu liên tiếp, Tóm tắt scenario cómetricđãlưu củaalert_replay (demo32,5%=150/461),scope/côngthức/kỳhồicứu và cáchmở đúngreplaytừstock. Không inventmetriccho snapshot hoặc gọi0eventlà0%. So sánhgiữtabriêng, bỏbảnlặptrongDựkiếnbán.113React/build/browserHTTPS1440/390 đạt;khôngsửaBE/DB/model, chưacommit/push. [Bàn giao](development.md#handoff-early-warning-result).
+
+## 04/11/2026 — Ngày đánh giá riêng để so sánh dự báo/thực tế14ngày
+
+Người dùng muốn đổiD trong cùngkịch bản để so sánhD+1…D+14. Đã triển khai tab/khối độc lập ngày tồn, dùng parent dựbáo đã lưu; tổngđủpage,actualnull/0phânbiệt,CSVtheo parent.10API/108React/build/HTTPSdesktop-mobile đạt; đốichiếu rawactual cho31/10 và01/11,31/12thiếuactualhiệnđúng. Giữ18bảng/9run/161artifact vàtệp bảo vệ, khôngfit/runmới/push. Runtime812bd7ae, API/worker/FEready qua tunnel mới. [Bàn giao](development.md#handoff-forecast-comparison).
+
+## 04/11/2026 — Khóa ngày số liệu kế hoạch một mốc và dẫn sang dự phóng
+
+Theo yêu cầu người dùng, stock_projection dùng ngày readonly/nhãn Ngày số liệu; giải thích một mốc và nút Dự kiến bán14ngày. Hook sửa cả link cũ/Back trước request; replay/trang quản lý giữ hành vi phù hợp.103React với2worker/build/browserHTTPSdesktop-mobile đạt, không tạo run/sửaBE/DB. Lượt full mặc định có3timeout tải lazy, kiểm lại cùngassert khôngnới đạt. ManifestFE cập nhật, chưa commit/push. [Bàn giao](development.md#handoff-snapshot-date).
+
+## 04/11/2026 — Sửa form bộ lọc sát viền và giãn dòng
+
+Chỉ CSS scoped trade-result-filters: padding nội dung/nút xóa đồng nhất, label margin0, grid3/2/1cột. Build và browserHTTPS1440/900/390 đạt,không tràn ngang/consoleerror; giữ logic lọc và dữ liệu. Manifest frontend cập nhật sau đối chiếuHTTPS, không đổi backend fingerprint hoặc reset run mới của người dùng. [Bàn giao](development.md#handoff-ui-filter-spacing).
+
+## 04/11/2026 — Người dùng xác nhận công khai Quick Tunnel/kiểm HTTPS
+
+Xác nhận mới thay điểm chờ auto-review của lượt cutover. Đã chuyển từ supervisor loopback sang src launcher/tunnel; HTTPS readiness/CORS/preflight,11tệpFE và12cặpAPI/CSV khớp hash cutover; browser mở kết quả Kịch bản/form kho nhận,0consoleerror. Không viết dữ liệu hoặc chạy model, chưa publishGit. [Bàn giao và URL](development.md#handoff-demo-https-public).
+
+## 04/11/2026 — Cutover demo0009 và đồng bộ API/worker/FE
+
+Theo yêu cầu mới, đã nâng DB demo sau backup/rehearsal, đối chiếu cột cũ/reader và build trước duyệt prepared. API/worker/FE đang chạy localhost với readiness đạt, worker giữ khóa và cùng source đã duyệt; browser đọc kết quả cũ/Kho nhận mặc định đạt.8run/158artifact/dữ liệu bảo vệ nguyên, không refit hoặc chạy mới. Auto-review từ chối launcher có Quick Tunnel vì thiếu xác nhận công khai; không thực hiện tunnel qua đường khác, dùng supervisor chỉ loopback và còn chờ xác nhận HTTPS. [Bàn giao và giới hạn](development.md#handoff-demo-0009-cutover).
+
+## 04/11/2026 — Backup demo và diễn tập migration, hoãn mở local
+
+Người dùng chuyển phạm vi sang backup/rehearsal, chưa mở web local. Native dump mới43.265.975byte restore trên cluster riêng55434 khớp18bảng/8run/158artifact; nâng/hạ/nâng0009 giữ mọi cột cũ17bảng, metadata0diff và guard từ chối mất cấu hình kho đạt.12cặpAPI/CSV trước/sau giữ checksum; total46.395dòngCSV và972dòngAPI trang đầu được đối chiếu. Demo gốc0008/control và tệp bảo vệ nguyên, haiPG đã dừng; không cutover, mở web/worker/tunnel, tạo run/refit, đổi prepared hoặc publish. [Bàn giao và giới hạn kiểm](development.md#handoff-demo-0009-rehearsal).
+
+## 04/11/2026 — Đặt phần khởi động demo trong src
+
+Theo yêu cầu người dùng, `src/start_demo.py` là điểm điều khiển local start/status/stop; công cụ outputs cũ giữ shim tương thích. Giữ dữ liệu/config/credential ngoài mã và giữ guard mã đã duyệt; không tự cập nhật hash hoặc migrate để mở demo.3ca entrypoint/supervisor và CLI/shim/start guard đạt, chưa start full stack/cutover/publish. [Bàn giao](development.md#handoff-src-demo-launcher).
+
 <a id="chg094-095-integration"></a>
 ## CHG-094/095 — 04/11/2026, mở kiểm tích hợp và publish
 

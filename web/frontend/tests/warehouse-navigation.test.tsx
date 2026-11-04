@@ -18,6 +18,7 @@ const calls: string[] = [];
 function read(input: RequestInfo | URL) {
   const url = new URL(String(input), "http://localhost");
   calls.push(url.pathname + url.search);
+  if (url.pathname.endsWith('/forecasts/origins')) return response({ items: [{ as_of_date: '2025-10-31', actual_available: true }], total: 1 });
   if (url.pathname.endsWith('/runs')) return response({ items: [run], total: 1 });
   if (url.pathname.endsWith('/warehouses')) return response({ items: warehouses, total: 3 });
   if (url.pathname.endsWith('/suppliers')) return response({ items: warehouses.map((w) => ({ id: w.id + 100, carrier: w.carrier })), total: 3 });

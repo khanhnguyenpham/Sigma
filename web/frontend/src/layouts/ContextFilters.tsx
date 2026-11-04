@@ -11,6 +11,7 @@ import { isTradeRun } from "../utils/trade";
 export function ContextFilters({ app, hideRunSelector = false }: { app: AppContextState; hideRunSelector?: boolean }) {
   const { ctx, setCtx, runs, selectRun, catalog, items, run, suppliers } = app;
   const inventoryPage = app.page === "inventory";
+  const snapshotDate = run?.kind === "stock_projection" ? run.as_of_date : undefined;
   const trade=isTradeRun(run),tradeFilter=!!(ctx.internalStatus || ctx.providerStatus || ctx.replenishmentAllowed || ctx.salesAllowed || ctx.windowOrigin);
   const warehouse = catalog.data?.items.find((w) => String(w.id) === ctx.warehouseId);
   return (
@@ -73,11 +74,13 @@ export function ContextFilters({ app, hideRunSelector = false }: { app: AppConte
         </label>
         </>}
         <label>
-          Ngày kế hoạch · UTC
+          {snapshotDate ? "Ngày số liệu · UTC" : "Ngày kế hoạch · UTC"}
           <input
-            aria-label="Ngày xem / origin UTC"
+            aria-label={snapshotDate ? "Ngày số liệu UTC" : "Ngày xem / origin UTC"}
+            aria-describedby={snapshotDate ? "snapshot-date-note" : undefined}
             type="date"
-            value={ctx.origin}
+            value={snapshotDate ?? ctx.origin}
+            readOnly={!!snapshotDate}
             onChange={(e) => setCtx((c) => ({ ...c, origin: e.target.value }))}
           />
         </label>
@@ -139,6 +142,10 @@ export function ContextFilters({ app, hideRunSelector = false }: { app: AppConte
           </div>
         </details>}
       </section>
+      {snapshotDate && <div className="context-date-note" id="snapshot-date-note">
+        <span>Phương án này chỉ có số liệu tồn kho tại ngày {snapshotDate.split("-").reverse().join("/")}. Có thể chọn ngày đánh giá riêng trong phần So sánh dự báo / thực tế.</span>
+        {app.page !== "forecast" && <button type="button" className="text-button" onClick={() => app.navigate("forecast")}>Xem so sánh 14 ngày <Icon name="arrow" size={15} /></button>}
+      </div>}
       {(trade || tradeFilter) && <details className="advanced-section trade-result-filters"><summary>Lọc hạn chế trong kế hoạch đã chốt</summary>
         {!trade && <p className="notice">Quyền bán và tồn bị chặn không có trong kế hoạch này. Xóa bộ lọc mới hoặc chọn kế hoạch phù hợp.</p>}
         <fieldset disabled={!trade}><div className="provider-filters">

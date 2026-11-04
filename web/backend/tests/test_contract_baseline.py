@@ -17,6 +17,7 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
         for path, methods in app.openapi()['paths'].items()
     }
     assert routes.pop('/api/v1/runs/{key}/retry') == ['post']
+    assert routes.pop('/api/v1/runs/{key}/forecasts/origins') == ['get']
     # CHG-082 adds product management and a live warehouse read; retain the golden for all existing operations.
     assert routes.pop('/api/v1/products') == ['get']
     assert routes.pop('/api/v1/products/{key}') == ['get']

@@ -6,6 +6,7 @@ import { useResource } from "../hooks/useResource";
 import { useTradeNavigation } from "../hooks/useTradeNavigation";
 import { ScenarioEditor } from "../components/configuration/ScenarioEditor";
 import { ScenarioResults } from "../components/configuration/ScenarioResults";
+import { C00Evaluation } from "../components/alerts/C00Evaluation";
 import { RunForm } from "../components/configuration/RunForm";
 import { RunRetry } from "../components/dialogs/RunRetry";
 import { Panel } from "../components/ui/Panel";
@@ -62,6 +63,7 @@ export function Scenarios({ app }: { app: AppContextState }) {
   return <div className="scenario-workspace">
     <div className="page-heading"><div><h1>Kịch bản</h1><p>Thiết lập, chạy và xem kết quả ngay tại đây.</p></div>
       <button type="button" className="secondary" onClick={() => app.navigate("overview")}>← Tổng quan</button></div>
+    <C00Evaluation />
     <Panel title="Chọn kịch bản" note="Mỗi phiên bản đã lưu được giữ riêng với các lượt chạy của nó.">
       <div className="scenario-picker">
         <label>Kịch bản / phiên bản

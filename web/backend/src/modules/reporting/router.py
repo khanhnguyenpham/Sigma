@@ -3,6 +3,8 @@ import csv, io, uuid
 from typing import Annotated
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import StreamingResponse
+from sqlalchemy import select, func
+from modules.forecasting.models import RouteForecast
 from core.run_context import required_run
 from core.errors import DomainError
 from modules.reporting.schemas import Filters
@@ -32,6 +34,25 @@ def result_response(request, key, name, filters):
 @router.get("/{key}/forecasts/routes")
 def routes(key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]):
     return result_response(request, key, "route_forecasts", filters)
+
+
+@router.get("/{key}/forecasts/origins")
+def forecast_origins(key: uuid.UUID, request: Request):
+    """List saved forecast windows without fitting or changing scenario state."""
+    with request.app.state.sessions() as session:
+        run = required_run(session, key, complete=True)
+        if run.kind != "forecast":
+            if not run.forecast_run_id:
+                raise DomainError("parent_mismatch", "This run has no forecast parent", 409)
+            run = required_run(session, run.forecast_run_id, "forecast", complete=True)
+        rows = session.execute(select(
+            RouteForecast.as_of_date,
+            (func.bool_and(RouteForecast.actual_available) &
+             (func.count() == 2 * func.count(func.distinct(RouteForecast.warehouse_id)))).label("actual_available"),
+        ).where(RouteForecast.run_id == run.id).group_by(RouteForecast.as_of_date)
+          .order_by(RouteForecast.as_of_date)).all()
+        items = [dict(as_of_date=day.isoformat(), actual_available=available) for day, available in rows]
+        return dict(context=context(run), items=items, total=len(items), page=1, page_size=len(items))
 
 
 @router.get("/{key}/forecasts/items")

@@ -1,5 +1,30 @@
 # Runtime và dữ liệu demo
 
+**04/11/2026 — cập nhật so sánh14ngày đã đồngbộ:** Runtime source812bd7aeed8bc413f2bc1f603582d71a09f8685021ccf6079f524193dc0bfd8e, API/worker/FEready. URL hiệnhành https://dynamic-replace-tales-aim.trycloudflare.com/ , lấyconnection.jsonkhi mởlại. Thêm APIorigins/read UI ngày đánhgiá, khôngschema/fit/runmới;9run161artifact giữ hash. Testcluster55434đã dừng. [Bàn giao](../../../docs/development.md#handoff-forecast-comparison).
+
+**04/11/2026 — Quick Tunnel công khai đã được xác nhận và kiểm:** Demo0009/API/worker/FE đang ready qua https://mpg-mens-purchase-uniprotkb.trycloudflare.com/ ; HTTPS/CORS/11tệpFE/12cặpAPI-CSV/browser đọc đạt. Dùng src start/status/stop như dưới; URL mới lấy connection.json, cần giữ máy/process chạy. Quyền công khai đã được người dùng xác nhận, thay điểm chờ auto-review dưới đây. [Bàn giao hiện hành](../../../docs/development.md#handoff-demo-https-public).
+
+**04/11/2026 — demo đã nâng0009 và cập nhật đồng bộ:** DB55433 lên0009, API/worker cùng source đã duyệt, giao diện production build mới. Đang chạy chỉ localhost tại http://127.0.0.1:8041/ bằng supervisor vận hành local dùng lại demo_stack; `src/start_demo.py status/stop` hoạt động với owner này. Quick Tunnel chưa mở do auto-review yêu cầu xác nhận công khai; không dùng start để tự mở tunnel trước xác nhận. Prepared đã duyệt schema/source/build sau đối chiếu dữ liệu và reader; các câu chưa cutover/guard Runtime changed dưới đây là checkpoint cũ. [Bàn giao hiện hành](../../../docs/development.md#handoff-demo-0009-cutover).
+
+**04/11/2026 — backup/rehearsal0009 đã đạt, chưa mở local:** Backup mới tại `outputs/chg096_demo_rehearsal/backup-before-0009/` đã restore khớp18bảng/8run/158artifact trên cluster55434 riêng; nâng/hạ/nâng giữ dữ liệu cũ, metadata0diff và12cặpAPI/CSV trước/sau khớp. Demo gốc55433 vẫn0008,3tệp control gồm prepared giữ nguyên; haiPG đã dừng. Chưa cutover DB/API/worker/FE/fingerprint và chưa mở web/tunnel. [Bàn giao](../../../docs/development.md#handoff-demo-0009-rehearsal). Chỉ backup/rehearsal đã hoàn tất; guard khởi động dưới đây vẫn áp dụng.
+
+<a id="src-demo-launcher"></a>
+## Điểm khởi động demo tại src — 04/11/2026
+
+Launcher điều khiển demo khi máy mở nằm ở [`src/start_demo.py`](../../../src/start_demo.py). Từ root project chạy:
+
+```powershell
+.\.venv-m3\Scripts\python.exe src/start_demo.py start
+.\.venv-m3\Scripts\python.exe src/start_demo.py status
+.\.venv-m3\Scripts\python.exe src/start_demo.py stop
+```
+
+Không truyền command tương đương `start`; `--help` xem trợ giúp. Start chạy foreground, in URL HTTPS sau khi readiness đạt; giữ terminal hoặc dùng Ctrl+C để dừng. Stop/status có thể chạy ở terminal khác. URL trong status chỉ dùng khi active=true/status=ready; lúc đã dừng, URL cũ không bảo đảm còn dùng được.
+
+Mã điều khiển đã chuyển từ công cụ local `outputs/chg091_d4/local_demo.py`; đường cũ giữ shim tương thích. Dữ liệu, `runtime-env.private.json`, `prepared.json`, `connection.json`, log, PostgreSQL và binary cloudflared vẫn thuộc các thư mục local ngoài Git. Launcher dùng lại `demo_stack` để quản lý API/worker và cây process, chỉ điều khiển demo riêng8041/55433; PostgreSQL đang có sẵn không bị launcher dừng khi nó thoát.
+
+Launcher kiểm mã nguồn đã duyệt và frontend build trước khi tạo process, không tự migrate/seed/reset hoặc sửa hash đã duyệt. CHG-094/095 chưa cutover DBdemo0009; việc đưa launcher vào src còn làm thay đổi source fingerprint. Vì vậy giữ guard dừng trước khởi động cho tới khi hoàn tất quy trình cập nhật demo, không sửa `prepared.json` chỉ để bỏ qua guard. [Bàn giao launcher](../../../docs/development.md#handoff-src-demo-launcher).
+
 **D5 — 04/11/2026, đã nghiệm thu bản khi máy mở:** Source/forecast/3run tồn mới quaHTTPS, retry gián đoạn, quota, cấu hình/lifecycle/frozen/API/CSV/UI và restore đạt; [bằng chứng/giới hạn](../../../docs/development.md#handoff-chg092-d5). Full snapshot15run ở `local-hosted/sigma-demo/backups/d5-complete-20261104` giữ riêng; live đã restore8run trước D5, còn8slot. Link mới https://charlie-sas-men-scenarios.trycloudflare.com/ ; URL hiện hành vẫn lấy từconnection.json D4, lệnh start/stop/status không đổi. Máy/tiến trình phải chạy, không dùng Render trả phí; D6 chưa làm. Các trạng thái “D5 chưa làm” ở checkpoint D4 bên dưới là lịch sử.
 
 **04/11/2026 — đã mở bản thử trên máy cá nhân:** Người dùng đã cho phép phương án máy mở mới dùng được và giao deploy thử BE. API/worker/DBdemo riêng cùngUI chạy qua Cloudflare Quick Tunnel miễn phí; không cần Render trả phí hoặc đăng ký Oracle cho bản thử này. Link hiện hành ở `outputs/chg091_d4/local-hosted/connection.json`; [cách chạy/dừng và bằng chứng](../../../docs/development.md#handoff-chg091-d4-local). Dữ liệu D3 không reset, Vercel cũ chưa nối API. Các câu cấm local tunnel/máy phải tắt vẫn online ở checkpoint03/11 bên dưới đã được yêu cầu mới thay thế. D5–D6 chưa nghiệm thu.

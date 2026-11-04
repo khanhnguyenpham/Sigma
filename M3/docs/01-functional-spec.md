@@ -1,5 +1,7 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+**04/11/2026 — so sánh dự báo/thực tế14ngày:** Trong kết quả kịch bản, Ngày đánh giáD riêng cho nhu cầu dự báo/bán nguồn trongD+1…D+14; không đổi ngày số liệu tồn hoặc tạo run. Chỉ chọn mốc đã lưu trong forecast cha, cộng đủcả14ngày; actualthiếu đểtrống/0thựctếgiữ0. So sánh theo tuyến nguồn/SKU/loại, không áp kho nhận/quyền mua bán vào actual. Kịch bản vẫn dùng frozen để mô phỏng tồn/bán được; đối chiếu nhu cầu không là kết quả mô phỏng lại kịch bản tạiD mới. [Kiểm và bàn giao](../../docs/development.md#handoff-forecast-comparison).
+
 **CHG-094/095 — 04/11/2026, đã kiểm tích hợp synthetic:** Sản phẩm lưu kho mặc định, scenario tự dùng mặc định khi enqueue; worker và kết quả giữ kho frozen dù mặc định đổi sau đó. Trang riêng lưu/chạy/tiến độ/kết quả/CSV đã kiểm trực tiếp desktop/mobile. 520Python/101React/build/pipcheck đạt; không chạy nguồn thật, nâng DB demo hoặc đổi C00/R05/R07/T14. [Bàn giao mới](../../docs/development.md#handoff-chg094-095-integration) thay checkpoint chưa kiểm bên dưới.
 
 **Tiến độ CHG-095, 04/11/2026:** Đã viết source cho các quy tắc kho mặc định bên dưới; chưa test/build, nâng schema hoặc cập nhật demo theo yêu cầu hoãn kiểm. Profile mới `product_default_receiving_v1`; lịch sử dùng snapshot cũ, kịch bản không override kho. [Bàn giao implementation/chưa nghiệm thu](../../docs/development.md#implementation-chg095-receiving-warehouse). Phần chỉMD phía dưới là checkpoint thiết kế trước khi giao code.

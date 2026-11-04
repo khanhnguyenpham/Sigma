@@ -1,5 +1,16 @@
 # SIGMA — React / FastAPI local
 
+Khởi động demo trên máy cá nhân từ thư mục project bằng Python3.12 của môi trường M3:
+
+```powershell
+.\.venv-m3\Scripts\python.exe src/start_demo.py start
+# Ở terminal khác để xem trạng thái hoặc dừng:
+.\.venv-m3\Scripts\python.exe src/start_demo.py status
+.\.venv-m3\Scripts\python.exe src/start_demo.py stop
+```
+
+[Launcher trong src](src/start_demo.py) điều khiển PostgreSQL demo, API/worker và Quick Tunnel; khi ready sẽ in URL HTTPS. Giữ terminal chạy hoặc dùng `Ctrl+C` để dừng. Cần bộ cấu hình/dữ liệu demo riêng đã chuẩn bị; [hướng dẫn và giới hạn](web/backend/configs/DEMO_RUNTIME.md#src-demo-launcher). **04/11: demo0009/API/worker/FE đang chạy tại [HTTPS công khai](https://dynamic-replace-tales-aim.trycloudflare.com/#scenarios)** và [localhost](http://127.0.0.1:8041/#scenarios). Người dùng đã xác nhận công khai; HTTPS/CORS/API-CSV/giao diện đã kiểm. Link đổi khi mở tunnel mới, cần giữ máy/process chạy. [Bàn giao hiện hành](docs/development.md#handoff-demo-https-public). Launcher giữ kiểm tra mã đã duyệt và không tự migrate/reset.
+
 ## Vòng đời mua bán SIM/eSIM — CHG-085
 
 Ứng dụng local đã nâng **0008_trade_lifecycle**, API/worker/FE chạy đồng bộ tại `http://127.0.0.1:8000/`. Reload trình duyệt sau cutover.

@@ -1,0 +1,190 @@
+{
+  "alarm_fp": 1146,
+  "alarm_tp": 4852,
+  "application_code_sha256": "812bd7aeed8bc413f2bc1f603582d71a09f8685021ccf6079f524193dc0bfd8e",
+  "by_product": [
+    {
+      "date_mae": 3.9565217391304346,
+      "early": 64,
+      "events": 97,
+      "matched": 92,
+      "product_type": "eSIM",
+      "sku": "D10G-10D"
+    },
+    {
+      "date_mae": 3.6842105263157894,
+      "early": 16,
+      "events": 25,
+      "matched": 19,
+      "product_type": "physical_SIM",
+      "sku": "D10G-10D"
+    },
+    {
+      "date_mae": 4.338983050847458,
+      "early": 43,
+      "events": 70,
+      "matched": 59,
+      "product_type": "eSIM",
+      "sku": "D15G-15D"
+    },
+    {
+      "date_mae": 5.142857142857143,
+      "early": 5,
+      "events": 14,
+      "matched": 7,
+      "product_type": "physical_SIM",
+      "sku": "D15G-15D"
+    },
+    {
+      "date_mae": 4.140350877192983,
+      "early": 37,
+      "events": 68,
+      "matched": 57,
+      "product_type": "eSIM",
+      "sku": "D1G-3D"
+    },
+    {
+      "date_mae": 3.5,
+      "early": 5,
+      "events": 18,
+      "matched": 6,
+      "product_type": "physical_SIM",
+      "sku": "D1G-3D"
+    },
+    {
+      "date_mae": 3.86046511627907,
+      "early": 34,
+      "events": 57,
+      "matched": 43,
+      "product_type": "eSIM",
+      "sku": "D20G-30D"
+    },
+    {
+      "date_mae": 2.0,
+      "early": 1,
+      "events": 10,
+      "matched": 1,
+      "product_type": "physical_SIM",
+      "sku": "D20G-30D"
+    },
+    {
+      "date_mae": 4.066666666666666,
+      "early": 44,
+      "events": 87,
+      "matched": 75,
+      "product_type": "eSIM",
+      "sku": "D3G-5D"
+    },
+    {
+      "date_mae": 3.2857142857142856,
+      "early": 10,
+      "events": 18,
+      "matched": 14,
+      "product_type": "physical_SIM",
+      "sku": "D3G-5D"
+    },
+    {
+      "date_mae": 3.879120879120879,
+      "early": 58,
+      "events": 98,
+      "matched": 91,
+      "product_type": "eSIM",
+      "sku": "D5G-7D"
+    },
+    {
+      "date_mae": 3.652173913043478,
+      "early": 20,
+      "events": 27,
+      "matched": 23,
+      "product_type": "physical_SIM",
+      "sku": "D5G-7D"
+    },
+    {
+      "date_mae": 4.609756097560975,
+      "early": 25,
+      "events": 53,
+      "matched": 41,
+      "product_type": "eSIM",
+      "sku": "UL-15D"
+    },
+    {
+      "date_mae": 1.0,
+      "early": 0,
+      "events": 10,
+      "matched": 1,
+      "product_type": "physical_SIM",
+      "sku": "UL-15D"
+    },
+    {
+      "date_mae": 3.8947368421052633,
+      "early": 14,
+      "events": 27,
+      "matched": 19,
+      "product_type": "eSIM",
+      "sku": "UL-30D"
+    },
+    {
+      "date_mae": null,
+      "early": 0,
+      "events": 3,
+      "matched": 0,
+      "product_type": "physical_SIM",
+      "sku": "UL-30D"
+    },
+    {
+      "date_mae": 3.6530612244897958,
+      "early": 27,
+      "events": 56,
+      "matched": 49,
+      "product_type": "eSIM",
+      "sku": "UL-5D"
+    },
+    {
+      "date_mae": 6.0,
+      "early": 2,
+      "events": 10,
+      "matched": 4,
+      "product_type": "physical_SIM",
+      "sku": "UL-5D"
+    },
+    {
+      "date_mae": 4.125,
+      "early": 37,
+      "events": 69,
+      "matched": 56,
+      "product_type": "eSIM",
+      "sku": "UL-7D"
+    },
+    {
+      "date_mae": 3.7777777777777777,
+      "early": 8,
+      "events": 16,
+      "matched": 9,
+      "product_type": "physical_SIM",
+      "sku": "UL-7D"
+    }
+  ],
+  "candidate": "C00",
+  "cover_days": 7,
+  "date_mae": 4.01051051051051,
+  "early_numerator": 450,
+  "early_rate": 0.5402160864345739,
+  "evaluated_at": "2026-11-04T11:55:02.593984+00:00",
+  "event_denominator": 833,
+  "historical_summary_sha256": "1b9ffffdbd05d1bb6ee5309a3b89a20d8ce2612816ffc63980185566b413b8ad",
+  "horizon_days": 14,
+  "id": "c00-fixed-policy-test-2025",
+  "lead_time_days": 7,
+  "matched_events": 666,
+  "minimum_lead_days": 7,
+  "policy_count": 920,
+  "policy_snapshot_sha256": "73fe0e45ba8241fe67148644bf6f200438d982393da4d1be1d6b47a0dc0e5f20",
+  "precision": 0.8089363121040347,
+  "recall": 0.7995198079231692,
+  "reproduction_sha256": "b5b70d2c6fa512a7916e606906ea6241064eecccdbd87f3607005f63aa4dd50a",
+  "safety_multiplier": 1,
+  "score_end": "2025-12-31",
+  "score_start": "2025-10-29",
+  "status": "verified",
+  "warmup_days": 28
+}

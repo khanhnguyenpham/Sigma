@@ -102,7 +102,7 @@ it("restores run/date/purchasing view through Back and reload and clears incompa
     target: { value: "plan-b" },
   });
   await waitFor(() =>
-    expect(screen.getByLabelText("Ngày xem / origin UTC")).toHaveValue(
+    expect(screen.getByLabelText("Ngày số liệu UTC")).toHaveValue(
       "2025-11-02",
     ),
   );
@@ -130,12 +130,48 @@ it("restores run/date/purchasing view through Back and reload and clears incompa
   await waitFor(() =>
     expect(screen.getByLabelText("Lượt chạy")).toHaveValue("plan-b"),
   );
-  expect(screen.getByLabelText("Ngày xem / origin UTC")).toHaveValue(
+  expect(screen.getByLabelText("Ngày số liệu UTC")).toHaveValue(
     "2025-11-02",
   );
   expect(await screen.findByRole("button", { name: /^Đang về/ })).toHaveClass(
     "active",
   );
+});
+
+it("pins snapshot dates from deep links and Back before loading workspace data", async () => {
+  const fetcher = vi.spyOn(globalThis, "fetch").mockImplementation(readReply);
+  history.replaceState(null, "", "/?run_id=plan-a&origin=2025-11-05#overview");
+  render(<App />);
+  const date = await screen.findByLabelText("Ngày số liệu UTC");
+  expect(date).toHaveValue("2025-10-31");
+  expect(date).toHaveAttribute("readonly");
+  expect(screen.getByText(/Phương án này chỉ có số liệu tồn kho tại ngày 31\/10\/2025/)).toBeVisible();
+  await waitFor(() => expect(location.search).toContain("origin=2025-10-31"));
+  await waitFor(() => expect(fetcher.mock.calls.some(([url]) => String(url).includes("/workspace?"))).toBe(true));
+  expect(fetcher.mock.calls.filter(([url]) => String(url).includes("/workspace?")).every(([url]) =>
+    new URL(String(url), location.origin).searchParams.get("as_of_date") === "2025-10-31")).toBe(true);
+  act(() => {
+    history.pushState(null, "", "/?run_id=plan-b&origin=2025-11-10#overview");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await waitFor(() => expect(date).toHaveValue("2025-11-02"));
+  await waitFor(() => expect(location.search).toContain("origin=2025-11-02"));
+  fireEvent.click(screen.getByRole("button", { name: "Xem so sánh 14 ngày" }));
+  await waitFor(() => expect(location.hash).toBe("#forecast"));
+});
+
+it("keeps date selection available for replay plans", async () => {
+  const replay = { ...runs[0], kind: "policy_replay", period_end: "2025-11-14" };
+  vi.spyOn(globalThis, "fetch").mockImplementation((input) => String(input).includes("/runs?")
+    ? reply({ items: [replay], total: 1 }) : readReply(input));
+  history.replaceState(null, "", "/?run_id=plan-a&origin=2025-11-03#overview");
+  render(<App />);
+  await screen.findByRole("option", { name: /Kế hoạch nhập hàng/ });
+  const date = screen.getByLabelText("Ngày xem / origin UTC");
+  expect(date).not.toHaveAttribute("readonly");
+  expect(date).toHaveValue("2025-11-03");
+  fireEvent.change(date, { target: { value: "2025-11-04" } });
+  await waitFor(() => expect(location.search).toContain("origin=2025-11-04"));
 });
 
 it("closes the navigation with Escape and returns focus to its menu trigger", async () => {

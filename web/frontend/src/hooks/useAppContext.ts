@@ -44,6 +44,14 @@ export function useAppContext() {
       ? [...latest, selectedResource.data]
       : latest;
   const run = selectedResource.data?.id === ctx.runId ? selectedResource.data : runs.find((r) => r.id === ctx.runId);
+  const snapshotDate = run?.kind === "stock_projection" &&
+    ["overview", "inventory", "replenishment", "alerts", "forecast", "scenarios"].includes(page)
+    ? run.as_of_date : undefined;
+  const viewContext = snapshotDate && ctx.origin !== snapshotDate ? { ...ctx, origin: snapshotDate } : ctx;
+  useEffect(() => {
+    if (snapshotDate && ctx.origin !== snapshotDate)
+      setCtx((current) => ({ ...current, origin: snapshotDate }));
+  }, [snapshotDate, ctx.origin]);
   const catalog = useResource<Page>(
     run?.status === "complete"
       ? `/warehouses?run_id=${run.id}&page_size=100`
@@ -231,7 +239,7 @@ export function useAppContext() {
     ? () => selectRun(compatible.id)
     : undefined;
   return {
-    ctx,
+    ctx: viewContext,
     setCtx,
     page,
     setPage,

@@ -1,5 +1,148 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-demo-ui-publish"></a>
+## Publish launcher, so sánh dự báo và kết quả C00 — 04/11/2026
+
+Người dùng giao đẩy các thay đổi lên GitHub. Phạm vi34tệp gồm src/start_demo.py, API mốc so sánh đã lưu, so sánh dự báo/thực tế14ngày theo ngàyD, khóa ngày snapshot, kết quả cảnh báo tại Tóm tắt, bỏ tab Dự kiến bán trùng, khối nghiên cứu C00 độc lập, padding và tài liệu/hướng dẫn demo. JSON C00 chỉ là tổng hợp đã công khai theo yêu cầu; bằng chứng/raw/DB/backup/runtime/credential/dist/outputs và bốn tệp S25/COMMIT_BLOCK_PLAN không stage. Code/DB demo không đổi trong lượt publish, không refit hoặc tạo lượt mới.
+
+Kiểm publish:114React/maxWorkers2, TypeScript/Vite và pipcheck đạt. Lượt suite đầu có520/522ca đạt, hai guard hợp đồng chưa tách endpoint GET forecasts/origins mới khỏi golden trước refactor. Đã thêm assertion riêng methodGET/pathUUID bắt buộc; không sửa golden/DB/logic và không nới kiểm các API cũ.9ca contract chạy lại và toàn suite cuối522Python BE/M2 đạt,0failure/error/skip trên sigma_m3_test riêng55434 với native PostgreSQL18tools; loại5ca S25local khỏi phạm vi publish. Liên kết Markdown mới và credential scan đạt; manifest/receipt ngoàiGit tại outputs/chg106_publish. Cổng: bảo toàn → commit mô tả thay đổi → push thường final-report → remoteSHA khớp/haiCI đúng commit success; SHA/CI kết thúc lưu trong publish-receipt.json local, không dùng trạng thái CI của commit trước. Không tự đóng R05/R07/T14 hoặc thay phép kiểm C00.
+
+<a id="handoff-c00-detail-spacing"></a>
+## Khoảng đệm phần giải thích C00 — 04/11/2026
+
+Theo ảnh người dùng, CSS scoped `.c00-evaluation-details > p` thêm padding `0 19px 16px` và bỏ margin mặc định; các đoạn thẳng với tiêu đề và không chạm viền. Xóa dòng cuối “Chạy lại lúc…Mã xác minh…” khỏi UI, giữ provenance trong JSON tải xuống. Existing component test và TypeScript/Vite build đạt;12asset HTTPS khớpdist, browser mở chi tiết thấy3đoạn với computed padding đúng, không dòng cuối/không tràn. Chỉ cập nhật manifest frontend trong prepared; API/worker/source812bd7ae,6run/153artifact và kết quả54,02% giữ nguyên. Receipt outputs/chg105_c00_spacing ngoàiGit; chưa commit/push.
+
+<a id="handoff-demo-run-cleanup"></a>
+## Dọn các lượt thử cũ trên demo — 04/11/2026
+
+Người dùng giao “Hãy xóa1số run cũ không cần thiết”. Đã xác định ba leaf không có source/forecast/retry con hoặc tham chiếu frozen của run giữ lại:7100a006 (kế hoạch tồn seed cũ),7c560e30 (nhập nguồn lặp dùng lại canonical),f7107fd1 (stock smoke Quick Tunnel). Giữ c02ead8c ngày31/10, nguồn04afb914, forecast e63fcff5, policy4299c97a, alertc145ea03 và failed4ad1b429. Lượt lỗi còn là retry parent của policy đã complete; không sửa liên kết lịch sử để ép xóa.
+
+Đã dừng launcher/worker, dùng maintenance lock hiện có, lưu native dump và toàn bộ artifact. Backup `outputs/chg091_d4/local-hosted/sigma-demo/backups/before-run-cleanup-20261104`:43.956.614byte,SHA256 `72bf1cd8e52812d28b1a1d20e257296a659d291b943b9222856cbe68387eec81`. Restore vào DB mới `sigma_demo_cleanup_check_20261104` trên cluster diễn tập55434 khớp18bảng; diễn tập xóa cùng3ID và đối chiếu hash mọi hàng/cột giữ lại đạt rồi mới áp lên demo55433. Không mở4DB cũ, không sửa schema/policy/scenario hoặc tạo run. Cluster diễn tập đã dừng; dump/manifest/source không đổi.
+
+Demo9→6run,161→153artifact;8tệp của3run đã chuyển sang outputs/chg104_run_cleanup/archived-run-artifacts và vẫn có bản trong backup đầy đủ. Hash mọi hàng/cột còn lại17bảng nghiệp vụ khớp trước dọn; schema và nguồn nguyên,1.466tệp bảo vệ/435D3/4tệp local giữ nguyên. Nếu cần phục hồi toàn snapshot phải dừng demo và dùng quy trình restore hiện có; snapshot trả toàn bộ demo về trước dọn, không tự ghép dữ liệu mới hoặc chạy restore khi có thao tác mới.
+
+API/worker/PG/tunnel mở lại bằng src/start_demo.py, source812bd7ae và build C00 đã duyệt. URL mới https://that-katrina-olympus-situated.trycloudflare.com/ ; luôn đọc connection.json. HTTPS ready/6run/3IDđãxóa404/12cặp API–CSV/12asset/C00 JSON–provenance và toàn bộ trạng thái giữ lại đã kiểm đạt. Browser mở đúng stockc02: C00 ở đầu trang, lịch sử Cơ sở còn4row (stock mới/alert/policy/failed), không tràn390/1440 hoặc console error. Tải JSON HTTPS đã kiểm payload/hash; IAB không xác nhận được sự kiện lưu file, không nhận đã kiểm download browser hoàn tất. Receipt local outputs/chg104_run_cleanup và outputs/chg103_c00_demo ngoàiGit; chưa commit/push, R05/R07/T14 giữ mở.
+
+<a id="handoff-c00-demo-evaluation"></a>
+## Chạy lại C00 450/833 và đưa lên demo — 04/11/2026
+
+Theo yêu cầu người dùng, đã thực thi lại riêng C00/test trên đầu vào/dự báo và920 policy frozen của CHG-086. Runner local mới tại outputs/chg103_c00_demo không ghi DB; kiểm hash protocol, parent manifests, runner/verifier và bộ bằng chứng sealed trước khi chạy. Dùng kernel hiện tại dựng lại đường tồn policy_replay, verifier scalar dựng độc lập từng sale/receipt/order/ledger/alarm và hai scorer đối chiếu episode. Kết quả mới khớp từng ca/đường tồn/chỉ số với bằng chứng cũ (so sánh float sai số tối đa1e-8);450/833=54,02160864345739%,Precision4852/(4852+1146)=80,8936%,Recall666/833=79,9520%,dateMAE4,0105105ngày/666ca. Toàn bộ tệp CHG-086 giữ nguyên hash. Không refit/tuning, không đổi C00/S25 hoặc tiêu chí R05/R07/T14.
+
+Đầu trang Kịch bản có C00Evaluation độc lập với run/scenario đang chọn: kỳ29/10–31/12/2025,54,02%,Precision80,89%,Recall79,95%,dateMAE4,01ngày. Mở chi tiết để đọc định nghĩa episode, tự bổ sung hàng,28ngày warmup và tính hồi cứu đã xem dữ liệu. JSON công khai chỉ có số tổng hợp/theo SKU-loại và mã provenance; không đưa raw, ID khách, credential, đường dẫn private hoặc mã nghiên cứu local lên web. Tải JSON là asset HTTPS cùng nguồn. Không thêm API/schema/Run giả, không gán54,02% vào alert_metrics hiện có. Card Tóm tắt của lượt14ngày vẫn150/461=32,5% và có nhãn kỳ riêng.
+
+114React/maxWorkers2, TypeScript/Vite build đạt; API/readiness,12tệp frontend qua HTTPS và hash/source worker812bd7ae đã kiểm. Trước yêu cầu dọn run tiếp theo,18bảng/9run/161artifact, nguồn và1.466tệp bảo vệ/435artifactD3/4tệp local giữ nguyên. Browser đã thấy54,02% ở đầu trang và390px không tràn. Việc tải data URI bị chính sách trình duyệt chặn nên dùng tệp JSON HTTPS; kiểm hash HTTP đạt, công cụ IAB không xác nhận được sự kiện lưu tệp, không nhận đã kiểm browser download hoàn tất. Receipt outputs/chg103_c00_demo ngoàiGit; gói tổng hợp web/frontend/src/data/c00-evaluation.json là dữ liệu công khai đã lược bỏ thông tin riêng. Chưa commit/push.
+
+<a id="handoff-scenario-summary-placement"></a>
+## Đưa tỷ lệ vào đúng vùng Tóm tắt và bỏ tab Dự kiến bán — 04/11/2026
+
+Người dùng chụp đúngstockc02ead tại vùngdướitabTóm tắt nhưngkhôngthấycardđặtphíatrênbộlọc; yêu cầu bỏ luôn mụcDựkiếnbán. Đã chuyểnEarlyWarningResult vào nội dungTóm tắt, ngay dưới hàngtab và trướcOverview. Vớistock/policy córeplaycomplete cùngscenarioID/forecast/source, hiệnmetricđãđánhgiá trực tiếp thay vì chỉcó nút điều hướng. Nhãn rõlượtc145ea03/kỳ01–14/10/2025 và chưa phải tỷlệ đo riêngcho stockc02ngày31/10; sourcecounters vẫn150/461=32,5%, khôngtạo số đo mới. Khi không córeplayphùhợp, tiếp tụcghi chưađánhgiá, khônglấy%từlượtkhác.
+
+Đã xóa hẳn tabDựkiếnbán vàrenderForecast tươngứng trongScenarioResults. BỏpropshowComparisonvìkhôngcònnơidùng; Forecastđộc lập giữchức năngdựphóng hiệncó, khôngxóakếtquả môphỏng/CSV. Nút dưới ngày số liệu đổi sangXemso sánh14ngày vànộidungdẫnđúngphầnso sánh, khôngcòngợi tabđãbỏ.
+
+113React/maxWorkers2 vàTypeScript/Vite build đạt; sửaassertcaptiontheonhãnmới, kiểm DOMnavtrướcheadingmetric, stockkhôngreplaykhônggán%, chỉreplayđúngparents, tabDựkiếnbán khôngtồntại. BrowserHTTPS1440/390 mở đúngURLc02trongảnh: 32,5% và150/461hiện ngaydướihàngtab, nhãnliênquan hiệnrõ,0tabDựkiếnbán/0consoleerror/khôngtràn.11tệpFE HTTPSkhớpdist,preparedchỉrefreshmanifest; BE/worker812bd7ae và DB/model/run giữnguyên, khôngrestart hoặcwriteAPI.
+
+Receipt local outputs/chg102_scenario_summary ngoàiGit; chưa commit/push, C00/R05/R07/T14 giữnguyên. Bản trước đặtcardphíatrênbộlọc vàchỉlinkreplay làcheckpointhistory, khôngcònlàbốtríhiệnhành.
+
+<a id="handoff-early-warning-result"></a>
+## Kết quả báo sớm7ngày và bỏ so sánh trùng — 04/11/2026
+
+Người dùng giao bổ sung tỷ lệ báo sớm trước7ngày vào kết quả kịch bản, rồi bổ sung yêu cầu bỏ khối so sánh bị lặp trong hai tab. Chỉ sửaFE: EarlyWarningResult hiển thị ngay tabTóm tắt cho runinventory. Với alert_replaycomplete, lấy alert_metrics đã lưu và hiện tỷ lệ/tửsố/mẫusố,Precision,Recall,ca khôngchấm,kỳhồicứu/côngthức/phạmvi toànlượt. Không tính % từ số trạng thái early đang lọc, không tự kết luận đạt mục tiêu45% hoặc thay nghiệm thuR07/T14.
+
+Mẫu số bao gồm sự kiện cạn đủ điều kiện bị bỏ sót/báo muộn vàD+1…D+6; không đổi theo bộ lọc kho/ngày/bảng. Có hạn chế bán thì ghi số cửa sổ bị loại theo frozen. Mẫu số0hiệnChưaxácđịnh;rate0vớimẫusốdươnghiện0%; thiếu/khôngkhớpratevớicountskhônghiện%sai. Lượt stock/policy không gán tỷ lệ của run khác; có nút mở replaycompletecùngscenarioID/forecast/source, công khai kỳhồicứu của lượt sẽ mở. Card là đánh giá cảnh báo cạn trong hồi cứu mô phỏng, không phải độ chính xác dự báo lượng bán.
+
+Demo c145ea03 kỳ01/10–14/10/2025 có150/461=32,53796095444685%,hiểnthị32,5%;Precision68,5%,Recall65,5%,199ca khôngchấm. Đối chiếu alert_metrics với alert-opportunities đã kiểm server: tửsố/mẫusố/rate khớp. Từstockc02ead nút dẫn đúngc145, không thay config/run hoặc chạy model mới.
+
+Theo ảnh bổ sung, giữForecastComparison ởtabSo sánh dựbáo/thựctế và truyềnshowComparison=false khi Forecast được render trongtabDựkiếnbán. Phần dựkiếnbán theo tồn vẫn giữ; trangDựbáo độc lập vẫn có khối comparison. Card báo sớm chỉ ởTóm tắt để không lặp khi mở Cảnh báo đã có đánh giá lịch sử.
+
+113React đạt với2worker, TypeScript/Vite build đạt.5ca mới kiểm %/counts/scope,zero so vớiundefined,run switch không dùngmetriccũ,parent/scenario đúng,invalidrate vàdedup tab. Build đã bắt lỗi fixturethiếuRunfield và thuộc tínhexact củaRTL; đã sửakiểu đầy đủ/selector, không nớiassert. BrowserHTTPS1440/390 mởstock→replay→32,5%/150–461,0consoleerror/khôngtràn; kiểm tabDựkiếnbán0headingcomparison vàtabComparison1heading.11tệpFE quaHTTPS khớpdist;preparedchỉ cậpnhậtfrontend manifest.
+
+Receipt ngoàiGit outputs/chg101_early_warning_result; nguồnBE/worker812bd7ae giữ nguyên, không restart/migrate/ghiDB/tạo run/refit,4tệplocal giữhash. Không chạy lại BE/M2 tests vì không sửaBE hoặc metric; chỉ đọc metric đã đượcverify. Chưa commit/push; C00/R05/R07/T14 giữ nguyên. URL hiện hành vẫn lấy connection.json D4.
+
+<a id="handoff-forecast-comparison"></a>
+## So sánh dự báo và thực tế14ngày theo ngày đánh giá — 04/11/2026
+
+Người dùng chốt triển khai ngày đánh giá riêng trong kịch bản. Thêm tab **So sánh dự báo / thực tế** tại kết quả scenario; trang Dự báo cũng hiển thị khối này. Chọn mốcD từ danh sách dự báo cha đã lưu, xemD+1…D+14, tổng nhu cầu dự báo/thực tế/chênh lệch, biểu đồ12tuyến đầu và bảng phân trang. Dùng lại GETforecasts/routes/items và CSV hiện có; chỉ thêm GETforecasts/origins theo parent frozen/complete và giữ guard tổ tiên invalidated. Không fit/chạy thêm run hoặc đổi ngày tồn kho. Ngày đánh giá là state của khối đang xem; khi rời khối/tải lại về mặc định theo mốc tồn nếu có, hoặc mốc lưu gần nhất; không lưu thành phiên bản scenario.
+
+Utility kiểm đủ2block tuần hoặc14ngày phân bổ đúngD+1…D+14 mỗi tuyến, không cộng dữ liệu thiếu/duplicate thành đủ. Tổng lấy hếtpage trước hiển thị; actual thiếu lànull,actual0là0. VớiSKU/loại dùng dailyallocation aggregate route_day; không gắn kho nhận/quyền mua bán vào nhu cầu nguồn, có caption công khai phạm vi. Tổng và biểu đồ là quantity; chênh lệch=dựbáo−actual, không gọi đó là tiêu chí nghiệm thuR05 hoặc dự kiến bán theo tồn. CSV lấy parent forecast và dữ liệu tuần/ngày gốc của đúng mốc/phạmvi, không phải46dòng tổng hợp14ngày trênUI.
+
+Kiểm:10API synthetic trên sigma_m3_test riêng55434 đạt,108React/maxWorkers2 và TypeScript/Vite build đạt. Ca mới gồm đổi origin không đổi ctx/ngày tồn, đủ14ngày, actual0/thiếu, phân trang102row, SKU và loại trừ receiving/tradefilter, CSVparent. Lượt đầu fixtureBE unpack nhầm và fixtureFE generic thiếuorigins đã sửa, không nới guard/assert; cùng ca đạt lại. Không chạy lại toàn suite520Python/M2. Kiểm React về hook deps/key reset theo run, load abort/superseded, controlledselect, label, layout; không thêm dependency.
+
+Demo đã được người dùng dừng trước lượt này; mở riêngPG55433 để lưu before9run/161artifact rồi dừng. Sau kiểm mã, TestClient đọc demo185mốc và đối chiếu3ngày:31/10 dựbáo1844.2344215481482/actual2184;01/11 dựbáo1843.3137109338752/actual2153;31/12 dựbáo2879.0552004319925/actualnull. Mỗi ngày92row2tuần/46tuyến, API/CSV khớp; hai ngày đầy đủ khớp độc lập tổngdaily_sales của đúng canonical source trong14ngày. Không sửa status/snapshot/raw hoặc thaymodel.
+
+Đã duyệt prepared source `812bd7aeed8bc413f2bc1f603582d71a09f8685021ccf6079f524193dc0bfd8e`, frontend11tệp và khởi động đồng bộ src launcher/API/worker/QuickTunnel. URL mới https://dynamic-replace-tales-aim.trycloudflare.com/ ; connection.json là nguồn URL. BrowserHTTPS1440/390 đọc tab trong kịch bản,185ngày lựa chọn, đổi31/10→01/11 làm tổng đổi đúng trong khi ngày tồn31/10giữ nguyên;31/12hiệnChưađủthựctế,0consoleerror/không tràn ngang. Đã xem screenshotdesktop/mobile. Không gửi POST hoặc tạo run mới; chưa kiểm CSV bằng nút downloadbrowser, đã kiểm byteCSV quaHTTPS.
+
+Bảo toàn cuối qua public-receipt:18bảng/9run/161artifact/source nguyên hash,1.466tệp bảo vệ/435artifactD3/4tệp local nguyên; không mở4DB cũ. Demo giữreadyDB/storage/worker và cùngsourcehash; testcluster55434đã dừng. Receipt/code vận hành ngoàiGit ở outputs/chg100_forecast_comparison; log/config/credential khôngstage. Chưa commit/push/deploycloud, C00/R05/R07/T14 giữ nguyên.
+
+<a id="handoff-snapshot-date"></a>
+## Làm rõ ngày số liệu của kế hoạch một mốc — 04/11/2026
+
+Người dùng phản ánh đổi ngày khác31/10 trên Tổng quan bị trống, sau giải thích đã giao sửa tránh nhầm lẫn. stock_projection chỉ ghi sổ điều hành tại origin;14ngày tương lai thuộc projection bán tồn. ContextFilters đổi nhãn thành Ngày số liệu UTC, input readonly, mô tả rõ ngày của phương án và nút Xem Dự kiến bán14ngày. Không thay ngày của replay hoặc forecast nhiều mốc. Hook trả context ngày hợp lệ ngay khi biết stock run, rồi chuẩn hóa state/URL; xử lý deep link/Back/switchrun thay vì chỉ khóa ô nhập. Trang quản lý sản phẩm không bị ép ngày, giữ hành vi clear/retry đã có.
+
+Hai ca mới kiểm link sai ngày/Back/request workspace đúng ngày/linkforecast và replay vẫn đổi ngày; ca cũ giữ đổi run/reload/clear ngày trên trang sản phẩm. Targeted21ca đạt. Lượt full song song mặc định có3timeout tải trang lazy; cùng assertion chạy với maxWorkers=2 đạt103/103, không skip hoặc nới timeout/assertion. TypeScript/Vite build đạt. Kiểm React về hook deps, functional state, controlled readonly và aria-describedby; không thêm dependency.
+
+BrowserHTTPS hiện hành tại https://cities-participating-quarter-felt.trycloudflare.com/ : mở run c02ead kèm origin05/11 tự về31/10, input readonly, Tổng quan hiện1.314tồn/253mặt hàng cần nhập/828cảnh báo. Nút mới mở #forecast giữ run/origin và bảng Dự kiến bán theo ràng buộc644bản ghi; mobile390 không tràn ngang,0consoleerror. Tên heading trade khác legacy; đã kiểm DOM thực sau locator tên cũ không khớp. Không gửi POST/sửa dữ liệu hoặc tạo run. URL đã được người dùng đổi khi mở lại tunnel; lấy connection.json làm nguồn hiện hành, không dùng linkmpg cũ.
+
+Đối chiếu11tệpFE quaHTTPS, readinessDB/storage/worker đạt rồi cập nhật riêng frontend_files trong prepared. SourceBE/worker e1ec725 giữ nguyên, không restart/migrate/refit hoặc ép DB về8run cũ. Receipt/tests tại outputs/chg099_snapshot_date ngoàiGit; dữ liệu/credential/protected4tệp không stage. Chưa commit/push, C00/R05/R07/T14 giữ nguyên.
+
+<a id="handoff-ui-filter-spacing"></a>
+## Sửa khoảng cách bộ lọc hạn chế — 04/11/2026
+
+Ảnh người dùng cho thấy form sát viền card và giãn dòng. Fieldset bị reset padding về0, label của provider-filters có margin12px trên/dưới cộng thêm gap của grid. Chỉ sửa index.css scoped trong trade-result-filters: padding19px ởdesktop/14px mobile, label margin0, gap16px, nút xóa có lề cùng mép. Lưới3cột ởdesktop,2cột dưới1050px,1cột dưới760px. ProviderNotices dùng provider-filters khác không bị sửa bố cục.
+
+TypeScript/Vite production build đạt. Kiểm trực tiếpHTTPS với run hiện có c02ead của người dùng:1440px3cột/padding19px/nút cáchviền20px;900px2cột;390px1cột/padding14px. Cả ba không tràn ngang,0consoleerror; đã xem screenshotdesktop/mobile. Không thêm test cho thay đổiCSS nhỏ, không chạy lại toàn suite hoặc gửi request ghi.
+
+FEbuild mới phục vụ ngay cùng URLQuickTunnel; đối chiếu11tệpHTTPS với hashdist rồi cập nhật riêng frontend manifest trong prepared. Backend/API/worker fingerprint e1ec725 giữ nguyên, không restart dịch vụ, migrate/refit hoặc thay dữ liệu/config nghiệp vụ. Người dùng đã tạo thêm run c02ead sau bàn giao8run; không reset/hash-ép DB về8run. Receipt `outputs/chg098_ui_filters/receipt.json`, prepared cũ lưu riêng ngoàiGit. Chưa commit/push.
+
+<a id="handoff-demo-https-public"></a>
+## Công khai Quick Tunnel và kiểm HTTPS — 04/11/2026
+
+Người dùng xác nhận mở công khai và kiểm HTTPS, thay giới hạn chờ xác nhận ở lượt cutover. Đã dừng supervisor localhost bằng src stop, rồi khởi động đúng `src/start_demo.py start`; API/worker/PG và Quick Tunnel miễn phí chạy dưới supervisor. Runtime origin được launcher đổi theo URL mới, không sửa mã/schema/fingerprint hoặc backup. URL hiện hành: https://mpg-mens-purchase-uniprotkb.trycloudflare.com/ ; connection.json là nguồn URL khi mở lại. Không thay Vercel, tạo tài nguyên trả phí hoặc publishGit.
+
+HTTPS có xác minh chứng chỉ mặc định: readiness200 với DB/storage/worker đều true;920sản phẩm/8run; receiving_schema_ready=true. CORS phản hồi đúng publicOrigin, OPTIONS POST có content-type/Idempotency-Key đạt, không gửi POST enqueue.11tệp frontend quaHTTPS giữ SHA256 bản build;12phản hồiAPI trang đầu và12CSV toàn bộ46.395dòng khớp hash cutover. API/worker cùng source `e1ec725a0363b0df677fc2c08148b5baa30884510c7cf009af4c0a02e6069cea`.
+
+Browser IAB qua chính URLHTTPS mở run f7107fd1 tại Kịch bản, thấy trạng thái hoàn tất/summary/kết quả tại chỗ; mở920sản phẩm và form Kho nhận hàng mặc định kế thừa Phnom Penh, combobox tải xong khả dụng,0consoleerror. Chỉ đọc, không thay cấu hình hoặc tạo run mới; không nhận đã kiểm worker xử lý job mới hay nhiều browser engine trong lượt này. API/CSV kiểm bằng requestHTTPS, chưa tải fileCSV qua nút browser trong lượt này.
+
+Receipt ngoàiGit: `outputs/chg097_demo_cutover/https-receipt.json`, `https-preserved.json`, log supervisor và control D4. Không chạy lại test/build vì source/build giữ nguyên sau cutover. C00/R05/R07/T14 và4tệp local giữ nguyên. Để demo dùng được cần máy và supervisor tiếp tục chạy; link Quick Tunnel đổi sau lần mở mới. Lệnh status/stop ởsrc vẫn dùng như hướng dẫn runtime. Các đoạn chờ quyền công khai bên dưới là checkpoint đã được yêu cầu mới thay thế.
+
+<a id="handoff-demo-0009-cutover"></a>
+## Nâng demo0009 và cập nhật API/worker/giao diện — 04/11/2026
+
+Người dùng giao nâng DB demo và cập nhật đồng bộ API, worker, giao diện. Đã xác nhận backup/rehearsal trước, kiểm DB gốc vẫn khớp mốc18bảng/8run/158artifact/source, worker lock trống và0jobqueued/running. Lưu control cũ riêng tại `outputs/chg097_demo_cutover/`, nâng demo55433 lên `0009_receiving_warehouse`. Giữ hash mọi cột cũ17bảng; metadata0diff,920item NULL/version0 kế thừa kho và617lô cũ giữ nhận kho theo profile cũ. Không tạo run hoặc chỉnh status/snapshot lịch sử.
+
+12cặpAPI/CSV trên DB demo vừa nâng khớp toàn bộ fingerprint rehearsal (46.395dòngCSV và972dòngAPI trang đầu). TypeScript/Vite build production đạt; đã ghi manifest11tệp frontend và duyệt source `e1ec725a0363b0df677fc2c08148b5baa30884510c7cf009af4c0a02e6069cea` vào prepared sau kiểm schema/data/build; không sửa fingerprint để bỏ qua lỗi. Backup0008 đã restore thử vẫn giữ nguyên ở thư mục diễn tập. Không chạy lại toàn suite520Python/101React trong lượt cutover.
+
+Lệnh mở launcher gồm Quick Tunnel bị auto-review từ chối: yêu cầu cập nhật chưa xác nhận việc công khai demo ra Internet. Không thử chạy tunnel qua đường khác. Thay bằng phương án chỉ loopback: supervisor local `outputs/chg097_demo_cutover/local_stack.py` dùng lại demo_stack.supervise, API bind127.0.0.1:8041, một worker và PostgreSQL55433. Env process giữ chế độ demo/root riêng, frontend origin local; runtime-env.private.json không bị sửa, connection.json ghi URL local/exposure=loopback_only. `src/start_demo.py status` đọc đúng owner; `stop` tạo stop-request và supervisor dừng cây process/PG. Không chạy `start` để mở tunnel khi chưa được xác nhận.
+
+Đã kiểm browser IAB: trang Kịch bản đọc run `f7107fd1` hoàn tất, hiện summary/kết quả ngay trang; Sản phẩm có920mặt hàng và form Kho nhận hàng mặc định đang kế thừa kho, nút lưu vô hiệu khi chưa đổi.0consoleerror. Chỉ đọc UI, không lưu cấu hình hoặc enqueue để giữ dữ liệu trước luyện tập. Đây không phải kiểm worker xử lý run mới; luồng ghi/worker đã có bằng chứng synthetic ở đợt tích hợp, không nhận chạy lại ở đây.
+
+Receipt local: `cutover-receipt.json`, `before.json`, `live-receipt.json` cùng thư mục cutover, config/log private ngoàiGit. C00/R05/R07/T14,4tệp local và4DB cũ giữ phạm vi; không refit, tạo dịch vụ trả phí, publishGit hoặc deploycloud. Điểm chưa hoàn tất riêng là HTTPS công khai, cần người dùng xác nhận do auto-review nêu trên. Các checkpoint chưa cutover bên dưới là lịch sử.
+
+<a id="handoff-demo-0009-rehearsal"></a>
+## Backup demo và diễn tập migration 0009 — 04/11/2026
+
+Người dùng giao “Backup demo và diễn tập migration đi chưa cần local đâu”, thay yêu cầu mở web local ngay. Chỉ mở tạm PostgreSQL demo gốc55433 để backup/đối chiếu và PostgreSQL clone riêng55434 để restore/rehearsal; không mở API server, worker hoặc tunnel. Request đọc API được kiểm trong tiến trình bằng TestClient, không bind cổng web.
+
+Backup mới tại `outputs/chg096_demo_rehearsal/backup-before-0009/` gồm native custom dump **43.265.975byte**, source, outputs và manifest. SHA256 dump: `a84f09907f74d4d3858144eefacd33b1131b548646fbaa6f64d1db89110bbdc3`. Lấy revision thực `0008_trade_lifecycle`, kiểm worker advisory lock trống/không job queued hoặc running và đối chiếu bảng/artifact trước–sau. Không dùng backup cũ thay cho lần backup mới này. Native restore vào cluster/credential riêng khớp cả18bảng,8run,158artifact và source; có46kho/920sản phẩm.
+
+Trên clone đã nâng0009→hạ0008→nâng0009. Mỗi lần giữ SHA256 của mọi cột cũ trong17bảng nghiệp vụ với lịch sử demo sẵn có; metadata cuối0diff.920item có mặc định NULL/version0 kế thừa kho hiện tại,617lô cũ chưa gán trường kho nhận mới. Thử cấu hình kho trên một item clone làm downgrade bị từ chối đúng lý do mất dữ liệu; giá trị thử được trả về NULL/version0, các cột cũ giữ hash. Không sửa snapshot/status run hoặc refit model.
+
+Đối chiếu12cặp tồn/nhập/cảnh báo/bán tồn cho ba loại run: API trang đầu và toàn bộ CSV trước–sau giữ checksum; total khớp toàn bộ46.395dòngCSV. So từng giá trị chung của972dòngAPI trang đầu vớiCSV (tối đa100dòng/cặp, gồm72lô policy và hai tập lô rỗng). Đây không là kiểm mọi trangAPI hoặc browser/worker mới. Ca đầu công cụ đối chiếu dừng ở trường explanation do CSV chứa JSON; đã chuẩn hóa theo định dạng export trước khi chạy lại, không đổi mã ứng dụng hay dữ liệu để làm kết quả khớp.
+
+Kiểm bảo toàn cuối: demo gốc giữ18bảng/8run/158artifact/source ở0008;1.466tệp bảo vệ,435artifactD3,4tệp local và hash connection/runtime/prepared D4 nguyên. Không mở4DB cũ. PostgreSQL gốc/clone đã dừng, xác nhận lại pg_ctl status, trả về trạng thái trước thao tác. Không mở web local, tạo run, cutover demo, đổi prepared fingerprint, publishGit/deploy hoặc phát sinh phí; C00/R05/R07/T14 giữ nguyên. Không chạy lại suite520Python/101React/build trong lượt vận hành này.
+
+Receipt local ngoàiGit nằm trong `outputs/chg096_demo_rehearsal/`: backup-manifest, restore-receipt, reader-before/after, migration-receipt, downgrade-guard và preserved.json; README ở cùng thư mục ghi cách nhận backup. Clone giữ ở0009 nhưng đang dừng. Khi được giao cập nhật demo thật, còn cutover DB gốc và đồng bộ API/worker/frontend/fingerprint rồi kiểm trước khi mở luyện tập. Không sửa prepared hash chỉ để bỏ qua guard; checkpoint launcher bên dưới giữ lịch sử.
+
+<a id="handoff-src-demo-launcher"></a>
+## Launcher demo trong src — 04/11/2026
+
+Người dùng yêu cầu đặt phần khởi động demo trong src. Đã đưa logic điều khiển local từ công cụ ignored D4 vào `src/start_demo.py`, chỉnh root theo vị trí mới và cung cấp start/status/stop/help; không truyền command thì start. Đường local cũ giữ shim và mặc định status như trước. PostgreSQL/API/worker/tunnel dùng đường và cơ chế hiện có, không thêm dependency hoặc dịch vụ trả phí. PostgreSQL đã chạy sẵn không bị launcher dừng khi thoát; status không trình bày readiness cache như kết quả đang chạy.
+
+README, DEMO_RUNTIME và hướng dẫn luyện demo đã chỉ lệnh mới. File env/state/credential/dump/binary và dữ liệu vẫn nằm ngoài src/Git; không đưa nội dung credential vào mã. Launcher giữ kiểm source đã duyệt, thêm kiểm frontend build, không tự migrate/seed/reset hoặc sửa prepared hash để qua guard. Dừng API/worker dùng helper stop hiện có cho đúng cây process.
+
+Kiểm thực:3ca `test_demo_entrypoint.py` và hai ca supervisor trong `test_demo_runtime.py` đạt,15ca khác deselected; không phải chạy lại suite520Python/101React. CLI help/status và shim help đạt. Start thực trên cấu hình hiện hành từ chối đúng Runtime changed; hash connection/runtime/prepared trước–sau khớp, không khởi động PostgreSQL/API/worker/tunnel hoặc truy cập DB. Chưa thử start full stack mới, chưa cutover0009/rebuild lại UI/renew fingerprint hoặc publish lượt này. Model C00/R05/R07/T14 và4tệp local không đổi.
+
+Thêm launcher trong src làm đổi fingerprint do code_digest quét thư mục này. Bản demo vẫn cần đợt cập nhật đồng bộ và duyệt fingerprint sau khi backup/rehearsal/cutover, trước khi lệnh start có thể mở bản mới. Không dùng kết quả CLI/guard để nhận demo mới đã online. [Lệnh và điều kiện](../web/backend/configs/DEMO_RUNTIME.md#src-demo-launcher).
+
 <a id="handoff-chg094-095-integration"></a>
 ## CHG-094/095 — Kiểm tích hợp, bàn giao và cổng GitHub
 
