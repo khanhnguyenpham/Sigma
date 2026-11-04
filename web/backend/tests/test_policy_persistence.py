@@ -102,7 +102,7 @@ def test_policy_http_versions_modes_intervals_and_safe_validation(pg, tmp_path):
         assert c.post("/api/v1/scenarios", json=bad_scenario).status_code == 422
 
 
-def test_scenario_override_freezes_fixed_profile_and_keeps_existing_runs(pg, tmp_path):
+def test_scenario_override_freezes_forecast_floor_profile_and_keeps_existing_runs(pg, tmp_path):
     _, sessions = pg
     source, forecast, item = result_fixture(sessions)
     with sessions.begin() as session:
@@ -117,9 +117,9 @@ def test_scenario_override_freezes_fixed_profile_and_keeps_existing_runs(pg, tmp
         with sessions() as session:
             run = session.get(Run, key)
             frozen, checksum = deepcopy(run.config_snapshot), run.config_sha256
-            assert frozen['inventory_policy_profile'] == 'fixed_rop_days_ss_v1'
+            assert frozen['inventory_policy_profile'] == 'forecast_floor_days_ss_v1'
             policy = frozen['policies'][0]
-            assert (policy['rop_mode'], policy['safety_mode'], policy['configured_rop_floor'], policy['safety_days']) == ('fixed','days',0,0)
+            assert (policy['rop_mode'], policy['safety_mode'], policy['configured_rop_floor'], policy['safety_days']) == ('forecast','days',0,0)
             assert policy['warning_horizon_days'] == 14 and policy['scenario_override']
         later = request(item, 1, 1, D+timedelta(days=1)).model_dump(mode='json')
         assert client.post('/api/v1/supplier-item-policies', json=later).status_code == 201

@@ -318,5 +318,8 @@ def test_two_alert_windows_keep_separate_knowledge_prefixes(pg,tmp_path):
             assert summary['windows']==2 and summary['excluded_item_windows']==1
             assert summary['source_sales_qty']==280 and summary['scenario_sales_qty']==summary['actual_blocked_qty']==140
             assert summary['metric_exclusions'][0]['window_origin']==str(D+timedelta(days=14))
-            assert summary['alert_metrics']['excluded_count']==summary['threshold_metrics']['excluded_count']==1
+            assert summary['alert_metrics']['excluded_count']==1
+            # The first window starts at stock21 below forecast-derived ROP26;
+            # the second is separately excluded by its known provider stop.
+            assert summary['threshold_metrics']['excluded_count']==2
         verify_run(cfg,sessions,key)

@@ -137,3 +137,11 @@ it("keeps undefined threshold ratios as a dash when there are no events", async 
   expect(screen.getByText("Recall xuống ROP").closest("article")).toHaveTextContent("—");
   expect(screen.queryByText(/NaN|Infinity/)).toBeNull();
 });
+
+
+it("shows the forecast-plus-SS threshold and the configured minimum separately", () => {
+  render(<InventoryDetails focused={{sku:"NEW",rop_mode:"forecast",rop:34,ss:20,rop_forecast:34,configured_rop_floor:10}} onClose={()=>{}} />);
+  expect(screen.getByText("Ngưỡng nhập tối thiểu").nextElementSibling).toHaveTextContent("10");
+  fireEvent.click(screen.getByText("Chi tiết sổ tồn & cách tính"));
+  expect(screen.getByText("ROP = max(nhu cầu dự báo 7 ngày + SS, ngưỡng tối thiểu) = max(34, 10) = 34")).toBeVisible();
+});

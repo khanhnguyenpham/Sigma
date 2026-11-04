@@ -23,6 +23,7 @@ from modules.alerts.models import Alert
 from modules.alerts.service import project, project_threshold, threshold_metrics, replay_metrics
 from modules.inventory.simulation import pure_window
 from modules.runs.models import Run
+from modules.forecasting.models import ItemForecast
 from modules.runs.verification import verify_run
 from test_configurable_inventory import worker_fixture
 from test_postgres_api import D, request, settings
@@ -140,6 +141,9 @@ def enqueue_threshold(client, source, forecast, item, kind, n=7):
 def test_worker_threshold_api_csv_and_independent_tamper_checks(pg, tmp_path, kind):
     _, sessions = pg
     source, forecast, item = worker_fixture(sessions, tmp_path)
+    # With forecast-floor ROP, keep the floor dominant and a crossing on D+1.
+    with sessions.begin() as s:
+        s.execute(update(ItemForecast).where(ItemForecast.run_id == forecast).values(forecast_qty=2))
     cfg = settings(tmp_path)
     with TestClient(create_app(cfg)) as c:
         key = enqueue_threshold(c, source, forecast, item, kind)

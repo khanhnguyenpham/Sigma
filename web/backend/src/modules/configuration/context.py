@@ -50,7 +50,7 @@ def freeze_inventory(session, request, source, scenario):
     policies = []
     overrides = {o["item_id"]: o for o in scenario.settings.get("policy_overrides", [])}
     if any({"safety_mode", "rop_mode", "safety_lookback_days", "safety_factor"} & o.keys() for o in overrides.values()):
-        raise DomainError("invalid_input", "Only fixed ROP and sales-day safety stock can be configured")
+        raise DomainError("invalid_input", "Only the minimum ROP and sales-day safety stock can be configured")
     if any("moq" in o or "fixed_order_qty" in o for o in overrides.values()):
         raise DomainError(
             "missing_contract_quantity",
@@ -91,7 +91,7 @@ def freeze_inventory(session, request, source, scenario):
             )
             record["safety_days"] = float(record["safety_days"])
             record["scenario_override"] = True
-        record.update(safety_mode="days", rop_mode="fixed")
+        record.update(safety_mode="days", rop_mode="forecast")
         policies.append(record)
     for item in catalog:
         for day in dates:
@@ -181,7 +181,7 @@ def freeze_inventory(session, request, source, scenario):
     return dict(
         **lifecycle,
         **receiving,
-        inventory_policy_profile="fixed_rop_days_ss_v1",
+        inventory_policy_profile="forecast_floor_days_ss_v1",
         policies=policies,
         policy_ids=sorted({p["id"] for p in policies}),
         catalog_snapshot=catalog,

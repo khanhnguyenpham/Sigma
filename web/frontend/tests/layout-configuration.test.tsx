@@ -205,7 +205,7 @@ it("retains policy values after 409 and saves the same native fields on explicit
   });
   render(<ProductPolicyForm product={{ id: 341, supplier_id: 1, policy: null }} onSaved={changed} onReload={() => {}} />);
   const dialog = within(screen.getByRole("form", { name: "Cấu hình nhập hàng sản phẩm" }));
-  fireEvent.change(dialog.getByLabelText("Ngưỡng nhập cố định (ROP)"), {
+  fireEvent.change(dialog.getByLabelText("Ngưỡng nhập tối thiểu (ROP)"), {
     target: { value: "42" },
   });
   fireEvent.change(dialog.getByLabelText("Lượng nhập mỗi lần"), { target: { value: "9" } });
@@ -269,7 +269,7 @@ it("keeps batched override field edits in the scenario payload", async () => {
   );
   act(() => {
     fireEvent.change(
-      group.getByLabelText("Ngưỡng nhập cố định (ROP)"),
+      group.getByLabelText("Ngưỡng nhập tối thiểu (ROP)"),
       { target: { value: "43" } },
     );
     expect(group.queryByLabelText("Lượng nhập mỗi lần")).toBeNull();
@@ -296,7 +296,7 @@ async function newPolicy() {
   return dialog;
 }
 
-it("uses fixed ROP and days SS without selectors or retired request fields", async () => {
+it("uses forecast-floor ROP and days SS without selectors or retired request fields", async () => {
   let body: Record<string, unknown> | undefined;
   vi.spyOn(globalThis, "fetch").mockImplementation((_input, options) => { body=JSON.parse(String(options?.body)); return reply({id:1}); });
   const form=await newPolicy();
@@ -304,7 +304,7 @@ it("uses fixed ROP and days SS without selectors or retired request fields", asy
   expect(form.queryByLabelText("Cách tính ngưỡng nhập (ROP)")).toBeNull();
   expect(form.queryByLabelText("Hệ số biến động")).toBeNull();
   fireEvent.change(form.getByLabelText("Số ngày tồn an toàn"),{target:{value:"0"}});
-  fireEvent.change(form.getByLabelText("Ngưỡng nhập cố định (ROP)"),{target:{value:"0"}});
+  fireEvent.change(form.getByLabelText("Ngưỡng nhập tối thiểu (ROP)"),{target:{value:"0"}});
   fireEvent.submit(form.getByRole("button",{name:"Lưu cấu hình sản phẩm"}).closest('form')!);
   await waitFor(()=>expect(body).toBeDefined());
   expect(body).toMatchObject({configured_rop_floor:0,safety_days:0,fixed_order_qty:17});
@@ -338,8 +338,8 @@ it.each([
   ["Số ngày nhìn trước cảnh báo xuống ROP", "15"],
   ["Số ngày nhìn trước cảnh báo xuống ROP", "1.5"],
   ["Số ngày tồn an toàn", "-1"],
-  ["Ngưỡng nhập cố định (ROP)", "-1"],
-  ["Ngưỡng nhập cố định (ROP)", "1.5"],
+  ["Ngưỡng nhập tối thiểu (ROP)", "-1"],
+  ["Ngưỡng nhập tối thiểu (ROP)", "1.5"],
 ])("blocks an invalid native field before POST: %s=%s", async (label, value) => {
   const post = vi.fn();
   vi.spyOn(globalThis, "fetch").mockImplementation((input, options) => {
@@ -370,8 +370,8 @@ it("keeps blank numeric overrides inherited and preserves zero SS days", async (
   await waitFor(() => expect(add).toBeEnabled()); fireEvent.click(add);
   const group = within(dialog.getByRole("group", { name: "Điều chỉnh riêng mặt hàng" }));
   expect(group.queryByLabelText("Cách tính tồn an toàn (SS)")).toBeNull();
-  fireEvent.change(group.getByLabelText("Ngưỡng nhập cố định (ROP)"), { target: { value: "12" } });
-  fireEvent.change(group.getByLabelText("Ngưỡng nhập cố định (ROP)"), { target: { value: "" } });
+  fireEvent.change(group.getByLabelText("Ngưỡng nhập tối thiểu (ROP)"), { target: { value: "12" } });
+  fireEvent.change(group.getByLabelText("Ngưỡng nhập tối thiểu (ROP)"), { target: { value: "" } });
   fireEvent.change(group.getByLabelText("Số ngày tồn an toàn"), { target: { value: "0" } });
   fireEvent.change(group.getByLabelText("Số ngày nhìn trước cảnh báo xuống ROP"), { target: { value: "1" } });
   fireEvent.submit(dialog.getByRole("button", { name: "Lưu thiết lập" }).closest("form")!);

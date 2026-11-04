@@ -13,7 +13,7 @@ LEGACY_POLICY_DEFAULTS = dict(
     warning_horizon_days=7,
 )
 
-# The live contract has one policy: fixed ROP and sales-day safety stock.
+# New runs use max(seven-day forecast + sales-day SS, configured minimum ROP).
 POLICY_DEFAULTS = dict(warning_horizon_days=7)
 
 

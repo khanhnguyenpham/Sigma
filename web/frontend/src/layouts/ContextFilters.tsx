@@ -6,13 +6,11 @@ import { Icon } from "../components/ui/Icon";
 import { warehouseName } from "../utils/warehouse";
 
 import { type AppContextState } from "../hooks/useAppContext";
-import { isTradeRun } from "../utils/trade";
 
 export function ContextFilters({ app, hideRunSelector = false }: { app: AppContextState; hideRunSelector?: boolean }) {
   const { ctx, setCtx, runs, selectRun, catalog, items, run, suppliers } = app;
   const inventoryPage = app.page === "inventory";
   const snapshotDate = run?.kind === "stock_projection" ? run.as_of_date : undefined;
-  const trade=isTradeRun(run),tradeFilter=!!(ctx.internalStatus || ctx.providerStatus || ctx.replenishmentAllowed || ctx.salesAllowed || ctx.windowOrigin);
   const warehouse = catalog.data?.items.find((w) => String(w.id) === ctx.warehouseId);
   return (
     <>
@@ -146,16 +144,6 @@ export function ContextFilters({ app, hideRunSelector = false }: { app: AppConte
         <span>Phương án này chỉ có số liệu tồn kho tại ngày {snapshotDate.split("-").reverse().join("/")}. Có thể chọn ngày đánh giá riêng trong phần So sánh dự báo / thực tế.</span>
         {app.page !== "forecast" && <button type="button" className="text-button" onClick={() => app.navigate("forecast")}>Xem so sánh 14 ngày <Icon name="arrow" size={15} /></button>}
       </div>}
-      {(trade || tradeFilter) && <details className="advanced-section trade-result-filters"><summary>Lọc hạn chế trong kế hoạch đã chốt</summary>
-        {!trade && <p className="notice">Quyền bán và tồn bị chặn không có trong kế hoạch này. Xóa bộ lọc mới hoặc chọn kế hoạch phù hợp.</p>}
-        <fieldset disabled={!trade}><div className="provider-filters">
-          <label>Nhập nội bộ trong kế hoạch<select value={ctx.internalStatus ?? ""} onChange={e=>setCtx(c=>({...c,internalStatus:e.target.value}))}><option value="">Tất cả</option><option value="active">Đang cho nhập</option><option value="scheduled_stop">Sắp ngừng nhập</option><option value="stopped">Đã ngừng nhập</option></select></label>
-          <label>Nhà mạng trong kế hoạch<select value={ctx.providerStatus ?? ""} onChange={e=>setCtx(c=>({...c,providerStatus:e.target.value}))}><option value="">Tất cả</option><option value="clear">Không bị chặn</option><option value="scheduled_stop">Sắp ngừng sản phẩm</option><option value="stopped">Đã ngừng mua và bán</option><option value="scheduled_resume">Chờ cung cấp lại</option></select></label>
-          <label>Quyền nhập trong kế hoạch<select value={ctx.replenishmentAllowed ?? ""} onChange={e=>setCtx(c=>({...c,replenishmentAllowed:e.target.value}))}><option value="">Tất cả</option><option value="true">Được nhập</option><option value="false">Không được nhập</option></select></label>
-          <label>Quyền bán trong kế hoạch<select value={ctx.salesAllowed ?? ""} onChange={e=>setCtx(c=>({...c,salesAllowed:e.target.value}))}><option value="">Tất cả</option><option value="true">Được bán</option><option value="false">Không được bán</option></select></label>
-          <label>Origin của cửa sổ UTC<input type="date" value={ctx.windowOrigin ?? ""} onChange={e=>setCtx(c=>({...c,windowOrigin:e.target.value}))} /></label>
-        </div></fieldset><button className="text-button" onClick={()=>setCtx(c=>({...c,internalStatus:"",providerStatus:"",replenishmentAllowed:"",salesAllowed:"",windowOrigin:""}))}>Xóa bộ lọc hạn chế</button>
-      </details>}
       {!inventoryPage && warehouse && <div className="warehouse-scope" aria-label="Kho đang chọn">
         <Icon name="warehouse" size={17} /><span>Kho <strong>{warehouseName(warehouse)}</strong></span>
         <span>{String(warehouse.destination_country)}</span>{ctx.warehouseScope !== "receiving" && <span>Nhà mạng <strong>{String(warehouse.carrier)}</strong></span>}

@@ -1,5 +1,8 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**04/11/2026 — công thức ROP mới:** Người dùng yêu cầu ROP = max(ceil(nhu cầu dự báo 7 ngày + SS), ngưỡng nhập tối thiểu cấu hình). SS = ceil(safety_days × mean(f1…f14) × safety_multiplier). Run mới chốt `forecast_floor_days_ss_v1`/`rop_mode=forecast`; giữ strict closing<ROP, S=ROP+ceil(f8), IP=closing+pending, lượng nhập cố định mỗi lần và các quyền ngừng nhập/bán. Không thêm lựa chọn mode/đổi schema; run cũ giữ snapshot fixed và kết quả. Các mô tả ROP cố định bên dưới là lịch sử trước thay đổi này.
+
+
 **Nghiệm thu tích hợp CHG-094/095, 04/11/2026:** R06/R08/R09 trong phạm vi kho nhận mặc định/trang Kịch bản đã có kiểm synthetic thực:520Python/101React/build, API/worker/verifier/CSV, migration/restore và browser1440/390. Kho frozen không đổi theo mặc định live; setup/lưu/chạy/kết quả cùng trang. Không dùng kết quả này để đóng R05/R07/T14 hoặc nhận demo đã nâng schema. Người dùng cho phép publish thường sau kiểm; [bằng chứng/phạm vi](development.md#handoff-chg094-095-integration) thay trạng thái chưa kiểm của các checkpoint dưới.
 
 **Tiến độ CHG-095, 04/11/2026:** R06/R08/R09 đã có source kho mặc định từ cấu hình tới kết quả, nhưng chưa test/build/migration/browser/cutover theo yêu cầu hoãn kiểm của người dùng. Đây chưa là nghiệm thu; các ca dự kiến vẫn phải chạy sau. CHG-094 hiện cũng đã có source trang riêng và dọn UI, chưa kiểm theo bàn giao mới. [Phạm vi đã viết và giới hạn](development.md#implementation-chg095-receiving-warehouse).

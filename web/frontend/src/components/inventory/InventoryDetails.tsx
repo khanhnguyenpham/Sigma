@@ -68,14 +68,14 @@ export function InventoryInformation({ focused, onItem }: { focused: Row; onItem
           <dd>{fmt(focused.ss)}</dd>
         </div>
         <div><dt>Cách tính SS</dt><dd>{focused.safety_mode === "volatility" ? `Biến động ${fmt(focused.safety_lookback_days)} ngày · hệ số ${fmt(focused.safety_factor)}` : `Số ngày bán · ${fmt(focused.safety_days)} ngày`}</dd></div>
-        <div><dt>Cách tính ROP</dt><dd>{focused.rop_mode === "fixed" ? "Cố định" : "Theo dự báo"}</dd></div>
+        <div><dt>Cách tính ROP</dt><dd>{focused.rop_mode === "fixed" ? "Cố định" : "Max(nhu cầu dự báo 7 ngày + SS, ngưỡng tối thiểu)"}</dd></div>
         <div><dt>N ngày cảnh báo xuống ROP</dt><dd>{fmt(focused.warning_horizon_days)}</dd></div>
         <div>
           <dt>Lượng nhập mỗi lần</dt>
           <dd>{focused.fixed_order_qty == null ? "Chưa cấu hình" : fmt(focused.fixed_order_qty)}</dd>
         </div>
         <div>
-          <dt>ROP tối thiểu</dt>
+          <dt>{focused.rop_mode === "fixed" ? "ROP cấu hình đã chốt" : "Ngưỡng nhập tối thiểu"}</dt>
           <dd>{fmt(focused.configured_rop_floor)}</dd>
         </div>
         <div>
@@ -109,7 +109,7 @@ export function InventoryInformation({ focused, onItem }: { focused: Row; onItem
             <span>
               {focused.rop_mode === "fixed"
                 ? `ROP cố định = ${fmt(focused.configured_rop_floor)}; không cộng SS lần nữa`
-                : `ROP = max(${fmt(focused.rop_forecast)}, ${fmt(focused.configured_rop_floor)})`}
+                : `ROP = max(nhu cầu dự báo 7 ngày + SS, ngưỡng tối thiểu) = max(${fmt(focused.rop_forecast)}, ${fmt(focused.configured_rop_floor)}) = ${fmt(focused.rop)}`}
             </span>
             <span>
               IP = tồn cuối + đang về = {fmt(focused.inventory_position)}

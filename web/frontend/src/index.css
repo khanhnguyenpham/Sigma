@@ -1813,20 +1813,9 @@ button.warehouse-card:hover { border-color: #a9b5f0; background: #fcfcff; box-sh
 .provider-editor label, .trade-modal label, .provider-filters label { display:flex; flex-direction:column; gap:7px; margin:12px 0; font-size:12px; min-width:0; }
 .provider-editor input, .provider-editor select, .provider-editor textarea, .trade-modal input, .trade-modal select, .trade-modal textarea, .provider-filters input, .provider-filters select { width:100%; min-width:0; box-sizing:border-box; }
 .provider-editor textarea, .trade-modal textarea { min-height:90px; font:inherit; padding:10px; resize:vertical; border:1px solid var(--border); border-radius:8px; }
-.provider-editor fieldset, .trade-modal fieldset, .trade-result-filters fieldset { min-width:0; border:0; margin:0; padding:0; }
+.provider-editor fieldset, .trade-modal fieldset { min-width:0; border:0; margin:0; padding:0; }
 .trade-modal { max-width:920px; width:calc(100% - 32px); max-height:90vh; overflow:auto; overflow-wrap:anywhere; }
 .provider-filters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px 18px; }
-.trade-result-filters > fieldset { padding:4px 19px 0; }
-.trade-result-filters .provider-filters { gap:16px 18px; }
-.trade-result-filters .provider-filters label { margin:0; }
-.trade-result-filters > .text-button { margin:14px 19px 18px; }
-@media(max-width:1050px) { .trade-result-filters .provider-filters { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media(max-width:760px) {
-  .trade-result-filters > summary { padding-inline:14px; }
-  .trade-result-filters > fieldset { padding-inline:14px; }
-  .trade-result-filters .provider-filters { grid-template-columns:minmax(0,1fr); }
-  .trade-result-filters > .text-button { margin-inline:14px; }
-}
 .scope-product { margin:18px 0; padding:18px; border:1px solid var(--border); border-radius:10px; background:#fafbff; min-width:0; }
 .scope-product legend { font-size:12px; font-weight:600; margin-top:12px; }
 .scope-choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 18px; }

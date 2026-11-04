@@ -20,11 +20,6 @@ export function resultQuery(
     item_id: ctx.itemId,
     product_type: ctx.productType,
     supplier_id: ctx.supplierId,
-    internal_status: ctx.internalStatus,
-    provider_status: ctx.providerStatus,
-    replenishment_allowed: ctx.replenishmentAllowed,
-    sales_allowed: ctx.salesAllowed,
-    window_origin: ctx.windowOrigin,
     ...extra,
   });
 }

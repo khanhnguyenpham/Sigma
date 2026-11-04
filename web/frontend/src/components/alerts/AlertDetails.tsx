@@ -58,7 +58,8 @@ export function AlertDetails({
         </div>
         <div><dt>Tồn tại quyết định</dt><dd>{fmt(explanation?.origin_on_hand)}</dd></div>
         <div><dt>ROP tại quyết định</dt><dd>{fmt(thresholds?.rop)}</dd></div>
-        <div><dt>Cách tính ROP</dt><dd>{policy?.rop_mode === "fixed" ? "Cố định" : "Theo dự báo"}</dd></div>
+        <div><dt>Cách tính ROP</dt><dd>{policy?.rop_mode === "fixed" ? "Cố định" : "Max(nhu cầu dự báo 7 ngày + SS, ngưỡng tối thiểu)"}</dd></div>
+        <div><dt>Ngưỡng ROP đã cấu hình</dt><dd>{fmt(policy?.configured_rop_floor)}</dd></div>
         <div><dt>Tồn an toàn SS</dt><dd>{fmt(thresholds?.ss)}</dd></div>
         <div><dt>Cách tính SS</dt><dd>{policy?.safety_mode === "volatility" ? `Biến động · ${fmt(policy.safety_lookback_days)} ngày · hệ số ${fmt(policy.safety_factor)}` : `Số ngày bán · ${fmt(policy?.safety_days)} ngày`}</dd></div>
         <div><dt>N ngày nhìn trước ROP</dt><dd>{fmt(policy?.warning_horizon_days ?? 7)}</dd></div>

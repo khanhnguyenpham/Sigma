@@ -65,3 +65,10 @@ it("traps drawer focus, closes with Escape and restores its trigger", () => {
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(trigger).toHaveFocus();
 });
+
+
+it("does not apply removed restriction controls as hidden result or CSV filters", () => {
+  const filters=resultQuery({runId:"run",warehouseId:"18",itemId:"4",productType:"eSIM",supplierId:"",origin:"2025-10-31",
+    internalStatus:"stopped",providerStatus:"stopped",replenishmentAllowed:"false",salesAllowed:"false",windowOrigin:"2025-10-31"});
+  expect(Object.fromEntries(new URLSearchParams(filters))).toEqual({warehouse_id:"18",item_id:"4",product_type:"eSIM"});
+});

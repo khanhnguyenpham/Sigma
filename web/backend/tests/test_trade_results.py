@@ -247,7 +247,9 @@ def test_mixed_scope_filters_and_totals_precede_pagination(pg,tmp_path):
         assert clear['items'][0]['sellable_qty']==21 and clear['items'][0]['blocked_qty']==0
         assert c.get(root+'/inventory?sku=OUTSIDE&sales_allowed=false').json()['total']==0
         summary=c.get(root+f'/workspace?as_of_date={D}').json()['summary']
-        assert summary['item_count']==2 and summary['healthy_items']==1
+        assert clear['items'][0]['closing_qty']==21 < clear['items'][0]['rop']==26
+        assert summary['item_count']==2 and summary['healthy_items']==0
+        assert summary['low_stock_items']==2  # Raw low-stock diagnostics include the blocked item.
         assert summary['affected_items']==summary['provider_blocked_items']==summary['internal_stopped_items']==1
         assert summary['total_units']==42 and summary['sellable_units']==summary['blocked_units']==21
         route=c.get(root+'/sell-through?aggregate=route_day&page_size=1').json()['items'][0]

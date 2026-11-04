@@ -1,5 +1,8 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+**04/11/2026 — công thức ROP mới:** Người dùng yêu cầu ROP = max(ceil(nhu cầu dự báo 7 ngày + SS), ngưỡng nhập tối thiểu cấu hình). SS = ceil(safety_days × mean(f1…f14) × safety_multiplier). Run mới chốt `forecast_floor_days_ss_v1`/`rop_mode=forecast`; giữ strict closing<ROP, S=ROP+ceil(f8), IP=closing+pending, lượng nhập cố định mỗi lần và các quyền ngừng nhập/bán. Không thêm lựa chọn mode/đổi schema; run cũ giữ snapshot fixed và kết quả. Các mô tả ROP cố định bên dưới là lịch sử trước thay đổi này.
+
+
 **04/11/2026 — so sánh dự báo/thực tế14ngày:** Trong kết quả kịch bản, Ngày đánh giáD riêng cho nhu cầu dự báo/bán nguồn trongD+1…D+14; không đổi ngày số liệu tồn hoặc tạo run. Chỉ chọn mốc đã lưu trong forecast cha, cộng đủcả14ngày; actualthiếu đểtrống/0thựctếgiữ0. So sánh theo tuyến nguồn/SKU/loại, không áp kho nhận/quyền mua bán vào actual. Kịch bản vẫn dùng frozen để mô phỏng tồn/bán được; đối chiếu nhu cầu không là kết quả mô phỏng lại kịch bản tạiD mới. [Kiểm và bàn giao](../../docs/development.md#handoff-forecast-comparison).
 
 **CHG-094/095 — 04/11/2026, đã kiểm tích hợp synthetic:** Sản phẩm lưu kho mặc định, scenario tự dùng mặc định khi enqueue; worker và kết quả giữ kho frozen dù mặc định đổi sau đó. Trang riêng lưu/chạy/tiến độ/kết quả/CSV đã kiểm trực tiếp desktop/mobile. 520Python/101React/build/pipcheck đạt; không chạy nguồn thật, nâng DB demo hoặc đổi C00/R05/R07/T14. [Bàn giao mới](../../docs/development.md#handoff-chg094-095-integration) thay checkpoint chưa kiểm bên dưới.

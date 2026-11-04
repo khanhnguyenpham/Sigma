@@ -19,9 +19,10 @@ from worker import serve
 def test_workspace_counts_unique_items_with_threshold_and_depletion_and_csv(pg, tmp_path, crossing):
     _, sessions = pg
     source, forecast, item = worker_fixture(sessions, tmp_path)
-    if not crossing:
-        with sessions.begin() as s:
-            s.execute(update(ItemForecast).where(ItemForecast.run_id == forecast).values(forecast_qty=0))
+    # Keep the configured floor (20) dominant, so this case still tests a future
+    # crossing rather than an item already below the new forecast-derived ROP.
+    with sessions.begin() as s:
+        s.execute(update(ItemForecast).where(ItemForecast.run_id == forecast).values(forecast_qty=1 if crossing else 0))
     with TestClient(create_app(settings(tmp_path))) as c:
         key = enqueue_threshold(c, source, forecast, item, "stock_projection")
         assert serve(settings(tmp_path), once=True) == key
@@ -48,7 +49,7 @@ def test_workspace_counts_unique_items_with_threshold_and_depletion_and_csv(pg, 
             policy.warning_horizon_days = 14
             policy.configured_rop_floor = 999
         inventory = c.get(path + "/inventory").json()["items"][0]
-        assert (inventory["rop_mode"], inventory["warning_horizon_days"], inventory["configured_rop_floor"]) == ("fixed", 7, 20)
+        assert (inventory["rop_mode"], inventory["warning_horizon_days"], inventory["configured_rop_floor"]) == ("forecast", 7, 20)
         assert c.get(path + f"/workspace?as_of_date={D}").json()["summary"] == summary
 
 

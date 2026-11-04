@@ -1,5 +1,17 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-forecast-floor-c00"></a>
+## ROP theo dự báo cộng SS và ngưỡng tối thiểu — 04/11/2026
+
+Người dùng yêu cầu đổi đồng bộ FE/BE sang `ROP = max(ceil(sum(f1…f7) + SS), configured_rop_floor)`, chạy lại C00 và đưa kết quả lên FE; sau đó yêu cầu bỏ khối lọc hạn chế và dọn kết quả kịch bản cũ trong demo. SS làm tròn lên từ số ngày tồn an toàn × bình quân dự báo H14 × hệ số safety. Dùng nhánh forecast đã có trong kernel/verifier; run mới freeze `forecast_floor_days_ss_v1`, run fixed cũ không bị diễn giải lại. Không đổi schema, L7/R1/H14, S/IP, lượng nhập cố định, source/forecast hoặc quy tắc lifecycle. Ngưỡng cấu hình trên FE nay là ngưỡng tối thiểu; chi tiết kết quả đọc công thức từ snapshot.
+
+C00 mới chạy trên cùng đầu vào test và 920 policy frozen CHG-086, chỉ đổi công thức ROP. Runner tracked `web/backend/research/forecast_floor_c00.py` không phụ thuộc ba tệp S25 local, dùng kernel ứng dụng, dựng lại vật lý bằng verifier scalar và đối chiếu hai scorer độc lập. Kỳ chấm 29/10–31/12/2025, warmup28, cover7, multiplier1, không refit/S25. Báo sớm 129/400=32,25%, Precision74,06% (1.159TP/406FP), Recall81,75% (327/400), dateMAE5,0856ngày/327ca. Mẫu số đổi do chính sách nhập thay đổi đường tồn; không coi đây là so sánh chỉ thay tín hiệu cảnh báo hoặc tập kiểm định mới. JSON mới chỉ tổng hợp/provenance `web/frontend/src/data/c00-forecast-floor-evaluation.json`; JSON C00 cũ và bằng chứng sealed giữ nguyên. Bằng chứng vật lý/metrics/lock/verification local ở `outputs/chg107_rop_floor/c00`.
+
+Bỏ khối “Lọc hạn chế trong kế hoạch đã chốt”, CSS riêng và không gửi các filter đã bỏ vào API kết quả/CSV; bộ lọc quản lý sản phẩm và quyền nghiệp vụ vẫn giữ. Người dùng bổ sung giao commit/push GitHub sau khi hoàn tất. Cổng local đạt537Python BE/M2/0failure-error-skip (loại5ca S25 local),116React và TypeScript/Vite build/pipcheck. Các fixture crossing được đặt lại để giữ floor chi phối; raw low-stock và exclusion kỳ vọng phản ánh ROP mới, không nới verifier hoặc sửa golden. Có6ca worker/verifier/API/CSV cho ba loại run × profile mới/fixed lịch sử, ca SS tăng làm đổi quyết định và C00 scalar/tamper.
+
+Theo yêu cầu dọn, backup42.554.182byte đã restore khớp18bảng trên DB kiểm riêng55434 và diễn tập xóa đạt trước khi áp dụng. Dọn4run stock/policy/alert cũ gồm failed4ad1 và retry4299 cùng một đợt,6→2run và153→144artifact. Source04afb914/forecaste63fcff5 và mọi hàng/cột cấu hình giữ hash;9artifact cũ nằm trong backup/archive ngoàiGit. Không xóa scenario settings. Không refit hoặc tạo run nguồn thật mới. Receipt backup/cleanup/provenance và publish ở outputs/chg107_rop_floor; bốn tệp S25/COMMIT_BLOCK_PLAN, runtime/credential/raw/DB/backup/outputs/dist ngoài stage. Cổng publish: manifest/hash/credential scan → commit/push thường final-report → remoteSHA → haiCI đúng commit. Demo mở lại bằng src/start_demo.py, API/worker/source cùng fingerprint fe55aa9008c14f87e80c2a6f63bea2e2cd0af78d77a04515d97015ea32223085; HTTPS readiness và11asset khớp build, JSON C00 mới tải bằng HTTPS. Browser thấy129/400, nguồn/forecast còn2bản ghi, không khối lọc đã bỏ/không tràn ngang/không consoleerror. URL hiện hành trong connection.json (lần bàn giao https://spy-tape-powerful-kernel.trycloudflare.com/). Testcluster55434 đã dừng; demo vẫn chạy, không deploycloud.
+
+
 <a id="handoff-demo-ui-publish"></a>
 ## Publish launcher, so sánh dự báo và kết quả C00 — 04/11/2026
 

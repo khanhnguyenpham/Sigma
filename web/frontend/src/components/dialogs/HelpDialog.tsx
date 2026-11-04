@@ -46,8 +46,8 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
           </dd>
           <dt>Ngưỡng nhập (ROP)</dt>
           <dd>
-            Cảnh báo khi tồn hiện có nhỏ hơn ngưỡng cố định đã khai báo cho sản phẩm.
-            SS tính theo số ngày bán, không cộng thêm vào ngưỡng này.
+            Với kế hoạch mới, ROP = max(nhu cầu dự báo 7 ngày + SS, ngưỡng nhập tối thiểu đã cấu hình).
+            SS tính theo số ngày tồn an toàn. Hệ thống xét nhập khi tồn hiện có nhỏ hơn ROP; kế hoạch cũ giữ công thức đã chốt.
           </dd>
           <dt>Vị thế tồn (IP)</dt>
           <dd>

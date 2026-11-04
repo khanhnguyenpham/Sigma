@@ -201,7 +201,7 @@ def worker_fixture(sessions, tmp_path):
     return source, forecast, item
 
 
-def enqueue_fixture(c, source, forecast, item, safety, rop, kind, lookback=7):
+def enqueue_fixture(c, source, forecast, item, safety, rop, kind, lookback=7, *, legacy=True):
     policy = request(item, 1).model_dump(mode="json")
     policy.update(configured_rop_floor=10, fixed_order_qty=5)
     assert c.post("/api/v1/supplier-item-policies", json=policy).status_code == 201
@@ -220,7 +220,7 @@ def enqueue_fixture(c, source, forecast, item, safety, rop, kind, lookback=7):
     response = c.post("/api/v1/runs", json=body, headers={"Idempotency-Key": "synthetic-calculation"})
     assert response.status_code == 202
     key = uuid.UUID(response.json()["run_id"])
-    if (safety,rop) != ('days','fixed'):
+    if legacy:
         # Legacy-only fixture injection preserves historical worker/verifier regression.
         # The current API above never accepts a mode choice.
         with c.app.state.sessions.begin() as session:
@@ -309,3 +309,39 @@ def test_worker_missing_observed_long_history_fails_without_partial_ledger(pg, t
             assert row.status == "failed" and row.error_code == "insufficient_history"
             assert not s.scalars(select(InventoryDaily).where(InventoryDaily.run_id == key)).all()
         assert c.get(f"/api/v1/runs/{key}/inventory").status_code == 409
+
+
+@pytest.mark.parametrize("kind", ["stock_projection", "policy_replay", "alert_replay"])
+@pytest.mark.parametrize("historical_fixed", [False, True])
+def test_forecast_floor_worker_verifier_and_api_csv_keep_historical_formula(pg,tmp_path,kind,historical_fixed):
+    _,sessions=pg
+    source,forecast,item=worker_fixture(sessions,tmp_path)
+    cfg=settings(tmp_path)
+    with TestClient(create_app(cfg)) as client:
+        key=enqueue_fixture(client,source,forecast,item,"days","fixed",kind,legacy=False)
+        with sessions.begin() as session:
+            run=session.get(Run,key)
+            assert run.config_snapshot["inventory_policy_profile"]=="forecast_floor_days_ss_v1"
+            assert run.config_snapshot["policies"][0]["rop_mode"]=="forecast"
+            if historical_fixed:
+                snapshot=deepcopy(run.config_snapshot)
+                snapshot["inventory_policy_profile"]="fixed_rop_days_ss_v1"
+                for policy in snapshot["policies"]:
+                    policy["rop_mode"]="fixed"
+                run.config_snapshot=snapshot
+                run.config_sha256=digest(snapshot)
+            frozen=deepcopy(run.config_snapshot)
+        assert serve(cfg,once=True)==key
+        with sessions() as session:
+            run=session.get(Run,key)
+            assert run.status=="complete",run.error_code
+            assert run.config_snapshot==frozen
+            assert verify_run(cfg,sessions,key)["status"]=="verified"
+        rows=client.get(f"/api/v1/runs/{key}/inventory").json()["items"]
+        first=next(r for r in rows if r["date"]==str(D))
+        assert (first["ss"],first["rop_forecast"],first["rop"])==(12,26,10 if historical_fixed else 26)
+        assert first["rop_mode"]==("fixed" if historical_fixed else "forecast")
+        exported=client.get(f"/api/v1/runs/{key}/exports/inventory_daily")
+        csv_rows=list(csv.DictReader(io.StringIO(exported.text.lstrip("\ufeff"))))
+        original=next(r for r in csv_rows if r["date"]==str(D))
+        assert int(original["rop"])==first["rop"] and original["rop_mode"]==first["rop_mode"]

@@ -1,5 +1,6 @@
 """The current policy has no selectable modes; historical snapshots stay sealed."""
 from copy import deepcopy
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -40,6 +41,29 @@ def test_fixed_rop_is_independent_of_ss_and_forecast_and_remains_strict():
     assert (low['ss'],high['ss'])==(4,200)
     assert low['recommended_qty']==high['recommended_qty']==25
     assert recommend([100]*14,20,0,policy)['recommended_qty']==0
+
+
+@pytest.mark.parametrize('floor,safety,forecast,ss,rop', [
+    (10,2,2,4,18), (30,2,2,4,30), (18,2,2,4,18),
+    (10,10,2,20,34), (10,0,0,0,10), (0,0,0,0,0),
+    (0,1.5,0.5,1,5),
+])
+def test_forecast_floor_rop_uses_ss_and_respects_the_configured_minimum(floor,safety,forecast,ss,rop):
+    policy=PolicyValues(floor,None,safety,rop_mode='forecast',fixed_order_qty=25)
+    row=recommend([forecast]*14,0,0,policy)
+    assert (row['ss'],row['rop'])==(ss,rop)
+    assert recommend([forecast]*14,rop,0,policy)['recommended_qty']==0
+    if rop:
+        assert recommend([forecast]*14,rop-1,0,policy)['recommended_qty']==25
+        assert recommend([forecast]*14,rop-1,row['target_stock'],policy)['recommended_qty']==0
+        assert recommend([forecast]*14,rop-1,0,policy,replenishment_allowed=False)['recommended_qty']==0
+
+
+def test_increasing_ss_changes_the_new_replenishment_decision():
+    policy=PolicyValues(10,None,2,fixed_order_qty=25)
+    assert recommend([2]*14,20,0,policy)['recommended_qty']==0  # ROP 18.
+    row=recommend([2]*14,20,0,replace(policy,safety_days=4))
+    assert (row['ss'],row['rop'],row['recommended_qty'])==(8,22,25)
 
 
 def test_mode_migration_preserves_numeric_policy_and_sealed_runs_and_cleans_editable_overrides(pg):
