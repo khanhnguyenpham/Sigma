@@ -1,5 +1,14 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-main-promotion"></a>
+## README tổng quan, chuyển main và dọn nhánh — 05/11/2026
+
+Người dùng yêu cầu chuyển code từ final-report sang main, xóa tám nhánh trong ảnh và chỉnh README. Theo làm rõ tiếp theo, README mới giới thiệu sơ lược bài toán, chức năng, ba công việc, luồng nhu cầu/tồn/nhập/cảnh báo, lịch cung cấp và kiến trúc; bỏ chuỗi checkpoint/lệnh vận hành khỏi phần giới thiệu, dẫn sang đặc tả và DEMO_RUNTIME. README cũ vẫn truy được trong lịch sử Git, không thay bằng chứng nghiên cứu.
+
+Main cũ8dfb91a chỉ có bộ tài liệu khởi tạo và không cùng tổ tiên với final-report b42b04f. Tạo commit3Markdown trên final-report, rồi tạo main từ bản đó và merge chiến lược ours với origin/main/allow-unrelated-histories: tree cuối bằng final-report đã cập nhật, có cảhai lịch sử làm cha, không force push main. Nhánh mặc định repository đã là main. CI/remoteSHA kiểm theo đúng merge commit trên main; chỉ đổi Markdown nên không nhận đã chạy lại model/worker hoặc suite ứng dụng local trong lượt này. Runtime c0138bad giữ nguyên byte và bản code nền b42b04f đã có haiCI thành công.
+
+Các nhánh được giao xóa: `M2-final-cleanup`, `M2-final-report`, `M3-design-plan`, `codex/alert-safety-stock-experiments`, `codex/early-warning-opportunity-audit`, `codex/m3-implementation`, `codex/sigma-local-pipeline`, `codex/30day-m3`. Lưu SHA từng tip và Git bundle local tại outputs/chg111_main_promotion trước thao tác. Giữ final-report và mọi nhánh ngoài danh sách. Hai nhánh có linked worktree được detach đúng HEAD trước xóa ref local; giữ thư mục, index và nội dung chưa commit, gồm docs/review-log.md ở sigma-m3-run. Không reset/clean/remove worktree. Dọn ref GitHub với kiểm SHA mong đợi, xác nhận lại danh sách remote/local và bảo toàn các nhánh giữ lại. Không stage bốn tệp S25/COMMIT_BLOCK_PLAN, dữ liệu/raw/DB/backup/runtime/credential/outputs/dist. Receipt publish/CI/nhánh trước–sau lưu ngoàiGit, không đưa bundle lên remote.
+
 <a id="handoff-provider-simple"></a>
 ## Rút gọn thông báo ngừng nhà mạng — 05/11/2026
 
