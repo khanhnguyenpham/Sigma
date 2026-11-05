@@ -58,26 +58,31 @@ function fetcher(input:RequestInfo|URL,options?:RequestInit):Promise<Response>{
 }
 beforeEach(()=>{posts=[];reads=[];stale=false;offline=false;invalidReason=false;capable=true;history.replaceState(null,'','/');vi.spyOn(globalThis,'fetch').mockImplementation(fetcher);});
 afterEach(()=>{cleanup();vi.restoreAllMocks();history.replaceState(null,'','/');});
-async function scope(){await screen.findByRole('option',{name:'Carrier A'});fireEvent.change(screen.getByLabelText('Nhà mạng áp dụng'),{target:{value:'1'}});fireEvent.change(screen.getByLabelText('Mã SKU chính xác'),{target:{value:'SYN'}});fireEvent.click(screen.getByLabelText('A'));fireEvent.click(screen.getByLabelText('B'));fireEvent.click(screen.getByRole('button',{name:'Chọn tất cả kho trong thị trường đã chọn'}));}
-function reasons(){fireEvent.change(screen.getByLabelText('Lý do thay đổi'),{target:{value:'Declared simulation'}});fireEvent.change(screen.getByLabelText('Nguồn khai báo / giả định'),{target:{value:'Hypothetical source without URL'}});}
+async function scope(){await screen.findByRole('option',{name:'Carrier A'});fireEvent.change(screen.getByLabelText('Nhà mạng áp dụng'),{target:{value:'1'}});fireEvent.change(screen.getByLabelText('Mã SKU chính xác'),{target:{value:'SYN'}});}
+function reasons(){fireEvent.change(screen.getByLabelText('Lý do thay đổi'),{target:{value:'Declared simulation'}});}
 async function preview(){fireEvent.click(screen.getByRole('button',{name:'Xem phạm vi và tác động'}));await waitFor(()=>expect(screen.getByRole('button',{name:'Lưu thông báo'})).toBeEnabled());}
 
-it('previews an explicit multi-warehouse scope with full totals and optional URL, and saves once',async()=>{
+it('previews the whole product without market, warehouse or source inputs and saves once',async()=>{
   const saved=vi.fn();render(<ProviderNoticeForm day={day} runs={[]} onClose={()=>{}} onSaved={saved} />);
   expect(screen.getByRole('button',{name:'Lưu thông báo'})).toBeDisabled();await scope();reasons();
   fireEvent.change(screen.getByLabelText('Ngày hiệu lực UTC'),{target:{value:'2025-10-29'}});expect(screen.getByText(/Hệ thống biết sau ngày hiệu lực/)).toBeVisible();
   await preview();expect(screen.getByText(/Toàn phạm vi: 123 mặt hàng \/ 2 kho/)).toBeVisible();expect(screen.getByText(/Chưa có dữ liệu tác động đủ phạm vi/)).toBeVisible();
-  expect(posts[0].body).toMatchObject({action:'stop',supplier_id:1,expected_version:0,effective_on:'2025-10-29',scope_definition:{products:[{sku:'SYN',product_type:'eSIM',destination_countries:['A','B'],warehouse_ids:[1,2]}]}});
+  expect(posts[0].body).toMatchObject({action:'stop',supplier_id:1,expected_version:0,effective_on:'2025-10-29',scope_definition:{products:[{sku:'SYN',product_type:'eSIM'}]}});
+  expect(posts[0].body.scope_definition).toEqual({products:[{sku:'SYN',product_type:'eSIM'}]});
+  expect(posts[0].body).not.toHaveProperty('source_description');
+  expect(screen.queryByText('Thị trường áp dụng')).toBeNull();expect(screen.queryByText('Kho áp dụng')).toBeNull();
+  expect(screen.queryByLabelText('Nguồn khai báo / giả định')).toBeNull();expect(screen.queryByLabelText('Liên kết tham chiếu (tùy chọn)')).toBeNull();
+  expect(reads.some(p=>p.startsWith('/api/v1/warehouses'))).toBe(false);
   expect(posts[0].body).not.toHaveProperty('source_ref');fireEvent.click(screen.getByRole('button',{name:'Sau →'}));await waitFor(()=>expect(posts.filter(p=>p.path.endsWith('/preview'))).toHaveLength(2));
   fireEvent.click(screen.getByRole('button',{name:'Lưu thông báo'}));await waitFor(()=>expect(saved).toHaveBeenCalledWith(1));
   expect(posts.filter(p=>!p.path.endsWith('/preview'))).toHaveLength(1);expect(posts.at(-1)!.body.preview_fingerprint).toBe(fp);
 });
 
-it('invalidates preview when scope/source/date changes and retains values on stale-save conflict',async()=>{
+it('invalidates preview when the reason changes and retains values on stale-save conflict',async()=>{
   render(<ProviderNoticeForm day={day} runs={[]} onClose={()=>{}} onSaved={()=>{}} />);await scope();reasons();await preview();
-  fireEvent.change(screen.getByLabelText('Nguồn khai báo / giả định'),{target:{value:'Changed source'}});expect(screen.getByRole('button',{name:'Lưu thông báo'})).toBeDisabled();
+  fireEvent.change(screen.getByLabelText('Lý do thay đổi'),{target:{value:'Changed reason'}});expect(screen.getByRole('button',{name:'Lưu thông báo'})).toBeDisabled();
   await preview();stale=true;fireEvent.click(screen.getByRole('button',{name:'Lưu thông báo'}));await screen.findByRole('alert');
-  expect(screen.getByLabelText('Nguồn khai báo / giả định')).toHaveValue('Changed source');expect(screen.getByRole('button',{name:'Lưu thông báo'})).toBeDisabled();
+  expect(screen.getByLabelText('Lý do thay đổi')).toHaveValue('Changed reason');expect(screen.getByRole('button',{name:'Lưu thông báo'})).toBeDisabled();
   fireEvent.click(screen.getByRole('button',{name:'Tải lại dữ liệu'}));await waitFor(()=>expect(screen.getByRole('button',{name:'Xem phạm vi và tác động'})).toBeEnabled());
   expect(posts.filter(p=>!p.path.endsWith('/preview'))).toHaveLength(1);
 });
@@ -85,6 +90,7 @@ it('invalidates preview when scope/source/date changes and retains values on sta
 it.each(['cancel_stop','resume_supply'] as const)('keeps %s distinct and sends the follow-up DTO without action or notice id',async action=>{
   const saved=vi.fn();render(<ProviderNoticeForm notice={notice} action={action} day={day} runs={[]} onClose={()=>{}} onSaved={saved} />);
   reasons();await waitFor(()=>expect(screen.getByRole('button',{name:'Xem phạm vi và tác động'})).toBeEnabled());
+  expect(screen.getByText(/Áp dụng theo phạm vi thông báo đã lưu/)).toBeVisible();
   if(action==='resume_supply')fireEvent.change(screen.getByLabelText('Ngày hiệu lực UTC'),{target:{value:'2025-11-04'}});
   else expect(screen.getByLabelText('Ngày hiệu lực UTC')).toHaveAttribute('readonly');
   await preview();expect(posts[0].body).toMatchObject({action,notice_id:1,target_event_id:7,expected_version:1});
@@ -94,12 +100,12 @@ it.each(['cancel_stop','resume_supply'] as const)('keeps %s distinct and sends t
   expect(posts.at(-1)!.body).toMatchObject({target_event_id:7,preview_fingerprint:fp,effective_on:action==='resume_supply'?'2025-11-04':day});
 });
 
-it('requires source and explicit scope, and never assumes every warehouse of a carrier',async()=>{
+it('requires an exact product before preview without asking for a source',async()=>{
   render(<ProviderNoticeForm day={day} runs={[]} onClose={()=>{}} onSaved={()=>{}} />);
   await screen.findByRole('option',{name:'Carrier A'});fireEvent.change(screen.getByLabelText('Nhà mạng áp dụng'),{target:{value:'1'}});
   expect(screen.queryByText('Outside City')).toBeNull();expect(screen.getByRole('button',{name:'Xem phạm vi và tác động'})).toBeDisabled();
-  await scope();fireEvent.change(screen.getByLabelText('Lý do thay đổi'),{target:{value:'Reason'}});fireEvent.click(screen.getByRole('button',{name:'Xem phạm vi và tác động'}));expect(posts).toHaveLength(0);
-  expect(screen.getByRole('button',{name:'Lưu thông báo'})).toBeDisabled();
+  await scope();fireEvent.change(screen.getByLabelText('Lý do thay đổi'),{target:{value:'Reason'}});await preview();
+  expect(posts).toHaveLength(1);expect(posts[0].body.scope_definition).toEqual({products:[{sku:'SYN',product_type:'eSIM'}]});
 });
 
 it('preserves filter pagination, a cleared date and readable schema errors across retry',async()=>{
@@ -125,7 +131,8 @@ it('prefills a product-scoped provider notice without treating the initial scope
   await waitFor(()=>expect(screen.getByLabelText('Nhà mạng áp dụng')).toHaveValue('1'));
   expect(screen.getByLabelText('Nhà mạng áp dụng')).toBeDisabled();
   expect(screen.getByLabelText('Mã SKU chính xác')).toHaveValue('SYN');
-  expect(await screen.findByLabelText('First City · A')).toBeChecked();
+  expect(screen.getByLabelText('Mã SKU chính xác')).toHaveAttribute('readonly');
+  expect(screen.getByLabelText('Loại sản phẩm')).toBeDisabled();expect(screen.queryByRole('checkbox')).toBeNull();
   fireEvent.click(screen.getByRole('button',{name:'Quay lại lịch cung cấp'}));expect(close).toHaveBeenCalledOnce();expect(confirm).not.toHaveBeenCalled();
 });
 

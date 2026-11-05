@@ -1,5 +1,55 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-provider-simple"></a>
+## Rút gọn thông báo ngừng nhà mạng — 05/11/2026
+
+Theo ảnh và yêu cầu mới, form bỏ Thị trường áp dụng, Kho áp dụng/nút chọn tất cả kho, Nguồn khai báo/giả định và Liên kết tham chiếu. Không tải danh sách kho cho form; detail/history cũng bỏ nguồn/link. Nhà mạng/SKU/type được điền sẵn khi đi từ sản phẩm; còn hai mốc ngày, lý do, xem trước/lưu và phần tham khảo tác động tùy chọn. Giữ label, khóa chống gửi trùng, dirty/409/422 và khả năng hủy/phục hồi. Rà soát theo React Best Practices: hook không điều kiện, giữ controlled inputs/focus/busy, bỏ request dư, không thêm dependency.
+
+API ScopeProduct mới chỉ nhận sku/product_type, server mở rộng theo supplier_id đến tất cả item khớp trên mọi thị trường/kho hiện có. Extra destination_countries/warehouse_ids bị từ chối422, không cho client thu hẹp. Preview và service lúc lưu đều phân giải lại, expected_item_ids/fingerprint chặn409 nếu membership/catalog thay đổi. Source mô phỏng mặc định phía BE để dùng schema/provenance hiện có, không yêu cầu nhập. Snapshot/member vẫn chuẩn hóa explicit; không đổi schema, L7/R1/H14, quyền mua/bán/ETA/lượng nhập hoặc verifier. Resolver vẫn đọc scope explicit đã lưu; thông báo cũ/hủy/phục hồi/run frozen không tự mở rộng. Ngừng nhập nội bộ giữ phạm vi từng sản phẩm tại kho.
+
+Kiểm cuối: **123Python BE liên quan,0skip** trên sigma_m3_test riêng55434, gồm ba worker kinds/verifier, API/CSV, hai guard baseline và các ca toàn SKU/type/supplier qua nhiều thị trường/kho, loại trừ sản phẩm khác, mặc định nguồn, lịch sử scoped, catalog đổi giữa preview/lưu và ngay trước persist. Các fixture HTTP cũ được chuyển sang request SKU/type mới; fixture snapshot/legacy explicit được giữ. **116React toàn suite/14ca file provider kiểm lại sau chỉnh cuối, TypeScript/Vite build và pipcheck đạt**. Không nhận đã chạy lại toàn537Python/M2 trong lượt này. Golden cũ không sửa.
+
+Đã dừng launcher trước đổi mã, ghi baseline DB/file, kiểm rồi duyệt fingerprint **c0138badd8599a07b452f18e32dd95a723999b94936323624044442eef937f90**. Mọi hàng18bảng demo,7run/159artifact/source,1.466tệp bảo vệ/435artifactD3/bốn tệp local giữhash. Không migrate, refit hoặc tạo notice/run live mới. Test PG đã dừng. Mở lại API/worker/FE cùng bản qua launcher/Quick Tunnel trong phạm vi đã được phép; HTTPS readiness và12asset khớp build. Preview HTTP không nhập nguồn/market/kho tự nhận đúng item621; Chrome mở form D10G-10D/eSIM/LG U+, xem trước quyền thành công và lưu để trống cho người dùng thao tác,0consoleerror. Thử UI không bấm Lưu; API/save/worker được kiểm trên dữ liệu synthetic. Không nhận đã kiểm mobile trong lượt này.
+
+Receipt ngoàiGit tại `outputs/chg110_provider_simple`: before/approved/public-receipt,123BE XML,116React JSON/14provider JSON/build, ảnh provider-simple.png; bản Word/Canva trước đó không bị ghi đè. URL tại lúc kiểm https://elizabeth-classic-schedule-ballot.trycloudflare.com/ , nguồn hiện hành luôn connection.json. Người dùng tiếp tục giao hoàn tất và push; phạm vi publish thường18tệp code/tests/docs CHG108–110 lên final-report, không gồm bốn tệp local S25/COMMIT_BLOCK_PLAN, raw/DB/backup/runtime/credential/outputs/dist. Remote SHA/hai CI phải kiểm đúng commit và lưu receipt local; không tự deploycloud hoặc đổi C00/R05/R07/T14. Các checkpoint “chưa push” bên dưới giữ lịch sử thời điểm trước quyền mới.
+
+<a id="handoff-stop-demo-runs"></a>
+## Hai lượt demo ngừng nhập nội bộ và ngừng dịch vụ nhà cung cấp — 05/11/2026
+
+Người dùng yêu cầu chạy thêm hai run với hai nguồn ngừng cung cấp. Đã tạo hai phiên bản kịch bản riêng qua API, cùng thiết lập Cơ sở (cover7, safety multiplier1, không override policy/không lô đầu kỳ), giữ nguồn04afb914 và forecaste63fcff5. Hai lượt đều policy_replay, mốc31/10/2025, kỳ01–14/11/2025; lịch giả định biết31/10, hiệu lực05/11. Không phát đơn mua hàng thật.
+
+| Ví dụ | Kịch bản / run | Diễn biến của sản phẩm được chọn |
+| --- | --- | --- |
+| Ngừng nhập nội bộ | id6/v1 `m3_internal_stop_1105`; `42977e9c-3839-44df-98c6-9effc14d15b1` | item631 D5G-7D/eSIM, LG U+, Busan. Tồn đầu5, lô cố định5, sàn6, SS3ngày. Đặt hai lô ngày31/10 và01/11, về07/11 và08/11, tổng10. Từ05/11 không đặt mới; vẫn nhận10 và bán được10 sau ngày ngừng, không chặn bán nguồn. |
+| Nhà cung cấp ngừng dịch vụ | id7/v1 `m3_provider_stop_1105`; `4599b3ee-5a2c-4d75-806e-ca545c7f85df` | item349 D3G-5D/eSIM, NTT Docomo, Tokyo. Tồn đầu5, lô cố định5, sàn5, SS3ngày. Tại31/10 Q_policy5 nhưng Q_final0: ETA07/11 nằm sau hạn05/11 (`eta_at_or_after_provider_stop`). Không tạo lô cho sản phẩm này; từ05/11 chặn nhập và bán,15đơn vị bán nguồn trong kỳ bị chặn, cuối kỳ còn1tồn bị chặn. |
+
+Lịch cung cấp là cấu hình dùng chung, không phải override riêng của scenario. Run thứ nhất được chốt trước khi thêm provider notice, toàn bộ ledger của nó không có notice nhà cung cấp. Run thứ hai chốt cả lịch nội bộ item631 và notice item349; khi demo nhà cung cấp, lọc Tokyo/item349. Không hủy lịch nội bộ hoặc sửa frozen để tạo sự độc lập giả giữa hai tổng toàn danh mục. Notice chỉ áp đúng1item/1kho/1SKU/type/thị trường, không áp toàn nhà mạng. Hai lịch tiếp tục tồn tại trong cấu hình demo hiện tại; năm kịch bản cũ giữ nguyên.
+
+Hai run complete và phase verified do worker/bộ kiểm độc lập thực hiện. Đã kiểm8cặp API/CSV: total khớp toàn tệp, các trường định danh/ngày/số lượng/ngưỡng/quyền/trạng thái được chọn trên tối đa100dòng API đầu mỗi dataset khớp; toàn CSV tồn thỏa ROP=max(rop_forecast,configured_rop_floor). Kiểm đủ15ngày của mỗi item qua API/CSV, Q_final0 và không đơn mới từ05/11; nội bộ vẫn có bán/nhận sau hạn, provider chặn bán và ETA. Không tính tỷ lệ báo sớm của policy_replay, không thay C00 hoặc ba run Cơ sở.
+
+Trước ghi đã tạo native dump42.136.381byte trong `outputs/chg109_stop_runs/before.private.dump`, đối chiếu trạng thái DB trước/sau dump; đây là backup mới, không nhận đã restore diễn tập ở lượt này. Sau chạy, COPY/hash xác nhận toàn bộ hàng cũ của18bảng (lọc các run/scenario cũ ở bảng có thêm hàng) giữ nguyên, mọi tệp artifact cũ và source giữ SHA256. Demo5→7run,5→7scenario; thêm1internal stop và1provider notice/event/member. Runtime/API/worker fe55aa9008c14f87e80c2a6f63bea2e2cd0af78d77a04515d97015ea32223085 giữ nguyên; không sửa FE/BE/schema/policy/model/refit. Không chạy lại suite ứng dụng vì không sửa mã ứng dụng.
+
+Đã khởi động lại launcher hiện có và Quick Tunnel trong phạm vi đã được phép. Chrome HTTPS mở riêng hai kết quả ngày07/11, đúng kho/SKU/quyền,0consoleerror; giữ hai tab kết quả. Ảnh `internal-complete.png`/`provider-complete.png` và receipt `verification.json`/`preservation.json` tại outputs/chg109_stop_runs ngoàiGit. URL tại thời điểm kiểm https://flight-accuracy-mat-updated.trycloudflare.com/ ; luôn lấy nguồn hiện hành ở connection.json. Chưa commit/push/deploy cloud; không mở DB bảo vệ hoặc thay C00/R05/R07/T14/bốn tệp local nghiên cứu.
+
+<a id="handoff-inventory-only-jobs"></a>
+## Chỉ ba loại công việc kịch bản và ba lượt mới — 05/11/2026
+
+Người dùng yêu cầu bỏ nhóm Chuẩn bị dữ liệu khỏi Loại công việc và chạy lại ba loại kế hoạch. RunForm chỉ còn Kế hoạch tồn kho, Kế hoạch nhập hàng, Kiểm tra cảnh báo; bỏ nhánh tạo source/forecast và request danh sách source không còn dùng ở trang Kịch bản. Khi mở liên kết source/forecast cũ, kết quả cha vẫn đọc được, form tạo kế hoạch mặc định stock_projection và yêu cầu chọn kịch bản. API/CLI nhập nguồn, tạo dự báo và hai parent đã có được giữ nguyên. Không đổi BE, schema, kernel, model, lifecycle hoặc C00.
+
+Ba lượt được gửi qua POST /runs có khóa idempotency riêng, worker xử lý và kiểm chứng độc lập trước complete; không sửa trạng thái thủ công. Cùng Cơ sở id1/v1, cover7, safety multiplier1, không lô đầu kỳ, không override policy; source04afb914 và forecast e63fcff5. Mốc31/10/2025; hai replay có kỳ01–14/11/2025, profile quyền internal_provider_trade_v2, kho nhận mặc định sản phẩm và ROP forecast_floor_days_ss_v1.
+
+| Loại | Run mới | Kết quả mô phỏng |
+| --- | --- | --- |
+| Kế hoạch tồn kho | 13a2e3eb-a348-4171-b271-2c7fc6f8f830 | 920 dòng tồn tại mốc; Tổng quan có tồn1.314, 794 sản phẩm đề xuất bổ sung5.860 đơn vị. Chỉ đề xuất, chưa tạo lô mới. |
+| Kế hoạch nhập hàng | 2db8f39f-e919-4547-bfb7-1b413f70086d | 13.800 dòng tồn gồm mốc và14ngày; 1.058 lô/7.315 đơn vị mô phỏng, thiếu355/2.184 nhu cầu trong kỳ. |
+| Kiểm tra cảnh báo | b99d0aa5-80a0-4329-97e0-bffd9913ad56 | 154/479=32,1503% báo sớm≥7ngày (UI32,2%), Precision70,84%, Recall68,48%, 180ca không chấm; không tự bổ sung lô mới. |
+
+Tỷ lệ alert_replay thuộc riêng kỳ01–14/11, không thay hoặc đồng nhất với nghiên cứu C00 toàn kỳ129/400=32,25%. Nguồn/dự báo và năm cấu hình kịch bản được giữ. Demo từ2 lên5run; không tạo forecast/refit hoặc xóa lượt nào. Runtime BE/worker vẫn fe55aa9008c14f87e80c2a6f63bea2e2cd0af78d77a04515d97015ea32223085.
+
+116React đạt toàn bộ với1worker, TypeScript/Vite build đạt; hai timeout ở lượt kiểm đầu khi chạy đồng thời build/worker được kiểm lại và full suite đạt, không nới timeout/assertion. Kiểm hồi quy trên RunForm mở từ forecast cha vẫn tạo đúng stock_projection, chỉ có ba lựa chọn và giữ idempotency/chống gửi trùng. Rà soát React: hook không điều kiện, bỏ request không dùng, giữ label/fieldset/busy/abort.12tệp FE HTTPS khớp dist và đã refresh riêng frontend manifest trong prepared; không restart BE. Browser trên tab Chrome của người dùng đã thấy menu ba lựa chọn, kết quả stock/cảnh báo và lịch sử cả ba complete. Ảnh bằng chứng local outputs/chg108_inventory_runs/three-complete.png.
+
+Đã kiểm12cặp API/CSV: tổng số dòng của toàn tệp và mọi trường định danh/ngày/số lượng/ngưỡng/trạng thái được chọn trên tối đa100dòng API đầu mỗi cặp khớp; ba dataset replenishments lần lượt0/1.058/0lô, inventory920/13.800/13.800dòng, alerts1.762/21.060/1.762dòng, sell_through12.880dòng mỗi lượt. Toàn CSV tồn đều rop_mode=forecast, safety_mode=days và ROP=max(rop_forecast, configured_rop_floor); kiểm chứng kernel độc lập do worker thực hiện trước complete. API hai parent và năm cấu hình trước/sau khớp; readiness DB/storage/worker đạt. Receipt/scripts local outputs/chg108_inventory_runs ngoàiGit. Chưa commit/push ở lượt này; giữ bốn tệp S25/COMMIT_BLOCK_PLAN, raw/DB/backup/runtime/credential/outputs/dist ngoài stage; C00/R05/R07/T14 không đổi.
+
 <a id="handoff-forecast-floor-c00"></a>
 ## ROP theo dự báo cộng SS và ngưỡng tối thiểu — 04/11/2026
 

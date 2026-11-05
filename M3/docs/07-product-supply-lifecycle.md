@@ -1,5 +1,10 @@
 # M3 — Đặc tả vòng đời mua bán SIM/eSIM (CHG-085)
 
+<a id="provider-product-wide-chg110"></a>
+**CHG-110 — 05/11/2026, đơn giản hóa thông báo nhà mạng:** Thông báo mới xác định bằng nhà mạng + SKU chính xác + loại sản phẩm và áp dụng cho mọi item tương ứng tại tất cả thị trường/kho hiện có. API tạo/xem trước chỉ nhận `products[{sku, product_type}]`; BE tự phân giải và chốt membership đầy đủ, không nhận bộ chọn thị trường/kho từ client. Phạm vi đã chuẩn hóa vẫn lưu danh sách thị trường/kho/member tường minh để snapshot và verifier hiện có kiểm được. Thay đổi catalog giữa preview/lưu làm preview hết hạn. Không mở rộng SKU khác, loại SIM khác hoặc nhà mạng khác.
+
+FE bỏ lựa chọn thị trường/kho và trường nhập nguồn khai báo/liên kết tham chiếu. Metadata nguồn mô phỏng dùng mặc định phía BE; không đổi schema hoặc xóa provenance của lịch sử. Thông báo cũ và run frozen vẫn giữ đúng phạm vi đã lưu; hủy/mở lại thông báo cũ dùng membership cũ. Ngừng nhập nội bộ tiếp tục theo từng sản phẩm tại kho. Known/effective, chặn mua/bán, xét ETA, nhận lô cũ và lưu không tự chạy giữ nguyên. Quy tắc này thay yêu cầu chọn thị trường/kho và nhập nguồn bắt buộc trong thiết kế lịch sử bên dưới đối với thông báo mới.
+
 **CHG-093 — 04/11/2026, cập nhật điểm vào UI:** Bỏ menu thông báo riêng. Từ Products, nút Cấu hình mở `#product`; nút Lịch cung cấp mở `#product-supply` cho item/kho đó. Trang lịch có modal nhập nội bộ và danh sách nhà mạng theo item_id; form provider điền sẵn sản phẩm, vẫn xem trước phạm vi và giữ hai quyền độc lập. Nhãn bộ lọc là Trạng thái nhập/Trạng thái, thêm lọc nhà mạng; không có input ngày xem ở Products. Nghiệp vụ known/effective, lịch sử, quota và frozen không đổi. [Bàn giao](../../docs/development.md#handoff-chg093-products). Điểm vào ProductDetail/menu provider trong các checkpoint cũ bên dưới giữ làm lịch sử.
 
 <a id="phase8-validated"></a>

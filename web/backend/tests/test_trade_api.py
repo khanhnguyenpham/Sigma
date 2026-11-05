@@ -52,9 +52,10 @@ def catalog(sessions, parents=False):
 
 
 def draft(data, **changes):
-    return dict(dict(action="stop", supplier_id=data["supplier"], scope_definition=data["scope"],
+    scope = dict(products=[{k: p[k] for k in ("sku", "product_type")} for p in data["scope"]["products"]])
+    return dict(dict(action="stop", supplier_id=data["supplier"], scope_definition=scope,
         known_on=str(D), effective_on=str(D), reason="Declared provider simulation",
-        source_description="Hypothetical provider notice, no source URL", expected_version=0), **changes)
+        expected_version=0), **changes)
 
 
 def create_notice(client, body):
@@ -104,12 +105,14 @@ def test_multiwarehouse_notice_filters_and_independent_rights(pg, tmp_path):
         preview = client.post(ROOT+"/preview?page_size=1&page=2", json=body).json()
         assert preview["total"] == preview["scope_items"] == 2 and len(preview["items"]) == 1
         assert preview["scope_warehouses"] == 2 and preview["impact"]["stock_qty"] is None
+        assert preview["scope_definition"] == data["scope"]
         saved, _ = create_notice(client, body)
         assert saved["item_ids"] == data["members"]
         assert client.get(ROOT+"?page_size=1").json()["total"] == 1
         assert client.get(f"{ROOT}/{saved['notice_id']}/items?page_size=1&page=2&as_of_date={D}").json()["total"] == 2
         event = client.get(f"{ROOT}/{saved['notice_id']}/events").json()["items"][0]
         assert event["source_ref"] is None and event["is_assumed"] is True
+        assert event["source_description"] == "Mô phỏng kiểm thử luồng ngừng cung cấp."
         filtered = client.get(f"/api/v1/products?provider_status=stopped&sales_allowed=false&as_of_date={D}&page_size=1&page=2").json()
         assert filtered["total"] == 2 and len(filtered["items"]) == 1
         outside = client.get(f"/api/v1/products/{data['outside']}?as_of_date={D}").json()
@@ -154,6 +157,8 @@ def test_cancel_is_not_resume_and_late_notice_does_not_rewrite_prior_dates(pg, t
     dict(source_ref="javascript:private-sentinel"), dict(extra="private-sentinel"),
     dict(scope_definition={"products": [{"sku":"DEMO-ESIM-01","product_type":"eSIM",
         "destination_countries":["DemoLand"],"warehouse_ids":[True]}]}),
+    dict(scope_definition={"products": [{"sku":"DEMO-ESIM-01","product_type":"eSIM",
+        "destination_countries":["DemoLand"],"warehouse_ids":[1]}]}),
 ])
 def test_payload_validation_and_no_private_echo(pg, tmp_path, change):
     _, sessions = pg
@@ -183,6 +188,51 @@ def test_stale_preview_and_concurrent_create_do_not_duplicate_notice(pg, tmp_pat
         assert sorted(pool.map(create, range(2))) == [201,409]
     with sessions() as s:
         assert s.scalar(select(func.count()).select_from(ProviderProductNotice)) == 1
+
+
+def test_product_scope_refreshes_when_matching_catalog_changes_and_keeps_legacy_scope(pg, tmp_path):
+    _, sessions = pg
+    data = catalog(sessions)
+    legacy_scope = dict(products=[dict(sku="DEMO-ESIM-01", product_type="eSIM",
+        destination_countries=["DemoLand"], warehouse_ids=[1])])
+    with sessions.begin() as s:
+        legacy = create_provider_notice(s, supplier_id=data["supplier"], scope_definition=legacy_scope,
+            expected_version=0, known_on=D, effective_on=D, action="stop", reason="Legacy single warehouse")
+    with TestClient(create_app(settings(tmp_path))) as client:
+        body = draft(data)
+        preview = client.post(ROOT+"/preview", json=body).json()
+        with sessions.begin() as s:
+            w = Warehouse(code="THIRD-W", destination_country="ThirdMarket", carrier="DemoCarrier",
+                          city="Third City", assumption_source="synthetic")
+            s.add(w); s.flush()
+            item = Item(warehouse_id=w.id, sku="DEMO-ESIM-01", product_type="eSIM", first_seen_date=D)
+            s.add(item); s.flush(); added_id = item.id
+        stale = client.post(ROOT, json={**body, "preview_fingerprint":preview["preview_fingerprint"]})
+        assert stale.status_code == 409 and stale.json()["error"]["code"] == "preview_stale"
+        saved, refreshed = create_notice(client, body)
+        assert saved["item_ids"] == [*data["members"], added_id]
+        assert refreshed["scope_warehouses"] == 3
+        old = client.get(f"{ROOT}/{legacy['notice_id']}/items?as_of_date={D}").json()
+        assert old["total"] == 1 and old["items"][0]["item_id"] == data["item"]
+        assert client.get(f"{ROOT}/{legacy['notice_id']}").json()["scope_definition"] == legacy_scope
+
+
+def test_create_rechecks_all_matching_products_before_persisting_membership(pg, tmp_path, monkeypatch):
+    _, sessions = pg
+    data = catalog(sessions)
+    from modules.catalog import provider_service
+    with sessions() as s:
+        current = provider_service.provider_catalog(s, data["supplier"])
+    added = dict(current[0], id=999, warehouse_id=999, destination_country="NewMarket")
+    with TestClient(create_app(settings(tmp_path))) as client:
+        body = draft(data)
+        preview = client.post(ROOT+"/preview", json=body).json()
+        # Simulate a matching item becoming visible at the final service recheck.
+        monkeypatch.setattr(provider_service, "provider_catalog", lambda *args: [*current, added])
+        result = client.post(ROOT, json={**body, "preview_fingerprint":preview["preview_fingerprint"]})
+        assert result.status_code == 409 and result.json()["error"]["code"] == "preview_stale"
+    with sessions() as s:
+        assert s.scalar(select(func.count()).select_from(ProviderProductNotice)) == 0
 
 
 def test_internal_preview_stales_when_provider_constraint_changes(pg, tmp_path):

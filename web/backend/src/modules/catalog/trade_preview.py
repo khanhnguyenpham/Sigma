@@ -140,7 +140,7 @@ def provider_preview(session, draft, *, write=False, fingerprint=None):
         if root:
             saved = append_provider_notice_event(session, root.id, expected_version=draft.expected_version, **values)
         else:
-            saved = create_provider_notice(session, supplier_id=supplier_id, scope_definition=scope,
+            saved = create_provider_notice(session, supplier_id=supplier_id, scope_definition=draft.scope_definition.model_dump(),
                 expected_version=draft.expected_version, expected_item_ids=ids, **values)
         return {**saved, "scope_items": len(ids), "scope_warehouses": result["scope_warehouses"]}
     return result

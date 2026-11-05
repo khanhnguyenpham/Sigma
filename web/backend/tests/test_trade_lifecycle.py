@@ -158,6 +158,18 @@ def test_scope_is_explicit_complete_and_does_not_expand_to_carrier_or_type():
     assert resolve_provider_scope(catalog, 1, duplicate) == (scope(), [1, 2])
 
 
+def test_product_wide_scope_expands_all_markets_and_preserves_stored_explicit_scope():
+    catalog = [dict(id=i, warehouse_id=w, sku=sku, product_type=kind, destination_country=c, supplier_id=s)
+               for i, w, sku, kind, c, s in [(1,1,"PLAN","eSIM","A",1), (2,2,"PLAN","eSIM","B",1),
+                   (3,3,"PLAN","eSIM","C",1), (4,1,"PLAN","physical_SIM","A",1),
+                   (5,4,"PLAN","eSIM","D",2), (6,1,"OTHER","eSIM","A",1)]]
+    normalized, members = resolve_provider_scope(catalog, 1, dict(products=[dict(sku="PLAN", product_type="eSIM")]))
+    assert members == [1, 2, 3] and normalized == scope((1,2,3), ("A","B","C"))
+    assert resolve_provider_scope(catalog, 1, scope((1,), ("A",))) == (scope((1,), ("A",)), [1])
+    with pytest.raises(DomainError):
+        resolve_provider_scope(catalog, 1, dict(products=[dict(sku="MISSING", product_type="eSIM")]))
+
+
 def seeded_scope(sessions):
     first, supplier, other_supplier = seed(sessions)
     with sessions.begin() as s:

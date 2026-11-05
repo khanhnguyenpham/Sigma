@@ -123,7 +123,9 @@ describe("Result integrity in the UI", () => {
       },
     ] satisfies Run[];
     const created = vi.fn();
-    render(<RunForm scenario={{ id: 1, name: "Base", version: 1 }} runs={runs} onCreated={created} />);
+    render(<RunForm initialRun={runs[0]} scenario={{ id: 1, name: "Base", version: 1 }} runs={runs} onCreated={created} />);
+    expect(Array.from(screen.getByLabelText("Loại công việc").querySelectorAll("option"), option => option.value))
+      .toEqual(["stock_projection", "policy_replay", "alert_replay"]);
     await screen.findByText("Base · phiên bản 1");
     await waitFor(() => expect(screen.getByRole("button", { name: "Chạy kịch bản" })).toBeEnabled());
     const form = screen
@@ -132,6 +134,8 @@ describe("Result integrity in the UI", () => {
     fireEvent.submit(form);
     fireEvent.submit(form);
     expect(bodies).toHaveLength(1);
+    expect(JSON.parse(bodies[0])).toMatchObject({ kind: "stock_projection", as_of_date: "2025-10-31",
+      source_import_run_id: "source", forecast_run_id: "forecast", scenario_id: 1 });
     await act(async () =>
       finish({
         ok: false,

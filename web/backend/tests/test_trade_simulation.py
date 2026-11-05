@@ -192,7 +192,7 @@ def test_real_worker_verification_and_tamper_rejection(pg,tmp_path,kind):
     _, sessions = pg
     source, forecast, item = worker_fixture(sessions,tmp_path); cfg=settings(tmp_path)
     with TestClient(create_app(cfg)) as client:
-        scope=dict(products=[dict(sku='DEMO-ESIM-01',product_type='eSIM',destination_countries=['DemoLand'],warehouse_ids=[1])])
+        scope=dict(products=[dict(sku='DEMO-ESIM-01',product_type='eSIM')])
         saved,_=create_notice(client,dict(action='stop',supplier_id=1,scope_definition=scope,known_on=str(D),effective_on=str(D+timedelta(days=3)),
             reason='Synthetic stop',source_description='Hypothetical only',expected_version=0))
         save_follow(client,follow_body(saved,known_on=str(D+timedelta(days=4)),effective_on=str(D+timedelta(days=8))))
@@ -256,7 +256,7 @@ def test_worker_whole_lot_cap_and_independent_budget(pg,tmp_path,stop_day,fixed_
     source,forecast,item=worker_fixture(sessions,tmp_path);cfg=settings(tmp_path)
     with TestClient(create_app(cfg)) as client:
         create_notice(client,dict(action='stop',supplier_id=1,scope_definition=dict(products=[dict(
-            sku='DEMO-ESIM-01',product_type='eSIM',destination_countries=['DemoLand'],warehouse_ids=[1])]),
+            sku='DEMO-ESIM-01',product_type='eSIM')]),
             known_on=str(D),effective_on=str(D+timedelta(days=stop_day)),reason='Synthetic cap',source_description='Simulation',expected_version=0))
         key=enqueue_trade(client,source,forecast,item,'policy_replay',fixed_qty=fixed_qty,cover=3,old_lot=False)
         serve(cfg,once=True)
@@ -307,7 +307,7 @@ def test_two_alert_windows_keep_separate_knowledge_prefixes(pg,tmp_path):
         s.add_all([DailySales(source_import_run_id=source,item_id=item,date=D+timedelta(days=h),sales_qty=10,order_count=1,actual_available=True) for h in range(15,29)])
     with TestClient(create_app(cfg)) as client:
         create_notice(client,dict(action='stop',supplier_id=1,scope_definition=dict(products=[dict(
-            sku='DEMO-ESIM-01',product_type='eSIM',destination_countries=['DemoLand'],warehouse_ids=[1])]),
+            sku='DEMO-ESIM-01',product_type='eSIM')]),
             known_on=str(D+timedelta(days=5)),effective_on=str(D+timedelta(days=3)),reason='Synthetic late notice',source_description='Simulation',expected_version=0))
         key=enqueue_trade(client,source,forecast,item,'alert_replay',period_days=28)
         serve(cfg,once=True)

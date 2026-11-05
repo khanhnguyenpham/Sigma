@@ -27,7 +27,7 @@ def plan(sessions,tmp_path,kind='policy_replay',*,internal=True):
     client=TestClient(create_app(settings(tmp_path)))
     saved,_=create_notice(client,dict(action='stop',supplier_id=1,expected_version=0,known_on=str(D),effective_on=str(D),
         reason='=Declared provider simulation',source_description='@Hypothetical source',scope_definition=dict(products=[dict(
-            sku='DEMO-ESIM-01',product_type='eSIM',destination_countries=['DemoLand'],warehouse_ids=[1])])))
+            sku='DEMO-ESIM-01',product_type='eSIM')])))
     if internal:save_internal(client,item,internal_body(reason='=Internal simulation'))
     key=enqueue_trade(client,source,forecast,item,kind)
     assert serve(settings(tmp_path),once=True)==key

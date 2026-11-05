@@ -5,7 +5,7 @@ from uuid import UUID
 
 from pydantic import Field, model_validator
 from core.schemas import DTO
-from modules.catalog.provider import provider_event_values
+from modules.catalog.provider import provider_event_values, SIMULATED_PROVIDER_SOURCE
 
 ProviderStatus = Literal["clear", "scheduled_stop", "stopped", "scheduled_resume"]
 PositiveId = Annotated[int, Field(gt=0, strict=True)]
@@ -15,8 +15,6 @@ Fingerprint = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
 class ScopeProduct(DTO):
     sku: str = Field(min_length=1, max_length=200)
     product_type: Literal["eSIM", "physical_SIM"]
-    destination_countries: list[str] = Field(min_length=1)
-    warehouse_ids: list[PositiveId] = Field(min_length=1)
 
 
 class ProviderScope(DTO):
@@ -38,7 +36,7 @@ class ProviderEventDraft(ImpactContext):
     known_on: date
     effective_on: date
     reason: str = Field(min_length=1, max_length=1000)
-    source_description: str = Field(min_length=1, max_length=1000)
+    source_description: str = Field(default=SIMULATED_PROVIDER_SOURCE, min_length=1, max_length=1000)
     source_ref: str | None = Field(default=None, max_length=2048)
     expected_version: int = Field(ge=0, strict=True)
 

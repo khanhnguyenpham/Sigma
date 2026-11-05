@@ -4,8 +4,10 @@ from urllib.parse import urlsplit
 from core.errors import DomainError
 from modules.catalog.supply import day, supply_state
 
+SIMULATED_PROVIDER_SOURCE = "Mô phỏng kiểm thử luồng ngừng cung cấp."
 
-def provider_event_values(*, action, known_on, effective_on, reason, source_description,
+
+def provider_event_values(*, action, known_on, effective_on, reason, source_description=SIMULATED_PROVIDER_SOURCE,
                           target_event_id=None, source_ref=None):
     values = dict(action=action, known_on=day(known_on), effective_on=day(effective_on),
                   target_event_id=target_event_id)
@@ -106,7 +108,7 @@ def trade_state(internal_changes, notices, item_id, decision_origin, target_date
 
 
 def resolve_provider_scope(catalog, supplier_id, scope_definition):
-    """Resolve all matching items in explicit product/market/warehouse selections."""
+    """Expand product-wide requests; retain explicit scopes stored by older notices."""
     if type(supplier_id) is not int or supplier_id < 1:
         raise DomainError("invalid_input", "A supplier is required")
     if not isinstance(scope_definition, dict) or set(scope_definition) != {"products"}:
@@ -116,9 +118,21 @@ def resolve_provider_scope(catalog, supplier_id, scope_definition):
         raise DomainError("invalid_input", "The product scope cannot be empty")
     normalized, members = [], set()
     for product in products:
-        if not isinstance(product, dict) or set(product) != {"sku", "product_type", "destination_countries", "warehouse_ids"}:
-            raise DomainError("invalid_input", "Product, type, markets and warehouses must be explicit")
+        if not isinstance(product, dict) or set(product) not in (
+            {"sku", "product_type"}, {"sku", "product_type", "destination_countries", "warehouse_ids"}
+        ):
+            raise DomainError("invalid_input", "A product and type are required")
         sku, kind = product["sku"], product["product_type"]
+        if (not isinstance(sku, str) or not sku.strip() or sku != sku.strip()
+            or not isinstance(kind, str) or kind not in {"eSIM", "physical_SIM"}):
+            raise DomainError("invalid_input", "Invalid product scope")
+        if set(product) == {"sku", "product_type"}:
+            matches = [r for r in catalog if r["supplier_id"] == supplier_id and r["sku"] == sku
+                       and r["product_type"] == kind]
+            if not matches:
+                raise DomainError("invalid_input", "This supplier's product does not exist")
+            product = dict(product, destination_countries=sorted({r["destination_country"] for r in matches}),
+                           warehouse_ids=sorted({r["warehouse_id"] for r in matches}))
         countries, warehouses = product["destination_countries"], product["warehouse_ids"]
         if (not isinstance(sku, str) or not sku.strip() or sku != sku.strip()
             or not isinstance(kind, str) or kind not in {"eSIM", "physical_SIM"}

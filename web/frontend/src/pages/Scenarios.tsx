@@ -26,7 +26,6 @@ export function Scenarios({ app }: { app: AppContextState }) {
   const busy = saving || sending || retrying;
   useTradeNavigation(dirty, busy, () => {}, false);
   const directory = useResource<Page>("/scenarios?page_size=100", true, directoryRevision, apiAllPages);
-  const sourceParents = useResource<Page<Run>>("/runs?kind=source_import&status=complete&page_size=100", false, directoryRevision, apiAllPages<Run>);
   const forecastParents = useResource<Page<Run>>("/runs?kind=forecast&status=complete&page_size=100", false, directoryRevision, apiAllPages<Run>);
   const run = app.selectedResource.data?.id === app.ctx.runId ? app.selectedResource.data : undefined;
   const scenarioId = app.ctx.scenarioId || (run?.scenario_id ? String(run.scenario_id) : "");
@@ -44,7 +43,7 @@ export function Scenarios({ app }: { app: AppContextState }) {
       if (!app.ctx.scenarioId && run.scenario_id) app.setCtx((current) => ({ ...current, scenarioId: String(run.scenario_id) }));
     }
   }, [run?.id, run?.status]);
-  useEffect(() => { if (run) setKind(run.kind); }, [run?.id]);
+  useEffect(() => { if (run) setKind(inventoryKinds.includes(run.kind) ? run.kind : "stock_projection"); }, [run?.id]);
   function refresh() { setDirectoryRevision((value) => value + 1); setHistoryRevision((value) => value + 1); }
   function savedScenario(row: Row) { setDirty(false); setSaved(row); app.scenarioSaved(String(row.id)); refresh(); }
   function createDraft() { if (app.chooseScenario("")) { setEditorRevision((value) => value + 1); setDirty(false); } }
@@ -53,8 +52,6 @@ export function Scenarios({ app }: { app: AppContextState }) {
     setHistoryRevision((value) => value + 1);
   }
   const active = !!run && ["queued", "running"].includes(run.status);
-  const parentLoading = kind === "source_import" ? false : kind === "forecast" ? sourceParents.loading : forecastParents.loading;
-  const parentError = kind === "source_import" ? undefined : kind === "forecast" ? sourceParents.error : forecastParents.error;
   const progress = run?.result_summary;
   const phase = ({ import_daily_sales: "Đang nhập dữ liệu ngày", validation: "Đang đánh giá dự báo", test: "Đang đánh giá dự báo",
     future: "Đang tạo dự báo", fixed_top10_replay: "Đang xử lý dự báo tuyến", allocation: "Đang phân bổ dự báo", simulation: "Đang tính kế hoạch" } as Record<string, string>)[String(progress?.phase)] ?? label(run?.status ?? "");
@@ -87,9 +84,9 @@ export function Scenarios({ app }: { app: AppContextState }) {
       </Panel>
       <Panel title="Thiết lập lượt chạy" note="Kho nhận theo mặc định từng sản phẩm, được chốt khi nhận lượt chạy.">
         {dirty && <p className="notice" role="status">Bản nháp chưa lưu chưa áp dụng cho kết quả đang xem.</p>}
-        {(!app.ctx.runId || run) && <RunForm key={`${scenarioId}:${run?.id ?? "new"}`} initialRun={run} runs={[...(sourceParents.data?.items ?? []), ...(forecastParents.data?.items ?? [])]}
+        {(!app.ctx.runId || run) && <RunForm key={`${scenarioId}:${run?.id ?? "new"}`} initialRun={run} runs={forecastParents.data?.items ?? []}
           scenario={scenario} blocked={dirty || saving || active || mismatch || missing || (inventoryKinds.includes(kind) && (!!directory.error || directory.loading))}
-          loading={parentLoading} loadError={parentError} onKindChange={setKind} onBusyChange={setSending} onCreated={created} />}
+          loading={forecastParents.loading} loadError={forecastParents.error} onKindChange={setKind} onBusyChange={setSending} onCreated={created} />}
       </Panel>
     </div>
     <Panel title="Tiến độ và kết quả" note="Dữ liệu của đúng lượt chạy đã chọn; thay thiết lập hiện tại không sửa kết quả đã lưu.">
