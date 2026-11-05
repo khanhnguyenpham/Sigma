@@ -152,6 +152,12 @@ def create_scenario(s, request):
         and s.get(Scenario, request.base_scenario_id) is None
     ):
         raise DomainError("not_found", "Base scenario does not exist", 404)
+    if request.base_scenario_id and s.get(Scenario, request.base_scenario_id).settings.get("_deleted_at"):
+        raise DomainError("scenario_deleted", "Restore the scenario before creating another version", 409)
+    if request.settings.supply_schedule is not None:
+        from datetime import date
+        from modules.configuration.supply import freeze_scenario_supply
+        freeze_scenario_supply(s, request.settings.model_dump(mode="json"), date.max)
     ids = {o.item_id for o in request.settings.policy_overrides} | {
         r.item_id for r in request.settings.receipts_initial
     }

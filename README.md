@@ -19,9 +19,9 @@ SIGMA theo dõi từng sản phẩm theo SKU, loại SIM/eSIM, nhà cung cấp v
 | --- | --- |
 | Quản lý sản phẩm | Cấu hình ngưỡng nhập tối thiểu, số ngày tồn an toàn, lượng nhập mỗi lần và kho nhận mặc định. |
 | Dự báo nhu cầu | Xem nhu cầu dự báo, phân bổ xuống sản phẩm/ngày và so sánh với số bán nguồn khi có dữ liệu đối chiếu. |
-| Kịch bản | Lưu phiên bản thiết lập, chọn công việc, chạy và xem tiến độ/kết quả tại một trang. |
+| Kịch bản | Lưu phiên bản thiết lập và lịch ngừng riêng, chạy/xem kết quả tại một trang; xóa phiên bản đã chạy vào thùng rác và khôi phục khi cần. |
 | Tồn kho và nhập hàng | Theo dõi tồn, lượng đang về, lô nhập mô phỏng, ngày đặt và ETA. |
-| Lịch cung cấp | Quản lý ngừng nhập nội bộ và thông báo nhà mạng ngừng nhập/bán sản phẩm. |
+| Lịch cung cấp | Cấu hình ngừng nhập nội bộ hoặc nhà mạng ngừng dịch vụ riêng trong từng phiên bản kịch bản. |
 | Cảnh báo và báo cáo | Xem nguy cơ xuống ngưỡng/cạn hàng, lý do quyết định và xuất CSV theo lượt chạy. |
 
 ## Ba loại công việc trong kịch bản
@@ -33,6 +33,8 @@ SIGMA theo dõi từng sản phẩm theo SKU, loại SIM/eSIM, nhà cung cấp v
 | **Kiểm tra cảnh báo** | Đối chiếu cảnh báo với sự kiện cạn trong hồi cứu để đo khả năng báo sớm; không tự tạo lô mới trong cửa sổ đánh giá. |
 
 Lưu thiết lập không tự chạy công việc. Mỗi lượt chạy chốt đầu vào và cấu hình riêng, nên sửa thiết lập hiện tại không viết lại kết quả đã lưu.
+
+Lượt mới tạo từ giao diện chỉ lấy lịch ngừng của phiên bản kịch bản được chọn. Để trống để chạy bình thường; xóa lịch rồi lưu phiên bản mới để reset. Lịch dùng chung trước đây vẫn được giữ trong kết quả lịch sử.
 
 ## Luồng xử lý tổng quát
 

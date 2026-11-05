@@ -1876,3 +1876,34 @@ button.warehouse-card:hover { border-color: #a9b5f0; background: #fcfcff; box-sh
 .badge.scheduled_stop, .badge.waiting_receipts { background:#fff3df; color:#986820; }
 .badge.active, .badge.selling_remaining { background:#e9f5f0; color:#277761; }
 @media (max-width:760px) { .supply-filters { grid-template-columns:minmax(0,1fr); } }
+.supply-impact-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.supply-impact-card { min-width: 0; border: 1px solid #dfe4ef; border-radius: 12px; padding: 20px; overflow-wrap: anywhere; }
+.supply-impact-card h3 { margin: 0 0 16px; }
+.supply-impact-product { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+.supply-impact-product .text-button { font-size: 20px; font-weight: 700; }
+.supply-impact-product small, .supply-impact-card .muted { color: #65748b; }
+.supply-impact-status { font-weight: 600; color: #3848aa; }
+.supply-impact-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 18px 0; }
+.supply-impact-metrics dt { color: #65748b; font-size: 13px; }
+.supply-impact-metrics dd { margin: 4px 0 0; font-size: 23px; font-weight: 700; }
+.supply-impact-order { display: flex; flex-direction: column; gap: 7px; background: #f4f6ff; padding: 14px; border-radius: 8px; margin: 16px 0; }
+.supply-impact-order strong { font-size: 23px; }
+.supply-impact-card summary { cursor: pointer; color: #3848aa; }
+.scenario-workspace .checkbox-line { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 8px; margin: 14px 0; }
+.scenario-workspace .checkbox-line input { width: auto; }
+.scenario-supply-editor .scenario-row label { flex: 1 1 160px; }
+.scenario-supply-editor .scenario-row input, .scenario-supply-editor .scenario-row select { max-width: 100%; }
+.scenario-supply-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 8px; }
+.scenario-supply-actions .scenario-add-stop { background: #edf0ff; border-color: #b9c4f9; color: #3548b5; font-weight: 600; min-height: 44px; box-shadow: 0 2px 5px #4355bd14; }
+.scenario-supply-actions .scenario-add-stop:hover:not(:disabled) { background: #e1e7ff; border-color: #8798ed; box-shadow: 0 3px 8px #4355bd24; }
+.scenario-reset-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; padding-top: 18px; border-top: 1px dashed #dce2ed; }
+.scenario-reset-actions .scenario-reset-stops { background: #fff5f4; border-color: #edc3be; color: #a1453c; font-weight: 600; min-height: 44px; }
+.scenario-reset-actions .scenario-reset-stops:hover:not(:disabled) { background: #ffebe8; border-color: #d89187; }
+.scenario-item-picker { width: min(960px, calc(100vw - 32px)); max-height: 90vh; overflow-y: auto; }
+.scenario-item-filters { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 20px 0; }
+.scenario-item-filters label { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.scenario-item-filters input, .scenario-item-filters select { width: 100%; min-width: 0; }
+.scenario-item-field { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; text-align: left; white-space: normal; max-width: 240px; }
+.scenario-item-field small { color: #65748b; font-weight: 400; }
+@media (max-width: 600px) { .scenario-item-filters { grid-template-columns: minmax(0, 1fr); } .scenario-item-picker { padding: 20px; } }
+@media (max-width: 800px) { .supply-impact-grid { grid-template-columns: minmax(0, 1fr); } .supply-impact-card { padding: 16px; } }

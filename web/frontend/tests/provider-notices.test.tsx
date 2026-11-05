@@ -3,7 +3,6 @@ import { beforeEach,afterEach,expect,it,vi } from "vitest";
 import { ProviderNoticeForm } from "../src/components/products/ProviderNoticeForm";
 import { ProviderNotices } from "../src/pages/ProviderNotices";
 import { ProductDetail } from "../src/pages/Products";
-import { ProductSupply } from "../src/pages/ProductSupply";
 import { RunForm } from "../src/components/configuration/RunForm";
 import { SellThrough } from "../src/components/forecast/SellThrough";
 import { contextUrl,readContext,navigationUrl } from "../src/utils/url";
@@ -118,13 +117,6 @@ it('preserves filter pagination, a cleared date and readable schema errors acros
   expect(location.search).not.toContain('notice_day=2025');
 });
 
-it('keeps lifecycle actions on the separate product supply page with a focused internal dialog',async()=>{
-  render(<ProductSupply page="product-supply" ctx={ctx} runs={[]} navigate={()=>{}} onDate={()=>{}} onItem={()=>{}} />);
-  await screen.findByRole('heading',{name:'Lịch cung cấp',level:1});expect(screen.queryByRole('dialog')).toBeNull();expect(screen.queryByLabelText('Lý do thay đổi')).toBeNull();
-  fireEvent.click(screen.getByRole('button',{name:'Đặt lịch ngừng nhập'}));expect(await screen.findByRole('dialog',{name:'Ngừng nhập nội bộ'})).toBeVisible();
-  fireEvent.keyDown(document,{key:'Escape'});await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());
-});
-
 it('prefills a product-scoped provider notice without treating the initial scope as a dirty draft',async()=>{
   const close=vi.fn(),confirm=vi.spyOn(window,'confirm').mockReturnValue(false);
   render(<ProviderNoticeForm initialProduct={{id:11,sku:'SYN',product_type:'eSIM',supplier_id:1,warehouse_id:1,destination_country:'A'}} day={day} runs={[]} onClose={close} onSaved={()=>{}} />);
@@ -147,6 +139,7 @@ it('automatically adds the supported trade marker only for inventory runs',async
   render(<RunForm scenario={{ id: 1, name: "Base", version: 1 }} runs={[forecast]} onCreated={()=>{}} />);await waitFor(()=>expect(screen.getByRole('button',{name:'Chạy kịch bản'})).toBeEnabled());
   fireEvent.submit(screen.getByRole('button',{name:'Chạy kịch bản'}).closest('form')!);
   await waitFor(()=>expect(posts).toHaveLength(1));expect(posts[0].body.trade_lifecycle_profile).toBe('internal_provider_trade_v2');
+  expect(posts[0].body.scenario_supply_profile).toBe('scenario_supply_v1');
   expect(screen.queryByText('internal_provider_trade_v2')).toBeNull();
 });
 

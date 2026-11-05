@@ -54,12 +54,39 @@ class PolicyOverride(DTO):
     warning_horizon_days: int | None = Field(default=None, ge=1, le=14, strict=True)
 
 
+class ScenarioStop(DTO):
+    item_id: int = Field(gt=0, strict=True)
+    known_on: date
+    effective_on: date
+    reason: str = Field(min_length=1, max_length=1000)
+
+    @model_validator(mode="after")
+    def valid_stop(self):
+        self.reason = self.reason.strip()
+        if not self.reason or self.effective_on < self.known_on:
+            raise ValueError("A reason and an effective date on or after known_on are required")
+        return self
+
+
+class SupplySchedule(DTO):
+    internal_stops: list[ScenarioStop] = Field(default_factory=list)
+    provider_stops: list[ScenarioStop] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def unique_items(self):
+        for rows in (self.internal_stops, self.provider_stops):
+            if len({r.item_id for r in rows}) != len(rows):
+                raise ValueError("Each product can have only one stop per group")
+        return self
+
+
 class ScenarioSettings(DTO):
     cover_days: Literal[3, 7, 14]
     safety_multiplier: float = Field(ge=0, le=10)
     policy_overrides: list[PolicyOverride]
     receipts_initial: list[ReceiptInput]
     receipts_declared: Literal[True]
+    supply_schedule: SupplySchedule | None = None
 
     @model_validator(mode="after")
     def unique_keys(self):

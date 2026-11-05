@@ -20,6 +20,17 @@ from test_trade_simulation import enqueue_trade
 from test_trade_api import create_notice,save_internal,internal_body,save_follow,follow_body
 from test_workspace_api import workspace_fixture
 from worker import serve
+from modules.inventory.router import supply_impacts
+
+
+def test_supply_examples_prioritize_current_blocks_and_count_all_filtered_items():
+    scheduled = dict(item_id=1, internal_status='scheduled_stop', provider_status='scheduled_stop', sales_allowed=True)
+    internal = dict(item_id=8, internal_status='stopped', provider_status='clear', sales_allowed=True)
+    provider = dict(item_id=9, internal_status='active', provider_status='stopped', sales_allowed=False)
+    clear = dict(item_id=2, internal_status='active', provider_status='clear', sales_allowed=True)
+    result = supply_impacts([scheduled, internal, provider, clear])
+    assert result == dict(internal=dict(total=2,item=internal),provider=dict(total=2,item=provider))
+    assert supply_impacts([]) == dict(internal=dict(total=0,item=None),provider=dict(total=0,item=None))
 
 
 def plan(sessions,tmp_path,kind='policy_replay',*,internal=True):
@@ -78,6 +89,10 @@ def test_trade_inventory_projection_workspace_purchasing_and_exports(pg,tmp_path
             assert workspace['summary'][field]==1
         assert workspace['summary']['healthy_items']==0 and workspace['summary']['blocked_units']==21
         assert workspace['attention']==[]
+        for group in ('internal', 'provider'):
+            assert workspace['supply_impacts'][group] == dict(total=1, item=row)
+        filtered=c.get(root+f'/workspace?as_of_date={D}&sales_allowed=true').json()
+        assert filtered['supply_impacts']==dict(internal=dict(total=0,item=None),provider=dict(total=0,item=None))
         lots=c.get(root+f'/purchasing?as_of_date={D}&view=incoming').json()
         assert lots['summary']['affected_items']==1 and lots['items'][0]['needs_supplier_action']
         assert lots['items'][0]['eta']==str(D+timedelta(days=4)) and not lots['items'][0]['sales_allowed_at_eta']
@@ -166,6 +181,7 @@ def test_legacy_feature_availability_and_new_filters_never_assume_rights(pg,tmp_
     _,sessions=pg;key,_,_=workspace_fixture(sessions)
     with TestClient(create_app(settings(tmp_path))) as c:
         root=f'/api/v1/runs/{key}'
+        assert 'supply_impacts' not in c.get(root+f'/workspace?as_of_date={D}').json()
         row=c.get(root+'/inventory').json()['items'][0]
         assert 'sales_allowed' not in row and 'source_sales_qty' not in row and 'blocked_qty' not in row
         for endpoint in ['inventory','alerts','replenishments','sell-through']:
@@ -277,7 +293,10 @@ def test_boundary_selects_latest_window_before_operational_rights_filter(pg,tmp_
         root=f'/api/v1/runs/{key}'
         all_rows=c.get(root+f'/inventory?as_of_date={at}').json()
         assert all_rows['total']==2
-        summary=c.get(root+f'/workspace?as_of_date={at}&sales_allowed=false').json()['summary']
+        workspace=c.get(root+f'/workspace?as_of_date={at}&sales_allowed=false').json()
+        summary=workspace['summary']
+        assert workspace['supply_impacts']['provider']['item']['blocked_qty']==41
+        assert workspace['supply_impacts']['provider']['item']['window_origin']==str(at)
         assert summary['item_count']==1 and summary['blocked_units']==41
         empty=c.get(root+f'/workspace?as_of_date={at}&sales_allowed=true').json()['summary']
         assert empty['item_count']==0 and empty['total_units'] is None

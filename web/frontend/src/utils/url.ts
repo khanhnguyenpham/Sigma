@@ -68,6 +68,8 @@ export function navigationUrl(ctx:Context,page:string,view:PurchasingView) {
 
 export function readPage() {
   const page = location.hash.slice(1) || "overview";
+  if (page === "product-supply") return new URLSearchParams(location.search).get("item_id") ? "product" : "products";
+  if (page.startsWith("provider-")) return "scenarios";
   return page === "configuration" ? "scenarios" : page;
 }
 

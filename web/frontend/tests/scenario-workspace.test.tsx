@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import App from "../src/App";
 import type { Row, Run } from "../src/types/api";
@@ -20,11 +20,21 @@ function fixture({ initialRun, rejectRun = false, parentError = false }: { initi
   let run = initialRun;
   vi.spyOn(globalThis, "fetch").mockImplementation((input, options) => {
     const url = new URL(String(input), location.origin), path = url.pathname.replace("/api/v1", "");
+    if (options?.method === "DELETE") {
+      const index=scenarios.findIndex(row=>path===`/scenarios/${row.id}`);
+      if(index>=0)scenarios[index]={...scenarios[index],settings:{...(scenarios[index].settings as Row),_deleted_at:'2026-11-05T00:00:00Z'}};
+      writes.push({path,body:{}});return reply(scenarios[index]);
+    }
     if (options?.method === "POST") {
       const body = options.body ? JSON.parse(String(options.body)) : {};
-      writes.push({ path, body, key: (options.headers as Record<string, string>)["Idempotency-Key"] });
+      writes.push({ path, body, key: (options.headers as Record<string, string> | undefined)?.["Idempotency-Key"] });
+      if (path.endsWith('/restore')) {
+        const index=scenarios.findIndex(row=>path===`/scenarios/${row.id}/restore`);
+        const settings={...(scenarios[index].settings as Row)};delete settings._deleted_at;
+        scenarios[index]={...scenarios[index],settings};return reply(scenarios[index]);
+      }
       if (path === "/scenarios") {
-        const saved = { ...body, id: 3, version: 2 }; scenarios.push(saved); return reply(saved);
+        const saved = { ...body, id: scenarios.length+2, version: 2 }; scenarios.push(saved); return reply(saved);
       }
       if (rejectRun) return reply({ error: { code: "demo_run_limit", message: "quota", details: { retry_after_seconds: 20 } } }, 429);
       run = { ...forecast, id: "queued-run", kind: String(body.kind ?? initialRun?.kind), status: "queued",
@@ -32,7 +42,9 @@ function fixture({ initialRun, rejectRun = false, parentError = false }: { initi
         forecast_run_id: forecast.id, result_summary: {} };
       return reply({ run_id: run.id }, 202);
     }
-    if (path === "/scenarios") return reply(page(scenarios));
+    if (path === "/scenarios") return reply(page(scenarios.filter(row=>url.searchParams.get('include_deleted')==='true' || !(row.settings as Row)?._deleted_at)));
+    if (path === "/warehouses") return reply(page([{id:1,city:'Test City'}]));
+    if (path === "/items") return reply(page([{id:11,sku:'SCOPED-SKU',product_type:'eSIM'}]));
     if (path === "/runs") {
       if (url.searchParams.has("kind")) {
         if (parentError) return reply({ error: { code: "database_unavailable" } }, 503);
@@ -41,7 +53,8 @@ function fixture({ initialRun, rejectRun = false, parentError = false }: { initi
       return reply(page(run ? [run] : [forecast]));
     }
     if (path.startsWith("/runs/")) return run && path === `/runs/${run.id}` ? reply(run) : reply({ error: { code: "not_found" } }, 404);
-    if (path === "/products") return reply(page([{ trade_schema_ready: true }]));
+    if (path === "/suppliers") return reply(page([{id:1,carrier:'DemoCarrier'}]));
+    if (path === "/products") return reply(page(url.searchParams.has('carrier') ? [{id:11,sku:'SCOPED-SKU',product_type:'eSIM',carrier:'DemoCarrier',city:'Test City',destination_country:'Demo'}] : [{trade_schema_ready:true}]));
     return reply(page([]));
   });
   return { writes, setStatus(status: string) { if (run) run = { ...run, status }; } };
@@ -75,6 +88,50 @@ it("saves without running, selects the returned version and keeps progress/resul
   state.setStatus("complete"); act(() => window.dispatchEvent(new Event("sigma:refresh")));
   await screen.findByText("Kết quả đã chốt queued-run");
   expect(location.hash).toBe("#scenarios"); expect(state.writes).toHaveLength(2);
+});
+
+it("saves scenario-only stops and resets them by saving a new empty schedule", async () => {
+  const state=fixture();history.replaceState(null,'','/?scenario_id=1#scenarios');render(<App />);
+  expect(screen.queryByLabelText('Kho danh mục để chọn mặt hàng')).toBeNull();
+  for(const name of ['＋ Ngừng nhập nội bộ','＋ Nhà cung cấp ngừng dịch vụ']) {
+    fireEvent.click(await screen.findByRole('button',{name}));
+    const picker=within(screen.getByRole('dialog'));
+    await picker.findByRole('option',{name:'DemoCarrier'});
+    fireEvent.change(picker.getByLabelText('Nhà mạng'),{target:{value:'DemoCarrier'}});
+    fireEvent.click(await picker.findByRole('button',{name:/Chọn SCOPED-SKU eSIM/}));
+  }
+  for(const name of ['Ngừng nhập nội bộ','Nhà cung cấp ngừng dịch vụ']) {
+    const group=within(screen.getByRole('group',{name:new RegExp('^'+name+'$')}));
+    fireEvent.change(group.getByLabelText('Ngày biết lịch UTC'),{target:{value:'2025-10-31'}});
+    fireEvent.change(group.getByLabelText('Ngày ngừng UTC'),{target:{value:'2025-11-05'}});
+    fireEvent.change(group.getByLabelText('Lý do ngừng'),{target:{value:'Only this scenario'}});
+  }
+  expect(state.writes).toHaveLength(0);expect(screen.getByRole('button',{name:'Chạy kịch bản'})).toBeDisabled();
+  fireEvent.click(screen.getByRole('button',{name:'Lưu thiết lập'}));
+  await waitFor(()=>expect(screen.getByLabelText('Kịch bản / phiên bản')).toHaveValue('3'));
+  expect((state.writes[0].body.settings as Row).supply_schedule).toEqual({internal_stops:[{item_id:11,known_on:'2025-10-31',effective_on:'2025-11-05',reason:'Only this scenario'}],provider_stops:[{item_id:11,known_on:'2025-10-31',effective_on:'2025-11-05',reason:'Only this scenario'}]});
+  fireEvent.click(screen.getByRole('button',{name:'Xóa tất cả lịch ngừng trong bản nháp'}));
+  fireEvent.click(screen.getByRole('button',{name:'Lưu thiết lập'}));
+  await waitFor(()=>expect(state.writes).toHaveLength(2));
+  expect((state.writes[1].body.settings as Row).supply_schedule).toEqual({internal_stops:[],provider_stops:[]});
+});
+
+it("moves a completed scenario to trash only after confirmation and can restore it", async () => {
+  const state=fixture({initialRun:{...forecast,id:'complete-run',kind:'stock_projection',scenario_id:1}});
+  history.replaceState(null,'','/?scenario_id=1&run_id=complete-run#scenarios');render(<App />);
+  await screen.findByText('Kết quả đã chốt complete-run');
+  fireEvent.click(screen.getByRole('button',{name:'Xóa phiên bản kịch bản'}));
+  expect(screen.getByRole('alertdialog',{name:'Xác nhận xóa kịch bản'})).toBeVisible();expect(state.writes).toHaveLength(0);
+  fireEvent.click(screen.getByRole('button',{name:'Giữ lại kịch bản'}));expect(state.writes).toHaveLength(0);
+  fireEvent.click(screen.getByRole('button',{name:'Xóa phiên bản kịch bản'}));fireEvent.click(screen.getByRole('button',{name:'Chuyển vào thùng rác'}));
+  await waitFor(()=>expect(screen.getByLabelText('Kịch bản / phiên bản')).toHaveValue(''));
+  expect(state.writes[0].path).toBe('/scenarios/1');
+  fireEvent.click(screen.getByLabelText('Hiện cả kịch bản trong thùng rác'));
+  await screen.findByRole('option',{name:'Base · v1 · Đã xóa'});
+  fireEvent.change(screen.getByLabelText('Kịch bản / phiên bản'),{target:{value:'1'}});
+  expect(screen.queryByLabelText('Tên kịch bản')).toBeNull();expect(screen.getByRole('button',{name:'Chạy kịch bản'})).toBeDisabled();
+  fireEvent.click(screen.getByRole('button',{name:'Khôi phục phiên bản kịch bản'}));
+  await waitFor(()=>expect(state.writes[1].path).toBe('/scenarios/1/restore'));
 });
 
 it("restores the exact run through the configuration alias and blocks a mismatched scenario link", async () => {

@@ -9,6 +9,7 @@ from modules.runs.models import Run
 from modules.runs.schemas import RunCreate
 from modules.runs.service import enqueue
 from core.run_context import required_run
+from modules.configuration.models import Scenario
 
 router = APIRouter(prefix="/api/v1")
 
@@ -42,12 +43,13 @@ def run_view(row):
     }
     result["trade_lifecycle_profile"] = row.config_snapshot.get("trade_lifecycle_profile")
     result["receiving_warehouse_profile"] = row.config_snapshot.get("receiving_warehouse_profile")
+    result["scenario_supply_profile"] = row.config_snapshot.get("scenario_supply_profile")
     scenario = row.config_snapshot.get("scenario", {})
     result["scenario_name"] = scenario.get("name")
     result["scenario_version"] = scenario.get("version")
     settings = scenario.get("settings", {})
     result["scenario_settings"] = {key: settings[key] for key in
-        ("cover_days", "safety_multiplier", "policy_overrides", "receipts_initial", "receipts_declared") if key in settings}
+        ("cover_days", "safety_multiplier", "policy_overrides", "receipts_initial", "receipts_declared", "supply_schedule") if key in settings}
     return result
 
 
@@ -79,6 +81,8 @@ def retry_run(http: Request, key: uuid.UUID, idempotency_key: str = Header(alias
         if previous.status != 'failed':
             raise DomainError('parent_mismatch', 'Only failed runs can be retried', 409)
         body = {**previous.config_snapshot['request'], 'retry_of_run_id': str(key)}
+        if body.get('trade_lifecycle_profile'):
+            body['scenario_supply_profile'] = 'scenario_supply_v1'
         row, created = enqueue(session, RunCreate(**body), idempotency_key, http.app.state.settings)
         return JSONResponse(status_code=202 if created else 200, content=jsonable_encoder(
             dict(run_id=row.id, status=row.status, status_url=f'/api/v1/runs/{row.id}')))
@@ -95,6 +99,9 @@ def runs_get(
 ):
     with http.app.state.sessions() as session:
         query = select(Run)
+        if scenario_id is None:
+            query = query.where(~select(Scenario.id).where(Scenario.id==Run.scenario_id,
+                Scenario.settings["_deleted_at"].astext.is_not(None)).exists())
         for field, value in ((Run.scenario_id, scenario_id), (Run.kind, kind), (Run.status, status)):
             if value is not None:
                 query = query.where(field == value)

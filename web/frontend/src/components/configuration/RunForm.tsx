@@ -33,7 +33,10 @@ export function RunForm({ runs, onCreated, scenario, blocked = false, loading = 
     const form = new FormData(event.currentTarget);
     const body: Row = { kind, as_of_date: String(form.get("as_of_date")),
       source_import_run_id: forecast?.source_import_run_id, forecast_run_id: forecast?.id, scenario_id: Number(scenario!.id) };
-    if (capability.data?.items[0]?.trade_schema_ready === true) body.trade_lifecycle_profile = TRADE_PROFILE;
+    if (capability.data?.items[0]?.trade_schema_ready === true) {
+      body.trade_lifecycle_profile = TRADE_PROFILE;
+      body.scenario_supply_profile = "scenario_supply_v1";
+    }
     if (kind.endsWith("replay")) {
       body.period_start = String(form.get("period_start")); body.period_end = String(form.get("period_end"));
     }
@@ -57,6 +60,7 @@ export function RunForm({ runs, onCreated, scenario, blocked = false, loading = 
   return <form className="scenario-run-form" onSubmit={submit} aria-label="Thiết lập lượt chạy">
     <fieldset disabled={busy}>
       <State loading={loading} error={loadError} />
+      <p className="notice subtle">Lượt mới chỉ áp dụng lịch ngừng đã lưu trong phiên bản kịch bản đang chọn. Không có lịch nghĩa là nhập và bán bình thường theo chính sách.</p>
       <label>Loại công việc
         <select value={kind} onChange={(event) => { setKind(event.target.value); setError(undefined); }}>
           {inventoryKinds.map((value) => <option key={value} value={value}>{label(value)}</option>)}

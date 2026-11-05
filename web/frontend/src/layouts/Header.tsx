@@ -12,7 +12,7 @@ export function Header({ app }: { app: AppContextState }) {
     setHelp,
     openScenarios,
   } = app;
-  const selectedTitle = page === "product-supply" || page.startsWith("provider-") ? "Lịch cung cấp" : page === "product" ? "Cấu hình sản phẩm" : PAGES.find((p) => p[0] === page)?.[2] ?? "Tổng quan";
+  const selectedTitle = page === "product" ? "Cấu hình sản phẩm" : PAGES.find((p) => p[0] === page)?.[2] ?? "Tổng quan";
   return (
     <header className="topbar">
       <div className="breadcrumb">

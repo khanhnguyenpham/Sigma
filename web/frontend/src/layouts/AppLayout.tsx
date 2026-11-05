@@ -31,7 +31,7 @@ export function AppLayout({
     run,
     selectedResource,
   } = app;
-  const managementPage = ["scenarios", "configuration", "products", "product", "product-supply"].includes(page) || page.startsWith("provider-");
+  const managementPage = ["scenarios", "configuration", "products", "product"].includes(page);
   return (
     <div className={"shell " + (navOpen ? "nav-open" : "")}>
       <a

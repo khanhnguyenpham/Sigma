@@ -3,6 +3,7 @@ import { type ScenarioEditorState } from "../../hooks/useScenarioEditor";
 import { PolicyOverrideEditor } from "./PolicyOverrideEditor";
 
 import { ReceiptEditor } from "./ReceiptEditor";
+import { ScenarioSupplyEditor } from "./ScenarioSupplyEditor";
 
 export function ScenarioForm({ editor }: { editor: ScenarioEditorState }) {
   const field = (key: string, value: unknown) => editor.setValues((previous) => ({ ...previous, [key]: value }));
@@ -44,6 +45,7 @@ export function ScenarioForm({ editor }: { editor: ScenarioEditorState }) {
       </label>
       <PolicyOverrideEditor editor={editor} />
       <ReceiptEditor editor={editor} />
+      <ScenarioSupplyEditor editor={editor} />
     </>
   );
 }

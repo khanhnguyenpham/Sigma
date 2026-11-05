@@ -1,6 +1,7 @@
 export type Row = Record<string, unknown>;
 
 export interface Run {
+  scenario_supply_profile?: string | null;
   receiving_warehouse_profile?: string | null;
   trade_lifecycle_profile?: string | null;
   id: string;
@@ -34,6 +35,7 @@ export interface Page<T = Row> {
 }
 
 export interface WorkspaceData {
+  supply_impacts?: Record<"internal" | "provider", { total: number; item: Row | null }>;
   context: Row;
   summary: Row;
   attention: Row[];

@@ -1,6 +1,6 @@
 import { type ScenarioEditorState } from "../../hooks/useScenarioEditor";
 
-import { ItemSelect } from "./ItemSelect";
+import { ScenarioItemField } from "./ScenarioItemPicker";
 
 export function ReceiptEditor({ editor }: { editor: ScenarioEditorState }) {
   const {
@@ -8,9 +8,8 @@ export function ReceiptEditor({ editor }: { editor: ScenarioEditorState }) {
     setReceipts,
     update,
     updateReceiptDate,
-    warehouse,
-    itemData,
-    itemOptions,
+    chooseItem,
+    pickedItems,
   } = editor;
   return (
     <fieldset>
@@ -20,14 +19,7 @@ export function ReceiptEditor({ editor }: { editor: ScenarioEditorState }) {
           <label>
             Mặt hàng
             {
-              <ItemSelect
-                name={"receipt_item_" + index}
-                value={row.item_id}
-                onChange={(id) =>
-                  update(receipts, setReceipts, index, "item_id", id)
-                }
-                itemOptions={itemOptions}
-              />
+              <ScenarioItemField name={`lô đang về ${index+1}`} itemId={row.item_id} item={pickedItems[Number(row.item_id)]} onChoose={()=>chooseItem('receipt',index)} />
             }
           </label>
           <label>
@@ -73,19 +65,7 @@ export function ReceiptEditor({ editor }: { editor: ScenarioEditorState }) {
       ))}
       <button
         type="button"
-        disabled={!warehouse || itemData.loading || !itemOptions.length}
-        onClick={() =>
-          setReceipts([
-            ...receipts,
-            {
-              item_id: Number(itemOptions[0]?.id ?? 0),
-              ordered_on: "2025-09-30",
-              eta: "2025-10-07",
-              ordered_qty: 10,
-              lot_key: crypto.randomUUID(),
-            },
-          ])
-        }
+        onClick={() => chooseItem('receipt')}
       >
         ＋ Lô đang về
       </button>

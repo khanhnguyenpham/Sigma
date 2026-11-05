@@ -77,6 +77,11 @@ it("links only matching replays and keeps comparison in its dedicated scenario t
   expect(screen.queryByRole("button", { name: "Dự kiến bán" })).toBeNull();
   expect(screen.queryByText("32,5%")).toBeNull();
   expect(fetcher.mock.calls.some(([path]) => String(path).includes("/forecasts/origins"))).toBe(false);
+  expect(fetcher.mock.calls.some(([path]) => String(path).includes("/workspace"))).toBe(false);
+  fireEvent.click(screen.getByRole("button", { name: /^Ngừng cung cấp$/ }));
+  expect(await screen.findByText(/Lượt chạy này chưa có dữ liệu ảnh hưởng ngừng cung cấp/)).toBeVisible();
+  expect(fetcher.mock.calls.some(([path]) => String(path).includes("/workspace"))).toBe(true);
+  expect(screen.queryByRole("heading", { name: "Kết quả cảnh báo sớm trước ít nhất 7 ngày" })).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "So sánh dự báo / thực tế" }));
   expect(await screen.findByRole("heading", { name: "So sánh dự báo và thực tế 14 ngày" })).toBeVisible();
   expect(screen.queryByRole("heading", { name: "Kết quả cảnh báo sớm trước ít nhất 7 ngày" })).toBeNull();

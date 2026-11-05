@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { AppContextState } from "../hooks/useAppContext";
 import type { Page, Row, Run } from "../types/api";
-import { apiAllPages } from "../services/http";
+import { api, apiAllPages } from "../services/http";
 import { useResource } from "../hooks/useResource";
 import { useTradeNavigation } from "../hooks/useTradeNavigation";
 import { ScenarioEditor } from "../components/configuration/ScenarioEditor";
@@ -13,7 +13,7 @@ import { Panel } from "../components/ui/Panel";
 import { State } from "../components/ui/State";
 import { Table } from "../components/ui/Table";
 import { Pager } from "../components/ui/Pager";
-import { label } from "../utils/labels";
+import { label, errorLabel } from "../utils/labels";
 import { inventoryKinds } from "../config/navigation";
 import { query } from "../utils/url";
 
@@ -23,15 +23,18 @@ export function Scenarios({ app }: { app: AppContextState }) {
   const [saved, setSaved] = useState<Row>(), [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false), [sending, setSending] = useState(false), [retrying, setRetrying] = useState(false);
   const [kind, setKind] = useState("stock_projection");
-  const busy = saving || sending || retrying;
+  const [showTrash,setShowTrash] = useState(false),[confirmDelete,setConfirmDelete] = useState(false),[trashBusy,setTrashBusy] = useState(false);
+  const [trashError,setTrashError] = useState<Error>();
+  const busy = saving || sending || retrying || trashBusy;
   useTradeNavigation(dirty, busy, () => {}, false);
-  const directory = useResource<Page>("/scenarios?page_size=100", true, directoryRevision, apiAllPages);
+  const directory = useResource<Page>(`/scenarios?page_size=100${showTrash ? "&include_deleted=true" : ""}`, false, directoryRevision, apiAllPages);
   const forecastParents = useResource<Page<Run>>("/runs?kind=forecast&status=complete&page_size=100", false, directoryRevision, apiAllPages<Run>);
   const run = app.selectedResource.data?.id === app.ctx.runId ? app.selectedResource.data : undefined;
   const scenarioId = app.ctx.scenarioId || (run?.scenario_id ? String(run.scenario_id) : "");
   const scenarios = [...(directory.data?.items ?? [])];
   if (saved && !scenarios.some((row) => String(row.id) === String(saved.id))) scenarios.push(saved);
   const scenario = scenarios.find((row) => String(row.id) === scenarioId);
+  const deleted = !!(scenario?.settings as Row | undefined)?._deleted_at;
   const mismatch = !!run && !!app.ctx.scenarioId && app.ctx.scenarioId !== String(run.scenario_id ?? "");
   const missing = !!scenarioId && !directory.loading && !scenario;
   const history = useResource<Page<Run>>(!scenarioId || /^\d+$/.test(scenarioId)
@@ -51,6 +54,14 @@ export function Scenarios({ app }: { app: AppContextState }) {
     app.scenarioRunCreated(id, selectedScenario);
     setHistoryRevision((value) => value + 1);
   }
+  async function trash(restore = false) {
+    if (!scenario || busy) return;
+    setTrashBusy(true);setTrashError(undefined);
+    try {
+      await api(`/scenarios/${scenario.id}${restore ? "/restore" : ""}`, {method:restore ? "POST" : "DELETE"});
+      setConfirmDelete(false);setSaved(undefined);app.scenarioSaved("");refresh();window.dispatchEvent(new Event("sigma:refresh"));
+    } catch (error) {setTrashError(error as Error);} finally {setTrashBusy(false);}
+  }
   const active = !!run && ["queued", "running"].includes(run.status);
   const progress = run?.result_summary;
   const phase = ({ import_daily_sales: "Đang nhập dữ liệu ngày", validation: "Đang đánh giá dự báo", test: "Đang đánh giá dự báo",
@@ -64,14 +75,19 @@ export function Scenarios({ app }: { app: AppContextState }) {
     <Panel title="Chọn kịch bản" note="Mỗi phiên bản đã lưu được giữ riêng với các lượt chạy của nó.">
       <div className="scenario-picker">
         <label>Kịch bản / phiên bản
-          <select value={scenarioId} disabled={busy || directory.loading} onChange={(event) => app.chooseScenario(event.target.value)}>
+          <select value={scenarioId} disabled={busy || directory.loading} onChange={(event) => {setConfirmDelete(false);app.chooseScenario(event.target.value);}}>
             <option value="">Tạo kịch bản mới</option>
-            {scenarios.map((row) => <option key={String(row.id)} value={String(row.id)}>{String(row.name)} · v{String(row.version)}</option>)}
+            {scenarios.map((row) => <option key={String(row.id)} value={String(row.id)}>{String(row.name)} · v{String(row.version)}{(row.settings as Row)?._deleted_at ? " · Đã xóa" : ""}</option>)}
             {missing && <option value={scenarioId}>Không tìm thấy phiên bản trong liên kết</option>}
           </select>
         </label>
         <button type="button" className="secondary" disabled={busy} onClick={createDraft}>＋ Tạo kịch bản mới</button>
+        {scenario && <button type="button" className="secondary" disabled={busy || dirty || active} onClick={() => deleted ? void trash(true) : setConfirmDelete(true)}>{deleted ? "Khôi phục phiên bản kịch bản" : "Xóa phiên bản kịch bản"}</button>}
       </div>
+      <label className="checkbox-line"><input type="checkbox" checked={showTrash} disabled={busy || dirty} onChange={e => {setShowTrash(e.target.checked);setConfirmDelete(false);}} />Hiện cả kịch bản trong thùng rác</label>
+      {confirmDelete && scenario && <div className="notice" role="alertdialog" aria-label="Xác nhận xóa kịch bản"><p>Xóa {String(scenario.name)} · v{String(scenario.version)} khỏi danh sách hoạt động? Các run và kết quả được giữ để khôi phục. Các phiên bản khác không bị xóa.</p><button type="button" disabled={busy} onClick={() => void trash()}>Chuyển vào thùng rác</button><button type="button" disabled={busy} onClick={() => setConfirmDelete(false)}>Giữ lại kịch bản</button></div>}
+      {trashError && <p role="alert" className="notice error">{errorLabel(trashError)}</p>}
+      {deleted && <p className="notice">Phiên bản này đang trong thùng rác. Khôi phục trước khi chỉnh sửa hoặc tạo run mới. Kết quả đã chốt vẫn được giữ.</p>}
       <State loading={directory.loading} error={directory.error} />
       {missing && <p className="notice error" role="alert">Không tìm thấy kịch bản trong liên kết. Hãy chọn phiên bản khác; trang không tự đổi lựa chọn.</p>}
       {mismatch && <div className="notice error" role="alert">Kịch bản trong liên kết không khớp lượt chạy.
@@ -79,13 +95,13 @@ export function Scenarios({ app }: { app: AppContextState }) {
     </Panel>
     <div className="scenario-setup-grid">
       <Panel title="Thiết lập kịch bản" note="Lưu thiết lập trước khi chạy. Lưu không tự tạo công việc.">
-        {(!app.ctx.runId || run) && (!scenarioId || scenario) && !missing && <ScenarioEditor key={`${scenarioId}:${editorRevision}:${app.scenarioRevision}`} scenario={scenario}
+        {(!app.ctx.runId || run) && (!scenarioId || scenario) && !missing && !deleted && <ScenarioEditor key={`${scenarioId}:${editorRevision}:${app.scenarioRevision}`} scenario={scenario}
           onSaved={savedScenario} onRefresh={refresh} onDirty={setDirty} onBusy={setSaving} />}
       </Panel>
       <Panel title="Thiết lập lượt chạy" note="Kho nhận theo mặc định từng sản phẩm, được chốt khi nhận lượt chạy.">
         {dirty && <p className="notice" role="status">Bản nháp chưa lưu chưa áp dụng cho kết quả đang xem.</p>}
         {(!app.ctx.runId || run) && <RunForm key={`${scenarioId}:${run?.id ?? "new"}`} initialRun={run} runs={forecastParents.data?.items ?? []}
-          scenario={scenario} blocked={dirty || saving || active || mismatch || missing || (inventoryKinds.includes(kind) && (!!directory.error || directory.loading))}
+          scenario={scenario} blocked={dirty || saving || active || mismatch || missing || deleted || (inventoryKinds.includes(kind) && (!!directory.error || directory.loading))}
           loading={forecastParents.loading} loadError={forecastParents.error} onKindChange={setKind} onBusyChange={setSending} onCreated={created} />}
       </Panel>
     </div>
@@ -93,6 +109,7 @@ export function Scenarios({ app }: { app: AppContextState }) {
       {!app.ctx.runId ? <p className="caption">Lưu/chọn kịch bản rồi bấm Chạy kịch bản để bắt đầu.</p> : <>
         <State loading={!run && app.selectedResource.loading} error={app.selectedResource.error} />
         {run && !mismatch && <>
+          {inventoryKinds.includes(run.kind) && !run.scenario_supply_profile && <p className="notice">Đây là kết quả cũ dùng lịch cung cấp dùng chung tại lúc tạo run. Lượt mới sẽ chỉ lấy lịch ngừng riêng của phiên bản kịch bản đã chọn.</p>}
           <dl className="scenario-run-meta">
             <div><dt>Lượt chạy</dt><dd>{run.id}</dd></div><div><dt>Công việc</dt><dd>{label(run.kind)}</dd></div>
             <div><dt>Trạng thái</dt><dd>{label(run.status)}</dd></div><div><dt>Mốc UTC</dt><dd>{run.as_of_date}</dd></div>

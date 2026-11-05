@@ -39,6 +39,29 @@ def verify_trade_snapshot(run):
         internal, notices = snap['internal_supply_snapshot'], snap['provider_notice_snapshot']
         if not isinstance(internal, list) or not isinstance(notices, list):
             fail()
+        if snap.get('scenario_supply_profile') or snap.get('request',{}).get('scenario_supply_profile'):
+            if (snap.get('scenario_supply_profile') != 'scenario_supply_v1'
+                or snap.get('request',{}).get('scenario_supply_profile') != 'scenario_supply_v1'):
+                fail('Scenario supply profile differs')
+            schedule = snap['scenario']['settings'].get('supply_schedule') or {}
+            expected_internal = {index: stop for index,stop in enumerate(schedule.get('internal_stops',[]),1)
+                if stop['item_id'] in catalog and day(stop['known_on']) <= cutoff}
+            if {r['id'] for r in internal} != set(expected_internal):
+                fail('Scenario internal stops differ')
+            for row in internal:
+                if any(row[k] != v for k,v in expected_internal[row['id']].items()):
+                    fail('Scenario internal stop differs')
+            declared_provider = {index: stop for index,stop in enumerate(schedule.get('provider_stops',[]),1)
+                if day(stop['known_on']) <= cutoff}
+            for notice in notices:
+                stop = declared_provider.pop(notice['id'],None)
+                if stop is None or stop['item_id'] not in notice['item_ids'] or len(notice['events']) != 1:
+                    fail('Scenario provider stops differ')
+                event = notice['events'][0]
+                if any(event[k] != stop[k] for k in ('known_on','effective_on','reason')):
+                    fail('Scenario provider stop differs')
+            if any(stop['item_id'] in catalog for stop in declared_provider.values()):
+                fail('Scenario provider stop is missing')
         histories, ids = {}, set()
         for r in internal:
             if r['item_id'] not in catalog or type(r['id']) is not int or r['id'] <= 0 or r['id'] in ids:

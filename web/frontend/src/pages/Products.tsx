@@ -16,7 +16,7 @@ import { inventoryKinds } from "../config/navigation";
 import { ProductStatus } from "../components/products/ProductStatus";
 import { Icon } from "../components/ui/Icon";
 
-export function Products({ onOpen, onSupply = onOpen, ctx, onContext }: { onOpen: (row: Row) => void; onSupply?: (row: Row) => void; ctx?: Context; onContext?: (patch: Partial<Context>) => void }) {
+export function Products({ onOpen, ctx, onContext }: { onOpen: (row: Row) => void; ctx?: Context; onContext?: (patch: Partial<Context>) => void }) {
   const [search, setSearch] = useState("");
   const [warehouse, setWarehouse] = useState(ctx?.warehouseId ?? "");
   const [type, setType] = useState(ctx?.productType ?? "");
@@ -37,8 +37,8 @@ export function Products({ onOpen, onSupply = onOpen, ctx, onContext }: { onOpen
   function filter(setter: (value: string) => void, value: string) {setter(value);setPage(1);}
   function clear() {setSearch("");setWarehouse("");setType("");setCarrier("");setStatus("");setProvider("");setPage(1);onContext?.({warehouseId:"",itemId:"",productType:"",carrier:"",internalStatus:"",providerStatus:""});}
   return <>
-    <div className="page-intro"><h1>Sản phẩm</h1><p>Quản lý cấu hình nhập hàng và lịch cung cấp theo từng sản phẩm.</p></div>
-    <div className="product-catalog"><Panel title="Danh sách sản phẩm" note="Chọn Cấu hình để chỉnh thông số, hoặc Lịch cung cấp để quản lý lịch ngừng và mở lại.">
+    <div className="page-intro"><h1>Sản phẩm</h1><p>Quản lý thông số nhập hàng và kho nhận mặc định của sản phẩm.</p></div>
+    <div className="product-catalog"><Panel title="Danh sách sản phẩm" note="Chọn Cấu hình để chỉnh thông số. Lịch ngừng được thiết lập riêng trong Kịch bản.">
       <div className="catalog-filters" role="search" aria-label="Bộ lọc sản phẩm">
         <label className="catalog-search">Tìm sản phẩm<div className="catalog-search-input"><Icon name="search" size={17}/><input type="search" value={search} placeholder="Nhập mã sản phẩm…" onChange={e=>filter(setSearch,e.target.value)}/></div></label>
         <label>Kho sản phẩm<select value={warehouse} onChange={e=>{filter(setWarehouse,e.target.value);onContext?.({warehouseId:e.target.value,itemId:""});}}><option value="">Tất cả kho</option>{warehouses.data?.items.filter(w=>!carrier||w.carrier===carrier).map(w=><option key={String(w.id)} value={String(w.id)}>{warehouseName(w)}</option>)}</select></label>
@@ -57,7 +57,7 @@ export function Products({ onOpen, onSupply = onOpen, ctx, onContext }: { onOpen
         {key:"internal_status",label:"Trạng thái nhập",render:(v,r)=><ProductStatus kind="internal" value={v??r.supply_status}/>},
         {key:"provider_status",label:"Trạng thái",render:v=><ProductStatus kind="provider" value={v}/>},
         {key:"policy",label:"Cấu hình nhập",render:v=>{const p=v as Row|null;return p?<><strong>{p.fixed_order_qty==null?"Chưa cấu hình":`${fmt(p.fixed_order_qty)} / lần`}</strong><small className="product-cell-note">Tồn an toàn {fmt(p.safety_days)} ngày</small></>:"Chưa cấu hình";}},
-        {key:"actions",label:"Thao tác",render:(_,r)=><div className="product-actions"><button className="secondary" aria-label={`Cấu hình ${r.sku} ${r.product_type} tại ${r.city}`} onClick={()=>onOpen(r)}><Icon name="settings" size={15}/>Cấu hình</button><button className="secondary" aria-label={`Lịch cung cấp ${r.sku} ${r.product_type} tại ${r.city}`} onClick={()=>onSupply(r)}><Icon name="clock" size={15}/>Lịch cung cấp</button></div>},
+        {key:"actions",label:"Thao tác",render:(_,r)=><div className="product-actions"><button className="secondary" aria-label={`Cấu hình ${r.sku} ${r.product_type} tại ${r.city}`} onClick={()=>onOpen(r)}><Icon name="settings" size={15}/>Cấu hình</button></div>},
       ]}/><Pager page={page} total={data.data.total} onChange={setPage}/></>}
     </Panel></div>
   </>;
@@ -83,7 +83,7 @@ export function ProductDetail({ ctx, run, onNavigate, onWarehouse, onItem, onDat
     <State loading={product.loading} error={product.error} />
     {!ctx.itemId && <div className="notice" role="status">Chọn sản phẩm từ danh sách để xem thông tin.</div>}
     {row && <>
-      <div className="page-heading product-page-heading"><div><h1>{String(row.sku)}</h1><p>{String(row.product_type)} · {warehouseName(row)} · {String(row.carrier)}</p></div><button className="secondary" onClick={()=>onItem(row,"product-supply")}><Icon name="clock" size={16}/>Lịch cung cấp</button></div>
+      <div className="page-heading product-page-heading"><div><h1>{String(row.sku)}</h1><p>{String(row.product_type)} · {warehouseName(row)} · {String(row.carrier)}</p></div></div>
       {message && <div className="notice success" role="status" ref={notice} tabIndex={-1}>{message}</div>}
       <div className="product-layout">
         <div className="product-settings-summary">

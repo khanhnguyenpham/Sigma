@@ -16,6 +16,21 @@ from modules.reporting.trade import is_trade, counters, matches, RIGHT_FILTERS, 
 router = APIRouter(prefix="/api/v1/runs")
 
 
+def supply_impacts(rows):
+    """Examples from the same filtered, latest-window ledger as workspace totals."""
+    groups = {
+        "internal": [r for r in rows if r.get("internal_status") in {"scheduled_stop", "stopped"}],
+        "provider": [r for r in rows if r.get("provider_status") not in {None, "clear"}],
+    }
+    return {
+        name: dict(total=len(items), item=min(items, key=lambda r: (
+            r.get("internal_status") != "stopped" if name == "internal" else r.get("sales_allowed") is not False,
+            r["item_id"],
+        )) if items else None)
+        for name, items in groups.items()
+    }
+
+
 @router.get("/{key}/workspace")
 def workspace(
     request: Request, key: uuid.UUID, filters: Annotated[WorkspaceFilters, Query()]
@@ -136,6 +151,7 @@ def workspace(
                 incoming=sorted(incoming, key=lambda r: (r["eta"], r["item_id"]))[:5],
                 route_stock=route_stock[:8],
                 warehouse_stock=sorted(warehouse_stock.values(), key=lambda w: w["warehouse_id"]),
+                **({"supply_impacts": supply_impacts(inventory)} if is_trade(run) else {}),
             )
         )
 

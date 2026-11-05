@@ -77,9 +77,11 @@ def enqueue(session, request, key, settings=None):
             )
         snapshot["forecast_parent_config_sha256"] = parent.config_sha256
     if request.scenario_id:
-        scenario = session.get(Scenario, request.scenario_id)
+        scenario = session.scalar(select(Scenario).where(Scenario.id == request.scenario_id).with_for_update(read=True))
         if scenario is None:
             raise DomainError("not_found", "Scenario does not exist", 404)
+        if scenario.settings.get("_deleted_at"):
+            raise DomainError("scenario_deleted", "Restore the scenario before creating a run", 409)
         if scenario.settings.get("receipts_declared") is not True:
             raise DomainError(
                 "missing_partner_config",

@@ -1,6 +1,6 @@
 import { type ScenarioEditorState } from "../../hooks/useScenarioEditor";
 
-import { ItemSelect } from "./ItemSelect";
+import { ScenarioItemField } from "./ScenarioItemPicker";
 
 import { PolicyFields } from "./PolicyFields";
 
@@ -9,13 +9,13 @@ export function PolicyOverrideEditor({
 }: {
   editor: ScenarioEditorState;
 }) {
-  const { overrides, setOverrides, update, warehouse, itemData, itemOptions } =
+  const { overrides, setOverrides, update, chooseItem, pickedItems } =
     editor;
   return (
     <fieldset>
       <legend>Điều chỉnh riêng mặt hàng</legend>
       <p className="caption">
-        Đổi kho phía trên để chọn mặt hàng. Điều chỉnh chỉ áp dụng trong kịch
+        Chọn mặt hàng theo nhà mạng. Điều chỉnh chỉ áp dụng trong kịch
         bản này.
         Để trống để kế thừa cấu hình sản phẩm có hiệu lực khi tính kế hoạch. ROP lấy giá trị lớn hơn giữa nhu cầu dự báo 7 ngày cộng SS và ngưỡng nhập tối thiểu.
         Lượng nhập mỗi lần lấy từ cấu hình mặt hàng, không thay đổi tại đây.
@@ -25,14 +25,7 @@ export function PolicyOverrideEditor({
           <label>
             Mặt hàng
             {
-              <ItemSelect
-                name={"override_item_" + index}
-                value={row.item_id}
-                onChange={(id) =>
-                  update(overrides, setOverrides, index, "item_id", id)
-                }
-                itemOptions={itemOptions}
-              />
+              <ScenarioItemField name={`điều chỉnh ${index+1}`} itemId={row.item_id} item={pickedItems[Number(row.item_id)]} onChoose={()=>chooseItem('override',index)} />
             }
           </label>
           <PolicyFields
@@ -55,15 +48,7 @@ export function PolicyOverrideEditor({
       ))}
       <button
         type="button"
-        disabled={!warehouse || itemData.loading || !itemOptions.length}
-        onClick={() =>
-          setOverrides([
-            ...overrides,
-            {
-              item_id: Number(itemOptions[0]?.id ?? 0),
-            },
-          ])
-        }
+        onClick={() => chooseItem('override')}
       >
         ＋ Điều chỉnh mặt hàng
       </button>

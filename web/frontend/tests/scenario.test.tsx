@@ -24,19 +24,10 @@ it("preserves receipt date and quantity when inputs change in the same batch", a
       } as Response);
     }
     const url = String(input);
-    const items = url.includes("/warehouses")
-      ? [
-          {
-            id: 18,
-            code: "WH-018",
-            destination_country: "Japan",
-            carrier: "NTT Docomo",
-            city: "Tokyo",
-            version: 1,
-          },
-        ]
-      : url.includes("/items")
-        ? [{ id: 341, sku: "DEMO-SKU", product_type: "eSIM" }]
+    const items = url.includes("/suppliers")
+      ? [{id:1,carrier:'NTT Docomo'}]
+      : url.includes("/products")
+        ? [{ id: 341, sku: "DEMO-SKU", product_type: "eSIM",carrier:'NTT Docomo',city:'Tokyo',destination_country:'Japan' }]
         : [];
     return Promise.resolve({
       ok: true,
@@ -50,7 +41,6 @@ it("preserves receipt date and quantity when inputs change in the same batch", a
   });
   render(<ScenarioEditor onSaved={() => {}} onRefresh={() => {}} onDirty={() => {}} onBusy={() => {}} />);
   const dialog = within(screen.getByRole("form", { name: "Thiết lập kịch bản" }));
-  await dialog.findByRole("option", { name: "Tokyo" });
   fireEvent.change(
     dialog.getByRole("textbox", { name: "Tên kịch bản" }),
     { target: { value: "Receipt fixture" } },
@@ -59,20 +49,13 @@ it("preserves receipt date and quantity when inputs change in the same batch", a
     dialog.getByRole("textbox", { name: "Mã kịch bản" }),
     { target: { value: "receipt_fixture" } },
   );
-  fireEvent.change(
-    dialog.getByRole("combobox", { name: "Kho danh mục để chọn mặt hàng" }),
-    { target: { value: "18" } },
-  );
-  await waitFor(() =>
-    expect(globalThis.fetch).toHaveBeenCalledWith(
-      expect.stringContaining("/api/v1/items?warehouse_id=18&page_size=100"),
-      expect.anything(),
-    ),
-  );
-  await act(async () => {});
   fireEvent.click(
     dialog.getByRole("button", { name: "＋ Lô đang về" }),
   );
+  const picker=within(screen.getByRole('dialog',{name:'Chọn mặt hàng cho lô đang về'}));
+  await picker.findByRole('option',{name:'NTT Docomo'});
+  fireEvent.change(picker.getByLabelText('Nhà mạng'),{target:{value:'NTT Docomo'}});
+  fireEvent.click(await picker.findByRole('button',{name:'Chọn DEMO-SKU eSIM tại Tokyo'}));
   const date = dialog.getByLabelText("Ngày đặt", { }),
     quantity = dialog.getByRole("spinbutton", {
       name: "Số lượng",

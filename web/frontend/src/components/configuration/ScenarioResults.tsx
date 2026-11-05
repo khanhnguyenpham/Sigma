@@ -12,6 +12,7 @@ import { inventoryKinds } from "../../config/navigation";
 import { isReceivingRun } from "../../utils/warehouse";
 import { ForecastComparison } from "../forecast/ForecastComparison";
 import { EarlyWarningResult } from "../alerts/EarlyWarningResult";
+import { SupplyImpactTab } from "./SupplyImpactResult";
 
 export function ScenarioResults({ app, run }: { app: AppContextState; run: Run }) {
   const [tab, setTab] = useState("summary");
@@ -34,7 +35,7 @@ export function ScenarioResults({ app, run }: { app: AppContextState; run: Run }
     <ContextFilters app={app} hideRunSelector />
     {inventory ? <>
       <nav className="scenario-result-tabs" aria-label="Kết quả của lượt chạy">
-        {[["summary", "Tóm tắt"], ["comparison", "So sánh dự báo / thực tế"], ["inventory", "Tồn kho"], ["replenishment", "Nhập hàng"], ["alerts", "Cảnh báo"]].map(([key, name]) =>
+        {[["summary", "Tóm tắt"], ["comparison", "So sánh dự báo / thực tế"], ["inventory", "Tồn kho"], ["replenishment", "Nhập hàng"], ["alerts", "Cảnh báo"], ["supply", "Ngừng cung cấp"]].map(([key, name]) =>
           <button key={key} type="button" className={tab === key ? "primary" : "secondary"} aria-pressed={tab === key} onClick={() => setTab(key)}>{name}</button>)}
       </nav>
       {tab === "summary" && <>
@@ -42,6 +43,7 @@ export function ScenarioResults({ app, run }: { app: AppContextState; run: Run }
         <Overview {...props} embedded runs={[run]} onRun={(id) => app.openScenarios(id)} onCreate={() => app.openScenarios()} onNavigate={app.navigate} />
       </>}
       {tab === "comparison" && <ForecastComparison key={run.id} run={run} ctx={app.ctx} />}
+      {tab === "supply" && <SupplyImpactTab {...props} />}
       {tab === "inventory" && <Inventory {...props} catalog={app.catalog} itemOptions={app.items.data?.items ?? []}
         supplierOptions={app.suppliers.data?.items ?? []} onWarehouse={warehouse}
         onFilterChange={(patch) => app.setCtx((current) => ({ ...current, ...patch }))} onNavigate={app.navigate} />}

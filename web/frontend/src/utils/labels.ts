@@ -32,6 +32,8 @@ export function errorLabel(error: Error) {
       {
         run_not_complete:
           "Lượt chạy chưa hoàn tất. Hãy theo dõi tiến độ tại Kịch bản.",
+        scenario_deleted: "Kịch bản đang trong thùng rác. Khôi phục trước khi chạy hoặc lưu phiên bản mới.",
+        scenario_busy: "Kịch bản còn run đang xếp hàng hoặc xử lý. Chờ hoàn tất trước khi xóa.",
         parent_mismatch:
           "Nguồn, phiên bản hoặc lượt dự báo chưa tương thích. Vui lòng chọn lại.",
         missing_partner_config:

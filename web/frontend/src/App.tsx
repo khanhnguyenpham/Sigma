@@ -2,8 +2,6 @@ import { lazy } from "react";
 import { Inventory } from "./pages/Inventory";
 import { Replenishment } from "./pages/Replenishment";
 import { Products, ProductDetail } from "./pages/Products";
-import { ProviderNotices } from "./pages/ProviderNotices";
-import { ProductSupply } from "./pages/ProductSupply";
 
 import { useAppContext } from "./hooks/useAppContext";
 
@@ -34,9 +32,9 @@ export default function App() {
   } = app;
   const props = { run, ctx, onChoose: chooseInventory, onItem: openItem };
   const node =
-    (page === "product-supply" || page.startsWith("provider-") && !!ctx.itemId) ? <ProductSupply key={`${ctx.itemId}:${page}`} ctx={ctx} page={page} run={run} runs={runs} navigate={navigate} onDate={origin=>app.setCtx(c=>({...c,origin}))} onItem={row=>openItem(row,"product")} /> : page.startsWith("provider-") ? <ProviderNotices page={page} day={ctx.origin} runs={runs} run={run} navigate={navigate} onItem={row=>openItem(row,"product")} /> : page === "products" ? (
+    page === "products" ? (
       <Products ctx={ctx.warehouseScope === "receiving" ? { ...ctx, warehouseId: "" } : ctx}
-        onContext={(patch) => app.setCtx((c) => ({ ...c, ...patch, warehouseScope: undefined }))} onOpen={(row) => openItem(row, "product")} onSupply={row=>openItem(row,"product-supply")} />
+        onContext={(patch) => app.setCtx((c) => ({ ...c, ...patch, warehouseScope: undefined }))} onOpen={(row) => openItem(row, "product")} />
     ) : page === "product" ? (
       <ProductDetail run={run} ctx={ctx} onDate={(origin) => app.setCtx((c) => ({ ...c, origin }))} onNavigate={navigate} onItem={openItem}
         onWarehouse={(row) => app.selectWarehouse(String(row.warehouse_id))} />

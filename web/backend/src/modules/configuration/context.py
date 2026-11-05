@@ -168,7 +168,10 @@ def freeze_inventory(session, request, source, scenario):
     ]
     require_supply_schema(session)
     supply_history = jsonable_encoder(supply_rows(session, ids, max(dates)))
-    if request.trade_lifecycle_profile:
+    if request.scenario_supply_profile:
+        from modules.configuration.supply import freeze_scenario_supply
+        lifecycle = freeze_scenario_supply(session, scenario.settings, max(dates), ids)
+    elif request.trade_lifecycle_profile:
         lifecycle = freeze_trade(session, ids, max(dates))
     else:
         if trade_ready and (provider_notices(session, ids, max(dates)) or any(

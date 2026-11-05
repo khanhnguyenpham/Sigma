@@ -19,9 +19,12 @@ class RunCreate(DTO):
     period_end: date | None = None
     mode: Literal["replay", "future"] | None = None
     trade_lifecycle_profile: Literal["internal_provider_trade_v2"] | None = None
+    scenario_supply_profile: Literal["scenario_supply_v1"] | None = None
 
     @model_validator(mode="after")
     def correct_kind(self):
+        if self.scenario_supply_profile and not self.trade_lifecycle_profile:
+            raise ValueError("Scenario supply requires the trade lifecycle profile")
         if self.trade_lifecycle_profile and self.kind not in {"policy_replay", "alert_replay", "stock_projection"}:
             raise ValueError("Trade lifecycle applies only to inventory runs")
         if self.kind == "source_import":

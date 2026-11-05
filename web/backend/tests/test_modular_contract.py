@@ -41,6 +41,15 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
     try:
         expected = json.loads((FIXTURES / "openapi_baseline.json").read_text(encoding="utf-8"))
         schema = app.openapi()
+        assert set(schema['paths'].pop('/api/v1/scenarios/{key}')) == {'delete'}
+        assert set(schema['paths'].pop('/api/v1/scenarios/{key}/restore')) == {'post'}
+        params = schema['paths']['/api/v1/scenarios']['get']['parameters']
+        assert next(p for p in params if p['name']=='include_deleted')['required'] is False
+        schema['paths']['/api/v1/scenarios']['get']['parameters'] = [p for p in params if p['name']!='include_deleted']
+        assert schema['components']['schemas']['RunCreate']['properties'].pop('scenario_supply_profile')['anyOf'][0]['const'] == 'scenario_supply_v1'
+        schema['components']['schemas']['ScenarioSettings']['properties'].pop('supply_schedule')
+        for name in ('SupplySchedule','ScenarioStop'):
+            schema['components']['schemas'].pop(name)
         # Removed Total30 endpoints/types are the only historical contract subtraction.
         assert not any('monthly' in path for path in schema['paths'])
         removed = json.loads((FIXTURES / 'removed_monthly_openapi.json').read_text())

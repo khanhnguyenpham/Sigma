@@ -48,6 +48,8 @@ function readReply(input: RequestInfo | URL) {
             version: 1,
           },
         ]
+      : url.includes('/products?') && url.includes('carrier=')
+        ? [{ id:341,sku:'SYNTHETIC-SKU',product_type:'eSIM',carrier:'DemoNet',city:'Synthetic',destination_country:'Demo' }]
       : url.includes("/items")
         ? [{ id: 341, sku: "SYNTHETIC-SKU", product_type: "eSIM" }]
         : url.includes("/suppliers")
@@ -63,6 +65,13 @@ function readReply(input: RequestInfo | URL) {
     incoming: [],
     route_stock: [],
   });
+}
+async function pickOverride() {
+  fireEvent.click(screen.getByRole('button',{name:'＋ Điều chỉnh mặt hàng'}));
+  const picker=within(screen.getByRole('dialog'));
+  await picker.findByRole('option',{name:'DemoNet'});
+  fireEvent.change(picker.getByLabelText('Nhà mạng'),{target:{value:'DemoNet'}});
+  fireEvent.click(await picker.findByRole('button',{name:'Chọn SYNTHETIC-SKU eSIM tại Synthetic'}));
 }
 beforeEach(() => {
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
@@ -246,24 +255,13 @@ it("keeps batched override field edits in the scenario payload", async () => {
   });
   render(<ScenarioEditor onSaved={() => {}} onRefresh={() => {}} onDirty={() => {}} onBusy={() => {}} />);
   const dialog = within(screen.getByRole("form", { name: "Thiết lập kịch bản" }));
-  await dialog.findByRole("option", { name: "Synthetic" });
   fireEvent.change(dialog.getByLabelText("Tên kịch bản"), {
     target: { value: "Synthetic override" },
   });
   fireEvent.change(dialog.getByLabelText("Mã kịch bản"), {
     target: { value: "synthetic_override" },
   });
-  fireEvent.change(dialog.getByLabelText("Kho danh mục để chọn mặt hàng"), {
-    target: { value: "18" },
-  });
-  await waitFor(() =>
-    expect(
-      dialog.getByRole("button", { name: "＋ Điều chỉnh mặt hàng" }),
-    ).toBeEnabled(),
-  );
-  fireEvent.click(
-    dialog.getByRole("button", { name: "＋ Điều chỉnh mặt hàng" }),
-  );
+  await pickOverride();
   const group = within(
     dialog.getByRole("group", { name: "Điều chỉnh riêng mặt hàng" }),
   );
@@ -362,12 +360,9 @@ it("keeps blank numeric overrides inherited and preserves zero SS days", async (
   });
   render(<ScenarioEditor onSaved={() => {}} onRefresh={() => {}} onDirty={() => {}} onBusy={() => {}} />);
   const dialog = within(screen.getByRole("form", { name: "Thiết lập kịch bản" }));
-  await dialog.findByRole("option", { name: "Synthetic" });
   fireEvent.change(dialog.getByLabelText("Tên kịch bản"), { target: { value: "Inherited" } });
   fireEvent.change(dialog.getByLabelText("Mã kịch bản"), { target: { value: "inherited" } });
-  fireEvent.change(dialog.getByLabelText("Kho danh mục để chọn mặt hàng"), { target: { value: "18" } });
-  const add = dialog.getByRole("button", { name: "＋ Điều chỉnh mặt hàng" });
-  await waitFor(() => expect(add).toBeEnabled()); fireEvent.click(add);
+  await pickOverride();
   const group = within(dialog.getByRole("group", { name: "Điều chỉnh riêng mặt hàng" }));
   expect(group.queryByLabelText("Cách tính tồn an toàn (SS)")).toBeNull();
   fireEvent.change(group.getByLabelText("Ngưỡng nhập tối thiểu (ROP)"), { target: { value: "12" } });

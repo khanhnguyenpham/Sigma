@@ -4,6 +4,7 @@ import App from "../src/App";
 import { Products, ProductDetail } from "../src/pages/Products";
 import { WarehouseEditor } from "../src/components/inventory/WarehouseEditor";
 import type { Context } from "../src/types/context";
+import { readPage } from "../src/utils/url";
 
 const warehouse = { id: 1, city: "Melbourne", code: "WH-SYN", destination_country: "Australia", carrier: "Telstra", version: 2 };
 const product = { id: 11, item_id: 11, warehouse_id: 1, sku: "SYNTHETIC-SKU", product_type: "eSIM", city: "Melbourne",
@@ -37,13 +38,15 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); history.replaceState(null, '', '/'); });
 
-it.each([['product', 'SYNTHETIC-SKU'], ['product-supply', 'Lịch cung cấp']])('preserves the product in a %s deep link while choosing the initial run', async (page, heading) => {
+it.each(['product', 'product-supply'])('preserves the product in a %s deep link while choosing the initial run', async (page) => {
   history.replaceState(null, '', `/?item_id=11&warehouse_id=1#${page}`);
   render(<App />);
-  await screen.findByRole('heading', { name: heading, level: 1 });
+  await screen.findByRole('heading', { name: 'SYNTHETIC-SKU', level: 1 });
   await waitFor(() => expect(location.search).toContain('run_id=plan'));
   expect(location.search).toContain('item_id=11');
   expect(location.search).toContain('warehouse_id=1');
+  expect(location.hash).toBe('#product');
+  expect(screen.queryByRole('heading',{name:'Lịch cung cấp'})).toBeNull();
 });
 
 it('lists current products without a run and filters on the server before pagination', async () => {
@@ -61,33 +64,39 @@ it('lists current products without a run and filters on the server before pagina
   expect(screen.queryByLabelText('Lượt chạy')).toBeNull();
 });
 
-it('filters by carrier before pagination and exposes distinct row actions without a date filter', async () => {
-  const open=vi.fn(),supply=vi.fn();render(<Products onOpen={open} onSupply={supply} ctx={ctx}/>);
+it('filters by carrier before pagination and exposes only configuration without a date filter', async () => {
+  const open=vi.fn();render(<Products onOpen={open} ctx={ctx}/>);
   await screen.findByText('SYNTHETIC-SKU');
   expect(screen.queryByLabelText('Ngày xem trạng thái (UTC)')).toBeNull();
   await waitFor(()=>expect(screen.getByLabelText('Trạng thái nhập')).toBeEnabled());
   fireEvent.change(screen.getByLabelText('Nhà mạng'),{target:{value:'Telstra'}});
   await waitFor(()=>expect(reads.at(-1)).toContain('carrier=Telstra'));
   expect(reads.at(-1)).toContain('page=1');
-  fireEvent.click(await screen.findByRole('button',{name:/^Lịch cung cấp SYNTHETIC-SKU/}));
-  expect(supply).toHaveBeenCalledWith(expect.objectContaining({id:11,warehouse_id:1}));expect(open).not.toHaveBeenCalled();
+  expect(screen.queryByRole('button',{name:/Lịch cung cấp/})).toBeNull();
   fireEvent.click(screen.getByRole('button',{name:/^Cấu hình SYNTHETIC-SKU/}));expect(open).toHaveBeenCalledOnce();
   fireEvent.click(screen.getByRole('button',{name:'Xóa bộ lọc'}));
   await waitFor(()=>expect(reads.at(-1)).not.toContain('carrier='));
 });
 
-it('opens the product-specific supply page and keeps its product on reload',async()=>{
+it('opens configuration and reloads without the removed supply action or page',async()=>{
   history.replaceState(null,'','/?run_id=plan&origin=2025-10-31#products');
-  let view=render(<App/>);await screen.findByRole('button',{name:/^Lịch cung cấp SYNTHETIC-SKU/});
+  let view=render(<App/>);await screen.findByRole('button',{name:/^Cấu hình SYNTHETIC-SKU/});
   await waitFor(()=>expect(screen.getByLabelText('Trạng thái nhập')).toBeEnabled());
-  fireEvent.click(await screen.findByRole('button',{name:/^Lịch cung cấp SYNTHETIC-SKU/}));
-  await screen.findByRole('heading',{name:'Lịch cung cấp',level:1});
-  expect(location.hash).toBe('#product-supply');expect(location.search).toContain('item_id=11');
-  await waitFor(()=>expect(reads.some(url=>url.includes('/provider-product-notices?')&&url.includes('item_id=11'))).toBe(true));
+  expect(screen.queryByRole('button',{name:/Lịch cung cấp/})).toBeNull();
+  fireEvent.click(await screen.findByRole('button',{name:/^Cấu hình SYNTHETIC-SKU/}));
+  await screen.findByRole('heading',{name:'SYNTHETIC-SKU',level:1});
+  expect(location.hash).toBe('#product');expect(location.search).toContain('item_id=11');
   expect(screen.queryByRole('button',{name:'Thông báo ngừng sản phẩm'})).toBeNull();
   view.unmount();view=render(<App/>);
-  expect(await screen.findByRole('heading',{name:'Lịch cung cấp',level:1})).toBeVisible();
+  expect(await screen.findByRole('heading',{name:'SYNTHETIC-SKU',level:1})).toBeVisible();
+  expect(screen.queryByRole('button',{name:/Lịch cung cấp/})).toBeNull();
   expect(location.search).toContain('item_id=11');
+});
+
+it('redirects removed supply routes to current product or scenario pages',()=>{
+  history.replaceState(null,'','/#product-supply');expect(readPage()).toBe('products');
+  history.replaceState(null,'','/?item_id=11#product-supply');expect(readPage()).toBe('product');
+  history.replaceState(null,'','/#provider-notices');expect(readPage()).toBe('scenarios');
 });
 
 it('opens a product page from inventory, saves its configuration and returns to the warehouse', async () => {
