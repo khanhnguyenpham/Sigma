@@ -1,5 +1,9 @@
 # Điều phối công việc SIGMA
 
+**12/11/2026 — T11:** Đã thêm nút **Tạo nguồn dữ liệu** và nhóm danh sách công việc trên trang Kịch bản. [Luồng và kiểm thử](../development.md#handoff-scenario-data-preparation).
+
+**12/11/2026 — T10:** Bổ sung cửa sổ 90 ngày cho tồn đầu khi 28 ngày đã quan sát có tổng bán bằng 0. Worker và verifier đọc điều kiện này từ snapshot của lượt. [Đặc tả](../../M3/docs/01-functional-spec.md#initial-stock-history) và [bàn giao](../development.md#handoff-initial-stock-history).
+
 **04/11/2026 — publish cập nhật demo/UI được giao:** Đưa launcher, so sánh14ngày, C00 tổng hợp và chỉnh giao diện/tài liệu lên final-report qua cổng kiểm/remoteSHA/haiCI. Không đưa dữ liệu/backup/credential/4tệp local lên Git.522Python BE/M2 (0skip),114React/build/pipcheck và9contract đạt; bảo toàn/SHA/CI của đúng commit lưu trong receipt local outputs/chg106_publish. Demo hiện6run/153artifact, C00/R05/R07/T14 giữ trạng thái. [Bàn giao](../development.md#handoff-demo-ui-publish).
 
 **04/11/2026 — so sánh14ngày đã triển khai/kiểm:** Kịch bản có tab so sánh/ngàyD riêng, Forecast có khối cùngchức năng; APIorigins theo parent, tổng đủ2tuần/14ngày và actualnull/0đúng.10API/108React/build/browserHTTPS/CSV/rawactual/bảo toàn9run161artifact đạt; API/worker/FE/tunnel đồngbộsource812bd7ae. Khôngrefit/push/đổiC00/R05/R07/T14. [Bàn giao](../development.md#handoff-forecast-comparison).

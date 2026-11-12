@@ -1,9 +1,34 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-scenario-data-preparation"></a>
+## Nhập nguồn và nhóm công việc Kịch bản — 12/11/2026
+
+**Chuẩn bị dữ liệu** có hai thao tác tạo nguồn và tạo dự báo. Nút **Tạo nguồn dữ liệu** gửi `source_import` với khóa nguồn và mốc chốt trong cấu hình M3. Khi lượt nhập hoàn tất, form chuyển đến **Tạo dự báo** với nguồn mới được chọn sẵn. Người dùng quyết định khi nào gửi lượt dự báo. **Chạy kế hoạch** chứa ba công việc dùng dự báo cha đã hoàn tất. [Đặc tả giao diện](../M3/docs/04-frontend-spec.md#scenario-data-preparation).
+
+Kiểm lượt này đạt 129 ca React, build TypeScript/Vite và 22 ca Python chọn lọc về launcher, tồn đầu và snapshot lịch sử. Kiểm React mô phỏng yêu cầu nhập nguồn, trạng thái hoàn tất, chọn nguồn mới và gửi payload tạo dự báo. Phạm vi xuất bản gồm tính năng này và các thay đổi đã kiểm trước đó về dự báo cha, tồn đầu và launcher localhost.
+
 <a id="handoff-c00-bottom"></a>
 ## Đưa Đánh giá C00 xuống cuối trang Kịch bản — 12/11/2026
 
 Đặt khối hồi cứu C00 sau lịch sử lượt chạy. Câu hướng dẫn trỏ đến tab **Tóm tắt** của kết quả lượt Kiểm tra cảnh báo. 128 kiểm thử React đạt, gồm ca kiểm vị trí khối C00 sau lịch sử. Build TypeScript/Vite đạt. [Đặc tả giao diện](../M3/docs/04-frontend-spec.md).
+
+<a id="handoff-start-local"></a>
+## Lệnh mở demo trên localhost — 12/11/2026
+
+`src/start_demo.py start-local` dùng chung kiểm tra cấu hình, trạng thái và quy trình dừng của launcher. API nghe tại `127.0.0.1:8041` và bỏ qua Cloudflare. Dùng `start` khi cần link Quick Tunnel. [Cách chạy](../web/backend/configs/DEMO_RUNTIME.md#demo-launcher).
+
+18 kiểm thử Python đạt, gồm kiểm thử giả lập cả hai lệnh khởi động và địa chỉ bind của API. Hai ca cần PostgreSQL thật nằm ngoài phạm vi lượt kiểm. Manifest local đã ghi fingerprint của hai tệp launcher sau khi đối chiếu bản trước, schema và các tệp frontend đã build. Trạng thái demo được kiểm tra qua supervisor.
+
+<a id="handoff-initial-stock-history"></a>
+## Tạo dự báo và tính tồn đầu trên demo — 12/11/2026
+
+Lượt mới dùng bình quân 28 ngày tại mốc chốt. Khi đủ 28 ngày quan sát và tổng bán bằng 0, worker dùng bình quân 90 ngày của cùng mặt hàng nếu đủ quan sát. API chốt `initial_stock_fallback_days=90` lúc enqueue. Bộ đối soát đọc cùng trường. Snapshot lịch sử thiếu trường này dùng bình quân 28 ngày. [Quy tắc và biên dữ liệu](../M3/docs/01-functional-spec.md#initial-stock-history).
+
+Kiểm quy tắc trên worktree riêng đạt 127 ca với PostgreSQL thử nghiệm. Ví dụ synthetic có tổng bán 28 ngày bằng 0, tổng 90 ngày bằng 186 và 7 ngày phủ. Tồn đầu bằng 15 với snapshot mới và 0 với snapshot cũ. Cả hai qua worker, verifier, API và đối chiếu sự kiện tồn. Kiểm tích hợp giao diện trong checkout chính đạt 12 ca React và build TypeScript/Vite. Ca tạo forecast kiểm payload `kind=forecast` và danh sách dự báo cha sau khi job hoàn tất.
+
+Đã đưa mã tồn đầu và bộ giao diện có **Tạo dự báo** vào demo. Đã kiểm readiness và SHA256 của 12 tệp frontend qua HTTPS, rồi mở form dự báo trên trình duyệt để xác nhận nút **Chạy dự báo** và nguồn đã hoàn tất. URL lấy từ `connection.json`. Lượt demo dùng dữ liệu đã ẩn danh và dự báo cha sẵn có.
+
+Kế hoạch nhập hàng mẫu kỳ 01–14/11/2025 hoàn tất và qua verifier. Đọc bảng tồn, lô và cảnh báo qua HTTPS. Truy vấn chỉ đọc tại ngày chốt 31/10 đối chiếu đủ 151 mặt hàng có tổng bán 28 ngày bằng 0, đủ 90 ngày quan sát và có bán trong 90 ngày. Cả 151 tồn đầu khớp công thức dự phòng. Receipt của lần mở lại và lượt mẫu nằm trong `outputs/demo_restore_forecast_20261112/`. Demo dùng schema hiện có và không cần chạy lại mô hình dự báo cho lượt mẫu.
 
 <a id="handoff-scenario-ui-publish"></a>
 ## Publish các cập nhật kịch bản và giao diện — 05/11/2026

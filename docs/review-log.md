@@ -1,8 +1,20 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 12/11/2026 — Chuẩn bị dữ liệu và chạy kế hoạch
+
+Người dùng yêu cầu nút tạo nguồn và hai nhóm loại công việc. Giữ các endpoint tạo và theo dõi lượt chạy hiện có. Sau khi nhập hoàn tất, giao diện chọn sẵn nguồn để người dùng chủ động chạy dự báo. [Bàn giao](development.md#handoff-scenario-data-preparation).
+
 ## 12/11/2026 — Vị trí khối đánh giá C00
 
 Theo yêu cầu, đặt khối Đánh giá C00 ở cuối trang Kịch bản, sau lịch sử lượt chạy. Khối tiếp tục đọc kết quả hồi cứu đã chốt. [Bàn giao](development.md#handoff-c00-bottom).
+
+## 12/11/2026 — Lệnh khởi động demo trên localhost
+
+Thêm lệnh `start-local` tại `src/start_demo.py` để có thể trình diễn trên máy khi Quick Tunnel chưa cấp link. Kiểm thử giả lập xác nhận nhánh local bind loopback và nhánh `start` vẫn khởi tạo tunnel. [Bàn giao và phạm vi kiểm](development.md#handoff-start-local).
+
+## 12/11/2026 — Tồn đầu theo lịch sử bán và khôi phục tạo dự báo
+
+Nếu 28 ngày đã quan sát có tổng bán bằng 0, lượt mới xét bình quân 90 ngày của cùng mặt hàng tại mốc chốt. Quy tắc được chốt theo lượt để tái lập kết quả. Giao diện demo dùng bộ build có mục **Tạo dự báo** để gửi công việc `forecast` cho API hiện có. [Kiểm thử và bàn giao demo](development.md#handoff-initial-stock-history).
 
 ## 04/11/2026 — Cổng publish demo/UI theo yêu cầu người dùng
 

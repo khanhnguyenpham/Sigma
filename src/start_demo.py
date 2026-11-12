@@ -18,13 +18,15 @@ from core.hashes import code_digest
 from web.backend.scripts.demo_stack import stop
 
 BASE = ROOT / "outputs/chg091_d4/local-hosted"
+LOCAL_URL = "http://127.0.0.1:8041"
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Chay/dung demo SIGMA local va link HTTPS tam.")
-    parser.add_argument("command", choices=["start", "stop", "status"], nargs="?", default="start",
-                        help="start (mac dinh), stop hoac status")
+    parser.add_argument("command", choices=["start", "start-local", "stop", "status"], nargs="?", default="start",
+                        help="start (HTTPS tam, mac dinh), start-local (localhost), stop hoac status")
     args = parser.parse_args(argv)
+    local_only = args.command == "start-local"
     state_file, stop_file = BASE / "connection.json", BASE / ".stop-requested"
     if not BASE.resolve().is_relative_to(ROOT / "outputs/chg091_d4"):
         raise SystemExit("Refuse a demo directory outside the isolated D4 root")
@@ -90,38 +92,41 @@ def main(argv=None):
                                 "-l", str(BASE / "postgres.private.log"), "-w", "start"],
                                check=True, stdout=log, stderr=log, stdin=subprocess.DEVNULL, creationflags=flags)
                 started_postgres = True
-        tunnel_log = BASE / "tunnel.private.log"
-        with tunnel_log.open("w", encoding="utf-8") as log:
-            tunnel = subprocess.Popen([str(ROOT / "outputs/chg091_d4/tools/cloudflared.exe"), "tunnel",
-                "--no-autoupdate", "--protocol", "http2", "--metrics", "127.0.0.1:20441",
-                "--url", "http://127.0.0.1:8041"], cwd=BASE, stdin=subprocess.DEVNULL,
-                stdout=log, stderr=log, creationflags=flags)
-        children.append(tunnel)
-        state["tunnel_pid"] = tunnel.pid
-        save()
-        deadline = time.monotonic() + 90
-        while True:
-            match = re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", tunnel_log.read_text(encoding="utf-8", errors="replace"))
-            if match:
-                public = match.group()
-                break
-            if tunnel.poll() is not None or time.monotonic() > deadline or stop_file.exists():
-                raise RuntimeError("Tunnel did not provide an HTTPS URL; inspect tunnel.private.log")
-            time.sleep(.3)
-        runtime["M3_FRONTEND_ORIGIN"] = public
-        (BASE / "runtime-env.private.json").write_text(json.dumps(runtime, indent=2), encoding="utf-8")
+        url = LOCAL_URL
+        if not local_only:
+            tunnel_log = BASE / "tunnel.private.log"
+            with tunnel_log.open("w", encoding="utf-8") as log:
+                tunnel = subprocess.Popen([str(ROOT / "outputs/chg091_d4/tools/cloudflared.exe"), "tunnel",
+                    "--no-autoupdate", "--protocol", "http2", "--metrics", "127.0.0.1:20441",
+                    "--url", LOCAL_URL], cwd=BASE, stdin=subprocess.DEVNULL,
+                    stdout=log, stderr=log, creationflags=flags)
+            children.append(tunnel)
+            state["tunnel_pid"] = tunnel.pid
+            save()
+            deadline = time.monotonic() + 90
+            while True:
+                match = re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", tunnel_log.read_text(encoding="utf-8", errors="replace"))
+                if match:
+                    url = match.group()
+                    break
+                if tunnel.poll() is not None or time.monotonic() > deadline or stop_file.exists():
+                    raise RuntimeError("Tunnel did not provide an HTTPS URL; inspect tunnel.private.log")
+                time.sleep(.3)
+            runtime["M3_FRONTEND_ORIGIN"] = url
+            (BASE / "runtime-env.private.json").write_text(json.dumps(runtime, indent=2), encoding="utf-8")
         env = {k: v for k, v in os.environ.items() if not k.startswith(("M3_", "PGPASSWORD", "PGPASSFILE"))}
         env.update(runtime)
+        env.update(M3_FRONTEND_ORIGIN=url, M3_DEMO_LOOPBACK_ONLY="1" if local_only else "0")
         with (BASE / "stack.private.log").open("a", encoding="utf-8") as log:
             backend = subprocess.Popen([sys.executable, "-m", "web.backend.scripts.demo_stack"], cwd=ROOT, env=env,
                                        stdin=subprocess.DEVNULL, stdout=log, stderr=log, creationflags=flags)
         children.append(backend)
-        state.update(backend_pid=backend.pid, url=public)
+        state.update(backend_pid=backend.pid, url=url)
         save()
         deadline = time.monotonic() + 60
         while True:
             try:
-                with urllib.request.urlopen("http://127.0.0.1:8041/api/v1/ready", timeout=3) as response:
+                with urllib.request.urlopen(f"{LOCAL_URL}/api/v1/ready", timeout=3) as response:
                     ready = json.load(response)
                     assert response.status == 200
                 break
@@ -131,7 +136,7 @@ def main(argv=None):
                 time.sleep(.5)
         state.update(status="ready", ready=ready, code_sha256=code_digest())
         save()
-        print(public, flush=True)
+        print(url, flush=True)
         while not stop_file.exists():
             if any(p.poll() is not None for p in children):
                 raise RuntimeError("A demo process stopped; shutting down the owned stack")

@@ -349,6 +349,7 @@ def verify_inventory(s, run, settings):
     }
     policies = {p["id"]: p for p in run.config_snapshot["policies"]}
     scenario = run.config_snapshot["scenario"]["settings"]
+    fallback_days = run.config_snapshot.get("initial_stock_fallback_days")
     order_groups = {
         (w, int(i)): g for (w, i), g in orders.groupby(["window_origin", "item_id"])
     }
@@ -384,10 +385,12 @@ def verify_inventory(s, run, settings):
         )[item]
         if not np.isfinite(initial_history.to_numpy(dtype=float, na_value=np.nan)).all():
             raise DomainError("verification_failed", "Initial stock history has missing observations")
-        initial = math.ceil(
-            float(matrix.loc[window - pd.Timedelta(days=27) : window, item].mean())
-            * scenario["cover_days"]
-        )
+        average_sales = float(initial_history.mean())
+        if fallback_days and average_sales == 0:
+            longer_history = matrix[item].reindex(pd.date_range(end=window, periods=fallback_days))
+            if np.isfinite(longer_history.to_numpy(dtype=float, na_value=np.nan)).all():
+                average_sales = float(longer_history.mean())
+        initial = math.ceil(average_sales * scenario["cover_days"])
         if group.iloc[0].closing_qty != initial:
             raise DomainError(
                 "verification_failed", "Initial stock used the wrong cutoff"

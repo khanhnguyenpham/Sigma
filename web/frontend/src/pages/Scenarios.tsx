@@ -42,15 +42,15 @@ export function Scenarios({ app }: { app: AppContextState }) {
   useEffect(() => { setHistoryPage(1); }, [scenarioId]);
   useEffect(() => {
     setHistoryRevision((value) => value + 1);
+    if (run?.kind === "forecast" && run.status === "complete") setDirectoryRevision((value) => value + 1);
     if (run) {
       if (!app.ctx.scenarioId && run.scenario_id) app.setCtx((current) => ({ ...current, scenarioId: String(run.scenario_id) }));
     }
   }, [run?.id, run?.status]);
-  useEffect(() => { if (run) setKind(inventoryKinds.includes(run.kind) ? run.kind : "stock_projection"); }, [run?.id]);
   function refresh() { setDirectoryRevision((value) => value + 1); setHistoryRevision((value) => value + 1); }
   function savedScenario(row: Row) { setDirty(false); setSaved(row); app.scenarioSaved(String(row.id)); refresh(); }
   function createDraft() { if (app.chooseScenario("")) { setEditorRevision((value) => value + 1); setDirty(false); } }
-  function created(id: string, selectedScenario = inventoryKinds.includes(kind) ? scenarioId : "") {
+  function created(id: string, selectedScenario?: string) {
     app.scenarioRunCreated(id, selectedScenario);
     setHistoryRevision((value) => value + 1);
   }
@@ -97,15 +97,15 @@ export function Scenarios({ app }: { app: AppContextState }) {
         {(!app.ctx.runId || run) && (!scenarioId || scenario) && !missing && !deleted && <ScenarioEditor key={`${scenarioId}:${editorRevision}:${app.scenarioRevision}`} scenario={scenario}
           onSaved={savedScenario} onRefresh={refresh} onDirty={setDirty} onBusy={setSaving} />}
       </Panel>
-      <Panel title="Thiết lập lượt chạy" note="Kho nhận theo mặc định từng sản phẩm, được chốt khi nhận lượt chạy.">
+      <Panel title="Thiết lập lượt chạy" note="Chuẩn bị nguồn và dự báo, hoặc chọn dự báo đã hoàn tất để chạy kế hoạch.">
         {dirty && <p className="notice" role="status">Bản nháp chưa lưu chưa áp dụng cho kết quả đang xem.</p>}
         {(!app.ctx.runId || run) && <RunForm key={`${scenarioId}:${run?.id ?? "new"}`} initialRun={run} runs={forecastParents.data?.items ?? []}
-          scenario={scenario} blocked={dirty || saving || active || mismatch || missing || deleted || (inventoryKinds.includes(kind) && (!!directory.error || directory.loading))}
+          scenario={scenario} blocked={dirty || busy || active || (inventoryKinds.includes(kind) && (mismatch || missing || deleted || !!directory.error || directory.loading))}
           loading={forecastParents.loading} loadError={forecastParents.error} onKindChange={setKind} onBusyChange={setSending} onCreated={created} />}
       </Panel>
     </div>
     <Panel title="Tiến độ và kết quả" note="Dữ liệu của đúng lượt chạy đã chọn; thay thiết lập hiện tại không sửa kết quả đã lưu.">
-      {!app.ctx.runId ? <p className="caption">Lưu/chọn kịch bản rồi bấm Chạy kịch bản để bắt đầu.</p> : <>
+      {!app.ctx.runId ? <p className="caption">Tiến độ và kết quả sẽ hiển thị ở đây sau khi gửi yêu cầu chạy.</p> : <>
         <State loading={!run && app.selectedResource.loading} error={app.selectedResource.error} />
         {run && !mismatch && <>
           {inventoryKinds.includes(run.kind) && !run.scenario_supply_profile && <p className="notice">Đây là kết quả cũ dùng lịch cung cấp dùng chung tại lúc tạo run. Lượt mới sẽ chỉ lấy lịch ngừng riêng của phiên bản kịch bản đã chọn.</p>}
@@ -129,7 +129,9 @@ export function Scenarios({ app }: { app: AppContextState }) {
           </details>}
           {active && <div className="notice" role="status">{phase}{completed != null && total != null ? ` · ${completed}/${total}` : ""}. Bạn có thể rời trang và quay lại theo dõi.</div>}
           {run.status === "failed" && <div className="notice error" role="alert"><p>Lượt chạy chưa hoàn tất. Mã lỗi: {run.error_code ?? "Chưa có chi tiết"}.</p>
-            <p>Thử lại tạo lượt mới theo cấu hình và kho mặc định hiện tại; lượt cũ được giữ.</p>
+            <p>{run.kind === "source_import" ? "Thử lại tạo lượt nhập mới cho cùng nguồn đã đăng ký."
+              : run.kind === "forecast" ? "Thử lại tạo một lượt dự báo mới từ cùng nguồn."
+              : "Thử lại tạo lượt mới theo cấu hình và kho mặc định hiện tại. Lượt cũ được giữ."}</p>
             <RunRetry key={run.id} id={run.id} disabled={dirty || busy} onBusyChange={setRetrying} onCreated={(id) => created(id, String(run.scenario_id ?? ""))} /></div>}
           {run.status === "invalidated" && <p className="notice error" role="alert">Kết quả lượt này không còn hợp lệ. Tạo lượt chạy mới để tiếp tục.</p>}
           {run.status === "complete" && <><p className="notice success" role="status">Đã chạy xong. Kết quả hiển thị bên dưới.</p><ScenarioResults key={run.id} app={app} run={run} /></>}

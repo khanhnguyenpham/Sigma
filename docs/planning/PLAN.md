@@ -1,5 +1,7 @@
 # Kế hoạch dự án SIGMA
 
+**12/11/2026 — T11:** Dùng cùng form tạo lượt chạy cho hai nhóm **Chuẩn bị dữ liệu** và **Chạy kế hoạch**. Nguồn nhập lấy khóa và mốc chốt từ cấu hình M3. Lượt nhập hoàn tất được chọn sẵn để tạo dự báo. [Hợp đồng giao diện](../../M3/docs/04-frontend-spec.md#scenario-data-preparation).
+
 **04/11/2026 — được giao publish thay đổi demo/UI:** Commit/push thường34tệp đã xác định lên final-report sau suite522Python/114React/build/pipcheck/bảo toàn, đối chiếu remoteSHA và haiCI đúng commit. Bao gồm JSON C00 tổng hợp đã công khai; không raw/run/DB/credential/output/dist/4tệp local hoặc triển khai cloud mới. [Bàn giao](../development.md#handoff-demo-ui-publish).
 
 **04/11/2026 — hoàn tất khối so sánh dự báo/thực tế14ngày:** Theo yêu cầu mới, chọnD riêng trong scenario/Forecast, đọc forecastparent cósẵn và thực tếnguồnD+1…D+14. Không mở chạy lại mô hình hoặc thay kết quả tồn chốt.10API/108React/build/HTTPS/bảo toàn đạt, demo đã cậpnhật; chưa commit/push hoặc thay tiêu chí nghiệmthu. [Bàn giao](../development.md#handoff-forecast-comparison).
@@ -294,7 +296,7 @@ A08–A17 đều là **Đề xuất**. Cập nhật tài liệu không biến co
 |---|---|---|---|---|---|---|
 | A08 — Số bán | Đơn vị sản phẩm/ngày đặt/tuyến | Chỉ success; không lọc activation | Quy ước ban đầu dựa trên trạng thái có sẵn | Kịch bản riêng success+refunded, không chọn vì metric dễ đạt | Target/top 10/EDA/mô hình/tồn/báo cáo; T03–T14 | Đề xuất |
 | A09 — Đối tác | Proxy theo carrier, ánh xạ có nguồn | Một carrier là một đối tác mô phỏng; Vina → Vinaphone | Không có trường partner, có Vinaphone nhưng không có literal Vina | Thay ánh xạ có phiên bản, không sửa CSV | T06/T10–T14 | Đề xuất |
-| A10 — Tồn đầu | Đơn vị/mặt hàng tại cutoff khởi tạo | ceil(7 × bình quân bán/ngày của 28 ngày kết thúc cutoff), đủ ngày 0 | Tái lập theo quy mô bán, không suy ra tồn thật | Cover 3, 7, 14 ngày | Ledger/thiếu/cảnh báo; T06/T10–T14 | Đề xuất |
+| A10 — Tồn đầu | Đơn vị/mặt hàng tại cutoff khởi tạo | Làm tròn lên số ngày phủ × bình quân bán 28 ngày. Lượt mới xét bình quân 90 ngày khi tổng 28 ngày bằng 0 và đủ quan sát 90 ngày. [Quy tắc](../../M3/docs/01-functional-spec.md#initial-stock-history) | Giả định mô phỏng theo lịch sử bán của mặt hàng | Cover 3, 7, 14 ngày | Ledger/thiếu/cảnh báo; T06/T10–T14 | Đề xuất |
 | A11 — Lead time | Ngày lịch/đối tác | 3 ngày, ghi riêng từng đối tác | Đơn giản; không lấy độ trễ activation làm lead time | 1, 3, 7 ngày | ETA/ROP/S/tồn/cảnh báo; T10–T14 | Đề xuất |
 | A12 — Safety-stock days | Ngày/đối tác, tính ngưỡng từng mặt hàng | Vinaphone 4; các đối tác khác 2, phải có bản ghi riêng từng đối tác | Minh họa quy ước riêng; **số do kế hoạch đề xuất** | Nhân cơ sở 0,5; 1; 1,5 | SS/ROP/S/khuyến nghị/mô phỏng; T10–T14 | Đề xuất |
 | A13 — Rà soát/MOQ | Ngày, đơn vị/đối tác | R=1, cuối ngày; MOQ=1, ghi từng đối tác | Dễ giải thích, chỉ áp MOQ khi Q>0 | Cho phép sửa từng đối tác rồi kiểm tra lại | Lượng nhập và quyết định đặt; T10–T14 | Đề xuất |

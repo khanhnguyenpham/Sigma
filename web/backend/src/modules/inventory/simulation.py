@@ -50,9 +50,21 @@ def history_at(matrix, item, origin, days):
     return history_quantities(window.reindex(dates).to_numpy(), days)
 
 
+def initial_stock(matrix, item, origin, cover_days, fallback_days):
+    history = history_at(matrix, item, origin, 28)
+    if fallback_days and not any(history):
+        try:
+            history = history_at(matrix, item, origin, fallback_days)
+        except DomainError as exc:
+            if exc.code != "insufficient_history":
+                raise
+            # The optional longer window is unavailable, but the 28-day total is observed.
+    return math.ceil(float(np.mean(history)) * cover_days)
+
+
 def pure_window(
     matrix, sales_events, catalog, forecasts, policies, scenario, kind, origin, end, supply_changes=None, trade_snapshot=None,
-    receiving=None
+    receiving=None, *, initial_stock_fallback_days=None
 ):
     known = [i for i in catalog if date.fromisoformat(i["first_seen_date"]) <= origin]
     ids = [i["item_id"] for i in known]
@@ -64,9 +76,7 @@ def pure_window(
                 "New item appears inside replay; initialization needs a new causal window",
             )
     stock = {
-        i: math.ceil(
-            float(np.mean(history_at(matrix, i, origin, 28))) * scenario["cover_days"]
-        )
+        i: initial_stock(matrix, i, origin, scenario["cover_days"], initial_stock_fallback_days)
         for i in ids
     }
     sequences = {i: 0 for i in ids}
@@ -600,7 +610,8 @@ def simulate_run(settings, sessions, key):
             total_windows=len(windows),
         )
         result = pure_window(
-            matrix, grouped, catalog, vectors, policies, scenario, kind, start, finish, supply_changes, trade_snapshot, receiving
+            matrix, grouped, catalog, vectors, policies, scenario, kind, start, finish, supply_changes, trade_snapshot, receiving,
+            initial_stock_fallback_days=snapshot.get("initial_stock_fallback_days"),
         )
         for name in combined:
             combined[name].extend(result[name])

@@ -82,7 +82,11 @@ Desktop 1440px có thể chia nhóm thiết lập thành hai cột, tiến độ
 5. Khi API nhận run, ghi `run_id` vào URL và hiện tiến độ trên chính trang. Poll khoảng 2 giây khi queued/running; dùng phase/counters thật, không bịa phần trăm. Dừng poll trạng thái khi terminal; hủy request cũ khi đổi lượt/rời trang.
 6. Tác vụ vẫn chạy nền khi người dùng rời trang. Quay lại bằng URL/lịch sử tải đúng trạng thái; rời trang không đồng nghĩa hủy job. Chỉ xác nhận bỏ thay đổi khi có bản nháp chưa lưu. Không tự chạy lại sau refresh hoặc mất kết nối.
 
-Các loại tồn `stock_projection`, `policy_replay`, `alert_replay` là luồng chính. Nhập nguồn và tạo forecast hiện có vẫn truy cập được trong nhóm **Chuẩn bị dữ liệu** của trang này với các trường theo kind; chúng không cần scenario. Không tự chạy cả chuỗi import/forecast/replay khi chỉ bấm chạy một loại công việc.
+<a id="scenario-data-preparation"></a>
+Danh sách **Loại công việc** có hai nhóm:
+
+- **Chuẩn bị dữ liệu** gồm **Tạo nguồn dữ liệu** và **Tạo dự báo**. Nút **Tạo nguồn dữ liệu** gửi `source_import` cho nguồn `orders_snapshot` đã đăng ký, với mốc UTC từ cấu hình M3. Khi lượt nhập hoàn tất, form chọn sẵn nguồn đó trong **Tạo dự báo**. Người dùng bấm **Chạy dự báo** để tạo `forecast` ở chế độ `replay`, lấy mốc UTC theo ngày kết thúc quan sát của nguồn. Cả hai công việc dùng chung khung tiến độ và kết quả.
+- **Chạy kế hoạch** gồm **Kế hoạch tồn kho** (`stock_projection`), **Kế hoạch nhập hàng** (`policy_replay`) và **Kiểm tra cảnh báo** (`alert_replay`). Cả ba cần phiên bản kịch bản đã lưu và dự báo cha đã hoàn tất.
 
 ### Hoàn tất và kết quả tại chỗ
 

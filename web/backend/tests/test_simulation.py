@@ -94,6 +94,35 @@ def test_stock_projection_is_snapshot_without_future_actual_ledger():
     assert result["alerts"][0]["is_evaluable"] is False
 
 
+@pytest.mark.parametrize(
+    "recent,older,missing_day,fallback_days,expected",
+    [
+        (0, 3, None, 90, 15),
+        (1, 3, None, 90, 7),
+        (0, 0, None, 90, 0),
+        (0, 3, 40, 90, 0),
+        (0, 3, None, None, 0),
+        (0, 3, 1, 90, None),
+    ],
+)
+def test_initial_stock_uses_only_complete_history_at_cutoff(
+    recent, older, missing_day, fallback_days, expected
+):
+    args = list(inputs())
+    dates = pd.date_range(ORIGIN - timedelta(days=89), ORIGIN + timedelta(days=1))
+    matrix = pd.DataFrame({1: [older] * 62 + [recent] * 28 + [900]}, index=dates)
+    if missing_day is not None:
+        matrix = matrix.drop(pd.Timestamp(ORIGIN - timedelta(days=missing_day)))
+    args[0] = matrix
+    if expected is None:
+        with pytest.raises(DomainError) as error:
+            pure_window(*args, "stock_projection", ORIGIN, ORIGIN, initial_stock_fallback_days=fallback_days)
+        assert error.value.code == "insufficient_history"
+    else:
+        result = pure_window(*args, "stock_projection", ORIGIN, ORIGIN, initial_stock_fallback_days=fallback_days)
+        assert result["ledger"][0]["opening_qty"] == result["events"][0]["quantity"] == expected
+
+
 def test_missing_vector_fails_instead_of_using_actual_sales():
     args = list(inputs())
     args[3] = {}

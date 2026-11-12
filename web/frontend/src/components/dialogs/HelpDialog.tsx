@@ -21,7 +21,7 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
         <h3>Bắt đầu một kế hoạch</h3>
         <ol>
           <li>
-            Mở Kịch bản để thiết lập, lưu phiên bản rồi chạy. Theo dõi tiến độ và xem kết quả ngay trên trang đó.
+            Trong Kịch bản, dùng nhóm Chuẩn bị dữ liệu để tạo nguồn và dự báo khi cần. Khi đã có dự báo cha, lưu phiên bản kịch bản và chọn một công việc trong nhóm Chạy kế hoạch.
           </li>
           <li>
             Chọn phương án và ngày kế hoạch ở thanh bộ lọc khi xem các trang kết quả. Dự báo hai khối 7 ngày được phân bổ thành 14 ngày để tính tồn; ngày nghiệp vụ theo UTC.

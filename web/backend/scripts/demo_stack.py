@@ -129,9 +129,10 @@ def main():
             raise ValueError()
     except ValueError:
         raise SystemExit("PORT must be in 1024..65535") from None
+    host = "127.0.0.1" if os.environ.get("M3_DEMO_LOOPBACK_ONLY") == "1" else "0.0.0.0"
     env = {**os.environ, "M3_WORKER_INSTANCE": str(uuid.uuid4())}
     return supervise([[sys.executable, "-m", "worker"], [sys.executable, "-m", "uvicorn",
-        "main:create_app", "--factory", "--host", "0.0.0.0", "--port", str(port),
+        "main:create_app", "--factory", "--host", host, "--port", str(port),
         '--limit-concurrency', '64', '--timeout-keep-alive', '5']], env)
 
 

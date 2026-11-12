@@ -185,7 +185,10 @@ Run đóng băng chuỗi policy cần cho kỳ mô phỏng, chọn theo ngày qu
 
 Seed demo là thủ tục tạo giả định, không phải fallback runtime: tại cutoff khởi tạo lấy μ28/item từ 28 ngày lịch quan sát. Supplier số lẻ: floor=`ceil(6×μ28)`, safety_days2; số chẵn: floor=`ceil(8×μ28)`, safety_days3. MOQ minh họa eSIM5, physical_SIM10. Ghi policy riêng mỗi item với nguồn `synthetic_seed_v1`; không tune số để làm đẹp kết quả. FE cho sửa từng bản. Ví dụ mục7 dùng số giả độc lập.
 
-Tồn đầu=`ceil(cover_days×μ28)`, cơ sở cover7, độ nhạy3/7/14. Tính tại origin khởi tạo, không dùng actual trong đợt đánh giá. Đủ nguồn nhưng không bán → μ28=0 hợp lệ; thiếu nguồn ngày → chặn. Receipts đầu kỳ khai báo rỗng hoặc danh sách cụ thể. Tồn/nhập/ledger đều `is_simulated=true`.
+<a id="initial-stock-history"></a>
+Tồn đầu mô phỏng bằng `ceil(cover_days × bình quân bán/ngày của mặt hàng)`. Dùng 28 ngày lịch UTC tính đến và gồm ngày chốt của cửa sổ. Nếu đủ 28 ngày quan sát và tổng bán bằng 0, lượt mới dùng bình quân 90 ngày kết thúc tại cùng mốc nếu đủ quan sát. Khi thiếu dữ liệu cho cửa sổ 90 ngày, kết quả dựa trên 28 ngày đã quan sát và bằng 0. Thiếu quan sát trong 28 ngày bắt buộc trả `insufficient_history`. Số ngày phủ là 3, 7 hoặc 14.
+
+Lượt mới lưu `initial_stock_fallback_days=90` trong `runs.config_snapshot`. Worker và bộ đối soát tính theo cấu hình đã chốt của từng lượt. Snapshot lịch sử thiếu trường này dùng công thức 28 ngày. Lô đầu kỳ khai báo rỗng hoặc theo danh sách và cộng vào tồn tại ETA. Tồn, lô nhập và sổ tồn đều có `is_simulated=true`.
 
 ## 6. Chu kỳ tồn và nhập
 

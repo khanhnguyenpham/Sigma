@@ -9,17 +9,19 @@
 **04/11/2026 — backup/rehearsal0009 đã đạt, chưa mở local:** Backup mới tại `outputs/chg096_demo_rehearsal/backup-before-0009/` đã restore khớp18bảng/8run/158artifact trên cluster55434 riêng; nâng/hạ/nâng giữ dữ liệu cũ, metadata0diff và12cặpAPI/CSV trước/sau khớp. Demo gốc55433 vẫn0008,3tệp control gồm prepared giữ nguyên; haiPG đã dừng. Chưa cutover DB/API/worker/FE/fingerprint và chưa mở web/tunnel. [Bàn giao](../../../docs/development.md#handoff-demo-0009-rehearsal). Chỉ backup/rehearsal đã hoàn tất; guard khởi động dưới đây vẫn áp dụng.
 
 <a id="src-demo-launcher"></a>
-## Điểm khởi động demo tại src — 04/11/2026
+<a id="demo-launcher"></a>
+## Điểm khởi động demo tại src
 
 Launcher điều khiển demo khi máy mở nằm ở [`src/start_demo.py`](../../../src/start_demo.py). Từ root project chạy:
 
 ```powershell
 .\.venv-m3\Scripts\python.exe src/start_demo.py start
+.\.venv-m3\Scripts\python.exe src/start_demo.py start-local
 .\.venv-m3\Scripts\python.exe src/start_demo.py status
 .\.venv-m3\Scripts\python.exe src/start_demo.py stop
 ```
 
-Không truyền command tương đương `start`; `--help` xem trợ giúp. Start chạy foreground, in URL HTTPS sau khi readiness đạt; giữ terminal hoặc dùng Ctrl+C để dừng. Stop/status có thể chạy ở terminal khác. URL trong status chỉ dùng khi active=true/status=ready; lúc đã dừng, URL cũ không bảo đảm còn dùng được.
+`start` (mặc định) mở Quick Tunnel và in URL HTTPS. `start-local` chạy API tại [http://127.0.0.1:8041/](http://127.0.0.1:8041/) và dùng PostgreSQL/worker demo riêng. Chế độ local bỏ qua Cloudflare và chỉ nghe trên loopback. Hai lệnh chạy foreground và in địa chỉ sau khi readiness đạt. Giữ terminal mở, dùng Ctrl+C để dừng hoặc chạy `stop` ở terminal khác. `status` trả URL hiện hành khi `active=true` và `status=ready`.
 
 Mã điều khiển đã chuyển từ công cụ local `outputs/chg091_d4/local_demo.py`; đường cũ giữ shim tương thích. Dữ liệu, `runtime-env.private.json`, `prepared.json`, `connection.json`, log, PostgreSQL và binary cloudflared vẫn thuộc các thư mục local ngoài Git. Launcher dùng lại `demo_stack` để quản lý API/worker và cây process, chỉ điều khiển demo riêng8041/55433; PostgreSQL đang có sẵn không bị launcher dừng khi nó thoát.
 

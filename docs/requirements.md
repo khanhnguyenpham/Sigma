@@ -1,5 +1,9 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**12/11/2026 — R08/T11:** Trang Kịch bản nhóm nhập nguồn và tạo dự báo vào **Chuẩn bị dữ liệu**, ba công việc dùng dự báo cha vào **Chạy kế hoạch**. Lượt nhập chỉ dùng nguồn đã đăng ký và có thể chọn làm nguồn dự báo sau khi hoàn tất. [Luồng giao diện](../M3/docs/04-frontend-spec.md#scenario-data-preparation).
+
+**12/11/2026 — tồn đầu mô phỏng:** Với lượt mới, nếu đủ quan sát 28 ngày và tổng bán của mặt hàng bằng 0, tính tồn đầu theo bình quân 90 ngày nếu cửa sổ dài đủ quan sát. Thiếu phần quan sát mở rộng thì dùng kết quả 28 ngày bằng 0. Thiếu một ngày trong 28 ngày bắt buộc thì báo lỗi. Kiểm cùng dữ liệu cho lượt mới và snapshot lịch sử. [Đặc tả](../M3/docs/01-functional-spec.md#initial-stock-history).
+
 **04/11/2026 — công thức ROP mới:** Người dùng yêu cầu ROP = max(ceil(nhu cầu dự báo 7 ngày + SS), ngưỡng nhập tối thiểu cấu hình). SS = ceil(safety_days × mean(f1…f14) × safety_multiplier). Run mới chốt `forecast_floor_days_ss_v1`/`rop_mode=forecast`; giữ strict closing<ROP, S=ROP+ceil(f8), IP=closing+pending, lượng nhập cố định mỗi lần và các quyền ngừng nhập/bán. Không thêm lựa chọn mode/đổi schema; run cũ giữ snapshot fixed và kết quả. Các mô tả ROP cố định bên dưới là lịch sử trước thay đổi này.
 
 

@@ -164,13 +164,15 @@ def test_calendar_gaps_duplicates_and_insufficient_long_window_fail():
     assert exc.value.code == "insufficient_history"
 
 
-def worker_fixture(sessions, tmp_path):
+def worker_fixture(sessions, tmp_path, *, quiet_recent=False):
     """Only synthetic parents/forecasts are injected; audit, simulation and verifier run for real."""
     source, forecast, item = result_fixture(sessions)
     raw = tmp_path / "data/sigma_sim_data_orders.csv"
     raw.parent.mkdir()
     days = [D + timedelta(days=h) for h in range(-89, 15)]
     counts = {day: ((day - D).days + 6) % 7 if day <= D else 10 for day in days}
+    if quiet_recent:
+        counts.update({day: 0 if day >= D - timedelta(days=27) else 3 for day in days if day <= D})
     with raw.open("w", newline="", encoding="utf-8") as stream:
         writer = csv.DictWriter(stream, fieldnames=SOURCE_COLUMNS)
         writer.writeheader()
@@ -227,6 +229,7 @@ def enqueue_fixture(c, source, forecast, item, safety, rop, kind, lookback=7, *,
             run=session.get(Run,key)
             snapshot=deepcopy(run.config_snapshot)
             snapshot.pop('inventory_policy_profile')
+            snapshot.pop('initial_stock_fallback_days')
             for policy in snapshot['policies']:
                 policy.update(safety_mode=safety,rop_mode=rop,safety_lookback_days=lookback,safety_factor=2)
             run.config_snapshot=snapshot
@@ -311,6 +314,28 @@ def test_worker_missing_observed_long_history_fails_without_partial_ledger(pg, t
         assert c.get(f"/api/v1/runs/{key}/inventory").status_code == 409
 
 
+@pytest.mark.parametrize("legacy,expected", [(False, 15), (True, 0)])
+def test_policy_replay_initial_stock_uses_frozen_history_rule(pg, tmp_path, legacy, expected):
+    _, sessions = pg
+    source, forecast, item = worker_fixture(sessions, tmp_path, quiet_recent=True)
+    cfg = settings(tmp_path)
+    with TestClient(create_app(cfg)) as client:
+        key = enqueue_fixture(client, source, forecast, item, "days", "forecast", "policy_replay", legacy=legacy)
+        with sessions() as session:
+            snapshot = session.get(Run, key).config_snapshot
+            assert snapshot.get("initial_stock_fallback_days") == (None if legacy else 90)
+        assert serve(cfg, once=True) == key
+        assert verify_run(cfg, sessions, key)["status"] == "verified"
+        response = client.get(f"/api/v1/runs/{key}/inventory")
+        assert response.status_code == 200
+        initial = next(row for row in response.json()["items"] if row["date"] == str(D))
+        assert initial["opening_qty"] == initial["closing_qty"] == expected
+        with sessions() as session:
+            assert session.execute(text(
+                "SELECT quantity FROM inventory_events WHERE run_id=:key AND event_kind='initial_stock'"
+            ), {"key": key}).scalar_one() == expected
+
+
 @pytest.mark.parametrize("kind", ["stock_projection", "policy_replay", "alert_replay"])
 @pytest.mark.parametrize("historical_fixed", [False, True])
 def test_forecast_floor_worker_verifier_and_api_csv_keep_historical_formula(pg,tmp_path,kind,historical_fixed):
@@ -326,6 +351,7 @@ def test_forecast_floor_worker_verifier_and_api_csv_keep_historical_formula(pg,t
             if historical_fixed:
                 snapshot=deepcopy(run.config_snapshot)
                 snapshot["inventory_policy_profile"]="fixed_rop_days_ss_v1"
+                snapshot.pop("initial_stock_fallback_days")
                 for policy in snapshot["policies"]:
                     policy["rop_mode"]="fixed"
                 run.config_snapshot=snapshot

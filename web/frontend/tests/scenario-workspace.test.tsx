@@ -37,9 +37,13 @@ function fixture({ initialRun, rejectRun = false, parentError = false }: { initi
         const saved = { ...body, id: scenarios.length+2, version: 2 }; scenarios.push(saved); return reply(saved);
       }
       if (rejectRun) return reply({ error: { code: "demo_run_limit", message: "quota", details: { retry_after_seconds: 20 } } }, 429);
-      run = { ...forecast, id: "queued-run", kind: String(body.kind ?? initialRun?.kind), status: "queued",
-        scenario_id: Number(body.scenario_id ?? initialRun?.scenario_id), as_of_date: String(body.as_of_date ?? "2025-10-31"),
-        forecast_run_id: forecast.id, result_summary: {} };
+      const preparing = body.kind === "source_import" || body.kind === "forecast";
+      run = { ...forecast, id: body.kind === "source_import" ? "imported-source" : "queued-run",
+        kind: String(body.kind ?? initialRun?.kind), status: "queued",
+        scenario_id: preparing ? null : Number(body.scenario_id ?? initialRun?.scenario_id),
+        as_of_date: String(body.as_of_date ?? "2025-10-31"), forecast_run_id: preparing ? null : forecast.id,
+        source_import_run_id: body.kind === "source_import" ? null : body.source_import_run_id ?? forecast.source_import_run_id,
+        result_summary: {} };
       return reply({ run_id: run.id }, 202);
     }
     if (path === "/scenarios") return reply(page(scenarios.filter(row=>url.searchParams.get('include_deleted')==='true' || !(row.settings as Row)?._deleted_at)));
@@ -48,7 +52,14 @@ function fixture({ initialRun, rejectRun = false, parentError = false }: { initi
     if (path === "/runs") {
       if (url.searchParams.has("kind")) {
         if (parentError) return reply({ error: { code: "database_unavailable" } }, 503);
-        return reply(page(url.searchParams.get("kind") === "forecast" ? [forecast] : []));
+        const kind = url.searchParams.get("kind");
+        if (kind === "source_import") {
+          const imported = run?.kind === "source_import" && run.status === "complete" ? [run] : [];
+          return reply(page([...imported, { ...forecast, id: "source-parent", kind,
+            as_of_date: "2025-10-31", source_import_run_id: null }]));
+        }
+        const newForecast = run?.kind === "forecast" && run.status === "complete" ? [run] : [];
+        return reply(page(kind === "forecast" ? [...newForecast, forecast] : []));
       }
       return reply(page(run ? [run] : [forecast]));
     }
@@ -61,6 +72,52 @@ function fixture({ initialRun, rejectRun = false, parentError = false }: { initi
 }
 beforeEach(() => { history.replaceState(null, "", "/#scenarios"); vi.spyOn(window, "scrollTo").mockImplementation(() => {}); });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); history.replaceState(null, "", "/"); });
+
+it("imports the registered source and selects it for the next forecast after completion", async () => {
+  const state = fixture();
+  render(<App />);
+  fireEvent.change(await screen.findByLabelText("Loại công việc"), { target: { value: "source_import" } });
+  const submit = screen.getByRole("button", { name: "Tạo nguồn dữ liệu" });
+  expect(screen.getByLabelText("Mốc chốt UTC")).toHaveValue("2025-12-31");
+  expect(submit).toBeEnabled();
+  fireEvent.click(submit);
+  await screen.findByText(/Bạn có thể rời trang/);
+  expect(state.writes).toHaveLength(1);
+  expect(state.writes[0]).toEqual({ path: "/runs", key: expect.any(String),
+    body: { kind: "source_import", as_of_date: "2025-12-31", source_key: "orders_snapshot" } });
+  expect(location.search).toContain("run_id=imported-source");
+  expect(location.search).not.toContain("scenario_id");
+  expect(screen.getByRole("button", { name: "Chạy dự báo" })).toBeDisabled();
+  state.setStatus("complete");
+  await screen.findByText("Kết quả đã chốt imported-source", {}, { timeout: 4000 });
+  await waitFor(() => expect(screen.getByLabelText("Nguồn đã hoàn tất")).toHaveValue("imported-source"));
+  const forecastButton = screen.getByRole("button", { name: "Chạy dự báo" });
+  expect(forecastButton).toBeEnabled();
+  expect(state.writes).toHaveLength(1);
+  fireEvent.click(forecastButton);
+  await waitFor(() => expect(state.writes).toHaveLength(2));
+  expect(state.writes[1].body).toEqual({ kind: "forecast", mode: "replay", as_of_date: "2025-12-31",
+    source_import_run_id: "imported-source" });
+});
+
+it("creates a forecast from the source cutoff and lists it as a parent after completion", async () => {
+  const state = fixture();
+  render(<App />);
+  fireEvent.change(await screen.findByLabelText("Loại công việc"), { target: { value: "forecast" } });
+  const submit = screen.getByRole("button", { name: "Chạy dự báo" });
+  await waitFor(() => expect(submit).toBeEnabled());
+  expect(screen.getByLabelText("Mốc chốt UTC")).toHaveValue("2025-12-31");
+  fireEvent.click(submit);
+  await screen.findByText(/Bạn có thể rời trang/);
+  expect(state.writes).toHaveLength(1);
+  expect(state.writes[0]).toMatchObject({ path: "/runs", key: expect.any(String) });
+  expect(state.writes[0].body).toEqual({ kind: "forecast", mode: "replay", as_of_date: "2025-12-31", source_import_run_id: "source-parent" });
+  expect(location.search).toContain("run_id=queued-run");
+  expect(location.search).not.toContain("scenario_id");
+  state.setStatus("complete");
+  await screen.findByText("Kết quả đã chốt queued-run", {}, { timeout: 4000 });
+  expect(await within(screen.getByLabelText("Dự báo cha đã hoàn tất")).findByRole("option", { name: /queued-r/ })).toBeInTheDocument();
+});
 
 it("saves without running, selects the returned version and keeps progress/results on the same page", async () => {
   const state = fixture(); render(<App />);

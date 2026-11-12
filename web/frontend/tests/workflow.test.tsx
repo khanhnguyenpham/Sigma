@@ -124,8 +124,13 @@ describe("Result integrity in the UI", () => {
     ] satisfies Run[];
     const created = vi.fn();
     render(<RunForm initialRun={runs[0]} scenario={{ id: 1, name: "Base", version: 1 }} runs={runs} onCreated={created} />);
-    expect(Array.from(screen.getByLabelText("Loại công việc").querySelectorAll("option"), option => option.value))
-      .toEqual(["stock_projection", "policy_replay", "alert_replay"]);
+    const groups = Array.from(screen.getByLabelText("Loại công việc").querySelectorAll("optgroup"), group => ({
+      label: group.label, options: Array.from(group.querySelectorAll("option"), option => option.value),
+    }));
+    expect(groups).toEqual([
+      { label: "Chuẩn bị dữ liệu", options: ["source_import", "forecast"] },
+      { label: "Chạy kế hoạch", options: ["stock_projection", "policy_replay", "alert_replay"] },
+    ]);
     await screen.findByText("Base · phiên bản 1");
     await waitFor(() => expect(screen.getByRole("button", { name: "Chạy kịch bản" })).toBeEnabled());
     const form = screen
