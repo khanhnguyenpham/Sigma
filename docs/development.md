@@ -1,5 +1,10 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-c00-bottom"></a>
+## Đưa Đánh giá C00 xuống cuối trang Kịch bản — 12/11/2026
+
+Đặt khối hồi cứu C00 sau lịch sử lượt chạy. Câu hướng dẫn trỏ đến tab **Tóm tắt** của kết quả lượt Kiểm tra cảnh báo. 128 kiểm thử React đạt, gồm ca kiểm vị trí khối C00 sau lịch sử. Build TypeScript/Vite đạt. [Đặc tả giao diện](../M3/docs/04-frontend-spec.md).
+
 <a id="handoff-scenario-ui-publish"></a>
 ## Publish các cập nhật kịch bản và giao diện — 05/11/2026
 

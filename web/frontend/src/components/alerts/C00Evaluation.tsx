@@ -20,7 +20,7 @@ export function C00Evaluation() {
       <Card label="Recall theo đợt cạn" value={percent(report.recall)} note={`${report.matched_events}/${report.event_denominator} đợt cạn có cảnh báo`} />
       <Card label="Sai lệch ngày cạn trung bình" value={`${fmt(report.date_mae, 2)} ngày`} note={`Trên ${report.matched_events} đợt cạn có cảnh báo`} />
     </div>
-    <p className="notice">Đây là kết quả nghiên cứu hồi cứu C00 với tự bổ sung hàng và {report.warmup_days} ngày khởi tạo. Kết quả cố định theo bộ dữ liệu đã chốt, không thay theo kịch bản hoặc bộ lọc đang chọn. Tỷ lệ của từng lượt Kiểm tra cảnh báo 14 ngày nằm trong phần Tóm tắt bên dưới.</p>
+    <p className="notice">Đây là kết quả nghiên cứu hồi cứu C00 với tự bổ sung hàng và {report.warmup_days} ngày khởi tạo. Kết quả cố định theo bộ dữ liệu đã chốt, không thay theo kịch bản hoặc bộ lọc đang chọn. Tỷ lệ của từng lượt Kiểm tra cảnh báo 14 ngày nằm trong tab Tóm tắt của kết quả lượt chạy.</p>
     <details className="advanced-section c00-evaluation-details">
       <summary>Cách tính và nguồn kết quả C00</summary>
       <p>Tỷ lệ báo sớm = {report.early_numerator}/{report.event_denominator} × 100% = {percent(report.early_rate)}. Một đợt cạn bắt đầu khi tồn dương giảm về 0; sau khi nhập lại, lần cạn tiếp theo là một đợt khác.</p>

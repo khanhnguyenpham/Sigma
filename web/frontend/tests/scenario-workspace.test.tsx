@@ -170,3 +170,11 @@ it("blocks running when parent data fails and retries a failed run as a new run"
   await waitFor(() => expect(location.search).toContain("run_id=queued-run"));
   expect(failed.writes[0].path).toBe("/runs/failed-run/retry"); expect(location.hash).toBe("#scenarios");
 });
+
+it("places the full-period C00 evaluation after the run history", async () => {
+  fixture();
+  render(<App />);
+  const c00 = await screen.findByRole("heading", { name: "Đánh giá C00 — hồi cứu toàn kỳ" });
+  const historyPanel = screen.getByRole("heading", { name: "Các lượt chạy gần đây" }).closest("section");
+  expect(historyPanel?.nextElementSibling).toBe(c00.closest("section"));
+});

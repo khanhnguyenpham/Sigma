@@ -71,7 +71,6 @@ export function Scenarios({ app }: { app: AppContextState }) {
   return <div className="scenario-workspace">
     <div className="page-heading"><div><h1>Kịch bản</h1><p>Thiết lập, chạy và xem kết quả ngay tại đây.</p></div>
       <button type="button" className="secondary" onClick={() => app.navigate("overview")}>← Tổng quan</button></div>
-    <C00Evaluation />
     <Panel title="Chọn kịch bản" note="Mỗi phiên bản đã lưu được giữ riêng với các lượt chạy của nó.">
       <div className="scenario-picker">
         <label>Kịch bản / phiên bản
@@ -146,5 +145,6 @@ export function Scenarios({ app }: { app: AppContextState }) {
         { key: "as_of_date", label: "Mốc UTC" },
       ]} /><Pager page={historyPage} total={history.data.total} onChange={setHistoryPage} /></>}
     </Panel>
+    <C00Evaluation />
   </div>;
 }

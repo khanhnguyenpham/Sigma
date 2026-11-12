@@ -1,5 +1,9 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 12/11/2026 — Vị trí khối đánh giá C00
+
+Theo yêu cầu, đặt khối Đánh giá C00 ở cuối trang Kịch bản, sau lịch sử lượt chạy. Khối tiếp tục đọc kết quả hồi cứu đã chốt. [Bàn giao](development.md#handoff-c00-bottom).
+
 ## 04/11/2026 — Cổng publish demo/UI theo yêu cầu người dùng
 
 Người dùng giao đẩy các thay đổi lên GitHub. Phạm vi34tệp code/tests/docs gồm launcher, so sánh14ngày, C00 tổng hợp, ngày snapshot và chỉnh giao diện; dữ liệu/backup/credential/4tệp nghiên cứu riêng ở ngoài Git.522Python BE/M2 (0skip),114React/build/pipcheck và9contract đạt; suite đầu phát hiện hai guard OpenAPI chưa tách endpoint mới, đã bổ sung assertionGET/pathUUID và giữ nguyên golden cũ. Cổng bảo toàn→commit/push thường final-report→remoteSHA/haiCI của đúng commit ghi receipt local outputs/chg106_publish. [Bàn giao](development.md#handoff-demo-ui-publish).
