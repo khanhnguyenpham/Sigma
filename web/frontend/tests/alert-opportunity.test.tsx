@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { AlertOpportunity } from "../src/components/alerts/AlertOpportunity";
+import { AlertOpportunity, useAlertOpportunity } from "../src/components/alerts/AlertOpportunity";
 import { type Run } from "../src/types/api";
 
 afterEach(() => {
@@ -9,6 +9,10 @@ afterEach(() => {
 });
 const run = (id: string) =>
   ({ id, kind: "alert_replay", status: "complete" }) as Run;
+function Diagnostic({ run }: { run: Run }) {
+  return <AlertOpportunity data={useAlertOpportunity(run)} />;
+}
+
 it("shows the replay ceiling separately and discards it immediately on run change", async () => {
   vi.spyOn(globalThis, "fetch").mockImplementation((url) =>
     String(url).includes("/old/")
@@ -28,11 +32,11 @@ it("shows the replay ceiling separately and discards it immediately on run chang
         } as Response)
       : new Promise(() => {}),
   );
-  const view = render(<AlertOpportunity run={run("old")} />);
+  const view = render(<Diagnostic run={run("old")} />);
   expect(await screen.findByText("45,9%")).toBeVisible();
   expect(screen.getByText("34,4%")).toBeVisible();
-  expect(screen.getByText(/không phải trần chất lượng/)).toBeVisible();
-  view.rerender(<AlertOpportunity run={run("new")} />);
+  expect(screen.getByText(/Thẻ Báo sớm ≥7 ngày dùng các ca cạn từ D\+7 đến D\+14/)).toBeVisible();
+  view.rerender(<Diagnostic run={run("new")} />);
   expect(screen.queryByText("45,9%")).toBeNull();
   expect(screen.getByRole("status")).toBeVisible();
 });
@@ -52,10 +56,10 @@ it("does not invent replay diagnostics for snapshots or unlabeled rates", async 
     }),
   } as Response);
   const view = render(
-    <AlertOpportunity run={{ ...run("snapshot"), kind: "stock_projection" }} />,
+    <Diagnostic run={{ ...run("snapshot"), kind: "stock_projection" }} />,
   );
   expect(fetch).not.toHaveBeenCalled();
-  view.rerender(<AlertOpportunity run={run("empty")} />);
+  view.rerender(<Diagnostic run={run("empty")} />);
   await screen.findByText(/Trong 0 sự kiện/);
   expect(screen.getAllByText("—")).toHaveLength(2);
   expect(screen.queryByText("0,0%")).toBeNull();

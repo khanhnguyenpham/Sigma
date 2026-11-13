@@ -16,6 +16,10 @@ def test_c00_forecast_floor_replay_and_independent_reconstruction():
     assert all(r['ss']==3 and r['rop']==13 for r in result['ledger'])
     assert all(o['ordered_qty']==5 for o in result['orders'])
     assert metrics['event_denominator']==len(cases)
+    eligible = metrics['eligible_event_count']
+    assert metrics['early_numerator'] <= eligible < len(cases)
+    assert metrics['eligible_early_rate'] == metrics['early_numerator'] / eligible
+    assert sum(metrics['eligibility_reasons'].values()) == len(cases)
     assert (source,policies)==original
     adapted={**source,'policies':policies}
     for section,field in [('ledger','rop'),('orders','ordered_qty'),('alarms','origin_on_hand')]:

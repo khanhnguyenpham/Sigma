@@ -56,6 +56,16 @@ def test_demo_normalizes_url_without_changing_credentials(monkeypatch, tmp_path)
     assert settings.mode == "demo"
 
 
+def test_demo_accepts_launcher_origin_only_in_loopback_mode(monkeypatch, tmp_path):
+    demo_env(monkeypatch, tmp_path)
+    monkeypatch.setenv("M3_FRONTEND_ORIGIN", "http://127.0.0.1:8041")
+    monkeypatch.setenv("M3_DEMO_LOOPBACK_ONLY", "0")
+    with pytest.raises(ValueError, match="local frontend"):
+        Settings.from_env()
+    monkeypatch.setenv("M3_DEMO_LOOPBACK_ONLY", "1")
+    assert Settings.from_env().frontend_origin == "http://127.0.0.1:8041"
+
+
 @pytest.mark.parametrize("key,value", [
     ("M3_DATABASE_URL", "postgresql://demo:secret@localhost/sigma_m3"),
     ("M3_DATABASE_URL", "sqlite:///demo.db"),

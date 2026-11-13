@@ -57,7 +57,10 @@ class Settings:
                 and not any(c.isspace() for c in origin))
         except ValueError:
             valid_https = False
-        if origin not in {"http://127.0.0.1:5173", "http://localhost:5173"} and not (mode == "demo" and valid_https):
+        local_demo_origin = (mode == "demo" and os.environ.get("M3_DEMO_LOOPBACK_ONLY") == "1"
+                             and origin == "http://127.0.0.1:8041")
+        if (origin not in {"http://127.0.0.1:5173", "http://localhost:5173"}
+                and not (local_demo_origin or (mode == "demo" and valid_https))):
             raise ValueError("M3 v1 accepts a local frontend only")
         if mode == "demo" and not all(os.environ.get(k) for k in ("M3_DEMO_ROOT", "M3_SOURCE_ROOT", "M3_OUTPUT_ROOT")):
             raise ValueError("Demo requires explicit demo, source and output roots")

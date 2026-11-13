@@ -1,5 +1,21 @@
 # Điều phối công việc SIGMA
 
+**13/11/2026 — T10:** Tách cảnh báo Kế hoạch nhập hàng bị gián đoạn do nhà mạng chặn bán. [Bàn giao](../development.md#handoff-policy-sales-block-recall).
+
+**13/11/2026 — T10/T11:** Demo localhost đã kiểm ba lượt Cơ sở mới với tồn đầu 28 ngày và nhập 15. Đã lưu trữ năm lượt cũ và cập nhật C00 lên 107/228. [Bàn giao](../development.md#handoff-base-lot15-demo).
+
+**13/11/2026 — T10:** Lượt mới dùng tồn đầu 28 ngày. Đối chiếu lượng nhập 15 và 20 bằng hồi cứu C00 offline. [Bàn giao](../development.md#handoff-28-day-stock-and-lot-trial).
+
+**12/11/2026 — T11:** Đổi mốc chốt Kiểm tra cảnh báo sang ô lịch và kiểm tra ngày chọn trước khi gửi lượt. [Bàn giao](../development.md#handoff-alert-cutoff-calendar).
+
+**12/11/2026 — T11:** Đã tách hai khối Tóm tắt trên trang Kịch bản. [Kiểm thử và build](../development.md#handoff-separate-scenario-summaries).
+
+**12/11/2026 — T11:** Form Kiểm tra cảnh báo đã chuyển sang một mốc chốt và tự tính kỳ 14 ngày. Build để sau theo yêu cầu. [Bàn giao](../development.md#handoff-single-alert-window).
+
+**12/11/2026 — T10:** Tóm tắt Kế hoạch nhập hàng có tỷ lệ cảnh báo của chính lượt. Lượt demo `2db8f39f` đạt 13/20 (65,0%) báo sớm và 204/296 (68,9%) Recall. [Bàn giao](../development.md#handoff-policy-alert-evaluation).
+
+**12/11/2026 — T10:** Đổi tỷ lệ báo sớm mặc định theo số ca đủ cơ hội. C00 đã chạy lại, đạt 129/381 (33,86%), đối chiếu toàn bộ 129/400 (32,25%). [Bàn giao](../development.md#handoff-eligible-early-warning).
+
 **12/11/2026 — T11:** Đã thêm nút **Tạo nguồn dữ liệu** và nhóm danh sách công việc trên trang Kịch bản. [Luồng và kiểm thử](../development.md#handoff-scenario-data-preparation).
 
 **12/11/2026 — T10:** Bổ sung cửa sổ 90 ngày cho tồn đầu khi 28 ngày đã quan sát có tổng bán bằng 0. Worker và verifier đọc điều kiện này từ snapshot của lượt. [Đặc tả](../../M3/docs/01-functional-spec.md#initial-stock-history) và [bàn giao](../development.md#handoff-initial-stock-history).

@@ -63,6 +63,11 @@ function fixture({ initialRun, rejectRun = false, parentError = false }: { initi
       }
       return reply(page(run ? [run] : [forecast]));
     }
+    if (path === `/runs/${forecast.id}/forecasts/origins`) return reply(page([
+      { as_of_date: "2025-09-30", actual_available: true },
+      { as_of_date: "2025-10-31", actual_available: true },
+      { as_of_date: "2025-12-31", actual_available: false },
+    ]));
     if (path.startsWith("/runs/")) return run && path === `/runs/${run.id}` ? reply(run) : reply({ error: { code: "not_found" } }, 404);
     if (path === "/suppliers") return reply(page([{id:1,carrier:'DemoCarrier'}]));
     if (path === "/products") return reply(page(url.searchParams.has('carrier') ? [{id:11,sku:'SCOPED-SKU',product_type:'eSIM',carrier:'DemoCarrier',city:'Test City',destination_country:'Demo'}] : [{trade_schema_ready:true}]));
@@ -145,6 +150,41 @@ it("saves without running, selects the returned version and keeps progress/resul
   state.setStatus("complete"); act(() => window.dispatchEvent(new Event("sigma:refresh")));
   await screen.findByText("Kết quả đã chốt queued-run");
   expect(location.hash).toBe("#scenarios"); expect(state.writes).toHaveLength(2);
+});
+
+it("creates one alert evaluation window from an eligible calendar date", async () => {
+  const state = fixture();
+  history.replaceState(null, "", "/?scenario_id=1#scenarios");
+  render(<App />);
+  const kind = await screen.findByLabelText("Loại công việc");
+  fireEvent.change(kind, { target: { value: "policy_replay" } });
+  expect(screen.getByLabelText("Từ ngày")).toBeInTheDocument();
+  expect(screen.getByLabelText("Đến ngày")).toBeInTheDocument();
+
+  fireEvent.change(kind, { target: { value: "alert_replay" } });
+  await screen.findByText("Kỳ kiểm tra 14 ngày · 01/10/2025 đến 14/10/2025");
+  expect(screen.queryByLabelText("Từ ngày")).toBeNull();
+  expect(screen.queryByLabelText("Đến ngày")).toBeNull();
+  const cutoff = screen.getByLabelText("Mốc chốt UTC");
+  expect(cutoff).toHaveAttribute("type", "date");
+  expect(cutoff).toHaveAttribute("min", "2025-09-30");
+  expect(cutoff).toHaveAttribute("max", "2025-10-31");
+  const submit = screen.getByRole("button", { name: "Chạy kịch bản" });
+  fireEvent.change(cutoff, { target: { value: "2025-10-15" } });
+  expect(cutoff).toHaveAttribute("aria-invalid", "true");
+  expect(screen.getByRole("alert")).toHaveTextContent("Mốc chốt này chưa có đủ dữ liệu");
+  expect(screen.queryByText(/Kỳ kiểm tra 14 ngày/)).toBeNull();
+  expect(submit).toBeDisabled();
+  expect(state.writes).toHaveLength(0);
+  fireEvent.change(cutoff, { target: { value: "2025-10-31" } });
+  expect(screen.getByText("Kỳ kiểm tra 14 ngày · 01/11/2025 đến 14/11/2025")).toBeInTheDocument();
+  await waitFor(() => expect(submit).toBeEnabled());
+  fireEvent.click(submit);
+  await waitFor(() => expect(state.writes).toHaveLength(1));
+  expect(state.writes[0]).toMatchObject({ path: "/runs", body: {
+    kind: "alert_replay", as_of_date: "2025-10-31", period_start: "2025-11-01", period_end: "2025-11-14",
+    forecast_run_id: forecast.id, source_import_run_id: forecast.source_import_run_id, scenario_id: 1,
+  } });
 });
 
 it("saves scenario-only stops and resets them by saving a new empty schedule", async () => {

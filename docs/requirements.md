@@ -2,7 +2,7 @@
 
 **12/11/2026 — R08/T11:** Trang Kịch bản nhóm nhập nguồn và tạo dự báo vào **Chuẩn bị dữ liệu**, ba công việc dùng dự báo cha vào **Chạy kế hoạch**. Lượt nhập chỉ dùng nguồn đã đăng ký và có thể chọn làm nguồn dự báo sau khi hoàn tất. [Luồng giao diện](../M3/docs/04-frontend-spec.md#scenario-data-preparation).
 
-**12/11/2026 — tồn đầu mô phỏng:** Với lượt mới, nếu đủ quan sát 28 ngày và tổng bán của mặt hàng bằng 0, tính tồn đầu theo bình quân 90 ngày nếu cửa sổ dài đủ quan sát. Thiếu phần quan sát mở rộng thì dùng kết quả 28 ngày bằng 0. Thiếu một ngày trong 28 ngày bắt buộc thì báo lỗi. Kiểm cùng dữ liệu cho lượt mới và snapshot lịch sử. [Đặc tả](../M3/docs/01-functional-spec.md#initial-stock-history).
+**13/11/2026 — tồn đầu mô phỏng:** Lượt mới dùng bình quân bán 28 ngày tại mốc chốt. Tổng bán bằng 0 cho tồn đầu bằng 0; thiếu quan sát trong 28 ngày trả `insufficient_history`. Lượt lịch sử dùng quy tắc đã chốt, gồm cả phương án dự phòng 90 ngày nếu được lưu. Kiểm cùng dữ liệu cho cả hai cách đọc. [Đặc tả](../M3/docs/01-functional-spec.md#initial-stock-history).
 
 **04/11/2026 — công thức ROP mới:** Người dùng yêu cầu ROP = max(ceil(nhu cầu dự báo 7 ngày + SS), ngưỡng nhập tối thiểu cấu hình). SS = ceil(safety_days × mean(f1…f14) × safety_multiplier). Run mới chốt `forecast_floor_days_ss_v1`/`rop_mode=forecast`; giữ strict closing<ROP, S=ROP+ceil(f8), IP=closing+pending, lượng nhập cố định mỗi lần và các quyền ngừng nhập/bán. Không thêm lựa chọn mode/đổi schema; run cũ giữ snapshot fixed và kết quả. Các mô tả ROP cố định bên dưới là lịch sử trước thay đổi này.
 
@@ -251,6 +251,10 @@ Dữ liệu quan sát trong order, dữ liệu dẫn xuất có công thức/cut
 
 <a id="r07"></a>
 ### R07 — Đo cảnh báo trước ít nhất 7 ngày
+
+- **Kế hoạch nhập hàng:** Tóm tắt lượt hoàn tất đo tỷ lệ báo sớm và Recall theo đợt cạn trong từng khoảng được bán liên tục của chính lượt. Ca bán hết khi ngừng nhập nội bộ được chấm. Hiển thị số cảnh báo bị gián đoạn do chặn bán, có lô về hoặc chưa theo dõi đủ. [Đặc tả](../M3/docs/01-functional-spec.md#eligible-early-warning).
+
+- **Hiển thị mặc định từ 12/11/2026:** Mẫu số gồm các ca có đủ cơ hội báo sớm, kể cả ca bỏ sót. Báo cáo kèm tỷ lệ trên toàn bộ ca cạn và số ca không đủ cơ hội. Hai mẫu số được ghi rõ để đối chiếu với bằng chứng trước đây. Mục tiêu 45% đã được thuật lại vẫn đọc theo mẫu số toàn bộ ca cạn ở CHG-073. [Quy tắc của từng phép kiểm](../M3/docs/01-functional-spec.md#eligible-early-warning).
 
 - **Ưu tiên sản phẩm hiện tại:** [CHG-086](#chg086-quality-deployment) cho phép bỏ việc ép45% nếu đánh đổi sai số/FP không phù hợp. Các kết quả và diễn giảiCHG073 dưới đây giữ vai trò lịch sử; chưa có xác nhận mentor mới hoặc nghiệm thuR07.
 

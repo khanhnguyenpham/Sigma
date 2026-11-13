@@ -229,7 +229,6 @@ def enqueue_fixture(c, source, forecast, item, safety, rop, kind, lookback=7, *,
             run=session.get(Run,key)
             snapshot=deepcopy(run.config_snapshot)
             snapshot.pop('inventory_policy_profile')
-            snapshot.pop('initial_stock_fallback_days')
             for policy in snapshot['policies']:
                 policy.update(safety_mode=safety,rop_mode=rop,safety_lookback_days=lookback,safety_factor=2)
             run.config_snapshot=snapshot
@@ -314,16 +313,19 @@ def test_worker_missing_observed_long_history_fails_without_partial_ledger(pg, t
         assert c.get(f"/api/v1/runs/{key}/inventory").status_code == 409
 
 
-@pytest.mark.parametrize("legacy,expected", [(False, 15), (True, 0)])
-def test_policy_replay_initial_stock_uses_frozen_history_rule(pg, tmp_path, legacy, expected):
+@pytest.mark.parametrize("historical_fallback,expected", [(False, 0), (True, 15)])
+def test_policy_replay_initial_stock_uses_frozen_history_rule(pg, tmp_path, historical_fallback, expected):
     _, sessions = pg
     source, forecast, item = worker_fixture(sessions, tmp_path, quiet_recent=True)
     cfg = settings(tmp_path)
     with TestClient(create_app(cfg)) as client:
-        key = enqueue_fixture(client, source, forecast, item, "days", "forecast", "policy_replay", legacy=legacy)
-        with sessions() as session:
-            snapshot = session.get(Run, key).config_snapshot
-            assert snapshot.get("initial_stock_fallback_days") == (None if legacy else 90)
+        key = enqueue_fixture(client, source, forecast, item, "days", "forecast", "policy_replay", legacy=False)
+        with sessions.begin() as session:
+            run = session.get(Run, key)
+            assert "initial_stock_fallback_days" not in run.config_snapshot
+            if historical_fallback:
+                run.config_snapshot = {**run.config_snapshot, "initial_stock_fallback_days": 90}
+                run.config_sha256 = digest(run.config_snapshot)
         assert serve(cfg, once=True) == key
         assert verify_run(cfg, sessions, key)["status"] == "verified"
         response = client.get(f"/api/v1/runs/{key}/inventory")
@@ -348,10 +350,10 @@ def test_forecast_floor_worker_verifier_and_api_csv_keep_historical_formula(pg,t
             run=session.get(Run,key)
             assert run.config_snapshot["inventory_policy_profile"]=="forecast_floor_days_ss_v1"
             assert run.config_snapshot["policies"][0]["rop_mode"]=="forecast"
+            assert "initial_stock_fallback_days" not in run.config_snapshot
             if historical_fixed:
                 snapshot=deepcopy(run.config_snapshot)
                 snapshot["inventory_policy_profile"]="fixed_rop_days_ss_v1"
-                snapshot.pop("initial_stock_fallback_days")
                 for policy in snapshot["policies"]:
                     policy["rop_mode"]="fixed"
                 run.config_snapshot=snapshot

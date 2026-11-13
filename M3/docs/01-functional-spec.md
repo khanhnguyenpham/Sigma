@@ -186,9 +186,9 @@ Run đóng băng chuỗi policy cần cho kỳ mô phỏng, chọn theo ngày qu
 Seed demo là thủ tục tạo giả định, không phải fallback runtime: tại cutoff khởi tạo lấy μ28/item từ 28 ngày lịch quan sát. Supplier số lẻ: floor=`ceil(6×μ28)`, safety_days2; số chẵn: floor=`ceil(8×μ28)`, safety_days3. MOQ minh họa eSIM5, physical_SIM10. Ghi policy riêng mỗi item với nguồn `synthetic_seed_v1`; không tune số để làm đẹp kết quả. FE cho sửa từng bản. Ví dụ mục7 dùng số giả độc lập.
 
 <a id="initial-stock-history"></a>
-Tồn đầu mô phỏng bằng `ceil(cover_days × bình quân bán/ngày của mặt hàng)`. Dùng 28 ngày lịch UTC tính đến và gồm ngày chốt của cửa sổ. Nếu đủ 28 ngày quan sát và tổng bán bằng 0, lượt mới dùng bình quân 90 ngày kết thúc tại cùng mốc nếu đủ quan sát. Khi thiếu dữ liệu cho cửa sổ 90 ngày, kết quả dựa trên 28 ngày đã quan sát và bằng 0. Thiếu quan sát trong 28 ngày bắt buộc trả `insufficient_history`. Số ngày phủ là 3, 7 hoặc 14.
+Tồn đầu mô phỏng bằng `ceil(cover_days × bình quân bán/ngày của mặt hàng)`. Lượt mới dùng 28 ngày lịch UTC tính đến và gồm ngày chốt của cửa sổ. Nếu tổng bán trên 28 ngày quan sát bằng 0, tồn đầu bằng 0. Thiếu quan sát trong 28 ngày bắt buộc trả `insufficient_history`. Số ngày phủ là 3, 7 hoặc 14.
 
-Lượt mới lưu `initial_stock_fallback_days=90` trong `runs.config_snapshot`. Worker và bộ đối soát tính theo cấu hình đã chốt của từng lượt. Snapshot lịch sử thiếu trường này dùng công thức 28 ngày. Lô đầu kỳ khai báo rỗng hoặc theo danh sách và cộng vào tồn tại ETA. Tồn, lô nhập và sổ tồn đều có `is_simulated=true`.
+Worker và bộ đối soát dùng quy tắc đã chốt theo lượt. Snapshot lịch sử có `initial_stock_fallback_days=90` tiếp tục xét bình quân 90 ngày khi đủ dữ liệu và tổng 28 ngày bằng 0. Snapshot thiếu trường này dùng công thức 28 ngày. Lô đầu kỳ khai báo rỗng hoặc theo danh sách và cộng vào tồn tại ETA. Tồn, lô nhập và sổ tồn đều có `is_simulated=true`.
 
 ## 6. Chu kỳ tồn và nhập
 
@@ -222,9 +222,14 @@ f[h]=10, b=2 → SS20, ROP_forecast90. Với floor100/MOQ50: ROP100/S110. Tồn8
 
 Tách `below_rop` từ tồn cuối và `depletion` từ chiếu14 ngày bằng forecast/receipts đã biết ở origin. Projection không thêm đơn nhập do chính cảnh báo đó. Mỗi ngày nhận receipts đầu ngày rồi trừ forecast, clip tồn0; ngày đầu chạm0 là ngày cạn dự kiến. Origin tồn0 → `already_depleted`, không tính sớm. D+1…D+6 khẩn/muộn; D+7…D+14 sớm; không cạn trongH → `not_within_horizon`, ngày cạn null.
 
-**Alert replay:** origin30/09/2025 rồi cách14 ngày, chỉ đợt đủ 14 ngày nhãn đến 31/12; tồn đầu dựng từ quá khứ từng đợt; không đặt mới, chỉ nhận receipts khai báo trước origin. Một sự kiện cạn đầu tiên/item/đợt; key không chứa ngày dự đoán để tránh nhân đôi. TP/FP/FN theo có/không sự kiện trong cùng cửa sổ, ghép cặp đó tính sai số ngày cạn. Early rate = số sự kiện thực mô phỏng được báo tại origin trước ngày cạn≥7 / tổng sự kiện thực mô phỏng; ca tồn0 tại origin báo riêng ngoài mẫu số sự kiện tương lai. FN gồm không cảnh báo nhưng có sự kiện. Không có mẫu số → null; công khai ca thiếu/bị loại.
+**Alert replay:** origin30/09/2025 rồi cách14 ngày, chỉ đợt đủ 14 ngày nhãn đến 31/12; tồn đầu dựng từ quá khứ từng đợt; không đặt mới, chỉ nhận receipts khai báo trước origin. Một sự kiện cạn đầu tiên/item/đợt; key không chứa ngày dự đoán để tránh nhân đôi. TP/FP/FN theo có/không sự kiện trong cùng cửa sổ, ghép cặp đó tính sai số ngày cạn. Ca tồn 0 tại origin báo riêng ngoài mẫu số sự kiện tương lai. FN gồm không cảnh báo nhưng có sự kiện.
+
+<a id="eligible-early-warning"></a>
+**Báo sớm mặc định từ 12/11/2026:** Tử số là số ca cạn có cảnh báo trước ít nhất 7 ngày. Với replay H14, mẫu số là các ca cạn từ D+7 đến D+14, kể cả ca bỏ sót. Ca D+1 đến D+6 được đếm riêng. Giao diện lấy `eligible_detection_rate` từ chẩn đoán toàn lượt. Nếu mẫu số bằng 0, hiển thị Chưa xác định. Tỷ lệ trên toàn bộ ca cạn vẫn dùng số liệu đã lưu trong `alert_metrics` và được hiển thị để đối chiếu. Với C00 liên tục, một đợt đủ cơ hội khi có ít nhất một ngày còn tồn dương trong 7–14 ngày trước cạn mà cảnh báo ngày đó có thể ghép với chính đợt đó. Cả hai tỷ lệ dùng cùng ngưỡng báo trước 7 ngày.
 
 **Policy replay:** liên tục01/10–31/12/2025, khởi tạo30/09, cho đặt mới/ETA7. Forecast đủ 14 ở tail dù actual tail chưa đủ chấm. Báo fill rate, shortage, tồn cuối bình quân, số lô/lượng nhập. Không coi cảnh báo ngăn được cạn là false positive.
+
+**Đánh giá riêng Kế hoạch nhập hàng:** Với lượt hoàn tất, đọc cảnh báo cạn, quyền bán và sổ tồn cùng mã lượt. Một đợt cạn bắt đầu vào ngày được bán khi tồn đầu cộng lô nhận còn dương và tồn cuối về 0. Mỗi cảnh báo ghép với đợt cạn kế tiếp của mặt hàng trong 14 ngày và trong cùng khoảng được bán liên tục. Mẫu số báo sớm gồm các đợt có ít nhất một ngày còn tồn dương và được bán trong 7–14 ngày trước cạn có thể ghép với chính đợt đó. Recall tính trên mọi đợt cạn hợp lệ của kỳ, kể cả đợt cạn trước ngày bị chặn hoặc sau khi bán trở lại. Ngừng nhập nội bộ vẫn cho bán tồn, nên ca bán hết được chấm bình thường. Với cảnh báo chưa ghép được đợt cạn, đếm riêng theo thứ tự kỳ theo dõi gặp chặn bán, có lô mới về và chưa đủ 14 ngày theo dõi. Phép chấm đọc kết quả đã lưu của từng lượt.
 
 Sales metric error=forecast−actual; MAPE chỉ actual>0, MAE/bias mọi cặp có nhãn, WAPE chia tổng actual; toàn actual0 → MAPE/WAPE null. Coverage=cặp forecast hợp lệ/cặp dự kiến có nhãn. Tách ngày/tổng tuần, h1–7/h8–14, rolling/nonoverlap. R07 chưa có ngưỡng precision/recall chính thức, không hứa mọi ca đều báo trước 7 ngày.
 

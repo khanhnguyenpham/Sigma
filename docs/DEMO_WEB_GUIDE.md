@@ -1,8 +1,10 @@
 # Hướng dẫn thao tác và trình bày demo SIGMA
 
+**13/11/2026:** Demo hiện mở tại [localhost](http://127.0.0.1:8041/#scenarios). Cơ sở có ba lượt mới tại mốc 31/10/2025, dùng tồn đầu 28 ngày và lượng nhập 15 cho 920 mặt hàng. Khối C00 hiển thị 107/228 đợt báo sớm đủ cơ hội (46,93%). [Kết quả và bàn giao](development.md#handoff-base-lot15-demo).
+
 Soạn ngày 04/11/2026, phục vụ luyện demo thứ Sáu 06/11/2026. Hướng dẫn gồm launcher, so sánh14ngày và kết quả C00; [bàn giao và cổng publish GitHub](development.md#handoff-demo-ui-publish) ghi phạm vi kiểm và trạng thái phát hành. Demo đã nâng migration0009 và cập nhật đồng bộ API/worker/giao diện; dùng tại [demo HTTPS công khai](https://that-katrina-olympus-situated.trycloudflare.com/#scenarios) hoặc [localhost](http://127.0.0.1:8041/#scenarios). Người dùng đã xác nhận công khai qua Quick Tunnel; cần giữ máy và process chạy, URL đổi khi mở tunnel mới. Lấy connection.json làm nguồn URL hiện hành. [Bàn giao HTTPS và giới hạn kiểm](development.md#handoff-demo-https-public).
 
-Đã dọn3lượt thử cũ, demo còn6lượt: một nguồn, một dự báo, kế hoạch tồn mới31/10, kế hoạch nhập, kiểm tra cảnh báo và một lượt lỗi còn liên kết thử lại. Đầu trang Kịch bản có kết quả C00 toàn kỳ54,02% đã chạy lại/kiểm chứng. [Bản phục hồi trước dọn và phạm vi giữ lại](development.md#handoff-demo-run-cleanup).
+Ở mốc dọn 3 lượt thử cũ, demo còn 6 lượt: một nguồn, một dự báo, một kế hoạch tồn, một kế hoạch nhập, một lượt kiểm tra cảnh báo và một lượt lỗi còn liên kết thử lại. [Bản phục hồi trước dọn và phạm vi giữ lại](development.md#handoff-demo-run-cleanup).
 
 Backup mới và diễn tập migration0009 trên bản sao đã hoàn tất trước cutover. Bản backup0008 vẫn giữ nguyên để phục hồi khi cần. [Bản backup và kết quả diễn tập](development.md#handoff-demo-0009-rehearsal).
 
@@ -112,13 +114,13 @@ Gỡ một thông báo không tự gỡ ngừng nhập nội bộ hoặc thông 
 
 Trong kết quả kịch bản, khối so sánh nằm ởtab**So sánh dự báo / thực tế**. Tab**Dự kiến bán** đã được bỏ; phần dự phóng theo tồn vẫn có ở trangDựbáonhucầu riêng.
 
-**Kết quả C00 để trình bày:** mở **Kịch bản**, khối **Đánh giá C00 — hồi cứu toàn kỳ** nằm đầu trang. Phép kiểm đã chạy lại từ đầu vào/dự báo/chính sách frozen và đối chiếu verifier đường tồn cùng hai scorer: **450/833 = 54,02%**, Precision **80,89%**, Recall **79,95%**, sai lệch ngày cạn trung bình **4,01 ngày** trên666 đợt có cảnh báo. Kỳ chấm29/10–31/12/2025,920 mặt hàng, tự bổ sung hàng và28 ngày khởi tạo. Một mặt hàng có thể cạn nhiều đợt sau khi nhập lại. Bấm **Cách tính và nguồn kết quả C00** để giải thích hoặc **Tải kết quả C00** lấy JSON tổng hợp có mã đối chiếu. Đây là đánh giá nghiên cứu đã chốt, không tự đổi theo phiên bản kịch bản/bộ lọc và không phải tập kiểm định chưa từng xem.
+**Kết quả C00 để trình bày:** mở **Kịch bản** và xem khối **Đánh giá C00 — hồi cứu toàn kỳ** ở cuối trang. Thẻ mặc định hiển thị **107/228 = 46,93%**. Precision là **76,42%**, Recall là **93,45%** và sai lệch ngày cạn trung bình là **4,71 ngày** trên 214 đợt có cảnh báo. C00 chấm từ 29/10 đến 31/12/2025 trên 920 mặt hàng, với 28 ngày khởi tạo và lượng nhập cố định 15 đơn vị mỗi lần. **Cách tính và nguồn kết quả C00** hiển thị tỷ lệ trên toàn bộ ca cạn. **Tải kết quả C00** tải JSON tổng hợp có mã đối chiếu.
 
-Câu demo gợi ý: “Trong phép hồi cứu C00 toàn kỳ,450 trên833 đợt cạn được báo trước ít nhất7ngày, tương đương54,02%. Precision cảnh báo là80,89%; đây là hai chỉ số khác nhau.”
+Câu demo gợi ý là “C00 báo trước ít nhất 7 ngày cho 107 trong 228 đợt có cơ hội, tương đương 46,93%. Có một đợt thiếu cơ hội. Tính trên toàn bộ 229 đợt cạn, tỷ lệ báo sớm là 46,72%.”
 
-**Tỷ lệ cảnh báo của từng lượt14ngày:** mở **Kịch bản → lượt Kiểm tra cảnh báo hoàn tất → Tóm tắt**. Thẻ Báo sớm≥7ngày tính số sự kiện cạn được cảnh báo khi còn ít nhất7ngày chia tổng sự kiện cạn đủđiềukiện; mẫu số gồm cả báo muộn/bỏsót, không đổi theo bộlọc. Lượt demo kỳ01–14/10/2025 đạt**32,5% (150/461)**; đây là phép kiểm không đặt hàng mới trong cửa sổ14ngày, khác phép hồi cứu C00 toàn kỳ phía trên. Không dùng54,02% thay tỷ lệ của lượt này. Precision68,5% vàRecall65,5% đo khía cạnh khác nên hiển thị riêng. Mẫu số0ghiChưaxácđịnh, không tự gọi0% hoặc100%.
+**Tỷ lệ cảnh báo của từng lượt 14 ngày:** mở **Kịch bản → lượt Kiểm tra cảnh báo hoàn tất → Tóm tắt**. Thẻ **Báo sớm ≥7 ngày** dùng các ca cạn từ D+7 đến D+14, kể cả ca bị bỏ sót. Ca cạn D+1 đến D+6 và tỷ lệ trên toàn bộ ca cạn xuất hiện dưới các thẻ. Bộ lọc không đổi số liệu toàn lượt. Mẫu số 0 hiển thị **Chưa xác định**.
 
-Cardbáosớm nằm ngaydưới hàngtab khi chọn**Tóm tắt**. Nếu đang xemKếhoạchtồnkho, hệthốngcóthểhiện kếtquảđãđánhgiá của replaycompletecùngphiênbảnscenario vàcùngnguồn/dựbáocha, kèmnhãnnguồnvàkỳhồicứu. Ví dụstockc02ngày31/10hiệnkếtquảliênquanc145kỳ01–14/10, **không phải tỷlệ đo riêngcho31/10**. Nút **Mở lượt Kiểm tra cảnh báo này** dẫnđếnlượtnguồn. Khi chưacólượtphùhợp thìghi chưađánhgiá.
+Khi demo, mở hai lượt từ lịch sử ở trang **Kịch bản**. **Kế hoạch tồn kho → Tóm tắt** hiển thị tồn hiện có, mặt hàng cần bổ sung, lô đang về và cảnh báo cần xử lý. **Kiểm tra cảnh báo → Tóm tắt** hiển thị kỳ hồi cứu và kết quả chấm của lượt đó. Để minh họa một mặt hàng, mở tab **Cảnh báo**, chọn tín hiệu **Nguy cơ cạn** rồi mở **Thông tin đánh giá lịch sử**.
 
 Chọn **Ngày đánh giá UTC** từ các mốc đã lưu. Ví dụ chọn31/10/2025 thì so sánh lượng dự báo và lượng bán nguồn thực tế từ01/11đến14/11; đổi sang01/11thì xem02/11đến15/11. Đọc3thẻ Dự báo14ngày, Bán thực tế14ngày và Chênh lệch=dựbáo−thựctế, rồi xem biểu đồ/bảng theo tuyến. Tổng gồm toàn phạmvi; biểu đồ chỉ minh họa12tuyếnđầu. CSV là các dòng tuần/ngày nền của đúng mốc, có thể cộng lại để đối chiếu.
 
@@ -176,7 +178,7 @@ Phần đánh giá lịch sử chỉ hiện khi run có metric thích hợp, th�
 |---|---|---|
 | Kế hoạch tồn kho | Xem một mốc và dự kiến tồn/bán14ngày; phù hợp chạy trực tiếp trong demo ngắn. | Nguồn + forecast hoàn tất + scenario đã lưu. |
 | Kế hoạch nhập hàng | Mô phỏng tồn, nhận hàng và quyết định bổ sung qua một giai đoạn. | Nguồn/forecast đủ kỳ, scenario và khoảng thời gian. |
-| Kiểm tra cảnh báo | Đánh giá cảnh báo qua các cửa sổ lịch sử có nhãn đối chiếu. | Nguồn/forecast đủ kỳ, scenario và khoảng thời gian. |
+| Kiểm tra cảnh báo | Đánh giá cảnh báo trong 14 ngày lịch sử sau mốc chốt đã chọn. | Kịch bản đã lưu và dự báo cha có đủ dữ liệu bán quan sát cho kỳ đó. |
 | Nhập nguồn | Đọc bộ nguồn đã đăng ký trên server, tạo dữ liệu cho các bước sau. | Bộ nguồn hợp lệ đã đặt sẵn; đây không phải màn upload CSV tùy ý. |
 | Tạo dự báo | Tạo dự báo đầu vào từ nguồn hoàn tất. | Nguồn hoàn tất; có thể là công việc tốn thời gian. |
 

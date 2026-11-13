@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Query, Request
 from sqlalchemy import select
 from modules.alerts.models import Alert
+from modules.alerts.policy_evaluation import evaluate_policy_warnings
 from modules.alerts.service import opportunity_breakdown
 from modules.alerts.schemas import WholeRun, AlertPage
 from core.errors import DomainError
@@ -17,6 +18,15 @@ router = APIRouter(prefix="/api/v1/runs")
 @router.get("/{key}/alerts", response_model=AlertPage, response_model_exclude_unset=True)
 def alerts(key: uuid.UUID, request: Request, filters: Annotated[Filters, Query()]):
     return result_response(request, key, "alerts", filters)
+
+
+@router.get("/{key}/policy-alert-evaluation")
+def policy_alert_evaluation(
+    key: uuid.UUID, request: Request, filters: Annotated[WholeRun, Query()]
+):
+    with request.app.state.sessions() as session:
+        run = required_run(session, key, "policy_replay", complete=True)
+        return dict(context=context(run), diagnostic=evaluate_policy_warnings(session, run))
 
 
 @router.get("/{key}/alert-opportunities")

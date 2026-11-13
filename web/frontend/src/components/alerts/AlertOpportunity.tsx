@@ -3,14 +3,28 @@ import { Panel } from "../ui/Panel";
 import { Table } from "../ui/Table";
 import { State } from "../ui/State";
 import { type Run, type Row } from "../../types/api";
-import { fmt, pct } from "../../utils/format";
+import { fmt, num, pct } from "../../utils/format";
+import { Card } from "../ui/Card";
 
-export function AlertOpportunity({ run }: { run?: Run }) {
+export function useAlertOpportunity(run?: Run) {
   const ready = run?.kind === "alert_replay" && run.status === "complete";
-  const data = useResource<{ diagnostic: Row }>(
+  return useResource<{ diagnostic: Row }>(
     ready ? `/runs/${run.id}/alert-opportunities` : null,
   );
-  if (!ready) return null;
+}
+
+export function EligibleEarlyWarningCard({ diagnostic }: { diagnostic?: Row }) {
+  const numerator = num(diagnostic?.observed_early_numerator);
+  const denominator = num(diagnostic?.eligible_early_events);
+  const rate = num(diagnostic?.eligible_detection_rate);
+  const measured = denominator !== null && denominator > 0 && numerator !== null &&
+    numerator >= 0 && numerator <= denominator && rate !== null &&
+    Math.abs(rate - numerator / denominator) < 1e-8;
+  return <Card label="Báo sớm ≥7 ngày" value={measured ? pct(rate) : "Chưa xác định"}
+    note={diagnostic ? `${fmt(numerator)}/${fmt(denominator)} ca có đủ thời gian báo sớm` : undefined} />;
+}
+
+export function AlertOpportunity({ data }: { data: ReturnType<typeof useAlertOpportunity> }) {
   const d = data.data?.diagnostic;
   return (
     <Panel
@@ -26,18 +40,14 @@ export function AlertOpportunity({ run }: { run?: Run }) {
             Ngay tại origin đã không còn đủ 7 ngày để báo sớm.
           </p>
           <p>
-            Với các origin và tồn đầu của lượt này, trần lý thuyết là{" "}
-            <strong>{pct(d.theoretical_max_early_rate)}</strong>; kết quả thực
-            đạt <strong>{pct(d.observed_early_rate)}</strong>. Còn{" "}
+            Nếu tính trên toàn bộ ca cạn, tỷ lệ báo sớm là{" "}
+            <strong>{pct(d.observed_early_rate)}</strong> và tối đa có thể đạt{" "}
+            <strong>{pct(d.theoretical_max_early_rate)}</strong> với các mốc bắt đầu của lượt này. Còn{" "}
             {fmt(d.missed_eligible_events)}/{fmt(d.eligible_early_events)} ca có
             đủ thời gian nhưng chưa được cảnh báo.
           </p>
           <p className="caption">
-            Đây là giới hạn riêng của cách khởi tạo và cửa sổ replay hiện tại,
-            không phải trần chất lượng của mọi hệ thống. Tỷ lệ chính thức vẫn
-            giữ toàn bộ sự kiện tương lai trong mẫu số. Cần theo dõi từ trước
-            hoặc kiểm tra tồn đầu/chính sách; thay kịch bản phải đánh giá lại,
-            không bỏ các ca cạn sớm.
+            Thẻ Báo sớm ≥7 ngày dùng các ca cạn từ D+7 đến D+14, kể cả ca bị bỏ sót.
           </p>
           <details>
             <summary>Xem phân bố thời điểm cạn thực mô phỏng</summary>

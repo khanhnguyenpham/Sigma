@@ -56,6 +56,20 @@ def test_scenario_stops_are_independent_resettable_and_ignore_global_history(pg,
             row=c.get(f'/api/v1/runs/{key}/inventory?as_of_date={D}').json()['items'][0]
             assert tuple(row[k] for k in ('internal_status','provider_status','replenishment_allowed','sales_allowed'))==expected
             assert c.get(f'/api/v1/runs/{key}').json()['scenario_supply_profile']=='scenario_supply_v1'
+            if kind == 'policy_replay':
+                evaluation = c.get(f'/api/v1/runs/{key}/policy-alert-evaluation')
+                assert evaluation.status_code == 200
+                diagnostic = evaluation.json()['diagnostic']
+                if scenario['code'] == 'provider':
+                    assert diagnostic['blocked_sales_item_days'] == 15
+                    assert diagnostic['event_denominator'] == 0 and diagnostic['recall'] is None
+                elif scenario['code'] == 'internal':
+                    assert diagnostic['blocked_sales_item_days'] == 0
+                    assert diagnostic['event_denominator'] == 1
+            elif kind == 'alert_replay':
+                evaluation = c.get(f'/api/v1/runs/{key}/alert-opportunities')
+                assert evaluation.status_code == 200
+                assert evaluation.json()['diagnostic']['excluded_count'] == int(scenario['code'] == 'provider')
         reset=scene(c,'internal',dict(internal_stops=[],provider_stops=[]),internal['id'])
         assert reset['version']==2
         response=c.post('/api/v1/runs',json=run_body(source,forecast,reset['id'],kind),headers={'Idempotency-Key':'reset'})

@@ -62,6 +62,9 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
         origins = schema['paths'].pop('/api/v1/runs/{key}/forecasts/origins')
         assert set(origins) == {'get'}
         assert [(p['name'], p['in'], p['required']) for p in origins['get']['parameters']] == [('key', 'path', True)]
+        policy_alerts = schema['paths'].pop('/api/v1/runs/{key}/policy-alert-evaluation')
+        assert set(policy_alerts) == {'get'}
+        assert [(p['name'], p['in'], p['required']) for p in policy_alerts['get']['parameters']] == [('key', 'path', True)]
         # CHG-082 adds three reads only; every pre-existing API contract stays unchanged.
         schema["paths"].pop("/api/v1/runs/{key}/sell-through")
         schema["paths"].pop("/api/v1/products")

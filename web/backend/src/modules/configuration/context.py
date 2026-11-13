@@ -185,7 +185,6 @@ def freeze_inventory(session, request, source, scenario):
         **lifecycle,
         **receiving,
         inventory_policy_profile="forecast_floor_days_ss_v1",
-        initial_stock_fallback_days=90,
         policies=policies,
         policy_ids=sorted({p["id"] for p in policies}),
         catalog_snapshot=catalog,

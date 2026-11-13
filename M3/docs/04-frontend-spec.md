@@ -1,12 +1,14 @@
 # M3 — đặc tả frontend
 
+**12/11/2026 — Tóm tắt theo loại lượt:** **Kế hoạch tồn kho** hiển thị số liệu vận hành tại mốc chốt. **Kiểm tra cảnh báo** hiển thị kỳ hồi cứu UTC và kết quả chấm của chính lượt. Bộ lọc ngày và kho xuất hiện khi mở các tab chi tiết của lượt kiểm tra. [Bàn giao](../../docs/development.md#handoff-separate-scenario-summaries).
+
 **12/11/2026 — vị trí Đánh giá C00:** Khối hồi cứu toàn kỳ nằm cuối trang **Kịch bản**, sau lịch sử lượt chạy. Tỷ lệ của từng lượt Kiểm tra cảnh báo nằm trong tab **Tóm tắt** của kết quả lượt đó.
 
 **05/11/2026 — CHG-110, form ngừng cung cấp gọn:** Từ Lịch cung cấp, form nhà mạng chỉ chọn/điền sẵn nhà mạng, SKU, loại, ngày biết/ngày hiệu lực và lý do; bỏ toàn bộ checkbox thị trường/kho, nút chọn tất cả kho, Nguồn khai báo/giả định và Liên kết tham chiếu. Không tải danh sách kho cho form. API tự áp toàn sản phẩm cùng SKU/type/nhà mạng trên mọi thị trường/kho hiện có; preview trả số lượng/member thực để kiểm trước lưu. Phần xem tác động từ kế hoạch đã lưu giữ tùy chọn. Detail/history bỏ hiển thị nguồn/link; bảng member vẫn thể hiện phạm vi đã lưu để đọc đúng thông báo cũ. Form hủy/mở lại không có nguồn/link và ghi rõ phạm vi cũ được giữ. Ngừng nhập nội bộ tại kho, quản lý lịch sử, preview/version/dirty guard và run frozen giữ nguyên. [Nghiệp vụ](07-product-supply-lifecycle.md#provider-product-wide-chg110).
 
 **04/11/2026 — kết quả nghiên cứu C00 trên demo:** Trang Kịch bản thêm khối Đánh giá C00 — hồi cứu toàn kỳ trước phần chọn/thiết lập. Đọc gói JSON tổng hợp đã chạy lại/kiểm chứng, không tạo Run giả hoặc gán vào run đang chọn:450/833=54,02%,Precision80,89%,Recall79,95%,dateMAE4,01ngày (666ca),kỳ29/10–31/12/2025. Công khai chính sách frozen,28ngày khởi tạo/tự bổ sung hàng, phạm vi cố định và tải JSON cùng nguồn quaHTTPS. EarlyWarningResult14ngày bên dưới giữ150/461. Không đổi API/worker/model; không đưa raw/ID riêng vào bản công khai. [Bàn giao](../../docs/development.md#handoff-c00-demo-evaluation).
 
-**04/11/2026 — bốtrí Tóm tắt hiệnhành:** EarlyWarningResult nằm trong nội dungTóm tắt ngaydướinavigationtabs, trướcOverview. Stockcóreplaycùngscenario/parents hiệnmetricliênquan vớinhãnnguồnkỳ, khônggánlà%đoriêngngày stock. TabDựkiếnbán đãxóakhỏiScenarioResults; Forecastđộclậpvẫngiữdựphóngtheotồn.113React/build/HTTPSdesktop/mobileđạt. [Bàn giao](../../docs/development.md#handoff-scenario-summary-placement).
+**04/11/2026 — bốtrí Tóm tắt trước khi tách theo loại lượt:** EarlyWarningResult nằm trong nội dungTóm tắt ngaydướinavigationtabs, trướcOverview. Stockcóreplaycùngscenario/parents hiệnmetricliênquan vớinhãnnguồnkỳ, khônggánlà%đoriêngngày stock. TabDựkiếnbán đãxóakhỏiScenarioResults; Forecastđộclậpvẫngiữdựphóngtheotồn.113React/build/HTTPSdesktop/mobileđạt. [Bàn giao](../../docs/development.md#handoff-scenario-summary-placement).
 
 **04/11/2026 — kết quả cảnh báo và dedup:** Tóm tắt kết quả scenario hiệnEarlyWarningResult choalert_replaycomplete:early_rate/tửmẫu,Precision/Recall,exclusions vàphạmvitoànlượt; stock/policy thiếumetric cóthểmởreplaycùngscenario/parents,khôngtựgántỷlệ. ForecastComparison giữởtabComparison,showComparison=falseởDựkiếnbántrongscenario.113React/build/browserHTTPSdesktop/mobile đạt. [Bàn giao](../../docs/development.md#handoff-early-warning-result).
 
@@ -87,14 +89,15 @@ Danh sách **Loại công việc** có hai nhóm:
 
 - **Chuẩn bị dữ liệu** gồm **Tạo nguồn dữ liệu** và **Tạo dự báo**. Nút **Tạo nguồn dữ liệu** gửi `source_import` cho nguồn `orders_snapshot` đã đăng ký, với mốc UTC từ cấu hình M3. Khi lượt nhập hoàn tất, form chọn sẵn nguồn đó trong **Tạo dự báo**. Người dùng bấm **Chạy dự báo** để tạo `forecast` ở chế độ `replay`, lấy mốc UTC theo ngày kết thúc quan sát của nguồn. Cả hai công việc dùng chung khung tiến độ và kết quả.
 - **Chạy kế hoạch** gồm **Kế hoạch tồn kho** (`stock_projection`), **Kế hoạch nhập hàng** (`policy_replay`) và **Kiểm tra cảnh báo** (`alert_replay`). Cả ba cần phiên bản kịch bản đã lưu và dự báo cha đã hoàn tất.
+- **Kiểm tra cảnh báo** dùng ô lịch **Mốc chốt UTC** như **Kế hoạch tồn kho**. Lịch giới hạn theo mốc đủ dữ liệu đầu tiên và cuối cùng của dự báo cha. Nếu ngày chọn thiếu dữ liệu, form báo lỗi và khóa nút chạy. Với ngày hợp lệ, form hiển thị kỳ kiểm tra chỉ đọc và gửi `period_start` bằng D+1, `period_end` bằng D+14. **Kế hoạch nhập hàng** dùng các trường chọn khoảng ngày. Kỳ của lượt đã lưu hiển thị theo dữ liệu của chính lượt đó.
 
 ### Hoàn tất và kết quả tại chỗ
 
 | Loại lượt chạy | Kết quả hiện ngay trên trang |
 |---|---|
-| `stock_projection` | Tóm tắt tồn/nguy cơ, projection H14, tồn được bán/bị chặn, SS/ROP, lượng nhập/ETA và bảng chi tiết theo API hiện có. |
+| `stock_projection` | Tóm tắt vận hành tại mốc chốt gồm tồn, mặt hàng cần bổ sung, lô đang về và cảnh báo cần xử lý. Các tab chi tiết có dự phóng H14, tồn được bán/bị chặn, SS/ROP và lượng nhập/ETA. |
 | `policy_replay` | Tóm tắt mô phỏng kỳ đã chọn, bán/thiếu/tồn, lô nhập, bảng/biểu đồ tồn và metric policy có scope. |
-| `alert_replay` | Tóm tắt cảnh báo, ngày xuống ROP riêng ngày cạn, bảng chi tiết và metric depletion/threshold cùng tử số/mẫu số/phạm vi/ca loại; không trộn với policy replay. |
+| `alert_replay` | Tóm tắt kỳ hồi cứu, tỷ lệ báo sớm, Precision, Recall và ca không chấm của chính lượt. Tab Cảnh báo có ngày cạn mô phỏng, đánh giá xuống ROP và chi tiết từng tín hiệu. |
 | `forecast` | Tóm tắt nguồn/origin/tuyến, dự báo vận hành H14, bảng/biểu đồ và metric hiện có; không tạo tab Tổng30. |
 | `source_import` | Tóm tắt audit/import và nguồn đã đăng ký; không hiện bảng tồn/cảnh báo chưa được tạo. |
 

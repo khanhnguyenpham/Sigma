@@ -27,7 +27,11 @@ const response = (data: unknown) => Promise.resolve({ ok:true, json:async()=>dat
 function mockResults(input: RequestInfo | URL) {
   const url = String(input);
   if (url.includes("/workspace?")) return response(workspace);
-  if (url.includes("/alert-opportunities")) return response({});
+  if (url.includes("/alert-opportunities")) return response({ diagnostic: {
+    event_denominator: 100, observed_early_numerator: 34, observed_early_rate: .34,
+    eligible_early_events: 80, eligible_detection_rate: .425, missed_eligible_events: 46,
+    short_notice_events: 20, theoretical_max_early_rate: .8, histogram: [],
+  } });
   const filtered = url.includes("alert_type=projected_below_rop");
   return response({ items:filtered ? [threshold] : [threshold,depletion], total:filtered ? 1 : 51, page:1, page_size:50 });
 }
@@ -79,11 +83,11 @@ it("keeps both whole-run metric denominators unchanged when the signal table is 
   await screen.findAllByText("SYNTHETIC-SKU");
   fireEvent.click(screen.getByText("Đánh giá lịch sử & độ tin cậy cảnh báo"));
   fireEvent.click(screen.getByText("Đánh giá xuống ROP · riêng ngày cạn"));
-  expect(screen.getByText("Báo sớm ≥7 ngày").closest("article")).toHaveTextContent("34/100");
+  expect(await screen.findByText(/34\/80 ca có đủ thời gian/)).toBeVisible();
   expect(screen.getByText("Sự kiện xuống ROP").closest("article")).toHaveTextContent("4");
   fireEvent.change(screen.getByLabelText("Loại tín hiệu cảnh báo"),{target:{value:"projected_below_rop"}});
   await screen.findByText("SYNTHETIC-SKU");
-  expect(screen.getByText("Báo sớm ≥7 ngày").closest("article")).toHaveTextContent("34/100");
+  expect(screen.getByText("Báo sớm ≥7 ngày").closest("article")).toHaveTextContent("34/80");
   expect(screen.getByText("Sự kiện xuống ROP").closest("article")).toHaveTextContent("4");
   expect(screen.getByText(/không cộng vào tỷ lệ báo trước ngày cạn/)).toBeVisible();
 });

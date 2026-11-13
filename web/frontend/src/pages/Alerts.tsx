@@ -1,7 +1,7 @@
 import { AlertDetails } from "../components/alerts/AlertDetails";
 import { useEffect, useState } from "react";
 
-import { AlertOpportunity } from "../components/alerts/AlertOpportunity";
+import { AlertOpportunity, EligibleEarlyWarningCard, useAlertOpportunity } from "../components/alerts/AlertOpportunity";
 import { type Run, type Page, type Row } from "../types/api";
 import { type Context } from "../types/context";
 import { isTradeRun, providerLabel, internalLabel } from "../utils/trade";
@@ -62,6 +62,7 @@ export function Alerts({
     run?.status === "complete"
       ? (run.result_summary.alert_metrics as Row | undefined)
       : undefined;
+  const opportunities = useAlertOpportunity(m ? run : undefined);
   const thresholdMetric = run?.status === "complete"
     ? run.result_summary.threshold_metrics as Row | undefined : undefined;
 
@@ -201,20 +202,16 @@ export function Alerts({
             <details className="advanced-section">
               <summary>Đánh giá lịch sử & độ tin cậy cảnh báo</summary>
               <div className="stats">
-                <Card
-                  label="Báo sớm ≥7 ngày"
-                  value={pct(m.early_rate)}
-                  note={`${fmt(m.early_numerator)}/${fmt(m.event_denominator)} sự kiện`}
-                />
+                <EligibleEarlyWarningCard diagnostic={opportunities.data?.diagnostic} />
                 <Card label="Precision" value={pct(m.precision)} />
                 <Card label="Recall" value={pct(m.recall)} />
                 <Card label="Ca không chấm" value={fmt(m.excluded_count)} />
               </div>
               <p className="caption">
-                Metric depletion toàn lượt replay; không áp dụng bộ lọc bảng. Mục tiêu làm việc ≥45% với báo trước ≥7 ngày theo lời mentor được thuật lại; tính bắt buộc/phạm vi nghiệm thu còn cần làm rõ.
+                Chỉ số cảnh báo cạn tính trên toàn lượt, không đổi theo bộ lọc bảng.
               </p>
               {isTradeRun(run) && <p className="notice">Chỉ chấm cửa sổ không bị nhà mạng chặn bán. Nguồn {fmt(run.result_summary.source_sales_qty)} · Được bán theo kịch bản {fmt(run.result_summary.scenario_sales_qty)} · Bị chặn {fmt(run.result_summary.actual_blocked_qty)}. Loại cả {fmt(run.result_summary.excluded_item_windows)} cửa sổ có hạn chế bán; không tính blocked là shortage hoặc coi giảm mẫu số là cải thiện cảnh báo.</p>}
-              <AlertOpportunity run={run} />
+              <AlertOpportunity data={opportunities} />
             </details>
           )}
           {thresholdMetric && <details className="advanced-section">

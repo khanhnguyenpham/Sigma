@@ -1,5 +1,49 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 13/11/2026 — Thay hai lượt ngừng cung cấp v3
+
+Người dùng làm rõ phạm vi xóa là các lượt đã chạy trên mã cũ của hai kịch bản trong ảnh. Hai phiên bản v3 chạy lại trên mã mới với cùng lịch ngừng. Xóa hai lượt cũ sau khi sao lưu và kiểm chứng lượt thay thế. [Kết quả và bàn giao](development.md#handoff-supply-v3-rerun).
+
+## 13/11/2026 — Chấm cảnh báo khi ngừng cung cấp
+
+Phép chấm Kế hoạch nhập hàng ghép cảnh báo với đợt cạn trong cùng đoạn được bán. Ngừng nhập nội bộ vẫn cho bán tồn. Nhà mạng chặn bán kết thúc đoạn theo dõi và có số đếm riêng cho cảnh báo bị gián đoạn. [Bàn giao](development.md#handoff-policy-sales-block-recall).
+
+## 13/11/2026 — Áp dụng mức nhập 15 cho Cơ sở
+
+Người dùng chọn tồn đầu 28 ngày và lượng nhập 15 mỗi lần cho tất cả mặt hàng, giao thay các lượt Cơ sở và cập nhật C00. Dùng mốc 31/10 để đối chiếu với ba lượt mẫu trước. C00 mới ghi rõ lượng nhập 15 và bộ đầu vào hồi cứu đã chốt. [Bàn giao](development.md#handoff-base-lot15-demo).
+
+## 13/11/2026 — Quay về tồn đầu 28 ngày và thử lượng nhập 15/20
+
+Người dùng chọn dùng lịch sử bán 28 ngày cho lượt mới và yêu cầu thử lượng nhập 15, 20. So sánh trên C00 gồm hai mức đồng nhất và một phương án tăng nhóm 5 lên 15, nhóm 10 lên 20. Lượng 15 đồng nhất cho tỷ lệ báo sớm cao nhất trong các phương án thử. Lượng 20 giảm thiếu hàng nhiều nhất và tạo mức tồn bình quân cao nhất. [Kết quả và bàn giao](development.md#handoff-28-day-stock-and-lot-trial).
+
+## 13/11/2026 — Thử quy tắc tồn đầu 90 ngày trên C00
+
+Theo yêu cầu người dùng, thử riêng quy tắc dự phòng 90 ngày trên cùng đầu vào và cách chấm C00. Tỷ lệ báo sớm giảm từ 33,86% xuống 29,70% khi số đợt đủ cơ hội tăng từ 381 lên 431. Lượng thiếu trong kỳ chấm giảm 53 đơn vị. Để quyết định quy tắc tồn đầu, cân nhắc cả độ bao phủ cảnh báo lẫn lượng bán được đáp ứng. [Đối chiếu và bàn giao](development.md#handoff-c00-initial-stock-comparison).
+
+## 12/11/2026 — Ô lịch cho mốc chốt Kiểm tra cảnh báo
+
+Người dùng chọn ô lịch giống Kế hoạch tồn kho. Kiểm tra từng ngày chọn theo các mốc đủ dữ liệu của dự báo cha trước khi tạo kỳ D+1…D+14. [Bàn giao](development.md#handoff-alert-cutoff-calendar).
+
+## 12/11/2026 — Tách Tóm tắt tồn kho và kiểm tra cảnh báo
+
+Người dùng yêu cầu tách hai phần kết quả để trình diễn. Tóm tắt tồn kho dùng số liệu tại mốc của lượt đang xem. Tóm tắt kiểm tra cảnh báo dùng kết quả chấm toàn kỳ của chính lượt. [Bàn giao](development.md#handoff-separate-scenario-summaries).
+
+## 12/11/2026 — Một mốc chốt cho Kiểm tra cảnh báo
+
+Người dùng chọn đơn giản hóa form thành một mốc UTC và một kỳ cố định 14 ngày tiếp theo. Form lấy các mốc đủ dữ liệu từ dự báo cha và dùng kỳ D+1…D+14 cho yêu cầu tạo lượt. [Bàn giao](development.md#handoff-single-alert-window).
+
+## 12/11/2026 — Chấm cảnh báo của lượt nhập hàng
+
+Người dùng yêu cầu tỷ lệ đo riêng trên demo. Dùng sổ tồn, cảnh báo và lô nhận đã lưu của chính lượt Kế hoạch nhập hàng. Mỗi cảnh báo ghép với đợt cạn kế tiếp trong 14 ngày. Nhóm có lô về khi chưa thấy cạn và phần chưa đủ theo dõi được thống kê riêng. [Bàn giao](development.md#handoff-policy-alert-evaluation).
+
+## 12/11/2026 — Giữ ba lượt demo đã chọn
+
+Giữ đúng ba mã người dùng chỉ định và dọn bảy lượt được liệt kê trong ảnh đầu. Lượt ngoài ảnh, cấu hình kịch bản và đầu vào của các lượt giữ lại nằm ngoài phạm vi dọn. [Bàn giao và kiểm tra](development.md#handoff-selected-demo-runs).
+
+## 12/11/2026 — Mẫu số tỷ lệ báo sớm
+
+Người dùng chọn hiển thị mặc định tỷ lệ trên các đợt có đủ thời gian báo trước 7 ngày. Lượt 14 ngày dùng ca cạn D+7 đến D+14. C00 kiểm từng ngày hợp lệ trước đợt cạn; 381 đợt đủ cơ hội và 19 đợt thiếu cơ hội. Tử số của cả hai cách chấm C00 là 129. [Bàn giao và kết quả đối chiếu](development.md#handoff-eligible-early-warning).
+
 ## 12/11/2026 — Chuẩn bị dữ liệu và chạy kế hoạch
 
 Người dùng yêu cầu nút tạo nguồn và hai nhóm loại công việc. Giữ các endpoint tạo và theo dõi lượt chạy hiện có. Sau khi nhập hoàn tất, giao diện chọn sẵn nguồn để người dùng chủ động chạy dự báo. [Bàn giao](development.md#handoff-scenario-data-preparation).

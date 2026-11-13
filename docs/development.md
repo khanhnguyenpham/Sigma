@@ -1,5 +1,114 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-supply-v3-rerun"></a>
+## Chạy lại hai kịch bản ngừng cung cấp v3 — 13/11/2026
+
+Chạy lại Kế hoạch nhập hàng cho hai kịch bản v3 hiện có, tại mốc 31/10 và kỳ 01–14/11/2025. Hai lượt dùng chung nguồn và dự báo cha với Cơ sở, tồn đầu 28 ngày, lượng nhập 15 và phép chấm đã tách gián đoạn do chặn bán. Đối chiếu hash xác nhận lịch kịch bản, bảng cấu hình, nguồn và dự báo được giữ. [Quy tắc chấm](../M3/docs/01-functional-spec.md#eligible-early-warning).
+
+| Kịch bản v3 | Lượt mới | Tác động từ 05–14/11 | Kết quả toàn lượt |
+| --- | --- | --- | --- |
+| Nhà cung cấp ngừng 05/11 | `36dd4931` | Một mặt hàng bị chặn bán, tồn bị chặn 1 đơn vị ngày 05/11, nhu cầu bị chặn 15 đơn vị | 871 lô so với 873 ở Cơ sở, thiếu 327, báo sớm 5/7, Recall 182/271 |
+| Ngừng nhập nội bộ 05/11 | `a1591ee5` | Một mặt hàng ngừng nhập và bán được 15 đơn vị | 872 lô so với 873 ở Cơ sở, thiếu 327, báo sớm 5/7, Recall 182/271 |
+
+Worker kiểm chứng cả hai lượt và đối chiếu hash artifact. Đã sao lưu trước khi xóa `b93b1fd6` và `70ae3a2d`; hai mã cũ trả 404. API localhost kiểm lại đúng phiên bản, quyền bán/ngừng nhập và số liệu, với backend mới đã nạp. Bản sao lưu `before-supply-rerun-20261113` và bằng chứng cục bộ tại `outputs/demo_supply_rerun_20261113`. Lượt này không thay mã ứng dụng và không chạy lại suite kiểm thử.
+
+<a id="handoff-policy-sales-block-recall"></a>
+## Chấm Recall khi ngừng cung cấp — 13/11/2026
+
+Kế hoạch nhập hàng chấm đợt cạn trong từng khoảng bán liên tục. Ngừng nhập nội bộ vẫn cho bán tồn và tiếp tục chấm các đợt bán hết. Khi nhà mạng chặn bán, phép chấm kết thúc theo dõi cảnh báo chưa ghép được đợt cạn và ghi số đếm riêng. Ca cạn sau khi bán lại được ghép với cảnh báo của đoạn bán lại. Kiểm tra cảnh báo theo mốc tiếp tục áp dụng quy tắc loại cả cửa sổ sản phẩm bị chặn theo thông tin đã biết tại mốc chốt. [Quy tắc chấm](../M3/docs/01-functional-spec.md#eligible-early-warning).
+
+Kiểm backend đạt 63 ca với PostgreSQL thử riêng. Ca giả lập kiểm cạn trước và sau khi bán lại, ngừng nhập, loại cửa sổ cố định và Recall chưa xác định khi không có ca hợp lệ. Đối chiếu chỉ đọc năm lượt Kế hoạch nhập hàng đang lưu cho thấy tử số/mẫu số Recall và báo sớm trùng trước/sau. Lượt có ngừng dịch vụ ghi nhận 10 mặt hàng-ngày bị chặn bán. Phép chấm đọc snapshot, sổ tồn và cảnh báo đã lưu.
+
+Kiểm frontend đạt 131 ca React. Build TypeScript/Vite thành công và đã kiểm asset C00 cùng phần hiển thị cảnh báo bị gián đoạn. Đã đặt bản build vào `web/frontend/dist` và cập nhật fingerprint đã kiểm trong `prepared.json` cho lần khởi động tiếp theo. Backend đang chạy cần khởi động lại để nạp phép chấm mới. Lượt này không mở đường hầm HTTPS. Bằng chứng build lưu cục bộ tại `outputs/demo_sales_block_20261113`.
+
+<a id="handoff-base-lot15-demo"></a>
+## Cơ sở dùng tồn đầu 28 ngày và nhập 15 — 13/11/2026
+
+Demo dùng lượng nhập mô phỏng 15 đơn vị/lần cho 920 mặt hàng qua phiên bản chính sách có hiệu lực từ 31/10/2025. Phiên bản cũ kết thúc tại mốc này. Lượt Cơ sở mới chốt ngày 31/10; hai lượt mô phỏng chạy kỳ 01–14/11/2025. [Quy tắc tồn đầu](../M3/docs/01-functional-spec.md#initial-stock-history).
+
+C00 chạy lại offline trên đầu vào đã khóa, với tồn đầu 28 ngày và lượng nhập 15. Bộ đối soát độc lập tái lập đường tồn và chấm cảnh báo. Kết quả kỳ 29/10–31/12/2025 là 107/228 đợt đủ cơ hội (46,93%), 107/229 trên toàn bộ đợt cạn (46,72%), Precision 76,42% và Recall 93,45%. Đây là hồi cứu trên kỳ đã xem. [Kết quả C00 hiển thị](../web/frontend/src/data/c00-forecast-floor-evaluation.json).
+
+| Lượt Cơ sở mới | Mã lượt | Kết quả đã đối soát |
+| --- | --- | --- |
+| Kế hoạch tồn kho | `59d80bd8` | 920 mặt hàng, tồn 1.314, đề xuất nhập 11.910 đơn vị |
+| Kế hoạch nhập hàng | `cd85f585` | 873 lô, đáp ứng 85,03%, thiếu 327 đơn vị, báo sớm 5/7 (71,43%) |
+| Kiểm tra cảnh báo | `3217a26b` | Báo sớm 154/216 (71,30%), 479 đợt cạn được chấm |
+
+Đã kiểm dump và bản sao artifact trước khi ghi. Năm lượt Cơ sở cũ được xóa khỏi demo sau khi cả ba lượt mới đã qua verifier. Giữ bản sao và thư mục kết quả cũ để phục hồi. Đối chiếu hash các hàng giữ lại và tệp nguồn; demo còn chín lượt gồm hai lượt cha, ba lượt Cơ sở mới và bốn lượt thuộc các kịch bản khác. Bằng chứng và quy trình phục hồi lưu cục bộ tại `outputs/demo_base_lot15_20261113` và bản sao `before-base-lot15-20261113`.
+
+Kiểm lượt này đạt 131 React, build TypeScript/Vite và 30 ca backend chọn lọc. Hai ca cần PostgreSQL thử riêng được bỏ qua trong nhóm launcher. Demo localhost qua readiness, kiểm đủ 920 chính sách qua API, ba lượt Cơ sở và asset C00 mới. Đã sửa kiểm tra origin để launcher nhận `127.0.0.1:8041` trong chế độ chỉ loopback. Auto-review từ chối mở lại đường hầm HTTPS vì có thể đưa dữ liệu demo ra ngoài. Demo hiện phục vụ tại [localhost](http://127.0.0.1:8041/#scenarios).
+
+<a id="handoff-28-day-stock-and-lot-trial"></a>
+## Tồn đầu 28 ngày và thử lượng nhập 15/20 — 13/11/2026
+
+API tạo lượt tồn, nhập và cảnh báo mới dùng bình quân bán 28 ngày tại mốc chốt. Worker và bộ đối soát tiếp tục đọc `initial_stock_fallback_days=90` nếu snapshot lịch sử đã lưu giá trị này. [Đặc tả](../M3/docs/01-functional-spec.md#initial-stock-history).
+
+Thử lượng nhập theo mặt hàng offline trên 920 mặt hàng C00, mốc 30/09/2025 và kỳ chấm 29/10–31/12/2025. Dự báo, tồn đầu 28 ngày, chạy đệm, ROP, SS và ETA dùng cùng thiết lập đã chốt. Tái lập chính xác đường tồn và kết quả C00 gốc. Bộ kiểm độc lập dựng lại đường tồn, đơn nhập và phép chấm cho cả ba phương án. C00 công bố và cấu hình sản phẩm trên demo chưa đổi.
+
+| Lượng nhập mỗi lần | Báo sớm trên ca đủ cơ hội | Báo sớm trên toàn bộ đợt cạn | Lượng thiếu | Tồn bình quân mỗi mặt hàng |
+| --- | ---: | ---: | ---: | ---: |
+| C00 gốc 5/10/15 | 129/381 (33,86%) | 129/400 (32,25%) | 689 | 6,94 |
+| 15 cho mọi mặt hàng | 107/228 (46,93%) | 107/229 (46,72%) | 455 | 10,31 |
+| 20 cho mọi mặt hàng | 52/124 (41,94%) | 52/124 (41,94%) | 319 | 14,28 |
+| Từ 5 lên 15, từ 10 lên 20, nhóm 15 giữ nguyên | 70/161 (43,48%) | 70/161 (43,48%) | 357 | 12,24 |
+
+Các mức nhập thay đổi tập đợt cạn. Đây là kết quả hồi cứu trên kỳ đã xem, dùng để so vận hành và mẫu số cảnh báo theo phương án. Mã thử nghiệm và kết quả tổng hợp lưu cục bộ trong `outputs/c00_lot_quantity_20261113`.
+
+Kiểm lượt này đạt 105 ca backend trên PostgreSQL thử riêng. Ca tích hợp xác nhận lượt mới có tồn đầu 0 khi 28 ngày không bán, còn cùng dữ liệu với snapshot lịch sử 90 ngày có tồn đầu 15. Cả hai qua API, worker và bộ đối soát. Bản PostgreSQL thử đã dừng sau kiểm.
+
+<a id="handoff-c00-initial-stock-comparison"></a>
+## So sánh tồn đầu 28 và 90 ngày cho C00 — 13/11/2026
+
+Chạy hai nhánh offline trên 920 mặt hàng, mốc khởi tạo 30/09/2025, 28 ngày chạy đệm và kỳ chấm 29/10–31/12/2025. Dùng cùng dự báo, chính sách, tồn phủ 7 ngày, mô phỏng nhập và cách chấm C00. Phần lịch sử còn thiếu để đủ 90 ngày lấy từ snapshot validation cùng nguồn. Xác minh hash hai snapshot và đối chiếu 25.760 dòng giao nhau. Nhánh mới dùng bình quân 90 ngày chỉ khi tổng bán 28 ngày bằng 0. [Cách tính tồn đầu](../web/backend/src/modules/inventory/simulation.py#L53).
+
+Nhánh 28 ngày tái lập đường tồn và kết quả từng đợt đã chốt. Đối chiếu độc lập tồn đầu của mọi mặt hàng và phép chấm của cả hai nhánh. Tồn đầu đổi ở 179 mặt hàng. Báo sớm trên các đợt đủ cơ hội từ 129/381 (33,86%) xuống 128/431 (29,70%). Trên toàn bộ đợt cạn, từ 129/400 (32,25%) xuống 128/450 (28,44%). Trong 394 đợt trùng, một đợt mất trạng thái báo sớm. Có sáu đợt chỉ gặp ở nhánh 28 ngày và 56 đợt chỉ gặp ở nhánh 90 ngày.
+
+Trong kỳ chấm, lượng thiếu giảm từ 689 còn 636 đơn vị, tỷ lệ đáp ứng tăng từ 94,26% lên 94,70% và số mặt hàng-ngày có tồn bằng 0 giảm từ 4.573 còn 2.679. C00 công bố và quy tắc chạy ứng dụng chưa đổi. Mã thử nghiệm và số liệu tổng hợp lưu cục bộ trong `outputs/c00_initial_stock_20261113`.
+
+<a id="handoff-alert-cutoff-calendar"></a>
+## Ô lịch cho mốc chốt Kiểm tra cảnh báo — 12/11/2026
+
+Ô lịch dùng giới hạn từ mốc đủ dữ liệu đầu tiên đến mốc cuối cùng của dự báo cha. Ngày nằm trong khoảng nhưng thiếu dữ liệu được giữ trên ô để người dùng thấy lỗi và chọn lại. Chỉ ngày hợp lệ mới hiển thị kỳ D+1…D+14 và cho gửi lượt. [Đặc tả giao diện](../M3/docs/04-frontend-spec.md#scenario-data-preparation).
+
+Ca React kiểm ô lịch, giới hạn ngày, chặn ngày thiếu dữ liệu trong khoảng và gửi đúng kỳ qua ranh giới tháng. Lượt đầu đạt 130/131, một ca điều hướng Back quá thời gian. Chạy lại với `--pool=threads --maxWorkers=1` đạt 131/131. Build TypeScript/Vite thành công tại `web/frontend/dist`.
+
+<a id="handoff-separate-scenario-summaries"></a>
+## Tách Tóm tắt tồn kho và kiểm tra cảnh báo — 12/11/2026
+
+Tóm tắt **Kế hoạch tồn kho** dùng số liệu vận hành tại mốc chốt của lượt. Tóm tắt **Kiểm tra cảnh báo** hiển thị kỳ hồi cứu UTC, báo sớm, Precision, Recall và ca không chấm của chính lượt. Các tab chi tiết của lượt kiểm tra vẫn cho lọc theo ngày và kho. [Đặc tả giao diện](../M3/docs/04-frontend-spec.md).
+
+Kiểm lượt này đạt 131 ca React. Ca chuyển lượt cùng mốc chốt đối chiếu nội dung Tóm tắt, API của từng lượt và truy cập tab chi tiết. Build TypeScript/Vite thành công tại `web/frontend/dist`, gồm cả form chọn một mốc chốt cho kỳ kiểm tra 14 ngày. Demo chưa được khởi động để kiểm bản build này.
+
+<a id="handoff-single-alert-window"></a>
+## Một mốc chốt cho Kiểm tra cảnh báo — 12/11/2026
+
+Form lấy các mốc có đủ dữ liệu bán quan sát từ dự báo cha, hiển thị kỳ chỉ đọc và gửi một cửa sổ D+1…D+14. Nếu mốc mặc định hoặc mốc từ lượt đang xem thiếu dữ liệu, form chọn mốc hợp lệ mới nhất. Thao tác thử lại dùng kỳ đã lưu của lượt gốc. [Đặc tả giao diện](../M3/docs/04-frontend-spec.md#scenario-data-preparation).
+
+Kiểm lượt này đạt 131 ca React. Ca mới trên trang Kịch bản kiểm việc lọc mốc thiếu dữ liệu, hiển thị kỳ qua ranh giới tháng và gửi đúng hai ngày biên đến API giả lập. Build để sau theo yêu cầu.
+
+<a id="handoff-policy-alert-evaluation"></a>
+## Tỷ lệ cảnh báo riêng của Kế hoạch nhập hàng — 12/11/2026
+
+Tab Tóm tắt gọi `GET /api/v1/runs/{key}/policy-alert-evaluation` cho lượt Kế hoạch nhập hàng đã hoàn tất. Phép chấm đọc cảnh báo, sổ tồn và lô nhận của chính lượt, không sửa kết quả đã lưu. Lượt `2db8f39f` kỳ 01–14/11/2025 có 13/20 ca báo sớm (65,0%), 204/296 đợt cạn có cảnh báo (68,9%) và 13/296 ca báo sớm trên toàn bộ đợt cạn. Có 358 cảnh báo có lô mới về nhưng chưa quan sát thấy cạn và 451 cảnh báo còn lại chưa đủ 14 ngày theo dõi. Lượt Kiểm tra cảnh báo `b99d0aa5` vẫn đọc kết quả 154/216 của chính nó.
+
+Kiểm lượt này gồm 130 ca React, build TypeScript/Vite, 15 ca Python đạt và một ca PostgreSQL thử bỏ qua do thiếu cấu hình. Kiểm riêng API qua PostgreSQL demo và HTTPS đạt. Đã mở trình duyệt trên bản demo mới để đối chiếu mã lượt và hai tỷ lệ. API, giao diện và worker đã cập nhật cùng bản, danh sách sáu lượt trước và sau trùng nhau. URL hiện hành đọc từ `connection.json`. Biên bản cục bộ trong `outputs/demo_policy_alert_20261112`.
+
+<a id="handoff-selected-demo-runs"></a>
+## Dọn các lượt mô phỏng dư trên demo — 12/11/2026
+
+Đã dọn bảy lượt trong ảnh người dùng cung cấp. Giữ ba lượt demo của kịch bản Cơ sở: tồn kho `13a2e3eb` có 920 dòng và đề xuất 5.860 đơn vị, nhập hàng `2db8f39f` có 1.058 lô và 7.315 đơn vị, cảnh báo `b99d0aa5` có 154/216 ca đủ cơ hội được báo sớm. Giữ nguồn, dự báo cha, các cấu hình kịch bản và lượt `42977e9c` ngoài ảnh.
+
+Sao lưu PostgreSQL và tệp kết quả trước khi dọn. Đối chiếu dữ liệu giữ lại theo hash trước và sau giao dịch, kiểm lại số liệu ba lượt, rồi tắt PostgreSQL vận hành cục bộ. Tổng lượt 13 xuống 6, tệp kết quả 177 xuống 156. Bản sao lưu và 21 tệp của các lượt đã dọn giữ cục bộ. Kiểm trong DB demo khi web đang tắt. Biên bản nằm trong `outputs/demo_run_cleanup_20261112`.
+
+<a id="handoff-eligible-early-warning"></a>
+## Tỷ lệ báo sớm trên các ca đủ cơ hội — 12/11/2026
+
+Trang Cảnh báo và Tóm tắt kịch bản lấy tỷ lệ mặc định từ chẩn đoán toàn lượt H14. Ca cạn D+7 đến D+14 vẫn tính vào mẫu số nếu bị bỏ sót. Ca D+1 đến D+6 và tỷ lệ trên toàn bộ ca cạn được hiển thị riêng. Kết quả lịch sử và `alert_metrics` đã lưu vẫn đọc được.
+
+C00 chạy lại trên 920 mặt hàng, kỳ chấm 29/10–31/12/2025 và cùng snapshot đầu vào, dự báo, chính sách. Hai bộ kiểm độc lập đồng ý về cách ghép cảnh báo và các ngày đủ cơ hội. Kết quả mặc định 129/381 = 33,86%, tỷ lệ toàn bộ 129/400 = 32,25%. Trong 19 đợt thiếu cơ hội, 10 đợt có đợt cạn trước đó chắn mọi ngày có thể ghép và 9 đợt không có ngày còn tồn dương phù hợp. Hai tệp đường tồn và chấm từng đợt khớp hash với CHG-107. [JSON tổng hợp](../web/frontend/src/data/c00-forecast-floor-evaluation.json).
+
+Kiểm lượt này: 129 React đạt, build production đạt, 40 Python đạt và 1 kiểm PostgreSQL bỏ qua vì thiếu cấu hình DB thử. Trình duyệt cục bộ xác nhận thẻ C00 và phần giải thích. Bản build đã đặt vào `web/frontend/dist` và kiểm đủ 12 tệp. Demo đang tắt. Bằng chứng cục bộ nằm trong `outputs/c00_eligible_20261112`.
+
 <a id="handoff-scenario-data-preparation"></a>
 ## Nhập nguồn và nhóm công việc Kịch bản — 12/11/2026
 
