@@ -2,6 +2,8 @@
 
 Gói `compose.local.yml` dùng cùng image cho API và worker, PostgreSQL18 và hai volume bền cho DB/artifact. React build trong image; không mang theo `.venv`, node_modules, DB, CSV nguồn hoặc outputs của người làm. Đây là lựa chọn chạy **local**, chưa phải bằng chứng host public đã triển khai. Máy hiện tại chưa có Docker nên cần kiểm build/compose trong CI trước khi nhận gói dùng được.
 
+Image dùng `web/deploy/requirements-runtime.txt`:52package runtime từ đúng phiên bản đã khóa ở nền M2/backend, gồm ML/API/QR; loại công cụ notebook/debug/test khỏi image chạy. Hai file requirements nền giữ nguyên để tái lập và kiểm thử. Chưa có số đo dung lượng image trước–sau; không suy từ số package thành phần trăm giảm RAM/disk.
+
 ## Môi trường mới
 
 Cần Docker Engine/Desktop với ComposeV2 và RAM phù hợp mô hình. Không tự cài Docker hoặc nâng gói hosting. Copy `web/deploy/.env.example` thành `.env` cùng thư mục, thay hai mật khẩu placeholder bằng hai chuỗi hex ngẫu nhiên độc lập. App dùng role `sigma` không superuser; `sigma_admin` chỉ dành khởi tạo/quản trị. Không gửi hoặc commit file thật.

@@ -5,6 +5,10 @@
 
 Cổng container đầu tiên phát hiện Dockerfile thiếu `requirements.txt` root được backend include bằng `-r ../../requirements.txt`. Đã bổ sung COPY file nền, giữ các phiên bản đã khóa; kiểm lại bằng CI của commit sửa. Không bỏ bước build hoặc báo lần lỗi là đạt.
 
+Sau rà phần BE nặng, tách lock runtime Linux/Python3.12 gồm52package từ dependency closure ML/API/QR/matplotlib, đúng phiên bản nền. Không cài notebook/debug/test vào image chạy; không thay requirements nền hoặc model. CI dựng/import lại image với lock mới; chưa công bố giảm dung lượng hoặc tốc độ khi chưa đo.
+
+Build container tiếp theo chỉ ra React import profile JSON từ backend bằng đường tương đối; stage frontend phải giữ cấu trúc `web/frontend` và copy đúng profile chung. Đã sửa cấu trúc build. Runtime52package đã được cài trên venv sạch, import API/worker/forecast/QR/auth và pipcheck qua, không có ipykernel. Kiểm Linux image riêng vẫn theo CI; không dùng Windows venv thay bằng chứng build Linux.
+
 Người dùng giao tự chọn các quyết định hợp lý, không hỏi lại. Chọn QR theo phiếu giao/lô với schema version, không giả ICCID/activation hoặc xác nhận mentor. Tư vấn tồn là profile riêng read-only, cộng mỗi item trên mọi kho một lần, dùng lead supplier hiện tại/policy cố định/pending theo ETA; transaction repeatable-read tránh trộn commits. Chặn forecast cũ/thiếu ngày/lead vượt13–14ngày, đơn trễ chưa rõ ETA và lịch cung cấp có hạn chế. Có giải thích thiếu trước khi lô mới về; chưa lưu snapshot tư vấn hoặc tự chuyển đề xuất thành PO.
 
 Đổi mật khẩu tự phục vụ bắt mật khẩu cũ, CSRF, throttle5lần/15phút và thu hồi mọi phiên. Recovery offline qua getpass chỉ dành operator có DB access, không tự kích hoạt tài khoản disabled. QR tạo ảnh SVG nội bộ bằng Segno1.6.6; preview chỉ điền phiếu, không tăng tồn; mã phiếu cũ vẫn bị chặn bởi transaction nhận hàng đã có. Gói container chỉ copy source cần thiết, frontend build riêng, chạy user không root và role app PostgreSQL không superuser. Chưa có Docker local, thêm cổng build/import/compose trong CI và không nhận đã host public.

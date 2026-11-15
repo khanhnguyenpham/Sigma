@@ -97,4 +97,4 @@ jobs:
       - name: Build source-only application image
         run: docker build -f web/Dockerfile -t sigma-ci:latest .
       - name: Check packaged Python entry points
-        run: docker run --rm --entrypoint python sigma-ci:latest -c "import main, worker, cli; from modules.operations import planning, qr; from modules.auth import reset_password; print('Packaged imports available')"
+        run: docker run --rm --entrypoint python sigma-ci:latest -c "import main, worker, cli; from modules.operations import planning, qr; from modules.auth import reset_password; from modules.forecasting import m2_adapter; print('Packaged imports available')"
