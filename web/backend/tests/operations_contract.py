@@ -12,5 +12,6 @@ OPS_ROUTES = {"/api/v1/operations/" + path: methods for path, methods in {
 }.items()}
 OPS_ROUTES.update({"/api/v1/supplier/orders": ["get"], "/api/v1/supplier/orders/{key}": ["get"], "/api/v1/supplier/operational-products": ["get"]})
 OPS_ROUTES['/api/v1/operations/recommendations'] = ['get']
+OPS_ROUTES['/api/v1/operations/queue-status'] = ['get']
 OPS_SCHEMAS.add('OpsQrScanInput')
 OPS_ROUTES.update({'/api/v1/operations/orders/{key}/receipt-qr':['post'], '/api/v1/operations/orders/{key}/receipt-qr/preview':['post']})

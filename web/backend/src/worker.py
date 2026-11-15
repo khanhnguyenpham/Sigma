@@ -78,6 +78,8 @@ def process_one(settings, sessions, claimed=None):
             summary = simulate_run(settings, sessions, key)
         with sessions.begin() as session:
             row = session.get(Run, key)
+            if row.status != 'running':
+                raise DomainError('worker_interrupted','Run is no longer owned by this worker',409)
             row.config_sha256 = digest(row.config_snapshot)
             row.result_summary = summary
         from modules.runs.verification import verify_run
@@ -90,7 +92,9 @@ def process_one(settings, sessions, claimed=None):
             )
         summary = {**summary, "verification": verification}
         with sessions.begin() as session:
-            row = session.get(Run, key)
+            row = session.scalar(select(Run).where(Run.id==key).with_for_update())
+            if row.status != 'running':
+                raise DomainError('worker_interrupted','Run was interrupted before final commit',409)
             row.config_sha256 = digest(row.config_snapshot)
             import platform, importlib.metadata
 
@@ -167,15 +171,13 @@ def process_one(settings, sessions, claimed=None):
             else "worker_failed"
         )
         with sessions.begin() as session:
-            row = session.get(Run, key)
-            row.status = "failed"
-            row.error_code = code
-            row.finished_at = now()
-            row.heartbeat_at = now()
-            row.result_summary = {
-                **row.result_summary,
-                "error_type": type(exc).__name__,
-            }
+            row = session.scalar(select(Run).where(Run.id==key).with_for_update())
+            if row.status == 'running':
+                row.status = "failed"
+                row.error_code = code
+                row.finished_at = now()
+                row.heartbeat_at = now()
+                row.result_summary = {**row.result_summary,"error_type": type(exc).__name__}
         # Private diagnostic for development; never returned by HTTP or staged to Git.
         import traceback
 
@@ -190,12 +192,12 @@ def process_one(settings, sessions, claimed=None):
     return key
 
 
-def demo_process_one(settings, sessions):
+def demo_process_one(settings, sessions, claimed=None):
     """Keep the lock/heartbeat in the parent; own and bound the complete job tree."""
     import subprocess, sys
     import psutil
     from web.backend.scripts.demo_stack import stop
-    claimed = claim_one(sessions)
+    claimed = claimed or claim_one(sessions)
     if claimed is None:
         return None
     key = claimed[0]
@@ -259,8 +261,9 @@ def demo_process_one(settings, sessions):
 
 def serve(settings, once=False):
     engine, sessions = database(settings.database_url)
+    transport = None
     try:
-        with engine.connect() as lock:
+        with engine.connect().execution_options(isolation_level='AUTOCOMMIT') as lock:
             if not lock.scalar(
                 text("SELECT pg_try_advisory_lock(:key)"), {"key": LOCK_ID}
             ):
@@ -277,9 +280,25 @@ def serve(settings, once=False):
                         )
                     )
                 with worker_heartbeat(settings, LOADED_CODE):
+                    from modules.runs.redis_queue import RedisTransport
+                    from redis.exceptions import RedisError
+                    transport = RedisTransport(settings) if settings.queue_driver == 'redis' else None
+                    queue_unavailable = False
                     while True:
-                        key = (demo_process_one(settings, sessions) if settings.mode == 'demo'
-                               else process_one(settings, sessions))
+                        if transport:
+                            try:
+                                processor = lambda claimed: demo_process_one(settings,sessions,claimed) if settings.mode=='demo' else process_one(settings,sessions,claimed)
+                                key = transport.step(sessions,processor)
+                                queue_unavailable = False
+                            except RedisError:
+                                if once:
+                                    raise DomainError('queue_unavailable','Redis unavailable; queued work is preserved',503) from None
+                                if not queue_unavailable:
+                                    print('Redis unavailable; queued work is preserved in PostgreSQL',flush=True)
+                                queue_unavailable=True;time.sleep(2);continue
+                        else:
+                            key = (demo_process_one(settings, sessions) if settings.mode == 'demo'
+                                   else process_one(settings, sessions))
                         if once:
                             return key
                         if key is None:
@@ -287,6 +306,8 @@ def serve(settings, once=False):
             finally:
                 lock.execute(text("SELECT pg_advisory_unlock(:key)"), {"key": LOCK_ID})
     finally:
+        if transport:
+            transport.redis.close()
         engine.dispose()
 
 

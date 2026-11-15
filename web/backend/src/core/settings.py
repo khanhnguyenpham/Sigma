@@ -30,10 +30,26 @@ class Settings:
     demo_limits: DemoLimits = field(default_factory=DemoLimits)
     # Direct construction supports legacy isolated tests. Actual startup uses from_env (auth on).
     auth_required: bool = False
+    queue_driver: str = "postgres"
+    redis_url: str = field(default="", repr=False)
+    queue_namespace: str = "sigma:m3:v1"
 
     @classmethod
     def from_env(cls):
         project = PROJECT_ROOT
+        import re
+        queue_driver = os.environ.get('M3_QUEUE_DRIVER', 'postgres')
+        redis_url = os.environ.get('M3_REDIS_URL', '')
+        namespace = os.environ.get('M3_QUEUE_NAMESPACE', 'sigma:m3:v1')
+        if queue_driver not in {'postgres', 'redis'} or not re.fullmatch(r'[A-Za-z0-9:_-]{1,64}', namespace):
+            raise ValueError('Invalid queue driver or namespace')
+        if queue_driver == 'redis':
+            try:
+                address = urlsplit(redis_url)
+                if address.scheme not in {'redis','rediss'} or not address.hostname or address.port == 0 or address.query or address.fragment or not re.fullmatch(r'/\d*', address.path or '/'):
+                    raise ValueError()
+            except ValueError:
+                raise ValueError('Redis requires a valid private M3_REDIS_URL') from None
         mode = os.environ.get("M3_MODE", "local")
         if mode not in {"local", "demo"}:
             raise ValueError("M3_MODE must be local or demo")
@@ -84,6 +100,9 @@ class Settings:
             demo_root,
             DemoLimits.from_env() if mode == 'demo' else DemoLimits(),
             True,
+            queue_driver,
+            redis_url,
+            namespace,
         )
 
     def order_source(self, key):

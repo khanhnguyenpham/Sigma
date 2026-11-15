@@ -1,5 +1,7 @@
 # Kế hoạch dự án SIGMA
 
+**15/11 — lựa chọn queue:** Run queued đã commit chính là durable outbox; không nhân đôi bảng ý định công việc. Redis là transport, metadata publish nằm trong result_summary khi queued. Giữ concurrency1 và retry interrupted bằng run mới, không tự refit/đa-worker. [Đặc tả thực hiện và ca kiểm](../REDIS_QUEUE.md); không thay R05/R07/T14.
+
 **15/11/2026 — người dùng giao tự chốt cách làm:** Tiếp tục tại main. Thêm profile tư vấn sổ kho toàn mạng, ROP theo lead time hiện tại và policy cố định, chặn thiếu forecast/ngày/đơn quá ETA/ngừng cung cấp; không padding dự báo. QR mặc định theo phiếu giao SIM vật lý, chỉ preview rồi admin ghi sổ; không giả mã kích hoạt/serial. Đổi mật khẩu thu hồi phiên và recovery operator đã có. Gói container local source-only/role DB riêng, build trong CI; runtime Docker local/Redis/host vẫn cần kiểm riêng. [Tư vấn](../OPERATIONS_PLANNING.md), [QR](../RECEIPT_QR.md), [bàn giao](../development.md#handoff-live-advisory-qr).
 
 **15/11/2026 — sổ kho vận hành:** Bổ sung đơn nhập→xác nhận→nhận từng phần, xuất/kiểm kê, kho vật lý và lead time supplier. React/API/migration0011 đã có;552backend/156React/TypeScript/build qua, browser synthetic luồng ghi sổ và4viewport qua. Chưa tích hợp sổ kho với forecast L7/H14, chưa QR/Redis/host/publish. [Hợp đồng](../WAREHOUSE_OPERATIONS.md), [bàn giao](../development.md#handoff-operational-ledger). Các trạng thái dưới đây là lịch sử.

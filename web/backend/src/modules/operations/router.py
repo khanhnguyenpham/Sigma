@@ -67,6 +67,13 @@ def summary(request: Request):
             "documents_today": session.scalar(select(func.count()).select_from(StockDocument).where(StockDocument.occurred_on == service.today()))}
 
 
+@router.get('/queue-status')
+def worker_queue_status(request: Request):
+    actor(request)
+    from modules.runs.redis_queue import queue_status
+    return queue_status(request.app.state.settings)
+
+
 @router.get("/warehouses")
 def warehouses(request: Request, page: int = Query(1, ge=1), page_size: int = Query(50, ge=1, le=100), active: bool | None = None):
     actor(request)

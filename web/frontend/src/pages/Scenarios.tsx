@@ -17,6 +17,7 @@ import { Pager } from "../components/ui/Pager";
 import { label, errorLabel } from "../utils/labels";
 import { inventoryKinds } from "../config/navigation";
 import { query } from "../utils/url";
+import { QueueStatus } from "../components/configuration/QueueStatus";
 
 export function Scenarios({ app }: { app: AppContextState }) {
   const [directoryRevision, setDirectoryRevision] = useState(0), [historyRevision, setHistoryRevision] = useState(0);
@@ -70,6 +71,7 @@ export function Scenarios({ app }: { app: AppContextState }) {
   const completed = progress?.completed_jobs ?? progress?.completed_origins ?? progress?.completed_windows;
   const total = progress?.total_jobs ?? progress?.total_origins ?? progress?.total_windows;
   return <div className="scenario-workspace">
+    <QueueStatus refresh={app.refresh} />
     <div className="page-heading"><div><h1>Kịch bản</h1><p>Thiết lập, chạy và xem kết quả ngay tại đây.</p></div>
       <button type="button" className="secondary" onClick={() => app.navigate("overview")}>← Tổng quan</button></div>
     <Panel title="Chọn kịch bản" note="Mỗi phiên bản đã lưu được giữ riêng với các lượt chạy của nó.">

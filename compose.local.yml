@@ -9,6 +9,8 @@ x-app: &app
     M3_SOURCE_ROOT: /srv/source
     M3_OUTPUT_ROOT: /srv/outputs
     M3_FRONTEND_ORIGIN: http://127.0.0.1:5173
+    M3_QUEUE_DRIVER: redis
+    M3_REDIS_URL: redis://:${SIGMA_REDIS_PASSWORD:?Set SIGMA_REDIS_PASSWORD}@redis:6379/0
   volumes:
     - artifacts:/srv/outputs
     - type: bind
@@ -20,6 +22,20 @@ x-app: &app
       condition: service_healthy
   restart: unless-stopped
 services:
+  redis:
+    image: redis:8-alpine
+    user: redis
+    environment:
+      REDIS_PASSWORD: ${SIGMA_REDIS_PASSWORD:?Set SIGMA_REDIS_PASSWORD}
+    command: [sh, -c, 'umask 077; printf "requirepass %s\nappendonly yes\n" "$$REDIS_PASSWORD" > /data/runtime-redis.conf; exec redis-server /data/runtime-redis.conf']
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: [CMD-SHELL, 'REDISCLI_AUTH="$$REDIS_PASSWORD" redis-cli ping']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
   database:
     image: postgres:18-bookworm
     environment:
@@ -47,6 +63,11 @@ services:
       - 127.0.0.1:${SIGMA_PORT:-8000}:8000
   worker:
     <<: *app
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     command: [python, -m, worker]
     healthcheck:
       disable: true
@@ -54,3 +75,4 @@ services:
 volumes:
   postgres-data:
   artifacts:
+  redis-data:

@@ -4,6 +4,12 @@ jobs:
   backend:
     runs-on: ubuntu-latest
     services:
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 12
       postgres:
         image: postgres:18
         env:
@@ -15,6 +21,7 @@ jobs:
           --health-timeout 5s --health-retries 12
     env:
       M3_TEST_DATABASE_URL: postgresql+psycopg://sigma_m3_app:ci-only-app@127.0.0.1:5432/sigma_m3_test
+      M3_TEST_REDIS_URL: redis://127.0.0.1:6379/0
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -93,8 +100,45 @@ jobs:
         env:
           SIGMA_DB_PASSWORD: ci-synthetic-app-only
           SIGMA_DB_ADMIN_PASSWORD: ci-synthetic-admin-only
+          SIGMA_REDIS_PASSWORD: ci-synthetic-redis-only
         run: docker compose -f compose.local.yml config --quiet
       - name: Build source-only application image
         run: docker build -f web/Dockerfile -t sigma-ci:latest .
       - name: Check packaged Python entry points
         run: docker run --rm --entrypoint python sigma-ci:latest -c "import main, worker, cli; from modules.operations import planning, qr; from modules.auth import reset_password; from modules.forecasting import m2_adapter; print('Packaged imports available')"
+      - name: Start isolated Compose services and verify application role
+        env: &compose-ci-env
+          SIGMA_DB_PASSWORD: ci-synthetic-app-only
+          SIGMA_DB_ADMIN_PASSWORD: ci-synthetic-admin-only
+          SIGMA_REDIS_PASSWORD: ci-synthetic-redis-only
+        run: |
+          docker tag sigma-ci:latest sigma-local:latest
+          docker compose -p sigma-ci -f compose.local.yml up -d database redis
+          docker compose -p sigma-ci -f compose.local.yml --profile setup run --rm migrate
+          docker compose -p sigma-ci -f compose.local.yml run --rm api python -c "from core.settings import Settings; from core.db import database; from modules.auth.service import create_user; from modules.auth.schemas import UserCreate; from sqlalchemy import text; e,s=database(Settings.from_env().database_url); c=e.connect(); assert not c.scalar(text('SELECT rolsuper FROM pg_roles WHERE rolname=current_user')); c.close(); t=s(); create_user(t,UserCreate(username='ci-admin',display_name='CI synthetic',password='Synthetic-compose-only-2026',role='admin')); t.commit(); t.close(); e.dispose()"
+          docker compose -p sigma-ci -f compose.local.yml up -d api
+          python - <<'PY'
+          import http.cookiejar, json, time, urllib.request
+          base='http://127.0.0.1:8000/api/v1'
+          client=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+          for attempt in range(60):
+              try:
+                  client.open(base+'/health',timeout=3).close()
+                  break
+              except Exception:
+                  if attempt==59: raise
+                  time.sleep(1)
+          request=urllib.request.Request(base+'/auth/login',data=json.dumps({'username':'ci-admin','password':'Synthetic-compose-only-2026'}).encode(),headers={'Content-Type':'application/json'})
+          with client.open(request) as response:
+              assert json.load(response)['user']['role']=='admin'
+          with client.open(base+'/operations/queue-status') as response:
+              status=json.load(response)
+              assert status['driver']=='redis' and status['available'] is True
+          with client.open(base+'/operations/summary') as response:
+              assert json.load(response)['on_hand_units']==0
+          print('Compose login, real Redis and non-superuser DB passed')
+          PY
+      - name: Stop only the disposable CI Compose project
+        if: always()
+        env: *compose-ci-env
+        run: docker compose -p sigma-ci -f compose.local.yml down --volumes --remove-orphans

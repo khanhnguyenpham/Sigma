@@ -1,5 +1,16 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-redis-transport"></a>
+## Redis transport và bảo toàn trạng thái — 15/11/2026
+
+Thêm driver Redis tùy chọn; queued Run là durable outbox, publish lặp có chủ đích sau crash, claim bằng PG theo đúng runID, ACK sau terminal, reclaim có cursor và không fallback sang polling PG khi Redis down. Worker vẫn một owner/advisory lock; interrupted phải retry thành run mới. Guard trạng thái trước ghi kết quả/complete và không đè terminal khi exception. Connection giữ advisory lock chuyển AUTOCOMMIT để không idle transaction lâu.
+
+Compose thêm Redis8/AOF, không host port, mật khẩu riêng đọc env vào config file private; API vẫn khởi động được khi Redis chưa sẵn sàng, worker phụ thuộc Redis healthy. Kịch bản có thông báo transport down, không lộ credential. Runtime lock53package có redis8.1.0, cùng baseline hiện hành. [Hợp đồng queue](REDIS_QUEUE.md).
+
+Kiểm bước đầu:30ca PG/contract/demo qua,2ca Redis thật skip local vì không có server. CI bổ sung service Redis thật bắt buộc và smoke Compose gồm migration/role app không superuser/login/API/Redis auth. Trước bước Redis, commit2d54520 đã có hai workflow success, gồm image Linux build/import. Full suite Redis và smoke đang kiểm; không coi fake Redis là bằng chứng service thật.
+
+Full local sau thay queue: **570passed,2skipped** (chỉ hai ca Redis thật),1cảnh báo TestClient; **163React**, TypeScript/build qua. Skip local không được đổi thành pass; CI buộc có service thật. Bằng chứng `outputs/upgrade_20261114/backend-redis.xml`, `redis-next.xml`, `outputs/operations_20261115/frontend-redis.json`. Còn kiểm cổng CI đúng commit khi push.
+
 <a id="handoff-live-advisory-qr"></a>
 ## Tư vấn từ số dư thật, QR lô và khôi phục tài khoản — 15/11/2026
 
