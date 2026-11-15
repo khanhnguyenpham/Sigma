@@ -10,7 +10,8 @@ import { Panel } from "../components/ui/Panel";
 import { Table } from "../components/ui/Table";
 import { Pager } from "../components/ui/Pager";
 import { State } from "../components/ui/State";
-import { ExportButton } from "../components/ui/ExportButton";
+import { InventoryActions } from "../components/inventory/InventoryActions";
+import { InventoryFilters } from "../components/inventory/InventoryFilters";
 import { Card } from "../components/ui/Card";
 
 import { PlanRequired } from "../components/ui/PlanRequired";
@@ -46,12 +47,17 @@ export function Inventory({
   onNavigate?: (page: string) => void;
 }) {
   const [page, setPage] = useState(1),
-    [status, setStatus] = useState(""),
+    [localStatus, setLocalStatus] = useState(ctx.inventoryState ?? ""),
     [editingWarehouse, setEditingWarehouse] = useState(false);
   const receiving = isReceivingRun(run);
+  const status = onFilterChange ? ctx.inventoryState ?? "" : localStatus;
+  function setStatus(value: string) {
+    setLocalStatus(value);
+    onFilterChange?.({ inventoryState: value });
+  }
   const key = JSON.stringify([ctx, status]);
   useEffect(() => setPage(1), [key]);
-  useEffect(() => setStatus(""), [ctx.runId, ctx.warehouseId]);
+  useEffect(() => setLocalStatus(ctx.inventoryState ?? ""), [ctx.runId, ctx.warehouseId, ctx.inventoryState]);
   const ready =
     run?.status === "complete" &&
     run.result_summary.inventory_available !== false &&
@@ -78,7 +84,7 @@ export function Inventory({
   const s = summary.data?.summary;
   const rows = data.data?.items ?? [];
   return (
-    <>
+    <div className="inventory-page">
       {insideWarehouse && <nav className="warehouse-breadcrumb" aria-label="Đường dẫn kho">
         <button className="text-button" onClick={() => onWarehouse?.("")}><span aria-hidden="true">←</span> Danh sách kho</button>
         <span aria-hidden="true">/</span><span aria-current="page">{warehouseName(warehouse)}</span>
@@ -87,16 +93,13 @@ export function Inventory({
         <div>
           <h1>{insideWarehouse ? warehouseName(warehouse) : "Tồn kho"}</h1>
           <p>
-            {insideWarehouse ? `${text(warehouse?.destination_country)} · Xem sản phẩm và tình trạng tồn trong kho.` : "Bắt đầu từ kho đang quản lý, sau đó chọn kho để xem sản phẩm bên trong."}
+            {insideWarehouse ? `${text(warehouse?.destination_country)}${warehouse && !receiving ? ` · ${String(warehouse.carrier)}` : ""}` : "Bắt đầu từ kho đang quản lý, sau đó chọn kho để xem sản phẩm bên trong."}
           </p>
-          {insideWarehouse && warehouse && !receiving && <span className="carrier-chip">Nhà mạng <strong>{String(warehouse.carrier)}</strong></span>}
         </div>
-        {insideWarehouse && <div className="warehouse-actions">
-          <button onClick={() => setEditingWarehouse(true)}><Icon name="settings" size={16} /> Chỉnh sửa kho</button>
-          {ready && onNavigate && <><button onClick={() => onNavigate("forecast")}><Icon name="chart" size={16} /> Dự báo nhu cầu</button>
-            <button onClick={() => onNavigate("replenishment")}><Icon name="truck" size={16} /> Nhập hàng</button></>}
-          {ready && <ExportButton url={`/runs/${run.id}/exports/inventory_daily?${q}`} />}
-        </div>}
+        {insideWarehouse && <InventoryActions onEdit={() => setEditingWarehouse(true)}
+          onForecast={ready && onNavigate ? () => onNavigate("forecast") : undefined}
+          onReplenishment={ready && onNavigate ? () => onNavigate("replenishment") : undefined}
+          exportUrl={ready ? `/runs/${run!.id}/exports/inventory_daily?${q}` : undefined} />}
       </div>
       {!ready && insideWarehouse ? (
         <PlanRequired onChoose={onChoose} />
@@ -138,50 +141,25 @@ export function Inventory({
           <State loading={summary.loading} error={summary.error} />
           <TradeTotals summary={s} />
           {!insideWarehouse ? <WarehouseDirectory key={run?.id} warehouses={warehouses} stock={summary.data?.warehouse_stock}
+            filters={onFilterChange ? { search: ctx.warehouseSearch ?? "", country: ctx.warehouseCountry ?? "", carrier: ctx.warehouseCarrier ?? "" } : undefined}
+            onFiltersChange={onFilterChange ? (value) => onFilterChange({ warehouseSearch: value.search, warehouseCountry: value.country, warehouseCarrier: value.carrier }) : undefined}
             loading={catalog?.loading} error={catalog?.error} onChoose={onWarehouse} receiving={receiving} /> :
           catalog?.data && !warehouse ? <div className="notice error" role="alert">Không tìm thấy kho trong phương án này. Hãy quay lại danh sách kho.</div> : <Panel
             title="Sản phẩm trong kho"
-            note={`Ngày ${ctx.origin} · Nhấn một mặt hàng để xem chi tiết.`}
-            action={
-              <select
-                aria-label="Trạng thái tồn kho"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value="">Tất cả trạng thái</option>
-                <option value="low_stock">Cần đặt thêm</option>
-                <option value="pending_covers">Đã có đủ hàng đang về</option>
-              </select>
-            }
+            note="Chọn một sản phẩm để xem chi tiết."
           >
-            <div className="inventory-filters">
-              <label>Nhà mạng (carrier)
-                <select aria-label="Nhà mạng trong kho" value={ctx.supplierId} onChange={(e) => onFilterChange?.({ supplierId: e.target.value, itemId: "" })}>
-                  <option value="">Tất cả nhà mạng</option>
-                  {supplierOptions.map((supplier) => <option key={String(supplier.id)} value={String(supplier.id)}>{String(supplier.carrier)}</option>)}
-                </select>
-              </label>
-              <label>Loại sản phẩm
-                <select aria-label="Loại sản phẩm trong kho" value={ctx.productType} onChange={(e) => onFilterChange?.({ productType: e.target.value, itemId: "" })}>
-                  <option value="">Tất cả loại</option><option>eSIM</option><option>physical_SIM</option>
-                </select>
-              </label>
-              <label>Mã sản phẩm
-                <select aria-label="SKU trong kho" value={ctx.itemId} onChange={(e) => onFilterChange?.({ itemId: e.target.value })}>
-                  <option value="">Tất cả sản phẩm</option>
-                  {itemOptions.filter((i) => !ctx.productType || i.product_type === ctx.productType).map((i) => <option key={String(i.id)} value={String(i.id)}>{String(i.sku)} · {String(i.product_type)}</option>)}
-                </select>
-              </label>
-              {(ctx.productType || ctx.supplierId || ctx.itemId || status) && <button className="text-button" onClick={() => { onFilterChange?.({ productType: "", supplierId: "", itemId: "" }); setStatus(""); }}>Xóa bộ lọc sản phẩm</button>}
-            </div>
+            {status && <p className="filter-scope-note">Lọc trạng thái chỉ áp dụng cho bảng; các thẻ là tổng trong phạm vi kho và sản phẩm.</p>}
+            <InventoryFilters ctx={ctx} status={status} onStatus={setStatus} onChange={onFilterChange}
+              itemOptions={itemOptions} supplierOptions={supplierOptions} />
             <State
-              loading={data.loading}
               error={data.error}
-              empty={!data.loading && !data.error && !rows.length}
             />
-            {!data.loading && !data.error && rows.length > 0 && (
+            {!data.error && (
               <Table
+                stickyFirstColumn
                 rows={rows}
+                loading={data.loading}
+                emptyMessage={status || ctx.itemId || ctx.productType || ctx.supplierId ? "Không có kết quả phù hợp với bộ lọc." : "Không có dữ liệu tồn kho tại ngày đang xem."}
                 onRow={(row) => onItem?.(row, "product")}
                 columns={[
                   {
@@ -238,6 +216,6 @@ export function Inventory({
         </>
       )}
       {editingWarehouse && <WarehouseEditor key={ctx.warehouseId} id={ctx.warehouseId} onClose={() => setEditingWarehouse(false)} />}
-    </>
+    </div>
   );
 }

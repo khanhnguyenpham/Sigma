@@ -1,4 +1,5 @@
 export const PAGES = [
+  ["operations", "box", "Vận hành kho"],
   ["overview", "grid", "Tổng quan"],
   ["inventory", "box", "Tồn kho"],
   ["products", "box", "Sản phẩm"],

@@ -3,6 +3,15 @@ import { api } from "../src/services/http";
 
 afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
 
+it("shows a readable error when a proxy returns HTML instead of API JSON", async () => {
+  vi.spyOn(globalThis, "fetch").mockResolvedValue({ ok: false, status: 502,
+    json: async () => { throw new SyntaxError("Unexpected token <html> private-path"); } } as unknown as Response);
+  const result = await api("/inventory").catch(error => error);
+  expect(result).toMatchObject({ code: "server_error", status: 502, message: "Hệ thống đang gặp sự cố. Vui lòng thử lại sau." });
+  expect(result).toBeInstanceOf(Error);
+  expect((result as Error).message).not.toContain("private-path");
+});
+
 it("times out a read, aborts transport and ignores a late response", async () => {
   vi.useFakeTimers();
   let finish: (value: Response) => void = () => {};

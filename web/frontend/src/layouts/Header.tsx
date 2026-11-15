@@ -1,5 +1,6 @@
 import { PAGES } from "../config/navigation";
 import { Icon } from "../components/ui/Icon";
+import { AccountMenu } from "../auth/SessionBoundary";
 
 import { type AppContextState } from "../hooks/useAppContext";
 
@@ -30,6 +31,7 @@ export function Header({ app }: { app: AppContextState }) {
         <strong>{selectedTitle}</strong>
       </div>
       <div className="top-status">
+        <AccountMenu />
         <button
           className="icon-button"
           aria-label="Làm mới dữ liệu"
@@ -57,12 +59,12 @@ export function Header({ app }: { app: AppContextState }) {
             Đang xử lý
           </button>
         )}
-        <span className="environment-pill">
+        {page !== "operations" && <span className="environment-pill">
           <Icon name="info" size={14} /> {"Dữ liệu mô phỏng"}
-        </span>
-        {page !== "scenarios" && <button className="primary" onClick={() => openScenarios()}>
+        </span>}
+        {page !== "operations" && page !== "scenarios" && <button className="primary header-create" aria-label="Tạo phương án" onClick={() => openScenarios()}>
           <Icon name="plus" size={17} />
-          Tạo phương án
+          <span>Tạo phương án</span>
         </button>}
       </div>
     </header>

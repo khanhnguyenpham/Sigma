@@ -13,6 +13,7 @@ export function useAppContext() {
   const [ctx, setCtx] = useState<Context>(readContext);
   const datedRun = useRef("");
   const [page, setPage] = useState(readPage);
+  const operational = page === "operations";
   const [help, setHelp] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [purchasingView, setPurchasingView] =
@@ -22,13 +23,13 @@ export function useAppContext() {
   currentUrl.current = navigationUrl(ctx, page, purchasingView);
   const [scenarioRevision, setScenarioRevision] = useState(0);
   const runsResource = useResource<Page<Run>>(
-    `/runs?page_size=100&refresh=${refresh}`,
+    operational ? null : `/runs?page_size=100&refresh=${refresh}`,
     true,
   );
   const latest = runsResource.data?.items ?? [];
   const [runRevision, setRunRevision] = useState(0);
   const selectedResource = useResource<Run>(
-    ctx.runId && (page === "scenarios" || !latest.some((r) => r.id === ctx.runId))
+    !operational && ctx.runId && (page === "scenarios" || !latest.some((r) => r.id === ctx.runId))
       ? `/runs/${ctx.runId}`
       : null,
     true, runRevision,
@@ -53,17 +54,17 @@ export function useAppContext() {
       setCtx((current) => ({ ...current, origin: snapshotDate }));
   }, [snapshotDate, ctx.origin]);
   const catalog = useResource<Page>(
-    run?.status === "complete"
+    operational ? null : run?.status === "complete"
       ? `/warehouses?run_id=${run.id}&page_size=100`
       : "/warehouses?page_size=100",
   );
   const items = useResource<Page>(
-    ctx.warehouseId
+    !operational && ctx.warehouseId
       ? `/items?${ctx.warehouseScope === "receiving" && run?.status === "complete" ? "receiving_warehouse_id" : "warehouse_id"}=${ctx.warehouseId}&page_size=100${run?.status === "complete" ? "&run_id=" + run.id : ""}`
       : null,
     false, 0, ctx.warehouseScope === "receiving" ? apiAllPages : api,
   );
-  const suppliers = useResource<Page>("/suppliers?page_size=100");
+  const suppliers = useResource<Page>(operational ? null : "/suppliers?page_size=100");
   const hasWork = runs.some((r) => ["queued", "running"].includes(r.status));
   const compatible =
     runs.find(
@@ -77,19 +78,20 @@ export function useAppContext() {
     );
   const busyRun = runs.find((r) => ["queued", "running"].includes(r.status));
   useEffect(() => {
-    if (!run || ["products", "product", "product-supply", "configuration"].includes(page) || page.startsWith("provider-")) return;
+    if (!run || ["operations", "products", "product", "product-supply", "configuration"].includes(page) || page.startsWith("provider-")) return;
     const scope = isReceivingRun(run) ? "receiving" : undefined;
     setCtx((current) => current.warehouseScope === scope ? current : { ...current, warehouseScope: scope });
   }, [run?.id, run?.receiving_warehouse_profile, page, ctx.warehouseScope]);
   useEffect(() => {
+    if (operational) return;
     const timer = setInterval(
       () => setRefresh((v) => v + 1),
       hasWork ? 2000 : 15000,
     );
     return () => clearInterval(timer);
-  }, [hasWork]);
+  }, [hasWork, operational]);
   useEffect(() => {
-    if (page !== "scenarios" && !ctx.runId && runs.length) {
+    if (!operational && page !== "scenarios" && !ctx.runId && runs.length) {
       const preferred = compatible ?? runs.find((r) => r.status === "complete");
       if (preferred) {
         if (ctx.itemId && (["product", "product-supply"].includes(page) || page.startsWith("provider-")))
@@ -164,6 +166,8 @@ export function useAppContext() {
       supplierId: "",
       carrier: "",
       productType: "",
+      inventoryState: "",
+      warehouseSearch: "", warehouseCountry: "", warehouseCarrier: "",
       internalStatus:"",providerStatus:"",replenishmentAllowed:"",salesAllowed:"",windowOrigin:"",
     }));
   }
@@ -192,14 +196,14 @@ export function useAppContext() {
     setScenarioRevision((value) => value + 1);
     scenarioContext({ ...ctx, runId: id, scenarioId: scenarioId ?? (id ? selected?.scenario_id ? String(selected.scenario_id) : undefined : ctx.scenarioId),
       ...(id !== ctx.runId ? { origin: selected?.as_of_date ?? "", warehouseId: "", itemId: "", supplierId: "", productType: "",
-        carrier: "", internalStatus: "", providerStatus: "", replenishmentAllowed: "", salesAllowed: "", windowOrigin: "" } : {}) });
+        carrier: "", internalStatus: "", providerStatus: "", replenishmentAllowed: "", salesAllowed: "", windowOrigin: "", inventoryState: "", warehouseSearch: "", warehouseCountry: "", warehouseCarrier: "" } : {}) });
     return true;
   }
   function chooseScenario(id: string) {
     if (!window.dispatchEvent(new Event("sigma:before-navigate", { cancelable: true }))) return false;
     setScenarioRevision((value) => value + 1);
     scenarioContext({ ...ctx, scenarioId: id, runId: "", origin: "", warehouseId: "", itemId: "", supplierId: "", productType: "",
-      carrier: "", internalStatus: "", providerStatus: "", replenishmentAllowed: "", salesAllowed: "", windowOrigin: "" });
+      carrier: "", internalStatus: "", providerStatus: "", replenishmentAllowed: "", salesAllowed: "", windowOrigin: "", inventoryState: "", warehouseSearch: "", warehouseCountry: "", warehouseCarrier: "" });
     return true;
   }
   function scenarioSaved(id: string) {
@@ -229,7 +233,7 @@ export function useAppContext() {
   function selectWarehouse(id: string) {
     if (!window.dispatchEvent(new Event("sigma:before-navigate", { cancelable: true }))) return;
     const next: Context = { ...ctx, warehouseId: id, warehouseScope: isReceivingRun(run) ? "receiving" : undefined,
-      itemId: "", supplierId: "", productType: "" };
+      itemId: "", supplierId: "", productType: "", inventoryState: "" };
     history.pushState(null, "", "?" + contextUrl(next) + "#inventory");
     setCtx(next);
     setPage("inventory");

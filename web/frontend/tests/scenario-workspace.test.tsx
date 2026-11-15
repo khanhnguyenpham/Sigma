@@ -27,7 +27,7 @@ function fixture({ initialRun, rejectRun = false, parentError = false }: { initi
     }
     if (options?.method === "POST") {
       const body = options.body ? JSON.parse(String(options.body)) : {};
-      writes.push({ path, body, key: (options.headers as Record<string, string> | undefined)?.["Idempotency-Key"] });
+      writes.push({ path, body, key: new Headers(options.headers).get("Idempotency-Key") ?? undefined });
       if (path.endsWith('/restore')) {
         const index=scenarios.findIndex(row=>path===`/scenarios/${row.id}/restore`);
         const settings={...(scenarios[index].settings as Row)};delete settings._deleted_at;

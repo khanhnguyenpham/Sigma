@@ -5,6 +5,7 @@ import { api, apiAllPages } from "../services/http";
 import { useResource } from "../hooks/useResource";
 import { useTradeNavigation } from "../hooks/useTradeNavigation";
 import { ScenarioEditor } from "../components/configuration/ScenarioEditor";
+import { RunSnapshot } from "../components/configuration/RunSnapshot";
 import { ScenarioResults } from "../components/configuration/ScenarioResults";
 import { C00Evaluation } from "../components/alerts/C00Evaluation";
 import { RunForm } from "../components/configuration/RunForm";
@@ -118,15 +119,7 @@ export function Scenarios({ app }: { app: AppContextState }) {
             {run.retry_of_run_id && <div><dt>Thử lại từ lượt</dt><dd><button type="button" className="text-button" onClick={() => app.openScenarios(run.retry_of_run_id!, String(run.scenario_id ?? ""))}>{run.retry_of_run_id}</button></dd></div>}
             {run.period_start && <div><dt>Kỳ chạy</dt><dd>{run.period_start} → {run.period_end}</dd></div>}
           </dl>
-          {run.scenario_settings && Object.keys(run.scenario_settings).length > 0 && <details className="advanced-section">
-            <summary>Thiết lập đã chốt của lượt chạy</summary>
-            <p>Tồn đầu: {String(run.scenario_settings.cover_days ?? "—")} ngày phủ · Hệ số tồn an toàn: {String(run.scenario_settings.safety_multiplier ?? "—")}.</p>
-            <p>{run.receiving_warehouse_profile ? "Kho nhận được chốt theo mặc định từng sản phẩm khi tạo lượt chạy; xem kho trong bảng kết quả." : "Kho theo cấu hình đã chốt của lượt chạy lịch sử."}</p>
-            {Array.isArray(run.scenario_settings.policy_overrides) && <Table rows={run.scenario_settings.policy_overrides as Row[]}
-              columns={[{ key: "item_id", label: "Mặt hàng" }, { key: "configured_rop_floor", label: "ROP điều chỉnh" }, { key: "safety_days", label: "Ngày tồn an toàn" }, { key: "warning_horizon_days", label: "Ngày cảnh báo" }]} />}
-            {Array.isArray(run.scenario_settings.receipts_initial) && <Table rows={run.scenario_settings.receipts_initial as Row[]}
-              columns={[{ key: "item_id", label: "Mặt hàng" }, { key: "ordered_on", label: "Ngày đặt" }, { key: "eta", label: "Dự kiến nhận" }, { key: "ordered_qty", label: "Số lượng" }]} />}
-          </details>}
+          <RunSnapshot key={run.id} run={run} />
           {active && <div className="notice" role="status">{phase}{completed != null && total != null ? ` · ${completed}/${total}` : ""}. Bạn có thể rời trang và quay lại theo dõi.</div>}
           {run.status === "failed" && <div className="notice error" role="alert"><p>Lượt chạy chưa hoàn tất. Mã lỗi: {run.error_code ?? "Chưa có chi tiết"}.</p>
             <p>{run.kind === "source_import" ? "Thử lại tạo lượt nhập mới cho cùng nguồn đã đăng ký."

@@ -6,6 +6,7 @@ import { Products, ProductDetail } from "./pages/Products";
 import { useAppContext } from "./hooks/useAppContext";
 
 import { AppLayout } from "./layouts/AppLayout";
+import { navigationUrl } from "./utils/url";
 
 const Overview = lazy(() =>
   import("./pages/Overview").then((m) => ({ default: m.Overview })),
@@ -17,6 +18,7 @@ const Alerts = lazy(() =>
   import("./pages/Alerts").then((m) => ({ default: m.Alerts })),
 );
 const Scenarios = lazy(() => import("./pages/Scenarios").then((module) => ({ default: module.Scenarios })));
+const Operations = lazy(() => import("./pages/Operations").then((module) => ({ default: module.Operations })));
 export default function App() {
   const app = useAppContext();
   const {
@@ -32,7 +34,11 @@ export default function App() {
   } = app;
   const props = { run, ctx, onChoose: chooseInventory, onItem: openItem };
   const node =
-    page === "products" ? (
+    page === "operations" ? <Operations ctx={ctx} onContext={(patch) => {
+      if (!window.dispatchEvent(new Event("sigma:before-navigate", { cancelable: true }))) return;
+      history.pushState(null, "", navigationUrl({ ...ctx, ...patch }, "operations", purchasingView));
+      app.setCtx((current) => ({ ...current, ...patch }));
+    }} /> : page === "products" ? (
       <Products ctx={ctx.warehouseScope === "receiving" ? { ...ctx, warehouseId: "" } : ctx}
         onContext={(patch) => app.setCtx((c) => ({ ...c, ...patch, warehouseScope: undefined }))} onOpen={(row) => openItem(row, "product")} />
     ) : page === "product" ? (

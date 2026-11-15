@@ -147,7 +147,7 @@ def test_migration_preserves_all_other_tables_and_supplier_ids(pg):
             connection.execute(text("UPDATE warehouses SET code='WH-001' WHERE id=1"))
             before = {name: deepcopy(connection.execute(text(f"SELECT to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','source_sales_qty','actual_blocked_qty'] FROM \"{name}\" t ORDER BY to_jsonb(t)::text")).scalars().all())
                       for name in Base.metadata.tables if name not in {'suppliers', 'item_supply_changes'}
-                      and not name.startswith('provider_product_notice')}
+                      and not name.startswith(('provider_product_notice', 'auth_', 'ops_'))}
             identity = connection.execute(text('SELECT id,created_at FROM suppliers ORDER BY id')).all()
         command.upgrade(cfg, 'head')
         command.upgrade(cfg, 'head')

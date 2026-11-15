@@ -1,5 +1,15 @@
 # Kế hoạch dự án SIGMA
 
+**15/11/2026 — sổ kho vận hành:** Bổ sung đơn nhập→xác nhận→nhận từng phần, xuất/kiểm kê, kho vật lý và lead time supplier. React/API/migration0011 đã có;552backend/156React/TypeScript/build qua, browser synthetic luồng ghi sổ và4viewport qua. Chưa tích hợp sổ kho với forecast L7/H14, chưa QR/Redis/host/publish. [Hợp đồng](../WAREHOUSE_OPERATIONS.md), [bàn giao](../development.md#handoff-operational-ledger). Các trạng thái dưới đây là lịch sử.
+
+**15/11/2026 — cập nhật P2 về UX:** Đã thu gọn luồng tồn/snapshot/mobile, tách CSS quản lý, bổ sung keyboard/focus và kiểm147React/14nhóm browser/bốn viewport. Đây là cải thiện luồng chính; chưa UAT toàn bộ ứng dụng hoặc nhận P3–P7 hoàn tất. [Số đo và phạm vi](../development.md#handoff-compact-management-ux).
+
+**15/11/2026 — đang triển khai P1/P2:** Đã thêm đăng nhập/phân quyền admin/supplier chỉ đọc, quản lý tài khoản, nền bảng/loading/filter tồn và snapshot.541 backend,143 React, TypeScript/build và17 kiểm browser trên DB synthetic qua; snapshot28/90 được kiểm thêm12 ca sau rà cuối. QR/ETA/Redis/allocation/host chưa triển khai. [Trạng thái PLAN](PRODUCT_UPGRADE_PLAN_20261114.md#9-bàn-giao-tài-liệu), [bàn giao](../development.md#handoff-product-upgrade-p2).
+
+**14/11/2026 — PLAN nâng cấp theo góp ý nhóm:** [PRODUCT_UPGRADE_PLAN_20261114](PRODUCT_UPGRADE_PLAN_20261114.md) là kế hoạch tiếp theo cho UI, QR nhập SIM vật lý, auth admin/supplier, ETA, snapshot, hash, DB, Redis/worker, allocation và host. Yêu cầu mới mở rộng phạm vi demo trước; quyết định chi tiết còn chờ, chưa triển khai hoặc đổi kết quả nghiệm thu cũ.
+
+**14/11/2026 — kế hoạch tiếp tục từ main:** [MAIN_REVIEW_PLAN_20261114](MAIN_REVIEW_PLAN_20261114.md) ghi khảo sát code nền `2d0d5f1`, giới hạn bằng chứng và thứ tự triển khai tiếp. Đây là kế hoạch bổ sung, chưa thay hợp đồng hoặc nghiệm thu lịch sử bên dưới; góp ý mới của nhóm còn chờ nội dung.
+
 **13/11/2026 — T10:** Kiểm cách chấm cảnh báo khi ngừng cung cấp. Với Kế hoạch nhập hàng, chấm trong từng khoảng được bán liên tục. Kiểm đợt cạn trước/sau chặn bán, ngừng nhập nội bộ, mẫu số 0 và bản build. [Đặc tả](../../M3/docs/01-functional-spec.md#eligible-early-warning).
 
 **13/11/2026 — T10/T11:** Áp dụng 28 ngày và lượng nhập 15 lên demo. Sao lưu trước, kiểm ba lượt Cơ sở mới với cùng dự báo cha và mốc 31/10, rồi lưu trữ các lượt Cơ sở cũ. Kiểm JSON C00 và các API kết quả trên bản demo mới. [Bàn giao](../development.md#handoff-base-lot15-demo).
@@ -830,7 +840,7 @@ Ghi nguồn/ngày/mã → xác định R/A/T/đầu ra ảnh hưởng → sửa 
 
 **E92 — T08–T12,20/10/2026:** nghiên cứu panel ngày168fits/35.910forecast, validation45,971604%/0trên10; không thay phục vụ hoặc mở test.89Python đạt. Phân biệt R07 đo cảnh báo với ngưỡng100% không có trong nguồn; [cổng còn mở](../../M3/ACCEPTANCE.md). R05/R07/T14 không tự đóng.
 
-**E91 — T08–T12:** chẩn đoán cơ hội cảnh báo và nghiên cứu ngày validation riêng; không đổi final10/ML36/stock profile.86Python+9FE/build đạt. Validation ngày0/10; alert cơ sở còn331ca đủ7ngày chưa phát hiện,1550ca cạn trướcD+7. R05/R07/T14 mở; [bằng chứng](../../M3/IMPLEMENTATION.md).
+**E91 — T08–T12:** chẩn đoán cơ hội cảnh báo và nghiên cứu ngày validation riêng; không đổi final10/ML36/stock profile.86Python+9FE/build đạt. Validation ngày0/10; alert cơ sở còn331ca đủ7ngày chưa phát hiện,1560ca cạn trướcD+7. R05/R07/T14 mở; [bằng chứng](../../M3/IMPLEMENTATION.md).
 
 Thiết kế chi tiết mở rộng của PLAN nằm trong [bộ M3](../../M3/README.md): [nghiệp vụ/công thức](../../M3/docs/01-functional-spec.md), [13 bảng](../../M3/docs/02-data-model.md), [API](../../M3/docs/03-backend-api.md), [FE](../../M3/docs/04-frontend-spec.md), [source](../../M3/docs/05-source-architecture.md), [kiểm thử/lịch](../../M3/docs/06-testing-delivery.md). Đây là tài liệu thiết kế, không là implementation được khôi phục.
 

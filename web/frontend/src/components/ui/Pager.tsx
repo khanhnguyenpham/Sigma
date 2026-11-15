@@ -4,10 +4,12 @@ export function Pager({
   page,
   total,
   onChange,
+  pageSize = 50,
 }: {
   page: number;
   total: number;
   onChange: (page: number) => void;
+  pageSize?: number;
 }) {
   return (
     <div className="pager">
@@ -16,7 +18,7 @@ export function Pager({
         ← Trước
       </button>
       <span>Trang {page}</span>
-      <button disabled={page * 50 >= total} onClick={() => onChange(page + 1)}>
+      <button disabled={page * pageSize >= total} onClick={() => onChange(page + 1)}>
         Sau →
       </button>
     </div>

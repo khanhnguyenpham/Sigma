@@ -12,6 +12,8 @@ import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 
 import { ContextFilters } from "./ContextFilters";
+import { useMediaQuery } from "../hooks/useMediaQuery";
+import { OperationsHelp } from "../operations/OperationsHelp";
 
 export function AppLayout({
   app,
@@ -31,7 +33,8 @@ export function AppLayout({
     run,
     selectedResource,
   } = app;
-  const managementPage = ["scenarios", "configuration", "products", "product"].includes(page);
+  const managementPage = ["operations", "scenarios", "configuration", "products", "product"].includes(page);
+  const compact = useMediaQuery("(max-width: 1100px)");
   return (
     <div className={"shell " + (navOpen ? "nav-open" : "")}>
       <a
@@ -52,14 +55,14 @@ export function AppLayout({
         />
       )}
       <Sidebar app={app} />
-      <main>
+      <main inert={compact && navOpen}>
         <Header app={app} />
         <div className="workspace" id="workspace-content" tabIndex={-1}>
           {!managementPage && <ContextFilters app={app} />}
-          <State
+          {page !== "operations" && <State
             loading={runsResource.loading && !runsResource.data}
             error={runsResource.error}
-          />
+          />}
           {!managementPage && ctx.runId &&
           !run &&
           (runsResource.loading || selectedResource.loading) ? (
@@ -83,13 +86,12 @@ export function AppLayout({
               {""}
             </span>
             <span>
-              L7 · R1 · H14 <span className="footer-dot">·</span> Ngày nghiệp vụ
-              UTC
+              {page === "operations" ? "Sổ kho · Ngày nghiệp vụ Việt Nam (UTC+7)" : "L7 · R1 · H14 · Ngày dữ liệu dự báo UTC"}
             </span>
           </footer>
         </div>
       </main>
-      {help && <HelpDialog onClose={() => setHelp(false)} />}
+      {help && (page === "operations" ? <OperationsHelp onClose={() => setHelp(false)} /> : <HelpDialog onClose={() => setHelp(false)} />)}
     </div>
   );
 }

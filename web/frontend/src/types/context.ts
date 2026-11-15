@@ -1,4 +1,6 @@
 export interface Context {
+  opsTab?: string;
+  opsOrderId?: string;
   runId: string;
   scenarioId?: string;
   warehouseId: string;
@@ -13,6 +15,10 @@ export interface Context {
   replenishmentAllowed?: string;
   salesAllowed?: string;
   windowOrigin?: string;
+  inventoryState?: string;
+  warehouseSearch?: string;
+  warehouseCountry?: string;
+  warehouseCarrier?: string;
 }
 
 export type PurchasingView = "recommendations" | "incoming" | "history";

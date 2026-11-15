@@ -112,7 +112,7 @@ def test_migration_preserves_all_old_tables_and_blocks_loss(pg):
     cfg.attributes["database_url"]=engine.url.render_as_string(hide_password=False)
     result_fixture(sessions)
     old=sorted(name for name in Base.metadata.tables
-               if name!="item_supply_changes" and not name.startswith("provider_product_notice"))
+               if name!="item_supply_changes" and not name.startswith(("provider_product_notice", "auth_", "ops_")))
     def snapshot():
         with engine.connect() as c:
             return {name:c.execute(text(f'SELECT (to_jsonb(t)-ARRAY[\'source_sales_qty\',\'actual_blocked_qty\'])::text FROM "{name}" t ORDER BY 1')).scalars().all() for name in old}
@@ -127,6 +127,6 @@ def test_migration_preserves_all_old_tables_and_blocks_loss(pg):
         s.add(ItemSupplyChange(item_id=item,version=1,action="stop",known_on=D,effective_on=D+timedelta(days=7),reason="Synthetic"))
     with pytest.raises(RuntimeError,match="lose data"):command.downgrade(cfg,"0006_fixed_days")
     with sessions() as s:
-        assert s.scalar(text("SELECT version_num FROM alembic_version"))=="0009_receiving_warehouse"
+        assert s.scalar(text("SELECT version_num FROM alembic_version"))=="0011_operational_inventory"
         assert s.scalar(select(ItemSupplyChange.id)) is not None
     assert snapshot()==before

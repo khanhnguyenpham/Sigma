@@ -6,6 +6,7 @@ import { Icon } from "../components/ui/Icon";
 import { warehouseName } from "../utils/warehouse";
 
 import { type AppContextState } from "../hooks/useAppContext";
+import { RunSnapshot } from "../components/configuration/RunSnapshot";
 
 export function ContextFilters({ app, hideRunSelector = false }: { app: AppContextState; hideRunSelector?: boolean }) {
   const { ctx, setCtx, runs, selectRun, catalog, items, run, suppliers } = app;
@@ -132,6 +133,8 @@ export function ContextFilters({ app, hideRunSelector = false }: { app: AppConte
                   itemId: "",
                   supplierId: "",
                   productType: "",
+                  inventoryState: "",
+                  warehouseSearch: "", warehouseCountry: "", warehouseCarrier: "",
                 }))
               }
             >
@@ -155,30 +158,7 @@ export function ContextFilters({ app, hideRunSelector = false }: { app: AppConte
               {badge(run.status)}
               <span className="plan-type">{label(run.kind)}</span>
             </span>
-            <details>
-              <summary>
-                Thông tin phương án <Icon name="info" size={13} />
-              </summary>
-              <div className="context-popover">
-                <strong>Nguồn & phiên bản</strong>
-                <dl>
-                  <dt>Mã phương án</dt>
-                  <dd>{run.id}</dd>
-                  <dt>Mốc chốt UTC</dt>
-                  <dd>{run.as_of_date}</dd>
-                  <dt>Quan sát đến</dt>
-                  <dd>{run.observation_end}</dd>
-                  <dt>Cấu hình</dt>
-                  <dd>{run.config_version}</dd>
-                  <dt>Giả định</dt>
-                  <dd>{run.assumption_version}</dd>
-                </dl>
-                <p>
-                  Snapshot lịch sử 2024–2025. Tồn và nhập là mô phỏng; chưa quan
-                  sát actual sau 31/12/2025. L7 · R1 · H14.
-                </p>
-              </div>
-            </details>
+            <RunSnapshot key={run.id} run={run} title="Xem cấu hình snapshot" />
           </>
         )}
       </div>

@@ -4,15 +4,20 @@ export function State({
   loading,
   error,
   empty = false,
+  emptyMessage = "Không có bản ghi phù hợp. Hãy đổi ngày hoặc xóa bộ lọc.",
 }: {
   loading?: boolean;
   error?: Error;
   empty?: boolean;
+  emptyMessage?: string;
 }) {
   if (loading)
     return (
-      <div className="skeleton" role="status">
-        Đang tải dữ liệu…
+      <div className="skeleton" role="status" aria-busy="true" aria-live="polite">
+        <span className="sr-only">Đang tải dữ liệu…</span>
+        <span className="skeleton-block" aria-hidden="true" />
+        <span className="skeleton-block" aria-hidden="true" />
+        <span className="skeleton-block" aria-hidden="true" />
       </div>
     );
   if (error)
@@ -30,7 +35,7 @@ export function State({
   if (empty)
     return (
       <div className="empty">
-        Không có bản ghi phù hợp. Hãy đổi ngày hoặc xóa bộ lọc.
+        {emptyMessage}
       </div>
     );
   return null;

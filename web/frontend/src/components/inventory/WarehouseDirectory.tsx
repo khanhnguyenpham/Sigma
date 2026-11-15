@@ -6,17 +6,25 @@ import { Icon } from "../ui/Icon";
 import { Panel } from "../ui/Panel";
 import { State } from "../ui/State";
 
-export function WarehouseDirectory({ warehouses, stock, loading, error, onChoose, receiving = false }: {
+interface WarehouseFilters { search: string; country: string; carrier: string }
+
+export function WarehouseDirectory({ warehouses, stock, loading, error, onChoose, receiving = false, filters, onFiltersChange }: {
   warehouses: Row[];
   stock?: Row[];
   loading?: boolean;
   error?: Error;
   onChoose?: (id: string) => void;
   receiving?: boolean;
+  filters?: WarehouseFilters;
+  onFiltersChange?: (filters: WarehouseFilters) => void;
 }) {
-  const [search, setSearch] = useState("");
-  const [country, setCountry] = useState("");
-  const [carrier, setCarrier] = useState("");
+  const [local, setLocal] = useState<WarehouseFilters>({ search: "", country: "", carrier: "" });
+  const current = filters ?? local;
+  const { search, country, carrier } = current;
+  function update(patch: Partial<WarehouseFilters>) {
+    const next = { ...current, ...patch };
+    if (onFiltersChange) onFiltersChange(next); else setLocal(next);
+  }
   const normalize = (value: unknown) => String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
   const rows = warehouses.filter((w) =>
     (!country || w.destination_country === country) && (receiving || !carrier || w.carrier === carrier) &&
@@ -29,21 +37,21 @@ export function WarehouseDirectory({ warehouses, stock, loading, error, onChoose
         <label className="list-search">
           <Icon name="search" size={18} />
           <input type="search" aria-label="Tìm kho" placeholder="Tìm thành phố hoặc quốc gia…"
-            value={search} onChange={(e) => setSearch(e.target.value)} />
+            value={search} maxLength={120} onChange={(e) => update({ search: e.target.value })} />
         </label>
         <label>Quốc gia
-          <select aria-label="Quốc gia của kho" value={country} onChange={(e) => setCountry(e.target.value)}>
+          <select aria-label="Quốc gia của kho" value={country} disabled={loading} onChange={(e) => update({ country: e.target.value })}>
             <option value="">Tất cả quốc gia</option>
-            {[...new Set(warehouses.map((w) => String(w.destination_country)))].sort().map((c) => <option key={c}>{c}</option>)}
+            {[...new Set([...warehouses.map((w) => String(w.destination_country)), ...(country ? [country] : [])])].sort().map((c) => <option key={c}>{c}</option>)}
           </select>
         </label>
         {!receiving && <label>Nhà mạng
-          <select aria-label="Nhà mạng của kho" value={carrier} onChange={(e) => setCarrier(e.target.value)}>
+          <select aria-label="Nhà mạng của kho" value={carrier} disabled={loading} onChange={(e) => update({ carrier: e.target.value })}>
             <option value="">Tất cả nhà mạng</option>
-            {[...new Set(warehouses.map((w) => String(w.carrier)))].sort().map((c) => <option key={c}>{c}</option>)}
+            {[...new Set([...warehouses.map((w) => String(w.carrier)), ...(carrier ? [carrier] : [])])].sort().map((c) => <option key={c}>{c}</option>)}
           </select>
         </label>}
-        {(search || country || carrier) && <button className="text-button" onClick={() => { setSearch(""); setCountry(""); setCarrier(""); }}>Xóa bộ lọc kho</button>}
+        {(search || country || carrier) && <button className="text-button" onClick={() => update({ search: "", country: "", carrier: "" })}>Xóa bộ lọc kho</button>}
       </div>
       <div className="warehouse-list-meta"><span>{rows.length} / {warehouses.length} kho</span><span>{receiving ? "Tồn và lô nhập theo kho nhận đã chốt của từng sản phẩm." : "Mỗi kho hiện quản lý sản phẩm của một nhà mạng."}</span></div>
       <State loading={loading} error={error} empty={!loading && !error && !rows.length} />

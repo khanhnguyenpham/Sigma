@@ -1,5 +1,7 @@
 # Hợp đồng dữ liệu SIGMA
 
+**15/11/2026 — hợp đồng sổ kho:** [Vận hành theo chứng từ](WAREHOUSE_OPERATIONS.md) dùng `ops_*`, kho vật lý riêng, ngày Việt Nam UTC+7, audit và ghi sổ nguyên tử. Không dựng lịch sử bán hoặc đổi target/ngày UTC của nguồn, run/snapshot cũ. Lead time supplier mới chỉ áp đơn vận hành; tích hợp forecast/ROP/cảnh báo còn chờ.
+
 **CHG-094/095 — 04/11/2026, hợp đồng đã kiểm local:** Mapping source/receiving frozen được worker/verifier/API/CSV kiểm trên3inventory-kind; luồng browser giữ kho2 dù live default đổi về1 sau enqueue. Migration0009 bảo toàn cột cũ và metadata0diff, dump/restore synthetic18bảng khớp. Không đổi target, quantity, tuyến forecast, C00 hoặc dữ liệu nguồn; không migrate demo. [Bàn giao/giới hạn](development.md#handoff-chg094-095-integration). Các điểm chưa thực thi bên dưới ghi lịch sử trước lượt kiểm.
 
 **Tiến độ CHG-095, 04/11/2026:** Đã viết source cho kho nhận riêng và snapshot `product_default_receiving_v1`, giữ `warehouse_id` làm định danh nguồn, thêm `receiving_warehouse_id` cho vị trí tồn/lô trong run mới. Chưa test/migrate hoặc đối soát DB/run/CSV thật; không đổi raw hoặc sealed snapshot. [Bàn giao source](development.md#implementation-chg095-receiving-warehouse); phần chỉMD bên dưới là checkpoint trước code.

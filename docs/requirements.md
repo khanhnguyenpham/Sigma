@@ -1,5 +1,11 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
+**15/11/2026 — mở rộng vận hành:** Theo yêu cầu dùng như phần mềm quản lý, bổ sung [hợp đồng sổ kho](WAREHOUSE_OPERATIONS.md) và [nghiệm thu nâng cấp](planning/PRODUCT_UPGRADE_PLAN_20261114.md). Có kiểm synthetic, chưa đồng nghĩa nghiệm thu production hoặc thay R05/R07/T14; sổ kho, ETA supplier và dự báo cũ chưa nối tự động.
+
+**15/11/2026 — triển khai một phần yêu cầu mới:** FB04 có auth admin/supplier và scope supplier chỉ đọc; FB07 có snapshot chỉ đọc theo allowlist; FB06/11/12/15 đã có phần nền loading/table/filter/empty. [Hợp đồng auth hiện tại](AUTHENTICATION.md), [bằng chứng kiểm thử](development.md#handoff-product-upgrade-p2). Các yêu cầu QR/ETA/Redis/hash/allocation/host còn mở; không đổi R05/R07/T14 hoặc nhận toàn bộ15 nhóm đã đạt.
+
+**14/11/2026 — yêu cầu nâng cấp do người dùng chuyển từ góp ý nhóm:** UI quản lý, QR nhập SIM vật lý, authentication admin/supplier, chỉnh thời gian hàng về, loading/skeleton, snapshot FE, bỏ hash BE theo phạm vi cần làm rõ, tối ưu DB/kịch bản, table cuộn riêng, bộ lọc tồn kho, Redis queue/worker, tính/phân bổ theo ngày chốt và empty state. [Ma trận15 nhóm, quyết định chờ và tiêu chí đề xuất](planning/PRODUCT_UPGRADE_PLAN_20261114.md). Các yêu cầu auth/QR/ETA/Redis mở rộng phạm vi demo cũ; D01–D07 chưa được đồng loạt xác nhận, không phải yêu cầu mentor được kiểm nguồn độc lập. Lượt này chỉ lập PLAN, không đổi R05/R07/T14 hoặc công bố chức năng mới đã chạy.
+
 **12/11/2026 — R08/T11:** Trang Kịch bản nhóm nhập nguồn và tạo dự báo vào **Chuẩn bị dữ liệu**, ba công việc dùng dự báo cha vào **Chạy kế hoạch**. Lượt nhập chỉ dùng nguồn đã đăng ký và có thể chọn làm nguồn dự báo sau khi hoàn tất. [Luồng giao diện](../M3/docs/04-frontend-spec.md#scenario-data-preparation).
 
 **13/11/2026 — tồn đầu mô phỏng:** Lượt mới dùng bình quân bán 28 ngày tại mốc chốt. Tổng bán bằng 0 cho tồn đầu bằng 0; thiếu quan sát trong 28 ngày trả `insufficient_history`. Lượt lịch sử dùng quy tắc đã chốt, gồm cả phương án dự phòng 90 ngày nếu được lưu. Kiểm cùng dữ liệu cho cả hai cách đọc. [Đặc tả](../M3/docs/01-functional-spec.md#initial-stock-history).

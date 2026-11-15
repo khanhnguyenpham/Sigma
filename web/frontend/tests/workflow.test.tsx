@@ -34,7 +34,7 @@ describe("Result integrity in the UI", () => {
         columns={[{ key: "actual", label: "Actual" }]}
       />,
     );
-    expect(screen.getByText("—")).toBeVisible();
+    expect(screen.getByText("Không có")).toBeVisible();
     expect(screen.getByText("0")).toBeVisible();
   });
   it("has explicit loading, empty and conflict states", () => {

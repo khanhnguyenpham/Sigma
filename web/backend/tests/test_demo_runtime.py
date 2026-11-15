@@ -30,7 +30,9 @@ def demo_env(monkeypatch, tmp_path, url="postgresql://demo:fake@localhost/sigma_
         M3_OUTPUT_ROOT=str(base / "outputs/m3"), M3_FRONTEND_ORIGIN="https://demo.example",
         M3_WORKER_INSTANCE="test-instance").items():
         monkeypatch.setenv(key, value)
-    return Settings.from_env()
+    # These infrastructure/queue tests exercise the legacy anonymous profile;
+    # auth is covered independently with auth_required=True in test_auth.py.
+    return replace(Settings.from_env(), auth_required=False)
 
 
 def bundle(settings):
@@ -139,7 +141,8 @@ def test_readiness_schema_storage_and_worker_with_real_pg(pg, monkeypatch, tmp_p
                 assert "postgresql" not in response.text and str(tmp_path) not in response.text
             finally:
                 with pg[0].begin() as connection:
-                    connection.execute(text("UPDATE alembic_version SET version_num='0009_receiving_warehouse'"))
+                    from core.demo import schema_head
+                    connection.execute(text("UPDATE alembic_version SET version_num=:head"), {"head": schema_head()})
         assert client.get("/api/v1/ready").status_code == 503
 
 

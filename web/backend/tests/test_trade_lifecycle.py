@@ -261,7 +261,7 @@ def test_upgrade_with_existing_history_preserves_columns_and_old_api_on_0007(pg,
                 VALUES (:item,1,'stop',:known,:effective,'Existing internal simulation')"""),
                 dict(item=item, known=D, effective=D+timedelta(days=7)))
             before = {name:c.execute(text(f'SELECT to_jsonb(t)::text FROM "{name}" t ORDER BY 1')).scalars().all()
-                      for name in Base.metadata.tables if not name.startswith("provider_product_notice")}
+                      for name in Base.metadata.tables if not name.startswith(("provider_product_notice", "auth_", "ops_"))}
         with TestClient(create_app(settings(tmp_path))) as client:
             response = client.get(f"/api/v1/runs/{key}/inventory")
             assert response.status_code == 200, response.text
@@ -314,7 +314,7 @@ def test_downgrade_refuses_every_new_data_shape(pg, kind):
     with pytest.raises(RuntimeError, match="lose data"):
         command.downgrade(migration_config(engine), "0007_supply_lifecycle")
     with sessions() as s:
-        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0009_receiving_warehouse"
+        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0011_operational_inventory"
 
 
 def test_daily_source_split_check_preserves_existing_balance_rule(pg):

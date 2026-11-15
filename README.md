@@ -2,7 +2,9 @@
 
 SIGMA hỗ trợ theo dõi nhu cầu bán, lập kế hoạch tồn kho, đề xuất nhập hàng và cảnh báo nguy cơ cạn hàng. Hệ thống kết hợp **dự báo nhu cầu** với **tồn hiện có, lô đang về và cấu hình sản phẩm** để giải thích khi nào cần bổ sung, bổ sung bao nhiêu và hàng có về kịp hay không.
 
-Đây là sản phẩm thực tập phục vụ nghiên cứu và demo. Tồn kho và lô nhập trong demo được mô phỏng; hệ thống chưa gửi đơn mua hàng thật đến nhà cung cấp.
+Nền dự báo và kế hoạch tồn của bài thực tập dùng dữ liệu/lô mô phỏng. Nhánh nâng cấp bổ sung [sổ kho theo chứng từ](docs/WAREHOUSE_OPERATIONS.md): danh mục, đơn nhập, nhận hàng, xuất và kiểm kê ghi DB riêng, đã kiểm trên synthetic. Chưa host bản nâng cấp, chưa tự tích hợp sổ kho với dự báo hoặc gửi đơn mua hàng sang đối tác.
+
+**Nhánh nâng cấp14–15/11:** có auth admin/supplier, quản lý tài khoản, snapshot và module Vận hành kho React/FastAPI/PostgreSQL. Xem [khởi tạo auth](docs/AUTHENTICATION.md) và migration0011 trước khi chạy bản mới; không có tài khoản mặc định. [Tiến độ theo PLAN](docs/planning/PRODUCT_UPGRADE_PLAN_20261114.md#9-bàn-giao-tài-liệu) ghi phần tích hợp ETA/dự báo, QR, Redis và host còn thiếu. Chưa tự cập nhật bản public hoặc demo cũ.
 
 ## Bài toán hệ thống giải quyết
 

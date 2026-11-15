@@ -1,5 +1,15 @@
 # Bản đồ project SIGMA
 
+**15/11/2026 — module sổ kho:** `web/backend/src/modules/operations/` (9bảng, service, schemas, routers), migration `0011_operational_inventory.py`, `web/backend/tests/test_operations.py`; React `web/frontend/src/pages/Operations.tsx`, `src/operations/`, `src/styles/operations.css`, `tests/operations.test.tsx`. Tách kho vật lý khỏi kho/tuyến nền. [Nghiệp vụ và giới hạn](../WAREHOUSE_OPERATIONS.md), [bàn giao](../development.md#handoff-operational-ledger).
+
+**15/11/2026 — UI quản lý gọn:** `components/ui/Dialog.tsx`, `components/configuration/SnapshotDialog.tsx`, `components/inventory/InventoryActions.tsx`/`InventoryFilters.tsx`, `hooks/useMediaQuery.ts` và `styles/management.css` nằm dưới `web/frontend/src`. Sidebar/AppLayout giữ focus và inert ở chế độ thu gọn. [Bàn giao UX, kiểm tra và bằng chứng](../development.md#handoff-compact-management-ux).
+
+**15/11/2026 — phần mới trên nhánh nâng cấp:** `web/backend/src/modules/auth/` chứa session/guard, tài khoản và cổng supplier chỉ đọc; migration `0010_auth_sessions.py`. `web/frontend/src/auth/` chứa màn hình đăng nhập/tài khoản/portal. Snapshot qua `modules/runs/snapshot.py` và `components/configuration/RunSnapshot.tsx`. [Cách vận hành auth](../AUTHENTICATION.md), [bàn giao và phạm vi chưa làm](../development.md#handoff-product-upgrade-p2). Runtime/checks synthetic ở outputs local, không nằm trong Git.
+
+**14/11/2026 — hướng nâng cấp mới:** [Ma trận góp ý và kiến trúc đề xuất](PRODUCT_UPGRADE_PLAN_20261114.md) phân biệt phần đã có với module auth/QR, ETA linh hoạt, Redis queue và hosting chưa triển khai. Source nền vẫn main `2d0d5f1`; không nhận các module đề xuất đã tồn tại trong source.
+
+**14/11/2026 — bản đồ main hiện hành phục vụ lập kế hoạch:** Xem [source map và PLAN khảo sát](MAIN_REVIEW_PLAN_20261114.md#2-những-gì-thực-sự-có-trong-source) tại main `2d0d5f1`: root `src/` là audit/metric/launcher, ứng dụng ở `web/backend/src/` và `web/frontend/src/`, mô hình ở `M2/models/`. Các checkpoint bên dưới là lịch sử; lượt này chưa chạy lại ứng dụng hoặc xác minh runtime.
+
 **04/11/2026 — phạm vi publish demo/UI:** src/start_demo.py; reporting forecasts/origins; ForecastComparison/EarlyWarningResult/C00Evaluation và gói JSON chỉ số công khai; ContextFilters/useAppContext/CSS và tests/docs. Dữ liệu/credential/backup/receipt và mã nghiên cứu S25 riêng không publish. Demo đã dọn còn6run/153artifact, nguồn/BE812bd7ae giữ nguyên. [Cổng publish đang thực hiện](../development.md#handoff-demo-ui-publish).
 
 **04/11/2026 — ForecastComparison:** Component forecast/ForecastComparison.tsx và utils/forecastComparison.ts dùng read model/CSV sẵn có, thêm GETreporting forecasts/origins. ScenarioResults có tab trực tiếp, Forecast có khối so sánh; không schema/migration/model mới. Runtime source812bd7ae được duyệt và đang phục vụ qua QuickTunnel, receipt ngoàiGit outputs/chg100_forecast_comparison. [Bàn giao](../development.md#handoff-forecast-comparison).

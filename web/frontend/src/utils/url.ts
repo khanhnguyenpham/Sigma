@@ -28,6 +28,8 @@ export function readContext(): Context {
   const p = new URLSearchParams(location.search);
   return {
     runId: p.get("run_id") ?? "",
+    ...(p.has("ops_tab") ? { opsTab: p.get("ops_tab")! } : {}),
+    ...(/^\d+$/.test(p.get("ops_order") ?? "") ? { opsOrderId: p.get("ops_order")! } : {}),
     ...(p.has("scenario_id") ? { scenarioId: p.get("scenario_id") ?? "" } : {}),
     warehouseId: p.get("warehouse_id") ?? "",
     ...(p.get("warehouse_scope") === "receiving" ? { warehouseScope: "receiving" as const } : {}),
@@ -35,6 +37,9 @@ export function readContext(): Context {
     productType: p.get("product_type") ?? "",
     supplierId: p.get("supplier_id") ?? "",
     origin: p.get("origin") ?? "",
+    ...(["low_stock", "pending_covers"].includes(p.get("inventory_state") ?? "") ? { inventoryState: p.get("inventory_state")! } : {}),
+    ...Object.fromEntries([["warehouse_search", "warehouseSearch"], ["warehouse_country", "warehouseCountry"], ["warehouse_carrier", "warehouseCarrier"]]
+      .filter(([key]) => p.has(key)).map(([key, field]) => [field, (p.get(key) ?? "").slice(0, 120)])),
     ...Object.fromEntries([["carrier","carrier"],["internal_status","internalStatus"],["provider_status","providerStatus"],["replenishment_allowed","replenishmentAllowed"],["sales_allowed","salesAllowed"],["window_origin","windowOrigin"]].filter(([key])=>p.has(key)).map(([key,value])=>[value,p.get(key)])),
   };
 }
@@ -50,6 +55,10 @@ export function contextUrl(ctx: Context) {
     supplier_id: ctx.supplierId,
     carrier: ctx.carrier,
     origin: ctx.origin,
+    inventory_state: ctx.inventoryState,
+    warehouse_search: ctx.warehouseSearch,
+    warehouse_country: ctx.warehouseCountry,
+    warehouse_carrier: ctx.warehouseCarrier,
     internal_status: ctx.internalStatus,
     provider_status: ctx.providerStatus,
     replenishment_allowed: ctx.replenishmentAllowed,
@@ -59,6 +68,7 @@ export function contextUrl(ctx: Context) {
 }
 
 export function navigationUrl(ctx:Context,page:string,view:PurchasingView) {
+  if (page === "operations") return "?" + query({ ops_tab: ctx.opsTab, ops_order: ctx.opsOrderId }) + "#operations";
   if (page === "configuration") page = "scenarios";
   const params=new URLSearchParams(contextUrl(ctx));
   if(page.startsWith("provider-"))new URLSearchParams(location.search).forEach((v,k)=>{if(k.startsWith("notice_"))params.set(k,v);});

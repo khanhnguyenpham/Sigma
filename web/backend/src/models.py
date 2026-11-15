@@ -11,3 +11,8 @@ from modules.forecasting.models import DailySales as DailySales, RouteForecast a
 from modules.inventory.models import InventoryEvent as InventoryEvent, InventoryDaily as InventoryDaily
 from modules.purchasing.models import Replenishment as Replenishment
 from modules.alerts.models import Alert as Alert
+from modules.auth.models import User as User, LoginSession as LoginSession
+from modules.operations.models import SupplierSettings as SupplierSettings, OperationalOrder as OperationalOrder
+from modules.operations.models import OperationalOrderLine as OperationalOrderLine, StockDocument as StockDocument
+from modules.operations.models import StockDocumentLine as StockDocumentLine, StockBalance as StockBalance, OperationAudit as OperationAudit
+from modules.operations.models import OperationalWarehouse as OperationalWarehouse, OperationalProduct as OperationalProduct

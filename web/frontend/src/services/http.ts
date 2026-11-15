@@ -1,6 +1,9 @@
 import { API_PREFIX, READ_TIMEOUT_MS, WRITE_TIMEOUT_MS } from "../config/http";
 import type { Page, Row } from "../types/api";
 
+let csrfToken = "";
+export function setCsrfToken(value: string) { csrfToken = value; }
+
 export async function apiAllPages<T = Row>(path: string, options: RequestInit = {}): Promise<Page<T>> {
   const [pathname, search] = path.split("?");
   const params = new URLSearchParams(search);
@@ -49,8 +52,17 @@ export async function api<T>(
   });
   try {
     return await Promise.race([aborted, (async () => {
-      const response = await fetch(API_PREFIX + path, { ...options, signal: controller.signal });
-      const data = await response.json();
+      const headers = new Headers(options.headers);
+      if (csrfToken && !["GET", "HEAD", "OPTIONS"].includes((options.method ?? "GET").toUpperCase())) headers.set("X-CSRF-Token", csrfToken);
+      const response = await fetch(API_PREFIX + path, { ...options, credentials: "include", headers, signal: controller.signal });
+      if (response.status === 401 && !path.startsWith("/auth/")) window.dispatchEvent(new Event("sigma:unauthorized"));
+      let data;
+      try { data = await response.json(); }
+      catch {
+        throw new ApiError(response.ok ? "invalid_response" : "server_error",
+          response.ok ? "Không đọc được dữ liệu trả về. Vui lòng thử lại."
+            : "Hệ thống đang gặp sự cố. Vui lòng thử lại sau.", response.ok ? 502 : response.status);
+      }
       if (!response.ok) throw new ApiError(
         data.error?.code ?? "network_error",
         data.error?.message ?? "Không thể tải dữ liệu",

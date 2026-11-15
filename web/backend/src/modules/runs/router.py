@@ -140,3 +140,11 @@ def run_summary(http: Request, key: uuid.UUID):
     with http.app.state.sessions() as session:
         row = required_run(session, key, complete=True)
         return dict(context=run_view(row), summary=row.result_summary)
+
+
+@router.get("/runs/{key}/snapshot")
+def run_snapshot(http: Request, key: uuid.UUID,
+                 page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100)):
+    from modules.runs.snapshot import snapshot_view
+    with http.app.state.sessions() as session:
+        return snapshot_view(required_run(session, key), page, page_size)

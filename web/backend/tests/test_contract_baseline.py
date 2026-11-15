@@ -4,6 +4,7 @@ from pathlib import Path
 from main import create_app
 from core.settings import Settings
 from models import Base
+from operations_contract import OPS_TABLES, OPS_ROUTES
 
 
 def test_http_and_schema_preserve_existing_contract(tmp_path):
@@ -16,11 +17,20 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
         path: sorted(k for k in methods if k in {'get', 'post', 'patch', 'delete', 'put'})
         for path, methods in app.openapi()['paths'].items()
     }
+    for path, methods in OPS_ROUTES.items():
+        assert routes.pop(path) == methods
     assert routes.pop('/api/v1/scenarios/{key}') == ['delete']
     assert routes.pop('/api/v1/scenarios/{key}/restore') == ['post']
     assert routes.pop('/api/v1/runs/{key}/retry') == ['post']
     assert routes.pop('/api/v1/runs/{key}/forecasts/origins') == ['get']
     assert routes.pop('/api/v1/runs/{key}/policy-alert-evaluation') == ['get']
+    assert routes.pop('/api/v1/runs/{key}/snapshot') == ['get']
+    for path, methods in {
+        '/api/v1/auth/session': ['get'], '/api/v1/auth/login': ['post'], '/api/v1/auth/logout': ['post'],
+        '/api/v1/auth/users': ['get', 'post'], '/api/v1/auth/users/{key}': ['patch'],
+        '/api/v1/supplier/products': ['get'], '/api/v1/supplier/shipments': ['get'],
+    }.items():
+        assert routes.pop(path) == methods
     # CHG-082 adds product management and a live warehouse read; retain the golden for all existing operations.
     assert routes.pop('/api/v1/products') == ['get']
     assert routes.pop('/api/v1/products/{key}') == ['get']
@@ -36,8 +46,8 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
     assert not any('monthly' in path for path in routes)
     assert routes == {p: methods for p, methods in baseline['routes'].items() if 'monthly' not in p}
     assert set(Base.metadata.tables) == set(baseline['tables']) | {'item_supply_changes',
-        'provider_product_notices', 'provider_product_notice_items', 'provider_product_notice_events'}
-    assert len(Base.metadata.tables) == 17
+        'provider_product_notices', 'provider_product_notice_items', 'provider_product_notice_events', 'auth_users', 'auth_sessions'} | OPS_TABLES
+    assert len(Base.metadata.tables) == 28
     for name, columns in baseline['tables'].items():
         if name == 'suppliers':
             columns = [c for c in columns if c not in {'code', 'display_name', 'is_assumed', 'assumption_source'}]

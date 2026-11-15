@@ -1,5 +1,7 @@
 # M3 — chức năng và quy tắc nghiệp vụ
 
+**Bổ sung15/11/2026:** [Sổ kho theo chứng từ](../../docs/WAREHOUSE_OPERATIONS.md) là module vận hành mới, tách khỏi các run mô phỏng mô tả dưới đây. Có đơn nhập/nhận từng phần/xuất/kiểm kê/audit, kho vật lý và lead time supplier; chưa tự cấp số dư/ETA vào forecast/ROP L7/H14 hoặc triển khai public. [Bằng chứng và giới hạn](../../docs/development.md#handoff-operational-ledger).
+
 **04/11/2026 — công thức ROP mới:** Người dùng yêu cầu ROP = max(ceil(nhu cầu dự báo 7 ngày + SS), ngưỡng nhập tối thiểu cấu hình). SS = ceil(safety_days × mean(f1…f14) × safety_multiplier). Run mới chốt `forecast_floor_days_ss_v1`/`rop_mode=forecast`; giữ strict closing<ROP, S=ROP+ceil(f8), IP=closing+pending, lượng nhập cố định mỗi lần và các quyền ngừng nhập/bán. Không thêm lựa chọn mode/đổi schema; run cũ giữ snapshot fixed và kết quả. Các mô tả ROP cố định bên dưới là lịch sử trước thay đổi này.
 
 

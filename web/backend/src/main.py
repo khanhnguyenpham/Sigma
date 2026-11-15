@@ -16,6 +16,10 @@ from modules.inventory.router import router as workspace_router
 from modules.purchasing.router import router as purchasing_router
 from modules.alerts.router import router as alerts_router
 from modules.reporting.router import router as results_router
+from modules.auth.router import router as auth_router
+from modules.auth.supplier_router import router as supplier_router
+from modules.auth.middleware import install_auth
+from modules.operations.router import router as operations_router, supplier_router as supplier_operations_router
 
 
 def create_app(settings=None):
@@ -30,6 +34,7 @@ def create_app(settings=None):
     app = FastAPI(title="SIGMA M3 local API", version="0.1.0", lifespan=lifespan)
     app.state.engine, app.state.sessions, app.state.settings = engine, sessions, settings
     app.state.code_sha256 = code_digest()
+    install_auth(app)
     @app.middleware("http")
     async def demo_maintenance(request, call_next):
         if (settings.mode == "demo" and settings.demo_root and (settings.demo_root / ".maintenance").exists()
@@ -45,14 +50,16 @@ def create_app(settings=None):
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[settings.frontend_origin],
-        allow_methods=["GET", "POST", "PATCH"],
-        allow_headers=["Content-Type", "Idempotency-Key"],
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PATCH", "DELETE"],
+        allow_headers=["Content-Type", "Idempotency-Key", "X-CSRF-Token"],
         expose_headers=['Retry-After'],
     )
     install_error_handlers(app)
     for router in (
         health_router, catalog_router, provider_router, configuration_router, runs_router,
-        workspace_router, purchasing_router, alerts_router, results_router,
+        workspace_router, purchasing_router, alerts_router, results_router, auth_router, supplier_router,
+        operations_router, supplier_operations_router,
     ):
         app.include_router(router)
     frontend = PROJECT_ROOT / "web/frontend/dist"

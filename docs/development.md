@@ -1,5 +1,113 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+## Bàn giao mã nguồn lên GitHub — 15/11/2026
+
+Người dùng yêu cầu push bản nâng cấp đã kiểm. Phạm vi: mã nguồn/test/tài liệu auth, snapshot, UX và sổ kho trên nhánh [`codex/product-upgrade-20261114`](https://github.com/khanhnguyenpham/Sigma/tree/codex/product-upgrade-20261114). Không merge main, deploy hoặc đưa dữ liệu/DB/env/outputs/dist/bốn tệp bảo vệ lên Git. Rà payload theo danh sách tệp rõ ràng, credential pattern, diff và nguồn kiểm thử hiện có. SHA remote và hai workflow của đúng commit được kiểm sau push; receipt giữ local tại `outputs/operations_20261115/github-status.json`. Không coi việc có mã trên GitHub là đã triển khai public hoặc toàn PLAN hoàn tất.
+
+<a id="handoff-operational-ledger"></a>
+## Sổ kho và giao diện vận hành — 15/11/2026
+
+Người dùng yêu cầu tiếp tục thành phần mềm cho người dùng sử dụng, thay vì chỉ xem demo. Đã bổ sung [hợp đồng vận hành](WAREHOUSE_OPERATIONS.md), tách khỏi các run mô phỏng. Nhánh `codex/product-upgrade-20261114`, nền main `2d0d5f1`; code/docs đang local, chưa commit/push/deploy.
+
+Phần thực có:
+
+- Backend `modules/operations/`:9bảng mới, schema validation, admin/supplier scope, supplier lead time, kho vật lý/danh mục, đơn nhập và nhận từng phần, phiếu xuất/kiểm kê, số dư, ledger và audit. Migration0011 thêm DDL/index/trigger bất biến và guard downgrade khi có dữ liệu. Các golden HTTP/DDL cũ giữ nguyên, additions khai báo riêng trong `tests/operations_contract.py`.
+- Phiên bản chống ghi đè, khóa dòng khi ghi/kiểm danh mục, idempotency cho đơn/phiếu, check phần còn thiếu/số dư/ngày; ghi ledger/balance/audit nguyên tử. Receipt retry kiểm trước version nên trả phiếu cũ dù phiên bản đơn đã tăng. Không sửa/delete phiếu đã ghi sổ.
+- React `pages/Operations.tsx`, `operations/` và `styles/operations.css`:7mục, tìm server có debounce, bảng riêng/phân trang, form giữ dữ liệu khi lỗi, cảnh báo bỏ nháp, chặn gửi lặp, footer form nhìn thấy trong viewport. Admin ở URL gốc mặc định vào sổ kho; deep link cũ giữ nguyên. URL đơn/tab hỗ trợ reload/back. Menu chia Vận hành và Dự báo & kế hoạch; không fetch/poll run khi ở sổ kho.
+- Supplier portal mặc định đọc đơn vận hành của mình và sản phẩm đã đăng ký; không quyền ghi hoặc trả note nội bộ. API sản phẩm/lô mô phỏng cũ vẫn đọc được cho tương thích.
+- Lead time1–365 là giới hạn kỹ thuật cho đơn vận hành; người dùng đã chọn mặc định theo supplier. Mặc định7, freeze vào đơn lúc lập, thay mặc định không viết lại đơn. Không tự coi range/horizon là quyết định mentor hoặc đổi profile L7/R1/H14 cũ.
+
+Kiểm thực chạy trong lượt này:
+
+| Cổng | Kết quả / giới hạn |
+| --- | --- |
+| Full backend | **552passed**,1cảnh báo deprecation FastAPI/Starlette TestClient; PostgreSQL18.6 riêng, role không superuser, Python3.12.14. |
+| Kiểm sau rà cuối | **20passed** operations + baseline + modular contract sau bổ sung shared lock khi xác nhận sản phẩm. Full552 chạy trước chỉnh khóa nhỏ này; không refit/model/run thật. |
+| React | **156passed**, gồm9ca mới cho sổ kho, nháp/nhận/count0/retry/duplicate/navigation/chứng từ. |
+| TypeScript/build | `tsc -b` và Vite build qua; dist local, không stage. |
+| Browser thực | **10nhóm qua**, Edge headless với API/PostgreSQL thật trên fixture synthetic: thêm kho/SKU, lead30, nháp→xác nhận→nhận4+6→xuất3→kiểm kê8;4phiếu; reload đơn, read-only document/actor, supplier scope UI,28kho/phân trang25/cuộn bảng. |
+| Viewport | 1366/768/390/360px không tràn ngang trang; mobile cuộn trong bảng. Nút ghi sổ vẫn trong viewport khi nội dung form dài; hủy form không thay tồn. Không có pageerror. |
+| Đối soát sau browser cuối |4phiếu/4dòng ledger, sum delta=balance=8;28kho synthetic. Metadata0diff,0daily_sales/0run/0inventory_daily mới. `pip check` qua. |
+| Markdown |13tệp,1033liên kết local,24code block và89separator bảng đã kiểm; không có lỗi link mới hoặc fence hở.22link lịch sử trỏ tài liệu/raw local không kèm repo vẫn thiếu trên main; không tạo dữ liệu giả để lấp. |
+
+Bằng chứng local: `outputs/upgrade_20261114/backend.xml`, `ops-final.xml`; `outputs/operations_20261115/frontend.json`, `browser-results.json`, `stock-desktop.png`, `stock-390.png` và các script synthetic. Playwright dùng Edge version executable sau khi launcher root của bản Edge mới tự thoát. Hai lỗi selector trong script QA đã sửa và chạy lại; không coi các lần lỗi là pass. Ruff chưa chạy: môi trường Python được khôi phục sau cập nhật runtime không có module này. Không thay dependency nghiệp vụ để né kiểm.
+
+API QA loopback8043 đã dừng đúng PID do lượt này tạo. DB test giữ fixture browser synthetic sau đối soát cuối; ảnh/bằng chứng giữ local. Refresh khi đang nhập phiếu không hủy nháp hoặc nâng expected_version âm thầm; ca React regression đã qua. Lịch sử hiển thị trường tiếng Việt thay JSON. Không migrate/restart demo cũ, chạy worker/refit hoặc thay nguồn. Bốn tệp bảo vệ theo AGENTS.md không có diff trong lượt này; outputs/DB/credentials/dist ngoài stage.
+
+Phần phải tiếp tục: nối sổ kho/lead time vào profile kế hoạch mới với dữ liệu/dự báo đủ horizon và kiểm snapshot cũ; QR/serial theo D01 (đã hỏi), D02allocation/D03hash, auth recovery, Redis/outbox, đo DB/kịch bản, deploy/backup và UAT. C00/R05/R07/T14 không đổi. Test kỹ thuật không thay bằng chứng tiêu chí mô hình hoặc nghiệm thu production.
+
+<a id="handoff-compact-management-ux"></a>
+## Thu gọn giao diện quản lý và giảm cuộn trang — 15/11/2026
+
+Theo yêu cầu rà FE để dễ dùng và ít cuộn, đã đo bản trước/sau trên cùng fixture synthetic và bốn viewport. Lượt này chỉ sửa frontend và tài liệu; không chạy lại backend suite/model, không đổi công thức hoặc dữ liệu nguồn.541backend/17browser ở phần P1/P2 bên dưới là bằng chứng lượt trước, không phải lượt chạy mới này.
+
+### Thay đổi giao diện
+
+- Snapshot mở bằng cửa sổ giới hạn theo viewport, chia Tổng quan/Chính sách/Lô đầu kỳ/Lịch cung cấp. Không đẩy bảng tồn xuống dưới. Chỉ dựng nội dung mục đang chọn, giữ phân trang policy25, thông tin nguồn và override vẫn đọc được. Chiều cao cửa sổ ổn định khi đổi mục; phím mũi tên/Home/End chuyển tab, Tab/Shift+Tab tuần hoàn, Esc/Đóng trả focus về nút mở.
+- Thanh đầu trang60px, tài khoản gộp thành menu; các thao tác chính giữ dễ thấy. Điều hướng thu gọn dưới1100px, có nút đóng, nền inert và giữ focus khi mở; menu ẩn không nhận Tab. Không ẩn các trang nghiệp vụ khỏi vai trò admin.
+- Trang tồn kho bỏ thông tin lặp, thu gọn khoảng cách/thẻ, tăng độ đọc của chữ bảng. Mobile giữ trạng thái bổ sung trực tiếp; Lọc khác mở ba trường supplier/type/SKU dạng nháp, chỉ gửi khi Áp dụng. Đóng/Esc bỏ nháp; bộ lọc đang dùng có số đếm và xóa được. Nhập hàng giữ trực tiếp; sửa kho/dự báo/CSV nằm trong Thao tác kho ở mobile, vẫn hiện trực tiếp ở desktop.
+- Cột nhận diện đầu của bảng tồn/snapshot giữ khi cuộn ngang, header giữ khi cuộn dọc. Không giảm vùng bấm mobile dưới40–44px để ép giao diện nhỏ. Bộ lọc danh sách kho giữ giá trị đang chọn khi danh mục tải lại; không hiện nhầm lựa chọn Tất cả trong lúc tải.
+- Lỗi trả về HTML từ proxy hiển thị thông báo tiếng Việt có thể thử lại, không đưa lỗi parse JSON hoặc nội dung máy chủ ra màn hình. Tách CSS nâng cấp vào `web/frontend/src/styles/management.css`; không thêm thư viện UI mới.
+
+### Số đo trước–sau
+
+Vị trí tính từ đầu tài liệu, đơn vịpx, làm tròn. “Cuộn để thấy hết dòng đầu” = max(0, đáy dòng đầu − chiều cao viewport). Đây là kiểm layout với một SKU synthetic, không phải kiểm tải dữ liệu thật hoặc cam kết mọi bộ lọc đều có cùng chiều cao.
+
+| Viewport | Đầu bảng trước → sau | Cuộn thấy hết dòng đầu trước → sau | Chiều cao trang trước → sau |
+| --- | --- | --- | --- |
+|1366×768|790 → 587|124 → 0|1053 → 848|
+|390×844|1297 → 754|555 → 3|1561 → 997|
+|360×740|1310 → 754|672 → 107|1586 → 1019|
+|768×1024|1074 → 692|152 → 0|1336 → 1024|
+
+Mở snapshot trước đây làm trang1366px cao2258px và trang390px cao3294px. Bản mới giữ chiều cao trang tương ứng848/997px; chỉ nội dung trong cửa sổ được cuộn khi cần. Điện thoại thấp360×740 vẫn cần một ít cuộn để thấy trọn dòng đầu; không tuyên bố đã loại bỏ mọi cuộn hoặc có thiết kế tối ưu tuyệt đối cho mọi thiết bị.
+
+### Kiểm tra lượt này
+
+- 147 test React qua, gồm lazy snapshot/paging, tab bàn phím, phục hồi focus, draft Apply/Cancel, CSV cùng query và lỗi proxy không phải JSON. TypeScript và Vite production build qua; CSS tách file cho cùng bundle trước khi tinh chỉnh cỡ chữ/chiều cao modal.
+- 14 nhóm kiểm browser thật qua: đăng nhập, snapshot không đổi chiều cao trang, focus/keyboard/Esc, mobile filter, CSV có session, empty/result/clear, menu, tablet và supplier scope403. Không có lỗi JavaScript. Đo riêng bốn viewport, không tràn ngang tài liệu.
+- Kiểm bảng50dòng dùng response fixture chỉ trên frontend, không ghi DB hoặc coi là run nghiệp vụ. Bảng cuộn trong khung và header đứng đúng vị trí. Fixture PostgreSQL riêng được bổ sung ngày hiệu lực policy còn thiếu từ fixture unit tối giản để kiểm lọc supplier; không sửa backend hoặc run thật.
+
+Bằng chứng local: `outputs/ux_20261115/before-metrics.json`, `after-metrics.json`, `frontend.json`, `interactions.json` và ảnh before/after theo viewport; fixture stress ghi rõ là UI-only. API8043/PG55443 là môi trường thử do lượt này mở, được dừng khi kiểm xong; chưa cập nhật app public hoặc runtime demo cũ. Source trên nhánh `codex/product-upgrade-20261114`, chưa commit/push/deploy.
+
+Đã cải thiện các luồng chính, chưa có UAT với người dùng thật hoặc rà đầy đủ mọi biểu mẫu trên mọi thiết bị. QR/ETA theo supplier/Redis/hash/allocation/host của PLAN vẫn chưa được nâng trạng thái hoàn tất bởi thay đổi FE này.
+
+<a id="handoff-product-upgrade-p2"></a>
+## Nâng cấp P1/P2 theo PLAN — 14–15/11/2026
+
+Nền `main` là `2d0d5f1052a3a3bea1711e2635822ca3cc6f9915`; nhánh làm việc `codex/product-upgrade-20261114`. Đây là checkout mới, không khôi phục dữ liệu/DB/runtime của các lần demo trước. [PLAN nâng cấp](planning/PRODUCT_UPGRADE_PLAN_20261114.md) vẫn là danh sách công việc đầy đủ; **chưa hoàn thành cả PLAN**.
+
+### Phần đã triển khai
+
+- Auth/session server-side: admin toàn hệ thống; supplier chỉ đọc sản phẩm theo nhà mạng kho nguồn và lô theo supplier của chính sách. Scope SQL đứng trước count/paging. Chặn supplier khỏi mọi API admin, run global, snapshot và CSV; không dựa vào việc ẩn menu.
+- Migration0010 thêm hai bảng auth, role/supplier check, index user/expiry; không có password mặc định. Cookie HttpOnly/SameSite/Secure theo HTTPS, phiên8giờ, CSRF cho mutation, khóa đăng nhập tạm sau5lần sai, thu hồi phiên khi logout/khóa tài khoản. Downgrade từ chối khi có dữ liệu auth. [Khởi tạo và giới hạn](AUTHENTICATION.md).
+- React có màn hình đăng nhập, tài khoản admin dạng dialog và portal supplier. Tải phiên lỗi không mở workspace. Supplier chưa được sửa ETA/nhận QR. Lô supplier vẫn ghi rõ mô phỏng và gắn phương án/mốc.
+- Bảng có vùng cuộn ngang/dọc riêng, header cố định, loading skeleton, empty row và null cell “Không có”; giữ số0/false. State có skeleton và retry; giảm chuyển động theo thiết lập thiết bị. Inventory đưa trạng thái bổ sung vào bộ lọc có nhãn, giữ trong URL/reload, reset khi đổi run/kho/kịch bản; CSV dùng cùng query.
+- Snapshot đọc qua endpoint riêng, whitelist business fields thay vì gửi toàn bộ config. Có phiên bản/mốc, policy phân trang25, override, lô đầu và lịch ngừng; không có secret/hash/private path. Giao diện phân biệt lịch sử tính tồn đầu28ngày với fallback90ngày chỉ khi tổng28ngày bằng0 trong run lịch sử. Sửa live không viết lại frozen snapshot.
+
+### Kiểm tra đã chạy trong lượt này
+
+| Cổng kiểm | Kết quả / phạm vi |
+| --- | --- |
+| Backend đầy đủ |541 ca qua,0skip; PostgreSQL18.6-5 thật, role test không phải superuser, Python3.12.14. Bao gồm auth A/B/admin, revoke/expiry/CSRF, migration/schema parity, downgrade guard, hợp đồng cũ, worker/simulation/CSV synthetic. Có1 cảnh báo deprecation Starlette/httpx. |
+| Snapshot sau rà cuối |12 ca projection/API contract qua sau khi sửa nhãn basis28/fallback90. Không chạy lại model hoặc thay phép tính tồn. |
+| React |143 ca qua, gồm regression basis28/fallback90 và bộ lọc directory qua mở kho/quay lại/reload/xóa. Không đổi golden nghiệp vụ cũ; mock header chuyển sang Headers API để giữ phép kiểm Idempotency-Key. |
+| TypeScript / build / dependency |TypeScript, Vite production build và pip check qua. Requirements BE thêm exact pins cho pwdlib/Argon2; không đổi lock M2 hoặc package-lock frontend. |
+| Browser thật |17 phép kiểm qua với Edge headless, FE build + API + PostgreSQL synthetic. Đăng nhập admin/supplier; admin tạo/khóa tài khoản bằng form; supplier API admin trả403; status tồn giữ qua reload; snapshot đọc; CSV có session; desktop1440/mobile390 không tràn ngang; bảng tự cuộn bằng phím; menu mobile/Escape;0pageerror. |
+
+Bằng chứng local trong `outputs/upgrade_20261114/`: `backend.xml`, `snapshot-final.xml`, `frontend-final-verified.json`, `browser-checks.json`, ảnh `ui-login-*`, `ui-accounts-*`, `ui-inventory-*`, `ui-supplier-*`. Chỉ dữ liệu synthetic; credential/env/DB/binary/log nằm trong outputs bị ignore. Lượt backend đầu có lỗi tương thích17bảng/auth và code_mismatch khi source bị chỉnh trong lúc worker test chạy; đã sửa test compatibility và chạy lại với source cố định, không bỏ kiểm hash. Kết quả541 là lượt chạy lại thành công, không phải lượt lỗi.
+
+Kiểm tĩnh cuối:186Python và22JSON parse được;925liên kết trong10Markdown đã rà, không phát sinh lỗi mới. Có22 vấn đề tài liệu có sẵn trên main (21liên kết tới raw/report/attachment không có trong checkout và1bảng lịch sử); chưa phục hồi artifact riêng tư hoặc sửa lại lịch sử để che các thiếu hụt đó. Receipt `verification.json` tách rõ các lỗi có sẵn. Server8043 và PG55443 chỉ dùng QA, được dừng sau kiểm; không phải URL public hoặc runtime demo bàn giao.
+
+### Phần còn lại và thứ tự tiếp
+
+1. Trả lời D01–D03 về QR, nghĩa90ngày và phạm vi bỏ fingerprint; D06 về ledger vận hành hay mô phỏng. D05 đã chọn default theo supplier, còn chờ miền ngày để xác định forecast coverage/ROP/profile mới. Supplier hiện chỉ đọc; chưa chốt quyền ghi D04.
+2. Hoàn thiện FB01/06/12 trên các màn hình còn lại: bộ lọc directory kho đã giữ trong URL và qua reload; loading/form states chưa nâng cấp hết mọi trang. Snapshot chưa có actor cho run legacy không lưu actor.
+3. Theo P3: schema/profile mới cho ETA và QR sau khi rõ hợp đồng; run cũ L7 vẫn giữ nguyên. Sau đó P4 version/allocation/hash; P5 Redis/outbox/recovery và benchmark DB/kịch bản. Hiện không có Docker/WSL/Redis server local để công bố Redis integration đạt.
+4. P6/P7: E2E các nghiệp vụ mới, gói triển khai, lựa chọn tài khoản/hạ tầng/budget D07 rồi host/backup/rollback. Không nhận app public, tải thật, R05/R07/T14 hoặc cả15feedback đã đạt từ test kỹ thuật này.
+
+Không đọc/chuyển raw, tạo source/model run thật, refit, đổi target/top10/split/metric hoặc kết quả C00. Không migrate demo cũ, Word/slide, commit/push hay deploy trong lượt nâng cấp này. Phần auth mới cần bootstrap trước khi người dùng khởi động bản này; launcher cũ không tự tạo tài khoản.
+
 <a id="handoff-supply-v3-rerun"></a>
 ## Chạy lại hai kịch bản ngừng cung cấp v3 — 13/11/2026
 
@@ -1233,7 +1341,7 @@ Cổng mã bước5 đã kiểm: commitdb6c1d5 đã push/remoteSHA khớp, [M3 i
 - Bằng chứng local ignored: outputs/step6-before.xml, step6-after.xml, step6-protected.json, step6-before-source.json, step6-ast.json, step6-verification.json, step6-smoke.json; wheel tại tmp/step6-wheels. Markdown/link/fence/bảng15bước và staged scope kiểm trước commit; commit/push/remoteSHA/CI chỉ xác nhận sau khi kiểm đúng commit trong thông điệp cuối lượt.
 - Tiếp theo: bước7 tách inventory/purchasing/alerts khi người dùng giao; giữ cổng từng bước. Không merge/force-push/deploy hoặc đưa raw/run/DB/env lên Git.
 
-**Cổng GitHub đã kiểm cho mã bước6:** commit `7023c722e9ba9de931e64e340eb0721884389b7a` push thường lên m3-implementation, remoteSHA khớp. [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40155370081) và [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40155370071) đều completed/success, đủ4job test/backend/m2-regression/frontend. Bước6 hoàn tất; bước7–15 chưa bắt đầu. Commit tài liệu bằng chứng sau mốc này được kiểm SHA/CI riêng trước bàn giao cuối.
+**Cổng GitHub đã kiểm cho mã bước6:** commit `7023c722e9ba9de931e64e340eb0721884389b7a` push thường lên m3-implementation, remoteSHA khớp. [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/40156370081) và [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/40156370071) đều completed/success, đủ4job test/backend/m2-regression/frontend. Bước6 hoàn tất; bước7–15 chưa bắt đầu. Commit tài liệu bằng chứng sau mốc này được kiểm SHA/CI riêng trước bàn giao cuối.
 
 <a id="handoff-chg068-step7"></a>
 ### Bàn giao CHG-068 bước7 — 25/10/2026 (Asia/Saigon)

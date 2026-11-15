@@ -1,5 +1,17 @@
 # Điều phối công việc SIGMA
 
+**15/11/2026 — bàn giao GitHub theo yêu cầu:** Nhánh cho nhóm đọc/kiểm là [`codex/product-upgrade-20261114`](https://github.com/khanhnguyenpham/Sigma/tree/codex/product-upgrade-20261114). Phạm vi source/test/docs của bản nâng cấp; kiểm remoteSHA và CI đúng commit khi push, không merge main hoặc triển khai demo/public. [Bàn giao tính năng và giới hạn](../development.md#handoff-operational-ledger). Các dòng “chưa push” bên dưới ghi checkpoint trước yêu cầu publish.
+
+**15/11/2026 — sổ kho vận hành mới:** Có danh mục, đơn nhập/nhận từng phần/xuất/kiểm kê/chứng từ/audit; admin ghi, supplier chỉ đọc đơn của mình. Default lead time theo supplier áp cho đơn mới, không sửa đơn cũ hoặc giả đã đổi forecast L7/H14.552backend,156React, TypeScript/build qua; browser synthetic10→nhận4+6→xuất3→kiểm kê8 và4viewport qua. Còn tích hợp tồn thực/dự báo/lead-time profile, QR, Redis, auth recovery và host. Chưa migrate demo/commit/push/deploy. [Bàn giao](../development.md#handoff-operational-ledger).
+
+**15/11/2026 — FE giảm cuộn trang:** Snapshot chuyển modal chia mục; thanh đầu trang60px, menu/tablet/mobile và focus, bộ lọc mobile nháp Áp dụng/Hủy, cột bảng cố định. Trên fixture, đầu bảng laptop790→587px và mobile390px1297→754px; mở snapshot không làm dài trang.147React, TypeScript/build,14nhóm browser và đo4viewport qua. Không chạy lại backend/model, commit/push/deploy; không nhận toàn PLAN đã xong. [Bàn giao và số đo](../development.md#handoff-compact-management-ux).
+
+**15/11/2026 — P1/P2 một phần:** Đã triển khai auth/session/admin accounts/supplier read-only, snapshot an toàn, bảng/loading/filter tồn;541 backend và143 React qua, TypeScript/build qua,17 kiểm browser thực qua. Snapshot cuối được kiểm bổ sung12 ca. Chưa sửa dữ liệu nguồn, chạy model/run thật, migrate demo, commit/push hoặc deploy. D01–D03/D05–D07 còn mở; QR/ETA/Redis/tối ưu/host chưa xong. [Bàn giao hiện hành](../development.md#handoff-product-upgrade-p2).
+
+**14/11/2026 — đã nhận góp ý nhóm, chỉ lập PLAN:** [PLAN nâng cấp sản phẩm](PRODUCT_UPGRADE_PLAN_20261114.md) ghi15 nhóm yêu cầu UI/QR/auth/ETA/Redis/DB/hash/allocation/hosting, thứ tự P0–P7 và12 ca nghiệm thu mới. D01–D03 còn chờ làm rõ; auth/QR/Redis/ETA mở rộng phạm vi cũ nhưng chưa có code/migration/test runtime/deploy mới. Giữ nguyên trạng thái nghiệm thu lịch sử.
+
+**14/11/2026 — chỉ khảo sát/lập kế hoạch:** Đã clone main `2d0d5f1` và đọc các luồng mã trọng tâm; [PLAN tiếp tục từ main](MAIN_REVIEW_PLAN_20261114.md) ghi hiện trạng, thay đổi 13/11, bước triển khai và ca nghiệm thu. Chưa nhận góp ý mới của nhóm; chưa triển khai chức năng, chạy app/test suite/model/DB hoặc push. Không đổi trạng thái R05/R07/T14.
+
 **13/11/2026 — T10:** Tách cảnh báo Kế hoạch nhập hàng bị gián đoạn do nhà mạng chặn bán. [Bàn giao](../development.md#handoff-policy-sales-block-recall).
 
 **13/11/2026 — T10/T11:** Demo localhost đã kiểm ba lượt Cơ sở mới với tồn đầu 28 ngày và nhập 15. Đã lưu trữ năm lượt cũ và cập nhật C00 lên 107/228. [Bàn giao](../development.md#handoff-base-lot15-demo).
@@ -178,7 +190,7 @@ Các checkpoint tạm dừng/chờ Tổng30 phía dưới là lịch sử trư�
 
 **CHG-060/E92 — 20/10/2026:** tiếp tục tối ưu R05 bằng số đơn/mùa vụ năm/tín hiệu thị trường, tách nghiên cứu khỏi serving.168 lần fit/35.910 dự báo, validation45,971604%,0/10≤20%; cải thiện9/10tuyến so v1 nhưng chưa đạt.89Python đạt; nghiên cứu v1 sau refactor giữ95.760predictions/metric/selection giống byte. R07 không có ngưỡng100% sự kiện chính thức;331ca bỏ sót có tồn≤2 (311ca tồn1). [Cổng nghiệm thu/bằng chứng](../../M3/ACCEPTANCE.md); R05/R07/T14 giữ mở.
 
-**CHG-059/E91 — tiếp tục hoàn thiện:** API/React có chẩn đoán cơ hội cảnh báo, không đổi mẫu số hoặc run khóa. Cơ sở1550/2867ca cạnD+1…6; trần tại các origin này45,9365%, thực34,3913%, bỏ sót331ca còn đủ7ngày. Nghiên cứu ngày validation8phương pháp/28fits giữ riêng: mean49,451918%,0/10≤20%, chưa thay model phục vụ.86tests Python+9FE/build đạt; R05/R07/T14 mở. [Hướng dẫn/bằng chứng](../../M3/IMPLEMENTATION.md).
+**CHG-059/E91 — tiếp tục hoàn thiện:** API/React có chẩn đoán cơ hội cảnh báo, không đổi mẫu số hoặc run khóa. Cơ sở1560/2867ca cạnD+1…6; trần tại các origin này45,9365%, thực34,3913%, bỏ sót331ca còn đủ7ngày. Nghiên cứu ngày validation8phương pháp/28fits giữ riêng: mean49,451918%,0/10≤20%, chưa thay model phục vụ.86tests Python+9FE/build đạt; R05/R07/T14 mở. [Hướng dẫn/bằng chứng](../../M3/IMPLEMENTATION.md).
 
 **CHG-058/E90 — implementation M3, 19/10/2026:** đã chạy forecast46/H14, giữ final10, chọn36 bằng validation, phân bổ2.382.800 dòng, policy/alert replay và snapshotL7; có API kết quả/export, worker verify/heartbeat và React6màn hình.78 tests Python +7 tests FE, build/DB/đối soát thực; xem [bằng chứng, giới hạn và cách chạy](../../M3/IMPLEMENTATION.md). Phần mềm đã triển khai không đồng nghĩa đạt toàn bộ chỉ tiêu: fixed10 tổng7 đạt10/10 hồi cứu, new36 chỉ2/36; ngày phân bổ top10 là0/10, early cơ sở34,3913%. R05/R07/T14 vẫn mở. Người dùng cho phép push code/config/tests/docs; raw/run/DB/env giữ local. Các mốc E76/E89 dưới đây là lịch sử.
 

@@ -22,6 +22,8 @@ from modules.runs.models import Run
 from modules.inventory.models import InventoryDaily, InventoryEvent
 from modules.purchasing.models import Replenishment
 from modules.alerts.models import Alert
+from modules.auth.models import User, LoginSession
+from operations_contract import OPS_TABLES, OPS_ROUTES, OPS_SCHEMAS
 
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -41,6 +43,14 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
     try:
         expected = json.loads((FIXTURES / "openapi_baseline.json").read_text(encoding="utf-8"))
         schema = app.openapi()
+        for path, methods in OPS_ROUTES.items():
+            assert set(schema['paths'].pop(path)) == set(methods)
+        for name in OPS_SCHEMAS:
+            assert schema['components']['schemas'].pop(name)
+        for path in ('/auth/session', '/auth/login', '/auth/logout', '/auth/users', '/auth/users/{key}', '/supplier/products', '/supplier/shipments'):
+            assert schema['paths'].pop('/api/v1' + path)
+        for name in ('LoginInput', 'UserCreate', 'UserActive'):
+            assert schema['components']['schemas'].pop(name)
         assert set(schema['paths'].pop('/api/v1/scenarios/{key}')) == {'delete'}
         assert set(schema['paths'].pop('/api/v1/scenarios/{key}/restore')) == {'post'}
         params = schema['paths']['/api/v1/scenarios']['get']['parameters']
@@ -65,6 +75,9 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
         policy_alerts = schema['paths'].pop('/api/v1/runs/{key}/policy-alert-evaluation')
         assert set(policy_alerts) == {'get'}
         assert [(p['name'], p['in'], p['required']) for p in policy_alerts['get']['parameters']] == [('key', 'path', True)]
+        snapshot = schema['paths'].pop('/api/v1/runs/{key}/snapshot')
+        assert set(snapshot) == {'get'}
+        assert [p['name'] for p in snapshot['get']['parameters']] == ['key', 'page', 'page_size']
         # CHG-082 adds three reads only; every pre-existing API contract stays unchanged.
         schema["paths"].pop("/api/v1/runs/{key}/sell-through")
         schema["paths"].pop("/api/v1/products")
@@ -128,7 +141,7 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
     statements = []
     for _, table in sorted(Base.metadata.tables.items()):
         # Lifecycle additions are checked separately; retain the original thirteen-table golden.
-        if table.name == "item_supply_changes" or table.name.startswith("provider_product_notice"):
+        if table.name == "item_supply_changes" or table.name in OPS_TABLES or table.name.startswith(("provider_product_notice", "auth_")):
             continue
         ddl = str(CreateTable(table).compile(dialect=dialect())).strip()
         if table.name in {"items", "replenishment_orders"}:
@@ -182,12 +195,15 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
 
 def test_features_share_the_single_registered_metadata():
     assert models.Base is Base
-    assert len(Base.metadata.tables) == 17
+    assert len(Base.metadata.tables) == 28
     for model in (Warehouse, Item, Supplier, Policy, Scenario, Run, DailySales, RouteForecast,
                   ItemForecast, InventoryDaily, InventoryEvent, Replenishment, Alert, ItemSupplyChange,
-                  ProviderProductNotice, ProviderProductNoticeItem, ProviderProductNoticeEvent):
+                  ProviderProductNotice, ProviderProductNoticeItem, ProviderProductNoticeEvent, User, LoginSession):
         assert model.__table__.metadata is Base.metadata
         assert getattr(models, model.__name__) is model
+    for name in ("SupplierSettings", "OperationalOrder", "OperationalOrderLine", "StockDocument", "StockDocumentLine",
+                 "StockBalance", "OperationAudit", "OperationalWarehouse", "OperationalProduct"):
+        assert getattr(models, name).__table__.metadata is Base.metadata
 
 
 def test_settings_keep_checkout_defaults_and_explicit_paths(monkeypatch, tmp_path):

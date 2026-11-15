@@ -108,6 +108,30 @@ it('supports the directory breadcrumb, browser Back and reloading a warehouse de
   view.unmount();
 });
 
+it('keeps directory search and scope in the URL through a warehouse visit and reload', async () => {
+  let view = render(<App />);
+  await screen.findByRole('button', { name: 'Mở kho Melbourne tại Australia, nhà mạng Telstra' });
+  fireEvent.change(screen.getByLabelText('Tìm kho'), { target: { value: 'Melbourne' } });
+  fireEvent.change(screen.getByLabelText('Quốc gia của kho'), { target: { value: 'Australia' } });
+  fireEvent.change(screen.getByLabelText('Nhà mạng của kho'), { target: { value: 'Telstra' } });
+  await waitFor(() => expect(new URLSearchParams(location.search).get('warehouse_search')).toBe('Melbourne'));
+  fireEvent.click(screen.getByRole('button', { name: 'Mở kho Melbourne tại Australia, nhà mạng Telstra' }));
+  await screen.findByRole('heading', { level: 1, name: 'Melbourne' });
+  fireEvent.click(screen.getByRole('button', { name: 'Danh sách kho' }));
+  await screen.findByLabelText('Tìm kho');
+  expect(screen.getByLabelText('Tìm kho')).toHaveValue('Melbourne');
+  view.unmount(); view = render(<App />);
+  expect(await screen.findByLabelText('Tìm kho')).toHaveValue('Melbourne');
+  await screen.findByRole('button', { name: 'Mở kho Melbourne tại Australia, nhà mạng Telstra' });
+  expect(screen.getByLabelText('Quốc gia của kho')).toHaveValue('Australia');
+  expect(screen.getByLabelText('Nhà mạng của kho')).toHaveValue('Telstra');
+  expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(1);
+  fireEvent.click(screen.getByRole('button', { name: 'Xóa bộ lọc kho' }));
+  await waitFor(() => expect(location.search).not.toContain('warehouse_search'));
+  expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(3);
+  view.unmount();
+});
+
 it('opens sell-through for inventory and raw daily demand in details', async () => {
   render(<App />);
   fireEvent.click(await screen.findByRole('button', { name: 'Mở kho Sydney tại Australia, nhà mạng Optus' }));

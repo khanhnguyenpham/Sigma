@@ -28,6 +28,8 @@ class Settings:
     worker_instance: str = ""
     demo_root: Path | None = None
     demo_limits: DemoLimits = field(default_factory=DemoLimits)
+    # Direct construction supports legacy isolated tests. Actual startup uses from_env (auth on).
+    auth_required: bool = False
 
     @classmethod
     def from_env(cls):
@@ -81,6 +83,7 @@ class Settings:
             os.environ.get("M3_WORKER_INSTANCE", ""),
             demo_root,
             DemoLimits.from_env() if mode == 'demo' else DemoLimits(),
+            True,
         )
 
     def order_source(self, key):
