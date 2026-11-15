@@ -3,6 +3,8 @@ x-app: &app
   build:
     context: .
     dockerfile: web/Dockerfile
+    args:
+      SIGMA_RELEASE_VERSION: ${SIGMA_RELEASE_VERSION:-}
   image: sigma-local:latest
   environment: &app-env
     M3_DATABASE_URL: postgresql+psycopg://sigma:${SIGMA_DB_PASSWORD:?Set a random hexadecimal password in your private env file}@database:5432/sigma_m3

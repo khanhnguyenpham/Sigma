@@ -5,6 +5,21 @@ import pandas as pd
 from core.errors import DomainError
 
 
+def index_prediction_totals(predictions):
+    """One grouping pass; no model selection, target or forecast quantity changes."""
+    indexed = {}
+    for (origin,country,carrier), group in predictions.groupby(['as_of_date','destination_country','carrier'],sort=False,dropna=False):
+        group=group.sort_values('block')
+        if group.block.tolist()!=[1,2]:
+            raise DomainError('allocation_mismatch','Each route/origin must contain exactly two forecast blocks')
+        totals=group.forecast_qty.to_numpy(dtype=float,copy=True)
+        if not np.isfinite(totals).all() or (totals<0).any():
+            raise DomainError('allocation_mismatch','Invalid forecast totals')
+        totals.setflags(write=False)
+        indexed[(pd.Timestamp(origin),country,carrier)]=totals
+    return indexed
+
+
 def allocate(history, first_seen, origin, block_totals):
     origin = pd.Timestamp(origin)
     totals = np.asarray(block_totals, dtype=float)

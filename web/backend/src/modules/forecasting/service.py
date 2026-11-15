@@ -13,7 +13,7 @@ from core.errors import DomainError
 from modules.runs.models import Run
 from modules.forecasting.models import DailySales
 from modules.forecasting import m2_adapter
-from modules.forecasting.allocation import allocate
+from modules.forecasting.allocation import allocate, index_prediction_totals
 from M2.models.families import metrics
 from src.data import audit_orders, daily_sales, route_top
 from src.common import ROUTE
@@ -421,19 +421,21 @@ def forecast_run(settings, sessions, key):
         route: [i for i in catalog if (i["destination_country"], i["carrier"]) == route]
         for route in all_routes
     }
+    totals_by_origin = index_prediction_totals(predictions)
+    route_inputs = {route:(matrix[[i['item_id'] for i in items]],
+        {i['item_id']:i['first_seen_date'] for i in items}) for route,items in by_route.items()}
     for idx, as_of in enumerate(expected_origins, 1):
         allocation_rows = []
         for route, items in by_route.items():
-            group = predictions.loc[
-                predictions.as_of_date.eq(as_of)
-                & predictions.destination_country.eq(route[0])
-                & predictions.carrier.eq(route[1])
-            ].sort_values("block")
+            totals = totals_by_origin.get((pd.Timestamp(as_of),*route))
+            if totals is None:
+                raise DomainError('allocation_mismatch','Forecast route/origin is missing')
+            history, first_seen = route_inputs[route]
             allocated = allocate(
-                matrix[[i["item_id"] for i in items]],
-                {i["item_id"]: i["first_seen_date"] for i in items},
+                history,
+                first_seen,
                 as_of,
-                group.forecast_qty.to_numpy(),
+                totals,
             )
             allocation_rows.extend(allocated.itertuples(index=False, name=None))
         with sessions.begin() as s:

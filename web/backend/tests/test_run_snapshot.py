@@ -31,6 +31,14 @@ def test_snapshot_whitelists_business_fields_and_never_returns_private_config():
     assert source['scenario']['settings']['credentials'] == 'secret'
 
 
+def test_release_metadata_never_passes_arbitrary_configuration_to_fe():
+    reference={'mode':'immutable-release-v1','version':'v1.2.3','password':'private'}
+    result=snapshot_view(run({'runtime_code_reference':reference}))
+    assert result['versions']['runtime_code_reference']=={'mode':'immutable-release-v1','version':'v1.2.3'}
+    reference['version']={'password':'private'}
+    assert snapshot_view(run({'runtime_code_reference':reference}))['versions']['runtime_code_reference'] is None
+
+
 def test_snapshot_pages_policy_rows_and_reads_historical_stock_basis():
     snapshot = dict(initial_stock_fallback_days=90,
         policies=[dict(item_id=i, fixed_order_qty=5) for i in range(27)])

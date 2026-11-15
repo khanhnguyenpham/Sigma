@@ -61,6 +61,7 @@ export function SnapshotDialog({ run, title, onClose }: { run: Run; title: strin
           <details className="snapshot-source"><summary>Nguồn & thông tin phương án</summary><dl className="snapshot-facts">
             <div><dt>Mã phương án</dt><dd>{run.id}</dd></div><div><dt>Quan sát đến</dt><dd>{missing(run.observation_end)}</dd></div>
             <div><dt>Nguồn dữ liệu</dt><dd>{missing(run.source_import_run_id)}</dd></div><div><dt>Dự báo cha</dt><dd>{missing(run.forecast_run_id)}</dd></div>
+            {!!data.versions.runtime_code_reference && <div><dt>Phiên bản phần mềm</dt><dd>{missing((data.versions.runtime_code_reference as Row).version)}</dd></div>}
           </dl><p>Dữ liệu lịch sử; tồn và nhập là mô phỏng.</p></details>
         </>}
         {tab === "policies" && <>

@@ -4,6 +4,8 @@ Ngày: **14/11/2026, Asia/Saigon**. Nền: `main` **`2d0d5f1052a3a3bea1711e26358
 
 ## 1. Trạng thái và ranh giới
 
+**Checkpoint cuối15/11 hiện hành:** người dùng giao tự chốt kỹ thuật và làm tại main. Có tư vấn sổ kho toàn mạng, QR phiếu giao, đổi/recovery mật khẩu, Redis Streams/durable queued intent và image53runtimepackage.71f846e đã qua hai workflow với Redis thật/Compose startup/login/role không superuser. Bước mới có release identity không quét source trong image, index forecast một lần (parity8.510nhóm;16,102→1,683giây cho lookup synthetic), CI restore DB/artifact đang kiểm.577backend local/2Redis skip,163React và17ca liên quan qua. [Bàn giao](../development.md#handoff-release-identity). Các matrix ban đầu phía dưới là khảo sát nền, không phải danh sách phần mới chưa viết.
+
 **Cập nhật15/11 — vận hành theo chứng từ:** Theo yêu cầu dùng như phần mềm quản lý, đã thêm [sổ kho riêng](../WAREHOUSE_OPERATIONS.md), migration0011 và màn hình React. Đơn nhập/nhận từng phần/xuất/kiểm kê có ghi sổ/audit, version và retry. Lead time mặc định supplier áp cho đơn mới; chưa nối vào forecast/ROP L7/H14.552backend,156React/TypeScript/build qua trên synthetic; chưa host hoặc nhận toàn PLAN hoàn tất. [Bàn giao hiện hành](../development.md#handoff-operational-ledger).
 
 **Bổ sung15/11 về FE:** P2 có modal snapshot chia mục, header/menu gọn, filter mobile có draft Apply/Cancel, bảng giữ cột/header và focus/keyboard.147React,14nhóm browser, TypeScript/build và đo trước–sau4viewport qua. [Bàn giao UX](../development.md#handoff-compact-management-ux). Vẫn chưa có UAT đầy đủ hoặc hoàn tất toàn PLAN; số541backend bên dưới thuộc lượt triển khai trước.
@@ -201,3 +203,17 @@ Tiếp theo: tích hợp sổ kho/lead time vào profile kế hoạch mới có 
 | UX |4viewport, footer form luôn thấy, bảng28kho cuộn trong vùng/phân trang25; chưa là kiểm tải/UAT sản xuất. |
 
 Các ca tích hợp forecast dùng số dư vận hành, QR, Redis recovery và hosting bền dữ liệu chưa đạt/chưa chạy; không đánh dấu bằng các ca trên.
+
+### 9.2 Phạm vi thực có sau ủy quyền tự chọn
+
+| Phần | Hiện có và giới hạn |
+| --- | --- |
+| UI/auth/snapshot/table | React/admin/supplier scoped, skeleton, bảng cuộn riêng, URL bộ lọc, modal snapshot; có React/browser/CI. Không coi là UAT mọi thiết bị. |
+| QR | QR phiếu giao/lô SIM vật lý, preview và xác nhận; kiểm API/browser/trùng/sai đơn/eSIM. Chưa camera/ICCID hoặc parser nhà mạng. |
+| Lead time/tồn thực | Đơn mới freeze mặc định supplier1–365. Tư vấn cộng tồn/pending và ROP theo lead thực, chặn khi forecast không đủ. Không giả H14 bao được lead30; snapshot tư vấn/đơn tự động còn thiếu. |
+| Hash runtime | Release-version mode cho image bất biến, giữ local source guard và checksum audit/password. Không xóa cột/manifest cũ hoặc nói mọi hash đều bị bỏ. |
+| Phân bổ/hiệu năng | Cơ sở90ngày tính theo từng origin, không chạy lại cho từng target day. Index/group lookup/input tuyến tính một lần; có parity và số đo lookup, chưa số đo toàn ML/DB tải lớn. |
+| Redis | Có Streams, PG queued làm durable outbox, ACK/reclaim/gián đoạn, một owner; Redis thật và Compose startup qua CI71f846e. Không quảng cáo multi-worker/exactly-once. |
+| Đóng gói/host | Có image/Compose PostgreSQL/Redis bền volume, role app không superuser, source-only runtime. CI restore đang kiểm. Chưa có public host/HTTPS24/7 hoặc nguồn bán thật trên checkout này. |
+
+R05/R07/T14 và dữ liệu nguồn không đổi. Test synthetic không thay bằng chứng mô hình đạt10/10 hoặc chứng minh đã chạy dataset riêng của nhóm.

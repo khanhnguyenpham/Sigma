@@ -1,5 +1,16 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-release-identity"></a>
+## Nhận diện release cho image bất biến — 15/11/2026
+
+Tiếp tục yêu cầu bỏ fingerprint runtime: image có full SHA/tag release dùng version reference, không quét source/gọi Git mỗi lần. Local không khai báo release giữ guard sửa mã sau enqueue. Legacy slot code_sha256 giữ token64ký tự và có metadata mode/version trong snapshot/manifest để không nhầm với SHA từng file. Password/source/artifact/selection checksums không bị xóa; run cũ không đổi. [Hợp đồng](RELEASE_IDENTITY.md).
+
+21ca release/snapshot/queue/contracts qua,2Redis thật skip local; full suite đang chạy. CI commit71f846e trước bước release đã qua cả hai workflow, gồm Redis thật và Compose login/role không superuser/Redis auth; không còn chỉ là kiểm Dockerfile. Bản release mới sẽ kiểm lại theo đúng SHA sau push. Benchmark identity chỉ đo phần kiểm phiên bản, không nhận whole app/model nhanh hơn.
+
+Full local release: **577passed,2skipped Redis**,163React; sau chỉnh chữ thông báo,8React liên quan chạy lại qua. Thêm index tổng forecast một lần cho các tuyến/origin và cache input tuyến trước vòng lặp:2test parity/duplicate block và17ca forecast/PG liên quan qua. Không đổi phép tính allocate, mô hình, target/split/metric. Benchmark synthetic46tuyến×185origin/17.020row:lookup cũ16,102giây, index kèm đối chiếu8.510nhóm1,683giây, mọi tổng và full allocation fixture giống hệt. Đây không phải số đo toàn worker/refit.
+
+Benchmark identity25mẫu/profile: median quét source46,822ms, immutable release0,0051ms. Nguồn số đo `outputs/operations_20261115/reference-benchmark.json`, `allocation-benchmark.json`; tests `backend-release.xml` và `forecast-index-regression.xml`. Không suy thành phần trăm tăng tốc app hoặc R05 tốt hơn. CI bổ sung backup PG18→DB restore riêng và tar artifact→thư mục sạch, đối soát số dư/ledger/account chỉ từ dữ liệu synthetic; chờ cổng đúng commit.
+
 <a id="handoff-redis-transport"></a>
 ## Redis transport và bảo toàn trạng thái — 15/11/2026
 

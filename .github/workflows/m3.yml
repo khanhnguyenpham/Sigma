@@ -103,7 +103,7 @@ jobs:
           SIGMA_REDIS_PASSWORD: ci-synthetic-redis-only
         run: docker compose -f compose.local.yml config --quiet
       - name: Build source-only application image
-        run: docker build -f web/Dockerfile -t sigma-ci:latest .
+        run: docker build --build-arg SIGMA_RELEASE_VERSION=${{ github.sha }} -f web/Dockerfile -t sigma-ci:latest .
       - name: Check packaged Python entry points
         run: docker run --rm --entrypoint python sigma-ci:latest -c "import main, worker, cli; from modules.operations import planning, qr; from modules.auth import reset_password; from modules.forecasting import m2_adapter; print('Packaged imports available')"
       - name: Start isolated Compose services and verify application role
@@ -130,14 +130,32 @@ jobs:
                   time.sleep(1)
           request=urllib.request.Request(base+'/auth/login',data=json.dumps({'username':'ci-admin','password':'Synthetic-compose-only-2026'}).encode(),headers={'Content-Type':'application/json'})
           with client.open(request) as response:
-              assert json.load(response)['user']['role']=='admin'
+              login=json.load(response)
+              assert login['user']['role']=='admin'
           with client.open(base+'/operations/queue-status') as response:
               status=json.load(response)
               assert status['driver']=='redis' and status['available'] is True
           with client.open(base+'/operations/summary') as response:
-              assert json.load(response)['on_hand_units']==0
+              summary=json.load(response)
+              assert summary['on_hand_units']==0
+          def post(path,body):
+              request=urllib.request.Request(base+path,data=json.dumps(body).encode(),headers={'Content-Type':'application/json','X-CSRF-Token':login['csrf_token'],'Idempotency-Key':'compose-smoke-count-v1'})
+              with client.open(request) as response: return json.load(response)
+          warehouse=post('/operations/warehouses',{'code':'CI-WH','name':'CI synthetic warehouse','country':'Vietnam'})
+          product=post('/operations/products',{'sku':'CI-SIM','name':'CI synthetic SIM','carrier':'CI Carrier','destination_country':'CI Land','product_type':'physical_SIM'})
+          post('/operations/counts',{'warehouse_id':warehouse['id'],'item_id':product['id'],'quantity':3,'expected_balance_version':0,'occurred_on':summary['business_date'],'external_ref':'CI-COUNT','reason':'Synthetic compose restore check'})
           print('Compose login, real Redis and non-superuser DB passed')
           PY
+      - name: Rehearse database and artifact restore using only synthetic CI data
+        env: *compose-ci-env
+        run: |
+          docker compose -p sigma-ci -f compose.local.yml exec -T api python -c "from pathlib import Path; Path('/srv/outputs/container_smoke.txt').write_text('sigma-ci-synthetic')"
+          docker compose -p sigma-ci -f compose.local.yml exec -T database pg_dump -U sigma_admin -Fc sigma_m3 > "$RUNNER_TEMP/sigma-ci.dump"
+          docker compose -p sigma-ci -f compose.local.yml exec -T database createdb -U sigma_admin -O sigma sigma_restore
+          docker compose -p sigma-ci -f compose.local.yml exec -T database pg_restore -U sigma_admin --role=sigma --no-owner --exit-on-error -d sigma_restore < "$RUNNER_TEMP/sigma-ci.dump"
+          docker compose -p sigma-ci -f compose.local.yml run --rm api python -c "from core.settings import Settings; from core.db import database; from sqlalchemy.engine import make_url; from sqlalchemy import text; url=make_url(Settings.from_env().database_url).set(database='sigma_restore').render_as_string(hide_password=False); e,s=database(url); c=e.connect(); assert c.scalar(text('SELECT sum(on_hand_qty) FROM ops_stock_balances'))==3; assert c.scalar(text('SELECT sum(quantity_delta) FROM ops_stock_document_lines'))==3; assert c.scalar(text('SELECT count(*) FROM auth_users'))==1; c.close(); e.dispose(); print('Synthetic DB restore reconciled')"
+          docker compose -p sigma-ci -f compose.local.yml exec -T api python -c "import tarfile,sys; archive=tarfile.open(fileobj=sys.stdout.buffer,mode='w|'); archive.add('/srv/outputs',arcname='.'); archive.close()" > "$RUNNER_TEMP/sigma-ci-artifacts.tar"
+          docker run --rm -i --entrypoint python sigma-ci:latest -c "import tarfile,sys; from pathlib import Path; root=Path('/tmp/sigma-restored'); root.mkdir(); tarfile.open(fileobj=sys.stdin.buffer,mode='r|').extractall(root,filter='data'); assert (root/'container_smoke.txt').read_text()=='sigma-ci-synthetic'; print('Synthetic artifact restore reconciled')" < "$RUNNER_TEMP/sigma-ci-artifacts.tar"
       - name: Stop only the disposable CI Compose project
         if: always()
         env: *compose-ci-env

@@ -1,4 +1,5 @@
 """Business-only snapshot projection. Never serialize arbitrary configuration."""
+import re
 
 POLICY_FIELDS = (
     "id", "item_id", "supplier_id", "version", "effective_from", "effective_to",
@@ -14,6 +15,12 @@ def pick(value, fields):
 
 def snapshot_view(run, page=1, page_size=25):
     snapshot = run.config_snapshot or {}
+    raw_reference = snapshot.get('runtime_code_reference')
+    reference = None
+    if isinstance(raw_reference,dict) and raw_reference.get('mode')=='immutable-release-v1':
+        version=raw_reference.get('version')
+        if isinstance(version,str) and len(version)<=64 and re.fullmatch(r'(?:[a-f0-9]{40}|v\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?)',version):
+            reference={'mode':'immutable-release-v1','version':version}
     scenario = snapshot.get("scenario") or {}
     settings = scenario.get("settings") or {}
     catalog = {row["item_id"]: row for row in snapshot.get("catalog_snapshot", [])}
@@ -32,7 +39,7 @@ def snapshot_view(run, page=1, page_size=25):
                 "as_of_date": run.as_of_date, "period_start": run.period_start,
                 "period_end": run.period_end, "source_import_run_id": run.source_import_run_id,
                 "forecast_run_id": run.forecast_run_id, "created_at": run.created_at},
-        "versions": {"config": run.config_version, "assumption": run.assumption_version,
+        "versions": {"runtime_code_reference": reference, "config": run.config_version, "assumption": run.assumption_version,
                      "target": run.target_version,
                      "inventory_policy": snapshot.get("inventory_policy_profile"),
                      "receiving_warehouse": snapshot.get("receiving_warehouse_profile")},

@@ -124,6 +124,7 @@ def process_one(settings, sessions, claimed=None):
                 "config_snapshot.json": hashlib.sha256(config_bytes).hexdigest(),
             }
             manifest = dict(
+                **({'runtime_code_reference':row.config_snapshot['runtime_code_reference']} if 'runtime_code_reference' in row.config_snapshot else {}),
                 run_id=str(key),
                 kind=kind,
                 status="verified",

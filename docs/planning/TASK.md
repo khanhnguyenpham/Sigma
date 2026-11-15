@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**15/11 — release/index/restore đang kiểm:** Có version image bất biến, allowlist/snapshot, giữ guard local; index forecast một lần,17ca liên quan qua/parity8.510nhóm giữ tổng.577backend local pass/2Redis skip,163React/build qua.71f846e đã qua hai workflow cả Redis thật/Compose startup. Bản mới thêm CI backup/restore synthetic và image versioned. [Bàn giao/số đo](../development.md#handoff-release-identity).
+
 **15/11 — queue Redis đang kiểm:** Có driver Streams, Run queued làm outbox bền, claim theoID/ACK/reclaim, guard interrupted và AUTOCOMMIT lock connection. Full local570pass/2Redis thật skip,163React/build qua; Redis thật/Compose smoke kiểm theo CI. Source chính vẫn main, chưa nhận whole PLAN/host. [Bàn giao](../development.md#handoff-redis-transport).
 
 **15/11/2026 — tiếp tục hoàn thiện, tự chọn kỹ thuật:** Có tư vấn sổ kho/lead time, QR theo phiếu giao, đổi/khôi phục mật khẩu và gói container local.567backend/162React/build/pipcheck và5nhóm browser qua; image CI kiểm khi publish main. Chưa nhận toàn PLAN, Redis/host/snapshot tư vấn chưa xong. [Bàn giao](../development.md#handoff-live-advisory-qr).

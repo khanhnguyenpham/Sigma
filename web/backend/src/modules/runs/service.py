@@ -37,6 +37,10 @@ def enqueue(session, request, key, settings=None):
     profile_path = PROJECT_ROOT / "web/backend/configs/m3-profile.json"
     profile = json.loads(profile_path.read_text(encoding="utf-8"))
     snapshot = dict(profile=profile, request=body, **PROFILE)
+    from core.hashes import runtime_reference
+    reference = runtime_reference()
+    if reference:
+        snapshot['runtime_code_reference'] = reference
     if settings and settings.mode == 'demo':
         from dataclasses import asdict
         snapshot['demo_limits'] = asdict(settings.demo_limits)

@@ -1,6 +1,8 @@
 """Stable JSON digest and fingerprints of the current source checkout."""
 import hashlib
 import json
+import os
+import re
 from core.settings import PROJECT_ROOT
 
 
@@ -13,6 +15,10 @@ def digest(value):
 
 
 def code_digest():
+    reference = runtime_reference()
+    if reference:
+        # Legacy storage token; production identity comes from the immutable release, not a file scan.
+        return digest(reference)
     project = PROJECT_ROOT
     paths = [
         p
@@ -32,6 +38,9 @@ def code_digest():
 
 
 def revision():
+    reference = runtime_reference()
+    if reference:
+        return reference['version']
     import subprocess
     import shutil
 
@@ -45,3 +54,12 @@ def revision():
         ).strip()
     except (OSError, subprocess.CalledProcessError):
         return "uncommitted-source"
+
+
+def runtime_reference():
+    version = os.environ.get('M3_RELEASE_VERSION','')
+    if not version:
+        return None
+    if len(version)>64 or not re.fullmatch(r'(?:[a-f0-9]{40}|v\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?)',version):
+        raise ValueError('M3_RELEASE_VERSION requires a commit SHA or semantic release version')
+    return {'mode':'immutable-release-v1','version':version}
