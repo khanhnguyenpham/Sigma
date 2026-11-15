@@ -82,4 +82,4 @@ Mở **http://127.0.0.1:8000/**. Dùng cổng khác nếu máy đang dùng8000; 
 
 Nếu trước đây dùng launcher demo `src/start_demo.py` có `prepared.json`, không sửa fingerprint để vượt thông báo `Runtime changed`. Cần cập nhật runtime đã duyệt sau backup/rehearsal; hướng dẫn này không tự chứng minh demo riêng đó đã được nâng cấp.
 
-Phần chưa hoàn thiện: [giới hạn sổ kho](WAREHOUSE_OPERATIONS.md#phần-còn-thiếu). Đưa code vào main không đồng nghĩa QR/Redis/tích hợp dự báo hoặc host public đã hoàn tất.
+Phần đã có và giới hạn: [bảng trạng thái hiện hành](PRODUCT_STATUS.md), [giới hạn sổ kho](WAREHOUSE_OPERATIONS.md#phần-còn-thiếu). QR phiếu giao, Redis tùy chọn và tư vấn nhập đã có; host public và chứng minh tiêu chí dự báo trên dữ liệu nhóm vẫn chưa hoàn tất. Nếu bật Redis, cấu hình API và worker cùng driver/namespace theo [hướng dẫn queue](REDIS_QUEUE.md); không chạy song song hai worker của hai driver trên cùng stack.

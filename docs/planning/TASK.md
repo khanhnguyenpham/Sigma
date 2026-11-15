@@ -1,6 +1,6 @@
 # Điều phối công việc SIGMA
 
-**15/11 — release/index/restore đang kiểm:** Có version image bất biến, allowlist/snapshot, giữ guard local; index forecast một lần,17ca liên quan qua/parity8.510nhóm giữ tổng.577backend local pass/2Redis skip,163React/build qua.71f846e đã qua hai workflow cả Redis thật/Compose startup. Bản mới thêm CI backup/restore synthetic và image versioned. [Bàn giao/số đo](../development.md#handoff-release-identity).
+**15/11 — checkpoint hiện hành đã kiểm:** Main52a96e2 có version image bất biến, index forecast một lần, tư vấn sổ kho, QR phiếu giao và Redis. Hai workflow success:581backend (có Redis thật),163React/build, M2 regression và Compose startup/backup–restore synthetic. [Ma trận yêu cầu hiện hành](../PRODUCT_STATUS.md), [bàn giao/số đo](../development.md#handoff-release-identity). Chưa host public hoặc có nguồn/run nhóm để đóng R05/R07/T14; không nhận toàn PLAN hoàn tất. Các checkpoint phía dưới là lịch sử.
 
 **15/11 — queue Redis đang kiểm:** Có driver Streams, Run queued làm outbox bền, claim theoID/ACK/reclaim, guard interrupted và AUTOCOMMIT lock connection. Full local570pass/2Redis thật skip,163React/build qua; Redis thật/Compose smoke kiểm theo CI. Source chính vẫn main, chưa nhận whole PLAN/host. [Bàn giao](../development.md#handoff-redis-transport).
 

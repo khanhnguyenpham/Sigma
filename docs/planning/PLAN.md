@@ -1,5 +1,7 @@
 # Kế hoạch dự án SIGMA
 
+**15/11 — trạng thái thực hiện hiện hành:** [Ma trận yêu cầu](../PRODUCT_STATUS.md) đối chiếu đủ góp ý với code, kiểm và giới hạn. Main52a96e2 đã qua hai workflow,581backend/163React, Redis thật và Compose backup–restore synthetic. P1–P6 có phần triển khai/kiểm tương ứng; P7 chưa host public, benchmark toàn pipeline/dữ liệu nhóm và nghiệm thu R05/R07/T14 vẫn mở. Không lấy các checkpoint kế hoạch cũ bên dưới làm danh sách tính năng hiện chưa có. Quyết định kỹ thuật tự chốt theo ủy quyền người dùng, không ghi thành mentor xác nhận.
+
 **15/11 — lựa chọn queue:** Run queued đã commit chính là durable outbox; không nhân đôi bảng ý định công việc. Redis là transport, metadata publish nằm trong result_summary khi queued. Giữ concurrency1 và retry interrupted bằng run mới, không tự refit/đa-worker. [Đặc tả thực hiện và ca kiểm](../REDIS_QUEUE.md); không thay R05/R07/T14.
 
 **15/11/2026 — người dùng giao tự chốt cách làm:** Tiếp tục tại main. Thêm profile tư vấn sổ kho toàn mạng, ROP theo lead time hiện tại và policy cố định, chặn thiếu forecast/ngày/đơn quá ETA/ngừng cung cấp; không padding dự báo. QR mặc định theo phiếu giao SIM vật lý, chỉ preview rồi admin ghi sổ; không giả mã kích hoạt/serial. Đổi mật khẩu thu hồi phiên và recovery operator đã có. Gói container local source-only/role DB riêng, build trong CI; runtime Docker local/Redis/host vẫn cần kiểm riêng. [Tư vấn](../OPERATIONS_PLANNING.md), [QR](../RECEIPT_QR.md), [bàn giao](../development.md#handoff-live-advisory-qr).

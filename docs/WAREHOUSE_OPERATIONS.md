@@ -57,8 +57,8 @@ Migration0011 chỉ thêm bảng/index/trigger, không sửa source/run/snapshot
 
 ## Phần còn thiếu
 
-**Sổ kho chưa tự cấp tồn/lead time cho kế hoạch.** Các trang Dự báo & kế hoạch vẫn dùng run mô phỏng L7/R1/H14. Lead time30 của đơn mới không chứng minh ROP/cảnh báo cũ đã tính theo30. Tích hợp phải có profile mới, đủ vector dự báo và kiểm riêng; giữ kết quả lịch sử.
+**Sổ kho có [tư vấn nhập theo profile riêng](OPERATIONS_PLANNING.md)**, đọc số dư/đơn đang về, lead time supplier và forecast hoàn tất khi đủ horizon. Trang này không tự lưu snapshot hoặc tạo đơn. Các trang Dự báo & kế hoạch vẫn đọc run mô phỏng L7/R1/H14; lead time30 của đơn mới không chứng minh ROP/cảnh báo cũ đã tính theo30. Thiếu ngày forecast thì chặn và giải thích, không padding hoặc viết lại kết quả lịch sử.
 
-Chưa có QR theo SIM/lô, serial, gửi đơn cho đối tác, return/transfer, giá trị tiền hàng hoặc đồng bộ đơn bán. Xuất kho hiện là phiếu nhập tay. Redis/outbox, reset/rotation mật khẩu, host bền dữ liệu và diễn tập backup/restore bản nâng cấp còn thiếu. Xem [PLAN](planning/PRODUCT_UPGRADE_PLAN_20261114.md).
+Đã có [QR phiếu giao/lô](RECEIPT_QR.md), [Redis transport](REDIS_QUEUE.md), đổi/khôi phục mật khẩu và container backup/restore synthetic qua CI. Chưa có camera/serial từng SIM, gửi đơn cho đối tác, return/transfer, giá trị tiền hàng hoặc đồng bộ đơn bán. Xuất kho hiện là phiếu nhập tay. Chưa host public bền dữ liệu hoặc restore toàn bộ dữ liệu riêng của nhóm. Xem [trạng thái hiện hành](PRODUCT_STATUS.md).
 
 [Bàn giao kiểm thử](development.md#handoff-operational-ledger) chỉ là bằng chứng kỹ thuật trên synthetic, không thay nghiệm thu production hoặc nâng C00/R05/R07/T14.

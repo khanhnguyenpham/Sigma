@@ -1,5 +1,11 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 15/11 — kiểm đủ cổng main và sửa tài liệu hiện hành
+
+Người dùng nhắc tự chọn cách làm hợp lý, không hỏi lại. Giữ lựa chọn QR theo phiếu giao, supplier chỉ đọc, release identity cho image bất biến và Redis transport một owner; không tự mở rộng thành ICCID/camera, đa-worker hoặc forecast90ngày. Đã kiểm main52a96e2 đúng SHA: hai workflow success,581backend/163React, Redis thật và Compose startup/backup–restore synthetic. Đồng bộ các tài liệu còn ghi QR/Redis chưa có và thêm [ma trận yêu cầu hiện hành](PRODUCT_STATUS.md). Các số cũ trong checkpoint lịch sử không là trạng thái hiện tại.
+
+Nguồn bán/run riêng không có ở checkout này; không dùng synthetic để xác nhận R05/R07/T14 hoặc bịa kết quả10/10. Chưa có hạ tầng public24/7 được cấu hình; giữ gói local đã kiểm, không nhận deploy public đã xong. [Bàn giao](development.md#handoff-main-verified-20261115).
+
 ## 15/11 — tự chốt phạm vi triển khai theo ủy quyền mới
 
 Người dùng yêu cầu không hỏi lại lựa chọn hợp lý. Chọn tư vấn toàn mạng để không nhân nhu cầu theo số kho; chỉ tính khi có forecast đúng ngày/đủ horizon và policy, không tự suy từ tổng30 ra từng ngày. Chọn QR phiếu giao vật lý có schema và bước đối chiếu, không coi là chữ ký supplier hay mã kích hoạt. Recovery qua operator không tự mở tài khoản bị khóa. [Bàn giao và giới hạn](development.md#handoff-live-advisory-qr). Đây là quyết định triển khai được ủy quyền, không phải mentor chốt nghiệp vụ hoặc nghiệm thu production.

@@ -4,7 +4,7 @@ Ngày: **14/11/2026, Asia/Saigon**. Nền: `main` **`2d0d5f1052a3a3bea1711e26358
 
 ## 1. Trạng thái và ranh giới
 
-**Checkpoint cuối15/11 hiện hành:** người dùng giao tự chốt kỹ thuật và làm tại main. Có tư vấn sổ kho toàn mạng, QR phiếu giao, đổi/recovery mật khẩu, Redis Streams/durable queued intent và image53runtimepackage.71f846e đã qua hai workflow với Redis thật/Compose startup/login/role không superuser. Bước mới có release identity không quét source trong image, index forecast một lần (parity8.510nhóm;16,102→1,683giây cho lookup synthetic), CI restore DB/artifact đang kiểm.577backend local/2Redis skip,163React và17ca liên quan qua. [Bàn giao](../development.md#handoff-release-identity). Các matrix ban đầu phía dưới là khảo sát nền, không phải danh sách phần mới chưa viết.
+**Checkpoint cuối15/11 hiện hành:** người dùng giao tự chốt kỹ thuật và làm tại main. Có tư vấn sổ kho toàn mạng, QR phiếu giao, đổi/recovery mật khẩu, Redis Streams/durable queued intent, release identity và index forecast một lần. Main52a96e2 đã qua hai workflow:581backend (Redis thật),163React/build, M2 regression và Compose startup/backup–restore synthetic. [Ma trận hiện hành](../PRODUCT_STATUS.md), [bàn giao](../development.md#handoff-main-verified-20261115). Các ma trận khảo sát ban đầu phía dưới giữ để truy vết, không phải danh sách phần mới chưa viết. Chưa có public host24/7 hoặc bằng chứng mới trên nguồn nhóm để đóng R05/R07/T14.
 
 **Cập nhật15/11 — vận hành theo chứng từ:** Theo yêu cầu dùng như phần mềm quản lý, đã thêm [sổ kho riêng](../WAREHOUSE_OPERATIONS.md), migration0011 và màn hình React. Đơn nhập/nhận từng phần/xuất/kiểm kê có ghi sổ/audit, version và retry. Lead time mặc định supplier áp cho đơn mới; chưa nối vào forecast/ROP L7/H14.552backend,156React/TypeScript/build qua trên synthetic; chưa host hoặc nhận toàn PLAN hoàn tất. [Bàn giao hiện hành](../development.md#handoff-operational-ledger).
 
@@ -38,7 +38,9 @@ Hai ý “chỉnh worker (thêm Redis)” và “thêm Redis cho queue” đư�
 | FB-14 | Tổng90/phân bổ xuống thứ chỉ tính một lần ở ngày chốt | allocate lấy 90 ngày lịch sử tính weekday weights, 30/90 ngày tính item share; đầu vào **hai tổng tuần**, chưa phải tổng forecast90 ngày | Xác nhận nghĩa 90 ngày ở D02; nếu là trọng số lịch sử, tính/lưu một lần theo origin và tái sử dụng. Không tự đổi horizon, mô hình hoặc reuse trọng số tương lai. |
 | FB-15 | Table thiếu dữ liệu ghi “không có” | State có empty chung; Table chưa tự dựng dòng rỗng; format null hiện “—” | Bảng rỗng có dòng đầy đủ colSpan “Không có dữ liệu”; bộ lọc rỗng ghi “Không có kết quả phù hợp”; ô null/undefined ghi “Không có”. Giữ nguyên số0/false hợp lệ. |
 
-## 3. Các quyết định cần làm rõ
+## 3. Các quyết định ở mốc lập PLAN
+
+**Cập nhật theo ủy quyền15/11:** D01 chọn QR phiếu giao/lô; D02 giữ lịch sử90ngày theo origin, không đổi horizon; D03 dùng immutable release reference trong image; D04 supplier chỉ đọc; D05 lead time1–365 cho đơn mới, tư vấn chặn khi forecast thiếu; D06 tách ledger vận hành và tư vấn read-only. Đây là lựa chọn triển khai, không phải xác nhận mentor. D07 đã đóng gói local; public host chưa có cấu hình. Bảng câu hỏi sau đây ghi phương án tại lúc lập PLAN, không yêu cầu hỏi lại người dùng các lựa chọn kỹ thuật đã được ủy quyền.
 
 | ID | Câu hỏi còn mở | Đề xuất để xem xét | Phần bị phụ thuộc |
 | --- | --- | --- | --- |
@@ -173,6 +175,8 @@ Các ca đều **chưa chạy trong lượt lập PLAN**. Bổ sung vào [UAT n�
 
 ## 9. Bàn giao tài liệu
 
+Mục9.0 và9.1 ghi checkpoint sổ kho trước khi có QR/Redis/release identity. Đọc [mục9.2](#92-phạm-vi-thực-có-sau-ủy-quyền-tự-chọn) và [trạng thái sản phẩm](../PRODUCT_STATUS.md) cho hiện trạng; không lấy các dòng “chưa thêm” ở checkpoint cũ làm công việc còn thiếu hiện nay.
+
 Checkpoint hiện hành: [sổ kho vận hành15/11](../development.md#handoff-operational-ledger). Các số541/143 ở hàng P1/P2 dưới đây thuộc lượt trước; hiện đã kiểm552backend và156React, kèm20ca chạy lại sau rà cuối và10nhóm browser. Không coi tổng số test là nghiệm thu toàn P3 hoặc production.
 
 | Bước | Hiện trạng15/11 |
@@ -214,6 +218,6 @@ Các ca tích hợp forecast dùng số dư vận hành, QR, Redis recovery và 
 | Hash runtime | Release-version mode cho image bất biến, giữ local source guard và checksum audit/password. Không xóa cột/manifest cũ hoặc nói mọi hash đều bị bỏ. |
 | Phân bổ/hiệu năng | Cơ sở90ngày tính theo từng origin, không chạy lại cho từng target day. Index/group lookup/input tuyến tính một lần; có parity và số đo lookup, chưa số đo toàn ML/DB tải lớn. |
 | Redis | Có Streams, PG queued làm durable outbox, ACK/reclaim/gián đoạn, một owner; Redis thật và Compose startup qua CI71f846e. Không quảng cáo multi-worker/exactly-once. |
-| Đóng gói/host | Có image/Compose PostgreSQL/Redis bền volume, role app không superuser, source-only runtime. CI restore đang kiểm. Chưa có public host/HTTPS24/7 hoặc nguồn bán thật trên checkout này. |
+| Đóng gói/host | Có image/Compose PostgreSQL/Redis bền volume, role app không superuser, source-only runtime. CI52a96e2 đã kiểm startup và restore DB/artifact synthetic. Chưa có public host/HTTPS24/7 hoặc nguồn bán thật trên checkout này. |
 
 R05/R07/T14 và dữ liệu nguồn không đổi. Test synthetic không thay bằng chứng mô hình đạt10/10 hoặc chứng minh đã chạy dataset riêng của nhóm.

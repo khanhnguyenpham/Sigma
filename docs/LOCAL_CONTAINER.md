@@ -35,8 +35,8 @@ Dừng API/worker đúng stack và đợi công việc kết thúc; backup DB b�
 
 Đổi mật khẩu người dùng tại menu tài khoản. Khôi phục khi quên bằng `docker compose ... run --rm api python -m modules.auth.reset_password` từ terminal operator có quyền DB; không đặt mật khẩu trong tham số hoặc chia sẻ log env.
 
-Container hiện giữ fingerprint lịch sử và worker serial; Redis không biến thành cơ chế đa-worker. Chưa có tối ưu hiệu năng có benchmark, backup/restore rehearsal của gói mới hoặc hosting24/7. Không công bố image nhỏ/nhanh hơn khi chưa đo.
+Container giữ khả năng đọc fingerprint lịch sử và worker serial; Redis không biến thành cơ chế đa-worker. Có benchmark riêng của lookup forecast/kiểm version, chưa đo hiệu năng toàn pipeline hoặc kích thước image trước–sau. Chưa có hosting24/7.
 
-Image có `SIGMA_RELEASE_VERSION` được build với [nhận diện release bất biến](RELEASE_IDENTITY.md), tránh quét mã nguồn ở runtime. Để trống với bản local còn sửa để giữ guard cũ. CI build dùng đúng SHA. Commit71f846e đã build và khởi động Compose thật qua CI; vẫn chưa phải triển khai public hoặc proof backup/restore toàn dữ liệu.
+Image có `SIGMA_RELEASE_VERSION` được build với [nhận diện release bất biến](RELEASE_IDENTITY.md), tránh quét mã nguồn ở runtime. Để trống với bản local còn sửa để giữ guard cũ. CI build dùng đúng SHA. Commit52a96e2 đã build/start/migrate/login Compose, kiểm Redis và app role, backup/restore sang DB riêng và khôi phục artifact synthetic qua [CI](https://github.com/khanhnguyenpham/Sigma/actions/runs/43712696757). Đây chưa phải triển khai public hoặc proof backup/restore toàn dữ liệu riêng của nhóm.
 
 Đối chiếu kỹ thuật: [volume PostgreSQL18 chính thức](https://hub.docker.com/_/postgres) dùng mount `/var/lib/postgresql`; [psql18](https://www.postgresql.org/docs/18/app-psql.html) đọc mật khẩu app từ env bằng `\getenv`, không ghi credential thật trong SQL nguồn hoặc tham số lệnh.

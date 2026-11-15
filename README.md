@@ -2,13 +2,13 @@
 
 **Cập nhật15/11:** Bản nâng cấp auth, React và sổ kho đã được gộp vào `main`. Thành viên dùng [hướng dẫn cập nhật local](docs/UPDATE_LOCAL.md) để kéo code, cài dependency, build FE và nâng DB lên0011 trước khi mở web. Các checkpoint “chưa cập nhật main” trong tài liệu cũ là lịch sử; web trên từng máy không tự đổi chỉ bằng push GitHub.
 
-Phần tiếp: [đề xuất nhập từ sổ kho](docs/OPERATIONS_PLANNING.md), [nhận lô SIM bằng QR](docs/RECEIPT_QR.md), đổi mật khẩu trong menu tài khoản và khôi phục từ terminal operator. [Gói container local](docs/LOCAL_CONTAINER.md) tách dependency/runtime khỏi source; có cổng build trong CI, chưa đồng nghĩa đã host public hoặc hoàn tất Redis/tối ưu mọi yêu cầu.
+Đọc [bảng yêu cầu và trạng thái hiện hành](docs/PRODUCT_STATUS.md) để phân biệt phần đã chạy với phần còn thiếu. Bản mã `52a96e2` đã qua hai workflow: 581 kiểm thử backend, 163 React, build, Redis thật và Compose startup/backup–restore synthetic. Có [đề xuất nhập từ sổ kho](docs/OPERATIONS_PLANNING.md), [nhận lô SIM bằng QR](docs/RECEIPT_QR.md), đổi/khôi phục mật khẩu và [gói container local](docs/LOCAL_CONTAINER.md). Chưa có host public 24/7 hoặc bằng chứng mới để đóng R05/R07/T14.
 
 SIGMA hỗ trợ theo dõi nhu cầu bán, lập kế hoạch tồn kho, đề xuất nhập hàng và cảnh báo nguy cơ cạn hàng. Hệ thống kết hợp **dự báo nhu cầu** với **tồn hiện có, lô đang về và cấu hình sản phẩm** để giải thích khi nào cần bổ sung, bổ sung bao nhiêu và hàng có về kịp hay không.
 
-Nền dự báo và kế hoạch tồn của bài thực tập dùng dữ liệu/lô mô phỏng. Nhánh nâng cấp bổ sung [sổ kho theo chứng từ](docs/WAREHOUSE_OPERATIONS.md): danh mục, đơn nhập, nhận hàng, xuất và kiểm kê ghi DB riêng, đã kiểm trên synthetic. Chưa host bản nâng cấp, chưa tự tích hợp sổ kho với dự báo hoặc gửi đơn mua hàng sang đối tác.
+Nền dự báo và kế hoạch tồn của bài thực tập dùng dữ liệu/lô mô phỏng. Bản hiện tại bổ sung [sổ kho theo chứng từ](docs/WAREHOUSE_OPERATIONS.md): danh mục, đơn nhập, nhận hàng, xuất và kiểm kê ghi DB riêng, đã kiểm trên synthetic. Tư vấn nhập kết hợp số dư/đơn đang về với forecast hoàn tất khi đủ ngày dự báo; chưa tự gửi đơn mua hàng sang đối tác hoặc viết lại snapshot mô phỏng cũ.
 
-**Nhánh nâng cấp14–15/11:** có auth admin/supplier, quản lý tài khoản, snapshot và module Vận hành kho React/FastAPI/PostgreSQL. Xem [khởi tạo auth](docs/AUTHENTICATION.md) và migration0011 trước khi chạy bản mới; không có tài khoản mặc định. [Tiến độ theo PLAN](docs/planning/PRODUCT_UPGRADE_PLAN_20261114.md#9-bàn-giao-tài-liệu) ghi phần tích hợp ETA/dự báo, QR, Redis và host còn thiếu. Chưa tự cập nhật bản public hoặc demo cũ.
+**Bản main14–15/11:** có auth admin/supplier, quản lý tài khoản, snapshot và module Vận hành kho React/FastAPI/PostgreSQL. Xem [khởi tạo auth](docs/AUTHENTICATION.md) và migration0011 trước khi chạy bản mới; không có tài khoản mặc định. [Trạng thái theo PLAN](docs/planning/PRODUCT_UPGRADE_PLAN_20261114.md#92-phạm-vi-thực-có-sau-ủy-quyền-tự-chọn) nêu phạm vi ETA/dự báo, QR, Redis và giới hạn host. Push GitHub không tự cập nhật bản public hoặc localhost của thành viên.
 
 ## Bài toán hệ thống giải quyết
 
@@ -58,7 +58,7 @@ Các khái niệm chính:
 - **ROP:** ngưỡng xét bổ sung, lấy giá trị lớn hơn giữa nhu cầu dự báo 7 ngày cộng SS (làm tròn lên) và ngưỡng nhập tối thiểu.
 - **IP:** tồn hiện có cộng lượng đang về, dùng để tránh đặt thêm khi đã đủ hàng theo chính sách.
 - **Q:** lượng một lô nhập cố định đã cấu hình, sau khi áp các ràng buộc cung cấp.
-- **ETA:** ngày dự kiến nhận lô; cấu hình hiện tại là 7 ngày sau ngày đặt. Quyết định được xét hằng ngày.
+- **ETA:** ngày dự kiến nhận lô. Run mô phỏng L7 cũ dùng 7 ngày sau ngày đặt; đơn vận hành mới chốt theo mặc định supplier lúc lập đơn. Quyết định mô phỏng được xét hằng ngày.
 
 Cảnh báo cạn nhìn trước 14 ngày. Nếu dự kiến cạn sau ít nhất 7 ngày thì xếp loại **sớm**; dưới 7 ngày thì xếp loại **khẩn**. Cảnh báo dưới ROP được phân biệt với cảnh báo tồn về 0.
 
@@ -77,11 +77,13 @@ Lô đã đặt không tự bị hủy hoặc từ chối nhận. Nếu về sau
 flowchart LR
     FE[React / TypeScript] --> API[FastAPI]
     API <--> DB[(PostgreSQL)]
-    Worker[Python worker] <--> DB
+    API --> Queue[Redis Streams khi bật]
+    Queue --> Worker[Python worker]
+    Worker <--> DB
     Worker --> Files[Snapshot và tệp kết quả]
 ```
 
-API kiểm tra yêu cầu và lưu công việc trong bảng `runs` của PostgreSQL. Worker nhận công việc ở nền, tính toán và kiểm chứng trước khi chuyển sang hoàn tất. Hàng đợi hiện dùng **PostgreSQL**, chưa dùng Redis. FE theo dõi trạng thái và đọc kết quả qua API.
+API kiểm tra yêu cầu và lưu công việc trong bảng `runs` của PostgreSQL. Có hai driver: PostgreSQL mặc định cho tương thích, hoặc [Redis Streams](docs/REDIS_QUEUE.md) làm transport khi bật (Compose dùng Redis). Run queued đã commit là ý định công việc bền; worker claim tại PostgreSQL, tính toán/kiểm chứng rồi mới hoàn tất. Chỉ chạy một driver/owner trong mỗi stack. FE theo dõi trạng thái và đọc kết quả qua API.
 
 | Thành phần | Vị trí |
 | --- | --- |
