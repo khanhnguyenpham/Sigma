@@ -47,9 +47,9 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
             assert set(schema['paths'].pop(path)) == set(methods)
         for name in OPS_SCHEMAS:
             assert schema['components']['schemas'].pop(name)
-        for path in ('/auth/session', '/auth/login', '/auth/logout', '/auth/users', '/auth/users/{key}', '/supplier/products', '/supplier/shipments'):
+        for path in ('/auth/session', '/auth/login', '/auth/logout', '/auth/password', '/auth/users', '/auth/users/{key}', '/supplier/products', '/supplier/shipments'):
             assert schema['paths'].pop('/api/v1' + path)
-        for name in ('LoginInput', 'UserCreate', 'UserActive'):
+        for name in ('LoginInput', 'UserCreate', 'UserActive', 'PasswordChange'):
             assert schema['components']['schemas'].pop(name)
         assert set(schema['paths'].pop('/api/v1/scenarios/{key}')) == {'delete'}
         assert set(schema['paths'].pop('/api/v1/scenarios/{key}/restore')) == {'post'}

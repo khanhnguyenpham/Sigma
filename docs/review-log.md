@@ -1,5 +1,9 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 15/11 — tự chốt phạm vi triển khai theo ủy quyền mới
+
+Người dùng yêu cầu không hỏi lại lựa chọn hợp lý. Chọn tư vấn toàn mạng để không nhân nhu cầu theo số kho; chỉ tính khi có forecast đúng ngày/đủ horizon và policy, không tự suy từ tổng30 ra từng ngày. Chọn QR phiếu giao vật lý có schema và bước đối chiếu, không coi là chữ ký supplier hay mã kích hoạt. Recovery qua operator không tự mở tài khoản bị khóa. [Bàn giao và giới hạn](development.md#handoff-live-advisory-qr). Đây là quyết định triển khai được ủy quyền, không phải mentor chốt nghiệp vụ hoặc nghiệm thu production.
+
 ## 15/11/2026 — người dùng đổi đích sang main
 
 Người dùng yêu cầu gộp bản nâng cấp vào main và tiếp tục làm tại main để thành viên kéo về kiểm local. Main remote vẫn ở2d0d5f1, là tổ tiên của bản0d31923 đã qua hai workflow; chọn fast-forward, không rewrite hoặc force-push. Cập nhật hướng dẫn local để nêu rõ dependency/build/migration/auth, backup trước nâng schema và không ghi lại run cũ. Không có quyền truy cập máy thành viên; việc push main không tự nâng DB hoặc restart localhost của họ.

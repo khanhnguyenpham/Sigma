@@ -1,5 +1,16 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-live-advisory-qr"></a>
+## Tư vấn từ số dư thật, QR lô và khôi phục tài khoản — 15/11/2026
+
+Người dùng giao tự chọn các quyết định hợp lý, không hỏi lại. Chọn QR theo phiếu giao/lô với schema version, không giả ICCID/activation hoặc xác nhận mentor. Tư vấn tồn là profile riêng read-only, cộng mỗi item trên mọi kho một lần, dùng lead supplier hiện tại/policy cố định/pending theo ETA; transaction repeatable-read tránh trộn commits. Chặn forecast cũ/thiếu ngày/lead vượt13–14ngày, đơn trễ chưa rõ ETA và lịch cung cấp có hạn chế. Có giải thích thiếu trước khi lô mới về; chưa lưu snapshot tư vấn hoặc tự chuyển đề xuất thành PO.
+
+Đổi mật khẩu tự phục vụ bắt mật khẩu cũ, CSRF, throttle5lần/15phút và thu hồi mọi phiên. Recovery offline qua getpass chỉ dành operator có DB access, không tự kích hoạt tài khoản disabled. QR tạo ảnh SVG nội bộ bằng Segno1.6.6; preview chỉ điền phiếu, không tăng tồn; mã phiếu cũ vẫn bị chặn bởi transaction nhận hàng đã có. Gói container chỉ copy source cần thiết, frontend build riêng, chạy user không root và role app PostgreSQL không superuser. Chưa có Docker local, thêm cổng build/import/compose trong CI và không nhận đã host public.
+
+Kiểm hiện có: full backend565trước QR; sau QR **567passed**,1deprecation TestClient; **162React**, TypeScript/Vite/pipcheck qua. Các test riêng18planning/contracts,22planning/password/contracts và11QR/contracts qua trước full;6React liên quan chạy lại sau chỉnh nhãn QR. M2/root regression31ca qua; không refit dữ liệu thật. Browser **5nhóm qua**,0pageerror: stock8→ROP18/lô15, thiếu trước ETA, mobile390không tràn ngang, đổi mật khẩu/logout/login mới, tạo/đọc QR chưa đổi tồn và bấm ghi sổ nhận2 đưa tồn8→10. Lượt fixture đầu lỗi đường import, lượt tiếp lộ nhãn textarea chưa ổn; đã sửa script/aria-label và chạy lại toàn luồng. Bằng chứng ở `outputs/upgrade_20261114/backend-next-qr.xml`, `password-planning.xml`, `qr.xml`, `backend-planning-auth.xml`; `outputs/operations_20261115/frontend-next.json`, `browser-next.json` và ảnh recommendations/qr. Không nhận camera/máy quét vật lý hoặc Docker build đã được kiểm khi chưa có kết quả CI.
+
+Các phần tiếp: snapshot tư vấn/PO kèm audit, horizon dài đúng dữ liệu, Redis/outbox/worker recovery, bỏ fingerprint runtime theo version, benchmark DB/kịch bản, backup/restore container và host được cấu hình. Phần phân bổ hiện tại đã tính weights một lần cho mỗi tuyến/origin rồi dùng14ngày; không tự đổi thành target90ngày hoặc báo nhanh hơn khi chưa benchmark. Giữ R05/R07/T14 và các run cũ.
+
 ## Chuyển bản nâng cấp sang main — 15/11/2026
 
 Người dùng tiếp tục yêu cầu cập nhật trực tiếp nhánh main do nhóm sử dụng và làm việc trên main từ đây. Đã fetch/kiểm main nền `2d0d5f1` là tổ tiên của `0d31923`, gộp fast-forward giữ nguyên lịch sử và toàn bộ source/test đã qua hai workflow CI. Bổ sung [cập nhật local](UPDATE_LOCAL.md): bảo toàn thay đổi thành viên, dừng stack đúng chủ, backup DB, dependency/build/migration0011, bootstrap admin và kiểm đọc kết quả cũ. Không chuyển DB/env/raw/dist/outputs hoặc tự cập nhật localhost trên máy thành viên. Commit tài liệu main được kiểm remoteSHA/CI đúng commit sau push; receipt ở outputs local. Các phạm vi “không merge main” dưới đây ghi yêu cầu trước khi người dùng đổi sang main.

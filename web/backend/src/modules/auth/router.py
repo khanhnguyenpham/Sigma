@@ -2,10 +2,20 @@ from fastapi import APIRouter, Request, Response, Query
 from sqlalchemy import select, func, update
 from core.errors import DomainError
 from modules.auth.models import User, LoginSession
-from modules.auth.schemas import LoginInput, UserCreate, UserActive
+from modules.auth.schemas import LoginInput, UserCreate, UserActive, PasswordChange
 from modules.auth.service import COOKIE, SESSION_HOURS, authenticate, create_user, public_user, revoke, now
 
 router = APIRouter(prefix="/api/v1/auth", tags=["authentication"])
+
+
+@router.post('/password')
+def update_password(payload: PasswordChange, request: Request, response: Response):
+    enabled(request)
+    from modules.auth.service import change_password
+    change_password(request.app.state.sessions, request.state.user['id'],
+        payload.current_password.get_secret_value(), payload.new_password.get_secret_value())
+    response.delete_cookie(COOKIE, path='/api/v1')
+    return {'ok': True, 'login_required': True}
 
 
 def enabled(request):

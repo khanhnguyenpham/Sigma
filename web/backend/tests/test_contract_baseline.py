@@ -26,7 +26,7 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
     assert routes.pop('/api/v1/runs/{key}/policy-alert-evaluation') == ['get']
     assert routes.pop('/api/v1/runs/{key}/snapshot') == ['get']
     for path, methods in {
-        '/api/v1/auth/session': ['get'], '/api/v1/auth/login': ['post'], '/api/v1/auth/logout': ['post'],
+        '/api/v1/auth/session': ['get'], '/api/v1/auth/login': ['post'], '/api/v1/auth/logout': ['post'], '/api/v1/auth/password': ['post'],
         '/api/v1/auth/users': ['get', 'post'], '/api/v1/auth/users/{key}': ['patch'],
         '/api/v1/supplier/products': ['get'], '/api/v1/supplier/shipments': ['get'],
     }.items():

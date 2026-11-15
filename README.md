@@ -2,6 +2,8 @@
 
 **Cập nhật15/11:** Bản nâng cấp auth, React và sổ kho đã được gộp vào `main`. Thành viên dùng [hướng dẫn cập nhật local](docs/UPDATE_LOCAL.md) để kéo code, cài dependency, build FE và nâng DB lên0011 trước khi mở web. Các checkpoint “chưa cập nhật main” trong tài liệu cũ là lịch sử; web trên từng máy không tự đổi chỉ bằng push GitHub.
 
+Phần tiếp: [đề xuất nhập từ sổ kho](docs/OPERATIONS_PLANNING.md), [nhận lô SIM bằng QR](docs/RECEIPT_QR.md), đổi mật khẩu trong menu tài khoản và khôi phục từ terminal operator. [Gói container local](docs/LOCAL_CONTAINER.md) tách dependency/runtime khỏi source; có cổng build trong CI, chưa đồng nghĩa đã host public hoặc hoàn tất Redis/tối ưu mọi yêu cầu.
+
 SIGMA hỗ trợ theo dõi nhu cầu bán, lập kế hoạch tồn kho, đề xuất nhập hàng và cảnh báo nguy cơ cạn hàng. Hệ thống kết hợp **dự báo nhu cầu** với **tồn hiện có, lô đang về và cấu hình sản phẩm** để giải thích khi nào cần bổ sung, bổ sung bao nhiêu và hàng có về kịp hay không.
 
 Nền dự báo và kế hoạch tồn của bài thực tập dùng dữ liệu/lô mô phỏng. Nhánh nâng cấp bổ sung [sổ kho theo chứng từ](docs/WAREHOUSE_OPERATIONS.md): danh mục, đơn nhập, nhận hàng, xuất và kiểm kê ghi DB riêng, đã kiểm trên synthetic. Chưa host bản nâng cấp, chưa tự tích hợp sổ kho với dự báo hoặc gửi đơn mua hàng sang đối tác.

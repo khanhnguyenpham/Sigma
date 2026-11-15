@@ -1,0 +1,56 @@
+name: sigma-local
+x-app: &app
+  build:
+    context: .
+    dockerfile: web/Dockerfile
+  image: sigma-local:latest
+  environment: &app-env
+    M3_DATABASE_URL: postgresql+psycopg://sigma:${SIGMA_DB_PASSWORD:?Set a random hexadecimal password in your private env file}@database:5432/sigma_m3
+    M3_SOURCE_ROOT: /srv/source
+    M3_OUTPUT_ROOT: /srv/outputs
+    M3_FRONTEND_ORIGIN: http://127.0.0.1:5173
+  volumes:
+    - artifacts:/srv/outputs
+    - type: bind
+      source: ${SIGMA_DATA_DIR:-./data}
+      target: /srv/source/data
+      read_only: true
+  depends_on:
+    database:
+      condition: service_healthy
+  restart: unless-stopped
+services:
+  database:
+    image: postgres:18-bookworm
+    environment:
+      POSTGRES_DB: sigma_m3
+      POSTGRES_USER: sigma_admin
+      POSTGRES_PASSWORD: ${SIGMA_DB_ADMIN_PASSWORD:?Set SIGMA_DB_ADMIN_PASSWORD}
+      SIGMA_APP_PASSWORD: ${SIGMA_DB_PASSWORD:?Set SIGMA_DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./web/deploy/init-app.sql:/docker-entrypoint-initdb.d/10-sigma-app.sql:ro
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U sigma_admin -d sigma_m3]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  migrate:
+    <<: *app
+    restart: "no"
+    command: [python, -m, alembic, -c, web/backend/alembic.ini, upgrade, head]
+    profiles: [setup]
+  api:
+    <<: *app
+    ports:
+      - 127.0.0.1:${SIGMA_PORT:-8000}:8000
+  worker:
+    <<: *app
+    command: [python, -m, worker]
+    healthcheck:
+      disable: true
+    profiles: [jobs]
+volumes:
+  postgres-data:
+  artifacts:

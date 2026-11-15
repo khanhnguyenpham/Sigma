@@ -145,3 +145,7 @@ class OpsMovementInput(DTO):
         if not value.strip():
             raise ValueError("A reference and reason are required")
         return value.strip()
+
+
+class OpsQrScanInput(DTO):
+    payload: str = Field(min_length=1, max_length=4096)

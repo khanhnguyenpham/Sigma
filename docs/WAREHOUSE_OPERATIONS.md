@@ -1,5 +1,7 @@
 # Vận hành kho theo chứng từ
 
+**Bổ sung15/11:** Đã có [tư vấn nhập từ số dư thực](OPERATIONS_PLANNING.md), [QR phiếu giao SIM vật lý](RECEIPT_QR.md) và [đổi/khôi phục mật khẩu](AUTHENTICATION.md). Tư vấn là profile mới chỉ đọc, chưa tự tạo đơn hoặc lưu snapshot; không đổi run cũ. Các giới hạn phía dưới ghi nền trước cập nhật này; giới hạn chi tiết hiện hành ở từng tài liệu mới.
+
 Phần mới ngày 15/11/2026: React, FastAPI và migration PostgreSQL đã có, kiểm trên dữ liệu synthetic riêng. Chưa triển khai vào demo cũ/public hoặc nghiệm thu toàn sản phẩm để vận hành rộng.
 
 ## Bắt đầu

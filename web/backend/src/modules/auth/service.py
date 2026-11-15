@@ -80,3 +80,37 @@ def revoke(sessions, token):
     if token:
         with sessions.begin() as session:
             session.execute(update(LoginSession).where(LoginSession.token_digest == digest(token)).values(revoked_at=now()))
+
+
+def change_password(sessions, user_id, current_password, new_password):
+    rejected = False
+    with sessions.begin() as session:
+        user = session.scalar(select(User).where(User.id == user_id).with_for_update())
+        stamp = now()
+        valid = PASSWORDS.verify(current_password, user.password_hash if user else DUMMY_PASSWORD)
+        if not user or not user.active or (user.locked_until and user.locked_until > stamp):
+            rejected = True
+        elif not valid:
+            user.failed_attempts += 1
+            if user.failed_attempts >= 5:
+                user.failed_attempts = 0
+                user.locked_until = stamp + timedelta(minutes=15)
+            rejected = True
+        else:
+            user.password_hash = PASSWORDS.hash(new_password)
+            user.failed_attempts, user.locked_until = 0, None
+            session.execute(update(LoginSession).where(LoginSession.user_id == user.id).values(revoked_at=stamp))
+    if rejected:
+        raise DomainError('password_change_rejected', 'Mật khẩu hiện tại không đúng hoặc tài khoản đang tạm khóa. Vui lòng kiểm tra hoặc thử lại sau.', 403)
+
+
+def operator_reset_password(session, username, new_password):
+    """Privileged offline recovery; no public reset endpoint or default credentials."""
+    if not 12 <= len(new_password) <= 128:
+        raise DomainError('invalid_input', 'Mật khẩu mới phải từ12–128 ký tự.')
+    user = session.scalar(select(User).where(User.username == username).with_for_update())
+    if user is None:
+        raise DomainError('not_found', 'Không tìm thấy tài khoản.', 404)
+    user.password_hash = PASSWORDS.hash(new_password)
+    user.failed_attempts, user.locked_until = 0, None
+    session.execute(update(LoginSession).where(LoginSession.user_id == user.id).values(revoked_at=now()))

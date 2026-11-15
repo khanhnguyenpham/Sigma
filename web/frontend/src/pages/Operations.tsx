@@ -12,11 +12,12 @@ import { OrderEditor } from "../operations/OrderEditor";
 import { OrderDetail } from "../operations/OrderDetail";
 import { DocumentDetail } from "../operations/DocumentDetail";
 import { AuditDetails, AUDIT_ENTITIES } from "../operations/AuditDetails";
+import { Recommendations } from "../operations/Recommendations";
 import { DOCUMENT_KIND, ORDER_STATUS, localTime, qty, type OpsSummary, type Product, type Supplier, type Warehouse, type Position } from "../operations/types";
 import type { Context } from "../types/context";
 import type { Page } from "../types/api";
 
-export const OPERATION_TABS = [["stock", "Tồn kho"], ["orders", "Đơn nhập"], ["products", "Sản phẩm"], ["warehouses", "Kho hàng"], ["suppliers", "Nhà cung cấp"], ["documents", "Chứng từ"], ["audit", "Lịch sử thao tác"]] as const;
+export const OPERATION_TABS = [["stock", "Tồn kho"], ["recommendations", "Đề xuất nhập"], ["orders", "Đơn nhập"], ["products", "Sản phẩm"], ["warehouses", "Kho hàng"], ["suppliers", "Nhà cung cấp"], ["documents", "Chứng từ"], ["audit", "Lịch sử thao tác"]] as const;
 type Editor = { kind: "warehouse"; row?: Warehouse } | { kind: "product"; row?: Product } | { kind: "supplier"; row: Supplier } | { kind: "order" } | { kind: "issue"; row?: Position } | { kind: "count"; row?: Position };
 const AUDIT_ACTIONS: Record<string, string> = { created: "Tạo mới", registered: "Đăng ký sản phẩm", updated: "Cập nhật", confirm: "Xác nhận đặt hàng", cancel: "Hủy phần chưa nhận", received: "Nhận hàng", posted: "Ghi sổ chứng từ" };
 
@@ -29,7 +30,7 @@ export function Operations({ ctx, onContext }: { ctx: Context; onContext: (patch
   const suppliers = useResource<Page<Supplier>>("/operations/suppliers?page_size=100", false, 0, apiAllPages);
   const warehouses = useResource<Page<Warehouse>>("/operations/warehouses?active=true&page_size=100", false, 0, apiAllPages);
   const path = `/operations/${tab}?${query({ page, page_size: 25, ...(["stock", "orders", "products"].includes(tab) ? { search: debounced } : {}), ...(tab === "orders" ? { status } : {}), ...(tab === "products" ? { include_inactive: "true" } : {}), ...(tab === "stock" ? { warehouse_id: warehouse } : {}) })}`;
-  const result = useResource<Page>(ctx.opsOrderId && tab === "orders" ? null : path);
+  const result = useResource<Page>(tab === "recommendations" || ctx.opsOrderId && tab === "orders" ? null : path);
   const activeWarehouses = warehouses.data?.items ?? [], supplierRows = suppliers.data?.items ?? [];
   function switchTab(next: string) { onContext({ opsTab: next, opsOrderId: undefined }); setPage(1); setSearch(""); setStatus(""); setWarehouse(""); }
   function openOrder(id: string) { onContext({ opsTab: "orders", opsOrderId: id }); }
@@ -48,7 +49,7 @@ export function Operations({ ctx, onContext }: { ctx: Context; onContext: (patch
     <div className="ops-summary" aria-busy={summary.loading}>{[["Tổng tồn sổ", summary.data?.on_hand_units], ["Đơn chờ nhận", summary.data?.pending_orders], ["Đơn nháp", summary.data?.draft_orders], ["Phiếu trong ngày", summary.data?.documents_today]].map(([label, value]) => <div key={String(label)}><span>{label}</span><strong>{summary.loading ? "…" : qty(value)}</strong></div>)}</div>
     <nav className="ops-tabs" aria-label="Chức năng kho">{OPERATION_TABS.map(([key, label]) => <button key={key} aria-current={tab === key ? "page" : undefined} onClick={() => switchTab(key)}>{label}</button>)}</nav>
     <label className="ops-mobile-tabs">Chức năng<select value={tab} onChange={(event) => switchTab(event.target.value)}>{OPERATION_TABS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
-    {tab === "orders" && ctx.opsOrderId ? <OrderDetail key={ctx.opsOrderId} id={ctx.opsOrderId} today={summary.data?.business_date ?? ""} suppliers={supplierRows} warehouses={activeWarehouses} onBack={() => onContext({ opsOrderId: undefined })} /> : <section className="panel ops-list-panel">
+    {tab === "recommendations" ? <Recommendations /> : tab === "orders" && ctx.opsOrderId ? <OrderDetail key={ctx.opsOrderId} id={ctx.opsOrderId} today={summary.data?.business_date ?? ""} suppliers={supplierRows} warehouses={activeWarehouses} onBack={() => onContext({ opsOrderId: undefined })} /> : <section className="panel ops-list-panel">
       <div className="ops-section-heading"><h2>{OPERATION_TABS.find(([key]) => key === tab)?.[1]}</h2><div className="ops-actions">
         {tab === "orders" && <button className="primary" disabled={!canCreateOrder} onClick={() => setEditor({ kind: "order" })}>Tạo đơn nhập</button>}
         {tab === "stock" && <button className="primary" disabled={!activeWarehouses.length} onClick={() => setEditor({ kind: "count" })}>Kiểm kê / tồn đầu</button>}

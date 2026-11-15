@@ -4,10 +4,11 @@ import { State } from "../components/ui/State";
 import { SupplierPortal } from "./SupplierPortal";
 import { UserManagement } from "./UserManagement";
 import { Icon } from "../components/ui/Icon";
+import { ChangePassword } from "./ChangePassword";
 
 export interface User { id: number; username: string; display_name: string; role: "admin" | "supplier"; supplier_id: number | null; active: boolean }
 interface Session { required: boolean; user: User | null; csrf_token?: string }
-const SessionContext = createContext<{ user: User; logout: () => Promise<void>; accounts: () => void } | null>(null);
+const SessionContext = createContext<{ user: User; logout: () => Promise<void>; accounts: () => void; password: () => void } | null>(null);
 
 export function AccountMenu() {
   const session = useContext(SessionContext);
@@ -31,6 +32,7 @@ export function AccountMenu() {
       <span className="account-name">{session.user.display_name}</span><Icon name="chevron" size={13} /></summary>
     <div className="account-popover"><strong>{session.user.display_name}</strong><small>{session.user.role === "admin" ? "Quản trị viên" : "Nhà cung cấp"}</small>
       {session.user.role === "admin" && <button onClick={() => { close(); session.accounts(); }}>Tài khoản</button>}
+      <button onClick={() => { close(); session.password(); }}>Đổi mật khẩu</button>
       <button onClick={() => { close(); void session.logout(); }}>Đăng xuất</button>
     </div></details>;
 }
@@ -40,6 +42,7 @@ export function SessionBoundary({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error>();
   const [showAccounts, setShowAccounts] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   function accept(value: Session) {
     if (value.required && value.user?.role === "admin" && !location.hash && !new URLSearchParams(location.search).has("run_id"))
@@ -53,7 +56,7 @@ export function SessionBoundary({ children }: { children: ReactNode }) {
       if (err instanceof ApiError && err.status === 401) accept({ required: true, user: null });
       else setError(err);
     }).finally(() => { if (active) setLoading(false); });
-    const expired = () => { accept({ required: true, user: null }); setShowAccounts(false); };
+    const expired = () => { accept({ required: true, user: null }); setShowAccounts(false); setShowPassword(false); };
     window.addEventListener("sigma:unauthorized", expired);
     return () => { active = false; window.removeEventListener("sigma:unauthorized", expired); };
   }, []);
@@ -91,11 +94,12 @@ export function SessionBoundary({ children }: { children: ReactNode }) {
       <button className="primary" disabled={submitting}>{submitting ? "Đang đăng nhập…" : "Đăng nhập"}</button>
       <small>Quên mật khẩu? Liên hệ quản trị viên để được hỗ trợ.</small>
     </form></main>;
-  return <SessionContext.Provider value={{ user: session.user, logout, accounts: () => setShowAccounts(true) }}>
+  return <SessionContext.Provider value={{ user: session.user, logout, accounts: () => setShowAccounts(true), password: () => setShowPassword(true) }}>
     <div key={session.user.id} aria-busy={submitting}>
       {error && <div className="notice error" role="alert">{error.message}</div>}
       {session.user.role === "supplier" ? <SupplierPortal /> : children}
       {showAccounts && session.user.role === "admin" && <UserManagement currentId={session.user.id} onClose={() => setShowAccounts(false)} />}
+      {showPassword && <ChangePassword onClose={() => setShowPassword(false)} />}
     </div>
   </SessionContext.Provider>;
 }

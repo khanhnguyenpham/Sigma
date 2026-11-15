@@ -85,3 +85,16 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate isolated local Compose configuration
+        env:
+          SIGMA_DB_PASSWORD: ci-synthetic-app-only
+          SIGMA_DB_ADMIN_PASSWORD: ci-synthetic-admin-only
+        run: docker compose -f compose.local.yml config --quiet
+      - name: Build source-only application image
+        run: docker build -f web/Dockerfile -t sigma-ci:latest .
+      - name: Check packaged Python entry points
+        run: docker run --rm --entrypoint python sigma-ci:latest -c "import main, worker, cli; from modules.operations import planning, qr; from modules.auth import reset_password; print('Packaged imports available')"

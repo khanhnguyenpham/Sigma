@@ -1,5 +1,7 @@
 # Bản đồ project SIGMA
 
+**15/11 — tư vấn/QR/recovery/container:** `modules/operations/planning.py`, `qr.py`; `modules/auth/reset_password.py`; React `Recommendations.tsx`, `ReceiptQr.tsx`, `ChangePassword.tsx`; `web/Dockerfile`, `compose.local.yml`, `web/deploy/init-app.sql` và workflow container ở m3.yml. [Hợp đồng tư vấn](../OPERATIONS_PLANNING.md), [QR](../RECEIPT_QR.md), [container](../LOCAL_CONTAINER.md).
+
 **15/11/2026 — module sổ kho:** `web/backend/src/modules/operations/` (9bảng, service, schemas, routers), migration `0011_operational_inventory.py`, `web/backend/tests/test_operations.py`; React `web/frontend/src/pages/Operations.tsx`, `src/operations/`, `src/styles/operations.css`, `tests/operations.test.tsx`. Tách kho vật lý khỏi kho/tuyến nền. [Nghiệp vụ và giới hạn](../WAREHOUSE_OPERATIONS.md), [bàn giao](../development.md#handoff-operational-ledger).
 
 **15/11/2026 — UI quản lý gọn:** `components/ui/Dialog.tsx`, `components/configuration/SnapshotDialog.tsx`, `components/inventory/InventoryActions.tsx`/`InventoryFilters.tsx`, `hooks/useMediaQuery.ts` và `styles/management.css` nằm dưới `web/frontend/src`. Sidebar/AppLayout giữ focus và inert ở chế độ thu gọn. [Bàn giao UX, kiểm tra và bằng chứng](../development.md#handoff-compact-management-ux).

@@ -10,9 +10,34 @@ from modules.operations.models import OperationalWarehouse
 from modules.operations.schemas import OpsSupplierSettingsInput, OpsOrderInput, OpsOrderUpdate, OpsOrderTransition, OpsReceiptInput, OpsMovementInput
 from modules.operations.schemas import OpsWarehouseInput, OpsWarehouseUpdate, OpsProductInput, OpsProductUpdate
 from modules.operations import service
+from modules.operations.schemas import OpsQrScanInput
 
 router = APIRouter(prefix="/api/v1/operations", tags=["operations"])
 supplier_router = APIRouter(prefix="/api/v1/supplier", tags=["supplier operations"])
+
+
+@router.get("/recommendations")
+def stock_recommendations(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100), forecast_run_id: UUID | None = None):
+    actor(request)
+    from modules.operations.planning import recommendations
+    with request.app.state.sessions.begin() as session:
+        return recommendations(session, page, page_size, forecast_run_id)
+
+
+@router.post('/orders/{key}/receipt-qr')
+def receipt_qr(key: int, payload: OpsReceiptInput, request: Request):
+    actor(request)
+    from modules.operations.qr import create_qr
+    with request.app.state.sessions() as session:
+        return create_qr(session,key,payload)
+
+
+@router.post('/orders/{key}/receipt-qr/preview')
+def scan_receipt_qr(key: int, payload: OpsQrScanInput, request: Request):
+    actor(request)
+    from modules.operations.qr import preview_qr
+    with request.app.state.sessions() as session:
+        return preview_qr(session,key,payload.payload)
 
 
 def actor(request):
