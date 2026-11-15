@@ -1,5 +1,9 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 15/11/2026 — người dùng đổi đích sang main
+
+Người dùng yêu cầu gộp bản nâng cấp vào main và tiếp tục làm tại main để thành viên kéo về kiểm local. Main remote vẫn ở2d0d5f1, là tổ tiên của bản0d31923 đã qua hai workflow; chọn fast-forward, không rewrite hoặc force-push. Cập nhật hướng dẫn local để nêu rõ dependency/build/migration/auth, backup trước nâng schema và không ghi lại run cũ. Không có quyền truy cập máy thành viên; việc push main không tự nâng DB hoặc restart localhost của họ.
+
 ## 15/11/2026 — phạm vi publish bản nâng cấp
 
 Người dùng yêu cầu đưa phần đã làm lên GitHub cho nhóm. Chọn push nhánh `codex/product-upgrade-20261114`, không tự merge main/deploy. Đối chiếu danh sách source/test/docs và bằng chứng552backend/20ca bổ sung/156React/10nhóm browser; không dùng lịch sử kiểm làm bằng chứng đã có CI của commit mới. Sau push phải kiểm SHA remote/hai workflow và ghi receipt local. Dữ liệu nguồn, runtime, credentials, dist và bốn tệp bảo vệ ngoài stage. Tình trạng sản phẩm vẫn còn các phần ở [hợp đồng sổ kho](WAREHOUSE_OPERATIONS.md#phần-còn-thiếu).

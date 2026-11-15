@@ -1,5 +1,9 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+## Chuyển bản nâng cấp sang main — 15/11/2026
+
+Người dùng tiếp tục yêu cầu cập nhật trực tiếp nhánh main do nhóm sử dụng và làm việc trên main từ đây. Đã fetch/kiểm main nền `2d0d5f1` là tổ tiên của `0d31923`, gộp fast-forward giữ nguyên lịch sử và toàn bộ source/test đã qua hai workflow CI. Bổ sung [cập nhật local](UPDATE_LOCAL.md): bảo toàn thay đổi thành viên, dừng stack đúng chủ, backup DB, dependency/build/migration0011, bootstrap admin và kiểm đọc kết quả cũ. Không chuyển DB/env/raw/dist/outputs hoặc tự cập nhật localhost trên máy thành viên. Commit tài liệu main được kiểm remoteSHA/CI đúng commit sau push; receipt ở outputs local. Các phạm vi “không merge main” dưới đây ghi yêu cầu trước khi người dùng đổi sang main.
+
 ## Bàn giao mã nguồn lên GitHub — 15/11/2026
 
 Người dùng yêu cầu push bản nâng cấp đã kiểm. Phạm vi: mã nguồn/test/tài liệu auth, snapshot, UX và sổ kho trên nhánh [`codex/product-upgrade-20261114`](https://github.com/khanhnguyenpham/Sigma/tree/codex/product-upgrade-20261114). Không merge main, deploy hoặc đưa dữ liệu/DB/env/outputs/dist/bốn tệp bảo vệ lên Git. Rà payload theo danh sách tệp rõ ràng, credential pattern, diff và nguồn kiểm thử hiện có. SHA remote và hai workflow của đúng commit được kiểm sau push; receipt giữ local tại `outputs/operations_20261115/github-status.json`. Không coi việc có mã trên GitHub là đã triển khai public hoặc toàn PLAN hoàn tất.

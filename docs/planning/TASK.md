@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**15/11/2026 — yêu cầu mới: cập nhật/làm trên main:** Đã gộp fast-forward bản tính năng `0d31923` vào main sau khi kiểm remote không có commit mới xung đột. Thêm [hướng dẫn nhóm cập nhật localhost](../UPDATE_LOCAL.md), gồm dependency/build/backup/migration0011/auth. Push và xác minh remote/CI cho commit main; không tự coi máy thành viên đã cập nhật hoặc phần QR/Redis/host đã xong. Các checkpoint nhánh riêng bên dưới là lịch sử.
+
 **15/11/2026 — bàn giao GitHub theo yêu cầu:** Nhánh cho nhóm đọc/kiểm là [`codex/product-upgrade-20261114`](https://github.com/khanhnguyenpham/Sigma/tree/codex/product-upgrade-20261114). Phạm vi source/test/docs của bản nâng cấp; kiểm remoteSHA và CI đúng commit khi push, không merge main hoặc triển khai demo/public. [Bàn giao tính năng và giới hạn](../development.md#handoff-operational-ledger). Các dòng “chưa push” bên dưới ghi checkpoint trước yêu cầu publish.
 
 **15/11/2026 — sổ kho vận hành mới:** Có danh mục, đơn nhập/nhận từng phần/xuất/kiểm kê/chứng từ/audit; admin ghi, supplier chỉ đọc đơn của mình. Default lead time theo supplier áp cho đơn mới, không sửa đơn cũ hoặc giả đã đổi forecast L7/H14.552backend,156React, TypeScript/build qua; browser synthetic10→nhận4+6→xuất3→kiểm kê8 và4viewport qua. Còn tích hợp tồn thực/dự báo/lead-time profile, QR, Redis, auth recovery và host. Chưa migrate demo/commit/push/deploy. [Bàn giao](../development.md#handoff-operational-ledger).
