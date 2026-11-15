@@ -3,6 +3,8 @@
 <a id="handoff-live-advisory-qr"></a>
 ## Tư vấn từ số dư thật, QR lô và khôi phục tài khoản — 15/11/2026
 
+Cổng container đầu tiên phát hiện Dockerfile thiếu `requirements.txt` root được backend include bằng `-r ../../requirements.txt`. Đã bổ sung COPY file nền, giữ các phiên bản đã khóa; kiểm lại bằng CI của commit sửa. Không bỏ bước build hoặc báo lần lỗi là đạt.
+
 Người dùng giao tự chọn các quyết định hợp lý, không hỏi lại. Chọn QR theo phiếu giao/lô với schema version, không giả ICCID/activation hoặc xác nhận mentor. Tư vấn tồn là profile riêng read-only, cộng mỗi item trên mọi kho một lần, dùng lead supplier hiện tại/policy cố định/pending theo ETA; transaction repeatable-read tránh trộn commits. Chặn forecast cũ/thiếu ngày/lead vượt13–14ngày, đơn trễ chưa rõ ETA và lịch cung cấp có hạn chế. Có giải thích thiếu trước khi lô mới về; chưa lưu snapshot tư vấn hoặc tự chuyển đề xuất thành PO.
 
 Đổi mật khẩu tự phục vụ bắt mật khẩu cũ, CSRF, throttle5lần/15phút và thu hồi mọi phiên. Recovery offline qua getpass chỉ dành operator có DB access, không tự kích hoạt tài khoản disabled. QR tạo ảnh SVG nội bộ bằng Segno1.6.6; preview chỉ điền phiếu, không tăng tồn; mã phiếu cũ vẫn bị chặn bởi transaction nhận hàng đã có. Gói container chỉ copy source cần thiết, frontend build riêng, chạy user không root và role app PostgreSQL không superuser. Chưa có Docker local, thêm cổng build/import/compose trong CI và không nhận đã host public.

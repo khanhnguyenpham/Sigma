@@ -11,6 +11,7 @@ FROM python:3.12-slim-bookworm AS application
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
+COPY requirements.txt /app/requirements.txt
 COPY web/backend/requirements.txt /app/web/backend/requirements.txt
 RUN python -m pip install --no-cache-dir -r web/backend/requirements.txt
 COPY web/backend/pyproject.toml web/backend/alembic.ini /app/web/backend/
