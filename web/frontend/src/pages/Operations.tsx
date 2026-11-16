@@ -18,8 +18,19 @@ import type { Context } from "../types/context";
 import type { Page } from "../types/api";
 
 export const OPERATION_TABS = [["stock", "Tồn kho"], ["recommendations", "Đề xuất nhập"], ["orders", "Đơn nhập"], ["products", "Sản phẩm"], ["warehouses", "Kho hàng"], ["suppliers", "Nhà cung cấp"], ["documents", "Chứng từ"], ["audit", "Lịch sử thao tác"]] as const;
+const TAB_INFO: Record<string, [string, string]> = {
+  stock: ["KHO", "Số dư theo kho và sản phẩm, cập nhật từ chứng từ đã ghi sổ."],
+  documents: ["KHO", "Phiếu nhập, xuất và kiểm kê đã ghi sổ."],
+  warehouses: ["KHO", "Danh sách kho vật lý đang quản lý."],
+  orders: ["NHẬP HÀNG", "Lập, xác nhận và nhận hàng theo đơn nhập."],
+  recommendations: ["NHẬP HÀNG", "Gợi ý lượng nhập từ tồn sổ, đơn đang về và dự báo đã hoàn tất."],
+  suppliers: ["NHẬP HÀNG", "Thời gian nhập mặc định của từng nhà cung cấp."],
+  products: ["DANH MỤC", "Danh mục SIM/eSIM đang kinh doanh."],
+  audit: ["HỆ THỐNG", "Ai đã làm gì, vào lúc nào."],
+};
+
 type Editor = { kind: "warehouse"; row?: Warehouse } | { kind: "product"; row?: Product } | { kind: "supplier"; row: Supplier } | { kind: "order" } | { kind: "issue"; row?: Position } | { kind: "count"; row?: Position };
-const AUDIT_ACTIONS: Record<string, string> = { created: "Tạo mới", registered: "Đăng ký sản phẩm", updated: "Cập nhật", confirm: "Xác nhận đặt hàng", cancel: "Hủy phần chưa nhận", received: "Nhận hàng", posted: "Ghi sổ chứng từ" };
+export const AUDIT_ACTIONS: Record<string, string> = { created: "Tạo mới", registered: "Đăng ký sản phẩm", updated: "Cập nhật", confirm: "Xác nhận đặt hàng", cancel: "Hủy phần chưa nhận", received: "Nhận hàng", posted: "Ghi sổ chứng từ" };
 
 export function Operations({ ctx, onContext }: { ctx: Context; onContext: (patch: Partial<Context>) => void }) {
   const tab = OPERATION_TABS.some(([key]) => key === ctx.opsTab) ? ctx.opsTab! : "stock";
@@ -32,7 +43,6 @@ export function Operations({ ctx, onContext }: { ctx: Context; onContext: (patch
   const path = `/operations/${tab}?${query({ page, page_size: 25, ...(["stock", "orders", "products"].includes(tab) ? { search: debounced } : {}), ...(tab === "orders" ? { status } : {}), ...(tab === "products" ? { include_inactive: "true" } : {}), ...(tab === "stock" ? { warehouse_id: warehouse } : {}) })}`;
   const result = useResource<Page>(tab === "recommendations" || ctx.opsOrderId && tab === "orders" ? null : path);
   const activeWarehouses = warehouses.data?.items ?? [], supplierRows = suppliers.data?.items ?? [];
-  function switchTab(next: string) { onContext({ opsTab: next, opsOrderId: undefined }); setPage(1); setSearch(""); setStatus(""); setWarehouse(""); }
   function openOrder(id: string) { onContext({ opsTab: "orders", opsOrderId: id }); }
   const canCreateOrder = !!activeWarehouses.length && !!supplierRows.length && !warehouses.error && !suppliers.error;
   const columns: Record<string, Column[]> = {
@@ -44,13 +54,11 @@ export function Operations({ ctx, onContext }: { ctx: Context; onContext: (patch
     documents: [{ key: "number", label: "Số phiếu", render: (value, row) => <button className="text-button" onClick={() => setDocument(String(row.id))}>{String(value)}</button> }, { key: "kind", label: "Loại", render: (value) => DOCUMENT_KIND[String(value)] }, { key: "occurred_on", label: "Ngày nghiệp vụ" }, { key: "external_ref", label: "Phiếu đối chiếu" }, { key: "actor", label: "Người ghi sổ" }, { key: "created_at", label: "Ghi sổ lúc", render: localTime }],
     audit: [{ key: "created_at", label: "Thời gian", render: localTime }, { key: "actor", label: "Người thực hiện" }, { key: "action", label: "Thao tác", render: (value) => AUDIT_ACTIONS[String(value)] ?? String(value) }, { key: "entity_type", label: "Đối tượng", render: (value) => AUDIT_ENTITIES[String(value)] ?? "Không có" }, { key: "entity_key", label: "Tham chiếu", render: (value) => <span title={String(value)}>{String(value).length > 16 ? String(value).slice(0, 8) : `#${value}`}</span> }, { key: "details", label: "Nội dung", render: (value) => <AuditDetails value={value} /> }],
   };
-  return <div className="operations-workspace"><div className="ops-section-heading"><div><p className="eyebrow">VẬN HÀNH KHO</p><h1>Quản lý hàng hóa</h1><p className="caption">Nhập, xuất và đối chiếu tồn theo chứng từ đã ghi sổ.</p></div></div>
+  const [group, caption] = TAB_INFO[tab];
+  return <div className="operations-workspace"><div className="ops-section-heading"><div><p className="eyebrow">{group}</p><h1>{OPERATION_TABS.find(([key]) => key === tab)?.[1]}</h1><p className="caption">{caption}</p></div></div>
     <State error={summary.error} />
-    <div className="ops-summary" aria-busy={summary.loading}>{[["Tổng tồn sổ", summary.data?.on_hand_units], ["Đơn chờ nhận", summary.data?.pending_orders], ["Đơn nháp", summary.data?.draft_orders], ["Phiếu trong ngày", summary.data?.documents_today]].map(([label, value]) => <div key={String(label)}><span>{label}</span><strong>{summary.loading ? "…" : qty(value)}</strong></div>)}</div>
-    <nav className="ops-tabs" aria-label="Chức năng kho">{OPERATION_TABS.map(([key, label]) => <button key={key} aria-current={tab === key ? "page" : undefined} onClick={() => switchTab(key)}>{label}</button>)}</nav>
-    <label className="ops-mobile-tabs">Chức năng<select value={tab} onChange={(event) => switchTab(event.target.value)}>{OPERATION_TABS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
     {tab === "recommendations" ? <Recommendations /> : tab === "orders" && ctx.opsOrderId ? <OrderDetail key={ctx.opsOrderId} id={ctx.opsOrderId} today={summary.data?.business_date ?? ""} suppliers={supplierRows} warehouses={activeWarehouses} onBack={() => onContext({ opsOrderId: undefined })} /> : <section className="panel ops-list-panel">
-      <div className="ops-section-heading"><h2>{OPERATION_TABS.find(([key]) => key === tab)?.[1]}</h2><div className="ops-actions">
+      <div className="ops-section-heading"><h2>Danh sách</h2><div className="ops-actions">
         {tab === "orders" && <button className="primary" disabled={!canCreateOrder} onClick={() => setEditor({ kind: "order" })}>Tạo đơn nhập</button>}
         {tab === "stock" && <button className="primary" disabled={!activeWarehouses.length} onClick={() => setEditor({ kind: "count" })}>Kiểm kê / tồn đầu</button>}
         {tab === "products" && <button className="primary" onClick={() => setEditor({ kind: "product" })}>Thêm sản phẩm</button>}

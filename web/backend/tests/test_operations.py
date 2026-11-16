@@ -250,3 +250,22 @@ def test_operational_locations_and_product_registration_preserve_source_identity
         original = session.get(Item, 1)
         assert (original.warehouse_id, original.sku, original.product_type, original.first_seen_date) == identity
         assert session.get(SourceWarehouse, original.warehouse_id).city == original_city
+
+
+def test_dashboard_lists_open_orders_by_eta_low_stock_first_and_late_count(auth_app):
+    app, sessions = auth_app
+    with TestClient(app) as client:
+        client.headers.update(login(client)); warehouse, item, supplier = setup_catalog(client)
+        second = post(client, "/products", {"name": "SIM thứ hai", "sku": "DEMO-ESIM-02", "product_type": "eSIM",
+            "carrier": "DemoCarrier", "destination_country": "DemoLand"}).json()["id"]
+        assert post(client, "/counts", movement(warehouse, item, 9)).status_code == 201
+        assert post(client, "/counts", movement(warehouse, second, 2, reference="COUNT-2")).status_code == 201
+        assert [r["item_id"] for r in client.get(BASE + "/stock?sort=on_hand").json()["items"]] == [second, item]
+        late, soon = confirm(client, draft(client, warehouse, item, supplier)), confirm(client, draft(client, warehouse, item, supplier))
+        draft(client, warehouse, item, supplier)
+        with sessions.begin() as session:
+            session.execute(update(OperationalOrder).where(OperationalOrder.id == late["id"]).values(eta=service.today() - timedelta(days=2)))
+        rows = client.get(BASE + "/orders?status=open&sort=eta").json()["items"]
+        assert [r["id"] for r in rows] == [late["id"], soon["id"]]
+        summary = client.get(BASE + "/summary").json()
+        assert summary["late_orders"] == 1 and summary["pending_orders"] == 2

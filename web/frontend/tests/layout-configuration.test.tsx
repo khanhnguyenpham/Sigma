@@ -121,7 +121,7 @@ it("restores run/date/purchasing view through Back and reload and clears incompa
   expect(location.search).not.toContain("warehouse_id");
   await waitFor(() => expect(location.search).not.toContain("item_id"));
   fireEvent.click(
-    screen.getByRole("button", { name: "Nhập hàng" }),
+    screen.getByRole("button", { name: "Nhập hàng mô phỏng" }),
   );
   fireEvent.click(await screen.findByRole("button", { name: /^Đang về/ }));
   await waitFor(() => expect(location.search).toContain("view=incoming"));

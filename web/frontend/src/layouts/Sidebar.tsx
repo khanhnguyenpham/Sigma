@@ -1,4 +1,4 @@
-import { PAGES } from "../config/navigation";
+import { NAV_GROUPS, isManagementPage } from "../config/navigation";
 import { useEffect, useRef } from "react";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { Icon } from "../components/ui/Icon";
@@ -29,10 +29,10 @@ export function Sidebar({ app }: { app: AppContextState }) {
       {compact && <button className="icon-button sidebar-close" aria-label="Đóng menu điều hướng" onClick={() => setNavOpen(false)}><Icon name="close" size={18} /></button>}
       <a
         className="brand"
-        href="#overview"
+        href="#dashboard"
         onClick={(e) => {
           e.preventDefault();
-          navigate("overview");
+          navigate("dashboard");
         }}
       >
         <span className="brand-symbol">
@@ -45,20 +45,21 @@ export function Sidebar({ app }: { app: AppContextState }) {
           <small>Kho SIM & gói data</small>
         </div>
       </a>
-      <div className="nav-label">VẬN HÀNH</div>
       <nav aria-label="Điều hướng chính">
-        {PAGES.map(([id, icon, name]) => (
-          <div key={id}>{id === "overview" && <div className="nav-label planning-nav-label">DỰ BÁO & KẾ HOẠCH</div>}<button
-            key={id}
-            title={name}
-            className={page === id || id==="products" && page==="product" ? "selected" : ""}
-            aria-current={page === id || id==="products" && page==="product" ? "page" : undefined}
-            onClick={() => navigate(id)}
-          >
-            <Icon name={icon} />
-            <span>{name}</span>
-            {page === id && <i />}
-          </button></div>
+        {NAV_GROUPS.map(([group, pages]) => (
+          <div key={group || "home"}>
+            {group && <div className="nav-label">{group}</div>}
+            {pages.map(([id, icon, name]) => {
+              // The single Tools entry stays selected on every forecast/scenario page.
+              const selected = id === "forecast" ? !isManagementPage(page) : page === id;
+              return <button key={id} title={name} className={selected ? "selected" : ""}
+                aria-current={selected ? "page" : undefined} onClick={() => navigate(id)}>
+                <Icon name={icon} />
+                <span>{name}</span>
+                {selected && <i />}
+              </button>;
+            })}
+          </div>
         ))}
       </nav>
       <div className="side-note">
@@ -68,7 +69,7 @@ export function Sidebar({ app }: { app: AppContextState }) {
         <div>
           <strong>SIGMA · SIM & Data</strong>
           <span>
-            <i className="live-dot" /> {page === "operations" ? "Sổ kho vận hành" : "Kế hoạch mô phỏng"}
+            <i className="live-dot" /> {isManagementPage(page) ? "Sổ kho vận hành" : "Công cụ mô phỏng"}
           </span>
         </div>
       </div>

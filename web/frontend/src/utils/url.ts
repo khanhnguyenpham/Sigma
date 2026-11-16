@@ -1,4 +1,5 @@
 import { type Context, type PurchasingView } from "../types/context";
+import { OPS_TAB, isManagementPage } from "../config/navigation";
 
 export function query(
   values: Record<string, string | number | undefined | null>,
@@ -68,7 +69,7 @@ export function contextUrl(ctx: Context) {
 }
 
 export function navigationUrl(ctx:Context,page:string,view:PurchasingView) {
-  if (page === "operations") return "?" + query({ ops_tab: ctx.opsTab, ops_order: ctx.opsOrderId }) + "#operations";
+  if (isManagementPage(page)) return "?" + query({ ops_order: page === "orders" ? ctx.opsOrderId : undefined }) + "#" + page;
   if (page === "configuration") page = "scenarios";
   const params=new URLSearchParams(contextUrl(ctx));
   if(page.startsWith("provider-"))new URLSearchParams(location.search).forEach((v,k)=>{if(k.startsWith("notice_"))params.set(k,v);});
@@ -77,7 +78,11 @@ export function navigationUrl(ctx:Context,page:string,view:PurchasingView) {
 }
 
 export function readPage() {
-  const page = location.hash.slice(1) || "overview";
+  const params = new URLSearchParams(location.search);
+  if (!location.hash) return params.has("run_id") ? "overview" : "dashboard";
+  const page = location.hash.slice(1);
+  // Legacy single-page links: ?ops_tab=orders#operations.
+  if (page === "operations") return Object.keys(OPS_TAB).find((id) => OPS_TAB[id] === params.get("ops_tab")) ?? "stock";
   if (page === "product-supply") return new URLSearchParams(location.search).get("item_id") ? "product" : "products";
   if (page.startsWith("provider-")) return "scenarios";
   return page === "configuration" ? "scenarios" : page;

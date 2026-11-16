@@ -267,20 +267,23 @@ def page_rows(session, query, page, size):
             "total": total, "page": page, "page_size": size}
 
 
-def orders(session, page, size, status=None, supplier_id=None, search=None):
+def orders(session, page, size, status=None, supplier_id=None, search=None, sort="recent"):
     totals = select(Line.order_id, func.sum(Line.ordered_qty).label("ordered_qty"), func.sum(Line.received_qty).label("received_qty")).group_by(Line.order_id).subquery()
     query = select(Order.id, Order.number, Order.supplier_id, Supplier.carrier, Order.ordered_on, Order.eta, Order.status,
         Order.version, Order.lead_time_days, totals.c.ordered_qty, totals.c.received_qty).join(Supplier, Order.supplier_id == Supplier.id).join(totals, totals.c.order_id == Order.id)
     if supplier_id is not None:
         query = query.where(Order.supplier_id == supplier_id)
-    if status:
+    if status == "open":
+        query = query.where(Order.status.in_(["ordered", "partially_received"]))
+    elif status:
         query = query.where(Order.status == status)
     if search:
         query = query.where(or_(Order.number.icontains(search, autoescape=True), Supplier.carrier.icontains(search, autoescape=True)))
-    return page_rows(session, query.order_by(Order.id.desc()), page, size)
+    order = (Order.eta, Order.id) if sort == "eta" else (Order.id.desc(),)
+    return page_rows(session, query.order_by(*order), page, size)
 
 
-def stock(session, page, size, warehouse_id=None, search=None):
+def stock(session, page, size, warehouse_id=None, search=None, sort="location"):
     query = select(Balance.warehouse_id, Warehouse.name.label("warehouse"), Balance.item_id, Item.sku, Product.name, Item.product_type,
         Balance.on_hand_qty, Balance.version, Balance.last_movement_on).join(Item, Balance.item_id == Item.id).join(Product,
         Product.item_id == Item.id).join(Warehouse, Balance.warehouse_id == Warehouse.id)
@@ -288,7 +291,8 @@ def stock(session, page, size, warehouse_id=None, search=None):
         query = query.where(Balance.warehouse_id == warehouse_id)
     if search:
         query = query.where(or_(Item.sku.icontains(search, autoescape=True), Product.name.icontains(search, autoescape=True)))
-    return page_rows(session, query.order_by(Warehouse.name, Item.sku, Item.product_type, Balance.item_id), page, size)
+    location = (Warehouse.name, Item.sku, Item.product_type, Balance.item_id)
+    return page_rows(session, query.order_by(*((Balance.on_hand_qty,) if sort == "on_hand" else ()), *location), page, size)
 
 
 def stock_position(session, warehouse_id, item_id):

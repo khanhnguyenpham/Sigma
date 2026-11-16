@@ -14,6 +14,7 @@ import { Header } from "./Header";
 import { ContextFilters } from "./ContextFilters";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { OperationsHelp } from "../operations/OperationsHelp";
+import { TOOL_PAGES, isManagementPage } from "../config/navigation";
 
 export function AppLayout({
   app,
@@ -33,7 +34,10 @@ export function AppLayout({
     run,
     selectedResource,
   } = app;
-  const managementPage = ["operations", "scenarios", "configuration", "products", "product"].includes(page);
+  const management = isManagementPage(page);
+  // Pages without the run selector: the real ledger, plus tool pages that manage their own context.
+  const managementPage = management || ["scenarios", "configuration", "products", "product"].includes(page);
+  const toolTab = page === "product" ? "products" : page;
   const compact = useMediaQuery("(max-width: 1100px)");
   return (
     <div className={"shell " + (navOpen ? "nav-open" : "")}>
@@ -58,8 +62,14 @@ export function AppLayout({
       <main inert={compact && navOpen}>
         <Header app={app} />
         <div className="workspace" id="workspace-content" tabIndex={-1}>
+          {!management && <>
+            <nav className="ops-tabs tool-tabs" aria-label="Công cụ dự báo">{TOOL_PAGES.map(([id, name]) =>
+              <button key={id} aria-current={toolTab === id ? "page" : undefined} onClick={() => app.navigate(id)}>{name}</button>)}</nav>
+            <label className="ops-mobile-tabs">Công cụ<select value={toolTab} onChange={(event) => app.navigate(event.target.value)}>
+              {TOOL_PAGES.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
+          </>}
           {!managementPage && <ContextFilters app={app} />}
-          {page !== "operations" && <State
+          {!management && <State
             loading={runsResource.loading && !runsResource.data}
             error={runsResource.error}
           />}
@@ -86,12 +96,12 @@ export function AppLayout({
               {""}
             </span>
             <span>
-              {page === "operations" ? "Sổ kho · Ngày nghiệp vụ Việt Nam (UTC+7)" : "L7 · R1 · H14 · Ngày dữ liệu dự báo UTC"}
+              {management ? "Sổ kho · Ngày nghiệp vụ Việt Nam (UTC+7)" : "Công cụ dự báo · L7 · R1 · H14 · Ngày dữ liệu UTC"}
             </span>
           </footer>
         </div>
       </main>
-      {help && (page === "operations" ? <OperationsHelp onClose={() => setHelp(false)} /> : <HelpDialog onClose={() => setHelp(false)} />)}
+      {help && (management ? <OperationsHelp onClose={() => setHelp(false)} /> : <HelpDialog onClose={() => setHelp(false)} />)}
     </div>
   );
 }

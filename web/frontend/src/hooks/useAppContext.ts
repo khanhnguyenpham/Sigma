@@ -1,4 +1,4 @@
-import { inventoryKinds } from "../config/navigation";
+import { inventoryKinds, isManagementPage } from "../config/navigation";
 import { readPurchasingView } from "../utils/url";
 import { useEffect, useRef, useState } from "react";
 import { type Run, type Page } from "../types/api";
@@ -13,7 +13,7 @@ export function useAppContext() {
   const [ctx, setCtx] = useState<Context>(readContext);
   const datedRun = useRef("");
   const [page, setPage] = useState(readPage);
-  const operational = page === "operations";
+  const operational = isManagementPage(page);
   const [help, setHelp] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [purchasingView, setPurchasingView] =
@@ -78,7 +78,7 @@ export function useAppContext() {
     );
   const busyRun = runs.find((r) => ["queued", "running"].includes(r.status));
   useEffect(() => {
-    if (!run || ["operations", "products", "product", "product-supply", "configuration"].includes(page) || page.startsWith("provider-")) return;
+    if (!run || operational || ["products", "product", "product-supply", "configuration"].includes(page) || page.startsWith("provider-")) return;
     const scope = isReceivingRun(run) ? "receiving" : undefined;
     setCtx((current) => current.warehouseScope === scope ? current : { ...current, warehouseScope: scope });
   }, [run?.id, run?.receiving_warehouse_profile, page, ctx.warehouseScope]);
@@ -174,11 +174,14 @@ export function useAppContext() {
   function navigate(id: string, view: PurchasingView = "recommendations") {
     if(!window.dispatchEvent(new Event("sigma:before-navigate",{cancelable:true})))return false;
     if (id === "configuration") id = "scenarios";
-    if (id !== page)
+    // A menu click always opens the list, never a previously opened order.
+    const next = ctx.opsOrderId ? { ...ctx, opsOrderId: undefined } : ctx;
+    if (next !== ctx) setCtx(next);
+    if (id !== page || next !== ctx)
       history.pushState(
         null,
         "",
-        navigationUrl(ctx,id,view),
+        navigationUrl(next,id,view),
       );
     if (id === "replenishment") setPurchasingView(view);
     setPage(id);

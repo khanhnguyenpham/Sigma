@@ -46,7 +46,7 @@ export function SessionBoundary({ children }: { children: ReactNode }) {
   const [submitting, setSubmitting] = useState(false);
   function accept(value: Session) {
     if (value.required && value.user?.role === "admin" && !location.hash && !new URLSearchParams(location.search).has("run_id"))
-      history.replaceState(history.state, "", "?ops_tab=stock#operations");
+      history.replaceState(history.state, "", "#dashboard");
     setCsrfToken(value.csrf_token ?? ""); setSession(value); setError(undefined);
   }
   useEffect(() => {

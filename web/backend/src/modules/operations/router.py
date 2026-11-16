@@ -60,7 +60,9 @@ def summary(request: Request):
     with request.app.state.sessions() as session:
         pending = session.scalar(select(func.count()).select_from(OperationalOrder).where(OperationalOrder.status.in_(["ordered", "partially_received"])))
         total = session.scalar(select(func.coalesce(func.sum(StockBalance.on_hand_qty), 0)))
-        return {"business_date": service.today(), "timezone": "Asia/Ho_Chi_Minh", "pending_orders": pending,
+        late = session.scalar(select(func.count()).select_from(OperationalOrder).where(OperationalOrder.status.in_(["ordered", "partially_received"]),
+            OperationalOrder.eta < service.today()))
+        return {"business_date": service.today(), "timezone": "Asia/Ho_Chi_Minh", "pending_orders": pending, "late_orders": late,
             "draft_orders": session.scalar(select(func.count()).select_from(OperationalOrder).where(OperationalOrder.status == "draft")),
             "stocked_items": session.scalar(select(func.count()).select_from(StockBalance).where(StockBalance.on_hand_qty > 0)),
             "on_hand_units": int(total) if total <= service.MAX_QTY else str(total),
@@ -140,11 +142,12 @@ def update_supplier(key: int, payload: OpsSupplierSettingsInput, request: Reques
 
 @router.get("/orders")
 def orders(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100),
-    status: Literal["draft", "ordered", "partially_received", "received", "cancelled"] | None = None,
-    supplier_id: int | None = Query(None, gt=0), search: str | None = Query(None, max_length=120)):
+    status: Literal["draft", "ordered", "partially_received", "received", "cancelled", "open"] | None = None,
+    supplier_id: int | None = Query(None, gt=0), search: str | None = Query(None, max_length=120),
+    sort: Literal["recent", "eta"] = "recent"):
     actor(request)
     with request.app.state.sessions() as session:
-        return service.orders(session, page, page_size, status, supplier_id, search)
+        return service.orders(session, page, page_size, status, supplier_id, search, sort)
 
 
 @router.post("/orders", status_code=201)
@@ -195,10 +198,11 @@ def receive_order(key: int, payload: OpsReceiptInput, request: Request, response
 
 @router.get("/stock")
 def stock(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100),
-    warehouse_id: int | None = Query(None, gt=0), search: str | None = Query(None, max_length=120)):
+    warehouse_id: int | None = Query(None, gt=0), search: str | None = Query(None, max_length=120),
+    sort: Literal["location", "on_hand"] = "location"):
     actor(request)
     with request.app.state.sessions() as session:
-        return service.stock(session, page, page_size, warehouse_id, search)
+        return service.stock(session, page, page_size, warehouse_id, search, sort)
 
 
 @router.post("/issues", status_code=201)

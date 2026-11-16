@@ -6,7 +6,7 @@ import { ReceiptEditor } from "../src/operations/ReceiptEditor";
 import { OrderDetail } from "../src/operations/OrderDetail";
 import { MovementEditor } from "../src/operations/MovementEditor";
 import { useOperationWrite } from "../src/operations/useOperationWrite";
-import { navigationUrl, readContext } from "../src/utils/url";
+import { navigationUrl, readContext, readPage } from "../src/utils/url";
 import type { Context } from "../src/types/context";
 import type { Order } from "../src/operations/types";
 
@@ -20,9 +20,18 @@ const context: Context = { runId: "", warehouseId: "", itemId: "", supplierId: "
 afterEach(() => { cleanup(); vi.restoreAllMocks(); history.replaceState(null, "", "/"); });
 
 it("isolates operational navigation from legacy forecast context", () => {
-  expect(navigationUrl({ ...context, runId: "old", origin: "2025-01-01", opsTab: "orders", opsOrderId: "3" }, "operations", "history")).toBe("?ops_tab=orders&ops_order=3#operations");
-  history.replaceState(null, "", "/?ops_tab=orders&ops_order=3#operations");
-  expect(readContext()).toMatchObject({ opsTab: "orders", opsOrderId: "3", runId: "" });
+  expect(navigationUrl({ ...context, runId: "old", origin: "2025-01-01", opsOrderId: "3" }, "orders", "history")).toBe("?ops_order=3#orders");
+  expect(navigationUrl({ ...context, runId: "old", opsOrderId: "3" }, "stock", "history")).toBe("?#stock");
+  history.replaceState(null, "", "/?ops_order=3#orders");
+  expect(readPage()).toBe("orders");
+  expect(readContext()).toMatchObject({ opsOrderId: "3", runId: "" });
+  // Links saved before the split still open the matching page.
+  history.replaceState(null, "", "/?ops_tab=products#operations");
+  expect(readPage()).toBe("catalog");
+  history.replaceState(null, "", "/");
+  expect(readPage()).toBe("dashboard");
+  history.replaceState(null, "", "/?run_id=plan-a");
+  expect(readPage()).toBe("overview");
 });
 
 it("shows a truthful empty ledger and offers setup without inventing stock", async () => {

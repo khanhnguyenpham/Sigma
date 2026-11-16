@@ -1,5 +1,12 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-m1-management-fe-20261116"></a>
+## M1 — cấu trúc FE quản lý — 16/11/2026
+
+Menu chia nhóm Kho / Nhập hàng / Danh mục / Hệ thống / Công cụ; mỗi tab cũ của trang Vận hành kho thành một trang riêng với hash riêng (`#stock`, `#orders`…). Link cũ `?ops_tab=…#operations` vẫn mở đúng trang. Trang mặc định là Tổng quan quản lý mới (`pages/Dashboard.tsx`): 5 ô số liệu, đơn nhập sắp về/trễ, tồn thấp nhất, thao tác gần đây. Dự báo, kịch bản và kết quả mô phỏng nằm trong một mục Công cụ có thanh tab; bộ chọn phương án, nút "Tạo phương án" và nhãn "Dữ liệu mô phỏng" chỉ hiện ở đó; trang quản lý không gọi `/runs`. Backend: `/operations/orders` thêm `status=open`, `sort=eta`; `/operations/stock` thêm `sort=on_hand`; `/operations/summary` thêm `late_orders`.
+
+Kiểm lượt này: Vitest 33 file/166 test qua hai lần liên tiếp, `tsc -b` và `vite build` qua. Xem trình duyệt với API giả tổng hợp ở 1440px và 390px: Tổng quan, Đơn nhập, Công cụ hiển thị đúng, không cuộn ngang. **Chưa chạy pytest**: máy không có PostgreSQL và `.venv` thiếu thư viện backend; test mới `test_dashboard_lists_open_orders_by_eta_low_stock_first_and_late_count` mới chỉ qua kiểm cú pháp. Lần chạy Vitest đầu tiên trước khi sửa có 3 test chập chờn ở `layout-configuration`, các lần sau qua.
+
 <a id="handoff-mentor-management-plan-20261116"></a>
 ## Lập kế hoạch theo góp ý mentor — 16/11/2026
 

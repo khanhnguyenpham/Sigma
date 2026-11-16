@@ -73,7 +73,7 @@ export function Scenarios({ app }: { app: AppContextState }) {
   return <div className="scenario-workspace">
     <QueueStatus refresh={app.refresh} />
     <div className="page-heading"><div><h1>Kịch bản</h1><p>Thiết lập, chạy và xem kết quả ngay tại đây.</p></div>
-      <button type="button" className="secondary" onClick={() => app.navigate("overview")}>← Tổng quan</button></div>
+      <button type="button" className="secondary" onClick={() => app.navigate("overview")}>← Tổng quan mô phỏng</button></div>
     <Panel title="Chọn kịch bản" note="Mỗi phiên bản đã lưu được giữ riêng với các lượt chạy của nó.">
       <div className="scenario-picker">
         <label>Kịch bản / phiên bản

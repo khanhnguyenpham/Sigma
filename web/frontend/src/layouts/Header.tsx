@@ -1,4 +1,4 @@
-import { PAGES } from "../config/navigation";
+import { isManagementPage, pageTitle } from "../config/navigation";
 import { Icon } from "../components/ui/Icon";
 import { AccountMenu } from "../auth/SessionBoundary";
 
@@ -13,7 +13,8 @@ export function Header({ app }: { app: AppContextState }) {
     setHelp,
     openScenarios,
   } = app;
-  const selectedTitle = page === "product" ? "Cấu hình sản phẩm" : PAGES.find((p) => p[0] === page)?.[2] ?? "Tổng quan";
+  const [section, selectedTitle] = pageTitle(page);
+  const tool = !isManagementPage(page);
   return (
     <header className="topbar">
       <div className="breadcrumb">
@@ -26,7 +27,7 @@ export function Header({ app }: { app: AppContextState }) {
         >
           <Icon name="menu" />
         </button>
-        <span className="breadcrumb-root">Kho SIM/data</span>
+        <span className="breadcrumb-root">{section}</span>
         <Icon name="chevron" size={14} />
         <strong>{selectedTitle}</strong>
       </div>
@@ -48,7 +49,7 @@ export function Header({ app }: { app: AppContextState }) {
         >
           <Icon name="info" size={17} />
         </button>
-        {busyRun && (
+        {tool && busyRun && (
           <button
             className="task-indicator"
             onClick={() => {
@@ -59,10 +60,10 @@ export function Header({ app }: { app: AppContextState }) {
             Đang xử lý
           </button>
         )}
-        {page !== "operations" && <span className="environment-pill">
+        {tool && <span className="environment-pill">
           <Icon name="info" size={14} /> {"Dữ liệu mô phỏng"}
         </span>}
-        {page !== "operations" && page !== "scenarios" && <button className="primary header-create" aria-label="Tạo phương án" onClick={() => openScenarios()}>
+        {tool && page !== "scenarios" && <button className="primary header-create" aria-label="Tạo phương án" onClick={() => openScenarios()}>
           <Icon name="plus" size={17} />
           <span>Tạo phương án</span>
         </button>}

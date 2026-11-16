@@ -4,7 +4,7 @@
 
 | Bước | Nội dung | Trạng thái |
 |---|---|---|
-| M1 | Cấu trúc FE quản lý, mục Công cụ, Tổng quan mới | Chưa làm |
+| M1 | Cấu trúc FE quản lý, mục Công cụ, Tổng quan mới | Đã làm local, chờ người dùng xem ([bàn giao](../development.md#handoff-m1-management-fe-20261116)) |
 | M2 | Vai trò đại lý, bỏ đăng nhập supplier | Chưa làm |
 | M3 | Điều chỉnh ETA đơn đã xác nhận | Chưa làm |
 | M4 | Tách bảng DB | Chưa làm |

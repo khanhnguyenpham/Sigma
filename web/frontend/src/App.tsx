@@ -7,6 +7,8 @@ import { useAppContext } from "./hooks/useAppContext";
 
 import { AppLayout } from "./layouts/AppLayout";
 import { navigationUrl } from "./utils/url";
+import { OPS_TAB } from "./config/navigation";
+import type { Context } from "./types/context";
 
 const Overview = lazy(() =>
   import("./pages/Overview").then((m) => ({ default: m.Overview })),
@@ -19,6 +21,7 @@ const Alerts = lazy(() =>
 );
 const Scenarios = lazy(() => import("./pages/Scenarios").then((module) => ({ default: module.Scenarios })));
 const Operations = lazy(() => import("./pages/Operations").then((module) => ({ default: module.Operations })));
+const Dashboard = lazy(() => import("./pages/Dashboard").then((module) => ({ default: module.Dashboard })));
 export default function App() {
   const app = useAppContext();
   const {
@@ -33,12 +36,20 @@ export default function App() {
     navigate,
   } = app;
   const props = { run, ctx, onChoose: chooseInventory, onItem: openItem };
+  // Operations only asks to open or close an order; every other page change goes through the sidebar.
+  function opsContext(patch: Partial<Context>) {
+    if (!window.dispatchEvent(new Event("sigma:before-navigate", { cancelable: true }))) return;
+    const target = patch.opsTab === "orders" ? "orders" : page;
+    const next = { ...ctx, opsOrderId: patch.opsOrderId };
+    history.pushState(null, "", navigationUrl(next, target, purchasingView));
+    app.setCtx(next);
+    if (target !== page) app.setPage(target);
+  }
+  function openOrder(id: string) { opsContext({ opsTab: "orders", opsOrderId: id }); }
   const node =
-    page === "operations" ? <Operations ctx={ctx} onContext={(patch) => {
-      if (!window.dispatchEvent(new Event("sigma:before-navigate", { cancelable: true }))) return;
-      history.pushState(null, "", navigationUrl({ ...ctx, ...patch }, "operations", purchasingView));
-      app.setCtx((current) => ({ ...current, ...patch }));
-    }} /> : page === "products" ? (
+    page === "dashboard" ? <Dashboard onNavigate={navigate} onOpenOrder={openOrder} />
+    : OPS_TAB[page] ? <Operations key={page} ctx={{ ...ctx, opsTab: OPS_TAB[page] }} onContext={opsContext} />
+    : page === "products" ? (
       <Products ctx={ctx.warehouseScope === "receiving" ? { ...ctx, warehouseId: "" } : ctx}
         onContext={(patch) => app.setCtx((c) => ({ ...c, ...patch, warehouseScope: undefined }))} onOpen={(row) => openItem(row, "product")} />
     ) : page === "product" ? (
