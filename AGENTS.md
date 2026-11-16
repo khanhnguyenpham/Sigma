@@ -4,7 +4,7 @@
 
 - Dùng `main` làm nhánh chính. Chỉ commit, push, publish hoặc deploy trong phạm vi người dùng giao. Khi publish, rà diff và credential, xác minh SHA trên remote và CI của đúng commit. Giữ tên commit theo nội dung thay đổi.
 - Giữ nguyên dữ liệu nguồn. Chỉ làm sạch hoặc loại trùng trong đầu ra dẫn xuất có audit. Không in hoặc chuyển bản ghi đơn hàng, định danh khách hàng, credential, DB, backup, runtime hay artifact riêng tư ra ngoài. Giữ `outputs/`, `dist/`, dữ liệu và cấu hình runtime ngoài stage.
-- Bảo toàn các thay đổi sẵn có. Giữ `docs/planning/COMMIT_BLOCK_PLAN.md`, `web/backend/research/current_s25_review.py`, `web/backend/research/current_s25_verification.py` và `web/backend/tests/test_current_s25_review.py` ngoài phạm vi chỉnh sửa và stage trừ khi người dùng giao riêng. Không sửa lịch sử Git hoặc cấu hình Git toàn cục.
+- Bảo toàn các thay đổi sẵn có. Giữ `docs/planning/COMMIT_BLOCK_PLAN.md`, `web/backend/research/current_s25_review.py` và `web/backend/research/current_s25_verification.py` ngoài phạm vi chỉnh sửa và stage trừ khi người dùng giao riêng. Không sửa lịch sử Git hoặc cấu hình Git toàn cục.
 - Chỉ mở hoặc restart demo, ghi DB demo, enqueue run thật, refit hay triển khai khi công việc được giao bao gồm thao tác đó. Dùng môi trường thử riêng khi cần kiểm tích hợp. URL demo hiện hành lấy từ `connection.json` của runtime.
 
 ## Hợp đồng nghiệp vụ
