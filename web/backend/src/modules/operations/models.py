@@ -29,13 +29,13 @@ class OperationalProduct(Base):
 
 
 class SupplierSettings(Base):
-    __tablename__ = "ops_supplier_settings"
+    __tablename__ = "supplier_settings"
     supplier_id = Column(BigInteger, ForeignKey("suppliers.id", ondelete="RESTRICT"), primary_key=True)
     lead_time_days = Column(Integer, nullable=False)
     version = Column(Integer, nullable=False)
     updated_by = fk("auth_users")
     updated_at = created()
-    __table_args__ = (CheckConstraint("lead_time_days BETWEEN 1 AND 365 AND version>=1", name="ck_ops_supplier_settings"),)
+    __table_args__ = (CheckConstraint("lead_time_days BETWEEN 1 AND 365 AND version>=1", name="ck_supplier_settings"),)
 
 
 class OperationalOrder(Base):

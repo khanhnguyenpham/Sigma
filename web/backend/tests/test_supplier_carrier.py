@@ -8,7 +8,7 @@ from alembic.autogenerate import compare_metadata
 from alembic.config import Config
 from alembic.migration import MigrationContext
 from fastapi.testclient import TestClient
-from sqlalchemy import select, text
+from sqlalchemy import inspect, select, text
 from sqlalchemy.exc import IntegrityError
 
 from core.errors import DomainError
@@ -56,7 +56,7 @@ def test_import_and_seed_reuse_carrier_across_countries(pg, tmp_path, monkeypatc
         assert session.scalar(select(Supplier.carrier)) == 'Vinaphone'
         result = seed_simulation(session, key, D)
         assert result['policies_created'] == 2
-        assert len(set(session.scalars(select(Policy.supplier_id)))) == 1
+        assert len(set(session.scalars(select(Policy.supplier_id).select_from(Policy)))) == 1
 
 
 def test_api_uses_carrier_and_rejects_wrong_supplier(pg, tmp_path):
@@ -78,7 +78,20 @@ def test_api_uses_carrier_and_rejects_wrong_supplier(pg, tmp_path):
         assert bad.status_code == 422 and bad.json()['error']['code'] == 'supplier_carrier_mismatch'
 
 
-@pytest.mark.parametrize('change', ['policy_insert', 'policy_update', 'item_move', 'warehouse_change', 'supplier_rename'])
+def test_policy_supplier_is_derived_from_the_item_carrier(pg):
+    engine, sessions = pg
+    item, supplier, other = seed(sessions)
+    with sessions.begin() as session:
+        policy = create_policy(session, request(item, supplier))
+        policy_id = policy.id
+    with sessions() as session:
+        assert session.get(Policy, policy_id).supplier_id == supplier
+        assert session.scalars(select(Policy.id).where(Policy.supplier_id == other)).all() == []
+    with engine.connect() as connection:
+        assert 'supplier_id' not in {c['name'] for c in inspect(connection).get_columns('item_policies')}
+
+
+@pytest.mark.parametrize('change', ['item_move', 'warehouse_change', 'supplier_rename'])
 def test_database_blocks_cross_carrier_links(pg, change):
     engine, sessions = pg
     item, supplier, other = seed(sessions)
@@ -90,10 +103,6 @@ def test_database_blocks_cross_carrier_links(pg, change):
         session.flush()
         ids = dict(item=item, supplier=other, policy=policy.id, warehouse=warehouse.id)
     sql = {
-        'policy_insert': """INSERT INTO supplier_item_policies(item_id,supplier_id,version,effective_from,
-            configured_rop_floor,fixed_order_qty,safety_days,is_assumed,assumption_source)
-            VALUES (:item,:supplier,2,'2026-01-01',0,5,2,true,'synthetic')""",
-        'policy_update': 'UPDATE supplier_item_policies SET supplier_id=:supplier WHERE id=:policy',
         'item_move': 'UPDATE items SET warehouse_id=:warehouse WHERE id=:item',
         'warehouse_change': "UPDATE warehouses SET carrier='OtherCarrier' WHERE code='DEMO-W1'",
         'supplier_rename': "UPDATE suppliers SET carrier='RenamedCarrier' WHERE carrier='DemoCarrier'",
@@ -145,8 +154,10 @@ def test_migration_preserves_all_other_tables_and_supplier_ids(pg):
         with engine.begin() as connection:
             connection.execute(text("UPDATE suppliers SET code='SUP-001',display_name='Simulated supplier 001',assumption_source='route_supplier_seed_v1' WHERE id=1"))
             connection.execute(text("UPDATE warehouses SET code='WH-001' WHERE id=1"))
-            before = {name: deepcopy(connection.execute(text(f"SELECT to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','source_sales_qty','actual_blocked_qty'] FROM \"{name}\" t ORDER BY to_jsonb(t)::text")).scalars().all())
-                      for name in Base.metadata.tables if name not in {'suppliers', 'item_supply_changes'}
+            # 0015 renamed supplier_item_policies and derives supplier_id; compare under the legacy name.
+            legacy = {'item_policies': 'supplier_item_policies'}
+            before = {name: deepcopy(connection.execute(text(f"SELECT to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','source_sales_qty','actual_blocked_qty','supplier_id'] FROM \"{legacy.get(name, name)}\" t ORDER BY to_jsonb(t)::text")).scalars().all())
+                      for name in Base.metadata.tables if name not in {'suppliers', 'item_supply_changes', 'supplier_settings'}
                       and not name.startswith(('provider_product_notice', 'auth_', 'ops_', 'dealer'))}
             identity = connection.execute(text('SELECT id,created_at FROM suppliers ORDER BY id')).all()
         command.upgrade(cfg, 'head')

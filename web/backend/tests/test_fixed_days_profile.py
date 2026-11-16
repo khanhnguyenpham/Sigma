@@ -90,11 +90,12 @@ def test_mode_migration_preserves_numeric_policy_and_sealed_runs_and_cleans_edit
         with engine.begin() as connection:
             connection.execute(text("UPDATE supplier_item_policies SET safety_mode='volatility',rop_mode='forecast',safety_factor=3"))
             frozen=connection.scalar(text('SELECT to_jsonb(r) FROM runs r'))
-            numeric=connection.scalar(text("SELECT to_jsonb(p)-ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor'] FROM supplier_item_policies p"))
+            # 0015 later drops the derived supplier_id; compare the remaining columns.
+            numeric=connection.scalar(text("SELECT to_jsonb(p)-ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','supplier_id'] FROM supplier_item_policies p"))
         command.upgrade(cfg,'head'); command.upgrade(cfg,'head')
         with engine.connect() as connection:
             assert connection.scalar(text('SELECT to_jsonb(r) FROM runs r'))==frozen
-            assert connection.scalar(text('SELECT to_jsonb(p) FROM supplier_item_policies p'))==numeric
+            assert connection.scalar(text('SELECT to_jsonb(p) FROM item_policies p'))==numeric
             assert connection.scalar(text("SELECT settings->'policy_overrides' FROM scenarios"))==[
                 dict(item_id=item,safety_days=0,configured_rop_floor=0,warning_horizon_days=14)]
             assert compare_metadata(MigrationContext.configure(connection,opts={'compare_type':True,'compare_server_default':True}),Base.metadata)==[]

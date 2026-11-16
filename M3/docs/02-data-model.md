@@ -1,5 +1,7 @@
 # M3 — mô hình dữ liệu PostgreSQL
 
+**16/11/2026 — schema 0012–0015:** thêm `dealers`, `dealer_requests`, `dealer_request_lines` và `auth_users.dealer_id` (0012); `ops_purchase_orders.eta` được dời sau ngày đặt (0013); lô mô phỏng về sau 1–13 ngày theo thời gian nhập đã chốt của nhà cung cấp (0014); `supplier_item_policies` đổi tên thành `item_policies` và bỏ cột `supplier_id` (suy từ carrier của sản phẩm), `ops_supplier_settings` đổi thành `supplier_settings` (0015). Cấu hình theo sản phẩm nằm ở `item_policies`, cấu hình theo nhà cung cấp nằm ở `supplier_settings`. Các mục bên dưới là lịch sử theo từng mốc.
+
 **CHG-095 — 04/11/2026, schema0009 đã kiểm trên DBtest:** Upgrade/downgrade/upgrade với source/forecast/catalog cũ giữ mọi cột cũ, metadata0diff; downgrade chặn mặc định riêng/receiving profile. Reader0008 giữ tương thích, API ghi trả503 nếu chưa nâng schema. Native dump/restore synthetic18bảng khớp; DB demo vẫn0008, không cutover. [Bàn giao và bằng chứng](../../docs/development.md#handoff-chg094-095-integration). Những dòng dự kiến/chưa kiểm phía dưới là checkpoint trước đợt kiểm mới.
 
 **Tiến độ CHG-095, 04/11/2026:** Migration nguồn `0009_receiving_warehouse` và model đã được viết theo thiết kế bên dưới, có deferred fields cho đọc schema cũ và guard downgrade mất dữ liệu. Profile `product_default_receiving_v1` freeze mapping riêng; không backfill run/lô cũ. Chưa chạy migration/metadata check/test, DB/demo chưa cutover. [Bàn giao](../../docs/development.md#implementation-chg095-receiving-warehouse); nội dung dự kiến phía dưới là checkpoint thiết kế.
@@ -134,8 +136,8 @@ Catalog toàn nguồn có 920 item; `first_seen_date` chặn dùng item tương 
 erDiagram
     suppliers ||--o{ warehouses : carrier
     warehouses ||--o{ items : contains
-    suppliers ||--o{ supplier_item_policies : supplies
-    items ||--o{ supplier_item_policies : has_versions
+    suppliers ||--o{ supplier_settings : configured_by
+    items ||--o{ item_policies : has_versions
     scenarios o|--o{ runs : configures
     runs o|--o{ runs : source_or_forecast_or_retry
     runs ||--o{ daily_sales : imports
@@ -148,9 +150,9 @@ erDiagram
     items ||--o{ inventory_events : item
     runs ||--o{ inventory_daily : summarizes
     items ||--o{ inventory_daily : item
-    supplier_item_policies ||--o{ inventory_daily : applied
+    item_policies ||--o{ inventory_daily : applied
     runs ||--o{ replenishment_orders : simulates
-    supplier_item_policies ||--o{ replenishment_orders : applied
+    item_policies ||--o{ replenishment_orders : applied
     items ||--o{ replenishment_orders : item
     replenishment_orders o|--o{ inventory_events : receipt
     runs ||--o{ alerts : evaluates
@@ -164,7 +166,7 @@ erDiagram
 | `warehouses` | id; code text; destination_country text; carrier text; city text; is_assumed bool=true; assumption_source text; version int; created_at | UNIQUE(code), UNIQUE(destination_country,carrier), FK carrier→suppliers.carrier. Một route một kho; city bắt buộc nhưng không được coi tối ưu. |
 | `items` | id; warehouse_id FK; sku text; product_type text; first_seen_date date; created_at | UNIQUE(warehouse_id,sku,product_type); CHECK product_type IN ('eSIM','physical_SIM'). Index warehouse_id. Không giả định sku duy nhất toàn hệ thống. |
 | `suppliers` | id; carrier text; created_at | UNIQUE(carrier), NOT NULL, không trắng/không khoảng trắng đầu cuối. Nhà cung cấp chính là carrier; nhiều kho/tuyến có thể dùng cùng carrier. |
-| `supplier_item_policies` | id; item_id FK; supplier_id FK; version int; effective_from date; effective_to date?; configured_rop_floor bigint(ROP cố định); moq bigint?(lịch sử); fixed_order_qty bigint?; safety_days numeric(8,3); warning_horizon_days smallint; is_assumed bool; assumption_source text; created_at | UNIQUE(item_id,version), UNIQUE(item_id,effective_from), UNIQUE(id,item_id); ROP≥0, SSdays≥0, N1–14; fixed quantity≥1/moqnull hoặc legacyMOQ; version/date/FK theo schema0006. Policy mới phải khai báo fixed_order_qty. |
+| `item_policies` (trước 0015: `supplier_item_policies`) | id; item_id FK; supplier = carrier của sản phẩm, suy ra, không lưu; version int; effective_from date; effective_to date?; configured_rop_floor bigint(ROP cố định); moq bigint?(lịch sử); fixed_order_qty bigint?; safety_days numeric(8,3); warning_horizon_days smallint; is_assumed bool; assumption_source text; created_at | UNIQUE(item_id,version), UNIQUE(item_id,effective_from), UNIQUE(id,item_id); ROP≥0, SSdays≥0, N1–14; fixed quantity≥1/moqnull hoặc legacyMOQ; version/date/FK theo schema0006. Policy mới phải khai báo fixed_order_qty. |
 
 Không lưu lead_time_days tùy chỉnh ở policy: profile M3 khóa L7/R1 trong run config; API từ chối giá trị khác. Không có fallback policy chung. Chặn chồng khoảng bằng transaction khóa dòng items tương ứng, kiểm `[from,to)` trước insert/đóng khoảng; UNIQUE chặn trùng đầu khoảng. Không dùng CHECK tham chiếu dòng khác. Chỉ một đường mutation policy trong API/CLI để giữ kiểm này, tài khoản DB ứng dụng không được dùng tùy tiện ngoài dịch vụ.
 

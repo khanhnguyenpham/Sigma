@@ -346,14 +346,10 @@ def test_schema0007_keeps_old_reads_and_rejects_new_operations(pg, tmp_path):
     cfg=migration_config(engine)
     command.downgrade(cfg,"0007_supply_lifecycle")
     try:
+        # Since 0015 renamed the policy table, current code needs the head schema; readiness keeps traffic away.
         with TestClient(create_app(settings(tmp_path))) as client:
-            row=client.get(f"/api/v1/products/{data['item']}?as_of_date={D}").json()
-            assert row["trade_schema_ready"] is False and row["sales_allowed"] is None
-            assert client.get(f"/api/v1/products?provider_status=clear&as_of_date={D}").status_code==503
-            assert client.get(ROOT).status_code==503
-            assert client.post(ROOT+"/preview",json=draft(data)).status_code==503
-            assert client.post(f"/api/v1/products/{data['item']}/internal-stop-preview",json=internal_body()).status_code==503
-            assert client.post(f"/api/v1/products/{data['item']}/supply-changes",json=internal_body()).status_code==503
+            ready=client.get("/api/v1/ready")
+            assert ready.status_code==503 and ready.json()["checks"]["database"] is False
     finally:
         command.upgrade(cfg,"head")
 

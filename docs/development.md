@@ -1,5 +1,12 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-m4a-tables-20261116"></a>
+## M4a — làm rõ bảng cấu hình — 16/11/2026
+
+Migration `0015_item_policies`: `supplier_item_policies` → `item_policies`, bỏ cột `supplier_id` (luôn bằng carrier của sản phẩm theo CHG-079); `ops_supplier_settings` → `supplier_settings`; đổi tên constraint theo bảng mới. Trigger `check_supplier_carrier` thay bằng `check_policy_carrier_stable`: vẫn chặn đổi carrier của item/kho đã có cấu hình. Downgrade không mất dữ liệu (khôi phục `supplier_id` theo carrier và trigger cũ). Model: `Policy.supplier_id` là `column_property` suy từ carrier, nên API, snapshot và phép tính giữ nguyên; truy vấn chỉ chọn cột này phải kèm `select_from(Policy)`. `record()` đọc theo thuộc tính mapped để giữ `supplier_id` trong JSON.
+
+Test: golden DDL/HTTP và các test migration map tên bảng cũ, bỏ `supplier_id` khi so dữ liệu. Ba test "code mới chạy trên schema cũ" (`test_supply_api`, `test_trade_api`, `test_receiving_migration`) đổi sang kiểm `/api/v1/ready` trả 503 khi DB chưa ở head, vì code mới cần bảng `item_policies`; triển khai thật luôn migrate trước (`compose` service `migrate`). Thay hai ca `policy_insert/policy_update` bằng test supplier suy ra từ carrier. Kết quả: pytest toàn bộ 581 passed với 2 test migration còn hỏng, sau khi sửa hai test đó chạy lại riêng 10/10; lỗi còn lại duy nhất là `test_real_postgres_migration_and_role` đòi PostgreSQL 18. Không đổi FE.
+
 <a id="handoff-supplier-lead-20261116"></a>
 ## Thời gian nhập theo nhà cung cấp trong mô phỏng — 16/11/2026
 

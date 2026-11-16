@@ -67,6 +67,8 @@ Danh sách đề xuất; mỗi bảng được rà nghiệp vụ trước khi vi
 - `inventory_daily`: xem tách phần tính chính sách (SS, ROP, target, khuyến nghị) khỏi phần số dư.
 - Migration nối tiếp `0011_operational_inventory`, có downgrade, chạy trên DB thử có dữ liệu synthetic. Không xóa dữ liệu cũ.
 
+**Kết quả M4 (16/11):** khi rà nghiệp vụ thấy `supplier_item_policies` vốn đã là cấu hình theo sản phẩm (khóa theo item), còn cấu hình nhà cung cấp đã nằm riêng. M4a (0015) đổi tên thành `item_policies` và `supplier_settings`, bỏ cột `supplier_id` thừa. Theo quyết định người dùng, việc tách `runs` gộp vào M5 để chỉ viết lại test một lần. Không gộp hai bảng kho (rủi ro cao, người dùng không chọn); `inventory_daily` giữ nguyên.
+
 ## 6. Bỏ hash (G5, quyết định C)
 
 - Bỏ: các cột `source_sha256`, `code_sha256`, `config_sha256`, `request_sha256`, `selection_sha256` của `runs`; `runs/verification.py`; `specs_fingerprint`; chữ ký nguồn demo; `parent_bundle_sha256`. Sửa hoặc xóa test tương ứng.
@@ -106,7 +108,7 @@ W2–W4 phải cho kết quả giống hệt bản cũ. W1 đổi kết quả c�
 | M2 | Vai trò đại lý: DB, API, quyền, giao diện đại lý | pytest phân quyền/luồng yêu cầu, Vitest, build |
 | M3 | Điều chỉnh ETA | pytest version/audit/ETA hợp lệ, Vitest |
 | M4 | Tách bảng DB | pytest + migrate up/down trên DB thử, run cũ đọc được |
-| M5 | Bỏ hash | pytest toàn bộ, run cũ đọc được |
+| M5 | Bỏ hash, gỡ `verification.py`, tách `runs` (snapshot/kết quả sang bảng riêng) | pytest toàn bộ, run cũ đọc được |
 | M6 | Rà loading/skeleton trên giao diện mới | Xem web, Vitest |
 | M7 | Tối ưu worker W1–W4 (mục 6b) | pytest, số đo trước–sau, mức chênh của W1 |
 

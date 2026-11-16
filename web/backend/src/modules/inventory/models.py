@@ -71,7 +71,7 @@ class InventoryDaily(Base):
     __table_args__ = (
         ForeignKeyConstraint(
             ["policy_id", "item_id"],
-            ["supplier_item_policies.id", "supplier_item_policies.item_id"],
+            ["item_policies.id", "item_policies.item_id"],
             ondelete="RESTRICT",
         ),
         UniqueConstraint("run_id", "window_origin", "item_id", "date"),

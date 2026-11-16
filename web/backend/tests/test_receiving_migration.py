@@ -19,6 +19,9 @@ from test_postgres_api import settings
 from test_receiving_warehouse import add_warehouse
 from test_results_api import result_fixture
 
+# Tables renamed by 0015, read under their legacy names while the schema is older.
+LEGACY = {'item_policies': 'supplier_item_policies'}
+
 
 def test_legacy_upgrade_roundtrip_and_downgrade_guards(pg, tmp_path):
     engine, sessions = pg
@@ -29,15 +32,12 @@ def test_legacy_upgrade_roundtrip_and_downgrade_guards(pg, tmp_path):
     command.downgrade(cfg, "0008_trade_lifecycle")
     try:
         with engine.connect() as connection:
-            before = {name: connection.execute(text(f'SELECT to_jsonb(t)::text FROM "{name}" t ORDER BY 1')).scalars().all()
-                      for name in Base.metadata.tables if not name.startswith(('auth_', 'ops_', 'dealer'))}
+            before = {name: connection.execute(text(f"SELECT (to_jsonb(t)-'supplier_id')::text FROM \"{LEGACY.get(name, name)}\" t ORDER BY 1")).scalars().all()
+                      for name in Base.metadata.tables if not name.startswith(('auth_', 'ops_', 'dealer')) and name != 'supplier_settings'}
+        # Since 0015 renamed the policy table, current code needs the head schema; readiness keeps traffic away.
         with TestClient(create_app(settings(tmp_path))) as client:
-            legacy = client.get(f"/api/v1/products/{item}").json()
-            assert legacy["receiving_schema_ready"] is False
-            assert legacy["receiving_warehouse_id"] == legacy["warehouse_id"]
-            assert client.patch(f"/api/v1/products/{item}/receiving-warehouse", json={
-                "receiving_warehouse_id": target, "expected_version": 0}).status_code == 503
-            assert client.get(f"/api/v1/runs/{forecast}/forecasts/items").status_code == 200
+            ready = client.get("/api/v1/ready")
+            assert ready.status_code == 503 and ready.json()["checks"]["database"] is False
         command.upgrade(cfg, "head")
         command.upgrade(cfg, "head")
         added = {"items": ["receiving_warehouse_id", "receiving_version"], "replenishment_orders": ["receiving_warehouse_id"]}

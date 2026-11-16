@@ -139,7 +139,9 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
 
 def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
     statements = []
-    for _, table in sorted(Base.metadata.tables.items()):
+    # 0015 renamed supplier_item_policies and derived its supplier_id; compare against the original golden.
+    legacy = {"item_policies": "supplier_item_policies"}
+    for _, table in sorted(Base.metadata.tables.items(), key=lambda pair: legacy.get(pair[0], pair[0])):
         # Lifecycle additions are checked separately; retain the original thirteen-table golden.
         if table.name == "item_supply_changes" or table.name in OPS_TABLES or table.name.startswith(("provider_product_notice", "auth_")):
             continue
@@ -161,7 +163,15 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
         if table.name == "warehouses":
             ddl = "\n".join(line for line in ddl.splitlines() if "CONSTRAINT fk_warehouse_carrier " not in line)
             ddl = ddl.replace("UNIQUE (code),", "UNIQUE (code)")
-        if table.name == "supplier_item_policies":
+        ddl = ddl.replace("REFERENCES item_policies (", "REFERENCES supplier_item_policies (")
+        if table.name == "item_policies":
+            lines = ddl.replace("CREATE TABLE item_policies (", "CREATE TABLE supplier_item_policies (").splitlines()
+            at = next(i for i, line in enumerate(lines) if line.strip().startswith("item_id "))
+            lines.insert(at + 1, "\tsupplier_id BIGINT NOT NULL, ")
+            fk = next(i for i, line in enumerate(lines) if "FOREIGN KEY(item_id) REFERENCES items" in line)
+            lines[fk] = lines[fk].rstrip().rstrip(",") + ", "
+            lines.insert(fk + 1, "\tFOREIGN KEY(supplier_id) REFERENCES suppliers (id) ON DELETE RESTRICT")
+            ddl = "\n".join(lines)
             ddl = "\n".join(
                 line for line in ddl.splitlines()
                 if not re.match(r"\s*(?:" + "|".join(POLICY_COLUMNS) + r")\s", line)
@@ -188,7 +198,7 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
                 " OR (event_kind='sale_blocked' AND source_sequence IS NOT NULL AND replenishment_order_id IS NULL AND fulfilled_qty=0 AND shortage_qty=0)", "")
         statements.append(ddl)
         for index in sorted(table.indexes, key=lambda index: index.name):
-            statements.append(str(CreateIndex(index).compile(dialect=dialect())).strip())
+            statements.append(str(CreateIndex(index).compile(dialect=dialect())).strip().replace(" ON item_policies (", " ON supplier_item_policies ("))
     # SQLAlchemy emits spaces after commas; normalize only end-of-line whitespace.
     actual = "\n".join(line.rstrip() for line in (";\n\n".join(statements) + ";\n").splitlines()) + "\n"
     assert actual == (

@@ -83,7 +83,6 @@ def create_policy(session, request):
             latest.effective_to = request.effective_from
     row = Policy(
         item_id=item.id,
-        supplier_id=request.supplier_id,
         version=version + 1,
         effective_from=request.effective_from,
         configured_rop_floor=request.configured_rop_floor,

@@ -1,5 +1,5 @@
 """Explicit additions; original M2/M3 HTTP and DDL goldens stay unchanged."""
-OPS_TABLES = {"ops_warehouses", "ops_products", "ops_supplier_settings", "ops_purchase_orders", "ops_purchase_order_lines",
+OPS_TABLES = {"ops_warehouses", "ops_products", "supplier_settings", "ops_purchase_orders", "ops_purchase_order_lines",
     "ops_stock_documents", "ops_stock_document_lines", "ops_stock_balances", "ops_audit_events"}
 OPS_SCHEMAS = {"OpsWarehouseInput", "OpsWarehouseUpdate", "OpsProductInput", "OpsProductUpdate", "OpsSupplierSettingsInput",
     "OpsOrderLineInput", "OpsOrderInput", "OpsOrderUpdate", "OpsOrderTransition", "OpsReceiptLineInput", "OpsReceiptInput", "OpsMovementInput"}

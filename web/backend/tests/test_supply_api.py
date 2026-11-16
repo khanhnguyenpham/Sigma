@@ -137,10 +137,10 @@ def test_legacy_schema_keeps_product_read_and_rejects_new_features(pg,tmp_path):
     cfg.attributes['database_url']=engine.url.render_as_string(hide_password=False)
     command.downgrade(cfg,'0006_fixed_days')
     try:
+        # Since 0015 renamed the policy table, current code needs the head schema; readiness keeps traffic away.
         with TestClient(create_app(settings(tmp_path))) as c:
-            assert c.get('/api/v1/products').json()['items'][0]['supply_schema_ready'] is False
-            assert c.get(f'/api/v1/products/{item}?as_of_date={D}').status_code==503
-            assert c.post(f'/api/v1/products/{item}/supply-changes',json=body()).status_code==503
+            ready=c.get('/api/v1/ready')
+            assert ready.status_code==503 and ready.json()['checks']['database'] is False
     finally:command.upgrade(cfg,'head')
 
 

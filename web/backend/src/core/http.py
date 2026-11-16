@@ -26,8 +26,9 @@ def ready(http: Request):
 
 def record(row):
     state = inspect(row)
-    return {c.name: getattr(row, c.name) for c in row.__table__.columns
-            if not (c.name in state.unloaded and state.mapper.column_attrs[c.name].deferred)}
+    # Mapped attributes include derived ones such as Policy.supplier_id; keys equal column names.
+    return {a.key: getattr(row, a.key) for a in state.mapper.column_attrs
+            if not (a.key in state.unloaded and a.deferred)}
 
 
 def listing(sessions, model, page, size, predicates=()):

@@ -1,5 +1,9 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 16/11 — M4 tách bảng: phạm vi thực
+
+Rà nghiệp vụ cho thấy cấu hình sản phẩm và nhà cung cấp đã tách sẵn; vấn đề là tên bảng và cột thừa. Người dùng chọn làm rõ cấu hình (0015) và gộp việc tách `runs` vào M5 vì 5 cột hash của `runs` gắn với `verification.py` và bước chặn sai file nguồn M2. Chấp nhận bỏ cam kết "code mới đọc schema cũ hơn 0015", thay bằng kiểm readiness, vì triển khai luôn migrate trước. [Bàn giao](development.md#handoff-m4a-tables-20261116).
+
 ## 16/11 — thời gian nhập theo nhà cung cấp
 
 Mentor (người dùng thuật lại) giữ mặc định 7 ngày nhưng cần chỉnh theo từng nhà cung cấp và áp cho mọi sản phẩm của nhà cung cấp. Người dùng chọn áp cả cho mô phỏng. Quyết định: chốt vào snapshot khi tạo run để sửa sau không đổi run đã có; giới hạn 13 ngày vì H14; run cũ giữ 7. Đây là thay đổi hợp đồng L7 có chủ đích, đã cập nhật AGENTS.md. [Bàn giao](development.md#handoff-supplier-lead-20261116).

@@ -2,15 +2,24 @@ from sqlalchemy import (
     BigInteger, Boolean, CheckConstraint, Column, Date, Index, Integer, Numeric,
     SmallInteger, Text, UniqueConstraint,
 )
+from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import column_property
 from core.db import Base, created, fk, identity
+from modules.catalog.models import Item, Supplier, Warehouse
 
 
 class Policy(Base):
-    __tablename__ = "supplier_item_policies"
+    """Per-product replenishment settings; supplier-wide settings live in supplier_settings."""
+    __tablename__ = "item_policies"
     id = identity()
     item_id = fk("items")
-    supplier_id = fk("suppliers")
+    # The supplier is always the item's carrier (CHG-079), so it is derived rather than stored (0015).
+    # Selected alone it has no outer FROM to correlate with: use select(Policy.supplier_id).select_from(Policy).
+    supplier_id = column_property(
+        select(Supplier.id).where(Supplier.carrier == Warehouse.carrier, Warehouse.id == Item.warehouse_id, Item.id == item_id)
+        .correlate_except(Supplier, Warehouse, Item).scalar_subquery()
+    )
     version = Column(Integer, nullable=False)
     effective_from = Column(Date, nullable=False)
     effective_to = Column(Date)

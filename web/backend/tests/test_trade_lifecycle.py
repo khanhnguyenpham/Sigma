@@ -260,8 +260,10 @@ def test_upgrade_with_existing_history_preserves_columns_and_old_api_on_0007(pg,
             c.execute(text("""INSERT INTO item_supply_changes(item_id,version,action,known_on,effective_on,reason)
                 VALUES (:item,1,'stop',:known,:effective,'Existing internal simulation')"""),
                 dict(item=item, known=D, effective=D+timedelta(days=7)))
-            before = {name:c.execute(text(f'SELECT to_jsonb(t)::text FROM "{name}" t ORDER BY 1')).scalars().all()
-                      for name in Base.metadata.tables if not name.startswith(("provider_product_notice", "auth_", "ops_", "dealer"))}
+            # 0015 renamed the policy table and derived supplier_id; read it under the legacy name.
+            legacy = {"item_policies": "supplier_item_policies"}
+            before = {name:c.execute(text(f"SELECT (to_jsonb(t)-'supplier_id')::text FROM \"{legacy.get(name, name)}\" t ORDER BY 1")).scalars().all()
+                      for name in Base.metadata.tables if not name.startswith(("provider_product_notice", "auth_", "ops_", "dealer")) and name != "supplier_settings"}
         with TestClient(create_app(settings(tmp_path))) as client:
             response = client.get(f"/api/v1/runs/{key}/inventory")
             assert response.status_code == 200, response.text
@@ -314,7 +316,7 @@ def test_downgrade_refuses_every_new_data_shape(pg, kind):
     with pytest.raises(RuntimeError, match="lose data"):
         command.downgrade(migration_config(engine), "0007_supply_lifecycle")
     with sessions() as s:
-        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0014_supplier_lead_simulation"
+        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0015_item_policies"
 
 
 def test_daily_source_split_check_preserves_existing_balance_rule(pg):

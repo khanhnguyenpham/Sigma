@@ -44,7 +44,7 @@ Ngày sổ kho dùng **Asia/Ho_Chi_Minh (UTC+7)**; audit lưu thời điểm UTC
 | --- | --- |
 | `ops_warehouses` | Kho vật lý, độc lập với `warehouses` đang đại diện tuyến nguồn ở nền cũ. |
 | `ops_products` | Tên/trạng thái vận hành của item; giữ SKU/loại/tuyến nguồn đã có. |
-| `ops_supplier_settings` | Lead time mặc định, phiên bản và người chỉnh. |
+| `supplier_settings` (trước 0015: `ops_supplier_settings`) | Thời gian nhập theo nhà cung cấp, áp cho mọi sản phẩm của nhà cung cấp; phiên bản và người chỉnh. |
 | `ops_purchase_orders` | Trạng thái, ngày đặt, ETA/lead time đã lưu, phiên bản và actor. |
 | `ops_purchase_order_lines` | Sản phẩm/kho, lượng đặt và đã nhận. |
 | `ops_stock_documents` | Phiếu nhập/xuất/kiểm kê đã ghi sổ. |

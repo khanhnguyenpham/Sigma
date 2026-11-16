@@ -44,12 +44,16 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
     # Total30 is removed from the application; historical fixture stays intact.
     assert not any('monthly' in path for path in routes)
     assert routes == {p: methods for p, methods in baseline['routes'].items() if 'monthly' not in p}
-    assert set(Base.metadata.tables) == set(baseline['tables']) | {'item_supply_changes',
+    # 0015 renamed supplier_item_policies to item_policies and derived supplier_id from the item carrier.
+    renamed = {'supplier_item_policies': 'item_policies'}
+    assert set(Base.metadata.tables) == {renamed.get(t, t) for t in baseline['tables']} | {'item_supply_changes',
         'provider_product_notices', 'provider_product_notice_items', 'provider_product_notice_events', 'auth_users', 'auth_sessions'} | OPS_TABLES
     assert len(Base.metadata.tables) == 31  # 28 + three dealer tables (0012)
     for name, columns in baseline['tables'].items():
         if name == 'suppliers':
             columns = [c for c in columns if c not in {'code', 'display_name', 'is_assumed', 'assumption_source'}]
             assert set(Base.metadata.tables[name].columns.keys()) == {'id', 'carrier', 'created_at'}
-        assert set(columns) <= set(Base.metadata.tables[name].columns.keys())
+        if name == 'supplier_item_policies':
+            columns = [c for c in columns if c != 'supplier_id']
+        assert set(columns) <= set(Base.metadata.tables[renamed.get(name, name)].columns.keys())
     app.state.engine.dispose()
