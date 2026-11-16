@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { DealerPortal } from "../src/dealers/DealerPortal";
-import { DealerRequestsPage } from "../src/pages/Dealers";
+import { DealerRequestsPage, DealersPage } from "../src/pages/Dealers";
 
 const reply = (value: unknown, status = 200) => ({ ok: status < 400, status, json: async () => value }) as Response;
 const page = (items: unknown[]) => ({ items, total: items.length, page: 1, page_size: 25 });
@@ -53,4 +53,30 @@ it("admin approves then issues from a chosen warehouse on the business date", as
   await waitFor(() => expect(fetch.mock.calls.some(([p]) => String(p).endsWith("/requests/5/issue"))).toBe(true));
   const [, options] = fetch.mock.calls.find(([p]) => String(p).endsWith("/requests/5/issue"))!;
   expect(JSON.parse(String(options?.body))).toEqual({ expected_version: 2, warehouse_id: 4, occurred_on: "2026-11-16" });
+});
+
+it("locks request actions and says so while a decision is being sent", async () => {
+  vi.spyOn(globalThis, "fetch").mockImplementation((input, options) => {
+    const path = String(input);
+    if (options?.method === "POST") return new Promise<Response>(() => {});
+    return Promise.resolve(reply(path.includes("/dealers/requests/5") ? request : page([{ ...request, quantity: 3, line_count: 1 }])));
+  });
+  render(<DealerRequestsPage />);
+  fireEvent.click(await screen.findByRole("button", { name: "DR-1" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Duyệt" }));
+  expect(await screen.findByText("Đang xử lý…")).toBeVisible();
+  expect(screen.getByRole("button", { name: "Duyệt" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Từ chối" })).toBeDisabled();
+});
+
+it("keeps the record count and blocks paging while the next page loads", async () => {
+  const dealers = Array.from({ length: 25 }, (_, index) => ({ id: index + 1, code: `DL-${index}`, name: `Đại lý ${index}`, contact: "", active: true, version: 1 }));
+  vi.spyOn(globalThis, "fetch").mockImplementation((input) => String(input).includes("page=2")
+    ? new Promise<Response>(() => {}) : Promise.resolve(reply({ items: dealers, total: 30, page: 1, page_size: 25 })));
+  render(<DealersPage />);
+  fireEvent.click(await screen.findByRole("button", { name: "Sau →" }));
+  expect(await screen.findByText("Trang 2")).toBeVisible();
+  expect(screen.getByText("30 bản ghi")).toBeVisible();
+  expect(screen.getByRole("button", { name: "Sau →" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: "← Trước" })).toBeDisabled();
 });

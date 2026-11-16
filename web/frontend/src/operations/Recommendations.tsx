@@ -20,21 +20,22 @@ const REASONS: Record<string,string> = {
 const DECISIONS: Record<string,string> = { blocked:"Chưa đủ điều kiện", review_overdue:"Kiểm tra đơn trễ", order:"Cần bổ sung", covered:"Chưa cần đặt" };
 export function Recommendations() {
   const [page,setPage] = useState(1), [run,setRun] = useState("");
-  const result = useResource<Plan>(`/operations/recommendations?page=${page}&page_size=25${run ? `&forecast_run_id=${encodeURIComponent(run)}` : ""}`);
+  const result = useResource<Plan>(`/operations/recommendations?page=${page}&page_size=25${run ? `&forecast_run_id=${encodeURIComponent(run)}` : ""}`, true);
   const [detail,setDetail] = useState<Row>();
   return <section className="panel ops-list-panel"><h2>Đề xuất nhập từ sổ kho</h2>
     <p>Tổng hợp mỗi sản phẩm trên tất cả kho; mỗi dự báo chỉ tính một lần. Đây là khuyến nghị để đối chiếu, chưa tạo đơn mua.</p>
     <p className="notice">Giả định: giữ số dư hiện tại đến đầu ngày UTC tiếp theo; chưa tính nhu cầu còn lại trong ngày và thời gian chuyển giữa các kho. Hàng quá ngày về không được coi là đã nhận.</p>
-    <State loading={result.loading} error={result.error} />
-    {result.data && !result.loading && !result.error && <>
+    {/* Keep the panel while another page or forecast loads; only the table shows the skeleton. */}
+    <State loading={result.loading && !result.data} error={result.error} />
+    {result.data && !result.error && <>
       <label>Nguồn dự báo<select value={run} onChange={event=>{setRun(event.target.value);setPage(1);setDetail(undefined);}}><option value="">Tự chọn lượt gần nhất đủ điều kiện</option>{result.data.forecast_options.map(id=><option key={id} value={id}>{id.slice(0,8)}</option>)}</select></label>
       <p className="caption">Chốt xem: {new Date(result.data.captured_at).toLocaleString("vi-VN")} · Kỳ từ sau {result.data.origin} UTC · Dự báo tại {result.data.forecast_origin ?? "chưa có"}. SS theo bình quân ngày dự báo; ROP theo thời gian nhập + SS và ngưỡng tối thiểu.</p>
-      <Table rows={result.data.items} stickyFirstColumn columns={[
+      <Table rows={result.data.items} loading={result.loading} stickyFirstColumn columns={[
         {key:"sku",label:"Sản phẩm"},{key:"on_hand_qty",label:"Tồn toàn mạng",render:qty},
         {key:"lead_time_days",label:"Thời gian nhập (ngày)"},{key:"rop",label:"Ngưỡng đặt",render:qty},{key:"recommended_qty",label:"Đề xuất nhập",render:qty},
         {key:"decision",label:"Kết luận",render:(value,row)=><span>{DECISIONS[String(value)]}<small className="cell-subtitle">{REASONS[String(row.reason)]}</small></span>},
         {key:"item_id",label:"Đối chiếu",render:(_,row)=><button disabled={!row.projection} onClick={()=>setDetail(row)}>Xem từng ngày</button>},
-      ]} /><Pager page={page} total={result.data.total} pageSize={25} onChange={value=>{setPage(value);setDetail(undefined);}} />
+      ]} /><Pager page={page} total={result.data.total} pageSize={25} loading={result.loading} onChange={value=>{setPage(value);setDetail(undefined);}} />
       {detail && <section><h3>Dự kiến tồn · {String(detail.sku)}</h3><p>SS: {qty(detail.safety_stock)} · Đang về đúng kỳ: {qty(detail.eligible_pending_qty)} · Quá hạn: {qty(detail.overdue_qty)}.</p>
         {detail.shortage_before_new_eta === true && <p className="notice error">Có nguy cơ thiếu trước khi đơn mới về. Đặt thông thường chưa giải quyết được; cần kiểm tra giao sớm hoặc điều phối kho.</p>}
         <Table rows={detail.projection as Row[]} columns={[{key:"date",label:"Ngày UTC"},{key:"demand",label:"Nhu cầu dự báo"},{key:"receipts_qty",label:"Dự kiến nhận",render:qty},{key:"closing_qty",label:"Tồn cuối dự kiến"},{key:"shortage_qty",label:"Chưa đáp ứng"}]} /></section>}

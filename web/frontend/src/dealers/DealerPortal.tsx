@@ -34,8 +34,8 @@ function Home({ onTab }: { onTab: (tab: Tab) => void }) {
     ["Mặt hàng đang có", stock.data, stock.loading, "stock"]];
   return <>
     <State error={waiting.error ?? incoming.error ?? stock.error} />
-    <div className="ops-summary dashboard-summary">{cards.map(([label, data, loading, target]) =>
-      <button key={label} onClick={() => onTab(target)}><span>{label}</span><strong>{loading ? "…" : qty(data?.total)}</strong></button>)}</div>
+    <div className="ops-summary dashboard-summary" aria-busy={cards.some(([, , loading]) => loading)}>{cards.map(([label, data, loading, target]) =>
+      <button key={label} onClick={() => onTab(target)}><span>{label}</span><strong>{loading ? <span className="skeleton-block" aria-hidden="true" /> : qty(data?.total)}</strong></button>)}</div>
     <p className="caption">Đặt hàng từ kho công ty, theo dõi trạng thái duyệt và xác nhận khi đã nhận hàng.</p>
     <button className="primary" onClick={() => onTab("order")}>Tạo yêu cầu lấy hàng</button>
   </>;
@@ -45,7 +45,7 @@ function OrderForm({ onDone }: { onDone: () => void }) {
   const [page, setPage] = useState(1), [search, setSearch] = useState(""), [note, setNote] = useState("");
   const [cart, setCart] = useState<Record<number, number>>({});
   const debounced = useDebounce(search);
-  const products = useResource<Page>(`/dealer/products?page=${page}&page_size=25${debounced ? `&search=${encodeURIComponent(debounced)}` : ""}`);
+  const products = useResource<Page>(`/dealer/products?page=${page}&page_size=25${debounced ? `&search=${encodeURIComponent(debounced)}` : ""}`, true);
   const write = useOperationWrite("/dealer");
   const lines = Object.entries(cart).filter(([, quantity]) => quantity > 0).map(([item, quantity]) => ({ item_id: Number(item), quantity }));
   const columns: Column[] = [
@@ -62,7 +62,7 @@ function OrderForm({ onDone }: { onDone: () => void }) {
     <div className="ops-filters"><label>Tìm sản phẩm<input value={search} maxLength={120} placeholder="Mã hoặc tên sản phẩm" onChange={(event) => { setSearch(event.target.value); setPage(1); }} /></label></div>
     <State error={products.error} />
     {!products.error && <><Table rows={products.data?.items ?? []} loading={products.loading} columns={columns} label="Sản phẩm có thể đặt" emptyMessage="Chưa có sản phẩm đang kinh doanh." />
-      <Pager page={page} total={products.data?.total ?? 0} pageSize={25} onChange={setPage} /></>}
+      <Pager page={page} total={products.data?.total ?? 0} pageSize={25} loading={products.loading} onChange={setPage} /></>}
     <WriteError error={write.error} />
     <label>Ghi chú cho kho<textarea value={note} maxLength={1000} rows={2} onChange={(event) => setNote(event.target.value)} /></label>
     <div className="dialog-form-actions"><span className="caption">{lines.length} sản phẩm · {qty(lines.reduce((sum, line) => sum + line.quantity, 0))} đơn vị</span>
@@ -72,7 +72,7 @@ function OrderForm({ onDone }: { onDone: () => void }) {
 
 function MyRequests() {
   const [page, setPage] = useState(1), [open, setOpen] = useState("");
-  const result = useResource<Page>(`/dealer/requests?page=${page}&page_size=25`);
+  const result = useResource<Page>(`/dealer/requests?page=${page}&page_size=25`, true);
   const write = useOperationWrite("/dealer/requests");
   async function act(request: DealerRequest, action: "cancel" | "receive") {
     if (await write.send(`/${request.id}/${action}`, { expected_version: request.version })) { refreshOperations(); setOpen(""); }
@@ -84,7 +84,7 @@ function MyRequests() {
   return <section className="panel ops-list-panel">
     <State error={result.error} />
     {!result.error && <><Table rows={result.data?.items ?? []} loading={result.loading} columns={columns} label="Yêu cầu của tôi" emptyMessage="Bạn chưa gửi yêu cầu nào." />
-      <Pager page={page} total={result.data?.total ?? 0} pageSize={25} onChange={setPage} /></>}
+      <Pager page={page} total={result.data?.total ?? 0} pageSize={25} loading={result.loading} onChange={setPage} /></>}
     {open && <RequestDetail path={`/dealer/requests/${open}`} onClose={() => setOpen("")} busy={write.busy} error={write.error} actions={(request) => <>
       {request.status === "submitted" && <button onClick={() => void act(request, "cancel")}>Hủy yêu cầu</button>}
       {request.status === "issued" && <button className="primary" onClick={() => void act(request, "receive")}>Xác nhận đã nhận hàng</button>}
@@ -94,12 +94,12 @@ function MyRequests() {
 
 function MyStock() {
   const [page, setPage] = useState(1);
-  const result = useResource<Page>(`/dealer/stock?page=${page}&page_size=25`);
+  const result = useResource<Page>(`/dealer/stock?page=${page}&page_size=25`, true);
   return <section className="panel ops-list-panel">
     <p className="caption">Tổng số đã nhận từ công ty. Hệ thống chưa ghi nhận số đại lý đã bán ra.</p>
     <State error={result.error} />
     {!result.error && <><Table rows={result.data?.items ?? []} loading={result.loading} label="Tồn của tôi" emptyMessage="Chưa nhận hàng lần nào."
       columns={[{ key: "sku", label: "SKU" }, { key: "name", label: "Sản phẩm" }, { key: "received_qty", label: "Đã nhận", render: qty }]} />
-      <Pager page={page} total={result.data?.total ?? 0} pageSize={25} onChange={setPage} /></>}
+      <Pager page={page} total={result.data?.total ?? 0} pageSize={25} loading={result.loading} onChange={setPage} /></>}
   </section>;
 }

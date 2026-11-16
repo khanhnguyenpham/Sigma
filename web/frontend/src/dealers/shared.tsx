@@ -35,6 +35,8 @@ export function RequestDetail({ path, onClose, busy, error, actions }: {
         <Table rows={request.lines} label="Sản phẩm yêu cầu" columns={[{ key: "sku", label: "SKU" }, { key: "name", label: "Sản phẩm" }, { key: "quantity", label: "Số lượng", render: qty }]} />
       </>}
     </div>
-    {request && <div className="dialog-form-actions">{actions(request)}</div>}
+    {/* Block a second approve/issue/receive while one is being sent. */}
+    {request && <fieldset className="dialog-form-actions" disabled={busy}>{actions(request)}
+      {busy && <span className="caption" role="status">Đang xử lý…</span>}</fieldset>}
   </Dialog>;
 }

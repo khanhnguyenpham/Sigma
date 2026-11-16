@@ -41,7 +41,7 @@ export function Operations({ ctx, onContext }: { ctx: Context; onContext: (patch
   const suppliers = useResource<Page<Supplier>>("/operations/suppliers?page_size=100", false, 0, apiAllPages);
   const warehouses = useResource<Page<Warehouse>>("/operations/warehouses?active=true&page_size=100", false, 0, apiAllPages);
   const path = `/operations/${tab}?${query({ page, page_size: 25, ...(["stock", "orders", "products"].includes(tab) ? { search: debounced } : {}), ...(tab === "orders" ? { status } : {}), ...(tab === "products" ? { include_inactive: "true" } : {}), ...(tab === "stock" ? { warehouse_id: warehouse } : {}) })}`;
-  const result = useResource<Page>(tab === "recommendations" || ctx.opsOrderId && tab === "orders" ? null : path);
+  const result = useResource<Page>(tab === "recommendations" || ctx.opsOrderId && tab === "orders" ? null : path, true);
   const activeWarehouses = warehouses.data?.items ?? [], supplierRows = suppliers.data?.items ?? [];
   function openOrder(id: string) { onContext({ opsTab: "orders", opsOrderId: id }); }
   const canCreateOrder = !!activeWarehouses.length && !!supplierRows.length && !warehouses.error && !suppliers.error;
@@ -71,7 +71,7 @@ export function Operations({ ctx, onContext }: { ctx: Context; onContext: (patch
         {tab === "stock" && <label>Kho hàng<select value={warehouse} onChange={(event) => { setWarehouse(event.target.value); setPage(1); }}><option value="">Tất cả kho</option>{activeWarehouses.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}</select></label>}
       </div>}
       <State error={result.error ?? warehouses.error ?? suppliers.error} />
-      {!result.error && <><Table rows={result.data?.items ?? []} loading={result.loading} stickyFirstColumn columns={columns[tab]} label={`${OPERATION_TABS.find(([key]) => key === tab)?.[1]}, cuộn trong bảng`} emptyMessage={tab === "stock" ? "Chưa có số dư phù hợp. Nhận hàng hoặc ghi nhận kiểm kê để bắt đầu theo dõi tồn." : "Không có dữ liệu phù hợp."} /><Pager page={page} total={result.data?.total ?? 0} pageSize={25} onChange={setPage} /></>}
+      {!result.error && <><Table rows={result.data?.items ?? []} loading={result.loading} stickyFirstColumn columns={columns[tab]} label={`${OPERATION_TABS.find(([key]) => key === tab)?.[1]}, cuộn trong bảng`} emptyMessage={tab === "stock" ? "Chưa có số dư phù hợp. Nhận hàng hoặc ghi nhận kiểm kê để bắt đầu theo dõi tồn." : "Không có dữ liệu phù hợp."} /><Pager page={page} total={result.data?.total ?? 0} pageSize={25} loading={result.loading} onChange={setPage} /></>}
     </section>}
     {editor && (editor.kind === "order" ? <OrderEditor suppliers={supplierRows} warehouses={activeWarehouses} today={summary.data?.business_date ?? ""} onClose={() => setEditor(undefined)} onSaved={(order) => { setEditor(undefined); openOrder(String(order.id)); }} />
       : editor.kind === "count" || editor.kind === "issue" ? <MovementEditor kind={editor.kind} initial={editor.row} warehouses={activeWarehouses} today={summary.data?.business_date ?? ""} onClose={() => setEditor(undefined)} />

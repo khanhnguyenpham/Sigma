@@ -1,5 +1,13 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-m6-loading-20261116"></a>
+## M6 — rà trạng thái tải trên giao diện quản lý — 16/11/2026
+
+- Rà Tổng quan, các trang tách từ Operations, Đề xuất nhập, Đại lý, Yêu cầu lấy hàng, Tài khoản và cổng đại lý. Các form ghi sổ, đơn nhập, đổi ETA và đại lý đã có khóa form và nhãn "Đang lưu…"; mọi bảng đã có skeleton và trạng thái lỗi/rỗng.
+- Đã sửa ba chỗ hở. (1) `Pager` nhận `loading`: khóa hai nút khi đang tải trang. Các danh sách quản lý dùng `useResource(..., keepPrevious)` nên giữ tổng bản ghi thay vì về "0 bản ghi". (2) Hành động trong `RequestDetail` (duyệt, từ chối, xuất kho, hủy, xác nhận nhận) nằm trong `fieldset disabled` khi đang gửi, có chữ "Đang xử lý…"; ô chọn kho xuất hiện "Đang tải kho…". (3) Thẻ số trên Tổng quan và cổng đại lý dùng skeleton thay cho "…". Đề xuất nhập giữ panel khi đổi trang hoặc nguồn dự báo, chỉ bảng hiện skeleton.
+- Kiểm lượt này: Vitest **172/172** (thêm 2 ca: khóa hành động yêu cầu đại lý khi gửi; giữ tổng và khóa phân trang khi tải), `npm run build` qua. Xem bằng mock API tổng hợp có độ trễ ở khổ hẹp và 390px: skeleton thẻ/bảng, nút khóa khi duyệt, phân trang trang 2; không lỗi console, không cuộn ngang ở 390px.
+- Chưa sửa các trang thuộc mục Công cụ (dự báo, kịch bản); chưa commit.
+
 <a id="handoff-m5-runs-20261116"></a>
 ## M5 — bỏ hash kiểm chứng, tách `runs` — 16/11/2026
 

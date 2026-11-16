@@ -34,6 +34,8 @@
 .operations-form-dialog textarea { resize: vertical; min-height: 66px; }
 .operations-form-dialog small { color: #65748b; font-weight: 400; }
 .dialog-form-actions { display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border); padding: 14px 20px; background: #fff; flex-shrink: 0; }
+/* Request actions sit in a fieldset so one `disabled` locks them while a write is in flight. */
+.operations-form-dialog fieldset.dialog-form-actions { display: flex; align-items: center; margin: 0; min-width: 0; border: 0; border-top: 1px solid var(--border); padding: 14px 20px; overflow: visible; }
 .ops-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
 .ops-product-picker { border: 1px solid var(--border); padding: 12px; border-radius: 8px; min-width: 0; }
 .ops-product-picker .table-scroll { max-height: 220px; margin-top: 10px; }

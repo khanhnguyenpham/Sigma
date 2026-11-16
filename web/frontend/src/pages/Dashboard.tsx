@@ -49,7 +49,7 @@ export function Dashboard({ onNavigate, onOpenOrder }: { onNavigate: (page: stri
     <div className="ops-section-heading"><div><p className="eyebrow">QUẢN LÝ</p><h1>Tổng quan</h1><p className="caption">Tình hình kho và nhập hàng theo sổ chứng từ{today ? ` · ngày ${today}` : ""}.</p></div></div>
     <State error={summary.error} />
     <div className="ops-summary dashboard-summary" aria-busy={summary.loading}>{cards.map(([label, value, target]) =>
-      <button key={label} onClick={() => onNavigate(target)}><span>{label}</span><strong>{summary.loading ? "…" : qty(value)}</strong></button>)}</div>
+      <button key={label} onClick={() => onNavigate(target)}><span>{label}</span><strong>{summary.loading ? <span className="skeleton-block" aria-hidden="true" /> : qty(value)}</strong></button>)}</div>
     <div className="dashboard-grid">
       {panel("Đơn nhập sắp về", "orders", orders, orderColumns, "Không có đơn đang chờ nhận.")}
       {panel("Tồn thấp nhất", "stock", stock, stockColumns, "Chưa có số dư. Nhận hàng hoặc kiểm kê để bắt đầu.")}

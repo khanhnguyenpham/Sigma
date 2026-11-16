@@ -13,7 +13,7 @@ export function UserManagement({ currentId, onClose }: { currentId: number; onCl
   const [role, setRole] = useState("dealer");
   const [error, setError] = useState<Error>();
   const [busy, setBusy] = useState(false);
-  const users = useResource<Page<User>>(`/auth/users?page=${page}&page_size=25`);
+  const users = useResource<Page<User>>(`/auth/users?page=${page}&page_size=25`, true);
   const dealers = useResource<Page>("/dealers?active=true&page_size=100");
   useEffect(() => { dialog.current?.showModal(); }, []);
   function refresh() { window.dispatchEvent(new Event("sigma:refresh")); }
@@ -43,7 +43,7 @@ export function UserManagement({ currentId, onClose }: { currentId: number; onCl
       { key: "dealer_id", label: "Đại lý", render: (value) => dealers.data?.items.find((row) => row.id === value)?.name as string ?? (value ? `#${value}` : "") },
       { key: "active", label: "Trạng thái", render: (value) => value ? "Hoạt động" : "Đã khóa" },
       { key: "id", label: "Thao tác", render: (_value, row) => <button disabled={busy || row.id === currentId || (row.role === "supplier" && !row.active)} onClick={() => void toggle(row as unknown as User)}>{row.active ? "Khóa" : "Mở khóa"}</button> },
-    ]} /><Pager page={page} total={users.data?.total ?? 0} pageSize={25} onChange={setPage} /></>}
+    ]} /><Pager page={page} total={users.data?.total ?? 0} pageSize={25} loading={users.loading} onChange={setPage} /></>}
     <h3>Tạo tài khoản</h3><form className="account-form" onSubmit={(event) => void create(event)} aria-busy={busy}>
       <fieldset disabled={busy}><label>Tên hiển thị<input name="display_name" required maxLength={100} /></label>
         <label>Tên đăng nhập<input name="username" required minLength={3} maxLength={64} pattern="[a-z0-9][a-z0-9._\-]{2,63}" autoComplete="off" /></label>

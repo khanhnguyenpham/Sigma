@@ -20,7 +20,7 @@ function Heading({ title, caption, action }: { title: string; caption: string; a
 export function DealersPage() {
   const [page, setPage] = useState(1);
   const [editor, setEditor] = useState<Dealer | "new">();
-  const result = useResource<Page<Dealer>>(`/dealers?page=${page}&page_size=25`);
+  const result = useResource<Page<Dealer>>(`/dealers?page=${page}&page_size=25`, true);
   const columns: Column[] = [
     { key: "code", label: "Mã đại lý" }, { key: "name", label: "Tên đại lý" }, { key: "contact", label: "Liên hệ" },
     { key: "active", label: "Trạng thái", render: (value) => value ? "Hoạt động" : "Ngừng hoạt động" },
@@ -32,7 +32,7 @@ export function DealersPage() {
     <section className="panel ops-list-panel">
       <State error={result.error} />
       {!result.error && <><Table rows={result.data?.items ?? []} loading={result.loading} columns={columns} label="Danh sách đại lý" emptyMessage="Chưa có đại lý nào." />
-        <Pager page={page} total={result.data?.total ?? 0} pageSize={25} onChange={setPage} /></>}
+        <Pager page={page} total={result.data?.total ?? 0} pageSize={25} loading={result.loading} onChange={setPage} /></>}
     </section>
     {editor && <DealerEditor row={editor === "new" ? undefined : editor} onClose={() => setEditor(undefined)} />}
   </div>;
@@ -59,7 +59,7 @@ function DealerEditor({ row, onClose }: { row?: Dealer; onClose: () => void }) {
 
 export function DealerRequestsPage() {
   const [page, setPage] = useState(1), [status, setStatus] = useState("submitted"), [open, setOpen] = useState("");
-  const result = useResource<Page>(`/dealers/requests?page=${page}&page_size=25${status ? `&status=${status}` : ""}`);
+  const result = useResource<Page>(`/dealers/requests?page=${page}&page_size=25${status ? `&status=${status}` : ""}`, true);
   const columns: Column[] = [
     { key: "number", label: "Yêu cầu", render: (value, row) => <button className="text-button" onClick={() => setOpen(String(row.id))}>{String(value)}</button> },
     { key: "dealer_name", label: "Đại lý" }, { key: "status", label: "Trạng thái", render: statusBadge },
@@ -72,7 +72,7 @@ export function DealerRequestsPage() {
         <option value="">Tất cả</option>{Object.entries(REQUEST_STATUS).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</select></label></div>
       <State error={result.error} />
       {!result.error && <><Table rows={result.data?.items ?? []} loading={result.loading} columns={columns} label="Yêu cầu lấy hàng" emptyMessage="Không có yêu cầu phù hợp." />
-        <Pager page={page} total={result.data?.total ?? 0} pageSize={25} onChange={setPage} /></>}
+        <Pager page={page} total={result.data?.total ?? 0} pageSize={25} loading={result.loading} onChange={setPage} /></>}
     </section>
     {open && <AdminRequest id={open} onClose={() => setOpen("")} />}
   </div>;
@@ -94,7 +94,7 @@ function AdminRequest({ id, onClose }: { id: string; onClose: () => void }) {
       <button className="primary" disabled={!reason.trim()} onClick={() => void act(request, "reject", { reason })}>Xác nhận từ chối</button></>;
     if (mode === "issue") return <>
       <label className="dialog-inline-field">Xuất từ kho<select value={warehouse} onChange={(event) => setWarehouse(event.target.value)}>
-        <option value="">Chọn kho</option>{warehouses.data?.items.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}</select></label>
+        <option value="">{warehouses.loading ? "Đang tải kho…" : "Chọn kho"}</option>{warehouses.data?.items.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}</select></label>
       <button type="button" onClick={() => setMode("")}>Quay lại</button>
       <button className="primary" disabled={!warehouse || !summary.data} onClick={() => void act(request, "issue",
         { warehouse_id: Number(warehouse), occurred_on: summary.data!.business_date })}>Xuất kho</button></>;
