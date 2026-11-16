@@ -10,6 +10,7 @@
 | M4 | Tách bảng DB | Chưa làm |
 | M5 | Bỏ hash kiểm chứng | Chưa làm |
 | M6 | Rà loading/skeleton | Chưa làm |
+| M3b | Thời gian nhập theo nhà cung cấp áp cho cả kịch bản mô phỏng | Đã làm local, chờ người dùng xem ([bàn giao](../development.md#handoff-supplier-lead-20261116)) |
 | M7 | Tối ưu worker: basis phân bổ tính một lần, vector hóa, index policy, đọc dữ liệu theo khoảng | Chưa làm |
 
 **15/11 — checkpoint hiện hành đã kiểm:** Main52a96e2 có version image bất biến, index forecast một lần, tư vấn sổ kho, QR phiếu giao và Redis. Hai workflow success:581backend (có Redis thật),163React/build, M2 regression và Compose startup/backup–restore synthetic. [Ma trận yêu cầu hiện hành](../PRODUCT_STATUS.md), [bàn giao/số đo](../development.md#handoff-release-identity). Chưa host public hoặc có nguồn/run nhóm để đóng R05/R07/T14; không nhận toàn PLAN hoàn tất. Các checkpoint phía dưới là lịch sử.

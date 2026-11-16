@@ -46,7 +46,7 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
           </dd>
           <dt>Ngưỡng nhập (ROP)</dt>
           <dd>
-            Với kế hoạch mới, ROP = max(nhu cầu dự báo 7 ngày + SS, ngưỡng nhập tối thiểu đã cấu hình).
+            Với kế hoạch mới, ROP = max(nhu cầu dự báo trong thời gian nhập + SS, ngưỡng nhập tối thiểu đã cấu hình).
             SS tính theo số ngày tồn an toàn. Hệ thống xét nhập khi tồn hiện có nhỏ hơn ROP; kế hoạch cũ giữ công thức đã chốt.
           </dd>
           <dt>Vị thế tồn (IP)</dt>
@@ -58,7 +58,7 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
           <dd>
             Khi cần bổ sung, mỗi lô dùng đúng lượng đã cấu hình cho mặt hàng,
             không tự tăng theo dự báo.
-            Ngày nhận dự kiến bằng ngày đặt cộng 7 ngày.
+            Ngày nhận dự kiến bằng ngày đặt cộng thời gian nhập của nhà cung cấp, chốt khi tạo lượt chạy (lượt tạo trước 16/11/2026 dùng 7 ngày).
           </dd>
         </dl>
         <h3>Thử thay đổi</h3>

@@ -99,7 +99,16 @@ def history_quantities(history, days):
     return counts
 
 
-def recommend(forecast, closing, pending, policy, history=None, *, replenishment_allowed=True):
+DEFAULT_LEAD_DAYS = 7
+MAX_LEAD_DAYS = 13  # H14 must cover lead-time demand plus the next review day.
+
+
+def lead_for(lead_times, supplier_id):
+    """Per-supplier lead time frozen in the run snapshot; runs created before it keep the L7 contract."""
+    return int((lead_times or {}).get(str(supplier_id), DEFAULT_LEAD_DAYS))
+
+
+def recommend(forecast, closing, pending, policy, history=None, *, replenishment_allowed=True, lead=DEFAULT_LEAD_DAYS):
     f = vector14(forecast)
     closing, pending = quantity(closing), quantity(pending)
     with np.errstate(over="ignore", invalid="ignore"):
@@ -119,20 +128,20 @@ def recommend(forecast, closing, pending, policy, history=None, *, replenishment
             float(policy.safety_multiplier)
             * float(policy.safety_factor)
             * sigma
-            * math.sqrt(7)
+            * math.sqrt(lead)
             if policy.safety_multiplier and policy.safety_factor and sigma
             else 0.0
         )
     if not math.isfinite(raw_ss) or raw_ss > 2**63 - 1:
         raise DomainError("numeric_overflow", "Safety stock exceeds bigint capacity")
     ss = math.ceil(raw_ss)
-    rop_forecast = math.ceil(float(f[:7].sum()) + ss)
+    rop_forecast = math.ceil(float(f[:lead].sum()) + ss)
     rop = (
         policy.configured_rop_floor
         if policy.rop_mode == "fixed"
         else max(rop_forecast, policy.configured_rop_floor)
     )
-    target = rop + math.ceil(float(f[7]))
+    target = rop + math.ceil(float(f[lead]))
     ip = closing + pending
     trigger = closing < rop
     raw = max(0, target - ip) if trigger else 0
@@ -165,10 +174,10 @@ def recommend(forecast, closing, pending, policy, history=None, *, replenishment
     )
 
 
-def eta(ordered_on):
+def eta(ordered_on, lead=DEFAULT_LEAD_DAYS):
     if not isinstance(ordered_on, date):
         raise DomainError("invalid_input", "Order date is required")
-    return ordered_on + timedelta(days=7)
+    return ordered_on + timedelta(days=lead)
 
 
 def fulfill_day(opening, receipts, sales):

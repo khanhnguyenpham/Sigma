@@ -68,7 +68,7 @@ export function InventoryInformation({ focused, onItem }: { focused: Row; onItem
           <dd>{fmt(focused.ss)}</dd>
         </div>
         <div><dt>Cách tính SS</dt><dd>{focused.safety_mode === "volatility" ? `Biến động ${fmt(focused.safety_lookback_days)} ngày · hệ số ${fmt(focused.safety_factor)}` : `Số ngày bán · ${fmt(focused.safety_days)} ngày`}</dd></div>
-        <div><dt>Cách tính ROP</dt><dd>{focused.rop_mode === "fixed" ? "Cố định" : "Max(nhu cầu dự báo 7 ngày + SS, ngưỡng tối thiểu)"}</dd></div>
+        <div><dt>Cách tính ROP</dt><dd>{focused.rop_mode === "fixed" ? "Cố định" : "Max(nhu cầu dự báo trong thời gian nhập + SS, ngưỡng tối thiểu)"}</dd></div>
         <div><dt>N ngày cảnh báo xuống ROP</dt><dd>{fmt(focused.warning_horizon_days)}</dd></div>
         <div>
           <dt>Lượng nhập mỗi lần</dt>
@@ -109,7 +109,7 @@ export function InventoryInformation({ focused, onItem }: { focused: Row; onItem
             <span>
               {focused.rop_mode === "fixed"
                 ? `ROP cố định = ${fmt(focused.configured_rop_floor)}; không cộng SS lần nữa`
-                : `ROP = max(nhu cầu dự báo 7 ngày + SS, ngưỡng tối thiểu) = max(${fmt(focused.rop_forecast)}, ${fmt(focused.configured_rop_floor)}) = ${fmt(focused.rop)}`}
+                : `ROP = max(nhu cầu dự báo trong thời gian nhập + SS, ngưỡng tối thiểu) = max(${fmt(focused.rop_forecast)}, ${fmt(focused.configured_rop_floor)}) = ${fmt(focused.rop)}`}
             </span>
             <span>
               IP = tồn cuối + đang về = {fmt(focused.inventory_position)}
@@ -120,7 +120,7 @@ export function InventoryInformation({ focused, onItem }: { focused: Row; onItem
           </div>
           <p className="caption">
             Chỉ đề xuất khi tồn cuối &lt; ROP. Có thể Q=0 khi hàng đang về đủ
-            mức mục tiêu. Policy v{text(focused.policy_version)} · L7/R1/H14.
+            mức mục tiêu. Policy v{text(focused.policy_version)} · lead time theo nhà cung cấp đã chốt trong lượt chạy · R1/H14.
           </p>
         </div>
       </details>

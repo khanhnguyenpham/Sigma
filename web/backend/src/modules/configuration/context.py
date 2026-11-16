@@ -11,6 +11,8 @@ from fastapi.encoders import jsonable_encoder
 from modules.catalog.supply_service import require_supply_schema, supply_rows
 from modules.catalog.trade_service import trade_schema_ready, require_trade_schema, lock_trade_scope, provider_notices, freeze_trade
 from modules.catalog.receiving import receiving_schema_ready, RECEIVING_PROFILE
+from modules.operations.models import SupplierSettings
+from modules.inventory.service import DEFAULT_LEAD_DAYS, MAX_LEAD_DAYS
 
 
 def freeze_inventory(session, request, source, scenario):
@@ -124,6 +126,15 @@ def freeze_inventory(session, request, source, scenario):
     item_carriers = {i["item_id"]: i["carrier"] for i in catalog}
     if any(supplier_carriers[p["supplier_id"]] != item_carriers[p["item_id"]] for p in policies):
         raise DomainError("supplier_carrier_mismatch", "Supplier must be the item's carrier", 422)
+    supplier_ids = sorted({p["supplier_id"] for p in policies})
+    configured = dict(session.execute(select(SupplierSettings.supplier_id, SupplierSettings.lead_time_days).where(
+        SupplierSettings.supplier_id.in_(supplier_ids)).with_for_update(read=True)).all())
+    # Freeze each supplier's current lead time for every item of that carrier; later edits never rewrite this run.
+    lead_times = {str(s): configured.get(s, DEFAULT_LEAD_DAYS) for s in supplier_ids}
+    too_long = sorted(supplier_carriers[int(s)] for s, lead in lead_times.items() if lead > MAX_LEAD_DAYS)
+    if too_long:
+        raise DomainError("lead_time_exceeds_forecast",
+            f"Thời gian nhập vượt {MAX_LEAD_DAYS} ngày, dự báo H14 không đủ để mô phỏng: {', '.join(too_long)}", 409)
     for lot in scenario.settings.get("receipts_initial", []):
         if (
             lot["item_id"] not in ids
@@ -185,6 +196,7 @@ def freeze_inventory(session, request, source, scenario):
         **lifecycle,
         **receiving,
         inventory_policy_profile="forecast_floor_days_ss_v1",
+        supplier_lead_times=lead_times,
         policies=policies,
         policy_ids=sorted({p["id"] for p in policies}),
         catalog_snapshot=catalog,

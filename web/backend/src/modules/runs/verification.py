@@ -15,6 +15,7 @@ from modules.runs.supply_verification import verify_supply_snapshot, supply_meta
 from modules.runs.trade_verification import (verify_trade_snapshot, trade_rights, trade_path,
     order_limit, window_exclusion)
 from modules.runs.receiving_verification import verify_receiving_snapshot
+from modules.inventory.service import lead_for
 
 
 def verify_run(settings, sessions, key, allow_running=False):
@@ -354,9 +355,12 @@ def verify_inventory(s, run, settings):
         (w, int(i)): g for (w, i), g in orders.groupby(["window_origin", "item_id"])
     }
     empty_orders = orders.iloc[:0]
+    lead_times = run.config_snapshot.get("supplier_lead_times")
     if len(orders):
-        if not (orders.eta - orders.ordered_on).dt.days.eq(7).all():
-            raise DomainError("verification_failed", "ETA differs from D+7")
+        # Scenario initial lots keep their stated ETA; policy orders use the frozen supplier lead time.
+        expected_lead = [7 if o.is_initial else lead_for(lead_times, policies[o.policy_id]["supplier_id"]) for o in orders.itertuples()]
+        if not (orders.eta - orders.ordered_on).dt.days.eq(pd.Series(expected_lead, index=orders.index)).all():
+            raise DomainError("verification_failed", "ETA differs from the frozen supplier lead time")
         received = (
             events.loc[events.event_kind.eq("receipt")]
             .groupby("replenishment_order_id")
@@ -421,6 +425,7 @@ def verify_inventory(s, run, settings):
             )
             f = vectors[(r.forecast_as_of_date, int(item))]
             p = policies[r.policy_id]
+            lead = lead_for(lead_times, p["supplier_id"])
             expected_origin = window if run.kind == "alert_replay" else r.date
             if trade:
                 state = trade_rights(trade, int(item), expected_origin, r.date)
@@ -451,7 +456,7 @@ def verify_inventory(s, run, settings):
                 sigma = pstdev([int(v) for v in observed])
                 factor = p.get("safety_factor", 1.0)
                 ss = (
-                    math.ceil(scenario["safety_multiplier"] * factor * sigma * math.sqrt(7))
+                    math.ceil(scenario["safety_multiplier"] * factor * sigma * math.sqrt(lead))
                     if scenario["safety_multiplier"] and factor and sigma
                     else 0
                 )
@@ -459,13 +464,13 @@ def verify_inventory(s, run, settings):
                 ss = math.ceil(
                     float(p["safety_days"]) * scenario["safety_multiplier"] * float(f.mean())
                 )
-            rf = math.ceil(float(f[:7].sum()) + ss)
+            rf = math.ceil(float(f[:lead].sum()) + ss)
             rop = (
                 p["configured_rop_floor"]
                 if p.get("rop_mode", "forecast") == "fixed"
                 else max(rf, p["configured_rop_floor"])
             )
-            target = rop + math.ceil(float(f[7]))
+            target = rop + math.ceil(float(f[lead]))
             ip = r.closing_qty + int(pending)
             raw = max(0, target - ip) if r.closing_qty < rop else 0
             q = (
@@ -484,7 +489,7 @@ def verify_inventory(s, run, settings):
                     if o.eta > r.date and (o.is_initial or o.ordered_on < r.date):
                         receipts[o.eta.date()] = receipts.get(o.eta.date(), 0) + o.ordered_qty
                 path = trade_path(trade, int(item), r.date, expected_origin, r.closing_qty, f, receipts)
-                limit = order_limit(trade, int(item), expected_origin, r.date, q, path)
+                limit = order_limit(trade, int(item), expected_origin, r.date, q, path, lead)
                 q = limit['q_final']
                 allowed = limit['replenishment_allowed'] and limit['cap_reason'] is None
             if (
@@ -881,7 +886,8 @@ def verify_thresholds(run, ledger, alerts, order_groups, empty_orders, vectors, 
                 limit = order_limit(trade, int(item), row.forecast_as_of_date, row.date,
                     # Recompute uncapped policy Q, independently of persisted recommendation.
                     (p['fixed_order_qty'] if p.get('fixed_order_qty') is not None else max(math.ceil(max(0, row.target_stock-row.inventory_position)), p['moq']))
-                    if row.closing_qty < row.rop and row.target_stock > row.inventory_position else 0, path)
+                    if row.closing_qty < row.rop and row.target_stock > row.inventory_position else 0, path,
+                    lead_for(run.config_snapshot.get("supplier_lead_times"), p["supplier_id"]))
                 limit.update(stock_below_rop=row.closing_qty < row.rop, actionable=bool(row.recommended_qty),
                     total_qty=row.closing_qty, sellable_qty=row.closing_qty if limit['sales_allowed'] else 0,
                     blocked_qty=0 if limit['sales_allowed'] else row.closing_qty,

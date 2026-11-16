@@ -42,9 +42,9 @@ def project_trade(snapshot, item, origin, decision_origin, on_hand, forecast, re
     return dict(projection=path, state=state, predicted_depletion_date=depletion, lead_days=lead)
 
 
-def limit_order(snapshot, item, decision_origin, day, policy_qty, path):
+def limit_order(snapshot, item, decision_origin, day, policy_qty, path, lead=7):
     state = rights(snapshot, item, decision_origin, day)
-    arrival = day + timedelta(days=7)
+    arrival = day + timedelta(days=lead)
     # Earliest known stop across overlapping notices, even beyond H14 coverage.
     deadlines = [max(day, date.fromisoformat(r['stop_on'])) for r in state['provider_restrictions']]
     deadline = min(deadlines) if deadlines else None

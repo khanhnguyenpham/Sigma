@@ -226,12 +226,12 @@ def trade_path(snap, item, origin, cutoff, stock, forecast, receipts):
     return rows
 
 
-def order_limit(snap, item, cutoff, decision_day, q, path):
+def order_limit(snap, item, cutoff, decision_day, q, path, lead=7):
     decision_day = day(decision_day)
     state = trade_rights(snap, item, cutoff, decision_day)
     deadlines = [max(decision_day, day(r['stop_on'])) for r in state['provider_restrictions']]
     deadline = min(deadlines) if deadlines else None
-    arrival, budget, reason = decision_day+timedelta(days=7), None, None
+    arrival, budget, reason = decision_day+timedelta(days=lead), None, None
     coverage_end = day(path[-1]['date']) if path else decision_day
     coverage = deadline is None or deadline-timedelta(days=1) <= coverage_end
     if not state['replenishment_allowed']:

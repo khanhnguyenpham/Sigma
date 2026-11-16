@@ -47,6 +47,7 @@ def snapshot_view(run, page=1, page_size=25):
         "parameters": {**pick(snapshot, ("lead_time_days", "review_days", "horizon_days")),
                        **pick(settings, ("cover_days", "safety_multiplier")),
                        "initial_stock_history_days": 28,
+                       "supplier_lead_times": snapshot.get("supplier_lead_times"),
                        "zero_sales_fallback_days": snapshot.get("initial_stock_fallback_days")},
         "policies": {"items": rows, "total": len(policies), "page": page, "page_size": page_size},
         "policy_overrides": [pick(row, ("item_id", "configured_rop_floor", "fixed_order_qty", "moq", "safety_days", "warning_horizon_days", "safety_mode", "safety_lookback_days", "safety_factor", "rop_mode"))

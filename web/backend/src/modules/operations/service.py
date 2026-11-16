@@ -386,9 +386,10 @@ def update_product(session, key, payload, actor):
 
 def products(session, page, size, supplier_id=None, search=None, active=True):
     query = select(Item.id, Item.sku, Product.name, Item.product_type, SourceWarehouse.destination_country,
-        Supplier.id.label("supplier_id"), Supplier.carrier, Product.active, Product.version).select_from(Product).join(
+        Supplier.id.label("supplier_id"), Supplier.carrier, func.coalesce(SupplierSettings.lead_time_days, 7).label("lead_time_days"),
+        Product.active, Product.version).select_from(Product).join(
         Item, Product.item_id == Item.id).join(SourceWarehouse, Item.warehouse_id == SourceWarehouse.id).join(
-        Supplier, SourceWarehouse.carrier == Supplier.carrier)
+        Supplier, SourceWarehouse.carrier == Supplier.carrier).outerjoin(SupplierSettings, SupplierSettings.supplier_id == Supplier.id)
     if supplier_id is not None:
         query = query.where(Supplier.id == supplier_id)
     if active is not None:

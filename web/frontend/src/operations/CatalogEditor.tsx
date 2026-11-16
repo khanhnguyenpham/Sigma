@@ -34,7 +34,7 @@ export function CatalogEditor({ kind, row, onClose }: {
       <div className="operations-form-fields"><WriteError error={write.error} />
         {kind === "supplier" ? <><p>Nhà cung cấp: <strong>{String(row?.carrier)}</strong></p>
           <label>Thời gian nhập cho đơn mới (ngày)<input name="lead_time_days" type="number" required min={1} max={365} step={1} defaultValue={Number(row?.lead_time_days ?? 7)} /></label>
-          <p className="caption">Áp dụng cho đơn lập sau khi lưu. Đơn đã có giữ ngày dự kiến đã chốt.</p></> : <>
+          <p className="caption">Áp dụng cho {Number((row as Supplier | undefined)?.product_count ?? 0)} sản phẩm của nhà cung cấp này: đơn nhập lập mới, đề xuất nhập và kịch bản mô phỏng tạo sau khi lưu. Đơn và kịch bản đã có giữ ngày đã chốt. Trên 13 ngày thì kịch bản mô phỏng sẽ từ chối chạy vì dự báo chỉ có 14 ngày.</p></> : <>
           {kind === "warehouse" && !row && <label>Mã kho<input name="code" required maxLength={40} pattern="[A-Za-z0-9][A-Za-z0-9_\-]*" placeholder="VD: HCM-01" /></label>}
           <label>{kind === "warehouse" ? "Tên kho" : "Tên sản phẩm"}<input name="name" required maxLength={kind === "warehouse" ? 120 : 160} defaultValue={String(row?.name ?? "")} /></label>
           {kind === "warehouse" ? <label>Quốc gia của kho<input name="country" required maxLength={100} defaultValue={String(row?.country ?? "Việt Nam")} /></label> : !row && <>

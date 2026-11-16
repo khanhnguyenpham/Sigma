@@ -17,7 +17,7 @@ export function PolicyOverrideEditor({
       <p className="caption">
         Chọn mặt hàng theo nhà mạng. Điều chỉnh chỉ áp dụng trong kịch
         bản này.
-        Để trống để kế thừa cấu hình sản phẩm có hiệu lực khi tính kế hoạch. ROP lấy giá trị lớn hơn giữa nhu cầu dự báo 7 ngày cộng SS và ngưỡng nhập tối thiểu.
+        Để trống để kế thừa cấu hình sản phẩm có hiệu lực khi tính kế hoạch. ROP lấy giá trị lớn hơn giữa nhu cầu dự báo trong thời gian nhập cộng SS và ngưỡng nhập tối thiểu.
         Lượng nhập mỗi lần lấy từ cấu hình mặt hàng, không thay đổi tại đây.
       </p>
       {overrides.map((row, index) => (

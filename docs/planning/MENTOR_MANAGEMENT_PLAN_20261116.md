@@ -73,6 +73,10 @@ Danh sách đề xuất; mỗi bảng được rà nghiệp vụ trước khi vi
 - Giữ: `password_hash`, `token_digest` của phiên đăng nhập (bảo mật); `request_key` chống bấm gửi hai lần; checksum file backup nếu còn dùng.
 - Run cũ vẫn mở và đọc được kết quả.
 
+## 6a. Thời gian nhập theo nhà cung cấp (G8, bổ sung 16/11, đã làm)
+
+Mentor để mặc định 7 ngày cho mọi nhà cung cấp, cần chỉnh được từng nhà cung cấp và áp xuống toàn bộ sản phẩm của nhà cung cấp đó. Phần quản lý đã có từ trước (đơn mới, đề xuất nhập). Bổ sung cho kịch bản mô phỏng: run mới chốt `supplier_lead_times` vào snapshot; ROP = nhu cầu dự báo trong thời gian nhập + SS, mức mục tiêu thêm ngày kế tiếp, ngày về lô = ngày đặt + thời gian nhập. Giới hạn 1–13 ngày cho mô phỏng (H14). Run cũ không có khóa này giữ 7 ngày. Migration `0014_supplier_lead_simulation` nới ràng buộc `replenishment_orders`.
+
 ## 6b. Tối ưu worker (G7, bổ sung 16/11)
 
 Góp ý bổ sung của mentor do người dùng thuật lại: không tính lại cơ sở phân bổ 90 ngày ở mỗi ngày mới; tính ở ngày đầu rồi dùng lại cho các ngày sau, **chấp nhận sai số**.

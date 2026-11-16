@@ -180,6 +180,9 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
             ddl = "\n".join(line for line in ddl.splitlines()
                 if not re.match(r"\s*(source_sales_qty|actual_blocked_qty)\s", line)
                 and "CONSTRAINT ck_inventory_source_sales " not in line)
+        if table.name == "replenishment_orders":
+            # 0014 replaces the fixed D+7 arrival with the frozen per-supplier lead time (1..13 days).
+            ddl = ddl.replace("eta>ordered_on AND eta<=ordered_on+13", "eta=ordered_on+7")
         if table.name == "inventory_events":
             ddl = ddl.replace("CONSTRAINT ck_inventory_event_kind ", "").replace(
                 " OR (event_kind='sale_blocked' AND source_sequence IS NOT NULL AND replenishment_order_id IS NULL AND fulfilled_qty=0 AND shortage_qty=0)", "")

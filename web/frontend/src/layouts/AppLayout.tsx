@@ -96,7 +96,7 @@ export function AppLayout({
               {""}
             </span>
             <span>
-              {management ? "Sổ kho · Ngày nghiệp vụ Việt Nam (UTC+7)" : "Công cụ dự báo · L7 · R1 · H14 · Ngày dữ liệu UTC"}
+              {management ? "Sổ kho · Ngày nghiệp vụ Việt Nam (UTC+7)" : "Công cụ dự báo · Lead time theo nhà cung cấp · R1 · H14 · Ngày dữ liệu UTC"}
             </span>
           </footer>
         </div>

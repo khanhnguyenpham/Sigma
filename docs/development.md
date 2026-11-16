@@ -1,5 +1,12 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-supplier-lead-20261116"></a>
+## Thời gian nhập theo nhà cung cấp trong mô phỏng — 16/11/2026
+
+Người dùng chọn áp cả cho kịch bản mô phỏng (đổi hợp đồng L7). `freeze_inventory` chốt `supplier_lead_times` (mặc định 7 khi nhà cung cấp chưa cấu hình) cho mọi nhà cung cấp trong policy của run, từ chối với `lead_time_exceeds_forecast` nếu có nhà cung cấp trên 13 ngày. `recommend` dùng `f[:lead]`, `f[lead]`, `sqrt(lead)`; `eta`, `limit_order`, `order_limit`, `eta_if_ordered` và verifier dùng cùng lead; lô ban đầu của kịch bản giữ quy tắc 7 ngày. Migration `0014_supplier_lead_simulation` đổi `replenishment_orders_check` từ `eta=ordered_on+7` thành `eta>ordered_on AND eta<=ordered_on+13`. Phần quản lý: API sản phẩm trả `lead_time_days`, API nhà cung cấp trả `product_count`; FE hiện cột và câu giải thích phạm vi; chữ "nhu cầu dự báo 7 ngày" đổi thành "trong thời gian nhập" (giữ nguyên C00 lịch sử).
+
+Kiểm lượt này (PostgreSQL 16 cục bộ): pytest **584 passed, 1 failed (đòi PostgreSQL 18), 3 skipped**; test mới `test_supplier_lead_time.py` kiểm công thức, run chốt lead 4 ngày dù sau đó đổi thành 9, lô và `eta_if_ordered` đúng 4 ngày, verifier qua, lead 14 bị từ chối trước khi tạo run. Vitest 34 file/170 test (`--maxWorkers=2`), `tsc -b`, `vite build` qua. Toàn bộ test cũ qua không sửa số, xác nhận mặc định 7 ngày cho kết quả như trước.
+
 <a id="handoff-m3-eta-20261116"></a>
 ## M3 — điều chỉnh ETA — 16/11/2026
 

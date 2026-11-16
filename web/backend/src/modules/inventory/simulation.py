@@ -12,7 +12,7 @@ from modules.inventory.trade import rights, project_trade, limit_order, excluded
 from modules.runs.models import Run
 from modules.forecasting.models import DailySales, ItemForecast
 from modules.purchasing.models import Replenishment
-from modules.inventory.service import PolicyValues, recommend, fulfill_day, eta, history_quantities
+from modules.inventory.service import PolicyValues, recommend, fulfill_day, eta, history_quantities, lead_for
 from modules.alerts.service import project, replay_metrics, project_threshold, threshold_metrics
 from modules.runs.service import progress
 from core.serialization import clean_json
@@ -64,7 +64,7 @@ def initial_stock(matrix, item, origin, cover_days, fallback_days):
 
 def pure_window(
     matrix, sales_events, catalog, forecasts, policies, scenario, kind, origin, end, supply_changes=None, trade_snapshot=None,
-    receiving=None, *, initial_stock_fallback_days=None
+    receiving=None, *, initial_stock_fallback_days=None, lead_times=None
 ):
     known = [i for i in catalog if date.fromisoformat(i["first_seen_date"]) <= origin]
     ids = [i["item_id"] for i in known]
@@ -222,6 +222,7 @@ def pure_window(
                     "insufficient_forecast", "Missing item H14 vector", item_id=item
                 )
             p = policy_at(policies, item, decision_origin)
+            lead = lead_for(lead_times, p.get("supplier_id"))
             values = PolicyValues(
                 p["configured_rop_floor"],
                 p["moq"],
@@ -246,14 +247,14 @@ def pure_window(
             supply = supply_state(changes_by_item[item], item, decision_origin, day) if supply_changes is not None else None
             allowed = supply["replenishment_allowed"] if supply else True
             supply_stopped_decisions += not allowed
-            decision = recommend(vector, stock[item], pending, values, history, replenishment_allowed=allowed)
+            decision = recommend(vector, stock[item], pending, values, history, replenishment_allowed=allowed, lead=lead)
             receipts = {}
             for lot in orders_by_item[item]:
                 if lot['status'] == 'ordered':
                     receipts[lot['eta']] = receipts.get(lot['eta'], 0) + lot['ordered_qty']
             if trade_snapshot:
                 projection = project_trade(trade_snapshot, item, day, decision_origin, stock[item], vector, receipts)
-                trade_info = limit_order(trade_snapshot, item, decision_origin, day, decision['recommended_qty'], projection['projection'])
+                trade_info = limit_order(trade_snapshot, item, decision_origin, day, decision['recommended_qty'], projection['projection'], lead)
                 allowed = trade_info['replenishment_allowed'] and trade_info['cap_reason'] is None
                 decision.update(recommended_qty=trade_info['q_final'],
                     needs_replenishment=decision['needs_replenishment'] and allowed)
@@ -382,7 +383,7 @@ def pure_window(
                         threshold_cases[-1].update(is_evaluable=False, exclusion_reason='provider_sales_blocked')
             if kind == "policy_replay" and allowed and decision["recommended_qty"] > 0:
                 if trade_snapshot:
-                    guard = limit_order(trade_snapshot, item, decision_origin, day, trade_info['q_policy'], projection['projection'])
+                    guard = limit_order(trade_snapshot, item, decision_origin, day, trade_info['q_policy'], projection['projection'], lead)
                     if not guard['replenishment_allowed'] or guard['q_final'] != decision['recommended_qty']:
                         raise DomainError('invalid_trade_history', 'Order contradicts frozen trade limit')
                 add_order(
@@ -392,7 +393,7 @@ def pure_window(
                         policy_id=p["id"],
                         order_key=f"policy:{item}:{day.isoformat()}",
                         ordered_on=day,
-                        eta=eta(day),
+                        eta=eta(day, lead),
                         ordered_qty=decision["recommended_qty"],
                         received_qty=0,
                         status="ordered",
@@ -612,6 +613,7 @@ def simulate_run(settings, sessions, key):
         result = pure_window(
             matrix, grouped, catalog, vectors, policies, scenario, kind, start, finish, supply_changes, trade_snapshot, receiving,
             initial_stock_fallback_days=snapshot.get("initial_stock_fallback_days"),
+            lead_times=snapshot.get("supplier_lead_times"),
         )
         for name in combined:
             combined[name].extend(result[name])

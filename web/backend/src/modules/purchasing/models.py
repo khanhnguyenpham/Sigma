@@ -30,7 +30,8 @@ class Replenishment(Base):
         ),
         UniqueConstraint("run_id", "window_origin", "order_key"),
         CheckConstraint(
-            "ordered_qty>0 AND eta=ordered_on+7 AND ((status='ordered' AND received_qty=0) OR (status='received' AND received_qty=ordered_qty))"
+            # Lead time is frozen per supplier in the run snapshot (0014); H14 caps it at 13 days.
+            "ordered_qty>0 AND eta>ordered_on AND eta<=ordered_on+13 AND ((status='ordered' AND received_qty=0) OR (status='received' AND received_qty=ordered_qty))"
         ),
         Index("ix_orders_eta", "run_id", "eta", "status"),
     )

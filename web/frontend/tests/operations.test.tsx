@@ -153,3 +153,14 @@ it("moves the ETA of a confirmed order with a reason and shows the planned date"
   expect(JSON.parse(String(options?.body))).toEqual({ expected_version: 2, eta: "2026-12-20", reason: "Nhà mạng báo chậm giao" });
   expect(await screen.findByText("Ban đầu 2026-12-01 · đã điều chỉnh")).toBeVisible();
 });
+
+it("shows how many products a supplier lead time reaches", async () => {
+  vi.spyOn(globalThis, "fetch").mockImplementation(async (path) => String(path).includes("/summary")
+    ? reply({ business_date: "2026-11-16" }) : reply(page(String(path).includes("/operations/suppliers") ? [{ ...supplier, lead_time_days: 10, product_count: 12 }] : [])));
+  render(<Operations ctx={{ ...context, opsTab: "suppliers" }} onContext={vi.fn()} />);
+  expect(await screen.findByText("10 ngày")).toBeVisible();
+  expect(screen.getByText("12")).toBeVisible();
+  expect(screen.getByText(/áp dụng cho mọi sản phẩm của nhà cung cấp đó/)).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "Đổi thời gian nhập" }));
+  expect(await screen.findByText(/Áp dụng cho 12 sản phẩm/)).toBeVisible();
+});

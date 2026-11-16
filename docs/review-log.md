@@ -1,5 +1,9 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 16/11 — thời gian nhập theo nhà cung cấp
+
+Mentor (người dùng thuật lại) giữ mặc định 7 ngày nhưng cần chỉnh theo từng nhà cung cấp và áp cho mọi sản phẩm của nhà cung cấp. Người dùng chọn áp cả cho mô phỏng. Quyết định: chốt vào snapshot khi tạo run để sửa sau không đổi run đã có; giới hạn 13 ngày vì H14; run cũ giữ 7. Đây là thay đổi hợp đồng L7 có chủ đích, đã cập nhật AGENTS.md. [Bàn giao](development.md#handoff-supplier-lead-20261116).
+
 ## 16/11 — triển khai M2 đại lý
 
 Thay hẳn vai trò supplier bằng đại lý thay vì giữ song song: mentor nêu hai loại tài khoản; giữ dòng supplier cũ ở trạng thái khóa để truy vết. Bỏ trạng thái nháp của yêu cầu để gọn luồng. Admin chọn kho khi xuất; đại lý chỉ thấy tổng tồn khả dụng, không thấy kho. Tồn đại lý = tổng đã xác nhận nhận, chưa trừ bán ra. Đây là giả định của nhóm, chưa phải xác nhận mentor. Kiểm chạy trên PostgreSQL 16 cục bộ, xem [bàn giao](development.md#handoff-m2-dealers-20261116).

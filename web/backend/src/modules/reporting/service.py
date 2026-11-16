@@ -1,4 +1,5 @@
 """Read models for frozen run datasets, metrics and exports."""
+from modules.inventory.service import lead_for
 from datetime import timedelta
 import numpy as np
 import pandas as pd
@@ -304,8 +305,9 @@ def dataset(session, run, name, filters, paginate=True):
             if model is InventoryDaily:
                 r.update({name: p.get(name, default) for name, default in LEGACY_POLICY_DEFAULTS.items()})
         if model is InventoryDaily:
+            lead = lead_for(run.config_snapshot.get("supplier_lead_times"), p["supplier_id"] if p else None)
             r["eta_if_ordered"] = (
-                r["date"] + timedelta(days=7) if r["recommended_qty"] else None
+                r["date"] + timedelta(days=lead) if r["recommended_qty"] else None
             )
         if model in (InventoryDaily, Replenishment, Alert) and not trade:
             r.update(supply_fields(run, histories, r, filters.as_of_date))

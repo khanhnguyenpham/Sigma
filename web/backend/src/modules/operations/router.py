@@ -4,9 +4,9 @@ from fastapi import APIRouter, Header, Query, Request, Response
 from sqlalchemy import select, func
 from core.errors import DomainError
 from modules.auth.models import User
-from modules.catalog.models import Supplier
+from modules.catalog.models import Supplier, Item, Warehouse as SourceWarehouse
 from modules.operations.models import SupplierSettings, StockBalance, OperationalOrder, StockDocument, OperationAudit
-from modules.operations.models import OperationalWarehouse
+from modules.operations.models import OperationalWarehouse, OperationalProduct
 from modules.operations.schemas import OpsSupplierSettingsInput, OpsOrderInput, OpsOrderUpdate, OpsOrderTransition, OpsReceiptInput, OpsMovementInput
 from modules.operations.schemas import OpsWarehouseInput, OpsWarehouseUpdate, OpsProductInput, OpsProductUpdate
 from modules.operations import service
@@ -121,9 +121,13 @@ def update_product(key: int, payload: OpsProductUpdate, request: Request):
 @router.get("/suppliers")
 def suppliers(request: Request, page: int = Query(1, ge=1), page_size: int = Query(50, ge=1, le=100)):
     actor(request)
+    # Product count shows how many products a lead-time change reaches (all registered products of the carrier).
+    products = select(SourceWarehouse.carrier, func.count().label("product_count")).select_from(OperationalProduct).join(
+        Item, OperationalProduct.item_id == Item.id).join(SourceWarehouse, Item.warehouse_id == SourceWarehouse.id).group_by(SourceWarehouse.carrier).subquery()
     query = select(Supplier.id, Supplier.carrier, func.coalesce(SupplierSettings.lead_time_days, 7).label("lead_time_days"),
-        func.coalesce(SupplierSettings.version, 0).label("version"), SupplierSettings.updated_at).outerjoin(
-            SupplierSettings, SupplierSettings.supplier_id == Supplier.id).order_by(Supplier.carrier)
+        func.coalesce(SupplierSettings.version, 0).label("version"), SupplierSettings.updated_at,
+        func.coalesce(products.c.product_count, 0).label("product_count")).outerjoin(
+            SupplierSettings, SupplierSettings.supplier_id == Supplier.id).outerjoin(products, products.c.carrier == Supplier.carrier).order_by(Supplier.carrier)
     with request.app.state.sessions() as session:
         return service.page_rows(session, query, page, page_size)
 
