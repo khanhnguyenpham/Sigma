@@ -245,7 +245,7 @@ Nguồn trực tiếp: người dùng xác định đây là project thực tậ
 
 Nguồn là yêu cầu trực tiếp trong chat: có thể không cần45% nếu sai số quá lớn, kiểmS25 rồi lên kế hoạch Render/Vercel. Trả lời làm rõ: **công khai, dữ liệu đã ẩn danh**. Không có xác nhận mentor mới; ngân sách chưa được chọn. Giữ metric≥7ngày/mẫu số; không dùng45% đơn lẻ để chọn cấu hình hoặc tự đóngR07/T14.
 
-[Đã kiểm](../M3/docs/S25_CURRENT_REVIEW.md): sealedS25 cũ khớp hash/scalar; đối chứng920fixedROP hiện tại testearly54,02%→62,79%, precision80,89%→74,30%, FP1.146→1.993, dateMAE4,011→3,879ngày. Khuyến nghị giữC00, chưa tích hợpS25. 483Python/pipcheck đạt;4DB/1.466tệp bảo vệ nguyên. [Kế hoạch](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md) thêmD1code chỉ đọc, D2export ẩn danh, D3staging, D4kiểm online, D5công khai/rollback vàD6tương tác tùy chọn. Chưa codecloud/upload/trả phí/commit/push mới; app0008/3run, R05/R07/T14 mở. [Bàn giao](development.md#handoff-chg086). Quyền publishCHG085 đã hoàn tất ở17ac4b2, remoteSHA/haiCI success; không mở publishCHG086.
+Đã kiểm: sealedS25 cũ khớp hash/scalar; đối chứng920fixedROP hiện tại testearly54,02%→62,79%, precision80,89%→74,30%, FP1.146→1.993, dateMAE4,011→3,879ngày. Khuyến nghị giữC00, chưa tích hợpS25. 483Python/pipcheck đạt;4DB/1.466tệp bảo vệ nguyên. [Kế hoạch](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md) thêmD1code chỉ đọc, D2export ẩn danh, D3staging, D4kiểm online, D5công khai/rollback vàD6tương tác tùy chọn. Chưa codecloud/upload/trả phí/commit/push mới; app0008/3run, R05/R07/T14 mở. [Bàn giao](development.md#handoff-chg086). Quyền publishCHG085 đã hoàn tất ở17ac4b2, remoteSHA/haiCI success; không mở publishCHG086.
 
 <a id="chg085-publish78"></a>
 ## CHG-085 — 03/11/2026, giao publish phần tích hợp và validation

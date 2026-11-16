@@ -27,7 +27,7 @@ Một ứng dụng công khai, không yêu cầu đăng nhập cho chức năng 
 
 “Đầy đủ” là chức năng nghiệp vụ hiện có hoạt động xuyên suốt online. Không cần tài khoản, RBAC nhiều vai trò, tenant riêng, thanh toán, Redis/Celery, autoscaling hoặc object storage để bắt đầu. Giới hạn tài nguyên đặt ở chỗ nhận job, không biến app thành chỉ đọc.
 
-Giữ C00 mặc định theo [kiểm S25](../../M3/docs/S25_CURRENT_REVIEW.md); không ép45% hoặc tự tích hợp S25. Online không tự nghiệm thu R05/R07/T14 hoặc biến dữ liệu demo thành bằng chứng mentor mới.
+Giữ C00 mặc định theo kiểm S25; không ép45% hoặc tự tích hợp S25. Online không tự nghiệm thu R05/R07/T14 hoặc biến dữ liệu demo thành bằng chứng mentor mới.
 
 <a id="architecture"></a>
 ## 2. Kiến trúc và trạng thái chọn hosting

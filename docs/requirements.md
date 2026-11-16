@@ -62,7 +62,7 @@ R09/T12/T14 bổ sung [kế hoạch demo dùng chung](planning/RENDER_VERCEL_DEP
 
 Yêu cầu trực tiếp của người dùng: có thể không đạt mục tiêu45% nếu sai số/đánh đổi chất lượng quá lớn; kiểmS25 và thêm kế hoạch triển khai Render/Vercel. Người dùng chốt bản online **công khai, dữ liệu đã ẩn danh**. Phần này thay cách dùng45% như một cổng sản phẩm bắt buộc; giữ45% làm tham chiếu lịch sử, không ép tăng cảnh báo để vượt nó. Không tự gán sự thay đổi này cho mentor, không hạ mốc báo trước≥7ngày hoặc tự đặt ngưỡng precision/MAE mới để đóng nghiệm thu.
 
-R07 cần báo cáo đồng thời early/recall theo episode, precision/FP theo item-ngày, gánh nặng cảnh báo, sai lệch ngày/mẫu số và khác biệt sản phẩm; tách can thiệp nhập/right-censor, policy replay/alert replay và threshold/depletion. [KiểmS25 hồi cứu](../M3/docs/S25_CURRENT_REVIEW.md) cho thấy lợi ích sớm đi kèm FP tăng; giữC00 mặc định, chưa tích hợpS25. R05/M05/A08–A17 và R07/T14 chưa nghiệm thu giữ nguyên.
+R07 cần báo cáo đồng thời early/recall theo episode, precision/FP theo item-ngày, gánh nặng cảnh báo, sai lệch ngày/mẫu số và khác biệt sản phẩm; tách can thiệp nhập/right-censor, policy replay/alert replay và threshold/depletion. KiểmS25 hồi cứu cho thấy lợi ích sớm đi kèm FP tăng; giữC00 mặc định, chưa tích hợpS25. R05/M05/A08–A17 và R07/T14 chưa nghiệm thu giữ nguyên.
 
 R09/T12/T14 bổ sung triển khai công khai; đề xuất chỉ đọc/ghi cần quyền riêng củacheckpointCHG086 đã được [CHG087](#chg087-shared-demo) thay bằng demo đầy đủ, mọi khách thao tác chung. React trênVercel, API/worker/DBdemo trênRender theo [kế hoạch mới](planning/RENDER_VERCEL_DEPLOYMENT_PLAN.md), **chưa triển khai**. Không tải nguyênDB/raw/run riêng tư hoặc secrets lên cloud/Git; ngân sách chưa chốt.
 

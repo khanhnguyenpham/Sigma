@@ -22,6 +22,3 @@ data/*
 M2/artifacts
 M2/reports
 docs/planning/COMMIT_BLOCK_PLAN.md
-web/backend/research/current_s25_review.py
-web/backend/research/current_s25_verification.py
-web/backend/tests/test_current_s25_review.py

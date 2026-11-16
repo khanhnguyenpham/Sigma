@@ -20,7 +20,9 @@
 - **Mức chênh W1** (replay 185 origin, so với basis tính lại hằng ngày, cùng tổng tuần): MAE item-ngày **0,0851** trên dự báo item-ngày trung bình 0,178 (tổng |chênh| = 47,9% tổng dự báo); p99 0,485, max 1,95. Chênh tăng theo tuổi basis: 0 (06/2025) → 33% (07) → 48–56% (08–12). Tổng tuần mỗi tuyến/origin lệch tối đa 1,4e-14 (bảo toàn). Sai số so với actual: MAE 0,2775 (cũ) → 0,2780 (mới), +0,17%. Dữ liệu này không có SKU mới sau origin đầu nên mỗi tuyến chỉ dựng basis một lần (ngày basis duy nhất 30/06/2025).
 - Test mới [`test_worker_parity.py`](../web/backend/tests/test_worker_parity.py): golden digest `pure_window` ghi từ mã trước M7 (nhiều SKU, đổi phiên bản policy giữa kỳ, volatility, lô đang về, fallback 90 ngày); W4 cắt ma trận theo `daily_start` cho cùng digest và thiếu một ngày thì báo lỗi; W2 so `allocate` với bản sao vòng lặp cũ (khớp tuyệt đối, cả nhánh 90 ngày và lỗi); W1 tái dùng/tính lại basis khi có SKU mới; DB: COPY khối lưu đúng giá trị bản ghi từng dòng cũ, kèm `basis_as_of_date`, downgrade 0017 bị chặn. Các test khẳng định head migration đổi sang `0017`; golden DDL và các test migration so JSON dòng bỏ qua cột mới; `research/fixed_lot_baseline.py` nhận thêm tham số `_index` khi patch `history_at`.
 - Kiểm lượt này (PostgreSQL 16.2 cục bộ qua pgserver): pytest backend **578 passed, 1 failed, 3 skipped**; ca lỗi là `test_real_postgres_migration_and_role` đòi PostgreSQL 18 (đã biết). Run cũ (`basis_as_of_date` NULL) vẫn đọc qua API trong `test_results_api`.
-- Giới hạn: `research/current_s25_review.py` (ngoài phạm vi, chưa sửa) patch `history_at` bằng hàm 4 tham số nên sẽ lỗi `TypeError` nếu chạy. Bench không gồm fit model nên không phản ánh tổng thời gian replay. Chưa tách thời gian riêng W1 và W2. Chưa commit, không chạm DB demo, không refit.
+- CI của `bf388f8` (Synthetic tests, M3 synthetic integration): success.
+- Sau M7, theo mentor do người dùng thuật lại, bỏ S25 review: xoá `research/current_s25_review.py` và `current_s25_verification.py` (không nằm trong Git), dòng tương ứng trong `.dockerignore` và chỉ dẫn bảo vệ trong AGENTS.md. Xoá báo cáo `M3/docs/S25_CURRENT_REVIEW.md`; 10 tài liệu giữ chữ và số liệu lịch sử nhưng bỏ link. Giữ receipt riêng tư `outputs/chg086_s25_review`.
+- Giới hạn: Bench không gồm fit model nên không phản ánh tổng thời gian replay. Chưa tách thời gian riêng W1 và W2. Chưa commit, không chạm DB demo, không refit.
 
 <a id="handoff-m6-loading-20261116"></a>
 ## M6 — rà trạng thái tải trên giao diện quản lý — 16/11/2026
@@ -1000,7 +1002,7 @@ Người dùng cho phép không ép45% nếu sai số/đánh đổi không phù 
 
 ### Kết quả và quyết định
 
-[Báo cáo S25](../M3/docs/S25_CURRENT_REVIEW.md) ghi toàn bộ số và20nhóm sản phẩm. Tái kiểm sealedCHG078 giữ nguyên manifest/artifact/mã/scalar; digest ứng dụng cũ khác được giữ lịch sử. Phép kiểm mới áp920policy hiện tại fixedROP/days/fixedQ phản thực lên frozen validation/test, không nhận policy đã có ở năm2025. Mỗi split dùng chung physical path/episode giữaC00/S25, kiểm độc lập khởi tạo/sale/receipts/order/ledger, scalarprojection vàscoring. Không refit/tuning hoặc tạo run app.
+Báo cáo S25 ghi toàn bộ số và20nhóm sản phẩm. Tái kiểm sealedCHG078 giữ nguyên manifest/artifact/mã/scalar; digest ứng dụng cũ khác được giữ lịch sử. Phép kiểm mới áp920policy hiện tại fixedROP/days/fixedQ phản thực lên frozen validation/test, không nhận policy đã có ở năm2025. Mỗi split dùng chung physical path/episode giữaC00/S25, kiểm độc lập khởi tạo/sale/receipts/order/ledger, scalarprojection vàscoring. Không refit/tuning hoặc tạo run app.
 
 - ValidationC00→S25: early451/818→512/818, precision76,58%→68,35%, FP1.345→2.417, dateMAE3,934(664ca)→3,922(701ca).
 - Test hồi cứuC00→S25: early450/833→523/833, precision80,89%→74,30%, FP1.146→1.993, dateMAE4,011(666ca)→3,879(696ca), P90cảhai8ngày. Cùng666ca ghép: MAE4,011→3,758ngày.
