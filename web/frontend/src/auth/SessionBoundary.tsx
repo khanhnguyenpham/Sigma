@@ -1,12 +1,12 @@
 import { createContext, useContext, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { api, ApiError, setCsrfToken } from "../services/http";
 import { State } from "../components/ui/State";
-import { SupplierPortal } from "./SupplierPortal";
+import { DealerPortal } from "../dealers/DealerPortal";
 import { UserManagement } from "./UserManagement";
 import { Icon } from "../components/ui/Icon";
 import { ChangePassword } from "./ChangePassword";
 
-export interface User { id: number; username: string; display_name: string; role: "admin" | "supplier"; supplier_id: number | null; active: boolean }
+export interface User { id: number; username: string; display_name: string; role: "admin" | "dealer"; dealer_id: number | null; active: boolean }
 interface Session { required: boolean; user: User | null; csrf_token?: string }
 const SessionContext = createContext<{ user: User; logout: () => Promise<void>; accounts: () => void; password: () => void } | null>(null);
 
@@ -30,7 +30,7 @@ export function AccountMenu() {
     if (!event.currentTarget.contains(event.relatedTarget as Node | null)) close();
   }}><summary aria-label="Mở tài khoản"><span className="account-avatar" aria-hidden="true">{initials}</span>
       <span className="account-name">{session.user.display_name}</span><Icon name="chevron" size={13} /></summary>
-    <div className="account-popover"><strong>{session.user.display_name}</strong><small>{session.user.role === "admin" ? "Quản trị viên" : "Nhà cung cấp"}</small>
+    <div className="account-popover"><strong>{session.user.display_name}</strong><small>{session.user.role === "admin" ? "Quản trị viên" : "Đại lý"}</small>
       {session.user.role === "admin" && <button onClick={() => { close(); session.accounts(); }}>Tài khoản</button>}
       <button onClick={() => { close(); session.password(); }}>Đổi mật khẩu</button>
       <button onClick={() => { close(); void session.logout(); }}>Đăng xuất</button>
@@ -97,7 +97,7 @@ export function SessionBoundary({ children }: { children: ReactNode }) {
   return <SessionContext.Provider value={{ user: session.user, logout, accounts: () => setShowAccounts(true), password: () => setShowPassword(true) }}>
     <div key={session.user.id} aria-busy={submitting}>
       {error && <div className="notice error" role="alert">{error.message}</div>}
-      {session.user.role === "supplier" ? <SupplierPortal /> : children}
+      {session.user.role === "dealer" ? <DealerPortal /> : children}
       {showAccounts && session.user.role === "admin" && <UserManagement currentId={session.user.id} onClose={() => setShowAccounts(false)} />}
       {showPassword && <ChangePassword onClose={() => setShowPassword(false)} />}
     </div>

@@ -10,7 +10,14 @@ OPS_ROUTES = {"/api/v1/operations/" + path: methods for path, methods in {
     "orders/{key}/cancel": ["post"], "orders/{key}/receipts": ["post"], "stock": ["get"], "stock/{warehouse_id}/{item_id}": ["get"],
     "issues": ["post"], "counts": ["post"], "documents": ["get"], "documents/{key}": ["get"], "audit": ["get"],
 }.items()}
-OPS_ROUTES.update({"/api/v1/supplier/orders": ["get"], "/api/v1/supplier/orders/{key}": ["get"], "/api/v1/supplier/operational-products": ["get"]})
+# 0012: dealer management replaces the retired supplier portal.
+OPS_TABLES |= {"dealers", "dealer_requests", "dealer_request_lines"}
+OPS_SCHEMAS |= {"DealerInput", "DealerUpdate", "RequestLineInput", "DealerRequestInput", "Transition", "Rejection", "IssueInput"}
+OPS_ROUTES.update({"/api/v1/dealers": ["get", "post"], "/api/v1/dealers/{key}": ["patch"], "/api/v1/dealers/requests": ["get"],
+    "/api/v1/dealers/requests/{key}": ["get"], "/api/v1/dealers/requests/{key}/approve": ["post"],
+    "/api/v1/dealers/requests/{key}/reject": ["post"], "/api/v1/dealers/requests/{key}/issue": ["post"],
+    "/api/v1/dealer/products": ["get"], "/api/v1/dealer/requests": ["get", "post"], "/api/v1/dealer/requests/{key}": ["get"],
+    "/api/v1/dealer/requests/{key}/cancel": ["post"], "/api/v1/dealer/requests/{key}/receive": ["post"], "/api/v1/dealer/stock": ["get"]})
 OPS_ROUTES['/api/v1/operations/recommendations'] = ['get']
 OPS_ROUTES['/api/v1/operations/queue-status'] = ['get']
 OPS_SCHEMAS.add('OpsQrScanInput')

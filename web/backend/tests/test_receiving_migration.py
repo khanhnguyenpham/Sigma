@@ -30,7 +30,7 @@ def test_legacy_upgrade_roundtrip_and_downgrade_guards(pg, tmp_path):
     try:
         with engine.connect() as connection:
             before = {name: connection.execute(text(f'SELECT to_jsonb(t)::text FROM "{name}" t ORDER BY 1')).scalars().all()
-                      for name in Base.metadata.tables if not name.startswith(('auth_', 'ops_'))}
+                      for name in Base.metadata.tables if not name.startswith(('auth_', 'ops_', 'dealer'))}
         with TestClient(create_app(settings(tmp_path))) as client:
             legacy = client.get(f"/api/v1/products/{item}").json()
             assert legacy["receiving_schema_ready"] is False

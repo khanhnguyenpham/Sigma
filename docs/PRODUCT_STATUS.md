@@ -7,7 +7,7 @@
 | Yêu cầu của nhóm | Đã triển khai và kiểm | Giới hạn còn lại |
 | --- | --- | --- |
 | UI quản lý bằng React | Menu vận hành/kế hoạch, form chứng từ, phân trang, màn hình nhỏ và bàn phím; bảng có vùng cuộn riêng. | Chưa thay UAT với người dùng thực hoặc kiểm mọi thiết bị. |
-| Đăng nhập admin và nhà cung cấp | Phiên cookie, CSRF, phân quyền theo supplier trước phân trang, quản lý tài khoản, đổi mật khẩu và khôi phục qua operator. | Supplier chỉ đọc; chưa có tự đăng ký hoặc khôi phục qua email. |
+| Đăng nhập admin và đại lý | Phiên cookie, CSRF, quản lý tài khoản, đổi mật khẩu và khôi phục qua operator. Từ 16/11: vai trò đại lý thay nhà cung cấp; luồng yêu cầu lấy hàng gửi → duyệt → xuất kho → xác nhận nhận, phạm vi theo đại lý trước phân trang. | Nghiệp vụ đại lý là giả định của nhóm; chưa có công nợ, giá bán, báo bán ra. Chưa có tự đăng ký hoặc khôi phục qua email. |
 | Nhập SIM vật lý theo QR | QR theo phiếu giao/lô, tạo SVG tại máy chủ, đọc bằng máy quét bàn phím hoặc dán mã, đối chiếu rồi xác nhận nhận hàng. | Chưa quét camera hoặc quản lý ICCID từng SIM. QR không phải chữ ký của supplier. |
 | Quản lý tồn thực | Kho/SKU, đơn nháp→xác nhận→nhận thiếu/đủ, xuất, kiểm kê, sổ chứng từ và audit; khóa dòng, version, idempotency và ghi nguyên tử. | Chưa có chuyển kho, trả hàng, tiền hàng hoặc đồng bộ đơn bán. Đây là phần mở rộng, không giả tồn mô phỏng thành tồn đã kiểm kê. |
 | Thời gian hàng về theo supplier | Mặc định 7 ngày, admin chỉnh 1–365 ngày cho đơn mới; ETA đã chốt trong đơn được giữ nguyên. Tư vấn dùng lead time hiện hành. | Forecast thiếu số ngày cần thiết thì chặn tư vấn; không nối H14 thành 30/365 ngày bằng giả định. Run L7 cũ giữ hợp đồng cũ. |

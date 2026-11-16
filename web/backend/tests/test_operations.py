@@ -182,19 +182,14 @@ def test_posting_failure_rolls_back_all_effects_and_retry_recovers(auth_app):
         assert post(client, f'/orders/{order["id"]}/receipts', receipt_body(order, 4), "interrupted").status_code == 201
 
 
-def test_supplier_scope_and_anonymous_operations_are_denied(auth_app):
+def test_dealer_and_anonymous_operations_are_denied(auth_app):
     app, _ = auth_app
-    with TestClient(app) as admin, TestClient(app) as a, TestClient(app) as b:
+    with TestClient(app) as admin, TestClient(app) as a:
         assert admin.get(BASE + "/stock").status_code == 401
-        admin.headers.update(login(admin)); login(a, "partner-a"); login(b, "partner-b")
-        warehouse, item, supplier = setup_catalog(admin)
-        order = confirm(admin, draft(admin, warehouse, item, supplier))
-        assert a.get("/api/v1/supplier/orders").json()["total"] == 1
-        assert b.get("/api/v1/supplier/orders").json()["total"] == 0
-        assert b.get(f'/api/v1/supplier/orders/{order["id"]}').status_code == 404
+        admin.headers.update(login(admin)); a.headers.update(login(a, "partner-a"))
         assert a.get(BASE + "/stock").status_code == 403
         assert a.post(BASE + "/counts", json={}).status_code == 403
-        assert "note" not in a.get(f'/api/v1/supplier/orders/{order["id"]}').json()
+        assert a.get("/api/v1/supplier/orders").status_code == 403
 
 
 def test_warehouse_archive_blocks_stock_and_pending_orders(auth_app):
@@ -221,7 +216,8 @@ def test_migration_matches_models_and_posted_documents_are_immutable(auth_app):
         session.execute(update(StockDocument).values(reason="tampered"))
     cfg = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
     cfg.attributes["database_url"] = engine.url.render_as_string(hide_password=False)
-    with pytest.raises(RuntimeError, match="Operational data exists"):
+    # The 0012 dealer guard now fires first; either guard proves the downgrade refuses to drop data.
+    with pytest.raises(RuntimeError, match="(Dealer|Operational) data exists"):
         command.downgrade(cfg, "0010_auth_sessions")
 
 
@@ -264,7 +260,9 @@ def test_dashboard_lists_open_orders_by_eta_low_stock_first_and_late_count(auth_
         late, soon = confirm(client, draft(client, warehouse, item, supplier)), confirm(client, draft(client, warehouse, item, supplier))
         draft(client, warehouse, item, supplier)
         with sessions.begin() as session:
-            session.execute(update(OperationalOrder).where(OperationalOrder.id == late["id"]).values(eta=service.today() - timedelta(days=2)))
+            # Shift the whole order back so eta stays ordered_on + lead_time (DB check).
+            session.execute(update(OperationalOrder).where(OperationalOrder.id == late["id"]).values(
+                ordered_on=OperationalOrder.ordered_on - 9, eta=OperationalOrder.eta - 9))
         rows = client.get(BASE + "/orders?status=open&sort=eta").json()["items"]
         assert [r["id"] for r in rows] == [late["id"], soon["id"]]
         summary = client.get(BASE + "/summary").json()

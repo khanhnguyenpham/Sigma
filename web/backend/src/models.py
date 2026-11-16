@@ -16,3 +16,4 @@ from modules.operations.models import SupplierSettings as SupplierSettings, Oper
 from modules.operations.models import OperationalOrderLine as OperationalOrderLine, StockDocument as StockDocument
 from modules.operations.models import StockDocumentLine as StockDocumentLine, StockBalance as StockBalance, OperationAudit as OperationAudit
 from modules.operations.models import OperationalWarehouse as OperationalWarehouse, OperationalProduct as OperationalProduct
+from modules.dealers.models import Dealer as Dealer, DealerRequest as DealerRequest, DealerRequestLine as DealerRequestLine

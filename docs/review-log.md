@@ -1,5 +1,9 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 16/11 — triển khai M2 đại lý
+
+Thay hẳn vai trò supplier bằng đại lý thay vì giữ song song: mentor nêu hai loại tài khoản; giữ dòng supplier cũ ở trạng thái khóa để truy vết. Bỏ trạng thái nháp của yêu cầu để gọn luồng. Admin chọn kho khi xuất; đại lý chỉ thấy tổng tồn khả dụng, không thấy kho. Tồn đại lý = tổng đã xác nhận nhận, chưa trừ bán ra. Đây là giả định của nhóm, chưa phải xác nhận mentor. Kiểm chạy trên PostgreSQL 16 cục bộ, xem [bàn giao](development.md#handoff-m2-dealers-20261116).
+
 ## 16/11 — duyệt kế hoạch theo góp ý mentor
 
 Người dùng thuật lại 6 góp ý mentor và duyệt các quyết định: (A) nghiệp vụ đại lý tối thiểu theo yêu cầu lấy hàng, là giả định của nhóm; (B) bỏ đăng nhập supplier, giữ supplier là dữ liệu; (C) bỏ hash kiểm chứng, giữ hash mật khẩu/phiên và `request_key`; (D) thứ tự M1–M6, bắt đầu từ cấu trúc FE. [Kế hoạch](planning/MENTOR_MANAGEMENT_PLAN_20261116.md).

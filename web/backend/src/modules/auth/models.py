@@ -9,6 +9,7 @@ class User(Base):
     display_name = Column(Text, nullable=False)
     role = Column(Text, nullable=False)
     supplier_id = fk("suppliers", nullable=True)
+    dealer_id = fk("dealers", nullable=True)
     password_hash = Column(Text, nullable=False)
     active = Column(Boolean, nullable=False, server_default=text("true"))
     failed_attempts = Column(Integer, nullable=False, server_default=text("0"))
@@ -17,7 +18,8 @@ class User(Base):
     __table_args__ = (
         CheckConstraint("username ~ '^[a-z0-9][a-z0-9._-]{2,63}$'", name="ck_auth_username"),
         CheckConstraint("length(btrim(display_name)) BETWEEN 1 AND 100", name="ck_auth_display_name"),
-        CheckConstraint("(role='admin' AND supplier_id IS NULL) OR (role='supplier' AND supplier_id IS NOT NULL)", name="ck_auth_scope"),
+        # Supplier logins were retired in 0012; legacy rows stay for audit but can never be active.
+        CheckConstraint("(role='admin' AND supplier_id IS NULL AND dealer_id IS NULL) OR (role='supplier' AND supplier_id IS NOT NULL AND dealer_id IS NULL AND NOT active) OR (role='dealer' AND dealer_id IS NOT NULL AND supplier_id IS NULL)", name="ck_auth_scope"),
         CheckConstraint("failed_attempts>=0", name="ck_auth_failed"),
     )
 

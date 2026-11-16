@@ -4,7 +4,7 @@ import { SessionBoundary, AccountMenu } from "../src/auth/SessionBoundary";
 import { api, setCsrfToken } from "../src/services/http";
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); setCsrfToken(""); });
-const admin = { id: 1, username: "admin", display_name: "Quản trị", role: "admin", supplier_id: null, active: true };
+const admin = { id: 1, username: "admin", display_name: "Quản trị", role: "admin", dealer_id: null, active: true };
 const reply = (data: unknown, status = 200) => ({ ok: status === 200, status, json: async () => data }) as Response;
 
 it("fails closed while session lookup fails", async () => {
@@ -36,12 +36,13 @@ it("logs in, attaches CSRF only to mutations and logs out", async () => {
   expect(new Headers(calls[0].options?.headers).has("X-CSRF-Token")).toBe(false);
 });
 
-it("supplier sees own portal without mounting admin workspace", async () => {
+it("dealer sees own portal without mounting admin workspace", async () => {
   vi.spyOn(globalThis, "fetch").mockImplementation(async (path) => String(path).endsWith("/auth/session")
-    ? reply({ required: true, user: { ...admin, role: "supplier", supplier_id: 2 }, csrf_token: "synthetic" })
-    : reply({ items: [{ id: 1, sku: "OWN-SKU", carrier: "Own" }], total: 1, page: 1, page_size: 25 }));
+    ? reply({ required: true, user: { ...admin, role: "dealer", dealer_id: 2 }, csrf_token: "synthetic" })
+    : reply({ items: [{ item_id: 1, sku: "OWN-SKU", name: "SIM", product_type: "eSIM", available_qty: 5 }], total: 1, page: 1, page_size: 25 }));
   render(<SessionBoundary><span>Private workspace</span></SessionBoundary>);
-  fireEvent.click(await screen.findByRole("button", { name: "Sản phẩm" }));
+  expect(await screen.findByText("SIGMA · Cổng đại lý")).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "Đặt hàng" }));
   expect(await screen.findByText("OWN-SKU")).toBeVisible();
   expect(screen.queryByText("Private workspace")).toBeNull();
   expect(screen.queryByRole("button", { name: "Tài khoản" })).toBeNull();

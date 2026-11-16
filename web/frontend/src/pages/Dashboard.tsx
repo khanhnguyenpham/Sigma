@@ -18,6 +18,7 @@ export function Dashboard({ onNavigate, onOpenOrder }: { onNavigate: (page: stri
     ["Đơn chờ nhận", summary.data?.pending_orders, "orders"],
     ["Đơn trễ hạn", summary.data?.late_orders, "orders"],
     ["Đơn nháp", summary.data?.draft_orders, "orders"],
+    ["Yêu cầu đại lý chờ xử lý", summary.data?.pending_dealer_requests, "dealer-requests"],
     ["Phiếu trong ngày", summary.data?.documents_today, "documents"],
   ];
   const orderColumns: Column[] = [

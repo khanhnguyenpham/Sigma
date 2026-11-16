@@ -10,10 +10,10 @@ from modules.operations.models import OperationalWarehouse
 from modules.operations.schemas import OpsSupplierSettingsInput, OpsOrderInput, OpsOrderUpdate, OpsOrderTransition, OpsReceiptInput, OpsMovementInput
 from modules.operations.schemas import OpsWarehouseInput, OpsWarehouseUpdate, OpsProductInput, OpsProductUpdate
 from modules.operations import service
+from modules.dealers.models import DealerRequest
 from modules.operations.schemas import OpsQrScanInput
 
 router = APIRouter(prefix="/api/v1/operations", tags=["operations"])
-supplier_router = APIRouter(prefix="/api/v1/supplier", tags=["supplier operations"])
 
 
 @router.get("/recommendations")
@@ -47,13 +47,6 @@ def actor(request):
     return identity["id"]
 
 
-def supplier_scope(request):
-    identity = getattr(request.state, "user", None)
-    if not identity or identity["role"] != "supplier" or identity["supplier_id"] is None:
-        raise DomainError("supplier_required", "Cần đăng nhập bằng tài khoản nhà cung cấp.", 403)
-    return identity["supplier_id"]
-
-
 @router.get("/summary")
 def summary(request: Request):
     actor(request)
@@ -62,7 +55,9 @@ def summary(request: Request):
         total = session.scalar(select(func.coalesce(func.sum(StockBalance.on_hand_qty), 0)))
         late = session.scalar(select(func.count()).select_from(OperationalOrder).where(OperationalOrder.status.in_(["ordered", "partially_received"]),
             OperationalOrder.eta < service.today()))
+        dealer_requests = session.scalar(select(func.count()).select_from(DealerRequest).where(DealerRequest.status.in_(["submitted", "approved"])))
         return {"business_date": service.today(), "timezone": "Asia/Ho_Chi_Minh", "pending_orders": pending, "late_orders": late,
+            "pending_dealer_requests": dealer_requests,
             "draft_orders": session.scalar(select(func.count()).select_from(OperationalOrder).where(OperationalOrder.status == "draft")),
             "stocked_items": session.scalar(select(func.count()).select_from(StockBalance).where(StockBalance.on_hand_qty > 0)),
             "on_hand_units": int(total) if total <= service.MAX_QTY else str(total),
@@ -256,25 +251,3 @@ def audit(request: Request, page: int = Query(1, ge=1), page_size: int = Query(2
         query = query.where(OperationAudit.entity_key == entity_key)
     with request.app.state.sessions() as session:
         return service.page_rows(session, query.order_by(OperationAudit.id.desc()), page, page_size)
-
-
-@supplier_router.get("/orders")
-def supplier_orders(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100)):
-    supplier = supplier_scope(request)
-    with request.app.state.sessions() as session:
-        return service.orders(session, page, page_size, supplier_id=supplier)
-
-
-@supplier_router.get("/orders/{key}")
-def supplier_order(key: int, request: Request):
-    supplier = supplier_scope(request)
-    with request.app.state.sessions() as session:
-        result = service.order_view(session, key, supplier_id=supplier)
-        return {name: result[name] for name in ("id", "number", "supplier_id", "carrier", "ordered_on", "eta", "lead_time_days", "status", "version", "lines")}
-
-
-@supplier_router.get("/operational-products")
-def supplier_products(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100)):
-    supplier = supplier_scope(request)
-    with request.app.state.sessions() as session:
-        return service.products(session, page, page_size, supplier_id=supplier)

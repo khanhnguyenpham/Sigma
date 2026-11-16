@@ -17,8 +17,8 @@ class LoginInput(DTO):
 
 class UserCreate(LoginInput):
     display_name: str = Field(min_length=1, max_length=100)
-    role: Literal["admin", "supplier"]
-    supplier_id: int | None = Field(default=None, ge=1)
+    role: Literal["admin", "dealer"]
+    dealer_id: int | None = Field(default=None, ge=1)
 
     @field_validator("display_name")
     @classmethod
@@ -29,8 +29,8 @@ class UserCreate(LoginInput):
 
     @model_validator(mode="after")
     def valid_scope(self):
-        if (self.role == "supplier") != (self.supplier_id is not None):
-            raise ValueError("Supplier role requires exactly one supplier")
+        if (self.role == "dealer") != (self.dealer_id is not None):
+            raise ValueError("Dealer role requires exactly one dealer")
         if len(self.password.get_secret_value()) < 12:
             raise ValueError("Use at least 12 characters")
         return self

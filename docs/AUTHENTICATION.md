@@ -7,10 +7,11 @@ Bản nâng cấp ngày 14/11/2026. Đọc cùng [PLAN](planning/PRODUCT_UPGRADE
 | Tài khoản | Được làm | Giới hạn |
 | --- | --- | --- |
 | Admin | Sản phẩm, tồn, kịch bản, dự báo, cảnh báo, cấu hình, snapshot, CSV; tạo/khóa/mở khóa tài khoản | Không tự khóa tài khoản đang sử dụng. Không có đăng ký công khai. |
-| Nhà cung cấp | Cổng riêng xem sản phẩm của mình và các lô mô phỏng gắn với chính sách của mình | Chỉ đọc. Không xem API quản trị, chạy kịch bản, snapshot toàn hệ thống hoặc CSV của run. Chưa có quyền sửa ETA/nhập QR. |
+| Đại lý (từ 0012) | Cổng đại lý: xem sản phẩm đang kinh doanh và tổng tồn khả dụng của công ty, gửi/hủy yêu cầu lấy hàng, xác nhận đã nhận, xem tồn đã nhận | Chỉ dữ liệu của đại lý gắn với tài khoản; không thấy kho, nhà cung cấp, đơn nhập hay API quản trị. Nghiệp vụ là giả định của nhóm. |
+| Nhà cung cấp (đã ngừng) | Không đăng nhập được | Migration 0012 khóa và thu hồi phiên mọi tài khoản supplier; giữ dòng để truy vết, không mở khóa lại được. |
 | Chưa đăng nhập | Màn hình đăng nhập, static FE, health/live/ready | Không đọc hoặc ghi dữ liệu nghiệp vụ. Health không trả credential hoặc đường dẫn private. |
 
-Quyền supplier chỉ đọc là phạm vi tối thiểu của bước triển khai hiện tại, chưa chốt quyền supplier sửa ETA/tạo chứng từ ở D04–D06. Mapping sản phẩm theo nhà mạng của kho nguồn; lô theo supplier của chính sách đã dùng cho lô. Không suy quyền từ kho nhận hàng hoặc tham số do trình duyệt gửi. Bộ lọc SQL áp dụng trước đếm tổng và phân trang.
+Từ 16/11/2026 vai trò supplier được thay bằng đại lý theo [kế hoạch góp ý mentor](planning/MENTOR_MANAGEMENT_PLAN_20261116.md). Phạm vi đại lý lấy từ phiên đăng nhập, không tin `dealer_id` do trình duyệt gửi; bộ lọc SQL áp dụng trước đếm tổng và phân trang.
 
 Lô đang hiển thị vẫn là **mô phỏng theo từng phương án**. Không cộng các lô từ nhiều run thành đơn mua thực tế; portal chưa tiếp nhận đơn mua hay gửi hàng thật.
 
@@ -38,8 +39,8 @@ Lệnh bootstrap hỏi tên và mật khẩu qua terminal, không đặt mật k
 - `POST /api/v1/auth/logout` thu hồi phiên tại DB rồi xóa cookie. Khóa tài khoản thu hồi toàn bộ phiên. Mở khóa không khôi phục token cũ. Phiên hết hạn hoặc bị khóa bị từ chối ở request tiếp theo.
 - Menu **Đổi mật khẩu** dùng `POST /api/v1/auth/password`, yêu cầu mật khẩu hiện tại và CSRF; mật khẩu mới12–128ký tự. Thành công thu hồi mọi phiên và bắt đăng nhập lại. Nhập sai5lần tạm khóa15phút, không dùng phiên cũ để vượt khóa thao tác đổi mật khẩu.
 - `GET/POST /api/v1/auth/users`, `PATCH /api/v1/auth/users/{key}` chỉ admin. API chỉ xuất trường business an toàn, không public signup. Khi quên mật khẩu, operator có quyền DB nạp env rồi chạy `python -m modules.auth.reset_password`; nhập mật khẩu bằng getpass, không qua tham số. Thu hồi toàn bộ phiên, không tự mở tài khoản đã bị admin khóa. Chưa có email reset hoặc bắt đổi mật khẩu tạm thời ở lần đăng nhập đầu.
-- `GET /api/v1/supplier/products`, `GET /api/v1/supplier/shipments` chỉ supplier; không tin `supplier_id` từ URL để đổi quyền.
-- Portal mới mặc định xem đơn vận hành qua `/api/v1/supplier/orders`, `/orders/{id}` và `/operational-products`. Chỉ đọc đúng supplier, không lộ ghi chú nội bộ hoặc cho ghi sổ. Các API mô phỏng trước giữ tương thích. Xem [vận hành kho](WAREHOUSE_OPERATIONS.md).
+- Quản trị đại lý: `GET/POST /api/v1/dealers`, `PATCH /api/v1/dealers/{id}`, `GET /api/v1/dealers/requests[/{id}]`, `POST .../approve|reject|issue` chỉ admin. Xuất kho tạo một phiếu GI qua sổ kho hiện có.
+- Cổng đại lý `/api/v1/dealer/products|requests|stock` chỉ tài khoản đại lý. Middleware chỉ cho tài khoản không phải admin gọi đúng tiền tố `/api/v1/{role}/`. Các API `/api/v1/supplier/*` đã gỡ.
 
 Password hash (Argon2) và digest token đăng nhập là cơ chế bảo vệ credential; không thuộc yêu cầu bỏ fingerprint code/artifact ở D03.
 

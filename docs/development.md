@@ -1,5 +1,14 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-m2-dealers-20261116"></a>
+## M2 — vai trò đại lý — 16/11/2026
+
+Migration `0012_dealers`: bảng `dealers`, `dealer_requests`, `dealer_request_lines`; cột `auth_users.dealer_id`; khóa và thu hồi phiên mọi tài khoản supplier (giữ dòng, ràng buộc không cho bật lại). Module `modules/dealers`: admin quản lý đại lý và duyệt/từ chối/xuất kho (một phiếu GI qua `lock_balance`/`post_entry` sẵn có, idempotent); cổng `/api/v1/dealer/*` cho đại lý xem sản phẩm và tổng tồn khả dụng, gửi/hủy yêu cầu, xác nhận nhận, xem tồn đã nhận. Middleware giới hạn tài khoản không phải admin theo tiền tố `/api/v1/{role}/`. Gỡ `/api/v1/supplier/*` và `SupplierPortal`. FE: nhóm menu Đại lý (Yêu cầu lấy hàng, Danh sách đại lý), `DealerPortal`, quản lý tài khoản theo đại lý, ô "Yêu cầu đại lý chờ xử lý" trên Tổng quan. Bỏ trạng thái nháp so với kế hoạch.
+
+Môi trường kiểm lượt này: PostgreSQL 16.2 cục bộ (gói `pgserver`, dữ liệu trong thư mục tạm của phiên), role `sigma_m3_app` không phải superuser như CI; thư viện backend cài vào `.venv`. Kết quả: pytest **580 passed, 1 failed, 3 skipped**. Test hỏng là `test_real_postgres_migration_and_role`, chỉ vì yêu cầu PostgreSQL 18 (máy chạy 16); skip do thiếu Redis và công cụ `pg_dump` native. Mốc trước M2 trên cùng môi trường: 578 passed với cùng test hỏng. Test migration cũ cập nhật revision head `0012_dealers`, loại trừ bảng `dealer*` khỏi ảnh chụp schema cũ, số bảng 28 → 31. Vitest 34 file/168 test qua với `--maxWorkers=2`; chạy song song mặc định có 4–5 test hết thời gian chờ do máy bận, chạy riêng đều qua. `tsc -b`, `vite build` qua. Xem trình duyệt với API giả: trang Yêu cầu lấy hàng, chi tiết yêu cầu, cổng đại lý (Tổng quan, Đặt hàng) hiển thị đúng; khung trình duyệt bị ẩn nên kiểm bằng nội dung trang, không có ảnh 390px cho M2.
+
+Cũng sửa test M1 `test_dashboard_lists_open_orders_by_eta_low_stock_first_and_late_count`: test cũ lùi ETA mà không lùi ngày đặt nên vi phạm `ck_ops_order_dates` (eta = ngày đặt + lead time). Ràng buộc này phải nới ở M3.
+
 <a id="handoff-m1-management-fe-20261116"></a>
 ## M1 — cấu trúc FE quản lý — 16/11/2026
 

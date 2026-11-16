@@ -1,6 +1,6 @@
 # Yêu cầu và tiêu chí nghiệm thu SIGMA
 
-**16/11/2026 — góp ý mentor do người dùng thuật lại:** Dự báo và kịch bản chỉ là công cụ nhỏ; phần chính là hệ thống quản lý cho admin và đại lý (nghiệp vụ đại lý chưa nêu, nhóm tự giả định). FE cần bỏ hướng lấy kịch bản làm trung tâm. Thêm skeleton/loading; cho đổi thời gian hàng về khi có sự cố; bỏ hash ở backend; tách bảng DB, ví dụ cấu hình item và cấu hình nhà cung cấp riêng. [Kế hoạch M1–M6 và tiêu chí](planning/MENTOR_MANAGEMENT_PLAN_20261116.md). Không đổi R05/R07/T14.
+**16/11/2026 — góp ý mentor do người dùng thuật lại:** Dự báo và kịch bản chỉ là công cụ nhỏ; phần chính là hệ thống quản lý cho admin và đại lý (nghiệp vụ đại lý chưa nêu, nhóm tự giả định). FE cần bỏ hướng lấy kịch bản làm trung tâm. Thêm skeleton/loading; cho đổi thời gian hàng về khi có sự cố; bỏ hash ở backend; tách bảng DB, ví dụ cấu hình item và cấu hình nhà cung cấp riêng. Bổ sung cùng ngày: tối ưu worker, cơ sở phân bổ 90 ngày tính ở ngày đầu rồi dùng lại cho các ngày sau, chấp nhận sai số. [Kế hoạch M1–M6 và tiêu chí](planning/MENTOR_MANAGEMENT_PLAN_20261116.md). Không đổi R05/R07/T14.
 
 **15/11/2026 — mở rộng vận hành:** Theo yêu cầu dùng như phần mềm quản lý, bổ sung [hợp đồng sổ kho](WAREHOUSE_OPERATIONS.md) và [nghiệm thu nâng cấp](planning/PRODUCT_UPGRADE_PLAN_20261114.md). Có kiểm synthetic, chưa đồng nghĩa nghiệm thu production hoặc thay R05/R07/T14; sổ kho, ETA supplier và dự báo cũ chưa nối tự động.
 

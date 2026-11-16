@@ -1,6 +1,6 @@
 import type { Row } from "../types/api";
 
-export interface OpsSummary { business_date: string; pending_orders: number; late_orders?: number; draft_orders: number; stocked_items: number; on_hand_units: number | string; documents_today: number }
+export interface OpsSummary { business_date: string; pending_orders: number; late_orders?: number; pending_dealer_requests?: number; draft_orders: number; stocked_items: number; on_hand_units: number | string; documents_today: number }
 export interface Supplier extends Row { id: number; carrier: string; lead_time_days: number; version: number }
 export interface Warehouse extends Row { id: number; code: string; name: string; country: string; active: boolean; version: number }
 export interface Product extends Row { id: number; name: string; sku: string; product_type: string; carrier: string; supplier_id: number; destination_country: string; active: boolean; version: number }

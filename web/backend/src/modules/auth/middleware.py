@@ -23,7 +23,7 @@ def install_auth(app):
             return JSONResponse(status_code=401, content={"error": {"code": "authentication_required", "message": "Vui lòng đăng nhập lại."}})
         user, csrf = identity
         request.state.user, request.state.csrf_token = user, csrf
-        if (user["role"] != "admin" and not path.startswith("/api/v1/supplier/")
+        if (user["role"] != "admin" and not path.startswith(f"/api/v1/{user['role']}/")
                 and path not in {"/api/v1/auth/session", "/api/v1/auth/logout", "/api/v1/auth/password"}):
             return JSONResponse(status_code=403, content={"error": {"code": "forbidden", "message": "Tài khoản không có quyền thực hiện thao tác này."}})
         if request.method not in SAFE and not secrets.compare_digest(request.headers.get("X-CSRF-Token", ""), csrf):

@@ -6,7 +6,7 @@ from pwdlib import PasswordHash
 from sqlalchemy import select, update
 from core.errors import DomainError
 from modules.auth.models import User, LoginSession
-from modules.catalog.models import Supplier
+from modules.dealers.models import Dealer
 
 PASSWORDS = PasswordHash.recommended()
 DUMMY_PASSWORD = PASSWORDS.hash(secrets.token_urlsafe(32))
@@ -23,16 +23,18 @@ def digest(token):
 
 
 def public_user(user):
-    return {key: getattr(user, key) for key in ("id", "username", "display_name", "role", "supplier_id", "active")}
+    return {key: getattr(user, key) for key in ("id", "username", "display_name", "role", "dealer_id", "active")}
 
 
 def create_user(session, payload):
-    if payload.role == "supplier" and session.get(Supplier, payload.supplier_id) is None:
-        raise DomainError("supplier_not_found", "Nhà cung cấp không tồn tại.", 404)
+    if payload.role == "dealer":
+        dealer = session.get(Dealer, payload.dealer_id)
+        if dealer is None or not dealer.active:
+            raise DomainError("dealer_not_found", "Đại lý không tồn tại hoặc đã ngừng hoạt động.", 404)
     if session.scalar(select(User.id).where(User.username == payload.username)) is not None:
         raise DomainError("username_exists", "Tên đăng nhập đã được sử dụng.", 409)
     row = User(username=payload.username, display_name=payload.display_name, role=payload.role,
-               supplier_id=payload.supplier_id, password_hash=PASSWORDS.hash(payload.password.get_secret_value()))
+               dealer_id=payload.dealer_id, password_hash=PASSWORDS.hash(payload.password.get_secret_value()))
     session.add(row)
     session.flush()
     return row

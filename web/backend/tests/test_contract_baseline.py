@@ -28,7 +28,6 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
     for path, methods in {
         '/api/v1/auth/session': ['get'], '/api/v1/auth/login': ['post'], '/api/v1/auth/logout': ['post'], '/api/v1/auth/password': ['post'],
         '/api/v1/auth/users': ['get', 'post'], '/api/v1/auth/users/{key}': ['patch'],
-        '/api/v1/supplier/products': ['get'], '/api/v1/supplier/shipments': ['get'],
     }.items():
         assert routes.pop(path) == methods
     # CHG-082 adds product management and a live warehouse read; retain the golden for all existing operations.
@@ -47,7 +46,7 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
     assert routes == {p: methods for p, methods in baseline['routes'].items() if 'monthly' not in p}
     assert set(Base.metadata.tables) == set(baseline['tables']) | {'item_supply_changes',
         'provider_product_notices', 'provider_product_notice_items', 'provider_product_notice_events', 'auth_users', 'auth_sessions'} | OPS_TABLES
-    assert len(Base.metadata.tables) == 28
+    assert len(Base.metadata.tables) == 31  # 28 + three dealer tables (0012)
     for name, columns in baseline['tables'].items():
         if name == 'suppliers':
             columns = [c for c in columns if c not in {'code', 'display_name', 'is_assumed', 'assumption_source'}]

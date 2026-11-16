@@ -79,6 +79,8 @@ def activate_user(key: int, payload: UserActive, request: Request):
         user = session.get(User, key, with_for_update=True)
         if user is None:
             raise DomainError("user_not_found", "Không có tài khoản này.", 404)
+        if payload.active and user.role == "supplier":
+            raise DomainError("role_retired", "Tài khoản nhà cung cấp đã ngừng sử dụng; tạo tài khoản đại lý hoặc quản trị thay thế.", 409)
         user.active = payload.active
         if not payload.active:
             session.execute(update(LoginSession).where(LoginSession.user_id == key).values(revoked_at=now()))

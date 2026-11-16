@@ -47,7 +47,7 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
             assert set(schema['paths'].pop(path)) == set(methods)
         for name in OPS_SCHEMAS:
             assert schema['components']['schemas'].pop(name)
-        for path in ('/auth/session', '/auth/login', '/auth/logout', '/auth/password', '/auth/users', '/auth/users/{key}', '/supplier/products', '/supplier/shipments'):
+        for path in ('/auth/session', '/auth/login', '/auth/logout', '/auth/password', '/auth/users', '/auth/users/{key}'):
             assert schema['paths'].pop('/api/v1' + path)
         for name in ('LoginInput', 'UserCreate', 'UserActive', 'PasswordChange'):
             assert schema['components']['schemas'].pop(name)
@@ -195,7 +195,7 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
 
 def test_features_share_the_single_registered_metadata():
     assert models.Base is Base
-    assert len(Base.metadata.tables) == 28
+    assert len(Base.metadata.tables) == 31  # 28 + three dealer tables (0012)
     for model in (Warehouse, Item, Supplier, Policy, Scenario, Run, DailySales, RouteForecast,
                   ItemForecast, InventoryDaily, InventoryEvent, Replenishment, Alert, ItemSupplyChange,
                   ProviderProductNotice, ProviderProductNoticeItem, ProviderProductNoticeEvent, User, LoginSession):

@@ -68,13 +68,17 @@
   .operations-form-dialog.wide, .operations-form-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 20px); }
 }
 .ops-status.late { background: #fcecef; color: #a44455; }
-.dashboard-summary { grid-template-columns: repeat(5, minmax(0,1fr)); }
 .dashboard-summary > button { border: 1px solid var(--border); border-radius: 10px; background: #fff; padding: 14px 18px; display: grid; gap: 4px; text-align: left; cursor: pointer; }
 .dashboard-summary > button:hover { border-color: var(--primary); }
 .dashboard-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
 .dashboard-grid > :first-child { grid-column: 1 / -1; }
 .tool-tabs { margin-bottom: 14px; }
 @media (max-width: 900px) {
-  .dashboard-summary { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .dashboard-grid { grid-template-columns: minmax(0,1fr); }
 }
+.dashboard-summary { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.ops-status.dealer-submitted, .ops-status.dealer-approved { background: #fff4db; color: #865c05; }
+.ops-status.dealer-issued { background: #edf0ff; color: #4151bb; }
+.ops-status.dealer-received { background: #e6f6ed; color: #24734b; }
+.ops-status.dealer-rejected, .ops-status.dealer-cancelled { background: #fcecef; color: #a44455; }
+.dialog-inline-field { display: grid; gap: 4px; margin-right: auto; min-width: 220px; }

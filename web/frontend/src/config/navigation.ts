@@ -3,6 +3,7 @@ export const NAV_GROUPS = [
   ["", [["dashboard", "grid", "Tổng quan"]]],
   ["KHO", [["stock", "box", "Tồn kho"], ["documents", "download", "Chứng từ"], ["warehouses", "warehouse", "Kho hàng"]]],
   ["NHẬP HÀNG", [["orders", "truck", "Đơn nhập"], ["recommendations", "check", "Đề xuất nhập"], ["suppliers", "settings", "Nhà cung cấp"]]],
+  ["ĐẠI LÝ", [["dealer-requests", "check", "Yêu cầu lấy hàng"], ["dealers", "grid", "Danh sách đại lý"]]],
   ["DANH MỤC", [["catalog", "box", "Sản phẩm"]]],
   ["HỆ THỐNG", [["audit", "clock", "Lịch sử thao tác"]]],
   ["CÔNG CỤ", [["forecast", "chart", "Dự báo & kịch bản"]]],
@@ -13,7 +14,7 @@ export const OPS_TAB: Record<string, string> = {
   stock: "stock", documents: "documents", warehouses: "warehouses", orders: "orders",
   recommendations: "recommendations", suppliers: "suppliers", catalog: "products", audit: "audit",
 };
-export const MANAGEMENT_PAGES = ["dashboard", ...Object.keys(OPS_TAB)];
+export const MANAGEMENT_PAGES = ["dashboard", "dealers", "dealer-requests", ...Object.keys(OPS_TAB)];
 
 export const TOOL_PAGES = [
   ["forecast", "Dự báo"],

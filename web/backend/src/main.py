@@ -17,9 +17,9 @@ from modules.purchasing.router import router as purchasing_router
 from modules.alerts.router import router as alerts_router
 from modules.reporting.router import router as results_router
 from modules.auth.router import router as auth_router
-from modules.auth.supplier_router import router as supplier_router
 from modules.auth.middleware import install_auth
-from modules.operations.router import router as operations_router, supplier_router as supplier_operations_router
+from modules.operations.router import router as operations_router
+from modules.dealers.router import router as dealers_router, portal as dealer_portal_router
 
 
 def create_app(settings=None):
@@ -58,8 +58,8 @@ def create_app(settings=None):
     install_error_handlers(app)
     for router in (
         health_router, catalog_router, provider_router, configuration_router, runs_router,
-        workspace_router, purchasing_router, alerts_router, results_router, auth_router, supplier_router,
-        operations_router, supplier_operations_router,
+        workspace_router, purchasing_router, alerts_router, results_router, auth_router,
+        operations_router, dealers_router, dealer_portal_router,
     ):
         app.include_router(router)
     frontend = PROJECT_ROOT / "web/frontend/dist"

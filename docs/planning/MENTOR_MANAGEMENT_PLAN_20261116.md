@@ -44,7 +44,7 @@ Quy tắc:
 
 - Mỗi tài khoản đại lý gắn đúng một đại lý. Đại lý chỉ đọc và ghi dữ liệu của chính mình; lọc theo đại lý trước phân trang.
 - Đại lý xem danh mục SIM/eSIM đang hoạt động và tồn khả dụng của kho công ty. Không thấy nhà cung cấp, đơn nhập hay chứng từ nội bộ.
-- Luồng yêu cầu lấy hàng: đại lý tạo yêu cầu (nháp → gửi) → admin duyệt hoặc từ chối có lý do → admin xuất kho bằng chứng từ xuất hiện có → đại lý xác nhận đã nhận. Đại lý hủy được khi yêu cầu chưa duyệt.
+- Luồng yêu cầu lấy hàng: đại lý gửi yêu cầu → admin duyệt hoặc từ chối có lý do → admin chọn kho và xuất kho bằng chứng từ xuất hiện có → đại lý xác nhận đã nhận. Đại lý hủy được khi yêu cầu chưa duyệt. *Khi triển khai (16/11) bỏ trạng thái nháp để gọn; giỏ hàng nằm ở trình duyệt đến khi gửi.*
 - Tồn của đại lý = tổng số lượng đã xác nhận nhận. Chưa ghi nhận bán ra của đại lý.
 - Admin quản lý đại lý (tạo, sửa, ngưng hoạt động) và tài khoản đại lý.
 - **Bỏ đăng nhập của vai trò `supplier`.** Nhà cung cấp giữ nguyên là dữ liệu của đơn nhập. Tài khoản supplier cũ được vô hiệu hóa, không xóa.
@@ -73,6 +73,27 @@ Danh sách đề xuất; mỗi bảng được rà nghiệp vụ trước khi vi
 - Giữ: `password_hash`, `token_digest` của phiên đăng nhập (bảo mật); `request_key` chống bấm gửi hai lần; checksum file backup nếu còn dùng.
 - Run cũ vẫn mở và đọc được kết quả.
 
+## 6b. Tối ưu worker (G7, bổ sung 16/11)
+
+Góp ý bổ sung của mentor do người dùng thuật lại: không tính lại cơ sở phân bổ 90 ngày ở mỗi ngày mới; tính ở ngày đầu rồi dùng lại cho các ngày sau, **chấp nhận sai số**.
+
+Hiện trạng đã kiểm trong code (16/11):
+
+- Commit `52a96e2` mới **index tổng dự báo** (`index_prediction_totals`) và dùng lại ma trận lịch sử theo tuyến. Bản chất chưa đổi: `forecast_run` vẫn gọi `allocate()` cho **mỗi origin × mỗi tuyến** (replay 185 × 46 = 8.510 lần). Mỗi lần cắt lại 90 ngày, tính trọng số thứ và tỷ trọng SKU 30/90 ngày, rồi dựng từng dòng bằng vòng lặp Python và ghi COPY từng dòng (khoảng 2,38 triệu dòng `item_forecasts`).
+- Worker tồn kho (`inventory/simulation.py`) lặp theo **ngày × item**, và mỗi lượt lại: quét toàn bộ danh sách policy (`policy_at`), cắt lại lịch sử (`history_at`), cộng lại lượng đang về. Run kịch bản luôn đọc và pivot toàn bộ `daily_sales` của nguồn, kể cả khi chỉ cần một ngày.
+- `runs/verification.py` tính lại kết quả sau khi chạy, khoảng gấp đôi thời gian; phần này bỏ ở M5.
+
+Việc cần làm (mỗi việc đo thời gian trước–sau trên cùng dữ liệu synthetic, ghi số đo vào development):
+
+| Mã | Việc | Ảnh hưởng kết quả |
+|---|---|---|
+| W1 | Tách `allocate()` thành `build_basis` (trọng số thứ 90 ngày, tỷ trọng SKU 30/90 ngày) và `apply_totals`. Tính basis **một lần ở origin đầu** của run cho mỗi tuyến, các origin sau dùng lại; SKU mới xuất hiện sau origin đầu thì basis tuyến đó được tính lại. Lưu ngày tính basis vào `item_forecasts` để truy vết. | **Có sai số chủ đích** so với tính lại hằng ngày; ghi mức chênh (MAE theo item-ngày) cho replay. Tổng tuần vẫn bảo toàn. Run cũ giữ nguyên. |
+| W2 | Dựng dòng phân bổ bằng numpy (ma trận ngày × SKU) thay vì vòng lặp dict, ghi COPY theo khối. | Không đổi số. |
+| W3 | Worker tồn: index policy theo item một lần; tính sẵn lịch sử theo item; giữ tổng lượng đang về thay vì cộng lại mỗi ngày. | Không đổi số. |
+| W4 | Run kịch bản chỉ đọc `daily_sales` của khoảng ngày cần dùng. | Không đổi số. |
+
+W2–W4 phải cho kết quả giống hệt bản cũ. W1 đổi kết quả có chủ đích nên cần người dùng xem mức chênh trước khi nhận.
+
 ## 7. Thứ tự và cổng mỗi bước
 
 | Bước | Nội dung | Kiểm tối thiểu |
@@ -83,6 +104,7 @@ Danh sách đề xuất; mỗi bảng được rà nghiệp vụ trước khi vi
 | M4 | Tách bảng DB | pytest + migrate up/down trên DB thử, run cũ đọc được |
 | M5 | Bỏ hash | pytest toàn bộ, run cũ đọc được |
 | M6 | Rà loading/skeleton trên giao diện mới | Xem web, Vitest |
+| M7 | Tối ưu worker W1–W4 (mục 6b) | pytest, số đo trước–sau, mức chênh của W1 |
 
 Mỗi bước dừng để người dùng xem trước khi sang bước sau. Chỉ commit/push khi người dùng giao. Không ghi DB demo, refit hay deploy.
 

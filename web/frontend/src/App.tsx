@@ -22,6 +22,8 @@ const Alerts = lazy(() =>
 const Scenarios = lazy(() => import("./pages/Scenarios").then((module) => ({ default: module.Scenarios })));
 const Operations = lazy(() => import("./pages/Operations").then((module) => ({ default: module.Operations })));
 const Dashboard = lazy(() => import("./pages/Dashboard").then((module) => ({ default: module.Dashboard })));
+const DealersPage = lazy(() => import("./pages/Dealers").then((module) => ({ default: module.DealersPage })));
+const DealerRequestsPage = lazy(() => import("./pages/Dealers").then((module) => ({ default: module.DealerRequestsPage })));
 export default function App() {
   const app = useAppContext();
   const {
@@ -48,6 +50,8 @@ export default function App() {
   function openOrder(id: string) { opsContext({ opsTab: "orders", opsOrderId: id }); }
   const node =
     page === "dashboard" ? <Dashboard onNavigate={navigate} onOpenOrder={openOrder} />
+    : page === "dealers" ? <DealersPage />
+    : page === "dealer-requests" ? <DealerRequestsPage />
     : OPS_TAB[page] ? <Operations key={page} ctx={{ ...ctx, opsTab: OPS_TAB[page] }} onContext={opsContext} />
     : page === "products" ? (
       <Products ctx={ctx.warehouseScope === "receiving" ? { ...ctx, warehouseId: "" } : ctx}
