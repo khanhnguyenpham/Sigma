@@ -13,7 +13,7 @@ from core.errors import DomainError
 from modules.runs.models import Run
 from modules.forecasting.models import DailySales
 from modules.forecasting import m2_adapter
-from modules.forecasting.allocation import allocate, index_prediction_totals
+from modules.forecasting.allocation import apply_totals, index_prediction_totals, reuse_basis
 from M2.models.families import metrics
 from src.data import audit_orders, daily_sales, route_top
 from src.common import ROUTE
@@ -390,91 +390,10 @@ def forecast_run(settings, sessions, key):
             "insufficient_history", "Source contains missing calendar coverage"
         )
     matrix = item_daily.pivot(index="date", columns="item_id", values="sales_qty")
-    item_count = 0
-    by_route = {
-        route: [i for i in catalog if (i["destination_country"], i["carrier"]) == route]
-        for route in all_routes
-    }
-    totals_by_origin = index_prediction_totals(predictions)
-    route_inputs = {route:(matrix[[i['item_id'] for i in items]],
-        {i['item_id']:i['first_seen_date'] for i in items}) for route,items in by_route.items()}
-    for idx, as_of in enumerate(expected_origins, 1):
-        allocation_rows = []
-        for route, items in by_route.items():
-            totals = totals_by_origin.get((pd.Timestamp(as_of),*route))
-            if totals is None:
-                raise DomainError('allocation_mismatch','Forecast route/origin is missing')
-            history, first_seen = route_inputs[route]
-            allocated = allocate(
-                history,
-                first_seen,
-                as_of,
-                totals,
-            )
-            allocation_rows.extend(allocated.itertuples(index=False, name=None))
-        with sessions.begin() as s:
-            raw = s.connection().connection.driver_connection
-            columns = [
-                "run_id",
-                "item_id",
-                "as_of_date",
-                "target_date",
-                "horizon_day",
-                "forecast_qty",
-                "actual_qty",
-                "actual_available",
-                "item_share",
-                "weekday_weight",
-                "share_window_days",
-                "allocation_basis",
-            ]
-            with (
-                raw.cursor() as cursor,
-                cursor.copy(
-                    "COPY item_forecasts (" + ",".join(columns) + ") FROM STDIN"
-                ) as copy,
-            ):
-                for (
-                    item_id,
-                    as_date,
-                    target,
-                    h,
-                    f,
-                    share,
-                    weight,
-                    window,
-                    basis,
-                ) in allocation_rows:
-                    actual = (
-                        int(matrix.at[target, item_id])
-                        if target in matrix.index
-                        else None
-                    )
-                    copy.write_row(
-                        (
-                            key,
-                            item_id,
-                            as_date.date(),
-                            target.date(),
-                            h,
-                            f,
-                            actual,
-                            actual is not None,
-                            share,
-                            weight,
-                            window,
-                            basis,
-                        )
-                    )
-                    item_count += 1
-        if idx % 10 == 0:
-            progress(
-                sessions,
-                key,
-                "allocation",
-                completed_origins=idx,
-                total_origins=len(expected_origins),
-            )
+    item_count = write_item_forecasts(
+        sessions, key, matrix, catalog, all_routes, index_prediction_totals(predictions), expected_origins,
+        lambda idx: progress(sessions, key, "allocation", completed_origins=idx, total_origins=len(expected_origins)),
+    )
     predictions.to_csv(folder / "route_predictions.csv", index=False)
     for path in folder.glob("*"):
         if path.is_file():
@@ -495,3 +414,70 @@ def forecast_run(settings, sessions, key):
         historical_per_origin_reference_available=False,
         evaluation_limit="Retrospective; fixed LG U+ was test-selected. Daily R05 remains open.",
     )
+
+
+def write_item_forecasts(sessions, key, matrix, catalog, all_routes, totals_by_origin, expected_origins, report):
+    """Allocate every route/origin H14 total to item x day and COPY one block per origin.
+
+    W1: each route keeps the basis built at its first origin until a new SKU appears; basis_as_of_date records it.
+    """
+    item_count = 0
+    by_route = {
+        route: [i for i in catalog if (i["destination_country"], i["carrier"]) == route]
+        for route in all_routes
+    }
+    route_inputs = {route:(matrix[[i['item_id'] for i in items]],
+        {i['item_id']:i['first_seen_date'] for i in items}) for route,items in by_route.items()}
+    observed = matrix.to_numpy()
+    bases = {}
+    columns = [
+        "run_id",
+        "item_id",
+        "as_of_date",
+        "target_date",
+        "horizon_day",
+        "forecast_qty",
+        "actual_qty",
+        "actual_available",
+        "item_share",
+        "weekday_weight",
+        "share_window_days",
+        "allocation_basis",
+        "basis_as_of_date",
+    ]
+    for idx, as_of in enumerate(expected_origins, 1):
+        frames = []
+        for route in by_route:
+            totals = totals_by_origin.get((pd.Timestamp(as_of),*route))
+            if totals is None:
+                raise DomainError('allocation_mismatch','Forecast route/origin is missing')
+            history, first_seen = route_inputs[route]
+            basis = bases[route] = reuse_basis(bases.get(route), history, first_seen, as_of)
+            frames.append(apply_totals(basis, as_of, totals).assign(basis_as_of_date=basis["as_of_date"]))
+        block = pd.concat(frames, ignore_index=True)
+        rows = matrix.index.get_indexer(block.target_date)
+        known = rows >= 0
+        actual = np.full(len(block), None, dtype=object)
+        picked = observed[rows[known], matrix.columns.get_indexer(block.item_id[known])]
+        if not np.isfinite(picked.astype(float)).all():
+            raise DomainError("insufficient_history", "Observed item actual is missing")
+        actual[known] = picked.astype(np.int64)
+        block.insert(5, "actual_qty", pd.array(actual, dtype="Int64"))
+        block.insert(6, "actual_available", known)
+        block.insert(0, "run_id", str(key))
+        text_block = block[columns].to_csv(
+            sep="\t", header=False, index=False, na_rep="\\N", date_format="%Y-%m-%d", lineterminator="\n"
+        )
+        with sessions.begin() as s:
+            raw = s.connection().connection.driver_connection
+            with (
+                raw.cursor() as cursor,
+                cursor.copy(
+                    "COPY item_forecasts (" + ",".join(columns) + ") FROM STDIN"
+                ) as copy,
+            ):
+                copy.write(text_block)
+        item_count += len(block)
+        if idx % 10 == 0:
+            report(idx)
+    return item_count

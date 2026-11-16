@@ -23,7 +23,7 @@ from test_postgres_api import D, request, seed, settings
 from test_results_api import result_fixture
 from run_split import NEW_TABLES, relation, without_dropped
 OLD_ROW = "to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','source_sales_qty','actual_blocked_qty','supplier_id']"
-NEW_ROW = "to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','source_sales_qty','actual_blocked_qty','receiving_warehouse_id','receiving_version']"
+NEW_ROW = "to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','source_sales_qty','actual_blocked_qty','receiving_warehouse_id','receiving_version','basis_as_of_date']"
 
 
 def test_import_and_seed_reuse_carrier_across_countries(pg, tmp_path, monkeypatch):

@@ -1,5 +1,27 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-m7-worker-20261116"></a>
+## M7 — tối ưu worker W1–W4 — 16/11/2026
+
+- **W1** (`forecasting/allocation.py`): tách `allocate()` thành `build_basis` + `apply_totals`; `reuse_basis` giữ basis của origin đầu cho mỗi tuyến, tính lại khi tập SKU đã biết của tuyến đổi. Migration `0017_item_forecast_basis_date` thêm cột nullable `item_forecasts.basis_as_of_date` (≤ `as_of_date`); NULL = run cũ, basis tính lại tại chính `as_of_date`. Downgrade từ chối khi đã có dòng có ngày basis. **Đổi kết quả có chủ đích; người dùng đã xem mức chênh và nhận (16/11, [quyết định](review-log.md)).**
+- **W2**: `apply_totals` dựng ma trận ngày × SKU bằng numpy, cùng thứ tự phép nhân `(tổng × trọng số thứ) × tỷ trọng` nên khớp bit với vòng lặp cũ; `write_item_forecasts` (tách từ `forecast_run`) lấy actual bằng index và ghi COPY một khối text mỗi origin.
+- **W3** (`inventory/simulation.py`): index policy theo item một lần; `history_index` dựng lịch liên tục mỗi item để `history_at` cắt mảng (ngoài phạm vi thì quay về đường cũ, giữ nguyên lỗi); giữ tổng lượng đang về theo item thay vì cộng lại mỗi ngày.
+- **W4**: `simulate_run` chỉ đọc `daily_sales` từ `daily_start` (lùi max(28, fallback tồn đầu, lookback an toàn của policy) ngày từ origin) tới cuối kỳ.
+- Bench (script trong scratchpad của phiên, không commit): 920 SKU/46 tuyến từ `data/sigma_sim_data_orders.csv`, tổng tuần lấy từ `route_predictions.csv` của một replay cũ trong `outputs/` (chỉ đọc), ghi vào DB thử `sigma_m3_bench`. Đo phần worker M7 chạm vào; không chạy fit model.
+
+| Bước (cùng dữ liệu, cùng máy) | Trước | Sau | Kết quả |
+|---|---|---|---|
+| Phân bổ + COPY 185 origin × 46 tuyến (2.382.800 dòng) | 250,8 s | 47,8 s | W1+W2 |
+| Đọc `daily_sales` cho kịch bản 01/10–31/12/2025 | 1,46 s | 0,36 s | W4 |
+| Policy replay 920 SKU × 92 ngày | 110,5 s | 9,0 s | digest trùng |
+| Alert replay 6 cửa sổ 14 ngày | 97,3 s | 4,9 s | digest trùng |
+| Stock projection | 1,58 s | 0,34 s | digest trùng |
+
+- **Mức chênh W1** (replay 185 origin, so với basis tính lại hằng ngày, cùng tổng tuần): MAE item-ngày **0,0851** trên dự báo item-ngày trung bình 0,178 (tổng |chênh| = 47,9% tổng dự báo); p99 0,485, max 1,95. Chênh tăng theo tuổi basis: 0 (06/2025) → 33% (07) → 48–56% (08–12). Tổng tuần mỗi tuyến/origin lệch tối đa 1,4e-14 (bảo toàn). Sai số so với actual: MAE 0,2775 (cũ) → 0,2780 (mới), +0,17%. Dữ liệu này không có SKU mới sau origin đầu nên mỗi tuyến chỉ dựng basis một lần (ngày basis duy nhất 30/06/2025).
+- Test mới [`test_worker_parity.py`](../web/backend/tests/test_worker_parity.py): golden digest `pure_window` ghi từ mã trước M7 (nhiều SKU, đổi phiên bản policy giữa kỳ, volatility, lô đang về, fallback 90 ngày); W4 cắt ma trận theo `daily_start` cho cùng digest và thiếu một ngày thì báo lỗi; W2 so `allocate` với bản sao vòng lặp cũ (khớp tuyệt đối, cả nhánh 90 ngày và lỗi); W1 tái dùng/tính lại basis khi có SKU mới; DB: COPY khối lưu đúng giá trị bản ghi từng dòng cũ, kèm `basis_as_of_date`, downgrade 0017 bị chặn. Các test khẳng định head migration đổi sang `0017`; golden DDL và các test migration so JSON dòng bỏ qua cột mới; `research/fixed_lot_baseline.py` nhận thêm tham số `_index` khi patch `history_at`.
+- Kiểm lượt này (PostgreSQL 16.2 cục bộ qua pgserver): pytest backend **578 passed, 1 failed, 3 skipped**; ca lỗi là `test_real_postgres_migration_and_role` đòi PostgreSQL 18 (đã biết). Run cũ (`basis_as_of_date` NULL) vẫn đọc qua API trong `test_results_api`.
+- Giới hạn: `research/current_s25_review.py` (ngoài phạm vi, chưa sửa) patch `history_at` bằng hàm 4 tham số nên sẽ lỗi `TypeError` nếu chạy. Bench không gồm fit model nên không phản ánh tổng thời gian replay. Chưa tách thời gian riêng W1 và W2. Chưa commit, không chạm DB demo, không refit.
+
 <a id="handoff-m6-loading-20261116"></a>
 ## M6 — rà trạng thái tải trên giao diện quản lý — 16/11/2026
 

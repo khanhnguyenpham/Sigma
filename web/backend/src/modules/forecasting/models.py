@@ -69,7 +69,10 @@ class ItemForecast(Base):
     weekday_weight = Column(Double, nullable=False)
     share_window_days = Column(SmallInteger, nullable=False)
     allocation_basis = Column(Text, nullable=False)
+    # Origin whose 90-day window built the weights/shares; NULL = recomputed at as_of_date (runs before M7).
+    basis_as_of_date = Column(Date)
     __table_args__ = (
+        CheckConstraint("basis_as_of_date<=as_of_date", name="ck_item_forecast_basis_date"),
         UniqueConstraint("run_id", "item_id", "as_of_date", "target_date"),
         CheckConstraint(
             "horizon_day BETWEEN 1 AND 14 AND target_date=as_of_date+horizon_day"

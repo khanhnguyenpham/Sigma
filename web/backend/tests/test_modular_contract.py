@@ -173,6 +173,11 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
                 and "CONSTRAINT ck_item_receiving_version " not in line
                 and "FOREIGN KEY(receiving_warehouse_id)" not in line)
             ddl = re.sub(r",\s*\n\)", "\n)", ddl)
+        if table.name == "item_forecasts":
+            # 0017 (M7/W1) adds the nullable allocation basis date.
+            assert table.c.basis_as_of_date.nullable
+            ddl = "\n".join(line for line in ddl.splitlines()
+                if not line.strip().startswith("basis_as_of_date ") and "ck_item_forecast_basis_date" not in line)
         if table.name == "suppliers":
             # CHG-079 replaces four vendor labels with the source carrier.
             ddl = "\n".join(line for line in ddl.splitlines()

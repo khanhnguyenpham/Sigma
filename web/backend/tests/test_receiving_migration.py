@@ -41,7 +41,7 @@ def test_legacy_upgrade_roundtrip_and_downgrade_guards(pg, tmp_path):
             assert ready.status_code == 503 and ready.json()["checks"]["database"] is False
         command.upgrade(cfg, "head")
         command.upgrade(cfg, "head")
-        added = {"items": ["receiving_warehouse_id", "receiving_version"], "replenishment_orders": ["receiving_warehouse_id"]}
+        added = {"items": ["receiving_warehouse_id", "receiving_version"], "replenishment_orders": ["receiving_warehouse_id"], "item_forecasts": ["basis_as_of_date"]}
         with engine.connect() as connection:
             for name, rows in before.items():
                 expr = "to_jsonb(t)" + ("-ARRAY[" + ",".join(repr(c) for c in added[name]) + "]" if name in added else "")

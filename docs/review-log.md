@@ -1,5 +1,9 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 16/11 — M7: nhận sai số W1 (basis phân bổ tính một lần)
+
+Theo góp ý mentor do người dùng thuật lại, mỗi tuyến dùng lại basis phân bổ (trọng số thứ 90 ngày, tỷ trọng SKU 30/90 ngày) từ origin đầu của run; khi có SKU mới thì tính lại basis. Trên replay 185 origin, so với tính lại hằng ngày: MAE item-ngày 0,085 trên dự báo trung bình 0,178. Mức chênh tăng theo tuổi basis, tới 48–56% tổng dự báo từ tháng thứ hai. Tổng tuần được bảo toàn (lệch tối đa 1,4e-14). MAE so với actual đổi từ 0,2775 thành 0,2780. Người dùng đã xem số đo và nhận W1. Run cũ giữ `basis_as_of_date` NULL. [Bàn giao và số đo](development.md#handoff-m7-worker-20261116).
+
 ## 16/11 — M5: thay `source_sha256` bằng so nội dung
 
 `source_sha256` từng dùng để tái dùng import, chặn chạy M2 trên file khác file đã import hoặc khác file M2 đã đăng ký, và kiểm run cha–con cùng nguồn. Người dùng chọn bỏ hoàn toàn: so số bán item×ngày từ file với `daily_sales` đã import; ràng buộc M2 dựa vào kiểm sẵn có (top10, 46 tuyến, replay khớp metric M2 ở 1e-8); cha–con so `source_import_run_id`; bỏ chữ ký demo. Đánh đổi đã nêu: file sai nhưng cùng top10 chỉ lộ ở cuối replay. Gỡ luôn module Tổng30 không còn được gọi. [Bàn giao](development.md#handoff-m5-runs-20261116).

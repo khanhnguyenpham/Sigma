@@ -20,12 +20,14 @@ def index_prediction_totals(predictions):
     return indexed
 
 
-def allocate(history, first_seen, origin, block_totals):
+def eligible_items(first_seen, origin):
+    return sorted(k for k, day in first_seen.items() if pd.Timestamp(day) <= origin)
+
+
+def build_basis(history, first_seen, origin):
+    """Weekday weights from the route's last 90 days and SKU shares from 30 (else 90) days, as of origin."""
     origin = pd.Timestamp(origin)
-    totals = np.asarray(block_totals, dtype=float)
-    if totals.shape != (2,) or not np.isfinite(totals).all() or (totals < 0).any():
-        raise DomainError("invalid_input", "Two complete weekly totals are required")
-    eligible = sorted(k for k, day in first_seen.items() if pd.Timestamp(day) <= origin)
+    eligible = eligible_items(first_seen, origin)
     if not eligible:
         raise DomainError("missing_allocation_basis", "No known item at this origin")
     if (
@@ -61,32 +63,51 @@ def allocate(history, first_seen, origin, block_totals):
             "No item sales in either the 30- or 90-day window",
         )
     shares = item_totals / item_totals.sum()
-    rows = []
-    for h in range(1, 15):
-        target = origin + pd.Timedelta(days=h)
-        for item in eligible:
-            rows.append(
-                dict(
-                    item_id=item,
-                    as_of_date=origin,
-                    target_date=target,
-                    horizon_day=h,
-                    forecast_qty=float(
-                        totals[(h - 1) // 7] * weights[target.dayofweek] * shares[item]
-                    ),
-                    item_share=float(shares[item]),
-                    weekday_weight=float(weights[target.dayofweek]),
-                    share_window_days=window,
-                    allocation_basis=weekday_basis,
-                )
-            )
-    result = pd.DataFrame(rows)
+    return dict(as_of_date=origin, items=np.asarray(eligible, dtype=np.int64), weights=weights,
+                shares=shares.to_numpy(float), window=window, label=weekday_basis)
+
+
+def reuse_basis(basis, history, first_seen, origin):
+    """W1: keep the first origin's basis until the route's known SKUs change, then rebuild it."""
+    if basis is not None and basis["items"].tolist() == eligible_items(first_seen, pd.Timestamp(origin)):
+        return basis
+    return build_basis(history, first_seen, origin)
+
+
+def apply_totals(basis, origin, block_totals):
+    """Spread the two weekly totals over day x SKU; same arithmetic order as the former per-row loop."""
+    origin = pd.Timestamp(origin)
+    totals = checked_totals(block_totals)
+    items, shares = basis["items"], basis["shares"]
+    targets = origin + pd.to_timedelta(np.arange(1, 15), "D")
+    weights = basis["weights"][targets.dayofweek]
+    qty = (np.repeat(totals, 7) * weights)[:, None] * shares[None, :]
     for b in range(2):
-        actual = result.loc[
-            result.horizon_day.between(1 + 7 * b, 7 + 7 * b), "forecast_qty"
-        ].sum()
-        if not np.isclose(actual, totals[b], atol=1e-8, rtol=0):
+        if not np.isclose(qty[7 * b : 7 * b + 7].sum(), totals[b], atol=1e-8, rtol=0):
             raise DomainError(
                 "allocation_mismatch", "Weekly allocation does not conserve the total"
             )
-    return result
+    n = len(items)
+    return pd.DataFrame(dict(
+        item_id=np.tile(items, 14),
+        as_of_date=np.full(14 * n, origin),
+        target_date=np.repeat(targets, n),
+        horizon_day=np.repeat(np.arange(1, 15, dtype=np.int64), n),
+        forecast_qty=qty.ravel(),
+        item_share=np.tile(shares, 14),
+        weekday_weight=np.repeat(weights, n),
+        share_window_days=np.full(14 * n, basis["window"], dtype=np.int64),
+        allocation_basis=np.full(14 * n, basis["label"], dtype=object),
+    ))
+
+
+def checked_totals(block_totals):
+    totals = np.asarray(block_totals, dtype=float)
+    if totals.shape != (2,) or not np.isfinite(totals).all() or (totals < 0).any():
+        raise DomainError("invalid_input", "Two complete weekly totals are required")
+    return totals
+
+
+def allocate(history, first_seen, origin, block_totals):
+    checked_totals(block_totals)
+    return apply_totals(build_basis(history, first_seen, origin), origin, block_totals)

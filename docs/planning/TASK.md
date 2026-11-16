@@ -11,7 +11,7 @@
 | M5 | Bỏ hash kiểm chứng, gỡ verification, tách `runs` | Đã làm local: 0016 `run_configs`/`run_results`, bỏ 5 cột hash, `verification.py`, `specs_fingerprint`, chữ ký demo; nguồn M2 kiểm bằng nội dung ([bàn giao](../development.md#handoff-m5-runs-20261116)) |
 | M6 | Rà loading/skeleton | Đã làm local: Pager khóa khi tải và giữ tổng bản ghi, nút xử lý yêu cầu đại lý khóa khi gửi, thẻ số dùng skeleton ([bàn giao](../development.md#handoff-m6-loading-20261116)) |
 | M3b | Thời gian nhập theo nhà cung cấp áp cho cả kịch bản mô phỏng | Đã làm local, chờ người dùng xem ([bàn giao](../development.md#handoff-supplier-lead-20261116)) |
-| M7 | Tối ưu worker: basis phân bổ tính một lần, vector hóa, index policy, đọc dữ liệu theo khoảng | Chưa làm |
+| M7 | Tối ưu worker: basis phân bổ tính một lần, vector hóa, index policy, đọc dữ liệu theo khoảng | Đã làm local: W2–W4 cho kết quả trùng bản cũ; phân bổ 250,8→47,8 s, policy replay 110,5→9,0 s; W1 đã được người dùng nhận (MAE item-ngày 0,085, tổng tuần bảo toàn) ([bàn giao](../development.md#handoff-m7-worker-20261116)) |
 
 **15/11 — checkpoint hiện hành đã kiểm:** Main52a96e2 có version image bất biến, index forecast một lần, tư vấn sổ kho, QR phiếu giao và Redis. Hai workflow success:581backend (có Redis thật),163React/build, M2 regression và Compose startup/backup–restore synthetic. [Ma trận yêu cầu hiện hành](../PRODUCT_STATUS.md), [bàn giao/số đo](../development.md#handoff-release-identity). Chưa host public hoặc có nguồn/run nhóm để đóng R05/R07/T14; không nhận toàn PLAN hoàn tất. Các checkpoint phía dưới là lịch sử.
 

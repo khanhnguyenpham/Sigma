@@ -35,8 +35,22 @@ def policy_at(policies, item, day):
     return rows[0]
 
 
-def history_at(matrix, item, origin, days):
+def history_index(matrix):
+    """W3: one contiguous calendar per item, so a lookup slices instead of filtering and reindexing."""
+    index = matrix.index
+    if not isinstance(index, pd.DatetimeIndex) or index.empty or not index.is_unique or not (index == index.normalize()).all():
+        return None
+    full = matrix.reindex(pd.date_range(index.min(), index.max()))
+    return index.min().date(), {item: full[item].to_numpy() for item in full.columns}
+
+
+def history_at(matrix, item, origin, days, index=None):
     """Use exactly the UTC calendar prefix ending at this decision, never future rows."""
+    if index is not None and item in index[1]:
+        values = index[1][item]
+        start = (origin - index[0]).days - days + 1
+        if 0 <= start and start + days <= len(values):
+            return history_quantities(values[start : start + days], days)
     dates = pd.date_range(origin - timedelta(days=days - 1), origin)
     if item not in matrix.columns or not isinstance(matrix.index, pd.DatetimeIndex):
         raise DomainError(
@@ -50,11 +64,11 @@ def history_at(matrix, item, origin, days):
     return history_quantities(window.reindex(dates).to_numpy(), days)
 
 
-def initial_stock(matrix, item, origin, cover_days, fallback_days):
-    history = history_at(matrix, item, origin, 28)
+def initial_stock(matrix, item, origin, cover_days, fallback_days, index=None):
+    history = history_at(matrix, item, origin, 28, index)
     if fallback_days and not any(history):
         try:
-            history = history_at(matrix, item, origin, fallback_days)
+            history = history_at(matrix, item, origin, fallback_days, index)
         except DomainError as exc:
             if exc.code != "insufficient_history":
                 raise
@@ -75,13 +89,18 @@ def pure_window(
                 "missing_allocation_basis",
                 "New item appears inside replay; initialization needs a new causal window",
             )
+    index = history_index(matrix)
+    policies_by_item = {}
+    for p in policies:
+        policies_by_item.setdefault(p["item_id"], []).append(p)
     stock = {
-        i: initial_stock(matrix, i, origin, scenario["cover_days"], initial_stock_fallback_days)
+        i: initial_stock(matrix, i, origin, scenario["cover_days"], initial_stock_fallback_days, index)
         for i in ids
     }
     sequences = {i: 0 for i in ids}
     orders = []
     orders_by_item = {i: [] for i in ids}
+    pending_by_item = {i: 0 for i in ids}  # ordered, not yet received
     events = []
     ledger = []
     alerts = []
@@ -99,6 +118,7 @@ def pure_window(
             record["receiving_warehouse_id"] = receiving[record["item_id"]]
         orders.append(record)
         orders_by_item[record["item_id"]].append(record)
+        pending_by_item[record["item_id"]] += record["ordered_qty"]
 
     for item in ids:
         events.append(
@@ -127,7 +147,7 @@ def pure_window(
         if ordered > origin:
             raise DomainError("invalid_input", "Initial lot was not known at origin")
         if arrival > origin:
-            p = policy_at(policies, lot["item_id"], origin)
+            p = policy_at(policies_by_item.get(lot["item_id"], []), lot["item_id"], origin)
             add_order(
                 dict(
                     window_origin=origin,
@@ -164,6 +184,7 @@ def pure_window(
                 received += lot["ordered_qty"]
                 lot["received_qty"] = lot["ordered_qty"]
                 lot["status"] = "received"
+                pending_by_item[item] -= lot["ordered_qty"]
                 sequences[item] += 1
                 events.append(
                     dict(
@@ -185,7 +206,7 @@ def pure_window(
                 )
             demands = sales_events.get((day, item), []) if day > origin else []
             if day > origin:
-                history_at(matrix, item, day, 1)  # Replay actual must also be observed.
+                history_at(matrix, item, day, 1, index)  # Replay actual must also be observed.
             decision_origin = origin if kind == "alert_replay" else day
             trade_rights = rights(trade_snapshot, item, decision_origin, day) if trade_snapshot else None
             blocked = trade_rights is not None and not trade_rights['sales_allowed']
@@ -221,7 +242,7 @@ def pure_window(
                 raise DomainError(
                     "insufficient_forecast", "Missing item H14 vector", item_id=item
                 )
-            p = policy_at(policies, item, decision_origin)
+            p = policy_at(policies_by_item.get(item, []), item, decision_origin)
             lead = lead_for(lead_times, p.get("supplier_id"))
             values = PolicyValues(
                 p["configured_rop_floor"],
@@ -234,13 +255,9 @@ def pure_window(
                 safety_multiplier=scenario["safety_multiplier"],
                 fixed_order_qty=p.get("fixed_order_qty"),
             )
-            pending = sum(
-                o["ordered_qty"]
-                for o in orders_by_item[item]
-                if o["status"] == "ordered"
-            )
+            pending = pending_by_item[item]
             history = (
-                history_at(matrix, item, decision_origin, values.safety_lookback_days)
+                history_at(matrix, item, decision_origin, values.safety_lookback_days, index)
                 if values.safety_mode == "volatility"
                 else None
             )
@@ -490,6 +507,29 @@ def pure_window(
     )
 
 
+def daily_start(origin, policies, fallback_days):
+    """W4: earliest day any decision reads (28-day stock, zero-sale fallback, safety lookback); later days run to the end."""
+    span = max([28, fallback_days or 0] + [p.get("safety_lookback_days") or 0 for p in policies])
+    return origin - timedelta(days=span - 1)
+
+
+def read_daily(session, source_id, start=None, end=None):
+    query = select(
+        DailySales.item_id,
+        DailySales.date,
+        DailySales.sales_qty,
+        DailySales.actual_available,
+    ).where(DailySales.source_import_run_id == source_id)
+    if start is not None:
+        query = query.where(DailySales.date.between(start, end))
+    return pd.read_sql(
+        query,
+        session.connection(),
+        parse_dates=["date"],
+        dtype={"sales_qty": "Int64"},
+    )
+
+
 def simulate_run(settings, sessions, key):
     with sessions() as s:
         run = s.get(Run, key)
@@ -520,17 +560,8 @@ def simulate_run(settings, sessions, key):
                 "insufficient_history",
                 "Replay requires observed sales throughout the period",
             )
-        daily = pd.read_sql(
-            select(
-                DailySales.item_id,
-                DailySales.date,
-                DailySales.sales_qty,
-                DailySales.actual_available,
-            ).where(DailySales.source_import_run_id == source_data_id(source)),
-            s.connection(),
-            parse_dates=["date"],
-            dtype={"sales_qty": "Int64"},
-        )
+        daily = read_daily(s, source_data_id(source),
+                           daily_start(origin, policies, snapshot.get("initial_stock_fallback_days")), end)
         needed_origins = (
             [origin]
             if kind == "stock_projection"

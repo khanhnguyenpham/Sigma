@@ -275,7 +275,7 @@ def test_upgrade_with_existing_history_preserves_columns_from_0007(pg, tmp_path)
             for name, rows in before.items():
                 added = {"inventory_daily": ["source_sales_qty", "actual_blocked_qty"],
                          "items": ["receiving_warehouse_id", "receiving_version"],
-                         "replenishment_orders": ["receiving_warehouse_id"]}.get(name, [])
+                         "replenishment_orders": ["receiving_warehouse_id"], "item_forecasts": ["basis_as_of_date"]}.get(name, [])
                 expr = "to_jsonb(t)" + ("-ARRAY[" + ",".join(repr(column) for column in added) + "]" if added else "")
                 assert c.execute(text(f'SELECT {without_dropped(expr)}::text FROM {relation(name)} t ORDER BY 1')).scalars().all() == rows
             assert compare_metadata(MigrationContext.configure(c, opts={"compare_type": True, "compare_server_default": True}), Base.metadata) == []
@@ -317,7 +317,7 @@ def test_downgrade_refuses_every_new_data_shape(pg, kind):
     with pytest.raises(RuntimeError, match="lose data"):
         command.downgrade(migration_config(engine), "0007_supply_lifecycle")
     with sessions() as s:
-        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0016_run_tables"
+        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0017_item_forecast_basis_date"
 
 
 def test_daily_source_split_check_preserves_existing_balance_rule(pg):

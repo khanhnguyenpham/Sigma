@@ -76,7 +76,7 @@ def replay(snapshot, config, indexed=True):
                 for r in snapshot['daily']}
     by_item = defaultdict(list)
     for p in policies: by_item[p['item_id']].append(p)
-    def indexed_history(_matrix, item, decision, days):
+    def indexed_history(_matrix, item, decision, days, _index=None):
         values=[observed.get((decision-timedelta(days=h),item)) for h in range(days-1,-1,-1)]
         return history_quantities(values,days)
     def indexed_policy(_policies, item, decision):
