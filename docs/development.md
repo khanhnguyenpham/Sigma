@@ -1,5 +1,15 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-mentor-management-plan-20261116"></a>
+## Lập kế hoạch theo góp ý mentor — 16/11/2026
+
+Đối chiếu góp ý với code: chưa có đại lý; FE xoay quanh run; ETA khóa sau xác nhận; skeleton đã có; hash còn ở `runs`/verification; `supplier_item_policies` gộp cấu hình item và supplier. Ghi [kế hoạch M1–M6](planning/MENTOR_MANAGEMENT_PLAN_20261116.md) và trỏ từ PLAN/TASK/requirements. Chỉ sửa Markdown, chưa sửa code hay chạy test.
+
+<a id="handoff-forecast-scope-docs-20261116"></a>
+## Sửa mô tả phạm vi dự báo — 16/11/2026
+
+Đối chiếu `web/backend/src/modules/forecasting/` (service, allocation, models): web dự báo H14 cho 46 tuyến (10 top giữ model M2 đã chốt, 36 chọn trên validation), hai tổng tuần rồi phân bổ SKU × ngày. `AGENTS.md` trước đó nêu R05 tổng30/top10 như hợp đồng chính nên dễ hiểu sai. Đã sửa `AGENTS.md` và thêm dòng dự báo web vào [PRODUCT_STATUS](PRODUCT_STATUS.md); R05 ghi rõ là tiêu chí nghiên cứu M2. Chỉ sửa Markdown, không chạy model/test/DB; tiêu chí và trạng thái C00/R05/R07/T14 không đổi.
+
 <a id="handoff-main-verified-20261115"></a>
 ## Main đã kiểm CI và đối chiếu yêu cầu — 15/11/2026
 

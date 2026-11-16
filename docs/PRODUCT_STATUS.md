@@ -18,7 +18,8 @@
 | Worker và Redis queue | Redis Streams, Run queued trong PostgreSQL là ý định công việc bền, publish lại/ACK/reclaim; chặn ghi đè trạng thái terminal. | Worker một owner; công việc bị gián đoạn phải retry thành run mới. Không tuyên bố đa-worker hoặc exactly-once. |
 | Phân bổ một lần tại ngày chốt | Trọng số lịch sử 90 ngày theo từng origin; tổng forecast được index một lần, input tuyến được tái sử dụng; các kịch bản đọc item forecast đã lưu. | Đây là lịch sử 90 ngày cho phân bổ, không phải một mô hình dự báo tổng 90 ngày mới. Origin khác cần cơ sở riêng để tránh leakage. |
 | Host và bàn giao | Image chỉ chứa source/runtime, Compose có PostgreSQL/Redis/artifact volume, app role không superuser; đã kiểm startup và restore trong CI. | **Chưa có host public/HTTPS chạy 24/7 của bản mới.** Chưa có cấu hình hạ tầng triển khai ở checkout này. |
-| R05 tổng 30 ngày và nghiệm thu | Giữ target, top 10, split, metric và lịch sử đã chốt. | **Chưa có dữ liệu nguồn/run riêng của nhóm trong checkout này để chạy lại và chứng minh 10/10. C00/R05/R07/T14 không tự đổi thành đạt.** |
+| Dự báo nhu cầu trên web | H14 cho đủ 46 tuyến: hai tổng tuần D+1…D+7, D+8…D+14 rồi phân bổ SKU × ngày. Top 10 giữ model M2 đã chốt; 36 tuyến còn lại chọn model trên validation và khóa trước test. | Số tuyến và khoảng mốc replay đang cố định trong code theo nguồn đã đăng ký; đổi nguồn cần cập nhật hợp đồng. |
+| R05 tổng 30 ngày (tiêu chí nghiên cứu M2) | Giữ target, top 10, split, metric và lịch sử đã chốt. Không phải phạm vi dự báo của web; Tổng30 đã gỡ khỏi app từ 03/11/2026. | **Chưa có dữ liệu nguồn/run riêng của nhóm trong checkout này để chạy lại và chứng minh 10/10. C00/R05/R07/T14 không tự đổi thành đạt.** |
 
 ## Bằng chứng của bản mã hiện hành
 

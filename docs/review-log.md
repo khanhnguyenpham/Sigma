@@ -1,5 +1,13 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 16/11 — duyệt kế hoạch theo góp ý mentor
+
+Người dùng thuật lại 6 góp ý mentor và duyệt các quyết định: (A) nghiệp vụ đại lý tối thiểu theo yêu cầu lấy hàng, là giả định của nhóm; (B) bỏ đăng nhập supplier, giữ supplier là dữ liệu; (C) bỏ hash kiểm chứng, giữ hash mật khẩu/phiên và `request_key`; (D) thứ tự M1–M6, bắt đầu từ cấu trúc FE. [Kế hoạch](planning/MENTOR_MANAGEMENT_PLAN_20261116.md).
+
+## 16/11 — làm rõ phạm vi dự báo trong chỉ dẫn
+
+Người dùng xác nhận web dự báo 14 ngày cho toàn bộ tuyến; code forecasting khớp (46 tuyến, H14). Quyết định: `AGENTS.md`/PRODUCT_STATUS mô tả H14×46 là hợp đồng ứng dụng, R05 tổng30/top10 là tiêu chí nghiên cứu M2, không xóa hay đổi trạng thái. [Bàn giao](development.md#handoff-forecast-scope-docs-20261116).
+
 ## 15/11 — kiểm đủ cổng main và sửa tài liệu hiện hành
 
 Người dùng nhắc tự chọn cách làm hợp lý, không hỏi lại. Giữ lựa chọn QR theo phiếu giao, supplier chỉ đọc, release identity cho image bất biến và Redis transport một owner; không tự mở rộng thành ICCID/camera, đa-worker hoặc forecast90ngày. Đã kiểm main52a96e2 đúng SHA: hai workflow success,581backend/163React, Redis thật và Compose startup/backup–restore synthetic. Đồng bộ các tài liệu còn ghi QR/Redis chưa có và thêm [ma trận yêu cầu hiện hành](PRODUCT_STATUS.md). Các số cũ trong checkpoint lịch sử không là trạng thái hiện tại.

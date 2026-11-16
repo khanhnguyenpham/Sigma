@@ -1,5 +1,16 @@
 # Điều phối công việc SIGMA
 
+**16/11/2026 — việc tiếp theo theo góp ý mentor:** [Kế hoạch](MENTOR_MANAGEMENT_PLAN_20261116.md) đã được người dùng duyệt, chưa triển khai. Mỗi bước dừng để người dùng xem.
+
+| Bước | Nội dung | Trạng thái |
+|---|---|---|
+| M1 | Cấu trúc FE quản lý, mục Công cụ, Tổng quan mới | Chưa làm |
+| M2 | Vai trò đại lý, bỏ đăng nhập supplier | Chưa làm |
+| M3 | Điều chỉnh ETA đơn đã xác nhận | Chưa làm |
+| M4 | Tách bảng DB | Chưa làm |
+| M5 | Bỏ hash kiểm chứng | Chưa làm |
+| M6 | Rà loading/skeleton | Chưa làm |
+
 **15/11 — checkpoint hiện hành đã kiểm:** Main52a96e2 có version image bất biến, index forecast một lần, tư vấn sổ kho, QR phiếu giao và Redis. Hai workflow success:581backend (có Redis thật),163React/build, M2 regression và Compose startup/backup–restore synthetic. [Ma trận yêu cầu hiện hành](../PRODUCT_STATUS.md), [bàn giao/số đo](../development.md#handoff-release-identity). Chưa host public hoặc có nguồn/run nhóm để đóng R05/R07/T14; không nhận toàn PLAN hoàn tất. Các checkpoint phía dưới là lịch sử.
 
 **15/11 — queue Redis đang kiểm:** Có driver Streams, Run queued làm outbox bền, claim theoID/ACK/reclaim, guard interrupted và AUTOCOMMIT lock connection. Full local570pass/2Redis thật skip,163React/build qua; Redis thật/Compose smoke kiểm theo CI. Source chính vẫn main, chưa nhận whole PLAN/host. [Bàn giao](../development.md#handoff-redis-transport).

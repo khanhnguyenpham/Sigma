@@ -1,5 +1,7 @@
 # Kế hoạch dự án SIGMA
 
+**16/11/2026 — chuyển trọng tâm sang hệ thống quản lý (hiện hành):** Theo góp ý mentor do người dùng thuật lại, dự báo và kịch bản trở thành một mục Công cụ; phần chính là quản lý cho admin và đại lý. Kế hoạch M1–M6 gồm cấu trúc FE mới, vai trò đại lý (nghiệp vụ giả định), điều chỉnh ETA, tách bảng DB, bỏ hash kiểm chứng và rà loading. Chưa triển khai. [Kế hoạch chi tiết và tiêu chí](MENTOR_MANAGEMENT_PLAN_20261116.md).
+
 **15/11 — trạng thái thực hiện hiện hành:** [Ma trận yêu cầu](../PRODUCT_STATUS.md) đối chiếu đủ góp ý với code, kiểm và giới hạn. Main52a96e2 đã qua hai workflow,581backend/163React, Redis thật và Compose backup–restore synthetic. P1–P6 có phần triển khai/kiểm tương ứng; P7 chưa host public, benchmark toàn pipeline/dữ liệu nhóm và nghiệm thu R05/R07/T14 vẫn mở. Không lấy các checkpoint kế hoạch cũ bên dưới làm danh sách tính năng hiện chưa có. Quyết định kỹ thuật tự chốt theo ủy quyền người dùng, không ghi thành mentor xác nhận.
 
 **15/11 — lựa chọn queue:** Run queued đã commit chính là durable outbox; không nhân đôi bảng ý định công việc. Redis là transport, metadata publish nằm trong result_summary khi queued. Giữ concurrency1 và retry interrupted bằng run mới, không tự refit/đa-worker. [Đặc tả thực hiện và ca kiểm](../REDIS_QUEUE.md); không thay R05/R07/T14.
