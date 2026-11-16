@@ -1,5 +1,17 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-m5-runs-20261116"></a>
+## M5 — bỏ hash kiểm chứng, tách `runs` — 16/11/2026
+
+- Migration `0016_run_tables`: tạo `run_configs` (snapshot) và `run_results` (tóm tắt, manifest), chép dữ liệu của mọi run rồi bỏ `runs.config_snapshot/result_summary/artifact_manifest`, 5 cột `*_sha256` và `route_forecasts.parent_bundle_sha256`. `error_code` giữ ở `runs`. Downgrade khôi phục cột; checksum config/request/selection tính lại từ JSON, `source_sha256`/`parent_bundle_sha256` không khôi phục được (NULL), `code_sha256` là placeholder nên run đang chờ phải enqueue lại sau downgrade.
+- Model: `Run.config_snapshot`, `result_summary`, `artifact_manifest` là association proxy sang hai bảng mới nên code gọi và API giữ nguyên. Truy vấn SQL trên các trường này phải join bảng mới (ví dụ hàng đợi Redis).
+- Gỡ `runs/verification.py`, `runs/supply_verification.py`, lệnh `cli verify`, `specs_fingerprint`, `forecasting/demo_source.py` (chữ ký nguồn demo) và module chết `reporting/monthly.py`. Giữ `trade_verification`/`receiving_verification` vì worker dùng để kiểm snapshot đầu vào. Manifest file chỉ còn tên → số byte; `manifest.json` của run mới có `status=complete`, `code_revision`.
+- Idempotency: cùng `request_key` khác body bị từ chối bằng so `config_snapshot.request`. Run cha–con: forecast cha phải cùng `source_import_run_id`; selection lock nhận diện bằng khóa `selections` trong snapshot.
+- Thay `source_sha256` (người dùng chọn "so nội dung"): `require_imported_source` so số bán và số đơn item×ngày đọc từ file với `daily_sales` của lần import (bỏ qua ngày đã đánh dấu thiếu actual). Dùng để tái dùng import, chặn forecast M2 và mô phỏng khi file khác dữ liệu đã nạp. Ràng buộc với M2: top10 = 10 tuyến chốt, đủ 46 tuyến, replay khớp test metric M2 ở 1e-8. Giới hạn: file sai nhưng cùng top10 chỉ lộ ở cuối replay; import demo không còn đối chiếu bản gốc đã đăng ký.
+- Giữ: `password_hash`, `token_digest`, `request_key`/`request_digest` của nghiệp vụ, checksum backup demo và heartbeat/readiness demo (`code_digest`), kiểm bản gốc trong script xuất demo.
+- Kiểm lượt này (PostgreSQL 16.2 cục bộ qua pgserver): pytest backend **569 passed, 1 failed, 3 skipped**; ca lỗi là `test_real_postgres_migration_and_role` đòi PostgreSQL 18 (đã biết), 3 skip là Redis và `pg_dump` native. Vitest **170/170**. Không chạy build FE (FE không đổi). Các test migration so `runs` qua view nối hai bảng mới ([`run_split.py`](../web/backend/tests/run_split.py)); test chạy app trên schema 0007 đổi sang kiểm readiness 503 và đọc lại run cũ sau upgrade.
+- Chưa commit/push, không chạm DB demo, không enqueue/refit. `test_current_s25_review.py` (ngoài phạm vi) không chạy.
+
 <a id="handoff-container-bootstrap-fix-20261116"></a>
 ## Sửa lệnh tạo admin trong container — 16/11/2026
 

@@ -2,19 +2,19 @@
 
 import argparse
 from datetime import datetime, timezone
-import hashlib, json, os, time, threading
+import json, os, time, threading
 from sqlalchemy import select, text, update
 from core.db import database
 from core.errors import DomainError
 from modules.runs.models import Run
 from modules.forecasting.ingestion import import_snapshot
-from core.hashes import digest, code_digest
+from core.hashes import code_digest
 from core.settings import Settings
 from core.demo import worker_heartbeat
 import models  # Register every foreign-key target before a standalone worker flushes Run.
 
 LOCK_ID = 734100719
-LOADED_CODE = code_digest()
+LOADED_CODE = code_digest()  # demo readiness only: API and worker run the same code
 
 
 def now():
@@ -35,14 +35,14 @@ def claim_one(sessions):
         row.status = "running"
         row.started_at = now()
         row.heartbeat_at = now()
-        return row.id, row.kind, row.code_sha256
+        return row.id, row.kind
 
 
 def process_one(settings, sessions, claimed=None):
     claimed = claimed or claim_one(sessions)
     if claimed is None:
         return None
-    key, kind, expected_code = claimed
+    key, kind = claimed[:2]
     heartbeat_stop = threading.Event()
 
     def heartbeat():
@@ -61,11 +61,6 @@ def process_one(settings, sessions, claimed=None):
     heartbeat_thread = threading.Thread(target=heartbeat, daemon=True)
     heartbeat_thread.start()
     try:
-        if expected_code != code_digest() or expected_code != LOADED_CODE:
-            raise DomainError(
-                "code_mismatch",
-                "Code changed after enqueue or worker startup; restart the worker",
-            )
         if kind == "source_import":
             summary = import_snapshot(settings, sessions, key)
         elif kind == "forecast":
@@ -77,25 +72,9 @@ def process_one(settings, sessions, claimed=None):
 
             summary = simulate_run(settings, sessions, key)
         with sessions.begin() as session:
-            row = session.get(Run, key)
-            if row.status != 'running':
-                raise DomainError('worker_interrupted','Run is no longer owned by this worker',409)
-            row.config_sha256 = digest(row.config_snapshot)
-            row.result_summary = summary
-        from modules.runs.verification import verify_run
-
-        verification = verify_run(settings, sessions, key, allow_running=True)
-        if expected_code != code_digest():
-            raise DomainError(
-                "code_mismatch",
-                "Code changed during execution; keep this run failed and retry after restarting",
-            )
-        summary = {**summary, "verification": verification}
-        with sessions.begin() as session:
             row = session.scalar(select(Run).where(Run.id==key).with_for_update())
             if row.status != 'running':
                 raise DomainError('worker_interrupted','Run was interrupted before final commit',409)
-            row.config_sha256 = digest(row.config_snapshot)
             import platform, importlib.metadata
 
             runtime = dict(
@@ -119,18 +98,12 @@ def process_one(settings, sessions, claimed=None):
                 row.config_snapshot, sort_keys=True, indent=2, allow_nan=False
             ).encode()
             (folder / "config_snapshot.json").write_bytes(config_bytes)
-            row.artifact_manifest = {
-                **row.artifact_manifest,
-                "config_snapshot.json": hashlib.sha256(config_bytes).hexdigest(),
-            }
             manifest = dict(
                 **({'runtime_code_reference':row.config_snapshot['runtime_code_reference']} if 'runtime_code_reference' in row.config_snapshot else {}),
                 run_id=str(key),
                 kind=kind,
-                status="verified",
-                source_sha256=row.source_sha256,
-                code_sha256=row.code_sha256,
-                config_sha256=row.config_sha256,
+                status="complete",
+                code_revision=row.code_revision,
                 target_version=row.target_version,
                 config_version=row.config_version,
                 assumption_version=row.assumption_version,
@@ -142,7 +115,6 @@ def process_one(settings, sessions, claimed=None):
                 forecast_run_id=str(row.forecast_run_id)
                 if row.forecast_run_id
                 else None,
-                selection_sha256=row.selection_sha256,
                 summary=summary,
                 artifacts=row.artifact_manifest,
             )
@@ -154,10 +126,6 @@ def process_one(settings, sessions, claimed=None):
             ).encode()
             staging.write_bytes(payload)
             os.replace(staging, folder / "manifest.json")
-            row.artifact_manifest = {
-                **row.artifact_manifest,
-                "manifest.json": hashlib.sha256(payload).hexdigest(),
-            }
             row.result_summary = summary
             row.status = "complete"
             row.finished_at = now()
@@ -328,7 +296,7 @@ def main():
                 row = session.get(Run, uuid.UUID(args.claimed_run))
                 if row is None or row.status != 'running':
                     raise SystemExit('Job is not claimed')
-                claimed = row.id, row.kind, row.code_sha256
+                claimed = row.id, row.kind
             process_one(settings, sessions, claimed)
         finally:
             engine.dispose()

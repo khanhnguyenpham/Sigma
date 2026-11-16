@@ -7,7 +7,6 @@ import io
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
-from core.hashes import digest
 from main import create_app
 from modules.alerts.models import Alert
 from modules.catalog.models import ItemSupplyChange
@@ -48,7 +47,7 @@ def test_sell_through_api_export_and_frozen_context(pg,tmp_path,kind):
         exported=c.get(base+'/exports/sell_through'+query+'&page=3&page_size=1')
         rows=list(csv.DictReader(io.StringIO(exported.text.lstrip('\ufeff'))));assert len(rows)==4
         assert [r['target_date'] for r in rows]==[r['target_date'] for r in filtered['items']]
-        assert all(r['run_id']==str(key) and r['config_sha256'] for r in rows)
+        assert all(r['run_id']==str(key) for r in rows)
         assert c.get(base+'/sell-through?warehouse_id=999').json()['total']==0
         assert c.get(base+'/sell-through?state=low_stock').status_code==422
         assert c.get(base+f'/sell-through?date_from={D+timedelta(days=5)}&date_to={D}').status_code==422
@@ -82,14 +81,14 @@ def test_sell_through_api_export_and_frozen_context(pg,tmp_path,kind):
 
 def test_old_run_requires_new_plan_and_reads_do_not_backfill(pg,tmp_path):
     _,sessions=pg;key,parent,item=workspace_fixture(sessions)
-    with sessions() as s:before=(deepcopy(s.get(Run,key).config_snapshot),s.get(Run,key).config_sha256)
+    with sessions() as s:before=deepcopy(s.get(Run,key).config_snapshot)
     with TestClient(create_app(settings(tmp_path))) as c:
         base=f'/api/v1/runs/{key}'
         assert c.get(base+'/sell-through').json()['error']['code']=='feature_not_in_run'
         assert c.get(base+'/exports/sell_through').status_code==409
         assert c.get(f'/api/v1/runs/{parent}/sell-through').status_code==409
         assert c.get(base+f'/inventory?date_from={D}&date_to={D}').json()['items'][0]['supply_status'] is None
-    with sessions() as s:assert (s.get(Run,key).config_snapshot,s.get(Run,key).config_sha256)==before
+    with sessions() as s:assert s.get(Run,key).config_snapshot==before
 
 
 def test_route_totals_count_all_items_before_pagination_and_csv_batches(pg,tmp_path):
@@ -107,7 +106,7 @@ def test_route_totals_count_all_items_before_pagination_and_csv_batches(pg,tmp_p
             attrs={col.name:getattr(alert,col.name) for col in Alert.__table__.columns if col.name not in {'id','created_at'}}
             attrs.update(item_id=row.id,explanation=deepcopy(alert.explanation))
             s.add(Alert(**attrs))
-        run.config_snapshot=snapshot;run.config_sha256=digest(snapshot)
+        run.config_snapshot=snapshot
     with c:
         base=f'/api/v1/runs/{key}'
         one=c.get(base+'/sell-through?page_size=1').json();assert one['total']==5040
@@ -134,7 +133,7 @@ def test_profile_without_stored_sell_through_requires_new_plan(pg,tmp_path):
     with sessions.begin() as s:
         run=s.get(Run,key);snapshot=deepcopy(run.config_snapshot)
         snapshot.update(supply_lifecycle_profile='notice7_sellthrough_v1',supply_lifecycle_snapshot=[])
-        run.config_snapshot=snapshot;run.config_sha256=digest(snapshot)
+        run.config_snapshot=snapshot
     with TestClient(create_app(settings(tmp_path))) as c:
         for path in (None,[],[{}]*14):
             with sessions.begin() as s:

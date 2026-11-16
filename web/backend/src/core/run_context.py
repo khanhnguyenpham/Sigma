@@ -1,7 +1,6 @@
 """Read and validate frozen runs without reinterpreting live configuration."""
 import uuid
 from core.errors import DomainError
-from core.hashes import digest
 from modules.runs.models import Run
 from modules.configuration.schemas import LEGACY_POLICY_DEFAULTS
 from modules.catalog.receiving import frozen_receiving
@@ -27,10 +26,6 @@ def required_run(session, key, kind=None, complete=False, _ancestors=frozenset()
     if complete:
         if row.id in _ancestors:
             raise DomainError("parent_mismatch", "Parent graph contains a cycle", 409)
-        if digest(row.config_snapshot) != row.config_sha256:
-            raise DomainError(
-                "parent_mismatch", "Frozen run configuration checksum differs", 409
-            )
         for attr, expected_kind in [
             ("source_import_run_id", "source_import"),
             ("forecast_run_id", "forecast"),
@@ -49,20 +44,13 @@ def required_run(session, key, kind=None, complete=False, _ancestors=frozenset()
                 parent is None
                 or parent.status != "complete"
                 or parent.kind != expected_kind
-                or parent.source_sha256 != row.source_sha256
                 or parent.target_version != row.target_version
+                # A child and its forecast parent must read the same source import.
+                or (attr == "forecast_run_id"
+                    and parent.source_import_run_id != row.source_import_run_id)
             ):
                 raise DomainError(
                     "parent_mismatch", "A frozen parent is no longer compatible", 409
-                )
-            frozen = row.config_snapshot.get(
-                "source_parent_config_sha256"
-                if attr == "source_import_run_id"
-                else "forecast_parent_config_sha256"
-            )
-            if frozen and parent.config_sha256 != frozen:
-                raise DomainError(
-                    "parent_mismatch", "Parent configuration changed", 409
                 )
     return row
 
@@ -85,6 +73,6 @@ def snapshot_maps(session, run):
     for item_id, location in frozen_receiving(snap).items():
         items[item_id].update({key: location[key] for key in
             ("source_warehouse_id", "receiving_warehouse_id", "receiving_version")})
-    # Interpret legacy policies in a copy; never backfill sealed JSON or its hash.
+    # Interpret legacy policies in a copy; never backfill frozen JSON.
     policies = {p["id"]: {**LEGACY_POLICY_DEFAULTS, **p} for p in snap.get("policies", [])}
     return warehouses, items, policies

@@ -11,7 +11,6 @@ from alembic.migration import MigrationContext
 from pydantic import ValidationError
 from sqlalchemy import text
 
-from core.hashes import digest
 from core.run_context import snapshot_maps
 from models import Base
 from modules.configuration.models import Scenario
@@ -22,6 +21,7 @@ from modules.runs.models import Run
 from modules.runs.schemas import RunCreate
 from modules.runs.service import enqueue
 from test_postgres_api import D, request, seed
+from run_split import relation, without_dropped
 
 
 @pytest.mark.parametrize('field,value', [('rop_mode','forecast'),('safety_mode','days'),
@@ -76,7 +76,6 @@ def test_mode_migration_preserves_numeric_policy_and_sealed_runs_and_cleans_edit
         run.status='complete'
         run.config_snapshot={**run.config_snapshot,'policies':[dict(id=policy_id,item_id=item,safety_days=2,
             safety_mode='volatility',safety_factor=3,rop_mode='forecast')]}
-        run.config_sha256=digest(run.config_snapshot)
         key=run.id
         session.add(Scenario(code='legacy-settings',version=1,name='Synthetic',assumption_version='synthetic',settings=dict(
             cover_days=7,safety_multiplier=1,receipts_initial=[],receipts_declared=True,
@@ -89,12 +88,12 @@ def test_mode_migration_preserves_numeric_policy_and_sealed_runs_and_cleans_edit
     try:
         with engine.begin() as connection:
             connection.execute(text("UPDATE supplier_item_policies SET safety_mode='volatility',rop_mode='forecast',safety_factor=3"))
-            frozen=connection.scalar(text('SELECT to_jsonb(r) FROM runs r'))
+            frozen=connection.scalar(text(f'SELECT {without_dropped("to_jsonb(r)")} FROM runs r'))
             # 0015 later drops the derived supplier_id; compare the remaining columns.
             numeric=connection.scalar(text("SELECT to_jsonb(p)-ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','supplier_id'] FROM supplier_item_policies p"))
         command.upgrade(cfg,'head'); command.upgrade(cfg,'head')
         with engine.connect() as connection:
-            assert connection.scalar(text('SELECT to_jsonb(r) FROM runs r'))==frozen
+            assert connection.scalar(text(f'SELECT to_jsonb(r) FROM {relation("runs")} r'))==frozen
             assert connection.scalar(text('SELECT to_jsonb(p) FROM item_policies p'))==numeric
             assert connection.scalar(text("SELECT settings->'policy_overrides' FROM scenarios"))==[
                 dict(item_id=item,safety_days=0,configured_rop_floor=0,warning_horizon_days=14)]
@@ -103,6 +102,6 @@ def test_mode_migration_preserves_numeric_policy_and_sealed_runs_and_cleans_edit
             row=session.get(Run,key)
             original=deepcopy(row.config_snapshot)
             assert snapshot_maps(session,row)[2][policy_id]['safety_mode']=='volatility'
-            assert row.config_snapshot==original and row.config_sha256==digest(original)
+            assert row.config_snapshot==original
     finally:
         command.upgrade(cfg,'head')

@@ -47,13 +47,19 @@ def test_http_and_schema_preserve_existing_contract(tmp_path):
     # 0015 renamed supplier_item_policies to item_policies and derived supplier_id from the item carrier.
     renamed = {'supplier_item_policies': 'item_policies'}
     assert set(Base.metadata.tables) == {renamed.get(t, t) for t in baseline['tables']} | {'item_supply_changes',
-        'provider_product_notices', 'provider_product_notice_items', 'provider_product_notice_events', 'auth_users', 'auth_sessions'} | OPS_TABLES
-    assert len(Base.metadata.tables) == 31  # 28 + three dealer tables (0012)
+        'provider_product_notices', 'provider_product_notice_items', 'provider_product_notice_events', 'auth_users', 'auth_sessions', 'run_configs', 'run_results'} | OPS_TABLES
+    assert len(Base.metadata.tables) == 33  # 28 + three dealer tables (0012) + run_configs/run_results (0016)
     for name, columns in baseline['tables'].items():
         if name == 'suppliers':
             columns = [c for c in columns if c not in {'code', 'display_name', 'is_assumed', 'assumption_source'}]
             assert set(Base.metadata.tables[name].columns.keys()) == {'id', 'carrier', 'created_at'}
         if name == 'supplier_item_policies':
             columns = [c for c in columns if c != 'supplier_id']
+        # 0016: verification hashes dropped; run JSON documents live in run_configs/run_results.
+        columns = [c for c in columns if not c.endswith('_sha256')]
+        if name == 'runs':
+            moved = {'config_snapshot', 'result_summary', 'artifact_manifest'}
+            assert moved <= set(Base.metadata.tables['run_configs'].columns.keys()) | set(Base.metadata.tables['run_results'].columns.keys())
+            columns = [c for c in columns if c not in moved]
         assert set(columns) <= set(Base.metadata.tables[renamed.get(name, name)].columns.keys())
     app.state.engine.dispose()

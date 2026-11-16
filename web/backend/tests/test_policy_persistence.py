@@ -1,6 +1,7 @@
 """Policy persistence on synthetic fixtures; migrations touch only sigma_m3_test."""
 from copy import deepcopy
 from datetime import timedelta
+import json
 import uuid
 from pathlib import Path
 
@@ -14,7 +15,6 @@ from pydantic import ValidationError
 from sqlalchemy import inspect, text
 from sqlalchemy.exc import IntegrityError, DataError
 
-from core.hashes import digest
 from core.run_context import snapshot_maps, required_run
 from main import create_app
 from models import Base
@@ -23,8 +23,6 @@ from modules.configuration.schemas import POLICY_DEFAULTS, PolicyCreate, PolicyO
 from modules.configuration.service import create_policy
 from modules.inventory.simulation import pure_window
 from modules.runs.models import Run
-from modules.runs.schemas import RunCreate
-from modules.runs.service import enqueue
 from test_postgres_api import seed, settings, request, D
 from test_results_api import result_fixture
 from test_simulation import inputs, ORIGIN
@@ -116,7 +114,7 @@ def test_scenario_override_freezes_forecast_floor_profile_and_keeps_existing_run
         key = uuid.UUID(response.json()['run_id'])
         with sessions() as session:
             run = session.get(Run, key)
-            frozen, checksum = deepcopy(run.config_snapshot), run.config_sha256
+            frozen = deepcopy(run.config_snapshot)
             assert frozen['inventory_policy_profile'] == 'forecast_floor_days_ss_v1'
             policy = frozen['policies'][0]
             assert (policy['rop_mode'], policy['safety_mode'], policy['configured_rop_floor'], policy['safety_days']) == ('forecast','days',0,0)
@@ -126,7 +124,7 @@ def test_scenario_override_freezes_forecast_floor_profile_and_keeps_existing_run
         assert client.post('/api/v1/runs', json=body, headers={'Idempotency-Key':'fixed-profile'}).json()['run_id'] == str(key)
         with sessions() as session:
             run = session.get(Run, key)
-            assert run.config_snapshot == frozen and run.config_sha256 == checksum
+            assert run.config_snapshot == frozen
         # Raw persisted overrides cannot restore a mode removed from the HTTP contract.
         with sessions.begin() as session:
             row=session.get(Scenario,scenario['id'])
@@ -146,6 +144,10 @@ def test_database_constraints_reject_invalid_policy_parameters(pg):
                 connection.execute(Policy.__table__.update().where(Policy.id == key).values(**{field: value}))
 
 
+LOGICAL_RUN = text("""SELECT row_to_json(r)::text FROM (SELECT runs.*, c.config_snapshot, x.result_summary,
+    x.artifact_manifest FROM runs JOIN run_configs c ON c.run_id=runs.id JOIN run_results x ON x.run_id=runs.id) r""")
+
+
 def test_upgrade_preserves_legacy_snapshot_scenario_and_defaults(pg):
     engine, sessions = pg
     cfg = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
@@ -163,21 +165,27 @@ def test_upgrade_preserves_legacy_snapshot_scenario_and_defaults(pg):
             scenario = Scenario(code="legacy", version=1, name="Legacy", assumption_version="synthetic",
                                 settings=scenario_body([dict(item_id=item, moq=10)])["settings"])
             s.add(scenario)
-            run, _ = enqueue(s, RunCreate(kind="source_import", source_key="orders_snapshot", as_of_date=D), "legacy")
-            run.status = "complete"
-            run.config_snapshot = {**run.config_snapshot, "warehouse_snapshot": [], "catalog_snapshot": [],
+            # The 0001 runs table (with its checksum columns) predates the current ORM, so write it in SQL.
+            snapshot = {"request": {"kind": "source_import", "source_key": "orders_snapshot", "as_of_date": str(D)},
+                "warehouse_snapshot": [], "catalog_snapshot": [],
                 "policies": [dict(id=key, item_id=item, supplier_id=supplier, version=1,
                     effective_from=str(D), effective_to=None, configured_rop_floor=100, moq=50, safety_days=2)]}
-            run.config_sha256 = digest(run.config_snapshot)
-            run.artifact_manifest = {"synthetic_legacy": "a" * 64}
-            run_id = run.id
+            run_id = uuid.uuid4()
+            s.execute(text("""INSERT INTO runs (id,kind,status,as_of_date,observation_end,target_version,config_version,
+                assumption_version,source_sha256,code_revision,code_sha256,config_snapshot,config_sha256,request_key,
+                request_sha256,result_summary,artifact_manifest) VALUES (:id,'source_import','complete',:day,:day,
+                'synthetic','synthetic','synthetic',:sha,'synthetic',:sha,CAST(:snapshot AS jsonb),:sha,'legacy',:sha,
+                '{"phase":"verified"}','{"synthetic_legacy":"aaaa"}')"""),
+                dict(id=run_id, day=D, sha="a" * 64, snapshot=json.dumps(snapshot)))
         with engine.connect() as connection:
-            before = connection.execute(text("SELECT row_to_json(runs)::text FROM runs")).scalar_one()
+            before = json.loads(connection.execute(text("SELECT row_to_json(runs)::text FROM runs")).scalar_one())
+            # 0016 drops the checksums and moves the JSON documents; every other value must survive.
+            before = {k: v for k, v in before.items() if not k.endswith("_sha256")}
             scenario_before = connection.execute(text("SELECT row_to_json(scenarios)::text FROM scenarios")).scalar_one()
         command.upgrade(cfg, "head")
         command.upgrade(cfg, "head")
         with engine.connect() as connection:
-            assert connection.execute(text("SELECT row_to_json(runs)::text FROM runs")).scalar_one() == before
+            assert json.loads(connection.execute(LOGICAL_RUN).scalar_one()) == before
             assert connection.execute(text("SELECT row_to_json(scenarios)::text FROM scenarios")).scalar_one() == scenario_before
             assert compare_metadata(MigrationContext.configure(connection, opts={"compare_type": True, "compare_server_default": True}), Base.metadata) == []
         assert set(inspect(engine).get_table_names()) == set(Base.metadata.tables) | {"alembic_version"}
@@ -186,14 +194,13 @@ def test_upgrade_preserves_legacy_snapshot_scenario_and_defaults(pg):
             assert {k: getattr(row, k) for k in POLICY_DEFAULTS} == POLICY_DEFAULTS
             run = required_run(s, run_id, complete=True)
             frozen = deepcopy(run.config_snapshot)
-            checksum = run.config_sha256
             interpreted = snapshot_maps(s, run)[2][key]
             assert {k: interpreted[k] for k in POLICY_DEFAULTS} == POLICY_DEFAULTS
             interpreted["safety_mode"] = "volatility"
-            assert run.config_snapshot == frozen and digest(frozen) == checksum
+            assert run.config_snapshot == frozen
             s.commit()
         with engine.connect() as connection:
-            assert connection.execute(text("SELECT row_to_json(runs)::text FROM runs")).scalar_one() == before
+            assert json.loads(connection.execute(LOGICAL_RUN).scalar_one()) == before
     finally:
         command.upgrade(cfg, "head")
 

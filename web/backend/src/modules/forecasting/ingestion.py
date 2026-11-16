@@ -10,7 +10,30 @@ from modules.catalog.locations import seed_cities
 from modules.runs.models import Run
 from modules.forecasting.models import DailySales
 from src.data import audit_orders, daily_sales, route_top
-from src.common import ROUTE, ITEM, sha256
+from src.common import ROUTE, ITEM
+
+
+def _quantity_rows(frame):
+    return {(*key, day.date(), int(qty), int(orders)) for *key, day, qty, orders
+            in frame[[*ITEM, "date", "sales_qty", "order_count"]].itertuples(index=False, name=None) if qty > 0}
+
+
+def require_imported_source(session, source_run_id, sales):
+    """Replaces the file checksum: the audited orders must give exactly the item x day quantities and order counts
+    this import loaded. The M2 tie is checked by the fixed top10/46 routes and replay test-metric parity."""
+    source = session.get(Run, source_run_id)
+    catalog = {i["item_id"]: tuple(i[k] for k in ITEM) for i in source.config_snapshot["catalog_snapshot"]}
+    rows = session.execute(
+        select(DailySales.item_id, DailySales.date, DailySales.sales_qty, DailySales.order_count,
+               DailySales.actual_available).where(DailySales.source_import_run_id == source_run_id)).all()
+    stored = {(*catalog[i], day, qty, orders) for i, day, qty, orders, known in rows if known and qty > 0}
+    # Days the import declared missing (not zero) are not compared.
+    missing = {(*catalog[i], day) for i, day, _, _, known in rows if not known}
+    current = sales.groupby(ITEM + ["date"]).agg(
+        sales_qty=("quantity", "sum"), order_count=("order_id", "nunique")).reset_index()
+    if stored != {row for row in _quantity_rows(current) if row[:5] not in missing}:
+        raise DomainError("parent_mismatch", "Order source differs from the imported daily quantities")
+
 
 def import_snapshot(settings, sessions, run_id):
     with sessions() as session:
@@ -18,35 +41,41 @@ def import_snapshot(settings, sessions, run_id):
         request = run.config_snapshot["request"]
         cutoff = run.as_of_date
     source = settings.order_source(request["source_key"])
-    source_hash = sha256(source)
+    cfg = json.loads(
+        (PROJECT_ROOT / "data/configs/config.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    sales, audit = audit_orders(source, cfg)
     # The single worker serializes source jobs. Each request key remains a distinct
-    # technical run while the immutable canonical dataset is reused by hash.
+    # technical run while an identical canonical dataset (same daily quantities) is reused.
     with sessions.begin() as session:
-        existing = session.scalar(
+        from core.run_context import required_run, source_data_id
+
+        candidates = session.scalars(
             select(Run)
             .where(
                 Run.kind == "source_import",
                 Run.status == "complete",
-                Run.source_sha256 == source_hash,
+                Run.source_import_run_id.is_(None),
                 Run.target_version == run.target_version,
                 Run.as_of_date == cutoff,
             )
             .order_by(Run.created_at)
-            .limit(1)
-        )
-        if existing:
-            from core.run_context import required_run, source_data_id
-
+        ).all()
+        for existing in candidates:
+            try:
+                require_imported_source(session, existing.id, sales)
+            except DomainError:
+                continue
             required_run(session, existing.id, "source_import", complete=True)
             row = session.get(Run, run_id)
             row.source_import_run_id = existing.id
-            row.source_sha256 = source_hash
             row.config_snapshot = {
                 **row.config_snapshot,
                 "catalog_snapshot": existing.config_snapshot["catalog_snapshot"],
                 "warehouse_snapshot": existing.config_snapshot["warehouse_snapshot"],
                 "resolved_source_import_run_id": str(source_data_id(existing)),
-                "source_parent_config_sha256": existing.config_sha256,
             }
             summary = {
                 **existing.result_summary,
@@ -55,16 +84,6 @@ def import_snapshot(settings, sessions, run_id):
             }
             row.result_summary = summary
             return summary
-    cfg = json.loads(
-        (PROJECT_ROOT / "data/configs/config.json").read_text(
-            encoding="utf-8"
-        )
-    )
-    sales, audit = audit_orders(source, cfg)
-    demo_source = None
-    if settings.mode == "demo":
-        from modules.forecasting.demo_source import require_registered_source
-        demo_source = require_registered_source(settings, sales, source_hash)
     observed = daily_sales(sales, cfg)
     top = route_top(observed, cfg)
     train = sales.loc[sales.date <= pd.Timestamp(cfg["train_end"])]
@@ -187,8 +206,6 @@ def import_snapshot(settings, sessions, run_id):
             raise DomainError(
                 "source_reconciliation_failed", "Daily item quantities do not reconcile"
             )
-        if sha256(source) != audit["source_sha256_before"]:
-            raise DomainError("source_changed", "Source changed during import")
         summary = dict(
             phase="verified",
             raw_rows=audit["rows_raw"],
@@ -197,7 +214,7 @@ def import_snapshot(settings, sessions, run_id):
             items=len(item_map),
             daily_rows=count,
             actual_available_through=cfg["observation_end"],
-            audit=audit,
+            audit={k: v for k, v in audit.items() if k != "source_sha256_before"},
             top10=[
                 dict(zip(ROUTE, key))
                 for key in top[ROUTE].itertuples(index=False, name=None)
@@ -205,10 +222,9 @@ def import_snapshot(settings, sessions, run_id):
             source_kind="retrospective_order_snapshot",
             inventory_created=False,
         )
-        if demo_source:
-            summary.update(source_kind="derived_anonymized_demo", demo_source=demo_source)
+        if settings.mode == "demo":
+            summary.update(source_kind="derived_anonymized_demo")
         run = session.get(Run, run_id)
-        run.source_sha256 = audit["source_sha256_before"]
         run.result_summary = summary
         run.config_snapshot = {
             **run.config_snapshot,

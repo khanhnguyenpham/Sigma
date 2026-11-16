@@ -6,9 +6,9 @@ from sqlalchemy.dialects.postgresql import insert
 from core.settings import PROFILE
 from core.errors import DomainError
 from core.settings import PROJECT_ROOT
-from core.hashes import digest, code_digest, revision
+from core.hashes import revision
 from core.run_context import required_run
-from modules.runs.models import Run
+from modules.runs.models import Run, RunConfig, RunResult
 from modules.configuration.models import Scenario
 
 def enqueue(session, request, key, settings=None):
@@ -17,14 +17,13 @@ def enqueue(session, request, key, settings=None):
             "invalid_input", "Idempotency-Key must contain 1–128 printable characters"
         )
     body = request.model_dump(mode="json", exclude_none=True)
-    body_hash = digest(body)
     if settings and settings.mode == 'demo':
         from sqlalchemy import text
         from core.demo_limits import ADMISSION_LOCK
         session.execute(text('SELECT pg_advisory_xact_lock(:key)'), {'key': ADMISSION_LOCK})
     existing = session.scalar(select(Run).where(Run.request_key == key))
     if existing:
-        if existing.request_sha256 != body_hash:
+        if existing.config_snapshot.get("request") != body:
             raise DomainError(
                 "idempotency_conflict",
                 "Key already belongs to a different request",
@@ -45,31 +44,25 @@ def enqueue(session, request, key, settings=None):
         from dataclasses import asdict
         snapshot['demo_limits'] = asdict(settings.demo_limits)
         snapshot['demo_compute'] = dict(model_processes=1, model_threads=1)
-    source_sha = None
     if request.source_import_run_id:
         source = required_run(
             session, request.source_import_run_id, "source_import", complete=True
         )
-        source_sha = source.source_sha256
         if request.as_of_date > source.observation_end:
             raise DomainError(
                 "parent_mismatch", "Origin exceeds observed source coverage", 409
             )
-        snapshot["source_parent_config_sha256"] = source.config_sha256
     if request.forecast_run_id:
         parent = required_run(
             session, request.forecast_run_id, "forecast", complete=True
         )
-        if (
-            parent.source_import_run_id != request.source_import_run_id
-            or parent.source_sha256 != source_sha
-        ):
+        if parent.source_import_run_id != request.source_import_run_id:
             raise DomainError(
                 "parent_mismatch", "Source and forecast parent do not match", 409
             )
         if parent.target_version != profile["target_version"]:
             raise DomainError("parent_mismatch", "Target versions do not match", 409)
-        if request.mode == "future" and not parent.selection_sha256:
+        if request.mode == "future" and "selections" not in parent.config_snapshot:
             raise DomainError(
                 "parent_mismatch", "Future mode requires a selection lock", 409
             )
@@ -79,7 +72,6 @@ def enqueue(session, request, key, settings=None):
                 "Origin precedes the completed validation selection window",
                 409,
             )
-        snapshot["forecast_parent_config_sha256"] = parent.config_sha256
     if request.scenario_id:
         scenario = session.scalar(select(Scenario).where(Scenario.id == request.scenario_id).with_for_update(read=True))
         if scenario is None:
@@ -120,15 +112,8 @@ def enqueue(session, request, key, settings=None):
         target_version=profile["target_version"],
         config_version=profile["version"],
         assumption_version=profile["assumption_version"],
-        source_sha256=source_sha,
         code_revision=revision(),
-        code_sha256=code_digest(),
-        config_snapshot=snapshot,
-        config_sha256=digest(snapshot),
         request_key=key,
-        request_sha256=body_hash,
-        result_summary={},
-        artifact_manifest={},
     )
     inserted = session.scalar(
         insert(Run)
@@ -137,10 +122,13 @@ def enqueue(session, request, key, settings=None):
         .returning(Run.id)
     )
     if inserted:
+        session.add_all([RunConfig(run_id=inserted, config_snapshot=snapshot),
+                         RunResult(run_id=inserted, result_summary={}, artifact_manifest={})])
+        session.flush()
         return session.get(Run, inserted), True
     # A concurrent request may have committed while this insert waited.
     row = session.scalar(select(Run).where(Run.request_key == key))
-    if row.request_sha256 != body_hash:
+    if row.config_snapshot.get("request") != body:
         raise DomainError(
             "idempotency_conflict", "Key already belongs to a different request", 409
         )

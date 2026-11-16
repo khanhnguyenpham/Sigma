@@ -1,5 +1,9 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 16/11 — M5: thay `source_sha256` bằng so nội dung
+
+`source_sha256` từng dùng để tái dùng import, chặn chạy M2 trên file khác file đã import hoặc khác file M2 đã đăng ký, và kiểm run cha–con cùng nguồn. Người dùng chọn bỏ hoàn toàn: so số bán item×ngày từ file với `daily_sales` đã import; ràng buộc M2 dựa vào kiểm sẵn có (top10, 46 tuyến, replay khớp metric M2 ở 1e-8); cha–con so `source_import_run_id`; bỏ chữ ký demo. Đánh đổi đã nêu: file sai nhưng cùng top10 chỉ lộ ở cuối replay. Gỡ luôn module Tổng30 không còn được gọi. [Bàn giao](development.md#handoff-m5-runs-20261116).
+
 ## 16/11 — sửa đăng ký model cho lệnh auth độc lập
 
 Trước M5, người dùng yêu cầu sửa lỗi tạo admin bằng bộ đăng ký `models` dùng chung. Hai lệnh auth nạp đầy đủ metadata khi chạy trong tiến trình riêng. Workflow M3 dùng chính lệnh bootstrap để tạo tài khoản và kiểm đăng nhập qua Compose. Kiểm PostgreSQL 18.6 local đạt cả tạo admin và đặt lại mật khẩu độc lập. [Bàn giao và phạm vi kiểm](development.md#handoff-container-bootstrap-fix-20261116).

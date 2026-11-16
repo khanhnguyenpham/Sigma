@@ -5,7 +5,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime, timezone
 from core.serialization import clean_json
 from modules.runs.service import progress
-import hashlib, json
+import json
 import numpy as np
 import pandas as pd
 from sqlalchemy import select
@@ -106,12 +106,8 @@ def execute_jobs(daily, split, jobs, folder, label, callback):
             name = f"{label}_{index:03}_{family}_{model}"
             frame.to_csv(folder / f"{name}_predictions.csv", index=False)
             log.to_csv(folder / f"{name}_fitlog.csv", index=False)
-            files[f"{name}_predictions.csv"] = hashlib.sha256(
-                (folder / f"{name}_predictions.csv").read_bytes()
-            ).hexdigest()
-            files[f"{name}_fitlog.csv"] = hashlib.sha256(
-                (folder / f"{name}_fitlog.csv").read_bytes()
-            ).hexdigest()
+            for file in (f"{name}_predictions.csv", f"{name}_fitlog.csv"):
+                files[file] = (folder / file).stat().st_size
             frames.append(frame)
             callback(count, len(pending))
     return pd.concat(frames, ignore_index=True), files
@@ -121,7 +117,6 @@ def forecast_run(settings, sessions, key):
     with sessions() as s:
         run = s.get(Run, key)
         source = s.get(Run, run.source_import_run_id)
-        source_hash = source.source_sha256
         catalog = source.config_snapshot["catalog_snapshot"]
         warehouses = source.config_snapshot["warehouse_snapshot"]
         mode = run.config_snapshot["request"]["mode"]
@@ -130,17 +125,11 @@ def forecast_run(settings, sessions, key):
         previous = (
             lock_parent.config_snapshot.get("selections") if lock_parent else None
         )
-        previous_specs = (
-            lock_parent.config_snapshot.get("model_specs") if lock_parent else None
-        )
     cfg, model_settings, final = m2_adapter.configuration()
-    sales, audit = audit_orders(settings.order_source("orders_snapshot"), cfg)
-    if audit["source_sha256_before"] != source_hash:
-        raise DomainError(
-            "parent_mismatch", "Source must match the registered fixed M2 protocol"
-        )
-    from modules.forecasting.demo_source import require_registered_source
-    require_registered_source(settings, sales, source_hash, final["source_sha256"])
+    sales, _ = audit_orders(settings.order_source("orders_snapshot"), cfg)
+    from modules.forecasting.ingestion import require_imported_source
+    with sessions() as s:
+        require_imported_source(s, source_data_id(source), sales)
     daily = daily_sales(sales, cfg)
     full_daily = daily.copy()
     top = route_top(daily, cfg)
@@ -151,11 +140,6 @@ def forecast_run(settings, sessions, key):
     new = [r for r in all_routes if r not in fixed]
     if len(all_routes) != 46 or len(new) != 36:
         raise DomainError("catalog_mismatch", "Profile requires all 46 train routes")
-    specs = m2_adapter.specs_fingerprint()
-    if previous_specs is not None and specs != previous_specs:
-        raise DomainError(
-            "parent_mismatch", "Forecast parent model specifications changed"
-        )
     folder = settings.output_root / str(key)
     folder.mkdir(parents=True, exist_ok=False)
     manifest = {}
@@ -192,22 +176,17 @@ def forecast_run(settings, sessions, key):
         # Persist the lock before any new-route test work is submitted.
         lock = dict(
             selections=selections,
-            model_specs=specs,
-            source_sha256=source_hash,
             locked_at=datetime.now(timezone.utc).isoformat(),
         )
         payload = json.dumps(
             clean_json(lock), sort_keys=True, indent=2, allow_nan=False
         ).encode()
         (folder / "selection_lock.json").write_bytes(payload)
-        selection_hash = hashlib.sha256(payload).hexdigest()
         with sessions.begin() as s:
             row = s.get(Run, key)
-            row.selection_sha256 = selection_hash
             row.config_snapshot = {
                 **row.config_snapshot,
                 "selections": selections,
-                "model_specs": specs,
                 "selection_locked_at": lock["locked_at"],
                 "catalog_snapshot": catalog,
                 "warehouse_snapshot": warehouses,
@@ -231,16 +210,13 @@ def forecast_run(settings, sessions, key):
         if previous is None:
             raise DomainError("parent_mismatch", "Missing selection lock")
         selections = previous
-        selection_hash = lock_parent.selection_sha256
         daily = daily.loc[daily.date.le(pd.Timestamp(origin))].copy()
         splits = ["future"]
         with sessions.begin() as s:
             row = s.get(Run, key)
-            row.selection_sha256 = selection_hash
             row.config_snapshot = {
                 **row.config_snapshot,
                 "selections": selections,
-                "model_specs": specs,
                 "catalog_snapshot": catalog,
                 "warehouse_snapshot": warehouses,
             }
@@ -364,7 +340,6 @@ def forecast_run(settings, sessions, key):
             "family",
             "model_id",
             "selection_basis",
-            "parent_bundle_sha256",
         ]
         with (
             raw.cursor() as cursor,
@@ -390,7 +365,6 @@ def forecast_run(settings, sessions, key):
                         r.family,
                         r.model,
                         selection[route]["selection_basis"],
-                        final["source_sha256"] if route in fixed else None,
                     )
                 )
     progress(
@@ -502,15 +476,9 @@ def forecast_run(settings, sessions, key):
                 total_origins=len(expected_origins),
             )
     predictions.to_csv(folder / "route_predictions.csv", index=False)
-    if m2_adapter.specs_fingerprint() != specs:
-        raise DomainError("code_mismatch", "Model source changed during forecasting")
-    from src.common import sha256
-
-    if sha256(settings.order_source("orders_snapshot")) != source_hash:
-        raise DomainError("source_changed", "Source changed during forecasting")
     for path in folder.glob("*"):
         if path.is_file():
-            manifest[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
+            manifest[path.name] = path.stat().st_size
     with sessions.begin() as s:
         s.get(Run, key).artifact_manifest = manifest
     return dict(
@@ -521,7 +489,6 @@ def forecast_run(settings, sessions, key):
         route_forecast_rows=len(predictions),
         item_forecast_rows=item_count,
         origins=len(expected_origins),
-        selection_sha256=selection_hash,
         metrics=result_metrics,
         selections=selections + final["routes"],
         historical_top10_metrics_checked=mode == "replay",

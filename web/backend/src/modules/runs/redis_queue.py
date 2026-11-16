@@ -2,7 +2,7 @@
 from datetime import datetime, timezone
 import uuid
 from sqlalchemy import select
-from modules.runs.models import Run
+from modules.runs.models import Run, RunResult
 
 
 def now():
@@ -31,9 +31,9 @@ class RedisTransport:
         """Publish then mark in PG; crash between them may duplicate, never lose intent."""
         timestamp=now().timestamp();count=0
         with sessions.begin() as session:
-            rows=session.scalars(select(Run).where(Run.status=='queued').order_by(
-                Run.result_summary['_transport']['published_at'].as_float().asc().nullsfirst(),Run.created_at,Run.id)
-                .with_for_update(skip_locked=True).limit(limit)).all()
+            rows=session.scalars(select(Run).join(Run.result).where(Run.status=='queued').order_by(
+                RunResult.result_summary['_transport']['published_at'].as_float().asc().nullsfirst(),Run.created_at,Run.id)
+                .with_for_update(of=Run,skip_locked=True).limit(limit)).all()
             for row in rows:
                 summary=dict(row.result_summary or {})
                 info=summary.get('_transport',{})
@@ -50,7 +50,7 @@ class RedisTransport:
             if row is None:
                 return None
             row.status='running';row.started_at=now();row.heartbeat_at=now()
-            return row.id,row.kind,row.code_sha256
+            return row.id,row.kind
 
     def deliver(self,sessions,message_id,fields,process):
         try:

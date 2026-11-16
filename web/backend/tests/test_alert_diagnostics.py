@@ -73,6 +73,7 @@ def test_diagnostic_api_requires_complete_matching_summary_and_no_table_filters(
             kind="alert_replay",
             forecast_run_id=parent,
             request_key="diagnostic-fixture",
+            config_snapshot=base.config_snapshot,
             result_summary={
                 "alert_metrics": {
                     "early_numerator": 1,

@@ -46,8 +46,6 @@ def main():
     sim.add_argument("--period-end")
     sim.add_argument("--request-key")
     sim.add_argument("--wait", action="store_true")
-    verify = commands.add_parser("verify")
-    verify.add_argument("--run-id", type=uuid.UUID, required=True)
     args = p.parse_args()
     settings = Settings.from_env()
     engine, sessions = database(settings.database_url)
@@ -58,11 +56,6 @@ def main():
             with sessions.begin() as session:
                 result = seed_simulation(session, args.source_run, args.as_of_date)
             print(json.dumps(result))
-            return
-        if args.command == "verify":
-            from modules.runs.verification import verify_run
-
-            print(json.dumps(verify_run(settings, sessions, args.run_id), default=str))
             return
         if args.command in {"import-orders", "forecast", "simulate"}:
             if args.command == "simulate" and args.source_run is None:

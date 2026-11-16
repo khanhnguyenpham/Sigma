@@ -3,7 +3,6 @@ from copy import deepcopy
 from dataclasses import replace
 from datetime import timedelta
 import csv
-import hashlib
 import io
 import json
 import uuid
@@ -22,7 +21,6 @@ from modules.inventory.models import InventoryDaily
 from modules.inventory.service import PolicyValues, recommend
 from modules.inventory.simulation import history_at, pure_window
 from modules.runs.models import Run
-from modules.runs.verification import verify_run
 from src.data import SOURCE_COLUMNS
 from test_postgres_api import D, request, settings
 from test_results_api import result_fixture
@@ -165,7 +163,7 @@ def test_calendar_gaps_duplicates_and_insufficient_long_window_fail():
 
 
 def worker_fixture(sessions, tmp_path, *, quiet_recent=False):
-    """Only synthetic parents/forecasts are injected; audit, simulation and verifier run for real."""
+    """Only synthetic parents/forecasts are injected; audit and simulation run for real."""
     source, forecast, item = result_fixture(sessions)
     raw = tmp_path / "data/sigma_sim_data_orders.csv"
     raw.parent.mkdir()
@@ -186,9 +184,6 @@ def worker_fixture(sessions, tmp_path, *, quiet_recent=False):
                 unit_price_vnd=1, unit_cost_vnd=0, gross_revenue_vnd=qty)
             writer.writerow(row)
     with sessions.begin() as s:
-        source_hash = hashlib.sha256(raw.read_bytes()).hexdigest()
-        s.get(Run, source).source_sha256 = source_hash
-        s.get(Run, forecast).source_sha256 = source_hash
         s.execute(delete(DailySales).where(DailySales.source_import_run_id == source))
         s.execute(delete(ItemForecast).where(ItemForecast.run_id == forecast))
         s.add_all([DailySales(source_import_run_id=source, item_id=item, date=day, sales_qty=qty,
@@ -232,7 +227,6 @@ def enqueue_fixture(c, source, forecast, item, safety, rop, kind, lookback=7, *,
             for policy in snapshot['policies']:
                 policy.update(safety_mode=safety,rop_mode=rop,safety_lookback_days=lookback,safety_factor=2)
             run.config_snapshot=snapshot
-            run.config_sha256=digest(snapshot)
     return key
 
 
@@ -246,16 +240,13 @@ def test_worker_verifies_all_modes_and_replay_kinds(pg, tmp_path, safety, rop, k
         key = enqueue_fixture(c, source, forecast, item, safety, rop, kind)
         with sessions() as s:
             snapshot = deepcopy(s.get(Run, key).config_snapshot)
-            checksum = s.get(Run, key).config_sha256
         assert serve(cfg, once=True) == key
         with sessions() as s:
             row = s.get(Run, key)
             assert row.status == "complete", row.error_code
-            assert row.result_summary["verification"]["status"] == "verified"
-            assert row.result_summary["verification"]["thresholds_checked"] == (1 if kind == "stock_projection" else 15)
-            assert row.config_snapshot == snapshot and row.config_sha256 == checksum
+            assert row.config_snapshot == snapshot
         manifest = json.loads((cfg.output_root / str(key) / "manifest.json").read_text())
-        assert manifest["status"] == "verified"
+        assert manifest["status"] == "complete"
         rows = c.get(f"/api/v1/runs/{key}/inventory").json()["items"]
         first = rows[0]
         assert first["fixed_order_qty"] == 5 and first["moq"] is None
@@ -273,27 +264,6 @@ def test_worker_verifies_all_modes_and_replay_kinds(pg, tmp_path, safety, rop, k
         csv_first = next(csv.DictReader(io.StringIO(exported.text.lstrip("\ufeff"))))
         assert int(csv_first["fixed_order_qty"]) == 5
         assert int(csv_first["ss"]) == expected_ss and int(csv_first["rop"]) == first["rop"]
-        if (safety, rop, kind) == ("days", "forecast", "policy_replay"):
-            with sessions.begin() as s:
-                changed = s.scalar(select(InventoryDaily).where(InventoryDaily.run_id == key, InventoryDaily.recommended_qty > 0).order_by(InventoryDaily.date))
-                assert changed is not None
-                changed_id, original_qty = changed.id, changed.recommended_qty
-                changed.recommended_qty += 1
-            with pytest.raises(DomainError, match="thresholds differ"):
-                verify_run(cfg, sessions, key)
-            with sessions.begin() as s:
-                s.get(InventoryDaily, changed_id).recommended_qty = original_qty
-        if (safety, rop, kind) == ("volatility", "fixed", "policy_replay"):
-            with sessions.begin() as s:
-                record = s.scalar(select(InventoryDaily).where(InventoryDaily.run_id == key, InventoryDaily.date == D))
-                record.ss += 1
-            with pytest.raises(DomainError, match="thresholds differ"):
-                verify_run(cfg, sessions, key, allow_running=True)
-            with sessions.begin() as s:
-                s.execute(update(InventoryDaily).where(InventoryDaily.run_id == key, InventoryDaily.date == D)
-                          .values(ss=expected_ss, forecast_as_of_date=D + timedelta(days=1)))
-            with pytest.raises(DomainError, match="cutoff"):
-                verify_run(cfg, sessions, key, allow_running=True)
 
 
 def test_worker_missing_observed_long_history_fails_without_partial_ledger(pg, tmp_path):
@@ -325,9 +295,8 @@ def test_policy_replay_initial_stock_uses_frozen_history_rule(pg, tmp_path, hist
             assert "initial_stock_fallback_days" not in run.config_snapshot
             if historical_fallback:
                 run.config_snapshot = {**run.config_snapshot, "initial_stock_fallback_days": 90}
-                run.config_sha256 = digest(run.config_snapshot)
         assert serve(cfg, once=True) == key
-        assert verify_run(cfg, sessions, key)["status"] == "verified"
+        with sessions() as _s: assert _s.get(Run, key).status == 'complete'
         response = client.get(f"/api/v1/runs/{key}/inventory")
         assert response.status_code == 200
         initial = next(row for row in response.json()["items"] if row["date"] == str(D))
@@ -357,14 +326,13 @@ def test_forecast_floor_worker_verifier_and_api_csv_keep_historical_formula(pg,t
                 for policy in snapshot["policies"]:
                     policy["rop_mode"]="fixed"
                 run.config_snapshot=snapshot
-                run.config_sha256=digest(snapshot)
             frozen=deepcopy(run.config_snapshot)
         assert serve(cfg,once=True)==key
         with sessions() as session:
             run=session.get(Run,key)
             assert run.status=="complete",run.error_code
             assert run.config_snapshot==frozen
-            assert verify_run(cfg,sessions,key)["status"]=="verified"
+            with sessions() as _s: assert _s.get(Run, key).status == 'complete'
         rows=client.get(f"/api/v1/runs/{key}/inventory").json()["items"]
         first=next(r for r in rows if r["date"]==str(D))
         assert (first["ss"],first["rop_forecast"],first["rop"])==(12,26,10 if historical_fixed else 26)

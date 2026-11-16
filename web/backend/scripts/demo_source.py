@@ -7,9 +7,20 @@ import uuid
 
 import pandas as pd
 from core.settings import PROJECT_ROOT
-from modules.forecasting.demo_source import signatures
-from src.common import sha256
+from src.common import ITEM, sha256
 from src.data import audit_orders, SOURCE_COLUMNS
+
+
+def quantity_inputs(sales):
+    """Daily item quantities/order counts and ordered transactions that the anonymized copy must preserve."""
+    daily = sales.groupby(["date", *ITEM], sort=True).agg(
+        quantity=("quantity", "sum"), orders=("order_id", "nunique")).reset_index()
+    quantities = [[str(r.date.date()), r.destination_country, r.carrier, r.sku,
+        r.product_type, int(r.quantity), int(r.orders)] for r in daily.itertuples()]
+    ordered = sales.sort_values(["order_datetime", "order_id"], kind="mergesort")
+    transactions = [[str(r.date.date()), r.destination_country, r.carrier, r.sku,
+        r.product_type, int(r.quantity)] for r in ordered.itertuples()]
+    return quantities, transactions
 
 
 def export_source(settings, original, expected_sha=None):
@@ -51,7 +62,7 @@ def export_source(settings, original, expected_sha=None):
         path = staging / "data/sigma_sim_data_orders.csv"
         raw.to_csv(path, index=False, encoding="utf-8", lineterminator="\n")
         after, result = audit_orders(path, cfg)
-        if signatures(before) != signatures(after):
+        if quantity_inputs(before) != quantity_inputs(after):
             raise ValueError("Demo changed quantities, order counts or transaction ordering")
         for key in ("rows_raw", "rows_after_dedup", "duplicate_rows_removed", "sales_rows", "sales_quantity", "routes"):
             if audit[key] != result[key]:
@@ -60,7 +71,6 @@ def export_source(settings, original, expected_sha=None):
             raise ValueError("Demo source validation failed")
         manifest = dict(version=1, anonymized=True, money_policy="zero",
             source_file="data/sigma_sim_data_orders.csv", source_sha256=sha256(path),
-            parent_source_sha256=expected_sha, **signatures(after),
             rows=len(raw), sales_rows=result["sales_rows"], sales_quantity=result["sales_quantity"],
             duplicate_rows=result["duplicate_rows_removed"],
             transformations=["new_sequential_order_ids", "constant_customer", "activation_removed",

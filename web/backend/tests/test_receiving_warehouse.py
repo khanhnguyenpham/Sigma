@@ -16,7 +16,6 @@ from modules.catalog.schemas import ReceivingWarehouseUpdate
 from modules.inventory.simulation import pure_window
 from modules.runs.models import Run
 from modules.runs.receiving_verification import verify_receiving_snapshot
-from modules.runs.verification import verify_run
 from test_simulation import inputs, ORIGIN
 from test_configurable_inventory import worker_fixture, enqueue_fixture
 from test_postgres_api import settings, D
@@ -38,7 +37,7 @@ def test_product_default_version_noop_invalid_and_legacy_run_preservation(pg, tm
     _, _, item_id = result_fixture(sessions)
     target = add_warehouse(sessions)
     with sessions() as session:
-        before = {r.id: (deepcopy(r.config_snapshot), r.config_sha256) for r in session.scalars(select(Run))}
+        before = {r.id: deepcopy(r.config_snapshot) for r in session.scalars(select(Run))}
     with TestClient(create_app(settings(tmp_path))) as client:
         path = f"/api/v1/products/{item_id}"
         original = client.get(path).json()
@@ -56,7 +55,7 @@ def test_product_default_version_noop_invalid_and_legacy_run_preservation(pg, tm
         assert client.patch(path + "/receiving-warehouse", json={**body, "receiving_warehouse_id": 999}).status_code == 404
         assert client.patch(path + "/receiving-warehouse", json={**body, "receiving_warehouse_id": True}).status_code == 422
     with sessions() as session:
-        assert {r.id: (r.config_snapshot, r.config_sha256) for r in session.scalars(select(Run))} == before
+        assert {r.id: r.config_snapshot for r in session.scalars(select(Run))} == before
 
 
 @pytest.mark.parametrize("kind", ["stock_projection", "policy_replay", "alert_replay"])
@@ -72,7 +71,7 @@ def test_worker_freezes_default_and_counts_stock_only_at_receiving_warehouse(pg,
         with sessions.begin() as session:
             update_receiving(session, item_id, ReceivingWarehouseUpdate(receiving_warehouse_id=1, expected_version=1))
         serve(cfg, once=True)
-        assert verify_run(cfg, sessions, run_id)["status"] == "verified"
+        with sessions() as _s: assert _s.get(Run, run_id).status == 'complete'
         rows = client.get(f"/api/v1/runs/{run_id}/inventory?receiving_warehouse_id={target}").json()
         assert rows["total"] and all(r["warehouse_id"] == 1 and r["receiving_warehouse_id"] == target for r in rows["items"])
         assert client.get(f"/api/v1/runs/{run_id}/inventory?receiving_warehouse_id=1").json()["total"] == 0

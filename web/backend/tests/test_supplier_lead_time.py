@@ -11,7 +11,6 @@ from modules.inventory.service import PolicyValues, eta, lead_for, recommend
 from modules.operations.models import SupplierSettings
 from modules.purchasing.models import Replenishment
 from modules.runs.models import Run
-from modules.runs.verification import verify_run
 from test_configurable_inventory import F, enqueue_fixture, worker_fixture
 from test_postgres_api import D, request, settings
 from worker import serve
@@ -53,7 +52,7 @@ def test_new_run_freezes_supplier_lead_time_for_every_item_of_that_carrier(pg, t
             assert run.config_snapshot["supplier_lead_times"] == {str(policy_supplier): 4 if policy_supplier == supplier else 7}
         set_lead(sessions, policy_supplier, 9)  # A later edit never rewrites the queued run.
         assert serve(cfg, once=True) == key
-        assert verify_run(cfg, sessions, key)["status"] == "verified"
+        with sessions() as _s: assert _s.get(Run, key).status == 'complete'
         with sessions() as s:
             orders = s.scalars(select(Replenishment).where(Replenishment.run_id == key, Replenishment.is_initial.is_(False))).all()
             assert orders and all((o.eta - o.ordered_on).days == 4 for o in orders)

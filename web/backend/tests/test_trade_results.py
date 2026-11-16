@@ -6,7 +6,6 @@ import csv,io,json
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select, text
-from core.hashes import digest
 from main import create_app
 from modules.runs.models import Run
 from modules.alerts.models import Alert
@@ -66,7 +65,7 @@ def test_trade_inventory_projection_workspace_purchasing_and_exports(pg,tmp_path
         assert row['q_policy']==row['q_final']==0 and row['cap_reason']=='provider_blocked'
         assert row['quantity_diagnostics_available'] and row['needs_supplier_action']
         assert inventory['context']['trade_lifecycle_profile']==TRADE_PROFILE
-        assert inventory['context']['config_sha256'] and inventory['context']['units']=='quantity'
+        assert inventory['context']['units']=='quantity'
         query=f'?as_of_date={D}&internal_status=stopped&provider_status=stopped&sales_allowed=false&supplier_id=1&window_origin={D}'
         data=c.get(root+'/sell-through'+query+'&page_size=1').json()
         assert data['total']==14 and len(data['items'])==1
@@ -75,7 +74,7 @@ def test_trade_inventory_projection_workspace_purchasing_and_exports(pg,tmp_path
         assert projected['projected_sales_qty']==projected['unserved_stock_qty']==0
         exported=csv_rows(c.get(root+'/exports/sell_through'+query+'&page=10&page_size=1'))
         assert len(exported)==14 and exported[0]['target_date']==str(D+timedelta(days=1))
-        assert all(r['trade_lifecycle_profile']==TRADE_PROFILE and r['config_sha256'] for r in exported)
+        assert all(r['trade_lifecycle_profile']==TRADE_PROFILE for r in exported)
         assert float(exported[3]['closing_blocked'])==41
         aggregate=c.get(root+'/sell-through'+query+'&aggregate=route_day&page_size=1').json()
         assert aggregate['total']==14 and aggregate['items'][0]['provider_blocked_items']==1
@@ -208,7 +207,7 @@ def test_full_scope_aggregate_and_csv_cross_batch_preserve_stored_values(pg,tmp_
             exp=deepcopy(original.explanation)
             for row in exp['projection']:row['internal_stop_change_id']=n+2
             s.add(Alert(**dict(attrs,item_id=product.id,explanation=exp)))
-        run.config_snapshot=snapshot;run.config_sha256=digest(snapshot)
+        run.config_snapshot=snapshot
     with c:
         root=f'/api/v1/runs/{key}'
         result=c.get(root+'/sell-through?provider_status=stopped&page_size=1').json()
@@ -253,7 +252,7 @@ def test_mixed_scope_filters_and_totals_precede_pagination(pg,tmp_path):
                 unserved_demand_qty=row['forecast_input_qty']-sold,closing_forecast=stock,closing_total=stock,closing_sellable=stock,closing_blocked=0)
         attrs={col.name:getattr(original,col.name) for col in Alert.__table__.columns if col.name not in {'id','created_at'}}
         s.add(Alert(**dict(attrs,item_id=product.id,explanation=exp)))
-        run.config_snapshot=snap;run.config_sha256=digest(snap)
+        run.config_snapshot=snap
     with c:
         root=f'/api/v1/runs/{key}'
         response=c.get(root+f'/inventory?as_of_date={D}&page_size=1').json()
@@ -283,7 +282,7 @@ def test_boundary_selects_latest_window_before_operational_rights_filter(pg,tmp_
         run=s.get(Run,key);snap=deepcopy(run.config_snapshot)
         snap['provider_notice_snapshot'][0]['events'][0]['known_on']=str(D+timedelta(days=5))
         run.kind='alert_replay';run.period_start=D+timedelta(days=1);run.period_end=D+timedelta(days=28)
-        run.config_snapshot=snap;run.config_sha256=digest(snap)
+        run.config_snapshot=snap
         original=s.scalar(select(InventoryDaily).where(InventoryDaily.run_id==key))
         attrs={col.name:getattr(original,col.name) for col in InventoryDaily.__table__.columns if col.name!='id'}
         s.add(InventoryDaily(**dict(attrs,date=at,pending_qty=0,inventory_position=21)))
@@ -322,7 +321,7 @@ def test_malformed_trade_snapshot_does_not_fall_back_to_legacy(pg,tmp_path,chang
     _,sessions=pg;c,key,_,_=plan(sessions,tmp_path,'stock_projection')
     with sessions.begin() as s:
         run=s.get(Run,key);snap=deepcopy(run.config_snapshot);snap.update(change)
-        run.config_snapshot=snap;run.config_sha256=digest(snap)
+        run.config_snapshot=snap
     with c:
         response=c.get(f'/api/v1/runs/{key}/inventory')
         assert response.status_code==409 and response.json()['error']['code']=='invalid_trade_history'

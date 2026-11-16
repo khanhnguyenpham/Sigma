@@ -12,8 +12,8 @@ from test_postgres_api import settings
 def queued(sessions):
     with sessions.begin() as session:
         row=Run(kind='source_import',status='queued',as_of_date=date(2025,10,31),observation_end=date(2025,10,31),
-            target_version='synthetic',config_version='test',assumption_version='test',code_revision='test',code_sha256='0'*64,
-            config_snapshot={},config_sha256='0'*64,request_key=str(uuid.uuid4()),request_sha256='0'*64)
+            target_version='synthetic',config_version='test',assumption_version='test',code_revision='test',
+            config_snapshot={},request_key=str(uuid.uuid4()))
         session.add(row);session.flush();return row.id
 
 
@@ -57,14 +57,13 @@ def test_interrupted_worker_cannot_resurrect_a_run(pg,tmp_path,monkeypatch):
     import worker
     _,sessions=pg;key=queued(sessions)
     with sessions.begin() as session:
-        row=session.get(Run,key);row.status='running';row.code_sha256=worker.LOADED_CODE
-    monkeypatch.setattr(worker,'code_digest',lambda:worker.LOADED_CODE)
+        row=session.get(Run,key);row.status='running'
     def interrupted(*args):
         with sessions.begin() as session:
             row=session.get(Run,key);row.status='failed';row.error_code='interrupted'
         return {'should_not_complete':True}
     monkeypatch.setattr(worker,'import_snapshot',interrupted)
-    worker.process_one(settings(tmp_path),sessions,(key,'source_import',worker.LOADED_CODE))
+    worker.process_one(settings(tmp_path),sessions,(key,'source_import'))
     with sessions() as session:
         row=session.get(Run,key)
         assert row.status=='failed' and row.error_code=='interrupted'

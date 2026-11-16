@@ -17,7 +17,7 @@ from modules.catalog.trade_service import require_trade_schema, lock_trade_scope
 
 
 def impact_data(session, draft, ids):
-    empty = dict(run_id=None, as_of_date=None, config_sha256=None, inventory_items=0,
+    empty = dict(run_id=None, as_of_date=None, inventory_items=0,
                  scope_items=len(ids), inventory_complete=False, stock_qty=None,
                  sellable_qty=None, blocked_qty=None, pending_qty=None,
                  incoming_on_or_after_effective_qty=None, quantity_basis="not_available",
@@ -54,7 +54,7 @@ def impact_data(session, draft, ids):
                 if r["item_id"] == item and r["eta"] >= draft.effective_on) if row else None)
     complete = len(inventory) == len(ids)
     trade_quantities = complete and all(r.get('sellable_qty') is not None and r.get('blocked_qty') is not None for r in inventory.values())
-    return dict(empty, run_id=str(run.id), as_of_date=day, config_sha256=run.config_sha256,
+    return dict(empty, run_id=str(run.id), as_of_date=day,
         inventory_items=len(inventory), inventory_complete=complete,
         stock_qty=sum(r["closing_qty"] for r in inventory.values()) if complete else None,
         pending_qty=sum(r["ordered_qty"] for r in incoming) if complete else None,

@@ -75,6 +75,8 @@ Danh sách đề xuất; mỗi bảng được rà nghiệp vụ trước khi vi
 - Giữ: `password_hash`, `token_digest` của phiên đăng nhập (bảo mật); `request_key` chống bấm gửi hai lần; checksum file backup nếu còn dùng.
 - Run cũ vẫn mở và đọc được kết quả.
 
+**Kết quả M5 (16/11):** migration `0016_run_tables` tách `runs` thành `runs` + `run_configs` (snapshot) + `run_results` (tóm tắt, manifest; `error_code` giữ ở `runs` vì là trạng thái), bỏ 5 cột hash và `route_forecasts.parent_bundle_sha256`. Gỡ `verification.py`, `supply_verification.py`, lệnh `cli verify`, `specs_fingerprint`, chữ ký nguồn demo và module chết `reporting/monthly.py` (Tổng30 đã gỡ khỏi web). Thay `source_sha256` theo lựa chọn người dùng: so số bán item×ngày từ file với `daily_sales` đã import (tái dùng import và chặn chạy M2/mô phỏng sai nguồn); ràng buộc M2 dựa vào top10 = 10 tuyến chốt, đủ 46 tuyến và replay khớp test metric M2 ở 1e-8. Giữ `password_hash`, `token_digest`, `request_key`, checksum backup demo và readiness demo. [Bàn giao](../development.md#handoff-m5-runs-20261116).
+
 ## 6a. Thời gian nhập theo nhà cung cấp (G8, bổ sung 16/11, đã làm)
 
 Mentor để mặc định 7 ngày cho mọi nhà cung cấp, cần chỉnh được từng nhà cung cấp và áp xuống toàn bộ sản phẩm của nhà cung cấp đó. Phần quản lý đã có từ trước (đơn mới, đề xuất nhập). Bổ sung cho kịch bản mô phỏng: run mới chốt `supplier_lead_times` vào snapshot; ROP = nhu cầu dự báo trong thời gian nhập + SS, mức mục tiêu thêm ngày kế tiếp, ngày về lô = ngày đặt + thời gian nhập. Giới hạn 1–13 ngày cho mô phỏng (H14). Run cũ không có khóa này giữ 7 ngày. Migration `0014_supplier_lead_simulation` nới ràng buộc `replenishment_orders`.

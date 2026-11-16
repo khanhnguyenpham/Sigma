@@ -25,6 +25,7 @@ from modules.inventory.models import InventoryDaily, InventoryEvent
 from test_postgres_api import seed, settings
 from test_results_api import result_fixture
 from test_workspace_api import workspace_fixture
+from run_split import LEGACY_ROW, NEW_TABLES, relation, without_dropped
 
 D = date(2025, 10, 31)
 
@@ -250,7 +251,7 @@ def migration_config(engine):
     return cfg
 
 
-def test_upgrade_with_existing_history_preserves_columns_and_old_api_on_0007(pg, tmp_path):
+def test_upgrade_with_existing_history_preserves_columns_from_0007(pg, tmp_path):
     engine, sessions = pg
     key, _, item = workspace_fixture(sessions)
     cfg = migration_config(engine)
@@ -262,16 +263,12 @@ def test_upgrade_with_existing_history_preserves_columns_and_old_api_on_0007(pg,
                 dict(item=item, known=D, effective=D+timedelta(days=7)))
             # 0015 renamed the policy table and derived supplier_id; read it under the legacy name.
             legacy = {"item_policies": "supplier_item_policies"}
-            before = {name:c.execute(text(f"SELECT (to_jsonb(t)-'supplier_id')::text FROM \"{legacy.get(name, name)}\" t ORDER BY 1")).scalars().all()
-                      for name in Base.metadata.tables if not name.startswith(("provider_product_notice", "auth_", "ops_", "dealer")) and name != "supplier_settings"}
+            before = {name:c.execute(text(f"SELECT {LEGACY_ROW}::text FROM {relation(legacy.get(name, name), split=False)} t ORDER BY 1")).scalars().all()
+                      for name in Base.metadata.tables if not name.startswith(("provider_product_notice", "auth_", "ops_", "dealer")) and name != "supplier_settings" and name not in NEW_TABLES}
+        # Current code needs the head schema (0016 split runs); readiness keeps traffic away until migrated.
         with TestClient(create_app(settings(tmp_path))) as client:
-            response = client.get(f"/api/v1/runs/{key}/inventory")
-            assert response.status_code == 200, response.text
-            assert response.json()["items"][0]["closing_qty"] == 7
-            assert "source_sales_qty" not in response.json()["items"][0]
-            assert "actual_blocked_qty" not in response.json()["items"][0]
-            exported = client.get(f"/api/v1/runs/{key}/exports/inventory_daily")
-            assert exported.status_code == 200 and "source_sales_qty" not in exported.text
+            ready = client.get("/api/v1/ready")
+            assert ready.status_code == 503 and ready.json()["checks"]["database"] is False
         command.upgrade(cfg, "head")
         command.upgrade(cfg, "head")
         with engine.connect() as c:
@@ -280,9 +277,13 @@ def test_upgrade_with_existing_history_preserves_columns_and_old_api_on_0007(pg,
                          "items": ["receiving_warehouse_id", "receiving_version"],
                          "replenishment_orders": ["receiving_warehouse_id"]}.get(name, [])
                 expr = "to_jsonb(t)" + ("-ARRAY[" + ",".join(repr(column) for column in added) + "]" if added else "")
-                assert c.execute(text(f'SELECT ({expr})::text FROM "{name}" t ORDER BY 1')).scalars().all() == rows
+                assert c.execute(text(f'SELECT {without_dropped(expr)}::text FROM {relation(name)} t ORDER BY 1')).scalars().all() == rows
             assert compare_metadata(MigrationContext.configure(c, opts={"compare_type": True, "compare_server_default": True}), Base.metadata) == []
             assert c.scalar(text("SELECT count(*) FROM inventory_daily WHERE source_sales_qty IS NOT NULL OR actual_blocked_qty IS NOT NULL")) == 0
+        with TestClient(create_app(settings(tmp_path))) as client:
+            response = client.get(f"/api/v1/runs/{key}/inventory")  # the pre-upgrade run stays readable
+            assert response.status_code == 200, response.text
+            assert response.json()["items"][0]["closing_qty"] == 7
         with sessions.begin() as s:
             s.add(ItemSupplyChange(item_id=item, version=2, action="resume", target_change_id=1,
                                   known_on=D+timedelta(days=7), effective_on=D+timedelta(days=7), reason="Internal resume"))
@@ -302,7 +303,7 @@ def test_downgrade_refuses_every_new_data_shape(pg, kind):
             supplier = s.scalar(text("SELECT id FROM suppliers ORDER BY id LIMIT 1"))
             s.add(ProviderProductNotice(supplier_id=supplier, scope_definition=scope((1,), ("DemoLand",))))
         elif kind == "profile":
-            s.execute(text("UPDATE runs SET config_snapshot=config_snapshot || :value WHERE id=:run"),
+            s.execute(text("UPDATE run_configs SET config_snapshot=config_snapshot || :value WHERE run_id=:run"),
                       dict(value='{"trade_lifecycle_profile":"internal_provider_trade_v2"}', run=source))
         elif kind == "ledger":
             s.add(InventoryDaily(run_id=source, window_origin=D, item_id=item, date=D, forecast_as_of_date=D,
@@ -316,7 +317,7 @@ def test_downgrade_refuses_every_new_data_shape(pg, kind):
     with pytest.raises(RuntimeError, match="lose data"):
         command.downgrade(migration_config(engine), "0007_supply_lifecycle")
     with sessions() as s:
-        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0015_item_policies"
+        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0016_run_tables"
 
 
 def test_daily_source_split_check_preserves_existing_balance_rule(pg):

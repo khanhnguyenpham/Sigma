@@ -25,8 +25,8 @@ def test_history_filters_before_count_and_page_and_keeps_frozen_settings(pg, tmp
         ]):
             row = Run(kind=kind, status=status, scenario_id=scenario_id, as_of_date=D, observation_end=D,
                       target_version="synthetic", config_version="synthetic", assumption_version="synthetic",
-                      code_revision="synthetic", code_sha256="a" * 64, config_sha256="b" * 64,
-                      request_key=f"history-{index}", request_sha256="c" * 64,
+                      code_revision="synthetic",
+                      request_key=f"history-{index}",
                       created_at=datetime(2026, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=index),
                       config_snapshot={"private_path": "/private/synthetic", "scenario": {
                           "name": "Frozen name", "version": 7, "settings": {"cover_days": 14,

@@ -12,7 +12,6 @@ from pathlib import Path
 
 from main import create_app
 from core.errors import DomainError
-from core.hashes import digest
 from modules.catalog.models import Item, ItemSupplyChange
 from modules.catalog.schemas import SupplyChangeCreate
 from modules.catalog.supply import supply_state
@@ -106,7 +105,7 @@ def test_concurrent_appends_and_transition_conflicts(pg):
 def test_snapshot_is_frozen_causal_and_retry_does_not_refreeze(pg,tmp_path):
     _,sessions=pg;source,forecast,item=result_fixture(sessions)
     with sessions.begin() as s:create_policy(s,request(item,1))
-    with sessions() as s:before={r.id:(deepcopy(r.config_snapshot),r.config_sha256) for r in s.scalars(select(Run))}
+    with sessions() as s:before={r.id:deepcopy(r.config_snapshot) for r in s.scalars(select(Run))}
     with TestClient(create_app(settings(tmp_path))) as c:
         path=f"/api/v1/products/{item}/supply-changes"
         first=c.post(path,json=body()).json()
@@ -116,15 +115,14 @@ def test_snapshot_is_frozen_causal_and_retry_does_not_refreeze(pg,tmp_path):
         import uuid
         key=uuid.UUID(r.json()['run_id'])
         with sessions() as s:
-            row=s.get(Run,key);frozen=deepcopy(row.config_snapshot);checksum=row.config_sha256
+            row=s.get(Run,key);frozen=deepcopy(row.config_snapshot)
         assert frozen['supply_lifecycle_profile']=='notice7_sellthrough_v1'
         assert [r['id'] for r in frozen['supply_lifecycle_snapshot']]==[first['id']]
-        assert digest(frozen)==checksum
         c.post(path,json=body(1,action="cancel_stop",target_change_id=first['id'],known_on=str(D+timedelta(days=1)),effective_on=str(D+timedelta(days=1))))
         assert c.post('/api/v1/runs',json=args,headers={'Idempotency-Key':'supply-freeze'}).json()['run_id']==str(key)
         with sessions() as s:
-            assert s.get(Run,key).config_snapshot==frozen and s.get(Run,key).config_sha256==checksum
-            assert {r.id:(r.config_snapshot,r.config_sha256) for r in s.scalars(select(Run).where(Run.id.in_(before)))}==before
+            assert s.get(Run,key).config_snapshot==frozen
+            assert {r.id:r.config_snapshot for r in s.scalars(select(Run).where(Run.id.in_(before)))}==before
         # The cancellation known tomorrow is absent from a fresh origin-D snapshot too.
         fresh=c.post('/api/v1/runs',json=args,headers={'Idempotency-Key':'supply-freeze-new'})
         with sessions() as s:assert len(s.get(Run,uuid.UUID(fresh.json()['run_id'])).config_snapshot['supply_lifecycle_snapshot'])==1

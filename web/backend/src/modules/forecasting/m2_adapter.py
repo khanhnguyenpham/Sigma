@@ -2,7 +2,7 @@
 
 import json
 from core.settings import PROJECT_ROOT as ROOT
-from src.common import ROUTE, sha256
+from src.common import ROUTE
 from M2.models.registry import load_settings
 from M2.models.weekly import checked_series
 from M2.models.LightGBM.model import phase as lgbm_phase
@@ -70,20 +70,3 @@ def candidate_job(daily, split, family, model, routes):
         settings,
         split,
     )
-
-
-def specs_fingerprint():
-    paths = [
-        ROOT / "data/configs" / p
-        for p in ["config.json", "m2-final.json", "m2-reproduce.json"]
-    ]
-    paths += list((ROOT / "M2/models").rglob("*.py"))
-    paths += [
-        ROOT / "M2/models/LightGBM/variants.json",
-        ROOT / "M2/models/Prophet/variants.json",
-    ]
-    return {
-        p.relative_to(ROOT).as_posix(): sha256(p)
-        for p in sorted(paths)
-        if "tests" not in p.parts
-    }

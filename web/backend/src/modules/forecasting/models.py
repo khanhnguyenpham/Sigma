@@ -39,7 +39,6 @@ class RouteForecast(Base):
     family = Column(Text, nullable=False)
     model_id = Column(Text, nullable=False)
     selection_basis = Column(Text, nullable=False)
-    parent_bundle_sha256 = Column(Text)
     __table_args__ = (
         UniqueConstraint("run_id", "warehouse_id", "as_of_date", "block"),
         CheckConstraint(

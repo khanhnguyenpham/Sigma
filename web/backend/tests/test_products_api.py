@@ -56,7 +56,7 @@ def test_product_save_reads_latest_version_and_keeps_frozen_runs(pg, tmp_path):
     _, sessions = pg
     _, _, item = result_fixture(sessions)
     with sessions() as session:
-        before = {r.id: (deepcopy(r.config_snapshot), r.config_sha256) for r in session.scalars(select(Run))}
+        before = {r.id: deepcopy(r.config_snapshot) for r in session.scalars(select(Run))}
     body = dict(item_id=item, supplier_id=1, effective_from=str(D), configured_rop_floor=10,
                 fixed_order_qty=25, safety_days=2, expected_version=0)
     with TestClient(create_app(settings(tmp_path))) as client:
@@ -69,7 +69,7 @@ def test_product_save_reads_latest_version_and_keeps_frozen_runs(pg, tmp_path):
         assert client.get("/api/v1/products").json()["items"][0]["policy"]["id"] == latest["id"]
         assert client.post("/api/v1/supplier-item-policies", json=body).status_code == 409
     with sessions() as session:
-        assert {r.id: (r.config_snapshot, r.config_sha256) for r in session.scalars(select(Run))} == before
+        assert {r.id: r.config_snapshot for r in session.scalars(select(Run))} == before
 
 
 def test_edit_warehouse_updates_display_name_while_preserving_frozen_city(pg, tmp_path):

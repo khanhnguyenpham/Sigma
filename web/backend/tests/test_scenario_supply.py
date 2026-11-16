@@ -52,7 +52,7 @@ def test_scenario_stops_are_independent_resettable_and_ignore_global_history(pg,
                 stored=s.get(Run,key);log=cfg.output_root/str(key)/'failure.private.log'
                 assert stored.status=='complete',log.read_text(encoding='utf-8') if log.exists() else stored.error_code
                 assert verify_trade_snapshot(stored)
-                results[scenario['code']]=(key,deepcopy(stored.config_snapshot),stored.config_sha256)
+                results[scenario['code']]=(key,deepcopy(stored.config_snapshot))
             row=c.get(f'/api/v1/runs/{key}/inventory?as_of_date={D}').json()['items'][0]
             assert tuple(row[k] for k in ('internal_status','provider_status','replenishment_allowed','sales_allowed'))==expected
             assert c.get(f'/api/v1/runs/{key}').json()['scenario_supply_profile']=='scenario_supply_v1'
@@ -77,8 +77,8 @@ def test_scenario_stops_are_independent_resettable_and_ignore_global_history(pg,
         row=c.get(f'/api/v1/runs/{key}/inventory?as_of_date={D}').json()['items'][0]
         assert row['internal_status']=='active' and row['provider_status']=='clear'
         with sessions() as s:
-            for old,snapshot,checksum in results.values():
-                assert s.get(Run,old).config_snapshot==snapshot and s.get(Run,old).config_sha256==checksum
+            for old,snapshot in results.values():
+                assert s.get(Run,old).config_snapshot==snapshot
             frozen=s.get(Run,results['internal'][0]);frozen.config_snapshot=deepcopy(frozen.config_snapshot)
             frozen.config_snapshot['internal_supply_snapshot']=[]
             with pytest.raises(DomainError):verify_trade_snapshot(frozen)

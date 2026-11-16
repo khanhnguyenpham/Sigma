@@ -10,7 +10,6 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select, func, text
 
 from core.errors import DomainError
-from core.hashes import digest
 from main import create_app
 from modules.catalog.models import Item, Warehouse, ProviderProductNotice
 from modules.catalog.schemas import SupplyChangeCreate
@@ -20,7 +19,6 @@ from modules.catalog.provider import trade_state
 from modules.configuration.service import create_policy
 from modules.inventory.models import InventoryDaily
 from modules.runs.models import Run
-from modules.runs.verification import verify_run
 from test_postgres_api import seed, settings, request, D
 from test_results_api import result_fixture
 from test_policy_persistence import scenario_body
@@ -288,7 +286,7 @@ def test_snapshot_cutoffs_full_scope_and_idempotence_after_new_live_events(pg, t
     _, sessions = pg
     data = catalog(sessions, parents=True)
     with sessions() as s:
-        old = {r.id:(deepcopy(r.config_snapshot),r.config_sha256) for r in s.scalars(select(Run))}
+        old = {r.id:deepcopy(r.config_snapshot) for r in s.scalars(select(Run))}
     with TestClient(create_app(settings(tmp_path))) as client:
         saved, _ = create_notice(client, draft(data, known_on=str(D+timedelta(days=15)),
                                                effective_on=str(D+timedelta(days=8))))
@@ -298,10 +296,10 @@ def test_snapshot_cutoffs_full_scope_and_idempotence_after_new_live_events(pg, t
         assert response.status_code == 202, response.text
         key = uuid.UUID(response.json()["run_id"])
         with sessions() as s:
-            run = s.get(Run,key); snap=deepcopy(run.config_snapshot); checksum=run.config_sha256
+            run = s.get(Run,key); snap=deepcopy(run.config_snapshot)
         assert snap["trade_lifecycle_profile"] == PROFILE and "supply_lifecycle_profile" not in snap
         assert bool(snap["provider_notice_snapshot"]) == bool(snap["internal_supply_snapshot"]) == included
-        assert digest(snap) == checksum and snap["trade_rules"]["calendar"] == "UTC"
+        assert snap["trade_rules"]["calendar"] == "UTC"
         if included:
             assert snap["provider_notice_snapshot"][0]["item_ids"] == data["members"]
             assert len(snap["provider_notice_snapshot"][0]["item_snapshot"]) == 2
@@ -310,8 +308,8 @@ def test_snapshot_cutoffs_full_scope_and_idempotence_after_new_live_events(pg, t
         retried = client.post("/api/v1/runs", json=body, headers={"Idempotency-Key":"trade"})
         assert retried.status_code == 200 and retried.json()["run_id"] == str(key)
         with sessions() as s:
-            assert s.get(Run,key).config_snapshot == snap and s.get(Run,key).config_sha256 == checksum
-            assert {r.id:(r.config_snapshot,r.config_sha256) for r in s.scalars(select(Run).where(Run.id.in_(old)))} == old
+            assert s.get(Run,key).config_snapshot == snap
+            assert {r.id:r.config_snapshot for r in s.scalars(select(Run).where(Run.id.in_(old)))} == old
 
 
 def test_new_profile_guards_worker_verifier_and_legacy_bypass(pg, tmp_path):
@@ -334,9 +332,6 @@ def test_new_profile_guards_worker_verifier_and_legacy_bypass(pg, tmp_path):
             # reaches H14 input validation rather than the old implementation guard.
             assert run.status == "failed" and run.error_code == "insufficient_forecast"
             assert s.scalar(select(func.count()).select_from(InventoryDaily).where(InventoryDaily.run_id==key)) == 0
-        with pytest.raises(DomainError) as exc:
-            verify_run(cfg,sessions,key)
-        assert exc.value.code == "run_not_complete"
         assert client.get(f"/api/v1/runs/{key}/inventory").status_code == 409
 
 

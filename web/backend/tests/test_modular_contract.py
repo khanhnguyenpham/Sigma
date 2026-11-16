@@ -137,6 +137,14 @@ def test_full_openapi_matches_pre_refactor_contract(tmp_path):
         app.state.engine.dispose()
 
 
+def restore_after(ddl, column, restored):
+    """Re-insert columns a later migration dropped, so the 0001 golden still applies."""
+    lines = ddl.splitlines()
+    at = next(i for i, line in enumerate(lines) if line.strip().startswith(column + " "))
+    lines[at + 1:at + 1] = [chr(9) + text + ", " for text in restored]
+    return chr(10).join(lines)
+
+
 def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
     statements = []
     # 0015 renamed supplier_item_policies and derived its supplier_id; compare against the original golden.
@@ -145,7 +153,19 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
         # Lifecycle additions are checked separately; retain the original thirteen-table golden.
         if table.name == "item_supply_changes" or table.name in OPS_TABLES or table.name.startswith(("provider_product_notice", "auth_")):
             continue
+        if table.name in {"run_configs", "run_results"}:
+            continue  # 0016 split these out of runs; restored into the runs golden below.
         ddl = str(CreateTable(table).compile(dialect=dialect())).strip()
+        if table.name == "route_forecasts":
+            # 0016 dropped the M2 bundle checksum.
+            ddl = restore_after(ddl, "selection_basis", ["parent_bundle_sha256 TEXT"])
+        if table.name == "runs":
+            # 0016 dropped the verification hashes and moved the JSON documents to run_configs/run_results.
+            ddl = restore_after(ddl, "assumption_version", ["source_sha256 VARCHAR(64)"])
+            ddl = restore_after(ddl, "code_revision", ["code_sha256 VARCHAR(64) NOT NULL",
+                "config_snapshot JSONB NOT NULL", "config_sha256 VARCHAR(64) NOT NULL"])
+            ddl = restore_after(ddl, "request_key", ["request_sha256 VARCHAR(64) NOT NULL",
+                "selection_sha256 VARCHAR(64)", "result_summary JSONB NOT NULL", "artifact_manifest JSONB NOT NULL"])
         if table.name in {"items", "replenishment_orders"}:
             assert table.c.receiving_warehouse_id.nullable
             ddl = "\n".join(line for line in ddl.splitlines()
@@ -208,7 +228,7 @@ def test_all_postgresql_tables_and_indexes_match_pre_refactor_ddl():
 
 def test_features_share_the_single_registered_metadata():
     assert models.Base is Base
-    assert len(Base.metadata.tables) == 31  # 28 + three dealer tables (0012)
+    assert len(Base.metadata.tables) == 33  # 28 + three dealer tables (0012) + run_configs/run_results (0016)
     for model in (Warehouse, Item, Supplier, Policy, Scenario, Run, DailySales, RouteForecast,
                   ItemForecast, InventoryDaily, InventoryEvent, Replenishment, Alert, ItemSupplyChange,
                   ProviderProductNotice, ProviderProductNoticeItem, ProviderProductNoticeEvent, User, LoginSession):

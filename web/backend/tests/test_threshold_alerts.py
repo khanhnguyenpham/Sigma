@@ -24,12 +24,12 @@ from modules.alerts.service import project, project_threshold, threshold_metrics
 from modules.inventory.simulation import pure_window
 from modules.runs.models import Run
 from modules.forecasting.models import ItemForecast
-from modules.runs.verification import verify_run
 from test_configurable_inventory import worker_fixture
 from test_postgres_api import D, request, settings
 from test_results_api import result_fixture
 from test_simulation import inputs, ORIGIN
 from worker import serve
+from run_split import relation, without_dropped
 
 
 def crossing(stock=100, rop=50, n=7, receipts=None, f=None):
@@ -138,7 +138,7 @@ def enqueue_threshold(client, source, forecast, item, kind, n=7):
 
 
 @pytest.mark.parametrize("kind", ["stock_projection", "alert_replay", "policy_replay"])
-def test_worker_threshold_api_csv_and_independent_tamper_checks(pg, tmp_path, kind):
+def test_worker_threshold_api_csv(pg, tmp_path, kind):
     _, sessions = pg
     source, forecast, item = worker_fixture(sessions, tmp_path)
     # With forecast-floor ROP, keep the floor dominant and a crossing on D+1.
@@ -152,9 +152,8 @@ def test_worker_threshold_api_csv_and_independent_tamper_checks(pg, tmp_path, ki
             run = s.get(Run, key)
             assert run.status == "complete", run.error_code
             summary = deepcopy(run.result_summary)
-            checksum = run.config_sha256
         manifest = json.loads((cfg.output_root / str(key) / "manifest.json").read_text())
-        assert manifest["status"] == "verified"
+        assert manifest["status"] == "complete"
         path = f"/api/v1/runs/{key}"
         query = "?alert_type=projected_below_rop&state=threshold_warning&as_of_date=" + str(D)
         result = c.get(path + "/alerts" + query)
@@ -168,7 +167,6 @@ def test_worker_threshold_api_csv_and_independent_tamper_checks(pg, tmp_path, ki
         exported = c.get(path + "/exports/alerts" + query)
         csv_rows = list(csv.DictReader(io.StringIO(exported.text.lstrip("\ufeff"))))
         assert len(csv_rows) == 1 and csv_rows[0]["predicted_threshold_date"] == row["predicted_threshold_date"]
-        assert csv_rows[0]["config_sha256"] == checksum
         assert c.get(path + "/alerts?alert_type=invalid").status_code == 422
         assert c.get(path + "/inventory?alert_type=depletion").status_code == 422
         if kind == "alert_replay":
@@ -179,22 +177,6 @@ def test_worker_threshold_api_csv_and_independent_tamper_checks(pg, tmp_path, ki
             c.get(path + "/alerts?item_id=999")
             with sessions() as s:
                 assert s.get(Run, key).result_summary == summary
-            with sessions.begin() as s:
-                changed = deepcopy(summary)
-                changed["threshold_metrics"]["event_denominator"] += 1
-                s.get(Run, key).result_summary = changed
-            with pytest.raises(DomainError, match="Threshold metric denominator"):
-                verify_run(cfg, sessions, key, allow_running=True)
-            with sessions.begin() as s:
-                s.get(Run, key).result_summary = summary
-        with sessions.begin() as s:
-            s.execute(update(Alert).where(Alert.id == row["id"]).values(predicted_threshold_date=D + timedelta(days=2)))
-        with pytest.raises(DomainError, match="ROP crossing"):
-            verify_run(cfg, sessions, key, allow_running=True)
-        with sessions.begin() as s:
-            s.execute(delete(Alert).where(Alert.id == row["id"]))
-        with pytest.raises(DomainError, match="ROP crossing"):
-            verify_run(cfg, sessions, key, allow_running=True)
 
 
 def test_threshold_migration_preserves_legacy_rows_and_checks_metadata(pg):
@@ -209,14 +191,14 @@ def test_threshold_migration_preserves_legacy_rows_and_checks_metadata(pg):
     try:
         with engine.connect() as c:
             before = c.scalar(text("SELECT row_to_json(t)::text FROM alerts t"))
-            runs = c.execute(text("SELECT row_to_json(t)::text FROM runs t ORDER BY id")).scalars().all()
+            runs = c.execute(text(f"SELECT {without_dropped('to_jsonb(t)')}::text FROM runs t ORDER BY 1")).scalars().all()
         command.upgrade(cfg, "head")
         command.upgrade(cfg, "head")
         with engine.connect() as c:
             assert c.scalar(text("SELECT (to_jsonb(t) - 'predicted_threshold_date') FROM alerts t")) == json.loads(before)
-            assert c.execute(text("SELECT row_to_json(t)::text FROM runs t ORDER BY id")).scalars().all() == runs
+            assert c.execute(text(f"SELECT to_jsonb(t)::text FROM {relation('runs')} t ORDER BY 1")).scalars().all() == runs
             assert compare_metadata(MigrationContext.configure(c, opts={"compare_type": True, "compare_server_default": True}), Base.metadata) == []
-            assert c.scalar(text("SELECT version_num FROM alembic_version")) == "0015_item_policies"
+            assert c.scalar(text("SELECT version_num FROM alembic_version")) == "0016_run_tables"
     finally:
         command.upgrade(cfg, "head")
 
@@ -241,7 +223,7 @@ def test_threshold_database_rejects_invalid_dates_states_and_duplicates(pg):
         command.downgrade(cfg, "0002_policy")
     with sessions() as s:
         assert s.scalar(select(Alert).where(Alert.alert_type == "projected_below_rop")) is not None
-        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0015_item_policies"
+        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0016_run_tables"
 
 
 def test_two_items_apply_their_own_origin_rop_and_keep_first_crossing():

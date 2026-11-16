@@ -1,4 +1,4 @@
-"""Supply-aware worker, hand cases and independent tamper detection."""
+"""Supply-aware worker and hand cases."""
 from copy import deepcopy
 from datetime import timedelta
 import uuid
@@ -6,7 +6,6 @@ import uuid
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
-from core.errors import DomainError
 from main import create_app
 from modules.alerts.service import project
 from modules.alerts.models import Alert
@@ -14,8 +13,6 @@ from modules.inventory.simulation import pure_window
 from modules.inventory.models import InventoryDaily
 from modules.purchasing.models import Replenishment
 from modules.runs.models import Run
-from modules.runs.verification import verify_run
-from modules.runs.supply_verification import verify_supply_snapshot
 from test_simulation import inputs, ORIGIN
 from test_configurable_inventory import worker_fixture, enqueue_fixture
 from test_postgres_api import settings, D
@@ -88,7 +85,7 @@ def test_empty_timeline_legacy_parity_and_other_item():
 
 
 @pytest.mark.parametrize("kind",["stock_projection","policy_replay","alert_replay"])
-def test_worker_with_real_supply_api_and_independent_verification(pg,tmp_path,kind):
+def test_worker_with_real_supply_api(pg,tmp_path,kind):
     _,sessions=pg;source,forecast,item=worker_fixture(sessions,tmp_path);cfg=settings(tmp_path)
     with TestClient(create_app(cfg)) as c:
         response=c.post(f'/api/v1/products/{item}/supply-changes',json=dict(action="stop",
@@ -99,27 +96,15 @@ def test_worker_with_real_supply_api_and_independent_verification(pg,tmp_path,ki
         with sessions() as s:
             run=s.get(Run,key);assert run.status=="complete",run.error_code
             assert run.result_summary['supply_stopped_decisions']==(1 if kind=='stock_projection' else 15)
-            assert verify_supply_snapshot(run) is not None
             ledger=s.scalars(select(InventoryDaily).where(InventoryDaily.run_id==key)).all()
             assert all(r.recommended_qty==0 and r.needs_replenishment is False for r in ledger)
             orders=s.scalars(select(Replenishment).where(Replenishment.run_id==key)).all()
             assert all(o.is_initial for o in orders)
             assert sum(o.received_qty for o in orders)==(0 if kind=='stock_projection' else 20)
             alert=s.scalar(select(Alert).where(Alert.run_id==key,Alert.alert_type=='depletion').order_by(Alert.as_of_date))
-            alert_id=alert.id;original=deepcopy(alert.explanation)
+            original=deepcopy(alert.explanation)
             assert original['replenishment_block_reason']=='supply_stopped'
             assert len(original['projection'])==14
-        verify_run(cfg,sessions,key)
-        for field,value in [('projected_sales_qty',999),('unserved_demand_qty',999),('supply_status','active')]:
-            with sessions.begin() as s:
-                changed=deepcopy(original);changed['projection'][0][field]=value
-                s.get(Alert,alert_id).explanation=changed
-            with pytest.raises(DomainError,match='Sell-through'):verify_run(cfg,sessions,key)
-        with sessions.begin() as s:s.get(Alert,alert_id).explanation=original
-        with sessions.begin() as s:
-            row=s.scalar(select(InventoryDaily).where(InventoryDaily.run_id==key).order_by(InventoryDaily.date))
-            row.recommended_qty=5
-        with pytest.raises(DomainError,match='thresholds'):verify_run(cfg,sessions,key)
 
 
 @pytest.mark.parametrize("stock,pending,state",[(0,0,"sold_out"),(0,20,"waiting_receipts"),(10,0,"selling_remaining")])
@@ -130,15 +115,3 @@ def test_origin_sell_through_state(stock,pending,state):
                                         eta=str(ORIGIN+timedelta(days=6)),ordered_qty=pending)]
     result=pure_window(*args,'stock_projection',ORIGIN,ORIGIN,[notice()])
     assert result['alerts'][0]['explanation']['sell_through_state']==state
-
-
-@pytest.mark.parametrize("change",[dict(action="unknown"),dict(version=2),dict(is_assumed=False),
-    dict(known_on=str(ORIGIN+timedelta(days=1))),dict(effective_on=str(ORIGIN-timedelta(days=1))),
-    dict(item_id=999),dict(reason=" "),dict(target_change_id=999)])
-def test_independent_verifier_rejects_invalid_frozen_history(change):
-    from types import SimpleNamespace
-    row={**notice(),"is_assumed":True,"assumption_source":"user_declared_supply_simulation_v1","reason":"Synthetic",**change}
-    run=SimpleNamespace(kind='stock_projection',as_of_date=ORIGIN,config_snapshot=dict(
-        supply_lifecycle_profile='notice7_sellthrough_v1',supply_lifecycle_snapshot=[row],
-        catalog_snapshot=[dict(item_id=1,first_seen_date='2024-01-01')]))
-    with pytest.raises(DomainError):verify_supply_snapshot(run)

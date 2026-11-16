@@ -6,7 +6,6 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select
 
 from core.errors import DomainError
-from core.hashes import digest
 from main import create_app
 from modules.catalog.locations import COUNTRY_CITIES, ROUTE_CITIES, display_warehouse, seed_cities
 from modules.catalog.models import Supplier, Warehouse
@@ -68,13 +67,8 @@ def test_legacy_run_names_match_catalog_workspace_forecasts_and_csv_without_rewr
             snapshot["warehouse_snapshot"][0].update(destination_country="Australia", carrier="Telstra",
                                                        city="Sydney", is_assumed=True)
             snapshot["catalog_snapshot"][0].update(destination_country="Australia", carrier="Telstra")
-            for parent_id, name in [(run.source_import_run_id, "source_parent_config_sha256"),
-                                    (run.forecast_run_id, "forecast_parent_config_sha256")]:
-                if parent_id and name in snapshot:
-                    snapshot[name] = session.get(Run, parent_id).config_sha256
             run.config_snapshot = snapshot
-            run.config_sha256 = digest(snapshot)
-        before = {run.id: (deepcopy(run.config_snapshot), run.config_sha256) for run in session.scalars(select(Run))}
+        before = {run.id: deepcopy(run.config_snapshot) for run in session.scalars(select(Run))}
     with TestClient(create_app(settings(tmp_path))) as client:
         catalog = client.get(f"/api/v1/warehouses?run_id={key}")
         assert catalog.status_code == 200, catalog.text
@@ -89,4 +83,4 @@ def test_legacy_run_names_match_catalog_workspace_forecasts_and_csv_without_rewr
         assert client.get(f"/api/v1/runs/{forecast}/forecasts/items?aggregate=route_day").json()["items"][0]["city"] == "Melbourne"
     with sessions() as session:
         for run in session.scalars(select(Run)):
-            assert (run.config_snapshot, run.config_sha256) == before[run.id]
+            assert run.config_snapshot == before[run.id]

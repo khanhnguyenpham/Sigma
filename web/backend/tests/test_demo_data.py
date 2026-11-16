@@ -1,4 +1,4 @@
-"""Redaction/conservation, registered-source binding and real offline PG restore."""
+"""Redaction/conservation and real offline PG restore."""
 from dataclasses import replace
 import csv
 import hashlib
@@ -11,16 +11,14 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
-from core.errors import DomainError
 from core.settings import Settings
 from core.demo import source_ready
 from main import create_app
-from modules.forecasting.demo_source import require_registered_source, signatures
 from src.data import audit_orders, SOURCE_COLUMNS
 from src.common import DataQualityError
 from test_demo_runtime import demo_env, bundle
 from test_postgres_api import seed as seed_rows
-from web.backend.scripts.demo_source import export_source
+from web.backend.scripts.demo_source import export_source, quantity_inputs
 from web.backend.scripts.demo_data import backup, restore, snapshot_state, operator_url, check, maintenance
 from web.backend.scripts import demo_data
 from worker import LOCK_ID
@@ -53,7 +51,7 @@ def test_redaction_preserves_source_and_model_transactions(monkeypatch, tmp_path
     cfg=json.loads((Path.cwd()/'data/configs/config.json').read_text())
     before,old_audit=audit_orders(path,cfg)
     after,new_audit=audit_orders(settings.order_source('orders_snapshot'),cfg)
-    assert signatures(before)==signatures(after)
+    assert quantity_inputs(before)==quantity_inputs(after)
     assert old_audit['duplicate_rows_removed']==new_audit['duplicate_rows_removed']==1
     data=pd.read_csv(settings.order_source('orders_snapshot'),dtype=str,keep_default_na=False)
     assert data.columns.tolist()==SOURCE_COLUMNS
@@ -61,10 +59,9 @@ def test_redaction_preserves_source_and_model_transactions(monkeypatch, tmp_path
     assert data.activation_datetime.eq('').all() and data.customer_id.eq('DEMO_CUSTOMER').all()
     content=settings.order_source('orders_snapshot').read_text()
     assert all(value not in content for value in ['PRIVATE-','777777','555555','private-free-text'])
-    assert require_registered_source(settings,after,manifest['source_sha256'],checksum)['parent_source_sha256']==checksum
-    with pytest.raises(DomainError):require_registered_source(replace(settings,mode='local'),after,manifest['source_sha256'],checksum)
+    assert 'parent_source_sha256' not in manifest and 'quantity_signature' not in manifest
     changed=after.copy();changed.iloc[0,changed.columns.get_loc('quantity')]+=1
-    with pytest.raises(DomainError):require_registered_source(settings,changed,manifest['source_sha256'],checksum)
+    assert quantity_inputs(changed)!=quantity_inputs(before)
     with pytest.raises(ValueError):export_source(settings,path,checksum)
 
 

@@ -8,7 +8,6 @@ from modules.inventory.models import InventoryDaily
 from modules.purchasing.models import Replenishment
 from modules.alerts.models import Alert
 from modules.configuration.models import Policy
-from core.hashes import digest
 from test_postgres_api import settings, D
 from test_results_api import result_fixture
 
@@ -57,7 +56,6 @@ def workspace_fixture(sessions, pending=True):
             period_end=D + timedelta(days=20),
             request_key="workspace-fixture",
             config_snapshot=snapshot,
-            config_sha256=digest(snapshot),
         )
         run = Run(**attrs)
         s.add(run)
@@ -212,7 +210,6 @@ def test_warehouse_directory_aggregates_all_ids_and_uses_frozen_cities(pg, tmp_p
                 first_seen_date=str(D), destination_country=warehouse.destination_country, carrier=warehouse.carrier))
             snapshot["policies"].append({**snapshot["policies"][0], "id": policy.id, "item_id": extra.id})
         run.config_snapshot = snapshot
-        run.config_sha256 = digest(snapshot)
         warehouse.city = "Changed live city"
         last_warehouse = warehouse.id
     with TestClient(create_app(settings(tmp_path))) as client:

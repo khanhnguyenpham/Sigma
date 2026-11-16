@@ -21,12 +21,13 @@ from modules.runs.schemas import RunCreate
 from modules.runs.service import enqueue
 from test_postgres_api import D, request, seed, settings
 from test_results_api import result_fixture
+from run_split import NEW_TABLES, relation, without_dropped
+OLD_ROW = "to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','source_sales_qty','actual_blocked_qty','supplier_id']"
+NEW_ROW = "to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','source_sales_qty','actual_blocked_qty','receiving_warehouse_id','receiving_version']"
 
 
 def test_import_and_seed_reuse_carrier_across_countries(pg, tmp_path, monkeypatch):
-    import hashlib
     import pandas as pd
-    from core.hashes import digest
     from modules.forecasting import ingestion
     from modules.inventory.seeding import seed_simulation
     _, sessions = pg
@@ -37,7 +38,7 @@ def test_import_and_seed_reuse_carrier_across_countries(pg, tmp_path, monkeypatc
     sales = pd.DataFrame([dict(destination_country=country, carrier='Vinaphone', sku='SYNTHETIC',
         product_type='eSIM', date=pd.Timestamp('2024-01-01'), quantity=1, order_id=f'synthetic-{n}')
         for n, country in enumerate(['Vietnam', 'Australia'])])
-    audit = dict(source_sha256_before=hashlib.sha256(raw.read_bytes()).hexdigest(), sales_quantity=2, rows_raw=2)
+    audit = dict(sales_quantity=2, rows_raw=2)
     monkeypatch.setattr(ingestion, 'audit_orders', lambda *_: (sales, audit))
     monkeypatch.setattr(ingestion, 'daily_sales', lambda *_: sales)
     monkeypatch.setattr(ingestion, 'route_top', lambda *_: sales[['destination_country', 'carrier']])
@@ -50,7 +51,6 @@ def test_import_and_seed_reuse_carrier_across_countries(pg, tmp_path, monkeypatc
         from modules.runs.models import Run
         source = session.get(Run, key)
         source.status = 'complete'
-        source.config_sha256 = digest(source.config_snapshot)
     with sessions.begin() as session:
         assert len(session.scalars(select(Supplier)).all()) == 1
         assert session.scalar(select(Supplier.carrier)) == 'Vinaphone'
@@ -156,8 +156,8 @@ def test_migration_preserves_all_other_tables_and_supplier_ids(pg):
             connection.execute(text("UPDATE warehouses SET code='WH-001' WHERE id=1"))
             # 0015 renamed supplier_item_policies and derives supplier_id; compare under the legacy name.
             legacy = {'item_policies': 'supplier_item_policies'}
-            before = {name: deepcopy(connection.execute(text(f"SELECT to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','source_sales_qty','actual_blocked_qty','supplier_id'] FROM \"{legacy.get(name, name)}\" t ORDER BY to_jsonb(t)::text")).scalars().all())
-                      for name in Base.metadata.tables if name not in {'suppliers', 'item_supply_changes', 'supplier_settings'}
+            before = {name: deepcopy(connection.execute(text(f"SELECT {without_dropped(OLD_ROW)}::text FROM {relation(legacy.get(name, name), split=False)} t ORDER BY 1")).scalars().all())
+                      for name in Base.metadata.tables if name not in {'suppliers', 'item_supply_changes', 'supplier_settings'} | NEW_TABLES
                       and not name.startswith(('provider_product_notice', 'auth_', 'ops_', 'dealer'))}
             identity = connection.execute(text('SELECT id,created_at FROM suppliers ORDER BY id')).all()
         command.upgrade(cfg, 'head')
@@ -166,7 +166,7 @@ def test_migration_preserves_all_other_tables_and_supplier_ids(pg):
             assert connection.execute(text('SELECT id,created_at FROM suppliers ORDER BY id')).all() == identity
             assert connection.scalar(text('SELECT carrier FROM suppliers WHERE id=1')) == 'DemoCarrier'
             for name, rows in before.items():
-                assert connection.execute(text(f"SELECT to_jsonb(t) - ARRAY['safety_mode','rop_mode','safety_lookback_days','safety_factor','source_sales_qty','actual_blocked_qty','receiving_warehouse_id','receiving_version'] FROM \"{name}\" t ORDER BY to_jsonb(t)::text")).scalars().all() == rows
+                assert connection.execute(text(f"SELECT {without_dropped(NEW_ROW)}::text FROM {relation(name)} t ORDER BY 1")).scalars().all() == rows
             assert compare_metadata(MigrationContext.configure(connection, opts={'compare_type': True, 'compare_server_default': True}), Base.metadata) == []
     finally:
         command.upgrade(cfg, 'head')

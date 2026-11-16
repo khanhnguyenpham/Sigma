@@ -115,11 +115,6 @@ def exports(
         metadata = context(run)
         if name=='metrics' and filters.granularity=='allocated_daily' and 'trade_lifecycle_profile' in metadata:
             metadata.update(metric_basis='raw_source_sales',trade_quantities_available=False)
-        metadata.update(
-            source_sha256=run.source_sha256,
-            config_sha256=run.config_sha256,
-            selection_sha256=run.selection_sha256,
-        )
 
     def lines():
         fields = sorted({k for row in rows for k in row} | set(metadata))

@@ -18,6 +18,7 @@ from modules.runs.models import Run
 from test_postgres_api import settings
 from test_receiving_warehouse import add_warehouse
 from test_results_api import result_fixture
+from run_split import LEGACY_ROW, NEW_TABLES, relation, without_dropped
 
 # Tables renamed by 0015, read under their legacy names while the schema is older.
 LEGACY = {'item_policies': 'supplier_item_policies'}
@@ -32,8 +33,8 @@ def test_legacy_upgrade_roundtrip_and_downgrade_guards(pg, tmp_path):
     command.downgrade(cfg, "0008_trade_lifecycle")
     try:
         with engine.connect() as connection:
-            before = {name: connection.execute(text(f"SELECT (to_jsonb(t)-'supplier_id')::text FROM \"{LEGACY.get(name, name)}\" t ORDER BY 1")).scalars().all()
-                      for name in Base.metadata.tables if not name.startswith(('auth_', 'ops_', 'dealer')) and name != 'supplier_settings'}
+            before = {name: connection.execute(text(f"SELECT {LEGACY_ROW}::text FROM {relation(LEGACY.get(name, name), split=False)} t ORDER BY 1")).scalars().all()
+                      for name in Base.metadata.tables if not name.startswith(('auth_', 'ops_', 'dealer')) and name != 'supplier_settings' and name not in NEW_TABLES}
         # Since 0015 renamed the policy table, current code needs the head schema; readiness keeps traffic away.
         with TestClient(create_app(settings(tmp_path))) as client:
             ready = client.get("/api/v1/ready")
@@ -44,7 +45,7 @@ def test_legacy_upgrade_roundtrip_and_downgrade_guards(pg, tmp_path):
         with engine.connect() as connection:
             for name, rows in before.items():
                 expr = "to_jsonb(t)" + ("-ARRAY[" + ",".join(repr(c) for c in added[name]) + "]" if name in added else "")
-                assert connection.execute(text(f'SELECT ({expr})::text FROM "{name}" t ORDER BY 1')).scalars().all() == rows
+                assert connection.execute(text(f'SELECT {without_dropped(expr)}::text FROM {relation(name)} t ORDER BY 1')).scalars().all() == rows
             assert compare_metadata(MigrationContext.configure(connection, opts={
                 "compare_type": True, "compare_server_default": True}), Base.metadata) == []
             assert connection.scalar(text("SELECT count(*) FROM items WHERE receiving_warehouse_id IS NOT NULL OR receiving_version<>0")) == 0

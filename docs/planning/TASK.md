@@ -8,7 +8,7 @@
 | M2 | Vai trò đại lý, bỏ đăng nhập supplier | Đã làm local, chờ người dùng xem ([bàn giao](../development.md#handoff-m2-dealers-20261116)) |
 | M3 | Điều chỉnh ETA đơn đã xác nhận | Đã làm local, chờ người dùng xem ([bàn giao](../development.md#handoff-m3-eta-20261116)) |
 | M4 | Tách bảng DB | M4a đã làm local: `item_policies`, `supplier_settings`, bỏ `supplier_id` thừa ([bàn giao](../development.md#handoff-m4a-tables-20261116)); tách `runs` chuyển sang M5 |
-| M5 | Bỏ hash kiểm chứng, gỡ verification, tách `runs` | Chưa làm |
+| M5 | Bỏ hash kiểm chứng, gỡ verification, tách `runs` | Đã làm local: 0016 `run_configs`/`run_results`, bỏ 5 cột hash, `verification.py`, `specs_fingerprint`, chữ ký demo; nguồn M2 kiểm bằng nội dung ([bàn giao](../development.md#handoff-m5-runs-20261116)) |
 | M6 | Rà loading/skeleton | Chưa làm |
 | M3b | Thời gian nhập theo nhà cung cấp áp cho cả kịch bản mô phỏng | Đã làm local, chờ người dùng xem ([bàn giao](../development.md#handoff-supplier-lead-20261116)) |
 | M7 | Tối ưu worker: basis phân bổ tính một lần, vector hóa, index policy, đọc dữ liệu theo khoảng | Chưa làm |

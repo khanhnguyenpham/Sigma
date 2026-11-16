@@ -51,7 +51,7 @@ def context(row):
     )
     if is_trade(row):
         result.update(trade_lifecycle_profile=row.config_snapshot['trade_lifecycle_profile'],
-            config_sha256=row.config_sha256,source_sha256=row.source_sha256,units='quantity',
+            units='quantity',
             metric_basis='allowed_scenario_sales',trade_quantities_available=True,
             run_as_of_date=row.as_of_date.isoformat(),run_status=row.status)
     if row.config_snapshot.get("receiving_warehouse_profile"):
@@ -328,7 +328,7 @@ def dataset(session, run, name, filters, paginate=True):
 
 
 def allocated_metrics(session, run):
-    cache_key = (str(session.bind.url), str(run.id), run.config_sha256)
+    cache_key = (str(session.bind.url), str(run.id))  # complete runs are immutable
     if cache_key in _ALLOCATED_METRICS:
         return _ALLOCATED_METRICS[cache_key]
     sql = text("""SELECT i.warehouse_id,f.as_of_date,f.target_date,f.horizon_day,SUM(f.forecast_qty) AS forecast_qty

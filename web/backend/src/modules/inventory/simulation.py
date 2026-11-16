@@ -2,7 +2,7 @@ from core.run_context import source_data_id
 
 """Transaction replay and projection on frozen policy/forecast snapshots."""
 from datetime import date, datetime, timedelta, timezone
-import math, json, hashlib
+import math, json
 import numpy as np
 import pandas as pd
 from sqlalchemy import select, text
@@ -570,8 +570,9 @@ def simulate_run(settings, sessions, key):
         vectors[(as_of.date(), int(item))] = part.forecast_qty.to_numpy()
     cfg, _, _ = configuration()
     sales, audit = audit_orders(settings.order_source("orders_snapshot"), cfg)
-    if audit["source_sha256_before"] != source.source_sha256:
-        raise DomainError("parent_mismatch", "Source changed since import")
+    from modules.forecasting.ingestion import require_imported_source
+    with sessions() as s:
+        require_imported_source(s, source_data_id(source), sales)
     item_map = {
         (i["destination_country"], i["carrier"], i["sku"], i["product_type"]): i[
             "item_id"
@@ -744,6 +745,6 @@ def simulate_run(settings, sessions, key):
     (folder / "simulation_summary.json").write_bytes(payload)
     with sessions.begin() as s:
         s.get(Run, key).artifact_manifest = {
-            "simulation_summary.json": hashlib.sha256(payload).hexdigest()
+            "simulation_summary.json": len(payload)
         }
     return summary

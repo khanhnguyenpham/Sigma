@@ -46,7 +46,7 @@ def test_yesterday_forecast_remaining13_days_without_copying_day14():
 def seed_forecast(sessions, item, supplier, origin):
     with sessions.begin() as session:
         base = dict(as_of_date=origin,observation_end=origin,target_version='synthetic',config_version='test',assumption_version='test',
-            code_revision='test',code_sha256='0'*64,config_snapshot={},config_sha256='0'*64,request_sha256='0'*64)
+            code_revision='test',config_snapshot={})
         source=Run(kind='source_import',status='complete',request_key=str(uuid.uuid4()),**base)
         session.add(source); session.flush()
         forecast=Run(kind='forecast',status='complete',source_import_run_id=source.id,request_key=str(uuid.uuid4()),**base)

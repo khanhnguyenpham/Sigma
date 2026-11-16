@@ -1,7 +1,6 @@
 """Synthetic fixtures in the dedicated PostgreSQL test DB; no private source records."""
 
 from datetime import timedelta
-import hashlib
 import json
 import pytest
 from fastapi.testclient import TestClient
@@ -12,7 +11,6 @@ from modules.forecasting.models import DailySales, RouteForecast, ItemForecast
 from modules.catalog.models import Item, Warehouse
 from modules.runs.schemas import RunCreate
 from modules.runs.service import enqueue
-from core.hashes import digest
 from core.run_context import source_data_id
 from modules.forecasting.ingestion import import_snapshot
 from test_postgres_api import seed, settings, D
@@ -31,7 +29,6 @@ def result_fixture(sessions):
             "source",
         )
         source.status = "complete"
-        source.source_sha256 = "a" * 64
         source.config_snapshot = {
             **source.config_snapshot,
             "catalog_snapshot": [
@@ -54,7 +51,6 @@ def result_fixture(sessions):
                 )
             ],
         }
-        source.config_sha256 = digest(source.config_snapshot)
         s.flush()
         forecast, _ = enqueue(
             s,
@@ -74,7 +70,6 @@ def result_fixture(sessions):
                 for k in ["catalog_snapshot", "warehouse_snapshot"]
             },
         }
-        forecast.config_sha256 = digest(forecast.config_snapshot)
         s.add_all(
             [
                 RouteForecast(
@@ -141,7 +136,6 @@ def test_paginated_results_frozen_context_null_and_exports(pg, tmp_path):
         )
         assert (
             csv.status_code == 200
-            and "config_sha256" in csv.text
             and "Frozen City" in csv.text
             and str(key) in csv.text
         )
@@ -185,14 +179,11 @@ def test_paginated_results_frozen_context_null_and_exports(pg, tmp_path):
             ]
             # Explicitly rebuild this disposable fixture's frozen snapshots, never a real run.
             r.config_snapshot = {**r.config_snapshot, "catalog_snapshot": catalog}
-            r.config_sha256 = digest(r.config_snapshot)
             f = s.get(Run, key)
             f.config_snapshot = {
                 **f.config_snapshot,
                 "catalog_snapshot": catalog,
-                "source_parent_config_sha256": r.config_sha256,
             }
-            f.config_sha256 = digest(f.config_snapshot)
         assert (
             c.get(path + "/forecasts/items?aggregate=route_day").json()["items"][0][
                 "actual_qty"
@@ -211,18 +202,25 @@ def test_parent_invalidation_blocks_results(pg, tmp_path):
 
 
 @pytest.mark.parametrize("through_worker", [False, True])
-def test_source_hash_reuse_retains_request_identity_without_duplicate_daily(
-    pg, tmp_path, through_worker
+def test_source_reuse_retains_request_identity_without_duplicate_daily(
+    pg, tmp_path, monkeypatch, through_worker
 ):
+    import pandas as pd
+    from modules.forecasting import ingestion
+    from core.errors import DomainError
     _, sessions = pg
     source, _, _ = result_fixture(sessions)
     cfg = settings(tmp_path)
-    raw = tmp_path / "data/sigma_sim_data_orders.csv"
-    raw.parent.mkdir()
-    raw.write_bytes(b"SYNTHETIC DEDUP ONLY")
+    # Same daily quantities as the fixture import (one zero-sales day) => reuse, no file hash involved.
+    columns = ["destination_country", "carrier", "sku", "product_type", "date", "quantity", "order_id"]
+    monkeypatch.setattr(ingestion, "audit_orders", lambda *_: (pd.DataFrame(columns=columns), {}))
+    with sessions() as s:
+        sold = pd.DataFrame([dict(destination_country="DemoLand", carrier="DemoCarrier", sku="DEMO-ESIM-01",
+                                  product_type="eSIM", date=pd.Timestamp(D), quantity=1, order_id="SYN-1")])
+        with pytest.raises(DomainError, match="differs from the imported"):
+            ingestion.require_imported_source(s, source, sold)
     with sessions.begin() as s:
         original = s.get(Run, source)
-        original.source_sha256 = hashlib.sha256(raw.read_bytes()).hexdigest()
         original.result_summary = {"sales_quantity": 0, "daily_rows": 1}
         alias, _ = enqueue(
             s,
@@ -242,9 +240,8 @@ def test_source_hash_reuse_retains_request_identity_without_duplicate_daily(
             completed = s.get(Run, key)
             assert completed.status == "complete", completed.error_code
             summary = completed.result_summary
-            assert summary["verification"]["status"] == "verified"
         manifest = json.loads((cfg.output_root / str(key) / "manifest.json").read_text())
-        assert manifest["status"] == "verified"
+        assert manifest["status"] == "complete"
         assert manifest["source_import_run_id"] == str(source)
     else:
         summary = import_snapshot(cfg, sessions, key)
