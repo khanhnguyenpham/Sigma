@@ -59,7 +59,8 @@ class OperationalOrder(Base):
     cancelled_at = Column(DateTime(timezone=True))
     created_at = created()
     __table_args__ = (
-        CheckConstraint("lead_time_days BETWEEN 1 AND 365 AND eta=ordered_on+lead_time_days AND supplier_settings_version>=0 AND version>=1", name="ck_ops_order_dates"),
+        # Planned ETA = ordered_on + lead_time_days; the stored eta may move later after an incident (0013).
+        CheckConstraint("lead_time_days BETWEEN 1 AND 365 AND eta>=ordered_on AND supplier_settings_version>=0 AND version>=1", name="ck_ops_order_dates"),
         CheckConstraint("status IN ('draft','ordered','partially_received','received','cancelled')", name="ck_ops_order_status"),
         CheckConstraint("(confirmed_by IS NULL)=(confirmed_at IS NULL) AND (cancelled_by IS NULL)=(cancelled_at IS NULL)", name="ck_ops_order_actors"),
         Index("ix_ops_order_supplier_status", "supplier_id", "status", "id"),

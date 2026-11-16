@@ -6,7 +6,7 @@
 |---|---|---|
 | M1 | Cấu trúc FE quản lý, mục Công cụ, Tổng quan mới | Đã làm local, chờ người dùng xem ([bàn giao](../development.md#handoff-m1-management-fe-20261116)) |
 | M2 | Vai trò đại lý, bỏ đăng nhập supplier | Đã làm local, chờ người dùng xem ([bàn giao](../development.md#handoff-m2-dealers-20261116)) |
-| M3 | Điều chỉnh ETA đơn đã xác nhận | Chưa làm |
+| M3 | Điều chỉnh ETA đơn đã xác nhận | Đã làm local, chờ người dùng xem ([bàn giao](../development.md#handoff-m3-eta-20261116)) |
 | M4 | Tách bảng DB | Chưa làm |
 | M5 | Bỏ hash kiểm chứng | Chưa làm |
 | M6 | Rà loading/skeleton | Chưa làm |

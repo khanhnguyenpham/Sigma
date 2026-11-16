@@ -54,6 +54,7 @@ def order_view(session, key, supplier_id=None):
     result = record(order)
     # Request fingerprints are internal retry metadata, not a user-facing business field.
     result.pop("request_digest", None); result.pop("request_key", None)
+    result["planned_eta"] = order.ordered_on + timedelta(days=order.lead_time_days)
     rows = session.execute(select(Line, Item.sku, Item.product_type, Warehouse.name, Product.name).join(Item, Line.item_id == Item.id).join(
         Warehouse, Line.warehouse_id == Warehouse.id).join(Product, Product.item_id == Item.id).where(Line.order_id == key).order_by(Line.id)).all()
     result.update(carrier=carrier, lines=[{**record(line), "sku": sku, "name": name, "product_type": product_type, "warehouse": city,
@@ -118,6 +119,22 @@ def update_order(session, key, payload, actor):
     session.add_all([Line(order_id=key, item_id=row.item_id, warehouse_id=row.warehouse_id,
         ordered_qty=row.quantity, received_qty=0) for row in payload.lines])
     audit(session, "purchase_order", key, "updated", actor, version=order.version)
+    session.flush()
+    return order_view(session, key)
+
+
+def change_eta(session, key, payload, actor):
+    order = required_order(session, key, payload.expected_version)
+    if order.status not in ("ordered", "partially_received"):
+        raise DomainError("order_not_open", "Chỉ đổi ngày dự kiến của đơn đã xác nhận và chưa nhận đủ.", 409)
+    if payload.eta < today():
+        raise DomainError("eta_in_past", "Ngày dự kiến mới không được trước ngày nghiệp vụ hôm nay.")
+    if payload.eta == order.eta:
+        raise DomainError("eta_unchanged", "Ngày dự kiến mới trùng ngày hiện tại.")
+    old = order.eta
+    order.eta, order.version = payload.eta, order.version + 1
+    audit(session, "purchase_order", key, "eta_changed", actor, old_eta=old.isoformat(), eta=payload.eta.isoformat(),
+        reason=payload.reason, version=order.version)
     session.flush()
     return order_view(session, key)
 

@@ -267,3 +267,36 @@ def test_dashboard_lists_open_orders_by_eta_low_stock_first_and_late_count(auth_
         assert [r["id"] for r in rows] == [late["id"], soon["id"]]
         summary = client.get(BASE + "/summary").json()
         assert summary["late_orders"] == 1 and summary["pending_orders"] == 2
+
+
+def test_confirmed_order_eta_moves_with_reason_audit_and_version(auth_app):
+    app, sessions = auth_app
+    with TestClient(app) as client:
+        client.headers.update(login(client)); warehouse, item, supplier = setup_catalog(client)
+        order = draft(client, warehouse, item, supplier)
+        later = str(service.today() + timedelta(days=20))
+        change = {"expected_version": order["version"], "eta": later, "reason": "Nhà mạng báo chậm giao"}
+        assert post(client, f'/orders/{order["id"]}/eta', change).status_code == 409  # draft: edit the order instead
+        order = confirm(client, order)
+        planned = order["eta"]
+        assert order["planned_eta"] == planned
+        for bad, code in (({"eta": str(service.today() - timedelta(days=1))}, 422), ({"eta": planned}, 422),
+                          ({"reason": "   "}, 422), ({"expected_version": 1}, 409)):
+            assert post(client, f'/orders/{order["id"]}/eta', {**change, "expected_version": order["version"], **bad}).status_code == code
+        moved = post(client, f'/orders/{order["id"]}/eta', {**change, "expected_version": order["version"]})
+        assert moved.status_code == 200, moved.text
+        body = moved.json()
+        assert body["eta"] == later and body["planned_eta"] == planned and body["version"] == order["version"] + 1
+        # The new ETA drives the open-order list and late count immediately.
+        assert client.get(BASE + "/orders?status=open&sort=eta").json()["items"][0]["eta"] == later
+        assert client.get(BASE + "/summary").json()["late_orders"] == 0
+        assert post(client, f'/orders/{order["id"]}/receipts', receipt_body(body, 10)).status_code == 201
+        received = client.get(BASE + f'/orders/{order["id"]}').json()
+        assert post(client, f'/orders/{order["id"]}/eta', {**change, "expected_version": received["version"]}).status_code == 409
+    with sessions() as session:
+        event = session.scalar(select(OperationAudit).where(OperationAudit.action == "eta_changed"))
+        assert event.details == {"old_eta": planned, "eta": later, "reason": "Nhà mạng báo chậm giao", "version": order["version"] + 1}
+    cfg = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
+    cfg.attributes["database_url"] = app.state.engine.url.render_as_string(hide_password=False)
+    with pytest.raises(RuntimeError, match="Adjusted ETA data exists"):
+        command.downgrade(cfg, "0012_dealers")

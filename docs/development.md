@@ -1,5 +1,12 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-m3-eta-20261116"></a>
+## M3 — điều chỉnh ETA — 16/11/2026
+
+Migration `0013_adjustable_eta` nới `ck_ops_order_dates` từ `eta=ordered_on+lead_time_days` thành `eta>=ordered_on`; ETA ban đầu vẫn suy được từ ngày đặt + thời gian nhập và trả về dạng `planned_eta`. Downgrade từ chối khi đã có đơn đổi ETA. API `POST /api/v1/operations/orders/{id}/eta` (admin): chỉ đơn `ordered`/`partially_received`, ngày mới không trước hôm nay và khác ngày hiện tại, bắt buộc lý do, kiểm `expected_version`, ghi audit `eta_changed` với ngày cũ/mới/lý do. Đề xuất nhập, danh sách đơn sắp về và số đơn trễ đọc ETA hiện hành nên không cần sửa thêm. FE: nút **Đổi ngày dự kiến** trong chi tiết đơn, hiện "Ban đầu … · đã điều chỉnh"; nhãn audit cho đổi ETA và thao tác đại lý.
+
+Kiểm lượt này trên PostgreSQL 16 cục bộ: pytest **581 passed, 1 failed, 3 skipped**; test hỏng vẫn chỉ là `test_real_postgres_migration_and_role` đòi PostgreSQL 18. Vitest 34 file/169 test qua (`--maxWorkers=2`), `tsc -b`, `vite build` qua. Xem trình duyệt với API giả: chi tiết đơn hiện ETA ban đầu/hiện tại, hộp đổi ngày có `min` = ngày nghiệp vụ.
+
 <a id="handoff-m2-dealers-20261116"></a>
 ## M2 — vai trò đại lý — 16/11/2026
 

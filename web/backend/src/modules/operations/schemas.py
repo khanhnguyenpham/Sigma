@@ -149,3 +149,16 @@ class OpsMovementInput(DTO):
 
 class OpsQrScanInput(DTO):
     payload: str = Field(min_length=1, max_length=4096)
+
+
+class OpsEtaChange(DTO):
+    expected_version: int = Field(ge=1, strict=True)
+    eta: date
+    reason: str = Field(min_length=1, max_length=1000)
+
+    @field_validator("reason")
+    @classmethod
+    def meaningful(cls, value):
+        if not value.strip():
+            raise ValueError("Field is required")
+        return value.strip()

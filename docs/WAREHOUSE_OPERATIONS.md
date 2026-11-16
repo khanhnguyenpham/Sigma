@@ -11,7 +11,8 @@ Khởi tạo auth theo [AUTHENTICATION](AUTHENTICATION.md), nâng migration lên
 1. Thêm kho vật lý ở **Kho hàng**, gồm mã duy nhất, tên và quốc gia.
 2. Thêm SKU ở **Sản phẩm**: tên, loại SIM/eSIM, nhà cung cấp/nhà mạng, quốc gia sử dụng. Nhà cung cấp được tạo nếu chưa có. Không dựng lịch sử bán cho sản phẩm mới hoặc đổi định danh nguồn đã tồn tại.
 3. Đổi **Thời gian nhập** tại **Nhà cung cấp**, từ1–365 ngày lịch, mặc định7. Đơn mới lưu lead time/ETA tại lúc lập; đổi mặc định không viết lại đơn đã có.
-4. Nếu đã có hàng, dùng **Kiểm kê / tồn đầu**, nhập số lượng đếm thực tế, mã phiếu và lý do. Không lấy tồn mô phỏng làm số dư thực.
+4. Khi có sự cố giao hàng, mở đơn đã xác nhận → **Đổi ngày dự kiến**, chọn ngày từ hôm nay trở đi và ghi lý do. ETA ban đầu (ngày đặt + thời gian nhập) vẫn hiển thị; đề xuất nhập, danh sách đơn sắp về và số đơn trễ dùng ETA mới. API `POST /api/v1/operations/orders/{id}/eta`.
+5. Nếu đã có hàng, dùng **Kiểm kê / tồn đầu**, nhập số lượng đếm thực tế, mã phiếu và lý do. Không lấy tồn mô phỏng làm số dư thực.
 
 ## Luồng chứng từ
 
@@ -35,7 +36,7 @@ Ngày sổ kho dùng **Asia/Ho_Chi_Minh (UTC+7)**; audit lưu thời điểm UTC
 - Không nhận vượt phần còn thiếu, dùng dòng đơn khác hoặc xuất âm tồn. Mã phiếu giao duy nhất trong từng đơn. Sản phẩm ngừng nhập vẫn nhận đơn đã xác nhận và xuất tồn còn lại.
 - Trigger PostgreSQL chặn UPDATE/DELETE trên phiếu, dòng phiếu và audit. Quản trị DB có quyền cao vẫn cần quy trình riêng.
 - Giới hạn số lượng mỗi đơn/phiếu/số dư `2^53−1` để FE giữ đúng số nguyên. Tổng tồn lớn hơn trả chuỗi số nguyên, không ép float.
-- Admin được ghi; supplier chỉ đọc đơn/sản phẩm của supplier gắn với tài khoản. Scope áp trước count/paging và kiểm khi mở chi tiết. Chưa cấp supplier quyền nhận hàng/sửa ETA.
+- Chỉ admin được ghi sổ. Tài khoản supplier đã ngừng từ 0012; đại lý chỉ dùng cổng yêu cầu lấy hàng, không truy cập API sổ kho.
 
 ## Dữ liệu và API
 

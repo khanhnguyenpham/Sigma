@@ -133,3 +133,23 @@ it("background refresh preserves a receipt draft and never advances its expected
   expect(screen.getByLabelText("Mã phiếu giao hàng")).toHaveValue("PRESERVE-REF");
   expect(within(screen.getByRole("dialog")).queryByRole("button", { name: "Thử tải lại" })).toBeNull();
 });
+
+it("moves the ETA of a confirmed order with a reason and shows the planned date", async () => {
+  let current: Order = { ...order, planned_eta: order.eta };
+  const fetch = vi.spyOn(globalThis, "fetch").mockImplementation(async (_, options) => {
+    if (options?.method === "POST") current = { ...current, eta: "2026-12-20", version: current.version + 1 };
+    return reply(current);
+  });
+  render(<OrderDetail id="3" today="2026-11-16" suppliers={[supplier]} warehouses={[warehouse]} onBack={vi.fn()} />);
+  fireEvent.click(await screen.findByRole("button", { name: "Đổi ngày dự kiến" }));
+  const date = screen.getByLabelText("Ngày dự kiến mới");
+  expect(date).toHaveAttribute("min", "2026-11-16");
+  fireEvent.change(date, { target: { value: "2026-12-20" } });
+  fireEvent.change(screen.getByLabelText("Lý do điều chỉnh"), { target: { value: "Nhà mạng báo chậm giao" } });
+  fireEvent.click(screen.getByRole("button", { name: "Lưu ngày mới" }));
+  await waitFor(() => expect(fetch.mock.calls.some(([, o]) => o?.method === "POST")).toBe(true));
+  const [path, options] = fetch.mock.calls.find(([, o]) => o?.method === "POST")!;
+  expect(String(path)).toMatch(/\/operations\/orders\/3\/eta$/);
+  expect(JSON.parse(String(options?.body))).toEqual({ expected_version: 2, eta: "2026-12-20", reason: "Nhà mạng báo chậm giao" });
+  expect(await screen.findByText("Ban đầu 2026-12-01 · đã điều chỉnh")).toBeVisible();
+});

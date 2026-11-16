@@ -30,7 +30,7 @@ const TAB_INFO: Record<string, [string, string]> = {
 };
 
 type Editor = { kind: "warehouse"; row?: Warehouse } | { kind: "product"; row?: Product } | { kind: "supplier"; row: Supplier } | { kind: "order" } | { kind: "issue"; row?: Position } | { kind: "count"; row?: Position };
-export const AUDIT_ACTIONS: Record<string, string> = { created: "Tạo mới", registered: "Đăng ký sản phẩm", updated: "Cập nhật", confirm: "Xác nhận đặt hàng", cancel: "Hủy phần chưa nhận", received: "Nhận hàng", posted: "Ghi sổ chứng từ" };
+export const AUDIT_ACTIONS: Record<string, string> = { created: "Tạo mới", registered: "Đăng ký sản phẩm", updated: "Cập nhật", confirm: "Xác nhận đặt hàng", cancel: "Hủy phần chưa nhận", received: "Nhận hàng", posted: "Ghi sổ chứng từ", eta_changed: "Đổi ngày dự kiến nhận", approve: "Duyệt yêu cầu đại lý", reject: "Từ chối yêu cầu đại lý", issue: "Xuất kho cho đại lý", receive: "Đại lý xác nhận nhận" };
 
 export function Operations({ ctx, onContext }: { ctx: Context; onContext: (patch: Partial<Context>) => void }) {
   const tab = OPERATION_TABS.some(([key]) => key === ctx.opsTab) ? ctx.opsTab! : "stock";

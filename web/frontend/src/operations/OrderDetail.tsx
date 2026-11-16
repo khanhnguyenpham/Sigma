@@ -11,21 +11,29 @@ import { qty, ORDER_STATUS, type Order, type Supplier, type Warehouse } from "./
 
 export function OrderDetail({ id, today, suppliers, warehouses, onBack }: { id: string; today: string; suppliers: Supplier[]; warehouses: Warehouse[]; onBack: () => void }) {
   const result = useResource<Order>(`/operations/orders/${id}`, true);
-  const [action, setAction] = useState<"receipt" | "edit" | "confirm" | "cancel">();
+  const [action, setAction] = useState<"receipt" | "edit" | "confirm" | "cancel" | "eta">();
   const write = useOperationWrite(), order = result.data;
   const actionable = order?.status === "draft" || order?.status === "ordered" || order?.status === "partially_received";
   return <section className="panel ops-order-detail"><div className="ops-section-heading"><button onClick={onBack}>← Danh sách đơn</button><span>Chi tiết đơn nhập</span></div>
     <State loading={result.loading} error={result.error} />
     {order && <><div className="ops-section-heading"><div><h2>{order.number}</h2><span className={`ops-status ${order.status}`}>{ORDER_STATUS[order.status]}</span></div>
       <div className="ops-actions">{order.status === "draft" && <><button onClick={() => setAction("edit")}>Sửa nháp</button><button className="primary" onClick={() => setAction("confirm")}>Xác nhận đặt hàng</button></>}
-        {["ordered", "partially_received"].includes(order.status) && <button className="primary" disabled={!today} onClick={() => setAction("receipt")}>Nhận hàng</button>}
+        {["ordered", "partially_received"].includes(order.status) && <><button disabled={!today} onClick={() => setAction("eta")}>Đổi ngày dự kiến</button>
+          <button className="primary" disabled={!today} onClick={() => setAction("receipt")}>Nhận hàng</button></>}
         {actionable && <button onClick={() => setAction("cancel")}>{order.status === "partially_received" ? "Hủy phần chưa nhận" : "Hủy đơn"}</button>}</div></div>
-      <dl className="ops-detail-grid"><div><dt>Nhà cung cấp</dt><dd>{order.carrier}</dd></div><div><dt>Ngày đặt</dt><dd>{order.ordered_on}</dd></div><div><dt>Dự kiến nhận</dt><dd>{order.eta}</dd></div><div><dt>Thời gian nhập đã chốt</dt><dd>{order.lead_time_days} ngày</dd></div></dl>
+      <dl className="ops-detail-grid"><div><dt>Nhà cung cấp</dt><dd>{order.carrier}</dd></div><div><dt>Ngày đặt</dt><dd>{order.ordered_on}</dd></div><div><dt>Dự kiến nhận</dt><dd>{order.eta}{order.planned_eta && order.planned_eta !== order.eta && <small className="cell-subtitle">Ban đầu {order.planned_eta} · đã điều chỉnh</small>}</dd></div><div><dt>Thời gian nhập đã chốt</dt><dd>{order.lead_time_days} ngày</dd></div></dl>
       {order.note && <p>Ghi chú: {order.note}</p>}
       <Table rows={order.lines} stickyFirstColumn columns={[{ key: "sku", label: "Mã sản phẩm" }, { key: "name", label: "Tên sản phẩm" }, { key: "warehouse", label: "Kho nhận" }, { key: "ordered_qty", label: "Đã đặt", render: qty }, { key: "received_qty", label: "Đã nhận", render: qty }, { key: "remaining_qty", label: order.status === "cancelled" ? "Chưa nhận (đã hủy)" : "Còn thiếu", render: qty }]} />
-      <p className="caption">Ngày dự kiến nhận được lưu theo nhà cung cấp lúc lập đơn. Tồn kho chỉ tăng khi phiếu nhận hàng được ghi sổ.</p>
+      <p className="caption">Ngày dự kiến nhận tính theo thời gian nhập của nhà cung cấp lúc lập đơn; khi có sự cố, đổi ngày kèm lý do và xem lại trong Lịch sử thao tác. Tồn kho chỉ tăng khi phiếu nhận hàng được ghi sổ.</p>
       {action === "edit" && <OrderEditor order={order} suppliers={suppliers} warehouses={warehouses} today={today} onClose={() => setAction(undefined)} onSaved={() => setAction(undefined)} />}
       {action === "receipt" && <ReceiptEditor order={order} today={today} onClose={() => setAction(undefined)} onSaved={() => setAction(undefined)} />}
+      {action === "eta" && <Dialog title="Đổi ngày dự kiến nhận" onClose={() => setAction(undefined)} busy={write.busy} className="operations-form-dialog">
+        <form onSubmit={(event) => { event.preventDefault(); const fields = new FormData(event.currentTarget); void write.send(`/orders/${order.id}/eta`, { expected_version: order.version, eta: fields.get("eta"), reason: fields.get("reason") }).then((saved) => { if (saved) { setAction(undefined); refreshOperations(); } }); }}><fieldset disabled={write.busy}><div className="operations-form-fields"><WriteError error={write.error} />
+          <p>Ngày hiện tại: <strong>{order.eta}</strong>{order.planned_eta && order.planned_eta !== order.eta ? ` (ban đầu ${order.planned_eta})` : ""}. Đề xuất nhập và cảnh báo trễ dùng ngày mới ngay sau khi lưu.</p>
+          <label>Ngày dự kiến mới<input name="eta" type="date" required min={today} /></label>
+          <label>Lý do điều chỉnh<textarea name="reason" required maxLength={1000} rows={3} placeholder="VD: Nhà mạng báo chậm giao do sự cố vận chuyển" /></label>
+        </div><div className="dialog-form-actions"><button type="button" onClick={() => setAction(undefined)}>Quay lại</button><button className="primary" type="submit">{write.busy ? "Đang lưu…" : "Lưu ngày mới"}</button></div></fieldset></form>
+      </Dialog>}
       {(action === "confirm" || action === "cancel") && <Dialog title={action === "confirm" ? "Xác nhận đặt hàng" : "Hủy đơn / phần chưa nhận"} onClose={() => setAction(undefined)} busy={write.busy} className="operations-form-dialog">
         <form onSubmit={(event) => { event.preventDefault(); const reason = new FormData(event.currentTarget).get("reason") ?? ""; void write.send(`/orders/${order.id}/${action}`, { expected_version: order.version, reason }).then((saved) => { if (saved) { setAction(undefined); refreshOperations(); } }); }}><fieldset disabled={write.busy}><div className="operations-form-fields"><WriteError error={write.error} />
           <p>{action === "confirm" ? "Đơn sẽ chuyển sang chờ nhận hàng. Sau khi xác nhận, bạn không sửa các dòng của đơn." : "Chỉ hủy số lượng chưa nhận. Các phiếu đã ghi sổ và tồn đã nhận được giữ nguyên."}</p>

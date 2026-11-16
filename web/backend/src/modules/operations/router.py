@@ -11,7 +11,7 @@ from modules.operations.schemas import OpsSupplierSettingsInput, OpsOrderInput, 
 from modules.operations.schemas import OpsWarehouseInput, OpsWarehouseUpdate, OpsProductInput, OpsProductUpdate
 from modules.operations import service
 from modules.dealers.models import DealerRequest
-from modules.operations.schemas import OpsQrScanInput
+from modules.operations.schemas import OpsQrScanInput, OpsEtaChange
 
 router = APIRouter(prefix="/api/v1/operations", tags=["operations"])
 
@@ -166,6 +166,13 @@ def update_order(key: int, payload: OpsOrderUpdate, request: Request):
     user = actor(request)
     with request.app.state.sessions.begin() as session:
         return service.update_order(session, key, payload, user)
+
+
+@router.post("/orders/{key}/eta")
+def change_eta(key: int, payload: OpsEtaChange, request: Request):
+    user = actor(request)
+    with request.app.state.sessions.begin() as session:
+        return service.change_eta(session, key, payload, user)
 
 
 @router.post("/orders/{key}/confirm")

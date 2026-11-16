@@ -5,7 +5,7 @@ export interface Supplier extends Row { id: number; carrier: string; lead_time_d
 export interface Warehouse extends Row { id: number; code: string; name: string; country: string; active: boolean; version: number }
 export interface Product extends Row { id: number; name: string; sku: string; product_type: string; carrier: string; supplier_id: number; destination_country: string; active: boolean; version: number }
 export interface OrderLine extends Row { id: number; item_id: number; warehouse_id: number; sku: string; name: string; warehouse: string; ordered_qty: number; received_qty: number; remaining_qty: number }
-export interface Order extends Row { id: number; number: string; supplier_id: number; carrier: string; ordered_on: string; eta: string; lead_time_days: number; version: number; status: string; note: string; lines: OrderLine[] }
+export interface Order extends Row { planned_eta?: string; id: number; number: string; supplier_id: number; carrier: string; ordered_on: string; eta: string; lead_time_days: number; version: number; status: string; note: string; lines: OrderLine[] }
 export interface Position extends Row { warehouse_id: number; item_id: number; warehouse: string; sku?: string; name: string; on_hand_qty: number; version: number }
 export interface StockDocument extends Row { id: string; number: string; kind: string; occurred_on: string; external_ref: string; reason: string; created_at: string; lines: Row[] }
 

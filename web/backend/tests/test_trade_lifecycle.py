@@ -314,7 +314,7 @@ def test_downgrade_refuses_every_new_data_shape(pg, kind):
     with pytest.raises(RuntimeError, match="lose data"):
         command.downgrade(migration_config(engine), "0007_supply_lifecycle")
     with sessions() as s:
-        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0012_dealers"
+        assert s.scalar(text("SELECT version_num FROM alembic_version")) == "0013_adjustable_eta"
 
 
 def test_daily_source_split_check_preserves_existing_balance_rule(pg):
