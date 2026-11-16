@@ -1,5 +1,16 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 16/11 — sửa đăng ký model cho lệnh auth độc lập
+
+Trước M5, người dùng yêu cầu sửa lỗi tạo admin bằng bộ đăng ký `models` dùng chung. Hai lệnh auth nạp đầy đủ metadata khi chạy trong tiến trình riêng. Workflow M3 dùng chính lệnh bootstrap để tạo tài khoản và kiểm đăng nhập qua Compose. Kiểm PostgreSQL 18.6 local đạt cả tạo admin và đặt lại mật khẩu độc lập. [Bàn giao và phạm vi kiểm](development.md#handoff-container-bootstrap-fix-20261116).
+
+<a id="pending-container-bootstrap-20261116"></a>
+## 16/11 — lỗi bootstrap admin trong container trước khi sửa
+
+Người dùng yêu cầu push code mới và kiểm lỗi. Sau khi đẩy `main` đến `a5ca6b2` và phát hiện lỗi container trên CI, người dùng yêu cầu ghi lại lỗi để sửa trong lượt sau.
+
+Job [container](https://github.com/khanhnguyenpham/Sigma/actions/runs/43812699338/job/133117695235) lỗi `NoReferencedTableError` khi tạo admin độc lập: `auth_users.supplier_id` vẫn tham chiếu `suppliers` nhưng dịch vụ auth không còn import model `Supplier`. Backend CI 587 test, frontend, hồi quy M2 và workflow Synthetic tests đều qua; điều đó không thay thế kiểm bootstrap/backup–restore container đang lỗi. Đã tái hiện không cần DB trong tiến trình mới. Lần sau khôi phục đăng ký model cho entry point auth độc lập, thêm regression test và kiểm lại Compose/CI; giữ cột supplier lịch sử. [Lệnh tái hiện, bằng chứng và giới hạn](development.md#handoff-publish-container-error-20261116).
+
 ## 16/11 — M4 tách bảng: phạm vi thực
 
 Rà nghiệp vụ cho thấy cấu hình sản phẩm và nhà cung cấp đã tách sẵn; vấn đề là tên bảng và cột thừa. Người dùng chọn làm rõ cấu hình (0015) và gộp việc tách `runs` vào M5 vì 5 cột hash của `runs` gắn với `verification.py` và bước chặn sai file nguồn M2. Chấp nhận bỏ cam kết "code mới đọc schema cũ hơn 0015", thay bằng kiểm readiness, vì triển khai luôn migrate trước. [Bàn giao](development.md#handoff-m4a-tables-20261116).

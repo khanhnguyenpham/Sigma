@@ -3,7 +3,7 @@ import getpass
 from sqlalchemy import select, text
 from core.db import database
 from core.settings import Settings
-from modules.auth.models import User
+from models import User  # Register all foreign-key targets for standalone bootstrap.
 from modules.auth.schemas import UserCreate
 from modules.auth.service import create_user
 

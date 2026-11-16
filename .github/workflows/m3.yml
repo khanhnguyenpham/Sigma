@@ -115,7 +115,9 @@ jobs:
           docker tag sigma-ci:latest sigma-local:latest
           docker compose -p sigma-ci -f compose.local.yml up -d database redis
           docker compose -p sigma-ci -f compose.local.yml --profile setup run --rm migrate
-          docker compose -p sigma-ci -f compose.local.yml run --rm api python -c "from core.settings import Settings; from core.db import database; from modules.auth.service import create_user; from modules.auth.schemas import UserCreate; from sqlalchemy import text; e,s=database(Settings.from_env().database_url); c=e.connect(); assert not c.scalar(text('SELECT rolsuper FROM pg_roles WHERE rolname=current_user')); c.close(); t=s(); create_user(t,UserCreate(username='ci-admin',display_name='CI synthetic',password='Synthetic-compose-only-2026',role='admin')); t.commit(); t.close(); e.dispose()"
+          docker compose -p sigma-ci -f compose.local.yml run --rm api python -c "from core.settings import Settings; from core.db import database; from sqlalchemy import text; e,_=database(Settings.from_env().database_url); c=e.connect(); assert not c.scalar(text('SELECT rolsuper FROM pg_roles WHERE rolname=current_user')); c.close(); e.dispose()"
+          printf '%s\n' ci-admin 'CI synthetic' Synthetic-compose-only-2026 Synthetic-compose-only-2026 |
+            docker compose -p sigma-ci -f compose.local.yml run --rm -T api python -m modules.auth.bootstrap
           docker compose -p sigma-ci -f compose.local.yml up -d api
           python - <<'PY'
           import http.cookiejar, json, time, urllib.request

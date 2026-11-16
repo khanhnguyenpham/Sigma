@@ -1,5 +1,6 @@
 """Recovery from an operator terminal with DB access; never takes passwords as arguments."""
 import getpass
+import models  # Register all foreign-key targets before flushing the password update.
 from core.db import database
 from core.settings import Settings
 from core.errors import DomainError

@@ -1,5 +1,23 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-container-bootstrap-fix-20261116"></a>
+## Sửa lệnh tạo admin trong container — 16/11/2026
+
+`bootstrap.py` và `reset_password.py` nạp bộ đăng ký chung `models` để SQLAlchemy thấy đủ bảng khi chạy riêng. `worker` đã nạp bộ đăng ký này và `cli` nạp qua `worker`. Bước Compose của M3 CI xác nhận role DB không có quyền superuser, chạy `python -m modules.auth.bootstrap` bằng dữ liệu giả rồi đăng nhập qua API với admin vừa tạo.
+
+Kiểm local trên PostgreSQL 18.6 riêng với role không có quyền superuser đạt 13 ca auth, khôi phục mật khẩu và migration. Test mới tạo admin và đổi mật khẩu bằng hai tiến trình Python mới. Thêm 5 ca hợp đồng backend đạt và kiểm import độc lập của bốn lệnh xác nhận đủ 31 bảng cùng các khóa ngoại. Bằng chứng của commit cũ nằm trong [ghi chú lỗi trước khi sửa](#handoff-publish-container-error-20261116).
+
+<a id="handoff-publish-container-error-20261116"></a>
+## Push main và lỗi container trước khi sửa — 16/11/2026
+
+- Đã push 6 commit từ `924fec2` đến `a5ca6b2d820fe8a48df0a22a7dabb60be08a1452` lên `origin/main`, đối chiếu SHA remote khớp. Người dùng sau đó yêu cầu tạm để nguyên và ghi lỗi để sửa ở lần sau; chưa commit/push thêm bản sửa hoặc ghi chú này.
+- [Synthetic tests](https://github.com/khanhnguyenpham/Sigma/actions/runs/43812699254) thành công. [M3 synthetic integration](https://github.com/khanhnguyenpham/Sigma/actions/runs/43812699338): backend **587 passed**, frontend và m2-regression thành công; container thất bại ở bước `Start isolated Compose services and verify application role`. Build image, import entry points và migration đã qua; chưa chạy được bước backup/restore synthetic phía sau.
+- Lỗi: `sqlalchemy.exc.NoReferencedTableError: Foreign key associated with column 'auth_users.supplier_id' could not find table 'suppliers' with which to generate a foreign key to target column 'id'`. Xảy ra tại `modules.auth.service.create_user()` → `session.flush()` khi bootstrap tài khoản admin bằng tiến trình Python riêng. Sau khi đổi vai trò supplier sang dealer, `auth/service.py` bỏ import model `Supplier`, nhưng `auth_users.supplier_id` vẫn giữ cho lịch sử. Import app đầy đủ trong suite backend che khuất việc thiếu đăng ký model này.
+- Đã tái hiện local trong tiến trình mới: đặt `PYTHONPATH=web/backend/src`, chạy `.venv/Scripts/python.exe -c "from modules.auth.service import create_user; from modules.auth.models import User; from sqlalchemy import inspect; print([t.name for t in inspect(User)._sorted_tables])"`. Lệnh lỗi đúng khóa ngoại nêu trên; không cần DB và không ghi dữ liệu. Log CI đã tải vào `outputs/publish_20261116/ci-job-133117695235.log` (ignored).
+- Hướng sửa lần sau: bảo đảm model `Supplier` được đăng ký khi import dịch vụ auth độc lập (ví dụ khôi phục import có chú thích), thêm regression test trong tiến trình mới, rồi kiểm bootstrap admin thật trong Compose và toàn bộ CI trên đúng SHA mới. Không xóa cột lịch sử hoặc nới kiểm thử để né lỗi. Bản thử import/test chưa commit đã được gỡ theo yêu cầu tạm dừng; chưa nhận bản sửa đã hoàn tất.
+- Kiểm local lượt này trước push: **170/170 React**, TypeScript/Vite build, `pip check`, `git diff --check`, 11 Markdown/18 liên kết mới đạt; rà 6 commit không thấy credential theo các mẫu đã kiểm hoặc tệp dữ liệu/runtime riêng tư. Full backend local không hoàn tất: `.venv-m3` thiếu `pwdlib`; `.venv` đủ thư viện nhưng DB test local timeout. Dùng kết quả backend CI ở trên, không tính các lượt local lỗi môi trường là pass.
+- Không deploy/restart demo, không ghi DB demo, không enqueue/refit; các tệp nghiên cứu được bảo vệ và `.claude/` vẫn ngoài commit. Xem [việc còn lại](review-log.md#pending-container-bootstrap-20261116).
+
 <a id="handoff-m4a-tables-20261116"></a>
 ## M4a — làm rõ bảng cấu hình — 16/11/2026
 
