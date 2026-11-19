@@ -1,5 +1,20 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-dev-seed-20261119"></a>
+## Công cụ dữ liệu thử dùng chung và hướng dẫn cập nhật — 19/11/2026
+
+- [UPDATE_LOCAL](UPDATE_LOCAL.md) viết lại cho head `0017`: sao lưu bắt buộc (vì `0016` bỏ cột hash), bảng ảnh hưởng của migration `0010`–`0017`, menu và tài khoản đại lý hiện hành, mục khôi phục từ bản sao lưu, mục dữ liệu thử dùng chung.
+- `web/backend/scripts/seed_dev_data.py` gộp hai script local trong `outputs/seed_20261119` thành công cụ cho DB thử: 3 kho, mọi sản phẩm trong CSV kèm chính sách nhập (lô ≈ 14 ngày bán, ROP tối thiểu ≈ nhu cầu trong thời gian nhập), lead time giả lập cho nhà cung cấp chưa cấu hình, tồn/phiếu bán của 24 sản phẩm, đơn nhập và đại lý ở mọi trạng thái. Mốc bắt đầu = 3 ngày trước ngày chạy, dời CSV theo tuần chẵn. Từ chối khi thiếu `--yes`, thiếu CSV, sổ kho đã có kho/sản phẩm hoặc chưa có admin. Mật khẩu đại lý ghi vào `outputs/dev_seed/` (Git bỏ qua).
+- Test `test_dev_seed.py` chạy script trên DB test với CSV tổng hợp: số dư khớp tổng sổ cái, không âm, không ghi ngày tương lai, đủ 6 trạng thái yêu cầu đại lý, lần chạy thứ hai bị từ chối. Chưa chạy script với CSV thật trên một DB trống mới.
+
+<a id="handoff-dealer-portal-review-20261119"></a>
+## Rà cổng đại lý bằng tài khoản thử — 19/11/2026
+
+- Đăng nhập `dl.han` (tài khoản thử local) và đi qua Tổng quan, Đặt hàng, gửi yêu cầu, xem và hủy yêu cầu. Lỗi tìm thấy: thẻ Tổng quan vỡ kiểu sau khi đổi CSS dashboard; thiếu trạng thái "Đã duyệt, chờ xuất"; 920 sản phẩm không lọc được, đa số hết hàng; nhãn ô số lượng trùng theo SKU; không cảnh báo khi đặt vượt tồn, không xem được giỏ, nút gửi ở cuối danh sách; không báo gửi thành công; hủy không hỏi lại; tab không nằm trên URL nên tải lại về Tổng quan; hash của đại lý còn lại sau đăng xuất đưa admin vào trang rỗng.
+- Đã sửa: Tổng quan dùng thẻ `Card` (4 trạng thái) và bảng yêu cầu gần đây; Đặt hàng lọc theo tình trạng (mặc định chỉ hàng còn), quốc gia, nhà mạng, loại, hàng còn xếp trước; nhãn ô theo tên sản phẩm; cảnh báo vượt tồn (vẫn gửi được); giỏ yêu cầu xem/bỏ dòng và thanh tóm tắt dính đáy; thông báo đã gửi; hủy cần xác nhận; mỗi yêu cầu ghi bước tiếp theo; Yêu cầu của tôi lọc theo trạng thái, có số sản phẩm, bấm cả dòng. Tab đại lý nằm trên hash `#dealer-…`; hash lạ ở phía admin quay về Tổng quan.
+- Backend: `GET /dealer/products` thêm `in_stock`, `product_type`, `country`, `carrier`, trả nhà mạng/quốc gia; route mới `GET /dealer/product-filters`.
+- Kiểm: pytest dealers + hợp đồng 13 ca qua; full backend trước lượt này 581 passed, 3 skipped; Vitest **179/179**, `tsc -b`, `vite build` qua; xem trên trình duyệt ở 1024px và 375px không tràn ngang. Một yêu cầu thử (DR-20261119-10C6AEA0) đã tạo rồi hủy trên DB local.
+
 <a id="handoff-threshold-advice-warehouse-cards-20261119"></a>
 ## Đề xuất nhập theo ngưỡng cố định và thẻ kho — 19/11/2026
 
