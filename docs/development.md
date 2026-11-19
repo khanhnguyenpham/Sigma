@@ -1,5 +1,13 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-report-runtime-20261120"></a>
+## Cập nhật main và chạy web để chụp ảnh báo cáo — 20/11/2026
+
+- Theo yêu cầu người dùng, fast-forward main local từ `924fec2` tới `3f7953f` của nhóm. Build React/TypeScript và `pip check` đạt. Runtime chụp ảnh dùng DB mới `sigma_report20261120`, schema0017 và CSV fixture độc lập; không dùng CSV đơn hàng riêng tư, không nâng/reset DB cũ hoặc fit mô hình.
+- Phát hiện seed có thể chọn yêu cầu đại lý vượt tồn sau bán lẻ. Với ví dụ đã xuất/đã nhận, chọn kho còn hàng trước khi lập yêu cầu và giới hạn từng dòng theo số dư thực tại kho đó; vẫn xuất qua service có kiểm tồn, không bổ sung số dư giả để vượt ràng buộc. Mở rộng regression với 40 sản phẩm/10 tuyến và giữ ca6sản phẩm cũ.
+- Kiểm thực chạy lượt này: 6ca PostgreSQL (`test_dev_seed.py`, `test_dealers.py`) trong schema thử mới, 18ca React về auth/điều hướng/đại lý/chi tiết, TypeScript/Vite và `pip check` đạt. Seed fixture tạo40sản phẩm,3kho,6đơn nhập,365chứng từ,3đại lý; số dư khớp tổng ledger và không âm. Kiểm9trang bằng Edge không có pageerror hoặc phản hồi5xx; đã mở chi tiết kho/đơn, đăng nhập đại lý, kiểm API quản trị bị403 và dashboard390px không tràn ngang trang.
+- Ảnh và Word cùng bằng chứng giữ trong `outputs/report_refresh_20261120/`, ngoài Git. Runtime chỉ localhost8045, API/React và DB thử; không mở worker hoặc tạo run dự báo mới. Các số seed không phải kết quả dự báo hoặc số tồn doanh nghiệp; không đổi kết quả M2, R05/R07/T14 hoặc nhận đã nghiệm thu sản xuất. SHA remote/CI của commit sửa seed xác minh sau push.
+
 <a id="handoff-dev-seed-20261119"></a>
 ## Công cụ dữ liệu thử dùng chung và hướng dẫn cập nhật — 19/11/2026
 

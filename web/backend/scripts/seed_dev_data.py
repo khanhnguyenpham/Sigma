@@ -175,6 +175,18 @@ def seed(sessions, csv_path, today, accounts_path, rng_seed=20261119):
             for status in statuses:
                 lines = [{"item_id": items[item], "quantity": max(1, want(item, today + timedelta(days=1), today + timedelta(days=14)) // 10)}
                          for item in rng.sample(top, 3)]
+                if status in ("issued", "received"):
+                    # These examples must be fulfillable after the simulated retail sales
+                    # and earlier dealer issues, without inventing extra stock.
+                    available = [(w, [(item, ops.stock_position(s, w, items[item])["on_hand_qty"])
+                                      for item in top]) for w, _ in warehouses]
+                    available = [(w, [(item, qty) for item, qty in rows if qty > 0]) for w, rows in available]
+                    source, rows = max(available, key=lambda pair: (len(pair[1]), sum(qty for _, qty in pair[1])))
+                    if not rows:
+                        raise SystemExit("Không còn tồn để minh họa xuất đại lý; không có dữ liệu thử nào được ghi.")
+                    lines = [{"item_id": items[item], "quantity": min(qty, max(1,
+                              want(item, today + timedelta(days=1), today + timedelta(days=14)) // 10))}
+                             for item, qty in rng.sample(rows, min(3, len(rows)))]
                 request, _ = dealers.create_request(s, dealer["id"], DealerRequestInput(note=f"{TAG} hàng cho 2 tuần tới", lines=lines), key("dr"), user.id)
                 version = lambda: Transition(expected_version=request["version"])
                 if status == "cancelled":
@@ -184,9 +196,6 @@ def seed(sessions, csv_path, today, accounts_path, rng_seed=20261119):
                 if status in ("approved", "issued", "received"):
                     request = dealers.approve(s, request["id"], version(), admin)
                 if status in ("issued", "received"):
-                    # Issue from the warehouse that can cover every line best.
-                    source = max((w for w, _ in warehouses), key=lambda w: min(ops.stock_position(s, w, line["item_id"])["on_hand_qty"] - line["quantity"]
-                                                                               for line in request["lines"]))
                     request, _ = dealers.issue(s, request["id"], IssueInput(expected_version=request["version"], warehouse_id=source, occurred_on=today), key("dgi"), admin)
                 if status == "received":
                     request = dealers.receive(s, request["id"], version(), dealer["id"], user.id)

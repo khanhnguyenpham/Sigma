@@ -1,5 +1,7 @@
 # Điều phối công việc SIGMA
 
+**20/11 — cập nhật main để chụp ảnh báo cáo:** đã nhận main `3f7953f`, chạy API/React trên DB fixture riêng và sửa seed không xuất đại lý vượt tồn. 6ca PostgreSQL,18ca React,build/pipcheck và kiểm giao diện liên quan đạt; đang cập nhật Word, xác minh push/CI sau cổng publish. Không chạy lại M2 hoặc đổi R05/R07/T14. [Bàn giao](../development.md#handoff-report-runtime-20261120).
+
 **16/11/2026 — việc tiếp theo theo góp ý mentor:** [Kế hoạch](MENTOR_MANAGEMENT_PLAN_20261116.md) đã được người dùng duyệt, chưa triển khai. Mỗi bước dừng để người dùng xem.
 
 | Bước | Nội dung | Trạng thái |
