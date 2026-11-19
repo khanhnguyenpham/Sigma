@@ -1,5 +1,5 @@
 import { type Context, type PurchasingView } from "../types/context";
-import { OPS_TAB, isManagementPage } from "../config/navigation";
+import { OPS_TAB, TOOL_PAGES, isManagementPage } from "../config/navigation";
 
 export function query(
   values: Record<string, string | number | undefined | null>,
@@ -87,7 +87,9 @@ export function readPage() {
   if (page === "operations") return Object.keys(OPS_TAB).find((id) => OPS_TAB[id] === params.get("ops_tab")) ?? "stock";
   if (page === "product-supply") return new URLSearchParams(location.search).get("item_id") ? "product" : "products";
   if (page.startsWith("provider-")) return "scenarios";
-  return page === "configuration" ? "scenarios" : page;
+  if (page === "configuration") return "scenarios";
+  // Unknown hashes (old bookmarks, the dealer portal's own tabs) land on the dashboard instead of an empty tool page.
+  return isManagementPage(page) || page === "product" || TOOL_PAGES.some(([id]) => id === page) ? page : "dashboard";
 }
 
 export function readPurchasingView(): PurchasingView {

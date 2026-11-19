@@ -8,7 +8,7 @@ const page = (items: unknown[]) => ({ items, total: items.length, page: 1, page_
 const request = { id: 5, number: "DR-1", status: "submitted", version: 1, note: "", reject_reason: null, dealer_code: "DL-A", dealer_name: "Đại lý A",
   created_at: "2026-11-16T03:00:00Z", received_at: null, lines: [{ item_id: 2, sku: "SIM-01", name: "SIM du lịch", quantity: 3 }] };
 
-afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); history.replaceState(null, "", "/"); });
 
 it("dealer submits only the products with a quantity", async () => {
   const fetch = vi.spyOn(globalThis, "fetch").mockImplementation(async (path, options) => options?.method === "POST"
@@ -18,7 +18,8 @@ it("dealer submits only the products with a quantity", async () => {
   fireEvent.click(screen.getByRole("button", { name: "Đặt hàng" }));
   const submit = screen.getByRole("button", { name: "Gửi yêu cầu" });
   expect(submit).toBeDisabled();
-  fireEvent.change(await screen.findByLabelText("Số lượng SIM-01"), { target: { value: "3" } });
+  fireEvent.change(await screen.findByLabelText("Số lượng SIM du lịch"), { target: { value: "3" } });
+  expect(screen.getByRole("region", { name: "Giỏ yêu cầu" })).toBeVisible();
   fireEvent.click(submit);
   await waitFor(() => expect(fetch.mock.calls.some(([, o]) => o?.method === "POST")).toBe(true));
   const [path, options] = fetch.mock.calls.find(([, o]) => o?.method === "POST")!;
@@ -26,6 +27,31 @@ it("dealer submits only the products with a quantity", async () => {
   expect(JSON.parse(String(options?.body))).toEqual({ note: "", lines: [{ item_id: 2, quantity: 3 }] });
   expect(new Headers(options?.headers).get("Idempotency-Key")).toBeTruthy();
   expect(await screen.findByRole("heading", { name: "Yêu cầu của tôi" })).toBeVisible();
+  expect(screen.getByText(/Đã gửi yêu cầu DR-1/)).toHaveAttribute("role", "status");
+  expect(location.hash).toBe("#dealer-requests");
+});
+
+it("dealer is warned when ordering more than the company holds and confirms before cancelling", async () => {
+  const fetch = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, options) => {
+    const path = String(input);
+    if (options?.method === "POST") return reply({ ...request, status: "cancelled", version: 2 });
+    if (path.includes("/dealer/requests/5")) return reply(request);
+    if (path.includes("/dealer/products?")) return reply(page([{ item_id: 2, sku: "SIM-01", name: "SIM du lịch", product_type: "eSIM", available_qty: 2 }]));
+    if (path.includes("/dealer/requests")) return reply(page([{ ...request, quantity: 3, line_count: 1 }]));
+    return reply(page([]));
+  });
+  history.replaceState(null, "", "/#dealer-order");
+  render(<DealerPortal />);
+  expect(String(fetch.mock.calls.find(([p]) => String(p).includes("/dealer/products?"))![0])).toContain("in_stock=true");
+  fireEvent.change(await screen.findByLabelText("Số lượng SIM du lịch"), { target: { value: "5" } });
+  expect(screen.getByLabelText("Số lượng SIM du lịch")).toHaveAttribute("aria-invalid", "true");
+  expect(screen.getByText(/1 sản phẩm đặt nhiều hơn số kho công ty đang còn/)).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "Yêu cầu của tôi" }));
+  fireEvent.click(await screen.findByRole("button", { name: "DR-1" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Hủy yêu cầu" }));
+  expect(fetch.mock.calls.some(([, o]) => o?.method === "POST")).toBe(false);
+  fireEvent.click(screen.getByRole("button", { name: "Xác nhận hủy" }));
+  await waitFor(() => expect(fetch.mock.calls.some(([p, o]) => o?.method === "POST" && String(p).endsWith("/requests/5/cancel"))).toBe(true));
 });
 
 it("admin approves then issues from a chosen warehouse on the business date", async () => {

@@ -77,10 +77,19 @@ def issue(key: int, payload: IssueInput, request: Request, idempotency_key: str 
 
 
 @portal.get("/products")
-def portal_products(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100), search: str | None = Query(None, max_length=120)):
+def portal_products(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100), search: str | None = Query(None, max_length=120),
+        in_stock: bool = False, product_type: Literal["eSIM", "physical_SIM"] | None = None, country: str | None = Query(None, max_length=100),
+        carrier: str | None = Query(None, max_length=100)):
     dealer_scope(request)
     with request.app.state.sessions() as session:
-        return service.available_products(session, page, page_size, search)
+        return service.available_products(session, page, page_size, search, in_stock, product_type, country, carrier)
+
+
+@portal.get("/product-filters")
+def portal_product_filters(request: Request):
+    dealer_scope(request)
+    with request.app.state.sessions() as session:
+        return service.product_filters(session)
 
 
 @portal.get("/requests")

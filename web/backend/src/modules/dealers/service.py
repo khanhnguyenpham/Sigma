@@ -5,7 +5,7 @@ from types import SimpleNamespace
 from sqlalchemy import select, func
 from core.errors import DomainError
 from core.http import record
-from modules.catalog.models import Item
+from modules.catalog.models import Item, Warehouse as Route
 from modules.dealers.models import Dealer, DealerRequest as Request, DealerRequestLine as Line
 from modules.operations import service as ops
 from modules.operations.models import OperationalProduct as Product, OperationalWarehouse as Warehouse, StockBalance as Balance
@@ -45,15 +45,32 @@ def dealers(session, page, size, active=None, search=None):
     return ops.page_rows(session, query.order_by(Dealer.name, Dealer.id), page, size)
 
 
-def available_products(session, page, size, search=None):
+def available_products(session, page, size, search=None, in_stock=False, product_type=None, country=None, carrier=None):
     # Dealers see sellable stock as one company-wide total; warehouses stay internal.
     stock = select(Balance.item_id, func.sum(Balance.on_hand_qty).label("available_qty")).join(
         Warehouse, Balance.warehouse_id == Warehouse.id).where(Warehouse.active.is_(True)).group_by(Balance.item_id).subquery()
-    query = select(Product.item_id, Item.sku, Product.name, Item.product_type, func.coalesce(stock.c.available_qty, 0).label("available_qty")).join(
-        Item, Product.item_id == Item.id).outerjoin(stock, stock.c.item_id == Product.item_id).where(Product.active.is_(True))
+    available = func.coalesce(stock.c.available_qty, 0)
+    query = select(Product.item_id, Item.sku, Product.name, Item.product_type, Route.destination_country, Route.carrier,
+        available.label("available_qty")).join(Item, Product.item_id == Item.id).join(Route, Item.warehouse_id == Route.id).outerjoin(
+        stock, stock.c.item_id == Product.item_id).where(Product.active.is_(True))
     if search:
         query = query.where(Item.sku.icontains(search, autoescape=True) | Product.name.icontains(search, autoescape=True))
-    return ops.page_rows(session, query.order_by(Product.name, Product.item_id), page, size)
+    if in_stock:
+        query = query.where(available > 0)
+    if product_type:
+        query = query.where(Item.product_type == product_type)
+    if country:
+        query = query.where(Route.destination_country == country)
+    if carrier:
+        query = query.where(Route.carrier == carrier)
+    # Products the company can supply now come first.
+    return ops.page_rows(session, query.order_by((available > 0).desc(), Product.name, Product.item_id), page, size)
+
+
+def product_filters(session):
+    rows = session.execute(select(Route.destination_country, Route.carrier).select_from(Product).join(
+        Item, Product.item_id == Item.id).join(Route, Item.warehouse_id == Route.id).where(Product.active.is_(True)).distinct()).all()
+    return {"countries": sorted({country for country, _ in rows}), "carriers": sorted({carrier for _, carrier in rows})}
 
 
 def create_request(session, dealer_id, payload, request_key, actor):

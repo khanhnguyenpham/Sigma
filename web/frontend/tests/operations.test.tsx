@@ -32,6 +32,10 @@ it("isolates operational navigation from legacy forecast context", () => {
   expect(readPage()).toBe("dashboard");
   history.replaceState(null, "", "/?run_id=plan-a");
   expect(readPage()).toBe("overview");
+  // A dealer tab left in the URL, or any unknown hash, opens the dashboard rather than an empty page.
+  for (const hash of ["#dealer-order", "#home", "#nothing"]) { history.replaceState(null, "", "/" + hash); expect(readPage()).toBe("dashboard"); }
+  history.replaceState(null, "", "/#scenarios");
+  expect(readPage()).toBe("scenarios");
 });
 
 it("shows a truthful empty ledger and offers setup without inventing stock", async () => {

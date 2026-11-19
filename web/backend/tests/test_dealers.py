@@ -92,3 +92,19 @@ def test_admin_creates_dealer_with_unique_code(auth_app):
         assert created.status_code == 201 and created.json()["active"] is True
         assert admin.post(DEALERS, json={"code": "DL-HN", "name": "Trùng"}).status_code == 409
         assert admin.get(DEALERS + "?active=true").json()["total"] == 3
+
+
+def test_dealer_catalog_filters_put_available_products_first(auth_app):
+    app, _ = auth_app
+    with TestClient(app) as admin, TestClient(app) as a:
+        admin.headers.update(login(admin)); a.headers.update(login(a, "partner-a"))
+        warehouse, item = stocked(admin, 6)
+        empty = post(admin, "/products", {"name": "SIM chưa có hàng", "sku": "DEMO-PSIM-02", "product_type": "physical_SIM",
+            "carrier": "OtherCarrier", "destination_country": "OtherLand"}).json()["id"]
+        rows = a.get(PORTAL + "/products").json()["items"]
+        assert [r["item_id"] for r in rows] == [item, empty]
+        assert (rows[0]["carrier"], rows[0]["destination_country"]) == ("DemoCarrier", "DemoLand")
+        listed = lambda **params: [r["item_id"] for r in a.get(PORTAL + "/products", params=params).json()["items"]]
+        assert listed(in_stock="true") == [item]
+        assert listed(product_type="physical_SIM") == listed(country="OtherLand") == listed(carrier="OtherCarrier") == [empty]
+        assert a.get(PORTAL + "/product-filters").json() == {"countries": ["DemoLand", "OtherLand"], "carriers": ["DemoCarrier", "OtherCarrier"]}
