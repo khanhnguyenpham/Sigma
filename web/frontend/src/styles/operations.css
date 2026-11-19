@@ -74,7 +74,6 @@
 .dashboard-summary > button:hover { border-color: var(--primary); }
 .dashboard-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
 .dashboard-grid > :first-child { grid-column: 1 / -1; }
-.tool-tabs { margin-bottom: 14px; }
 @media (max-width: 900px) {
   .dashboard-grid { grid-template-columns: minmax(0,1fr); }
 }

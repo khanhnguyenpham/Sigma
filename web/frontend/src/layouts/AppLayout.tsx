@@ -14,7 +14,7 @@ import { Header } from "./Header";
 import { ContextFilters } from "./ContextFilters";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { OperationsHelp } from "../operations/OperationsHelp";
-import { TOOL_PAGES, isManagementPage } from "../config/navigation";
+import { isManagementPage } from "../config/navigation";
 
 export function AppLayout({
   app,
@@ -37,7 +37,6 @@ export function AppLayout({
   const management = isManagementPage(page);
   // Pages without the run selector: the real ledger, plus tool pages that manage their own context.
   const managementPage = management || ["scenarios", "configuration", "products", "product"].includes(page);
-  const toolTab = page === "product" ? "products" : page;
   const compact = useMediaQuery("(max-width: 1100px)");
   return (
     <div className={"shell " + (navOpen ? "nav-open" : "")}>
@@ -62,12 +61,6 @@ export function AppLayout({
       <main inert={compact && navOpen}>
         <Header app={app} />
         <div className="workspace" id="workspace-content" tabIndex={-1}>
-          {!management && <>
-            <nav className="ops-tabs tool-tabs" aria-label="Công cụ dự báo">{TOOL_PAGES.map(([id, name]) =>
-              <button key={id} aria-current={toolTab === id ? "page" : undefined} onClick={() => app.navigate(id)}>{name}</button>)}</nav>
-            <label className="ops-mobile-tabs">Công cụ<select value={toolTab} onChange={(event) => app.navigate(event.target.value)}>
-              {TOOL_PAGES.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
-          </>}
           {!managementPage && <ContextFilters app={app} />}
           {!management && <State
             loading={runsResource.loading && !runsResource.data}

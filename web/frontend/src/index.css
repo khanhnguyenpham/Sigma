@@ -208,17 +208,33 @@ svg {
   letter-spacing: 0.2px;
   margin-top: 5px;
 }
-.nav-label {
-  font-size: 9px;
-  letter-spacing: 1.2px;
-  color: #a3adbe;
-  padding: 4px 13px 12px;
-  font-weight: 650;
-}
 .sidebar nav {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+}
+.sidebar nav .nav-parent > svg:last-child {
+  margin-left: auto;
+  transition: transform 0.15s;
+}
+.sidebar nav .nav-parent[aria-expanded="true"] > svg:last-child {
+  transform: rotate(90deg);
+}
+.sidebar nav .nav-parent.has-selected {
+  color: #4d60d6;
+  font-weight: 650;
+}
+.nav-children {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 2px 0 4px 21px;
+  padding-left: 10px;
+  border-left: 1px solid #e6e9f2;
+}
+.sidebar nav .nav-children button {
+  min-height: 36px;
+  padding: 8px 12px;
 }
 .sidebar nav button {
   justify-content: flex-start;

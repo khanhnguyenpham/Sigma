@@ -1,5 +1,5 @@
-import { NAV_GROUPS, isManagementPage } from "../config/navigation";
-import { useEffect, useRef } from "react";
+import { NAV_GROUPS, isManagementPage, menuPage } from "../config/navigation";
+import { useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { Icon } from "../components/ui/Icon";
 
@@ -9,6 +9,12 @@ export function Sidebar({ app }: { app: AppContextState }) {
   const { page, navigate, navOpen, setNavOpen } = app;
   const compact = useMediaQuery("(max-width: 1100px)");
   const ref = useRef<HTMLElement>(null);
+  const current = menuPage(page);
+  const active = NAV_GROUPS.find(([, , pages]) => pages.some(([id]) => id === current))?.[0];
+  const [open, setOpen] = useState<string[]>(active ? [active] : []);
+  // Navigating (menu, link, back button) always reveals the group holding the current page.
+  useEffect(() => { if (active) setOpen((groups) => groups.includes(active) ? groups : [...groups, active]); }, [active]);
+  const toggle = (group: string) => setOpen((groups) => groups.includes(group) ? groups.filter((g) => g !== group) : [...groups, group]);
   useEffect(() => {
     if (!compact || !navOpen) return;
     const previous = document.activeElement as HTMLElement | null;
@@ -46,21 +52,28 @@ export function Sidebar({ app }: { app: AppContextState }) {
         </div>
       </a>
       <nav aria-label="Điều hướng chính">
-        {NAV_GROUPS.map(([group, pages]) => (
-          <div key={group || "home"}>
-            {group && <div className="nav-label">{group}</div>}
-            {pages.map(([id, icon, name]) => {
-              // The single Tools entry stays selected on every forecast/scenario page.
-              const selected = id === "forecast" ? !isManagementPage(page) : page === id;
-              return <button key={id} title={name} className={selected ? "selected" : ""}
-                aria-current={selected ? "page" : undefined} onClick={() => navigate(id)}>
-                <Icon name={icon} />
-                <span>{name}</span>
-                {selected && <i />}
-              </button>;
-            })}
-          </div>
-        ))}
+        {NAV_GROUPS.map(([group, icon, pages], index) => {
+          const item = ([id, name]: readonly [string, string]) => {
+            const selected = current === id;
+            return <button key={id} title={name} className={selected ? "selected" : ""}
+              aria-current={selected ? "page" : undefined} onClick={() => navigate(id)}>
+              {!group && <Icon name={icon} />}
+              <span>{name}</span>
+              {selected && <i />}
+            </button>;
+          };
+          if (!group) return <div key="home">{pages.map(item)}</div>;
+          const expanded = open.includes(group);
+          return <div key={group} className="nav-group">
+            <button className={"nav-parent" + (group === active ? " has-selected" : "")} aria-expanded={expanded}
+              aria-controls={`nav-group-${index}`} onClick={() => toggle(group)}>
+              <Icon name={icon} />
+              <span>{group}</span>
+              <Icon name="chevron" size={14} />
+            </button>
+            {expanded && <div className="nav-children" id={`nav-group-${index}`}>{pages.map(item)}</div>}
+          </div>;
+        })}
       </nav>
       <div className="side-note">
         <div className="workspace-icon">

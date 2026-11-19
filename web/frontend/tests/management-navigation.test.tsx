@@ -35,7 +35,14 @@ it("opens the management dashboard by default without loading scenario runs", as
   expect(screen.queryByRole("button", { name: "Tạo phương án" })).toBeNull();
   expect(screen.queryByText("Dữ liệu mô phỏng")).toBeNull();
   const nav = screen.getByRole("navigation", { name: "Điều hướng chính" });
-  for (const group of ["KHO", "NHẬP HÀNG", "DANH MỤC", "HỆ THỐNG", "CÔNG CỤ"]) expect(within(nav).getByText(group)).toBeVisible();
+  for (const group of ["Kho", "Nhập hàng", "Đại lý", "Danh mục", "Hệ thống", "Công cụ dự báo"])
+    expect(within(nav).getByRole("button", { name: group })).toHaveAttribute("aria-expanded", "false");
+  expect(within(nav).queryByRole("button", { name: "Đơn nhập" })).toBeNull();
+  fireEvent.click(within(nav).getByRole("button", { name: "Nhập hàng" }));
+  expect(within(nav).getByRole("button", { name: "Nhập hàng" })).toHaveAttribute("aria-expanded", "true");
+  expect(within(nav).getByRole("button", { name: "Đơn nhập" })).toBeVisible();
+  fireEvent.click(within(nav).getByRole("button", { name: "Nhập hàng" }));
+  expect(within(nav).queryByRole("button", { name: "Đơn nhập" })).toBeNull();
 });
 
 it("opens an order from the dashboard and returns to the list from the menu", async () => {
@@ -49,16 +56,17 @@ it("opens an order from the dashboard and returns to the list from the menu", as
   expect(await screen.findByRole("heading", { name: "Đơn nhập" })).toBeVisible();
 });
 
-it("keeps forecast and scenarios inside one Tools entry", async () => {
+it("lists forecast and scenario pages under the Tools parent", async () => {
   const fetch = mockApi();
   render(<App />);
   const nav = await screen.findByRole("navigation", { name: "Điều hướng chính" });
-  fireEvent.click(within(nav).getByRole("button", { name: "Dự báo & kịch bản" }));
-  const tools = await screen.findByRole("navigation", { name: "Công cụ dự báo" });
-  expect(within(tools).getByRole("button", { name: "Dự báo" })).toHaveAttribute("aria-current", "page");
-  expect(within(nav).getByRole("button", { name: "Dự báo & kịch bản" })).toHaveAttribute("aria-current", "page");
-  fireEvent.click(within(tools).getByRole("button", { name: "Kịch bản" }));
+  fireEvent.click(within(nav).getByRole("button", { name: "Công cụ dự báo" }));
+  fireEvent.click(within(nav).getByRole("button", { name: "Dự báo" }));
+  await waitFor(() => expect(location.hash).toBe("#forecast"));
+  expect(within(nav).getByRole("button", { name: "Dự báo" })).toHaveAttribute("aria-current", "page");
+  fireEvent.click(within(nav).getByRole("button", { name: "Kịch bản" }));
   await waitFor(() => expect(location.hash).toBe("#scenarios"));
-  expect(within(nav).getByRole("button", { name: "Dự báo & kịch bản" })).toHaveAttribute("aria-current", "page");
+  expect(within(nav).getByRole("button", { name: "Kịch bản" })).toHaveAttribute("aria-current", "page");
+  expect(within(nav).getByRole("button", { name: "Công cụ dự báo" })).toHaveAttribute("aria-expanded", "true");
   await waitFor(() => expect(fetch.mock.calls.some(([p]) => String(p).includes("/runs"))).toBe(true));
 });

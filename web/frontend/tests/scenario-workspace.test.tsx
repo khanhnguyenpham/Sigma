@@ -138,7 +138,7 @@ it("saves without running, selects the returned version and keeps progress/resul
   fireEvent.change(screen.getByLabelText("Tên kịch bản"), { target: { value: "Unsaved" } });
   expect(screen.getByRole("button", { name: "Chạy kịch bản" })).toBeDisabled();
   const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
-  fireEvent.click(screen.getByRole("button", { name: "Sản phẩm" }));
+  fireEvent.click(screen.getByRole("button", { name: "Dự báo" }));
   expect(confirm).toHaveBeenCalledOnce(); expect(location.hash).toBe("#scenarios");
   fireEvent.change(screen.getByLabelText("Tên kịch bản"), { target: { value: "My scenario" } });
   fireEvent.click(screen.getByRole("button", { name: "Chạy kịch bản" }));

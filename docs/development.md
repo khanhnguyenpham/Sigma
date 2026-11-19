@@ -1,5 +1,12 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-collapsible-menu-20261119"></a>
+## Menu thu gọn theo nhóm — 19/11/2026
+
+- Sidebar đổi thành nhóm cha sổ xuống (Kho, Nhập hàng, Đại lý, Danh mục, Hệ thống, Công cụ dự báo); Tổng quan đứng riêng. Nhóm chứa trang hiện tại tự mở. Nhóm Công cụ dự báo liệt kê thẳng Dự báo, Kịch bản và các trang mô phỏng, nên bỏ thanh tab trùng trong trang (trước đó Kịch bản chỉ thấy sau khi vào "Dự báo & kịch bản").
+- Kiểm lượt này: Vitest **172/172** (`--maxWorkers=2`), `tsc -b`, `vite build` qua. Chưa xem giao diện sau đăng nhập admin trên trình duyệt.
+- Cùng ngày, ngoài Git: DB local `sigma_m3` được sao lưu, nâng 0008 → 0017 và nạp dữ liệu giả lập kho/đại lý bằng script local trong `outputs/seed_20261119` (không chạm DB demo, không refit).
+
 <a id="handoff-m7-worker-20261116"></a>
 ## M7 — tối ưu worker W1–W4 — 16/11/2026
 
