@@ -13,7 +13,25 @@
 .ops-tabs button[aria-current="page"] { color: var(--primary); border-bottom-color: var(--primary); background: #edf0ff; }
 .operations-workspace .ops-mobile-tabs, .workspace > .ops-mobile-tabs { display: none; }
 .ops-list-panel, .ops-order-detail { padding: 20px; min-width: 0; }
-.operations-workspace .table-scroll { max-height: clamp(180px, calc(100dvh - 600px), 500px); overflow: auto; }
+/* List pages fill the viewport: a short list still reaches the footer, a long one scrolls inside about one screen. */
+.shell > main { display: flex; flex-direction: column; }
+.shell > main > .workspace { flex: 1; display: flex; flex-direction: column; }
+.workspace > .operations-workspace { flex: 1; display: flex; flex-direction: column; }
+.operations-workspace > .ops-list-panel { flex: 1; display: flex; flex-direction: column; }
+.ops-list-panel > .table-scroll { flex: 1 1 auto; }
+.operations-workspace .table-scroll { min-height: 260px; max-height: max(360px, calc(100dvh - 300px)); overflow: auto; }
+.ops-list-panel > .pager { margin-top: auto; }
+.filter-search { flex-basis: 260px !important; }
+.filter-reset { align-self: flex-end; padding: 10px 4px; white-space: nowrap; }
+.link-text { color: var(--primary); font-weight: 600; }
+.cell-muted { color: #8a95aa; }
+.ops-summary small { color: #8a95aa; font-size: 11px; }
+.supplier-detail-heading { display: grid; gap: 10px; margin-bottom: 14px; }
+.supplier-detail-heading > .text-button { justify-self: start; }
+.supplier-detail-heading .ops-section-heading { margin-bottom: 0; }
+.supplier-detail-heading h2 { font-size: 20px; }
+.table-scroll tr.clickable { cursor: pointer; }
+.table-scroll tr.clickable:hover td { background: #f6f8ff; }
 .operations-workspace .table-scroll table { min-width: 600px; }
 .ops-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ops-actions button { white-space: nowrap; }
@@ -59,7 +77,8 @@
   .operations-workspace .ops-mobile-tabs, .workspace > .ops-mobile-tabs { display: grid; gap: 4px; margin-bottom: 12px; }
   .ops-list-panel, .ops-order-detail { padding: 14px; }
   .ops-detail-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  .operations-workspace .table-scroll { max-height: 52vh; }
+  .operations-workspace .table-scroll { min-height: 200px; max-height: 65dvh; }
+  .filter-reset { align-self: auto; }
   .operations-workspace h1 { font-size: 22px; }
   .ops-filters { gap: 8px; }
   .ops-filters label { max-width: none; flex-basis: 120px; }
@@ -70,16 +89,28 @@
   .operations-form-dialog.wide, .operations-form-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 20px); }
 }
 .ops-status.late { background: #fcecef; color: #a44455; }
-.dashboard-summary > button { border: 1px solid var(--border); border-radius: 10px; background: #fff; padding: 14px 18px; display: grid; gap: 4px; text-align: left; cursor: pointer; }
-.dashboard-summary > button:hover { border-color: var(--primary); }
 .dashboard-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
 .dashboard-grid > :first-child { grid-column: 1 / -1; }
 @media (max-width: 900px) {
   .dashboard-grid { grid-template-columns: minmax(0,1fr); }
 }
-.dashboard-summary { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
 .ops-status.dealer-submitted, .ops-status.dealer-approved { background: #fff4db; color: #865c05; }
 .ops-status.dealer-issued { background: #edf0ff; color: #4151bb; }
 .ops-status.dealer-received { background: #e6f6ed; color: #24734b; }
 .ops-status.dealer-rejected, .ops-status.dealer-cancelled { background: #fcecef; color: #a44455; }
 .dialog-inline-field { display: grid; gap: 4px; margin-right: auto; min-width: 220px; }
+
+/* Dashboard: the shared stat cards, made clickable. */
+.dashboard-summary { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.stat-button { display: block; padding: 0; border: 0; background: none; text-align: left; border-radius: 12px; cursor: pointer; min-height: 0; }
+.stat-button > .stat { height: 100%; transition: border-color .15s, box-shadow .15s; }
+.stat-button:hover > .stat, .stat-button:focus-visible > .stat { border-color: var(--primary); box-shadow: 0 4px 16px #4d60d61a; }
+.dashboard-panel-title { display: flex; align-items: center; gap: 8px; }
+.dashboard-panel-title svg { color: var(--primary); }
+@media (max-width: 900px) { .dashboard-summary { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+.stats.stats-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+@media (max-width: 900px) { .stats.stats-3 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+.recommend-order { color: #a44455; font-weight: 650; }
+.warehouse-card-metrics .stock-incoming { color: #1f7a6d; }
+.warehouse-card-footer .stock-warning { color: #b0701c; }
+.operations-workspace .warehouse-breadcrumb { margin-bottom: 12px; }

@@ -1,12 +1,12 @@
+from datetime import date
 from typing import Literal
 from uuid import UUID
 from fastapi import APIRouter, Header, Query, Request, Response
 from sqlalchemy import select, func
 from core.errors import DomainError
 from modules.auth.models import User
-from modules.catalog.models import Supplier, Item, Warehouse as SourceWarehouse
-from modules.operations.models import SupplierSettings, StockBalance, OperationalOrder, StockDocument, OperationAudit
-from modules.operations.models import OperationalWarehouse, OperationalProduct
+from modules.operations.models import StockBalance, OperationalOrder, OperationalOrderLine, StockDocument, OperationAudit
+from modules.operations.models import OperationalWarehouse
 from modules.operations.schemas import OpsSupplierSettingsInput, OpsOrderInput, OpsOrderUpdate, OpsOrderTransition, OpsReceiptInput, OpsMovementInput
 from modules.operations.schemas import OpsWarehouseInput, OpsWarehouseUpdate, OpsProductInput, OpsProductUpdate
 from modules.operations import service
@@ -74,8 +74,19 @@ def worker_queue_status(request: Request):
 @router.get("/warehouses")
 def warehouses(request: Request, page: int = Query(1, ge=1), page_size: int = Query(50, ge=1, le=100), active: bool | None = None):
     actor(request)
+    # Per-warehouse figures for the warehouse cards: stocked items, units on hand, items run out, units still due.
+    balances = select(StockBalance.warehouse_id, func.count().filter(StockBalance.on_hand_qty > 0).label("stocked_items"),
+        func.count().filter(StockBalance.on_hand_qty == 0).label("empty_items"), func.sum(StockBalance.on_hand_qty).label("on_hand_qty"),
+        func.max(StockBalance.last_movement_on).label("last_movement_on")).group_by(StockBalance.warehouse_id).subquery()
+    incoming = select(OperationalOrderLine.warehouse_id, func.sum(OperationalOrderLine.ordered_qty - OperationalOrderLine.received_qty).label("incoming_qty")).join(
+        OperationalOrder, OperationalOrder.id == OperationalOrderLine.order_id).where(OperationalOrder.status.in_(["ordered", "partially_received"])).group_by(
+        OperationalOrderLine.warehouse_id).subquery()
     query = select(OperationalWarehouse.id, OperationalWarehouse.code, OperationalWarehouse.name,
-        OperationalWarehouse.country, OperationalWarehouse.active, OperationalWarehouse.version).order_by(OperationalWarehouse.name)
+        OperationalWarehouse.country, OperationalWarehouse.active, OperationalWarehouse.version,
+        func.coalesce(balances.c.stocked_items, 0).label("stocked_items"), func.coalesce(balances.c.empty_items, 0).label("empty_items"),
+        func.coalesce(balances.c.on_hand_qty, 0).label("on_hand_qty"), balances.c.last_movement_on,
+        func.coalesce(incoming.c.incoming_qty, 0).label("incoming_qty")).outerjoin(balances, balances.c.warehouse_id == OperationalWarehouse.id).outerjoin(
+        incoming, incoming.c.warehouse_id == OperationalWarehouse.id).order_by(OperationalWarehouse.name)
     if active is not None:
         query = query.where(OperationalWarehouse.active == active)
     with request.app.state.sessions() as session:
@@ -98,10 +109,18 @@ def update_warehouse(key: int, payload: OpsWarehouseUpdate, request: Request):
 
 @router.get("/products")
 def products(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100),
-    supplier_id: int | None = Query(None, gt=0), search: str | None = Query(None, max_length=120), active: bool = True, include_inactive: bool = False):
+    supplier_id: int | None = Query(None, gt=0), search: str | None = Query(None, max_length=120), active: bool = True, include_inactive: bool = False,
+    product_type: Literal["eSIM", "physical_SIM"] | None = None, country: str | None = Query(None, max_length=100)):
     actor(request)
     with request.app.state.sessions() as session:
-        return service.products(session, page, page_size, supplier_id, search, None if include_inactive else active)
+        return service.products(session, page, page_size, supplier_id, search, None if include_inactive else active, product_type, country)
+
+
+@router.get("/product-filters")
+def product_filters(request: Request):
+    actor(request)
+    with request.app.state.sessions() as session:
+        return service.product_filters(session)
 
 
 @router.post("/products", status_code=201)
@@ -119,17 +138,11 @@ def update_product(key: int, payload: OpsProductUpdate, request: Request):
 
 
 @router.get("/suppliers")
-def suppliers(request: Request, page: int = Query(1, ge=1), page_size: int = Query(50, ge=1, le=100)):
+def suppliers(request: Request, page: int = Query(1, ge=1), page_size: int = Query(50, ge=1, le=100),
+    search: str | None = Query(None, max_length=120), country: str | None = Query(None, max_length=100)):
     actor(request)
-    # Product count shows how many products a lead-time change reaches (all registered products of the carrier).
-    products = select(SourceWarehouse.carrier, func.count().label("product_count")).select_from(OperationalProduct).join(
-        Item, OperationalProduct.item_id == Item.id).join(SourceWarehouse, Item.warehouse_id == SourceWarehouse.id).group_by(SourceWarehouse.carrier).subquery()
-    query = select(Supplier.id, Supplier.carrier, func.coalesce(SupplierSettings.lead_time_days, 7).label("lead_time_days"),
-        func.coalesce(SupplierSettings.version, 0).label("version"), SupplierSettings.updated_at,
-        func.coalesce(products.c.product_count, 0).label("product_count")).outerjoin(
-            SupplierSettings, SupplierSettings.supplier_id == Supplier.id).outerjoin(products, products.c.carrier == Supplier.carrier).order_by(Supplier.carrier)
     with request.app.state.sessions() as session:
-        return service.page_rows(session, query, page, page_size)
+        return service.suppliers(session, page, page_size, search, country)
 
 
 @router.patch("/suppliers/{key}/settings")
@@ -205,10 +218,11 @@ def receive_order(key: int, payload: OpsReceiptInput, request: Request, response
 @router.get("/stock")
 def stock(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100),
     warehouse_id: int | None = Query(None, gt=0), search: str | None = Query(None, max_length=120),
-    sort: Literal["location", "on_hand"] = "location"):
+    sort: Literal["location", "on_hand"] = "location", supplier_id: int | None = Query(None, gt=0),
+    product_type: Literal["eSIM", "physical_SIM"] | None = None):
     actor(request)
     with request.app.state.sessions() as session:
-        return service.stock(session, page, page_size, warehouse_id, search, sort)
+        return service.stock(session, page, page_size, warehouse_id, search, sort, supplier_id, product_type)
 
 
 @router.post("/issues", status_code=201)
@@ -237,10 +251,12 @@ def count_stock(payload: OpsMovementInput, request: Request, response: Response,
 
 
 @router.get("/documents")
-def documents(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100)):
+def documents(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100),
+    kind: Literal["receipt", "issue", "adjustment"] | None = None, date_from: date | None = None, date_to: date | None = None,
+    search: str | None = Query(None, max_length=120)):
     actor(request)
     with request.app.state.sessions() as session:
-        return service.journal(session, page, page_size)
+        return service.journal(session, page, page_size, kind, date_from, date_to, search)
 
 
 @router.get("/documents/{key}")
@@ -252,7 +268,8 @@ def document(key: UUID, request: Request):
 
 @router.get("/audit")
 def audit(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100),
-    entity_type: str | None = Query(None, max_length=40), entity_key: str | None = Query(None, max_length=80)):
+    entity_type: str | None = Query(None, max_length=40), entity_key: str | None = Query(None, max_length=80),
+    action: str | None = Query(None, max_length=40), date_from: date | None = None, date_to: date | None = None):
     actor(request)
     query = select(OperationAudit.id, OperationAudit.entity_type, OperationAudit.entity_key, OperationAudit.action,
         OperationAudit.details, OperationAudit.created_at, User.display_name.label("actor")).join(User, OperationAudit.actor_id == User.id)
@@ -260,5 +277,13 @@ def audit(request: Request, page: int = Query(1, ge=1), page_size: int = Query(2
         query = query.where(OperationAudit.entity_type == entity_type)
     if entity_key:
         query = query.where(OperationAudit.entity_key == entity_key)
+    if action:
+        query = query.where(OperationAudit.action == action)
+    # Dates are Vietnam business days, matching how the table shows the time.
+    local_day = func.date(func.timezone("Asia/Ho_Chi_Minh", OperationAudit.created_at))
+    if date_from:
+        query = query.where(local_day >= date_from)
+    if date_to:
+        query = query.where(local_day <= date_to)
     with request.app.state.sessions() as session:
         return service.page_rows(session, query.order_by(OperationAudit.id.desc()), page, page_size)

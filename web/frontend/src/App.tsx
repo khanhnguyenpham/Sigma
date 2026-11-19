@@ -38,11 +38,11 @@ export default function App() {
     navigate,
   } = app;
   const props = { run, ctx, onChoose: chooseInventory, onItem: openItem };
-  // Operations only asks to open or close an order; every other page change goes through the sidebar.
+  // Operations only asks to open or close an order or a supplier; every other page change goes through the sidebar.
   function opsContext(patch: Partial<Context>) {
     if (!window.dispatchEvent(new Event("sigma:before-navigate", { cancelable: true }))) return;
-    const target = patch.opsTab === "orders" ? "orders" : page;
-    const next = { ...ctx, opsOrderId: patch.opsOrderId };
+    const target = patch.opsTab === "orders" || patch.opsTab === "suppliers" || patch.opsTab === "stock" ? patch.opsTab : page;
+    const next = { ...ctx, opsOrderId: patch.opsOrderId, opsSupplierId: patch.opsSupplierId, opsWarehouseId: patch.opsWarehouseId };
     history.pushState(null, "", navigationUrl(next, target, purchasingView));
     app.setCtx(next);
     if (target !== page) app.setPage(target);

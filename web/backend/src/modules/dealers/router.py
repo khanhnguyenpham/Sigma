@@ -19,10 +19,11 @@ def dealer_scope(request):
 
 
 @router.get("")
-def list_dealers(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100), active: bool | None = None):
+def list_dealers(request: Request, page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100), active: bool | None = None,
+        search: str | None = Query(None, max_length=120)):
     actor(request)
     with request.app.state.sessions() as session:
-        return service.dealers(session, page, page_size, active)
+        return service.dealers(session, page, page_size, active, search)
 
 
 @router.post("", status_code=201)

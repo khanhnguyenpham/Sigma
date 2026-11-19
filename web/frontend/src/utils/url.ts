@@ -31,6 +31,8 @@ export function readContext(): Context {
     runId: p.get("run_id") ?? "",
     ...(p.has("ops_tab") ? { opsTab: p.get("ops_tab")! } : {}),
     ...(/^\d+$/.test(p.get("ops_order") ?? "") ? { opsOrderId: p.get("ops_order")! } : {}),
+    ...(/^\d+$/.test(p.get("ops_supplier") ?? "") ? { opsSupplierId: p.get("ops_supplier")! } : {}),
+    ...(/^\d+$/.test(p.get("ops_warehouse") ?? "") ? { opsWarehouseId: p.get("ops_warehouse")! } : {}),
     ...(p.has("scenario_id") ? { scenarioId: p.get("scenario_id") ?? "" } : {}),
     warehouseId: p.get("warehouse_id") ?? "",
     ...(p.get("warehouse_scope") === "receiving" ? { warehouseScope: "receiving" as const } : {}),
@@ -69,7 +71,7 @@ export function contextUrl(ctx: Context) {
 }
 
 export function navigationUrl(ctx:Context,page:string,view:PurchasingView) {
-  if (isManagementPage(page)) return "?" + query({ ops_order: page === "orders" ? ctx.opsOrderId : undefined }) + "#" + page;
+  if (isManagementPage(page)) return "?" + query({ ops_order: page === "orders" ? ctx.opsOrderId : undefined, ops_supplier: page === "suppliers" ? ctx.opsSupplierId : undefined, ops_warehouse: page === "stock" ? ctx.opsWarehouseId : undefined }) + "#" + page;
   if (page === "configuration") page = "scenarios";
   const params=new URLSearchParams(contextUrl(ctx));
   if(page.startsWith("provider-"))new URLSearchParams(location.search).forEach((v,k)=>{if(k.startsWith("notice_"))params.set(k,v);});

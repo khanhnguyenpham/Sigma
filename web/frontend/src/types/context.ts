@@ -1,6 +1,8 @@
 export interface Context {
   opsTab?: string;
   opsOrderId?: string;
+  opsSupplierId?: string;
+  opsWarehouseId?: string;
   runId: string;
   scenarioId?: string;
   warehouseId: string;

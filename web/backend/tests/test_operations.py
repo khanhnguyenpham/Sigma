@@ -300,3 +300,38 @@ def test_confirmed_order_eta_moves_with_reason_audit_and_version(auth_app):
     cfg.attributes["database_url"] = app.state.engine.url.render_as_string(hide_password=False)
     with pytest.raises(RuntimeError, match="Adjusted ETA data exists"):
         command.downgrade(cfg, "0012_dealers")
+
+
+def test_catalog_stock_document_and_supplier_filters(auth_app):
+    app, _ = auth_app
+    with TestClient(app) as client:
+        client.headers.update(login(client))
+        warehouse, item, supplier = setup_catalog(client)
+        other = post(client, "/products", {"name": "SIM vật lý kiểm thử", "sku": "DEMO-PSIM-01", "product_type": "physical_SIM",
+            "carrier": "OtherCarrier", "destination_country": "OtherLand"})
+        assert other.status_code == 201, other.text
+        assert post(client, "/counts", movement(warehouse, item, 5)).status_code == 201
+        confirm(client, draft(client, warehouse, item, supplier, quantity=7))
+        card = client.get(BASE + "/warehouses").json()["items"][0]
+        assert (card["stocked_items"], card["empty_items"], card["on_hand_qty"], card["incoming_qty"]) == (1, 0, 5, 7)
+        products = lambda **params: client.get(BASE + "/products", params=params).json()
+        assert [row["sku"] for row in products(product_type="eSIM")["items"]] == ["DEMO-ESIM-01"]
+        assert [row["sku"] for row in products(country="OtherLand")["items"]] == ["DEMO-PSIM-01"]
+        assert products(supplier_id=supplier, country="OtherLand")["total"] == 0
+        row = products(supplier_id=supplier)["items"][0]
+        assert row["on_hand_qty"] == 5 and row["policy_version"] is None
+        filters = client.get(BASE + "/product-filters").json()
+        assert filters["countries"] == ["DemoLand", "OtherLand"]
+        assert [s["carrier"] for s in filters["suppliers"]] == ["DemoCarrier", "OtherCarrier"]
+        suppliers = client.get(BASE + "/suppliers", params={"country": "DemoLand"}).json()["items"]
+        assert [(s["carrier"], s["product_count"], s["active_product_count"], s["countries"], s["on_hand_qty"]) for s in suppliers] == [
+            ("DemoCarrier", 1, 1, ["DemoLand"], 5)]
+        assert client.get(BASE + "/suppliers", params={"search": "other"}).json()["total"] == 1
+        assert client.get(BASE + "/stock", params={"supplier_id": supplier, "product_type": "physical_SIM"}).json()["total"] == 0
+        assert client.get(BASE + "/stock", params={"supplier_id": supplier, "product_type": "eSIM"}).json()["total"] == 1
+        documents = lambda **params: client.get(BASE + "/documents", params=params).json()["total"]
+        assert documents(kind="adjustment", search="COUNT") == 1 and documents(kind="issue") == 0
+        day = service.today()
+        assert documents(date_from=str(day), date_to=str(day)) == 1 and documents(date_from=str(day + timedelta(days=1))) == 0
+        audit = lambda **params: client.get(BASE + "/audit", params=params).json()["total"]
+        assert audit(action="registered") == 2 and audit(action="registered", date_from=str(day + timedelta(days=2))) == 0

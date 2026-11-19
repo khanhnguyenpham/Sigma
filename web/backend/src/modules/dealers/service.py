@@ -36,10 +36,12 @@ def update_dealer(session, key, payload, actor):
     return record(row)
 
 
-def dealers(session, page, size, active=None):
+def dealers(session, page, size, active=None, search=None):
     query = select(Dealer.id, Dealer.code, Dealer.name, Dealer.contact, Dealer.active, Dealer.version)
     if active is not None:
         query = query.where(Dealer.active.is_(active))
+    if search:
+        query = query.where(Dealer.code.icontains(search, autoescape=True) | Dealer.name.icontains(search, autoescape=True))
     return ops.page_rows(session, query.order_by(Dealer.name, Dealer.id), page, size)
 
 

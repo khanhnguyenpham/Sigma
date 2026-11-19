@@ -175,7 +175,7 @@ export function useAppContext() {
     if(!window.dispatchEvent(new Event("sigma:before-navigate",{cancelable:true})))return false;
     if (id === "configuration") id = "scenarios";
     // A menu click always opens the list, never a previously opened order.
-    const next = ctx.opsOrderId ? { ...ctx, opsOrderId: undefined } : ctx;
+    const next = ctx.opsOrderId || ctx.opsSupplierId || ctx.opsWarehouseId ? { ...ctx, opsOrderId: undefined, opsSupplierId: undefined, opsWarehouseId: undefined } : ctx;
     if (next !== ctx) setCtx(next);
     if (id !== page || next !== ctx)
       history.pushState(

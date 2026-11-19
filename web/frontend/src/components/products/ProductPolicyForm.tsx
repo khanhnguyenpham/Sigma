@@ -32,7 +32,7 @@ export function ProductPolicyForm({ product, onSaved, onReload }: { product: Row
     <fieldset disabled={busy}>
       <PolicyFields policy={values} onChange={(key, value) => setValues((previous) => ({ ...previous, [key]: value }))} />
       <label>Áp dụng từ ngày<input name="effective_from" type="date" required min={earliest} defaultValue={earliest} /></label>
-      <p className="caption">Thời gian nhập hàng: 7 ngày. Kiểm tra bổ sung hằng ngày. Cấu hình áp dụng cho các kế hoạch được tính từ ngày hiệu lực.</p>
+      <p className="caption">Thời gian nhập theo nhà cung cấp{product.lead_time_days != null ? `: ${Number(product.lead_time_days)} ngày` : ""}. Kiểm tra bổ sung hằng ngày. Cấu hình áp dụng cho đề xuất nhập và kế hoạch được tính từ ngày hiệu lực.</p>
       {product.supplier_id == null && <p className="notice error" role="alert">Chưa xác định được nhà cung cấp của sản phẩm.</p>}
       {error && <div className="notice error" role="alert">{errorLabel(error)}<button type="button" className="text-button" onClick={onReload}>Tải lại cấu hình</button></div>}
       <div className="form-actions"><button className="primary" disabled={busy || product.supplier_id == null}>{busy ? "Đang lưu…" : "Lưu cấu hình sản phẩm"}</button></div>

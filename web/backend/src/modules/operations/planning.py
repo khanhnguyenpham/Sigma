@@ -15,7 +15,7 @@ from modules.operations.models import OperationalProduct, StockBalance, Supplier
 from modules.operations.models import OperationalOrder, OperationalOrderLine
 from modules.operations.schemas import MAX_QTY
 
-PROFILE = "ops_network_fixed_lot_h14_v1"
+PROFILE = "ops_network_fixed_lot_h14_v1"  # rows without a current forecast use basis='threshold'
 
 
 def calculate(stock, receipts, forecast, lead, safety_days, floor, lot, origin):
@@ -60,6 +60,21 @@ def calculate(stock, receipts, forecast, lead, safety_days, floor, lot, origin):
         urgent=first_shortage is not None and (first_shortage-origin).days < 7,
         shortage_before_new_eta=first_shortage is not None and first_shortage <= origin+timedelta(days=lead),
         projection=projection, required_days=lead+1, available_days=horizon)
+
+
+def calculate_threshold(stock, receipts, lead, floor, lot, origin):
+    """Fallback without a forecast: order one fixed lot when stock plus timely receipts is at or below the configured ROP floor."""
+    if stock < 0 or stock > MAX_QTY or not lot or lot > MAX_QTY:
+        return dict(rop=None, safety_stock=None, recommended_qty=None, decision="blocked", reason="quantity_out_of_range", projection=[])
+    overdue = sum(qty for day, qty in receipts.items() if day <= origin)
+    timely = sum(qty for day, qty in receipts.items() if origin < day <= origin + timedelta(days=lead))
+    position = stock + timely
+    qty = lot if position <= floor else 0
+    decision = "review_overdue" if overdue else "order" if qty else "covered"
+    return dict(rop=floor, safety_stock=None, recommended_qty=None if overdue else qty, decision=decision,
+        reason="overdue_receipt_unknown" if overdue else "fixed_threshold_policy", on_hand_qty=stock,
+        pending_qty=sum(receipts.values()), eligible_pending_qty=timely, inventory_position=position, overdue_qty=overdue,
+        projection=None, required_days=lead + 1)
 
 
 def recommendations(session, page, size, run_id=None):
@@ -115,13 +130,18 @@ def recommendations(session, page, size, run_id=None):
         row = {**dict(product), 'lead_time_days':lead, 'on_hand_qty':int(balances.get(iid,0)),
                'decision':'blocked', 'recommended_qty':None, 'rop':None, 'safety_stock':None}
         policy = policies.get(iid)
-        if not usable or iid not in forecasts:
-            row['reason'] = 'current_forecast_missing'
-        elif policy is None or policy.supplier_id != product['supplier_id'] or policy.fixed_order_qty is None:
+        has_forecast = usable and iid in forecasts
+        row['basis'] = 'forecast' if has_forecast else 'threshold'
+        if policy is None or policy.supplier_id != product['supplier_id'] or policy.fixed_order_qty is None:
             row['reason'] = 'fixed_policy_missing'
         elif any(not trade_state(changes, notices, iid, origin, origin+timedelta(days=day))['replenishment_allowed'] or
                  not trade_state(changes, notices, iid, origin, origin+timedelta(days=day))['sales_allowed'] for day in range(15)):
             row['reason'] = 'supply_restricted'
+        elif not has_forecast:
+            # No current forecast (e.g. simulated ledger data): fall back to the fixed ROP floor, labelled as such.
+            row.update(calculate_threshold(row['on_hand_qty'], receipts.get(iid, {}), lead, policy.configured_rop_floor,
+                policy.fixed_order_qty, origin))
+            row.update(policy_version=policy.version, fixed_order_qty=policy.fixed_order_qty)
         else:
             row.update(calculate(row['on_hand_qty'], receipts.get(iid,{}), forecasts[iid], lead,
                 policy.safety_days, policy.configured_rop_floor, policy.fixed_order_qty, origin))

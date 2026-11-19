@@ -1,6 +1,9 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { useResource } from "../hooks/useResource";
 import { apiAllPages } from "../services/http";
+import { useDebounce } from "../hooks/useDebounce";
+import { query } from "../utils/url";
+import { FilterBar } from "../operations/Filters";
 import { Table, type Column } from "../components/ui/Table";
 import { Pager } from "../components/ui/Pager";
 import { State } from "../components/ui/State";
@@ -20,22 +23,55 @@ function Heading({ title, caption, action }: { title: string; caption: string; a
 export function DealersPage() {
   const [page, setPage] = useState(1);
   const [editor, setEditor] = useState<Dealer | "new">();
-  const result = useResource<Page<Dealer>>(`/dealers?page=${page}&page_size=25`, true);
+  const [account, setAccount] = useState<Dealer>();
+  const [filters, setFilters] = useState<Record<string, string>>({});
+  const search = useDebounce(filters.search ?? "");
+  const result = useResource<Page<Dealer>>(`/dealers?${query({ page, page_size: 25, search, active: filters.status ? String(filters.status === "active") : undefined })}`, true);
+  const users = useResource<Page>("/auth/users", false, 0, apiAllPages);
+  const logins = (id: unknown) => (users.data?.items ?? []).filter((user) => user.role === "dealer" && user.dealer_id === id);
   const columns: Column[] = [
     { key: "code", label: "Mã đại lý" }, { key: "name", label: "Tên đại lý" }, { key: "contact", label: "Liên hệ" },
-    { key: "active", label: "Trạng thái", render: (value) => value ? "Hoạt động" : "Ngừng hoạt động" },
-    { key: "id", label: "Thao tác", render: (_, row) => <button onClick={() => setEditor(row as Dealer)}>Chỉnh sửa</button> },
+    { key: "active", label: "Trạng thái", render: (value) => <span className={`ops-status ${value ? "received" : "cancelled"}`}>{value ? "Hoạt động" : "Ngừng hoạt động"}</span> },
+    { key: "version", label: "Tài khoản đăng nhập", render: (_, row) => users.loading ? "Đang tải…" : logins(row.id).map((user) =>
+      `${String(user.username)}${user.active ? "" : " (đã khóa)"}`).join(", ") || "Chưa có" },
+    { key: "id", label: "Thao tác", render: (_, row) => <div className="ops-actions">
+      <button disabled={!row.active} onClick={() => setAccount(row as Dealer)}>Cấp tài khoản</button>
+      <button onClick={() => setEditor(row as Dealer)}>Chỉnh sửa</button></div> },
   ];
   return <div className="operations-workspace">
-    <Heading title="Danh sách đại lý" caption="Tạo đại lý trước, sau đó cấp tài khoản đại lý trong mục Tài khoản."
+    <Heading title="Danh sách đại lý" caption="Tạo đại lý, rồi bấm Cấp tài khoản để tạo đăng nhập cho đại lý đó. Khóa hoặc mở khóa tài khoản trong menu tài khoản › Tài khoản."
       action={<button className="primary" onClick={() => setEditor("new")}>Thêm đại lý</button>} />
     <section className="panel ops-list-panel">
+      <FilterBar values={filters} onChange={(key, value) => { setFilters((current) => ({ ...current, [key]: value })); setPage(1); }}
+        onReset={() => { setFilters({}); setPage(1); }} fields={[{ key: "search", label: "Tìm kiếm", type: "search", placeholder: "Mã hoặc tên đại lý" },
+          { key: "status", label: "Trạng thái", type: "select", options: [["active", "Hoạt động"], ["inactive", "Ngừng hoạt động"]] }]} />
       <State error={result.error} />
-      {!result.error && <><Table rows={result.data?.items ?? []} loading={result.loading} columns={columns} label="Danh sách đại lý" emptyMessage="Chưa có đại lý nào." />
+      {!result.error && <><Table rows={result.data?.items ?? []} loading={result.loading} columns={columns} label="Danh sách đại lý" emptyMessage={Object.values(filters).some(Boolean) ? "Không có đại lý phù hợp với bộ lọc." : "Chưa có đại lý nào."} />
         <Pager page={page} total={result.data?.total ?? 0} pageSize={25} loading={result.loading} onChange={setPage} /></>}
     </section>
     {editor && <DealerEditor row={editor === "new" ? undefined : editor} onClose={() => setEditor(undefined)} />}
+    {account && <DealerAccount dealer={account} onClose={() => setAccount(undefined)} />}
   </div>;
+}
+
+function DealerAccount({ dealer, onClose }: { dealer: Dealer; onClose: () => void }) {
+  const write = useOperationWrite("/auth");
+  async function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); const fields = new FormData(event.currentTarget);
+    const body = { username: String(fields.get("username")).trim().toLowerCase(), display_name: fields.get("display_name"),
+      password: fields.get("password"), role: "dealer", dealer_id: dealer.id };
+    if (await write.send("/users", body)) { refreshOperations(); onClose(); }
+  }
+  return <Dialog title={`Cấp tài khoản · ${dealer.name}`} onClose={onClose} busy={write.busy} className="operations-form-dialog">
+    <form onSubmit={(event) => void save(event)}><fieldset disabled={write.busy}><div className="operations-form-fields">
+      <WriteError error={write.error} />
+      <label>Tên hiển thị<input name="display_name" required maxLength={100} defaultValue={dealer.name} /></label>
+      <label>Tên đăng nhập<input name="username" required minLength={3} maxLength={64} pattern="[a-z0-9][a-z0-9._\-]{2,63}" autoComplete="off"
+        defaultValue={dealer.code.toLowerCase().replace(/[^a-z0-9._-]/g, "")} /></label>
+      <label>Mật khẩu<input name="password" type="password" required minLength={12} maxLength={128} autoComplete="new-password" /></label>
+      <p className="caption">Tài khoản chỉ thấy sản phẩm, yêu cầu và hàng đã nhận của đại lý {dealer.code}. Mật khẩu tối thiểu 12 ký tự; gửi thông tin đăng nhập riêng cho đại lý.</p>
+    </div><div className="dialog-form-actions"><button type="button" onClick={onClose}>Hủy</button><button className="primary" type="submit">{write.busy ? "Đang lưu…" : "Tạo tài khoản"}</button></div></fieldset></form>
+  </Dialog>;
 }
 
 function DealerEditor({ row, onClose }: { row?: Dealer; onClose: () => void }) {
@@ -58,27 +94,29 @@ function DealerEditor({ row, onClose }: { row?: Dealer; onClose: () => void }) {
 }
 
 export function DealerRequestsPage() {
-  const [page, setPage] = useState(1), [status, setStatus] = useState("submitted"), [open, setOpen] = useState("");
-  const result = useResource<Page>(`/dealers/requests?page=${page}&page_size=25${status ? `&status=${status}` : ""}`, true);
+  const [page, setPage] = useState(1), [filters, setFilters] = useState<Record<string, string>>({ status: "submitted" }), [open, setOpen] = useState("");
+  const result = useResource<Page>(`/dealers/requests?${query({ page, page_size: 25, ...filters })}`, true);
+  const dealers = useResource<Page<Dealer>>("/dealers", false, 0, apiAllPages);
   const columns: Column[] = [
-    { key: "number", label: "Yêu cầu", render: (value, row) => <button className="text-button" onClick={() => setOpen(String(row.id))}>{String(value)}</button> },
+    { key: "number", label: "Yêu cầu", render: (value, row) => <button className="text-button" onClick={(event) => { event.stopPropagation(); setOpen(String(row.id)); }}>{String(value)}</button> },
     { key: "dealer_name", label: "Đại lý" }, { key: "status", label: "Trạng thái", render: statusBadge },
     { key: "line_count", label: "Số dòng" }, { key: "quantity", label: "Tổng số lượng", render: qty }, { key: "created_at", label: "Tạo lúc", render: localTime },
   ];
   return <div className="operations-workspace">
     <Heading title="Yêu cầu lấy hàng" caption="Duyệt yêu cầu của đại lý, sau đó chọn kho để xuất hàng." />
     <section className="panel ops-list-panel">
-      <div className="ops-filters"><label>Trạng thái<select value={status} onChange={(event) => { setStatus(event.target.value); setPage(1); }}>
-        <option value="">Tất cả</option>{Object.entries(REQUEST_STATUS).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</select></label></div>
+      <FilterBar values={filters} onChange={(key, value) => { setFilters((current) => ({ ...current, [key]: value })); setPage(1); }}
+        onReset={() => { setFilters({}); setPage(1); }} fields={[{ key: "status", label: "Trạng thái", type: "select", options: Object.entries(REQUEST_STATUS) },
+          { key: "dealer_id", label: "Đại lý", type: "select", options: (dealers.data?.items ?? []).map((row) => [String(row.id), row.name] as const), all: "Tất cả đại lý" }]} />
       <State error={result.error} />
-      {!result.error && <><Table rows={result.data?.items ?? []} loading={result.loading} columns={columns} label="Yêu cầu lấy hàng" emptyMessage="Không có yêu cầu phù hợp." />
+      {!result.error && <><Table rows={result.data?.items ?? []} loading={result.loading} onRow={(row) => setOpen(String(row.id))} columns={columns} label="Yêu cầu lấy hàng" emptyMessage="Không có yêu cầu phù hợp." />
         <Pager page={page} total={result.data?.total ?? 0} pageSize={25} loading={result.loading} onChange={setPage} /></>}
     </section>
     {open && <AdminRequest id={open} onClose={() => setOpen("")} />}
   </div>;
 }
 
-function AdminRequest({ id, onClose }: { id: string; onClose: () => void }) {
+export function AdminRequest({ id, onClose }: { id: string; onClose: () => void }) {
   const write = useOperationWrite("/dealers/requests");
   const [mode, setMode] = useState<"" | "reject" | "issue">("");
   const [reason, setReason] = useState(""), [warehouse, setWarehouse] = useState("");

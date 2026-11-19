@@ -8,6 +8,7 @@ import { ChangePassword } from "./ChangePassword";
 
 export interface User { id: number; username: string; display_name: string; role: "admin" | "dealer"; dealer_id: number | null; active: boolean }
 interface Session { required: boolean; user: User | null; csrf_token?: string }
+export const useSession = () => useContext(SessionContext);
 const SessionContext = createContext<{ user: User; logout: () => Promise<void>; accounts: () => void; password: () => void } | null>(null);
 
 export function AccountMenu() {

@@ -1,5 +1,29 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-threshold-advice-warehouse-cards-20261119"></a>
+## Đề xuất nhập theo ngưỡng cố định và thẻ kho — 19/11/2026
+
+- Người dùng chọn thêm cách tính dự phòng cho Đề xuất nhập. `planning.calculate_threshold`: khi sản phẩm không có dự báo hiện hành, tồn toàn mạng + hàng về trong thời gian nhập ≤ `configured_rop_floor` thì đề xuất đúng `fixed_order_qty`; hàng quá hạn vẫn chuyển "Kiểm tra đơn trễ". Mỗi dòng có `basis` (`forecast`/`threshold`); có dự báo thì giữ nguyên phép tính cũ. Thiếu chính sách nay báo `fixed_policy_missing` trước (trước đây thiếu dự báo được báo trước). Trên `sigma_m3` local: 920 dòng đều theo ngưỡng — 899 cần bổ sung, 16 chưa cần, 5 kiểm tra đơn trễ.
+- Tồn kho mở bằng thẻ kho (cùng kiểu danh sách kho của kịch bản); bấm thẻ vào `?ops_warehouse=` với thẻ số liệu của kho và bảng tồn có lọc. `GET /operations/warehouses` trả thêm `stocked_items`, `empty_items`, `on_hand_qty`, `incoming_qty`, `last_movement_on`.
+- Kiểm: pytest operations/planning/dealers/hợp đồng 36 ca qua; Vitest **178/178**, `tsc -b`, `vite build` qua.
+
+<a id="handoff-supplier-page-filters-20261119"></a>
+## Trang nhà cung cấp, bộ lọc và bảng kéo tới chân trang — 19/11/2026
+
+- Backend (chỉ đọc, không migration): `GET /operations/products` thêm `product_type`, `country` và trả thêm tồn mạng lưới cùng chính sách đang hiệu lực (`fixed_order_qty`, `configured_rop_floor`, `safety_days`, `policy_version`); route mới `GET /operations/product-filters` (quốc gia, nhà cung cấp có sản phẩm); `suppliers` thêm `search`, `country`, số sản phẩm đang hoạt động, danh sách quốc gia, tổng tồn; `stock` thêm `supplier_id`, `product_type`; `documents` thêm `kind`, `date_from`, `date_to`, `search`; `audit` thêm `action` và khoảng ngày theo giờ Việt Nam; `/dealers` thêm `search`. `tests/operations_contract.py` khai báo route mới.
+- FE: thanh lọc chung (`operations/Filters.tsx`) cho Tồn kho, Đơn nhập, Sản phẩm, Nhà cung cấp, Kho hàng, Chứng từ, Lịch sử thao tác, Đại lý, Yêu cầu lấy hàng; trang chi tiết nhà cung cấp (`?ops_supplier=`) với thẻ số liệu, sản phẩm có lọc, chính sách nhập, chỉnh sửa và thêm sản phẩm; danh sách lấp đầy chiều cao màn hình; thẻ số liệu dùng chung `Card` (cùng kiểu trang mô phỏng) trên Tổng quan và các trang sổ kho; icon cho thẻ và tiêu đề khối trên Tổng quan.
+- Menu: "Nhà cung cấp" chuyển sang nhóm Danh mục (cạnh Sản phẩm); Hệ thống có thêm "Tài khoản" (chỉ admin, mở hộp quản lý tài khoản); tên nhà cung cấp trong bảng Sản phẩm mở thẳng trang nhà cung cấp.
+- Dữ liệu local `sigma_m3` (ngoài Git): `outputs/seed_20261119/seed_catalog.py` đăng ký thêm 896 sản phẩm từ CSV (đủ 920) và lead time giả lập 3–10 ngày cho 37 nhà cung cấp chưa cấu hình; backup trước đó `outputs/backup_20261119/sigma_m3_before_catalog.dump`.
+- Kiểm lượt này: pytest 38 ca liên quan (operations, dealers, hợp đồng OpenAPI, lead time, planning) qua trên PostgreSQL 18 local, gồm ca lọc mới; Vitest **177/177**, `tsc -b`, `vite build` qua. Chưa chạy full backend; chưa xem giao diện sau đăng nhập admin.
+
+<a id="handoff-ops-detail-access-20261119"></a>
+## Mở chi tiết, chính sách nhập sản phẩm, tài khoản đại lý — 19/11/2026
+
+- Lịch sử thao tác: bấm dòng hoặc "Xem chi tiết" mở hộp thoại; đơn nhập, chứng từ và yêu cầu đại lý có nút mở thẳng đối tượng. Đơn nhập, chứng từ và yêu cầu lấy hàng mở khi bấm bất kỳ đâu trên dòng.
+- Sản phẩm (Danh mục): nút "Chính sách nhập" sửa thời gian nhập (vẫn là thiết lập của nhà cung cấp, áp cho mọi sản phẩm của họ theo hợp đồng lead time) và tạo phiên bản chính sách mới qua `POST /supplier-item-policies` (lượng nhập mỗi lần, ROP tối thiểu, ngày an toàn, ngày nhìn trước cảnh báo, ngày hiệu lực). Không thêm dự báo cho dữ liệu giả lập; không đổi backend.
+- Danh sách đại lý: cột tài khoản đăng nhập và nút "Cấp tài khoản" (gọi `POST /auth/users` với `role=dealer`). Trước đó chức năng chỉ có trong menu tài khoản › Tài khoản.
+- Kiểm lượt này: Vitest **176/176** (thêm `operations-detail-access.test.tsx`, 4 ca), `tsc -b`, `vite build` qua; tạo thử một phiên bản chính sách trên DB local `sigma_m3` rồi rollback để xác nhận run cũ không chặn ngày hiệu lực hôm nay. Chưa xem giao diện sau đăng nhập admin.
+
 <a id="handoff-collapsible-menu-20261119"></a>
 ## Menu thu gọn theo nhóm — 19/11/2026
 

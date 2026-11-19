@@ -3,7 +3,7 @@ import uuid
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select, func
-from modules.operations.planning import calculate
+from modules.operations.planning import calculate, calculate_threshold
 from modules.operations.models import StockDocument, StockBalance
 from modules.forecasting.models import ItemForecast
 from modules.runs.models import Run
@@ -81,13 +81,31 @@ def test_network_plan_reads_real_balance_pending_and_supplier_default_without_wr
         assert session.scalar(select(func.count()).select_from(StockDocument))==2
         assert session.scalar(select(func.sum(StockBalance.on_hand_qty)))==9
 
-def test_missing_forecast_is_explicit_and_supplier_cannot_access_global_stock(auth_app):
-    app,_=auth_app
+def test_threshold_fallback_orders_one_lot_at_or_below_floor_and_counts_only_timely_receipts():
+    origin = D
+    assert calculate_threshold(5, {}, 7, 5, 20, origin)['recommended_qty'] == 20
+    covered = calculate_threshold(6, {}, 7, 5, 20, origin)
+    assert covered['decision'] == 'covered' and covered['recommended_qty'] == 0 and covered['reason'] == 'fixed_threshold_policy'
+    timely = calculate_threshold(2, {origin + timedelta(days=3): 10, origin + timedelta(days=9): 50}, 7, 5, 20, origin)
+    assert timely['inventory_position'] == 12 and timely['pending_qty'] == 60 and timely['recommended_qty'] == 0
+    overdue = calculate_threshold(0, {origin: 4}, 7, 5, 20, origin)
+    assert overdue['decision'] == 'review_overdue' and overdue['recommended_qty'] is None
+    assert calculate_threshold(0, {}, 7, 5, None, origin)['reason'] == 'quantity_out_of_range'
+
+
+def test_missing_forecast_falls_back_to_threshold_and_supplier_cannot_access_global_stock(auth_app):
+    app,sessions=auth_app
     with TestClient(app) as client:
         assert client.get('/api/v1/operations/recommendations').status_code==401
-        client.headers.update(login(client)); setup_catalog(client)
+        client.headers.update(login(client)); warehouse,item,supplier=setup_catalog(client)
         row=client.get('/api/v1/operations/recommendations').json()['items'][0]
-        assert row['reason']=='current_forecast_missing' and row['recommended_qty'] is None
+        assert row['basis']=='threshold' and row['reason']=='fixed_policy_missing' and row['recommended_qty'] is None
+        assert post(client,'/counts',movement(warehouse,item,3)).status_code==201
+        with sessions.begin() as session:
+            session.add(Policy(item_id=item,supplier_id=supplier,version=1,effective_from=datetime.now(timezone.utc).date()-timedelta(days=1),
+                configured_rop_floor=4,fixed_order_qty=15,safety_days=2,is_assumed=True,assumption_source='synthetic'))
+        row=client.get('/api/v1/operations/recommendations').json()['items'][0]
+        assert (row['basis'],row['reason'],row['decision'],row['rop'],row['recommended_qty'])==('threshold','fixed_threshold_policy','order',4,15)
     with TestClient(app) as client:
         login(client,'partner-a')
         assert client.get('/api/v1/operations/recommendations').status_code==403

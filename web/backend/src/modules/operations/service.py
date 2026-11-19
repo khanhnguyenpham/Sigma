@@ -12,6 +12,7 @@ from modules.operations.models import SupplierSettings, OperationalOrder as Orde
 from modules.operations.models import StockBalance as Balance, StockDocument as Document, StockDocumentLine as Entry, OperationAudit
 from modules.operations.models import OperationalWarehouse as Warehouse, OperationalProduct as Product
 from modules.operations.schemas import MAX_QTY
+from modules.configuration.models import Policy
 
 
 
@@ -300,12 +301,16 @@ def orders(session, page, size, status=None, supplier_id=None, search=None, sort
     return page_rows(session, query.order_by(*order), page, size)
 
 
-def stock(session, page, size, warehouse_id=None, search=None, sort="location"):
+def stock(session, page, size, warehouse_id=None, search=None, sort="location", supplier_id=None, product_type=None):
     query = select(Balance.warehouse_id, Warehouse.name.label("warehouse"), Balance.item_id, Item.sku, Product.name, Item.product_type,
-        Balance.on_hand_qty, Balance.version, Balance.last_movement_on).join(Item, Balance.item_id == Item.id).join(Product,
-        Product.item_id == Item.id).join(Warehouse, Balance.warehouse_id == Warehouse.id)
+        SourceWarehouse.carrier, Balance.on_hand_qty, Balance.version, Balance.last_movement_on).join(Item, Balance.item_id == Item.id).join(Product,
+        Product.item_id == Item.id).join(Warehouse, Balance.warehouse_id == Warehouse.id).join(SourceWarehouse, Item.warehouse_id == SourceWarehouse.id)
     if warehouse_id is not None:
         query = query.where(Balance.warehouse_id == warehouse_id)
+    if supplier_id is not None:
+        query = query.where(SourceWarehouse.carrier == select(Supplier.carrier).where(Supplier.id == supplier_id).scalar_subquery())
+    if product_type:
+        query = query.where(Item.product_type == product_type)
     if search:
         query = query.where(or_(Item.sku.icontains(search, autoescape=True), Product.name.icontains(search, autoescape=True)))
     location = (Warehouse.name, Item.sku, Item.product_type, Balance.item_id)
@@ -384,22 +389,71 @@ def update_product(session, key, payload, actor):
     return record(row)
 
 
-def products(session, page, size, supplier_id=None, search=None, active=True):
+def products(session, page, size, supplier_id=None, search=None, active=True, product_type=None, country=None):
+    # Read-only extras for the catalog: network stock and the policy in force on the business date.
+    on_hand = select(Balance.item_id, func.sum(Balance.on_hand_qty).label("on_hand_qty")).group_by(Balance.item_id).subquery()
+    day = today()
+    policy = select(Policy.item_id, Policy.version, Policy.fixed_order_qty, Policy.configured_rop_floor, Policy.safety_days).where(
+        Policy.effective_from <= day, or_(Policy.effective_to.is_(None), Policy.effective_to > day)).subquery()
     query = select(Item.id, Item.sku, Product.name, Item.product_type, SourceWarehouse.destination_country,
         Supplier.id.label("supplier_id"), Supplier.carrier, func.coalesce(SupplierSettings.lead_time_days, 7).label("lead_time_days"),
-        Product.active, Product.version).select_from(Product).join(
+        Product.active, Product.version, func.coalesce(on_hand.c.on_hand_qty, 0).label("on_hand_qty"),
+        policy.c.version.label("policy_version"), policy.c.fixed_order_qty, policy.c.configured_rop_floor, policy.c.safety_days).select_from(Product).join(
         Item, Product.item_id == Item.id).join(SourceWarehouse, Item.warehouse_id == SourceWarehouse.id).join(
-        Supplier, SourceWarehouse.carrier == Supplier.carrier).outerjoin(SupplierSettings, SupplierSettings.supplier_id == Supplier.id)
+        Supplier, SourceWarehouse.carrier == Supplier.carrier).outerjoin(SupplierSettings, SupplierSettings.supplier_id == Supplier.id).outerjoin(
+        on_hand, on_hand.c.item_id == Item.id).outerjoin(policy, policy.c.item_id == Item.id)
     if supplier_id is not None:
         query = query.where(Supplier.id == supplier_id)
     if active is not None:
         query = query.where(Product.active == active)
+    if product_type:
+        query = query.where(Item.product_type == product_type)
+    if country:
+        query = query.where(SourceWarehouse.destination_country == country)
     if search:
         query = query.where(or_(Item.sku.icontains(search, autoescape=True), Product.name.icontains(search, autoescape=True)))
     return page_rows(session, query.order_by(Product.name, Item.id), page, size)
 
 
-def journal(session, page, size):
+def product_filters(session):
+    rows = session.execute(select(SourceWarehouse.destination_country, Supplier.id, Supplier.carrier).select_from(Product).join(
+        Item, Product.item_id == Item.id).join(SourceWarehouse, Item.warehouse_id == SourceWarehouse.id).join(
+        Supplier, SourceWarehouse.carrier == Supplier.carrier).distinct()).all()
+    return {"countries": sorted({country for country, _, _ in rows}),
+            "suppliers": [{"id": key, "carrier": carrier} for key, carrier in sorted({(key, carrier) for _, key, carrier in rows}, key=lambda row: row[1])]}
+
+
+def suppliers(session, page, size, search=None, country=None):
+    # Product count shows how many products a lead-time change reaches (all registered products of the carrier).
+    stocked = select(Balance.item_id, func.sum(Balance.on_hand_qty).label("qty")).group_by(Balance.item_id).subquery()
+    products = select(SourceWarehouse.carrier, func.count().label("product_count"),
+        func.count().filter(Product.active.is_(True)).label("active_product_count"),
+        func.array_agg(func.distinct(SourceWarehouse.destination_country)).label("countries"),
+        func.coalesce(func.sum(stocked.c.qty), 0).label("on_hand_qty")).select_from(Product).join(
+        Item, Product.item_id == Item.id).join(SourceWarehouse, Item.warehouse_id == SourceWarehouse.id).outerjoin(
+        stocked, stocked.c.item_id == Item.id).group_by(SourceWarehouse.carrier).subquery()
+    query = select(Supplier.id, Supplier.carrier, func.coalesce(SupplierSettings.lead_time_days, 7).label("lead_time_days"),
+        func.coalesce(SupplierSettings.version, 0).label("version"), SupplierSettings.updated_at,
+        func.coalesce(products.c.product_count, 0).label("product_count"), func.coalesce(products.c.active_product_count, 0).label("active_product_count"),
+        products.c.countries, func.coalesce(products.c.on_hand_qty, 0).label("on_hand_qty")).outerjoin(
+            SupplierSettings, SupplierSettings.supplier_id == Supplier.id).outerjoin(products, products.c.carrier == Supplier.carrier)
+    if search:
+        query = query.where(Supplier.carrier.icontains(search, autoescape=True))
+    if country:
+        query = query.where(select(Product.item_id).join(Item, Product.item_id == Item.id).join(SourceWarehouse, Item.warehouse_id == SourceWarehouse.id)
+            .where(SourceWarehouse.carrier == Supplier.carrier, SourceWarehouse.destination_country == country).exists())
+    return page_rows(session, query.order_by(Supplier.carrier), page, size)
+
+
+def journal(session, page, size, kind=None, date_from=None, date_to=None, search=None):
     query = select(Document.id, Document.number, Document.kind, Document.order_id, Document.occurred_on,
-        Document.external_ref, Document.reason, Document.created_at, User.display_name.label("actor"))
-    return page_rows(session, query.join(User, Document.created_by == User.id).order_by(Document.created_at.desc(), Document.id), page, size)
+        Document.external_ref, Document.reason, Document.created_at, User.display_name.label("actor")).join(User, Document.created_by == User.id)
+    if kind:
+        query = query.where(Document.kind == kind)
+    if date_from:
+        query = query.where(Document.occurred_on >= date_from)
+    if date_to:
+        query = query.where(Document.occurred_on <= date_to)
+    if search:
+        query = query.where(or_(Document.number.icontains(search, autoescape=True), Document.external_ref.icontains(search, autoescape=True)))
+    return page_rows(session, query.order_by(Document.created_at.desc(), Document.id), page, size)

@@ -2,6 +2,7 @@ import { NAV_GROUPS, isManagementPage, menuPage } from "../config/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { Icon } from "../components/ui/Icon";
+import { useSession } from "../auth/SessionBoundary";
 
 import { type AppContextState } from "../hooks/useAppContext";
 
@@ -9,6 +10,7 @@ export function Sidebar({ app }: { app: AppContextState }) {
   const { page, navigate, navOpen, setNavOpen } = app;
   const compact = useMediaQuery("(max-width: 1100px)");
   const ref = useRef<HTMLElement>(null);
+  const session = useSession();
   const current = menuPage(page);
   const active = NAV_GROUPS.find(([, , pages]) => pages.some(([id]) => id === current))?.[0];
   const [open, setOpen] = useState<string[]>(active ? [active] : []);
@@ -54,9 +56,11 @@ export function Sidebar({ app }: { app: AppContextState }) {
       <nav aria-label="Điều hướng chính">
         {NAV_GROUPS.map(([group, icon, pages], index) => {
           const item = ([id, name]: readonly [string, string]) => {
+            if (id === "accounts" && session?.user.role !== "admin") return null;
             const selected = current === id;
             return <button key={id} title={name} className={selected ? "selected" : ""}
-              aria-current={selected ? "page" : undefined} onClick={() => navigate(id)}>
+              aria-current={selected ? "page" : undefined} aria-haspopup={id === "accounts" ? "dialog" : undefined}
+              onClick={() => id === "accounts" ? session?.accounts() : navigate(id)}>
               {!group && <Icon name={icon} />}
               <span>{name}</span>
               {selected && <i />}

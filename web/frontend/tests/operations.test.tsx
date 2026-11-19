@@ -37,7 +37,7 @@ it("isolates operational navigation from legacy forecast context", () => {
 it("shows a truthful empty ledger and offers setup without inventing stock", async () => {
   const fetch = vi.spyOn(globalThis, "fetch").mockImplementation(async (path) => String(path).includes("/summary") ? reply({ business_date: "2026-11-15", on_hand_units: 0, pending_orders: 0, draft_orders: 0, documents_today: 0 }) : reply(page([])));
   render(<Operations ctx={context} onContext={vi.fn()} />);
-  expect(await screen.findByText(/Chưa có số dư phù hợp/)).toBeVisible();
+  expect(await screen.findByText(/Chưa có kho đang hoạt động, nên chưa có số dư/)).toBeVisible();
   expect(screen.getByRole("button", { name: "Kiểm kê / tồn đầu" })).toBeDisabled();
   expect(fetch.mock.calls.every(([path]) => !String(path).includes("/runs"))).toBe(true);
 });
@@ -159,7 +159,7 @@ it("shows how many products a supplier lead time reaches", async () => {
     ? reply({ business_date: "2026-11-16" }) : reply(page(String(path).includes("/operations/suppliers") ? [{ ...supplier, lead_time_days: 10, product_count: 12 }] : [])));
   render(<Operations ctx={{ ...context, opsTab: "suppliers" }} onContext={vi.fn()} />);
   expect(await screen.findByText("10 ngày")).toBeVisible();
-  expect(screen.getByText("12")).toBeVisible();
+  expect(within(screen.getByRole("region", { name: /^Nhà cung cấp/ })).getByText("12")).toBeVisible();
   expect(screen.getByText(/áp dụng cho mọi sản phẩm của nhà cung cấp đó/)).toBeVisible();
   fireEvent.click(screen.getByRole("button", { name: "Đổi thời gian nhập" }));
   expect(await screen.findByText(/Áp dụng cho 12 sản phẩm/)).toBeVisible();

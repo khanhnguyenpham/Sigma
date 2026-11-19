@@ -5,8 +5,8 @@ import { useTradeNavigation } from "../hooks/useTradeNavigation";
 import { useOperationWrite, refreshOperations } from "./useOperationWrite";
 import type { Product, Supplier, Warehouse } from "./types";
 
-export function CatalogEditor({ kind, row, onClose }: {
-  kind: "warehouse" | "product" | "supplier"; row?: Warehouse | Product | Supplier; onClose: () => void;
+export function CatalogEditor({ kind, row, carrier, onClose }: {
+  kind: "warehouse" | "product" | "supplier"; row?: Warehouse | Product | Supplier; carrier?: string; onClose: () => void;
 }) {
   const write = useOperationWrite();
   const [dirty, setDirty] = useState(false);
@@ -40,7 +40,7 @@ export function CatalogEditor({ kind, row, onClose }: {
           {kind === "warehouse" ? <label>Quốc gia của kho<input name="country" required maxLength={100} defaultValue={String(row?.country ?? "Việt Nam")} /></label> : !row && <>
             <label>Mã SKU<input name="sku" required maxLength={120} /></label>
             <label>Loại sản phẩm<select name="product_type" defaultValue="physical_SIM"><option value="physical_SIM">SIM vật lý</option><option value="eSIM">eSIM</option></select></label>
-            <label>Nhà cung cấp / nhà mạng<input name="carrier" required maxLength={100} placeholder="Tên nhà cung cấp chính xác" /></label>
+            <label>Nhà cung cấp / nhà mạng<input name="carrier" required maxLength={100} placeholder="Tên nhà cung cấp chính xác" defaultValue={carrier ?? ""} readOnly={!!carrier} /></label>
             <label>Quốc gia sử dụng sản phẩm<input name="destination_country" required maxLength={100} /></label>
           </>}
           {row && <label>Trạng thái<select name="active" defaultValue={String(row.active)}><option value="true">Đang hoạt động</option><option value="false">{kind === "warehouse" ? "Đóng kho" : "Ngừng nhập mới"}</option></select></label>}

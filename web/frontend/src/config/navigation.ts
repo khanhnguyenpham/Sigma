@@ -13,10 +13,11 @@ export const TOOL_PAGES = [
 export const NAV_GROUPS = [
   ["", "grid", [["dashboard", "Tổng quan"]]],
   ["Kho", "warehouse", [["stock", "Tồn kho"], ["documents", "Chứng từ"], ["warehouses", "Kho hàng"]]],
-  ["Nhập hàng", "truck", [["orders", "Đơn nhập"], ["recommendations", "Đề xuất nhập"], ["suppliers", "Nhà cung cấp"]]],
+  ["Nhập hàng", "truck", [["orders", "Đơn nhập"], ["recommendations", "Đề xuất nhập"]]],
   ["Đại lý", "check", [["dealer-requests", "Yêu cầu lấy hàng"], ["dealers", "Danh sách đại lý"]]],
-  ["Danh mục", "box", [["catalog", "Sản phẩm"]]],
-  ["Hệ thống", "clock", [["audit", "Lịch sử thao tác"]]],
+  ["Danh mục", "box", [["catalog", "Sản phẩm"], ["suppliers", "Nhà cung cấp"]]],
+  // "accounts" is not a page: it opens the account manager dialog (admins only).
+  ["Hệ thống", "settings", [["audit", "Lịch sử thao tác"], ["accounts", "Tài khoản"]]],
   ["Công cụ dự báo", "chart", TOOL_PAGES],
 ] as const;
 
