@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select, func
 from modules.operations.planning import calculate, calculate_threshold
+from modules.operations import planning, service as operations_service
 from modules.operations.models import StockDocument, StockBalance
 from modules.forecasting.models import ItemForecast
 from modules.runs.models import Run
@@ -58,9 +59,19 @@ def seed_forecast(sessions, item, supplier, origin):
             configured_rop_floor=0,fixed_order_qty=15,safety_days=2,is_assumed=True,assumption_source='synthetic'))
         return forecast.id
 
-def test_network_plan_reads_real_balance_pending_and_supplier_default_without_writes(auth_app):
+@pytest.mark.parametrize('stamp,eligible_pending,recommended', [
+    (datetime(2026,11,19,9,tzinfo=timezone.utc),10,0),
+    (datetime(2026,11,19,18,tzinfo=timezone.utc),0,15),
+])
+def test_network_plan_reads_real_balance_pending_and_supplier_default_without_writes(auth_app, monkeypatch, stamp, eligible_pending, recommended):
     app,sessions=auth_app
-    today=datetime.now(timezone.utc).date()
+    class Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return stamp.astimezone(tz) if tz else stamp.replace(tzinfo=None)
+    monkeypatch.setattr(planning,'datetime',Clock)
+    monkeypatch.setattr(operations_service,'datetime',Clock)
+    today=stamp.date()
     with TestClient(app) as client:
         client.headers.update(login(client)); warehouse,item,supplier=setup_catalog(client)
         assert post(client,'/counts',movement(warehouse,item,3)).status_code==201
@@ -72,7 +83,11 @@ def test_network_plan_reads_real_balance_pending_and_supplier_default_without_wr
         assert response.status_code==200,response.text
         row=response.json()['items'][0]
         assert row['on_hand_qty']==9 and row['pending_qty']==10
-        assert row['recommended_qty']==0 and row['rop']==18
+        # Orders use the Vietnam business date; the advisory window uses UTC.
+        # After 17:00 UTC the same new order arrives on D+8, outside its D+7 cover.
+        assert row['eligible_pending_qty']==eligible_pending
+        assert row['recommended_qty']==recommended and row['rop']==18
+        assert order['eta']==str(operations_service.today()+timedelta(days=7))
         assert client.patch(f'/api/v1/operations/suppliers/{supplier}/settings',json={'lead_time_days':30,'expected_version':0,'reason':'New agreement'}).status_code==200
         row=client.get('/api/v1/operations/recommendations').json()['items'][0]
         assert row['reason']=='forecast_horizon_short' and row['recommended_qty'] is None
