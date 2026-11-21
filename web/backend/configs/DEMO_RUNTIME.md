@@ -1,5 +1,7 @@
 # Runtime và dữ liệu demo
 
+**21/11/2026 — thử demo free Render + Supabase, đã dừng:** forecast đầy đủ (624 MB) vượt Supabase Free 500 MB, worker không chạy được trên Render Free 512 MB; không triển khai. [Bàn giao](../../../docs/development.md#handoff-free-deploy-20261121). Các checkpoint dưới đây là lịch sử.
+
 **04/11/2026 — cập nhật so sánh14ngày đã đồngbộ:** Runtime source812bd7aeed8bc413f2bc1f603582d71a09f8685021ccf6079f524193dc0bfd8e, API/worker/FEready. URL hiệnhành https://dynamic-replace-tales-aim.trycloudflare.com/ , lấyconnection.jsonkhi mởlại. Thêm APIorigins/read UI ngày đánhgiá, khôngschema/fit/runmới;9run161artifact giữ hash. Testcluster55434đã dừng. [Bàn giao](../../../docs/development.md#handoff-forecast-comparison).
 
 **04/11/2026 — Quick Tunnel công khai đã được xác nhận và kiểm:** Demo0009/API/worker/FE đang ready qua https://mpg-mens-purchase-uniprotkb.trycloudflare.com/ ; HTTPS/CORS/11tệpFE/12cặpAPI-CSV/browser đọc đạt. Dùng src start/status/stop như dưới; URL mới lấy connection.json, cần giữ máy/process chạy. Quyền công khai đã được người dùng xác nhận, thay điểm chờ auto-review dưới đây. [Bàn giao hiện hành](../../../docs/development.md#handoff-demo-https-public).

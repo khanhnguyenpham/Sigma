@@ -1,5 +1,17 @@
 # Phát triển, kiểm tra và bàn giao SIGMA
 
+<a id="handoff-free-deploy-20261121"></a>
+## Thử dựng demo web miễn phí cho mentor review — 21/11/2026, đã dừng
+
+- Yêu cầu: demo public miễn phí cho mentor review 23–25/11. Phương án thử: Render Free chạy image `web/Dockerfile` (API + React cùng origin, `M3_MODE=demo`), Supabase Free chứa DB `sigma_demo`, worker chạy trên máy nhóm.
+- Kết quả đo được:
+  - Supabase Session pooler (IPv4, cổng 5432) kết nối được tới DB có tên khác `postgres`. Migration lên `0017` và `modules.auth.bootstrap` chạy được qua pooler.
+  - Một forecast replay đủ 185 mốc tạo khoảng 2,38 triệu dòng `item_forecasts`. Đo trên PostgreSQL local, bảng này cùng các index chiếm **624 MB**, vượt 500 MB của Supabase Free. Aiven Free có 1 GB nhưng chưa thử.
+  - `seed_dev_data.py` chạy rất chậm qua mạng tới Supabase Tokyo (sau 15 phút vẫn đang tạo sản phẩm), vì mỗi thao tác là một lượt truy vấn.
+  - Render Free có 512 MB RAM nên không chạy được worker fit Prophet/LightGBM. Ở mode demo, `/api/v1/ready` luôn trả 503 khi worker không chạy trên cùng đĩa; health check phải dùng `/api/v1/live`.
+- Người dùng dừng việc deploy. Đã hủy seed (giao dịch rollback, không để lại dữ liệu), bỏ commit local chưa push, xóa project Supabase và file env riêng. Không có thay đổi mã nào được đưa lên `main`; chưa tạo service Render.
+- Nếu làm lại: cần một DB free ≥ 1 GB, hoặc bỏ dự báo khỏi bản web; seed nên chạy trên DB local rồi `pg_dump`/`pg_restore` lên cloud thay vì chạy seed qua mạng.
+
 <a id="handoff-report-runtime-20261120"></a>
 ## Cập nhật main và chạy web để chụp ảnh báo cáo — 20/11/2026
 

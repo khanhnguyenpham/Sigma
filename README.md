@@ -1,14 +1,14 @@
 # SIGMA — Dự báo nhu cầu và lập kế hoạch tồn kho SIM/eSIM
 
-**Cập nhật15/11:** Bản nâng cấp auth, React và sổ kho đã được gộp vào `main`. Thành viên dùng [hướng dẫn cập nhật local](docs/UPDATE_LOCAL.md) để kéo code, cài dependency, build FE và nâng DB lên0011 trước khi mở web. Các checkpoint “chưa cập nhật main” trong tài liệu cũ là lịch sử; web trên từng máy không tự đổi chỉ bằng push GitHub.
+**Cập nhật15/11:** Bản nâng cấp auth, React và sổ kho đã được gộp vào `main`. Thành viên dùng [hướng dẫn cập nhật local](docs/UPDATE_LOCAL.md) để kéo code, cài dependency, build FE và nâng DB lên `0017` trước khi mở web. Các checkpoint “chưa cập nhật main” trong tài liệu cũ là lịch sử; web trên từng máy không tự đổi chỉ bằng push GitHub.
 
-Đọc [bảng yêu cầu và trạng thái hiện hành](docs/PRODUCT_STATUS.md) để phân biệt phần đã chạy với phần còn thiếu. Bản mã `52a96e2` đã qua hai workflow: 581 kiểm thử backend, 163 React, build, Redis thật và Compose startup/backup–restore synthetic. Có [đề xuất nhập từ sổ kho](docs/OPERATIONS_PLANNING.md), [nhận lô SIM bằng QR](docs/RECEIPT_QR.md), đổi/khôi phục mật khẩu và [gói container local](docs/LOCAL_CONTAINER.md). Chưa có host public 24/7 hoặc bằng chứng mới để đóng R05/R07/T14.
+Đọc [bảng yêu cầu và trạng thái hiện hành](docs/PRODUCT_STATUS.md) để phân biệt phần đã chạy với phần còn thiếu. Bản mã `52a96e2` đã qua hai workflow: 581 kiểm thử backend, 163 React, build, Redis thật và Compose startup/backup–restore synthetic. Có [đề xuất nhập từ sổ kho](docs/OPERATIONS_PLANNING.md), [nhận lô SIM bằng QR](docs/RECEIPT_QR.md), đổi/khôi phục mật khẩu và [gói container local](docs/LOCAL_CONTAINER.md). Chưa có host public 24/7 hoặc bằng chứng mới để đóng R05/R07/T14. Ngày 21/11 nhóm đã thử dựng demo miễn phí trên Render Free và Supabase Free rồi dừng lại, không triển khai; lý do ghi ở [bàn giao](docs/development.md#handoff-free-deploy-20261121).
 
 SIGMA hỗ trợ theo dõi nhu cầu bán, lập kế hoạch tồn kho, đề xuất nhập hàng và cảnh báo nguy cơ cạn hàng. Hệ thống kết hợp **dự báo nhu cầu** với **tồn hiện có, lô đang về và cấu hình sản phẩm** để giải thích khi nào cần bổ sung, bổ sung bao nhiêu và hàng có về kịp hay không.
 
 Nền dự báo và kế hoạch tồn của bài thực tập dùng dữ liệu/lô mô phỏng. Bản hiện tại bổ sung [sổ kho theo chứng từ](docs/WAREHOUSE_OPERATIONS.md): danh mục, đơn nhập, nhận hàng, xuất và kiểm kê ghi DB riêng, đã kiểm trên synthetic. Tư vấn nhập kết hợp số dư/đơn đang về với forecast hoàn tất khi đủ ngày dự báo; chưa tự gửi đơn mua hàng sang đối tác hoặc viết lại snapshot mô phỏng cũ.
 
-**Bản main14–15/11:** có auth admin/supplier, quản lý tài khoản, snapshot và module Vận hành kho React/FastAPI/PostgreSQL. Xem [khởi tạo auth](docs/AUTHENTICATION.md) và migration0011 trước khi chạy bản mới; không có tài khoản mặc định. [Trạng thái theo PLAN](docs/planning/PRODUCT_UPGRADE_PLAN_20261114.md#92-phạm-vi-thực-có-sau-ủy-quyền-tự-chọn) nêu phạm vi ETA/dự báo, QR, Redis và giới hạn host. Push GitHub không tự cập nhật bản public hoặc localhost của thành viên.
+**Bản main14–15/11:** có auth admin/supplier, quản lý tài khoản, snapshot và module Vận hành kho React/FastAPI/PostgreSQL. Xem [khởi tạo auth](docs/AUTHENTICATION.md) và nâng DB tới migration `0017` trước khi chạy bản mới; không có tài khoản mặc định. [Trạng thái theo PLAN](docs/planning/PRODUCT_UPGRADE_PLAN_20261114.md#92-phạm-vi-thực-có-sau-ủy-quyền-tự-chọn) nêu phạm vi ETA/dự báo, QR, Redis và giới hạn host. Push GitHub không tự cập nhật bản public hoặc localhost của thành viên.
 
 ## Bài toán hệ thống giải quyết
 

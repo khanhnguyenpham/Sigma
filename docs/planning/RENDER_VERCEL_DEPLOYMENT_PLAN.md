@@ -1,5 +1,7 @@
 # Demo đầy đủ chức năng — triển khai chỉ dùng free
 
+**21/11/2026 — thử demo free Render + Supabase, đã dừng:** forecast đầy đủ (624 MB) vượt Supabase Free 500 MB, worker không chạy được trên Render Free 512 MB; không triển khai. [Bàn giao](../development.md#handoff-free-deploy-20261121). Các checkpoint dưới đây là lịch sử.
+
 **CHG-092/D5 — 04/11/2026, hoàn tất cho phương án máy đang mở:** Chuỗi nguồn/forecast/3loại tồn mới, interrupted→retry, cấu hình/lifecycle/frozen,12cặpAPI/CSV, hai phiênUI, desktop1440/mobile390, direct/HTTPSquota và full-size restore đã kiểm. [Bàn giao](../development.md#handoff-chg092-d5). Full snapshot15run giữ riêng; demo live phục hồi8run trước D5 để còn8slot. Link mới https://charlie-sas-men-scenarios.trycloudflare.com/ ; Vercel cũ chưa nốiAPI. Các checkpoint D4 bên dưới là lịch sử; D6 chưa làm. Không trả phí, không cam kết hoạt động khi máy tắt.
 
 **04/11/2026 — đã triển khai thử backend khi máy mở:** Người dùng đã chấp nhận phương án phụ thuộc máy cá nhân và giao deploy thử BE. API+worker+Postgres/demo storage riêng chạy local, Cloudflare Quick Tunnel miễn phí phục vụ luônUI/API cùng origin; đã kiểmready/46kho/920sản phẩm, một job tồn mới complete/verified/API/CSV và dừng/mở lại. [Bàn giao/cách chạy](../development.md#handoff-chg091-d4-local). Vercel cũ chưa rewriteAPI. Yêu cầu online khi máy tắt/không local tunnel của03/11 bên dưới là checkpoint trước lựa chọn mới; không cần chờ Oracle cho bản thử này. D5–D6 chưa nghiệm thu.

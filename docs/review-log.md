@@ -1,5 +1,9 @@
 # Nhật ký rà soát, quyết định và thay đổi SIGMA
 
+## 21/11 — thử demo web miễn phí, dừng không triển khai
+
+Người dùng giao dựng demo public chỉ dùng dịch vụ free (Render + Supabase) cho mentor review 23–25/11. Đo thực tế: một forecast replay đầy đủ chiếm 624 MB, vượt 500 MB của Supabase Free; Render Free 512 MB không chạy được worker mô hình. Người dùng chọn bỏ dự báo khỏi bản web, sau đó quyết định dừng hẳn việc deploy. Project Supabase đã xóa, không có mã nào được push. [Bàn giao](development.md#handoff-free-deploy-20261121).
+
 ## 20/11 — cập nhật main và sửa dữ liệu thử để chụp ảnh báo cáo
 
 Người dùng giao lấy main mới của Khang, chạy web rồi tiếp tục báo cáo thực tập; được push main trong phạm vi này. Main nhận16commit bằng fast-forward, không ghi đè thay đổi cá nhân. Seed thử phát sinh `insufficient_stock` khi xuất đại lý do chọn lượng theo nhu cầu mà chưa xét hàng còn sau bán lẻ. Sửa riêng script seed: chọn hàng đủ tồn tại một kho trước khi lập yêu cầu đã xuất/đã nhận; không nới kiểm tồn của nghiệp vụ. Kiểm trên fixture độc lập, DB/schema thử riêng; Word/ảnh/runtime giữ local, không fit lại hoặc đổi tiêu chí. [Kết quả kiểm và giới hạn](development.md#handoff-report-runtime-20261120).

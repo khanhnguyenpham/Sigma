@@ -31,7 +31,7 @@
 
 ## Nhóm kéo về và chạy
 
-1. Dùng [hướng dẫn cập nhật local](UPDATE_LOCAL.md) nếu máy đã có DB; backup trước, pull main, cài dependency, build FE, migrate tới `0011_operational_inventory` và khởi động đúng stack.
+1. Dùng [hướng dẫn cập nhật local](UPDATE_LOCAL.md) nếu máy đã có DB; backup trước, pull main, cài dependency, build FE, migrate tới `0017_item_forecast_basis_date` và khởi động đúng stack.
 2. Dùng [gói container local](LOCAL_CONTAINER.md) nếu muốn môi trường mới tách biệt. Tự tạo mật khẩu riêng, bootstrap admin; không có tài khoản mặc định hoặc dữ liệu đơn hàng đi kèm repo.
 3. Đăng nhập → đăng ký kho/SKU → kiểm kê tồn đầu → lập/xác nhận đơn → xem/nhận từng phần → kiểm số dư và chứng từ. Chỉ dùng môi trường thử khi tập thao tác.
 4. Tư vấn nhập cần nguồn và forecast hoàn tất đúng ngày, đủ horizon và policy. Khi thiếu, giao diện phải giải thích lý do; không tự lấy kết quả synthetic làm dữ liệu thực.
