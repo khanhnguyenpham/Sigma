@@ -1,14 +1,8 @@
 # SIGMA — Dự báo nhu cầu và lập kế hoạch tồn kho SIM/eSIM
 
-**Cập nhật15/11:** Bản nâng cấp auth, React và sổ kho đã được gộp vào `main`. Thành viên dùng [hướng dẫn cập nhật local](docs/UPDATE_LOCAL.md) để kéo code, cài dependency, build FE và nâng DB lên `0017` trước khi mở web. Các checkpoint “chưa cập nhật main” trong tài liệu cũ là lịch sử; web trên từng máy không tự đổi chỉ bằng push GitHub.
-
-Đọc [bảng yêu cầu và trạng thái hiện hành](docs/PRODUCT_STATUS.md) để phân biệt phần đã chạy với phần còn thiếu. Bản mã `52a96e2` đã qua hai workflow: 581 kiểm thử backend, 163 React, build, Redis thật và Compose startup/backup–restore synthetic. Có [đề xuất nhập từ sổ kho](docs/OPERATIONS_PLANNING.md), [nhận lô SIM bằng QR](docs/RECEIPT_QR.md), đổi/khôi phục mật khẩu và [gói container local](docs/LOCAL_CONTAINER.md). Chưa có host public 24/7 hoặc bằng chứng mới để đóng R05/R07/T14. Ngày 21/11 nhóm đã thử dựng demo miễn phí trên Render Free và Supabase Free rồi dừng lại, không triển khai; lý do ghi ở [bàn giao](docs/development.md#handoff-free-deploy-20261121).
-
 SIGMA hỗ trợ theo dõi nhu cầu bán, lập kế hoạch tồn kho, đề xuất nhập hàng và cảnh báo nguy cơ cạn hàng. Hệ thống kết hợp **dự báo nhu cầu** với **tồn hiện có, lô đang về và cấu hình sản phẩm** để giải thích khi nào cần bổ sung, bổ sung bao nhiêu và hàng có về kịp hay không.
 
-Nền dự báo và kế hoạch tồn của bài thực tập dùng dữ liệu/lô mô phỏng. Bản hiện tại bổ sung [sổ kho theo chứng từ](docs/WAREHOUSE_OPERATIONS.md): danh mục, đơn nhập, nhận hàng, xuất và kiểm kê ghi DB riêng, đã kiểm trên synthetic. Tư vấn nhập kết hợp số dư/đơn đang về với forecast hoàn tất khi đủ ngày dự báo; chưa tự gửi đơn mua hàng sang đối tác hoặc viết lại snapshot mô phỏng cũ.
-
-**Bản main14–15/11:** có auth admin/supplier, quản lý tài khoản, snapshot và module Vận hành kho React/FastAPI/PostgreSQL. Xem [khởi tạo auth](docs/AUTHENTICATION.md) và nâng DB tới migration `0017` trước khi chạy bản mới; không có tài khoản mặc định. [Trạng thái theo PLAN](docs/planning/PRODUCT_UPGRADE_PLAN_20261114.md#92-phạm-vi-thực-có-sau-ủy-quyền-tự-chọn) nêu phạm vi ETA/dự báo, QR, Redis và giới hạn host. Push GitHub không tự cập nhật bản public hoặc localhost của thành viên.
+Dự án là bài thực tập, dùng dữ liệu bán giả định và lô nhập mô phỏng. **Dự án chỉ chạy trên máy cá nhân (local); không có bản demo hay bản host công khai.** Cách cài đặt và chạy xem ở mục [Chạy trên máy](#chạy-trên-máy).
 
 ## Bài toán hệ thống giải quyết
 
@@ -27,6 +21,8 @@ SIGMA theo dõi từng sản phẩm theo SKU, loại SIM/eSIM, nhà cung cấp v
 | Dự báo nhu cầu | Xem nhu cầu dự báo, phân bổ xuống sản phẩm/ngày và so sánh với số bán nguồn khi có dữ liệu đối chiếu. |
 | Kịch bản | Lưu phiên bản thiết lập và lịch ngừng riêng, chạy/xem kết quả tại một trang; xóa phiên bản đã chạy vào thùng rác và khôi phục khi cần. |
 | Tồn kho và nhập hàng | Theo dõi tồn, lượng đang về, lô nhập mô phỏng, ngày đặt và ETA. |
+| Sổ kho theo chứng từ | Kho, sản phẩm, nhà cung cấp, đơn nhập, nhận hàng (kể cả quét QR), xuất, kiểm kê và lịch sử thao tác; đề xuất nhập kết hợp số dư, đơn đang về và dự báo. |
+| Đại lý | Cổng riêng cho đại lý xem hàng, gửi và theo dõi yêu cầu lấy hàng; admin duyệt và xuất kho. Nghiệp vụ đại lý là giả định của nhóm. |
 | Lịch cung cấp | Cấu hình ngừng nhập nội bộ hoặc nhà mạng ngừng dịch vụ riêng trong từng phiên bản kịch bản. |
 | Cảnh báo và báo cáo | Xem nguy cơ xuống ngưỡng/cạn hàng, lý do quyết định và xuất CSV theo lượt chạy. |
 
@@ -91,16 +87,25 @@ API kiểm tra yêu cầu và lưu công việc trong bảng `runs` của Postgr
 | Giao diện React | `web/frontend/` |
 | API, worker và nghiệp vụ | `web/backend/` |
 | Tài liệu đặc tả M3 | `M3/docs/` |
-| Điểm khởi động demo đã chuẩn bị | `src/start_demo.py` |
+
+## Chạy trên máy
+
+SIGMA chạy local gồm PostgreSQL, API FastAPI, worker Python và giao diện React. Mã nguồn không kèm dữ liệu bán, database, credential hay tài khoản mặc định.
+
+1. Đặt bản CSV order được cấp phép tại `data/sigma_sim_data_orders.csv` (xem [quy định dữ liệu](data/README.md)).
+2. Cài môi trường và nâng DB tới migration `0017` theo [hướng dẫn cập nhật local](docs/UPDATE_LOCAL.md), hoặc dùng [gói container local](docs/LOCAL_CONTAINER.md) để có môi trường tách biệt.
+3. Tạo tài khoản admin đầu tiên theo [đăng nhập và phân quyền](docs/AUTHENTICATION.md). Có thể nạp [dữ liệu thử dùng chung](docs/UPDATE_LOCAL.md#dữ-liệu-thử-dùng-chung) cho DB thử còn trống.
+
+Đẩy code lên GitHub không làm thay đổi web đang chạy trên máy của từng thành viên; mỗi người tự kéo code và cập nhật theo hướng dẫn trên.
 
 ## Tài liệu chi tiết
 
+- [Bảng yêu cầu và trạng thái hiện hành](docs/PRODUCT_STATUS.md)
 - [Nghiệp vụ và công thức](M3/docs/01-functional-spec.md)
 - [Mô hình dữ liệu và ERD](M3/docs/02-data-model.md)
 - [Backend, API và worker](M3/docs/03-backend-api.md)
 - [Giao diện và luồng thao tác](M3/docs/04-frontend-spec.md)
 - [Vòng đời cung cấp sản phẩm](M3/docs/07-product-supply-lifecycle.md)
-- [Chuẩn bị và vận hành demo](web/backend/configs/DEMO_RUNTIME.md)
+- [Sổ kho](docs/WAREHOUSE_OPERATIONS.md), [đề xuất nhập](docs/OPERATIONS_PLANNING.md) và [nhận lô bằng QR](docs/RECEIPT_QR.md)
+- [Mô hình dự báo M2 và kết quả](M2/reports/final_m2_20261011/README.md)
 - [Kiểm tra và bàn giao từng thay đổi](docs/development.md)
-
-Demo trên máy cá nhân cần bộ dữ liệu/cấu hình riêng và các tiến trình hoạt động. Mã nguồn không kèm dữ liệu bán riêng tư, database, credential hoặc runtime demo.
