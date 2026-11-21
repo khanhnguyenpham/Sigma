@@ -20,7 +20,7 @@ Menu bên trái chia thành các nhóm sau.
 | Kho | Tồn kho | Xem tồn theo từng kho (dạng thẻ kho) và từng sản phẩm; ghi phiếu xuất và kiểm kê. |
 | | Chứng từ | Tra cứu phiếu nhận, xuất, kiểm kê theo loại, khoảng ngày và từ khóa. |
 | | Kho hàng | Thêm, sửa, ngừng dùng kho. |
-| Nhập hàng | Đơn nhập | Lập đơn nháp, xác nhận, đổi ETA (kèm lý do), hủy; nhận hàng đủ hoặc một phần, nhập tay hoặc quét mã QR của lô. |
+| Nhập hàng | Đơn nhập | Lập đơn nháp, xác nhận, đổi ETA (kèm lý do), hủy; nhận hàng đủ hoặc một phần. Số lượng nhận có thể nhập tay hoặc điền bằng QR phiếu giao. QR này do SIGMA tự tạo từ mã đơn, mã phiếu giao và số lượng từng dòng, không phải mã của nhà cung cấp hay serial từng SIM ([chi tiết](RECEIPT_QR.md)). |
 | | Đề xuất nhập | Xem sản phẩm nào cần đặt thêm và đặt bao nhiêu, tính từ tồn toàn mạng, hàng đang về trong thời gian nhập và dự báo (hoặc ngưỡng tối thiểu khi chưa có dự báo). Đây là tư vấn, không tự tạo đơn. |
 | Đại lý | Yêu cầu lấy hàng | Duyệt hoặc từ chối (kèm lý do) yêu cầu của đại lý, chọn kho rồi xuất hàng. |
 | | Danh sách đại lý | Thêm, sửa, ngừng hoạt động đại lý; tạo tài khoản đăng nhập cho đại lý. |
