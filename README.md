@@ -4,6 +4,8 @@ SIGMA hỗ trợ theo dõi nhu cầu bán, lập kế hoạch tồn kho, đề x
 
 Dự án là bài thực tập, dùng dữ liệu bán giả định và lô nhập mô phỏng. **Dự án chỉ chạy trên máy cá nhân (local); không có bản demo hay bản host công khai.** Cách cài đặt và chạy xem ở mục [Chạy trên máy](#chạy-trên-máy).
 
+Hệ thống có hai vai trò là **Admin** và **Đại lý**. Mỗi vai trò làm được gì xem ở [chức năng theo vai trò](docs/ROLES.md).
+
 ## Bài toán hệ thống giải quyết
 
 - Sản phẩm nào cần nhập thêm và lượng nhập mỗi lần là bao nhiêu?
@@ -100,6 +102,7 @@ SIGMA chạy local gồm PostgreSQL, API FastAPI, worker Python và giao diện 
 
 ## Tài liệu chi tiết
 
+- [Chức năng theo vai trò](docs/ROLES.md)
 - [Bảng yêu cầu và trạng thái hiện hành](docs/PRODUCT_STATUS.md)
 - [Nghiệp vụ và công thức](M3/docs/01-functional-spec.md)
 - [Mô hình dữ liệu và ERD](M3/docs/02-data-model.md)
